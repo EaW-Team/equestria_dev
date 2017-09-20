@@ -1,2 +1,1 @@
-equestria_dev
-Nice meme
+Equestria at War mod repository
