@@ -33,6 +33,7 @@ focus_tree = {
     completion_reward = {
 			add_political_power = 200
       add_national_unity = 0.05
+      set_rule = { can_create_factions = yes }
     }
   }
 
@@ -1201,8 +1202,19 @@ focus_tree = {
 		bypass = {
 			OR = {
 				has_war_with = CRY
+        AND = {
+          NOT = {
+            AND = {
+              any_state = {
+        				is_core_of = CRY
+        				NOT = {
+        					is_owned_by = ROOT
+        				}
+        			}
+            }
+          }
+        }
 				CRY = {
-					NOT = { country_exists = CRY }
 				  AND = {
 						is_subject_of = ROOT
 						NOT = { has_country_leader = { ruling_only = yes name = "Princess Mi Amore Cadenza" } }
@@ -1324,6 +1336,23 @@ focus_tree = {
 		available = {
 			eqs_has_civil_war = yes
 		}
+    bypass = {
+      has_civil_war = no
+      OR = {
+        has_global_flag = equestrian_civil_war_ended
+        has_global_flag = equestrian_com_civil_war_ended
+        has_global_flag = equestrian_civil_war_daybreaker_ended
+      }
+      OR = {
+        NOT = { country_exists = NLR }
+        NLR = { is_subject = yes }
+      }
+      OR = {
+        NOT = { country_exists = EQS }
+        EQS = { is_subject = yes }
+      }
+      ROOT = { is_subject = no }
+    }
 		completion_reward = {
 			add_ideas = SOL_civil_war_measures
 		}
@@ -1336,6 +1365,7 @@ focus_tree = {
 		ai_will_do = { factor = 300 }
 		x = 12
 		y = 1
+    prerequisite = { focus = SOL_civil_war_measures }
 		available = {
 			has_civil_war = no
 			OR = {
@@ -1956,6 +1986,29 @@ focus_tree = {
 
   }
   focus = {
+    id = SOL_more_research
+    icon = GFX_focus_research
+    cost = 15.00
+    ai_will_do = {
+      factor = 85
+    }
+		bypass = {
+			amount_research_slots > 4
+		}
+		available = {
+			amount_research_slots < 5
+		}
+    prerequisite = {
+      focus = SOL_CTL_center_of_research
+    }
+    x = 20
+    y = 6
+    completion_reward = {
+      add_research_slot = 1
+    }
+
+  }
+  focus = {
     id = SOL_Magcial_studies
     icon = GFX_goal_generic_demand_territory
     cost = 10.00
@@ -2073,7 +2126,6 @@ focus_tree = {
     y = 1
     completion_reward = {
       add_political_power = 50
-      country_event = solarempire.8
     }
   }
   focus = {
@@ -2087,9 +2139,6 @@ focus_tree = {
         has_completed_focus = SOL_god_empress
       }
     }
-    available = {
-      has_country_flag = generals_investigated
-    }
     prerequisite = {
       focus = SOL_generals_loyality
     }
@@ -2101,7 +2150,11 @@ focus_tree = {
     y = 1
     completion_reward = {
       add_political_power = -200
-      country_event = solarempire.9
+      add_national_unity = -0.05
+      if = {
+        limit = { NOT = { has_country_flag = SOL_EQS_generals_rehabilitated } }
+        country_event = solarempire.9
+      }
     }
   }
   focus = {
@@ -2120,9 +2173,6 @@ focus_tree = {
     }
     mutually_exclusive = {
       focus = SOL_rehabilitate
-    }
-    available = {
-      has_country_flag = generals_investigated
     }
     relative_position_id = SOL_generals_loyality
     x = 1
@@ -2160,7 +2210,9 @@ focus_tree = {
         factor = 0
         OR = {
           has_tech = trench_warfare
+          is_researching_technology = trench_warfare
           has_tech = mass_assault
+          is_researching_technology = mass_assault
         }
       }
     }
@@ -2261,7 +2313,9 @@ focus_tree = {
         factor = 0
         OR = {
           has_tech = superior_firepower
+          is_researching_technology = superior_firepower
           has_tech = mass_assault
+          is_researching_technology = mass_assault
         }
       }
     }
@@ -2362,7 +2416,9 @@ focus_tree = {
         factor = 0
         OR = {
           has_tech = superior_firepower
+          is_researching_technology = superior_firepower
           has_tech = trench_warfare
+          is_researching_technology = superior_firepower
         }
       }
     }
@@ -2549,7 +2605,7 @@ focus_tree = {
       }
     }
     ai_will_do = {
-      factor = 25
+      factor = 50
     }
     prerequisite = {
       focus = SOL_military_reorganization
@@ -2559,6 +2615,12 @@ focus_tree = {
     y = 1
     completion_reward = {
       air_experience = 20
+      custom_effect_tooltip = available_chief_of_airforce
+      show_ideas_tooltip = blaze
+      custom_effect_tooltip = available_chief_of_airforce
+      show_ideas_tooltip = thunderlane
+      custom_effect_tooltip = available_theorist
+      show_ideas_tooltip = wind_rider
 			add_tech_bonus = {
 				name = fighter_bonus
 				bonus = 0.3
@@ -2588,7 +2650,10 @@ focus_tree = {
       factor = 25
       modifier = {
         factor = 0
-        has_tech = air_superiority
+        OR = {
+          has_tech = air_superiority
+          is_researching_technology = air_superiority
+        }
       }
     }
     prerequisite = {
@@ -2695,7 +2760,7 @@ focus_tree = {
   focus = {
     id = SOL_jets
     icon = GFX_goal_eqs_ministry_of_defence
-    cost = 12.00
+    cost = 11.00
     ai_will_do = {
       factor = 25
     }
@@ -2718,7 +2783,7 @@ focus_tree = {
   focus = {
     id = SOL_rockets
     icon = GFX_goal_eqs_ministry_of_defence
-    cost = 12.00
+    cost = 11.00
     ai_will_do = {
       factor = 25
     }
@@ -2733,8 +2798,29 @@ focus_tree = {
       add_tech_bonus = {
         name = secret_bonus
         bonus = 0.5
-        category = nuclear
         category = rocketry
+      }
+    }
+  }
+  focus = {
+    id = SOL_WMD
+    icon = GFX_focus_wonderweapons
+    cost = 12.00
+    ai_will_do = {
+      factor = 30
+    }
+    prerequisite = {
+      focus = SOL_rockets
+      focus = SOL_jets
+    }
+    relative_position_id = SOL_air_force
+    x = 0
+    y = 6
+    completion_reward = {
+      add_tech_bonus = {
+        name = secret_bonus
+        bonus = 0.5
+        category = nuclear
       }
     }
   }
@@ -2753,7 +2839,10 @@ focus_tree = {
       factor = 25
       modifier = {
         factor = 0
-        has_tech = force_rotation
+        OR = {
+          has_tech = force_rotation
+          is_researching_technology = force_rotation
+        }
       }
     }
     prerequisite = {
@@ -2915,7 +3004,10 @@ focus_tree = {
       factor = 25
       modifier = {
         factor = 0
-        has_tech = fleet_in_being
+        OR = {
+          has_tech = fleet_in_being
+          is_researching_technology = fleet_in_being
+        }
       }
     }
     prerequisite = {
@@ -2996,7 +3088,10 @@ focus_tree = {
       factor = 25
       modifier = {
         factor = 0
-        has_tech = base_strike
+        OR = {
+          has_tech = base_strike
+          is_researching_technology = base_strike
+        }
       }
     }
     prerequisite = {
