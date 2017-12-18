@@ -4,10 +4,21 @@ NDefines.NGame.END_DATE = "1030.1.1.1"
 NDefines.NDiplomacy.TENSION_TIME_SCALE_START_DATE = "1007.1.1.12"
 NDefines.NTechnology.BASE_TECH_COST = 90
 NDefines.NAI.DYNAMIC_STRATEGIES_THREAT_FACTOR = 6.0
+NDefines.NAI.BASE_DISTANCE_TO_CARE = 400.0
+NDefines.NAI.ATTACK_HEAVILY_DEFENDED_LIMIT = 0.7
+NDefines.NAI.SEND_VOLUNTEER_EVAL_BASE_DISTANCE = 100.0
+NDefines.NAI.SEND_VOLUNTEER_EVAL_MAJOER_POWER = 1.0
+NDefines.NAI.SEND_VOLUNTEER_EVAL_CONTAINMENT_FACTOR = 0.15
+NDefines.NAI.DIPLOMACY_FACTION_GLOBAL_TENSION_FACTOR = 0.15
+NDefines.NAI.FASCISTS_ALLY_FASCISTS = -10
+NDefines.NAI.FASCISTS_BEFRIEND_FASCISTS = 0
+NDefines.NAI.MANPOWER_FREE_USAGE_THRESHOLD = 600000			-- If AI has this much manpower he doesn't care about the percentage
+NDefines.NAI.MANPOWER_RESERVED_THRESHOLD = 0.3				-- The AI will not deploy more units if he goes below this percentage
+
 
 -- Vanilla+ defines values
 
-NDefines.NAI.DIPLOMACY_ACCEPT_VOLUNTEERS_BASE = 20							-- Vanilla is 50
+NDefines.NAI.DIPLOMACY_ACCEPT_VOLUNTEERS_BASE = 30							-- Vanilla is 50
 NDefines.NAI.RESEARCH_BONUS_FACTOR = 10.0									-- Vanilla is 0.9
 NDefines.NAI.NAVAL_DOCKYARDS_SHIP_FACTOR = 2.5								-- Vanilla is 1.5
 NDefines.NAI.NAVAL_BASES_SHIP_FACTOR = 1.25									-- Vanilla is 0.75
@@ -127,7 +138,7 @@ NDefines.NAI.TRADEABLE_FACTORIES_FRACTION = 0.6			-- Will at most trade away thi
 NDefines.NAI.DEPLOY_MIN_TRAINING_PEACE_FACTOR = 0.95		-- Required percentage of training (1.0 = 100%) for AI to deploy unit in peacetime
 NDefines.NAI.DEPLOY_MIN_TRAINING_WAR_FACTOR = 0.05		-- Required percentage of training (1.0 = 100%) for AI to deploy unit in wartime
 NDefines.NAI.DEPLOY_MIN_EQUIPMENT_PEACE_FACTOR = 0.95	-- Required percentage of equipment (1.0 = 100%) for AI to deploy unit in peacetime
-NDefines.NAI.DEPLOY_MIN_EQUIPMENT_WAR_FACTOR = 0.90		-- Required percentage of equipment (1.0 = 100%) for AI to deploy unit in wartime
+NDefines.NAI.DEPLOY_MIN_EQUIPMENT_WAR_FACTOR = 0.85		-- Required percentage of equipment (1.0 = 100%) for AI to deploy unit in wartime
 
 NDefines.NAI.PLAN_VALUE_TO_EXECUTE = 0.2				-- AI will typically avoid carrying out a plan it below this value (0.0 is considered balanced).
 
