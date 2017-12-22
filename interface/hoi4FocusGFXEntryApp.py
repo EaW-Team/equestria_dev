@@ -120,7 +120,7 @@ lines.insert(index_to_insert, "\t\t\tanimationmaskfile = \"gfx/interface/goals/"
 lines.insert(index_to_insert, "\t\tanimation = {")
 lines.insert(index_to_insert, "\t\t\t\teffectFile = \"gfx/FX/buttonstate.lua\"")
 lines.insert(index_to_insert, "\t\ttexturefile = \"gfx/interface/goals/" + args.focus_name + ".dds\"")
-lines.insert(index_to_insert, "\t\tname = \"GFX_" + args.focus_name + "\"")
+lines.insert(index_to_insert, "\t\tname = \"GFX_" + args.focus_name + "_shine\"")
 lines.insert(index_to_insert, "\tSpriteType = {")
 
 with open(dir + "/" + args.goals_shine,"w+") as f:
