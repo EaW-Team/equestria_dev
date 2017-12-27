@@ -14,3 +14,5 @@ NDefines.NAI.FASCISTS_ALLY_FASCISTS = -10
 NDefines.NAI.FASCISTS_BEFRIEND_FASCISTS = 0
 NDefines.NAI.MANPOWER_FREE_USAGE_THRESHOLD = 600000			-- If AI has this much manpower he doesn't care about the percentage
 NDefines.NAI.MANPOWER_RESERVED_THRESHOLD = 0.3				-- The AI will not deploy more units if he goes below this percentage
+NDefines.NGraphics.COUNTRY_FLAG_TEX_MAX_SIZE = 512
+NDefines.NGraphics.COUNTRY_FLAG_SMALL_TEX_MAX_SIZE = 128
