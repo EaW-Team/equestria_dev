@@ -560,7 +560,23 @@ country_event = {
         }
         custom_effect_tooltip = available_political_advisor
         show_ideas_tooltip = evil_twilight_sparkle
-        hidden_effect = { set_global_flag = SOL_twilight_converted }
+        hidden_effect = {
+          set_global_flag = SOL_twilight_converted
+          every_country = {
+            limit = { has_country_flag = CRY_solar_governorship }
+            retire_country_leader = yes
+            create_country_leader = {
+              name = "Grand Inquisitor Sunrise Sparkle"
+              #desc = "TWILIGHT_DESC"
+              picture = "TwilightSunrise.tga"
+              expire = "1965.1.1"
+              ideology = fascism_ideology
+              traits = {
+                lady_inquisitor
+              }
+            }
+          }
+        }
     }
     option = {
         name = solarempire.13.b
@@ -822,7 +838,12 @@ country_event = {
   hidden = yes
 
   fire_only_once = yes
-  is_triggered_only = yes
+  trigger = {
+    country_exists = SOL
+    original_tag = SOL
+  }
+
+  mean_time_to_happen = { days = 2 }
 
   immediate = {
     if = {
@@ -850,7 +871,7 @@ country_event = {
       limit = {
         any_country = {
           has_country_leader = { id = 1000 ruling_only = yes name = "Princess Twilight Sparkle" }
-          NOT = { has_country_flag = set_country_flag = supported_SOL }
+          NOT = { has_country_flag = supported_SOL }
         }
       }
       clr_country_flag = SOL_has_twilight
@@ -863,11 +884,22 @@ country_event = {
               AND = {
                 original_tag = EQS
                 has_government = democratic
+                NOT = {
+                  is_subject_of = ROOT
+                  is_in_faction_with = ROOT
+                }
+                has_capitulated = no
                 exists = yes
               }
               AND = {
                 original_tag = CRY
                 has_government = democratic
+                NOT = {
+                  is_subject_of = ROOT
+                  is_in_faction_with = ROOT
+                  has_war_together_with = ROOT
+                }
+                has_capitulated = no
                 exists = yes
               }
             }
@@ -878,27 +910,46 @@ country_event = {
     }
     if = {
       limit = {
-        has_country_flag = set_country_flag = SOL_has_twilight
+        has_country_flag = SOL_has_twilight
         any_country = {
           has_country_leader = { id = 1000 ruling_only = yes name = "Princess Twilight Sparkle" }
         }
        }
-       if = {
-        limit = { has_country_flag = set_country_flag = supported_SOL }
+      if = {
+        limit = { has_country_flag = supported_SOL }
         country_event = solarempire.19
         else = {
           country_event = solarempire.20
-       }
+        }
+      }
       else = {
         if = {
-          limit = { has_country_flag = set_country_flag = SOL_has_twilight }
+          limit = { has_country_flag = SOL_has_twilight }
           country_event = solarempire.18
+          random_country = {
+            limit = {
+              original_tag = EQS
+              has_government = democratic
+              NOT = {
+                is_subject_of = ROOT
+                is_in_faction_with = ROOT
+              }
+              has_capitulated = no
+              exists = yes
+            }
+            country_event = solarempire.18
+          }
           else = {
             if = {
               limit = {
                 any_country = {
                   original_tag = EQS
                   has_government = democratic
+                  NOT = {
+                    is_subject_of = ROOT
+                    is_in_faction_with = ROOT
+                  }
+                  has_capitulated = no
                   exists = yes
                 }
               }
@@ -906,16 +957,29 @@ country_event = {
                 limit = {
                   original_tag = EQS
                   has_government = democratic
+                  NOT = {
+                    is_subject_of = ROOT
+                    is_in_faction_with = ROOT
+                    has_war_together_with = ROOT
+                  }
+                  has_capitulated = no
                   exists = yes
                 }
                 set_country_flag = EQS_CRY_has_twilight
               }
+              country_event = solarempire.21
               else = {
                 if = {
                   limit = {
                     any_country = {
                       original_tag = CRY
                       has_government = democratic
+                      NOT = {
+                        is_subject_of = ROOT
+                        is_in_faction_with = ROOT
+                        has_war_together_with = ROOT
+                      }
+                      has_capitulated = no
                       exists = yes
                     }
                   }
@@ -923,14 +987,21 @@ country_event = {
                     limit = {
                       original_tag = CRY
                       has_government = democratic
+                      NOT = {
+                        is_subject_of = ROOT
+                        is_in_faction_with = ROOT
+                      }
+                      has_capitulated = no
                       exists = yes
                     }
                     set_country_flag = EQS_CRY_has_twilight
+                    add_ideas = twilight_sparkle_cry
+                    country_event = { id = solarempire.25 days = 1 }
                   }
+                  country_event = solarempire.21
                 }
               }
             }
-            country_event = solarempire.21
           }
         }
       }
@@ -950,7 +1021,18 @@ country_event = {
 country_event = {
   id = solarempire.18
   title = solarempire.18.t
-  desc = solarempire.18.d
+  desc = {
+    text = solarempire.18.d_sol
+    trigger = {
+      original_tag = SOL
+    }
+  }
+  desc = {
+    text = solarempire.18.d_eqs
+    trigger = {
+     original_tag = EQS
+    }
+  }
   picture = GFX_event_solarempire
 
   #fire_only_once = yes
@@ -959,7 +1041,277 @@ country_event = {
 
   option = {
     name = solarempire.18.a
+    trigger = {
+      original_tag = SOL
+    }
     add_political_power = 20
+    custom_effect_tooltip = SOL_TWILIGHT_CAPTURED_TT
+  }
+  option = {
+    name = solarempire.18.b
+    trigger = {
+      original_tag = EQS
+    }
+  }
+}
+
+#Twilight is CRY HoS, agreed to stay a puppet
+country_event = {
+  id = solarempire.19
+  title = solarempire.19.t
+  desc = solarempire.19.d
+  picture = GFX_event_solarempire
+
+  fire_only_once = yes
+
+  is_triggered_only = yes
+
+  option = {
+    name = solarempire.19.a
+    add_political_power = 20
+    custom_effect_tooltip = SOL_TWILIGHT_CAPTURED_TT
+  }
+}
+
+#Twilight is CRY HoS, didn't agree to stay a puppet
+country_event = {
+  id = solarempire.20
+  title = solarempire.20.t
+  desc = solarempire.20.d
+  picture = GFX_event_solarempire
+
+  fire_only_once = yes
+
+  is_triggered_only = yes
+
+  option = {
+    name = solarempire.20.a
+  }
+}
+
+#solarempire.21 - Twilight runs away
+country_event = {
+  id = solarempire.21
+  title = solarempire.21.t
+  desc = {
+    text = solarempire.21.d_eqs
+    trigger = {
+      any_country = {
+       original_tag = EQS
+       has_country_flag = EQS_CRY_has_twilight
+      }
+    }
+  }
+  desc = {
+    text = solarempire.21.d_cry
+    trigger = {
+     any_country = {
+      original_tag = CRY
+      has_country_flag = EQS_CRY_has_twilight
+     }
+    }
+  }
+  picture = GFX_event_solarempire
+
+  fire_only_once = yes
+
+  is_triggered_only = yes
+
+  option = {
+    name = solarempire.21.a
+  }
+}
+
+#solarempire.22 - Twilight runs away again (to CRY)
+country_event = {
+  id = solarempire.22
+  hidden = yes
+
+  fire_only_once = yes
+
+  trigger = {
+    original_tag = SOL
+    any_enemy_country = {
+      original_tag = EQS
+      has_country_flag = EQS_CRY_has_twilight
+      OR = {
+        has_capitulated = yes
+        capital_scope = { is_controlled_by = ROOT }
+      }
+    }
+  }
+
+  mean_time_to_happen = {
+    days = 2
+  }
+
+  immediate = {
+    if = {
+      limit = {
+        any_country = {
+          original_tag = CRY
+          has_government = democratic
+          NOT = {
+            is_subject_of = ROOT
+            is_in_faction_with = ROOT
+            has_war_together_with = ROOT
+          }
+          has_capitulated = no
+          exists = yes
+        }
+      }
+      random_list = {
+        50 = {
+          every_country = {
+            clr_country_flag = EQS_CRY_has_twilight
+          }
+          set_country_flag = SOL_has_twilight
+          country_event = { id = solarempire.23 days = 1 }
+        }
+        50 = {
+          random_country = {
+            limit = {
+              original_tag = CRY
+              has_government = democratic
+              NOT = {
+                is_subject_of = ROOT
+                is_in_faction_with = ROOT
+                has_war_together_with = ROOT
+              }
+              has_capitulated = no
+              exists = yes
+            }
+            set_country_flag = EQS_CRY_has_twilight
+            add_ideas = twilight_sparkle_cry
+            every_other_country = {
+              clr_country_flag = EQS_CRY_has_twilight
+            }
+            country_event = { id = solarempire.25 days = 1 }
+          }
+          country_event = { id = solarempire.24 days = 1 }
+        }
+      }
+      else = {
+        every_country = {
+          clr_country_flag = EQS_CRY_has_twilight
+        }
+        set_country_flag = SOL_has_twilight
+        country_event = { id = solarempire.23 days = 1 }
+      }
+    }
+  }
+
+  option = {
+  }
+}
+
+#SOL catches twilight after EQS is defeated
+country_event = {
+  id = solarempire.23
+  title = solarempire.23.t
+  desc = solarempire.23.d
+  picture = GFX_event_solarempire
+
+  fire_only_once = yes
+
+  #is_triggered_only = yes
+
+  trigger = {
+    original_tag = SOL
+    NOT = { has_country_flag = SOL_has_twilight }
+    all_country = {
+      original_tag = CRY
+      OR = {
+        is_subject_of = ROOT
+        exists = no
+      }
+    }
+    all_country = {
+      original_tag = EQS
+      OR = {
+        is_subject_of = ROOT
+        exists = no
+      }
+    }
+  }
+
+  option = {
+    name = solarempire.23.a
+    hidden_effect = {
+      set_country_flag = SOL_has_twilight
+      every_country = {
+        clr_country_flag = EQS_CRY_has_twilight
+      }
+    }
+    add_political_power = 20
+    custom_effect_tooltip = SOL_TWILIGHT_CAPTURED_TT
+  }
+}
+
+#Twilight runs away to CRY after EQS is defeated
+country_event = {
+  id = solarempire.24
+  title = solarempire.24.t
+  desc = solarempire.24.d
+  picture = GFX_event_solarempire
+
+  fire_only_once = yes
+
+  is_triggered_only = yes
+
+  option = {
+    name = solarempire.24.a
+  }
+}
+
+#Twilight runs away to CRY after EQS is defeated
+#For CRY
+country_event = {
+  id = solarempire.25
+  title = solarempire.25.t
+  desc = solarempire.25.d
+  picture = GFX_event_solarempire
+
+  fire_only_once = yes
+
+  is_triggered_only = yes
+
+  option = {
+    name = solarempire.25.a
+    effect_tooltip = { add_ideas = twilight_sparkle_cry }
+  }
+}
+
+country_event = {
+  id = solarempire.26
+  title = solarempire.26.t
+  desc = solarempire.26.d
+  picture = GFX_event_solarempire
+
+  fire_only_once = yes
+
+  trigger = {
+    original_tag = SOL
+    NOT = { has_country_flag = SOL_has_twilight }
+    OR = {
+      NOT = { country_exists = CRY }
+      AND = {
+        any_country = {
+          has_country_flag = EQS_CRY_has_twilight
+          OR = {
+            has_capitulated = yes
+            is_subject_of = ROOT
+          }
+        }
+      }
+    }
+  }
+
+  option = {
+    name = solarempire.26.a
+    hidden_effect = { set_country_flag = SOL_has_twilight }
+    add_political_power = 20
+    custom_effect_tooltip = SOL_TWILIGHT_CAPTURED_TT
   }
 }
 
