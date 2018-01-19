@@ -2,7 +2,9 @@ NDefines.NGame.START_DATE = "1007.1.1.12"
 NDefines.NGame.END_DATE = "1030.1.1.1"
 
 NDefines.NDiplomacy.TENSION_TIME_SCALE_START_DATE = "1007.1.1.12"
-NDefines.NTechnology.BASE_TECH_COST = 90
+NDefines.NTechnology.BASE_TECH_COST = 86
+NDefines.NAI.RESEARCH_LAND_DOCTRINE_NEED_GAIN_FACTOR = 0.12 -- Multiplies value based on relative military industry size / country size.
+NDefines.NAI.RESEARCH_BONUS_FACTOR = 1.5 				-- To which extent AI should care about bonuses to research
 NDefines.NAI.DYNAMIC_STRATEGIES_THREAT_FACTOR = 6.0
 NDefines.NAI.BASE_DISTANCE_TO_CARE = 400.0
 NDefines.NAI.ATTACK_HEAVILY_DEFENDED_LIMIT = 0.7
