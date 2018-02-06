@@ -21,12 +21,12 @@ default_peace = {
 	# ROOT = Taker, FROM = Giver
 	annex = {
 		factor = 500
-
+		modifier = {
+			factor = 1.5
+			has_annex_war_goal = FROM
+		}
 		modifier = {
 			factor = 0
-			NOT = {
-				has_annex_war_goal = FROM
-			}
 			FROM = {
 				any_owned_state = {
 					NOT = {
@@ -38,33 +38,55 @@ default_peace = {
 					}
 				}
 			}
-			OR = {
-				NOT = {
-					has_annex_war_goal = FROM
-				}
-				NOT = {
-					is_owner_neighbor_of = FROM
-				}
-			}
 		}
 
-		#modifier = {
-		#	factor = 0
-		#	is_subject = yes
-		#}
+		modifier = {
+			add = 500
+			original_tag = JEB
+			FROM = { original_tag = JER }
+		}
+
+		modifier = {
+			factor = 0
+			is_subject = yes
+		}
 	}
 
 	# ROOT = Taker, FROM = Liberated
 	liberate = {
 		factor = 0 #100
+	}
+
+	# ROOT = Taker, FROM = Giver
+	puppet = {
+		factor = 600 #200
+		modifier = {
+			factor = 2
+			NOT = { has_country_flag = have_regular_puppets }
+			is_griffon_continent_griffon_country = yes
+			FROM = {
+				is_feudal_vassal = yes
+				is_griffon_continent_griffon_country = yes
+			}
+		}
 		modifier = {
 			factor = 0
-
-			NOT = {
-				ai_liberate_desire = {
-					target = FROM
-					value > 0
-				}
+			FROM = {
+				original_tag = DED
+			}
+		}
+		modifier = {
+			factor = 0.25 #Strip colonies/liberate first - important vs GER and JAP
+			FROM = {
+				any_owned_state = { NOT = { is_core_of = FROM } }
+			}
+		}
+		modifier = {
+			factor = 0
+			is_eqs_civil_war_tag = yes
+			FROM = {
+				is_eqs_civil_war_tag = yes
+				NOT = { tag = JUN }
 			}
 		}
 		modifier = {
@@ -74,68 +96,61 @@ default_peace = {
 				is_major = no
 				is_subject = yes
 			}
+			NOT = { is_owner_neighbor_of = FROM }
 		}
-		#modifier = {
-		#	factor = 0
-		#	NOT = { is_owner_neighbor_of = FROM }
-		#}
-	}
-
-	# ROOT = Taker, FROM = Giver
-	puppet = {
-		factor = 0 #200
-		modifier = {
+		modifier = { #You have cores ffs
 			factor = 0
-			OR = {
-				NOT = { is_owner_neighbor_of = FROM }
-				AND = {
-					FROM = {
-						OR = {
-							num_of_factories > 100
-							tag = GER
-							tag = ENG
-							tag = ITA
-							tag = FRA
-							tag = USA
-							tag = JAP
-							tag = SOV
-						}
-					}
-					#Is NOT a major
-					OR = {
-						is_major = no
-						is_subject = yes
-					}
-				}
+			original_tag = JEB
+			FROM = {
+				original_tag = JER
 			}
 		}
 		modifier = { #Don't puppet nations in civil war... this is too buggy.
 			factor = 0
 			FROM = { has_civil_war = yes }
 		}
-		modifier = { #Don't break up Czechoslovakia or Yugoslavia
+		modifier = {
 			factor = 0
-			YUG = { exists = yes }
-			FROM = {
-				OR = {
-					tag = CRO
-					tag = SER
-					tag = SLO
+			NOT = { is_owner_neighbor_of = FROM }
+			NOT = {
+				FROM = {
+					any_neighbor_country = {
+						is_subject_of = ROOT
+					}
 				}
+			}
+			NOT = {
+				FROM = {
+					any_owned_state = {
+						any_neighbor_state = {
+							OR = {
+								owner = { tag = ROOT }
+								owner = { is_subject_of = ROOT }
+								has_claimed_state_in_peace_conference = ROOT
+							}
+						}
+					}
+				}
+			}
+			OR = {
+				NOT = {
+					FROM = {
+						any_owned_state = {
+							OR = {
+								is_coastal = yes
+								is_island_state = yes
+							}
+						}
+					}
+				}
+				NOT = { any_owned_state = { OR = { is_coastal = yes is_island_state = yes } } }
 			}
 		}
 		modifier = {
-			factor = 0.2 #Strip colonies/liberate first - important vs GER and JAP
-			FROM = {
-				any_owned_state = { NOT = { is_core_of = FROM } }
-			}
-		}
-		modifier = { #Not if we claim anything
 			factor = 0
 			FROM = {
-				any_owned_state = {
-					is_claimed_by = ROOT
-					NOT = { has_claimed_state_in_peace_conference = ROOT }
+				all_owned_state = {
+					is_core_of = ROOT
 				}
 			}
 		}
@@ -143,10 +158,11 @@ default_peace = {
 
 	# ROOT = Taker, FROM = State
 	take_states = {
-		factor = 50
+		factor = 200 #50
 
 		modifier = {
-			factor = 20
+			factor = 40 #5
+
 			FROM = {
 				OR = {
 					is_claimed_by = ROOT
@@ -154,8 +170,8 @@ default_peace = {
 				}
 			}
 		}
-		modifier = { #Do not take human held lands...
-			factor = 0
+		modifier = { # prefer not to take from humans in our own faction
+			factor = 0.5
 			NOT = {
 				FROM = {
 					OR = {
@@ -169,6 +185,7 @@ default_peace = {
 					is_ai = no
 					has_capitulated = no
 					is_subject = no
+					is_in_faction_with = ROOT
 				}
 			}
 		}
@@ -296,6 +313,7 @@ default_peace = {
 			}
 		}
 
+
 		modifier = {
 			factor = 0
 			NOT = {
@@ -326,11 +344,10 @@ default_peace = {
 					}
 				}
 				NOT = { any_owned_state = { is_coastal = yes } }
+				}
 			}
 
-		}
-
-		modifier = { #Only take claims - may also take African colonies if already a colonial power or major European country.
+		modifier = { #Only take claims - and colonial states (ie unclaimed) as well if major or if already colonial.
 			factor = 0
 			NOT = {
 				FROM = {
@@ -341,8 +358,6 @@ default_peace = {
 				}
 			}
 			OR = {
-				NOT = { FROM = { is_on_continent = africa } }
-				NOT = { capital_scope = { is_on_continent = europe } }
 				AND = {
 					#Is NOT a major
 					OR = {
@@ -350,7 +365,24 @@ default_peace = {
 						is_subject = yes
 					}
 					NOT = {
-						any_owned_state = { is_on_continent = africa }
+						OR = {
+							AND = {
+								capital_scope = { is_on_continent = europe }
+								any_owned_state = {
+									NOT = { is_on_continent = europe }
+								}
+							}
+							AND = {
+								tag = OMA
+								FROM = { is_on_continent = africa }
+							}
+							tag = JAP
+						}
+					}
+				}
+				FROM = {
+					owner = {
+						FROM = { is_core_of = PREV }
 					}
 				}
 			}

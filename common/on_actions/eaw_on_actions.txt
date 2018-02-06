@@ -3,7 +3,14 @@ on_actions = {
   #Not run on a specific country.
   on_startup = {
     effect = {
-
+			DED = {
+				every_other_country = {
+					add_opinion_modifier = { target = PREV modifier = mortal_enemies }
+					add_opinion_modifier = { target = PREV modifier = embargo }
+					reverse_add_opinion_modifier = { target = PREV modifier = mortal_enemies }
+					reverse_add_opinion_modifier = { target = PREV modifier = embargo }
+				}
+			}
       if = {
         limit = { is_historical_focus_on = no }
         random_list = {
@@ -110,6 +117,24 @@ on_actions = {
   on_declare_war = {
 	  effect = {
 			hidden_effect = {
+				if = {
+					limit = {
+						original_tag = DED
+						NOT = { has_country_flag = DED_conversion_on }
+					}
+					country_event = deadempire.30
+				}
+				if = {
+					limit = {
+						FROM = {
+							AND = {
+								original_tag = DED
+								NOT = { has_country_flag = DED_conversion_on }
+							}
+						}
+					}
+					FROM = { country_event = deadempire.30 }
+				}
 		    if = {
 		      limit = {
 		        OR = {
@@ -186,9 +211,9 @@ on_actions = {
 						}
 						if = {
 							limit = {
-								FROM = { NOT = { has_country_flag = be_regular_puppet } }
+								#TODO make sure which countries can have monarchist civil wars
+								always = yes
 							}
-							set_country_flag = be_regular_puppet
 							set_country_flag = have_regular_puppets
 						}
 					}
@@ -402,11 +427,9 @@ on_actions = {
       }
 			if = {
 				limit = {
-					is_griffon_continent_griffon_country = yes
-					NOT = { has_country_flag = be_regular_puppet }
+					is_feudal_vassal = yes
 					FROM = { has_country_flag = have_regular_puppets }
 				}
-				set_country_flag = be_regular_puppet
 				set_country_flag = have_regular_puppets
 			}
       #COSMETIC TAG ON PUPPET BELOW, DO NOT USE break = yes ABOVE
@@ -416,98 +439,32 @@ on_actions = {
             original_tag = GRI
 						NOT = { has_country_flag = have_regular_puppets }
            }
-					 NOT = { has_country_flag = be_regular_puppet }
+					 is_feudal_vassal = yes
         }
 				country_event = griffonian.1
       }
+			#sanity check
 			if = {
         limit = {
           FROM = {
             is_ai = yes
             original_tag = JER
            }
+					 OR = {
+					 	original_tag = HEL
+						original_tag = FLO
+						original_tag = POM
+						original_tag = AET
+						original_tag = FEZ
+						original_tag = JEB
+						original_tag = JES
+						original_tag = JRR
+						original_tag = VIN
+						original_tag = JFT
+					 }
         }
-        if = {
-          limit = {
-            ROOT = {
-              original_tag = HEL
-            }
-          }
-          FROM = { country_event = aquileia.34 }
-          break = yes
-        }
-        if = {
-            limit = {
-              ROOT = {
-                original_tag = FLO
-              }
-            }
-            FROM = { country_event = aquileia.35 }
-            break = yes
-          }
-    	  if = {
-            limit = {
-              ROOT = {
-                original_tag = POM
-              }
-            }
-            FROM = { country_event = aquileia.36 }
-            break = yes
-          }
-    	  if = {
-            limit = {
-              ROOT = {
-                original_tag = AET
-              }
-            }
-            FROM = { country_event = aquileia.37 }
-            break = yes
-          }
-    	  if = {
-            limit = {
-              ROOT = {
-                original_tag = FEZ
-              }
-            }
-            FROM = { country_event = aquileia.38 }
-            break = yes
-          }
-		  if = {
-            limit = {
-              ROOT = {
-                original_tag = JEB
-              }
-            }
-            FROM = { country_event = aquileia.40 }
-            break = yes
-          }
-		  if = {
-            limit = {
-              ROOT = {
-                original_tag = JRR
-              }
-            }
-            FROM = { country_event = aquileia.41 }
-            break = yes
-          }
-		  if = {
-            limit = {
-              ROOT = {
-                original_tag = VIN
-              }
-            }
-            FROM = { country_event = aquileia.42 }
-            break = yes
-          }
-		  if = {
-            limit = {
-              ROOT = {
-                original_tag = JFT
-              }
-            }
-            FROM = { country_event = aquileia.43 }
-            break = yes
-          }
+				FROM = { annex_country = { target = ROOT transfer_troops = yes } }
+				break = yes
       }
       if = {
         limit = {
@@ -962,7 +919,7 @@ on_actions = {
             original_tag = GRI
 						NOT = { has_country_flag = have_regular_puppets }
            }
-					 NOT = { has_country_flag = be_regular_puppet }
+					 is_feudal_vassal = yes
         }
 				country_event = griffonian.1
       }
@@ -1450,6 +1407,24 @@ on_capitulation = {
       }
       set_major = no
     }
+		if = {
+      limit = {
+        FROM = { tag = DED }
+      }
+			if = {
+				limit = { is_major = yes }
+				FROM = { modify_country_flag = { flag = DED_killed_nations value = 5 } }
+				else = {
+					FROM = { modify_country_flag = { flag = DED_killed_nations value = 1 } }
+				}
+			}
+    }
+		if = {
+      limit = {
+        tag = DED
+      }
+      FROM = { set_country_flag = capitulated_DED }
+    }
     if = {
       limit = {
         original_tag = EQS
@@ -1555,18 +1530,6 @@ on_subject_free = {
       }
 			if = {
         limit = {
-					original_tag = EQC
-			    OR = {
-			      has_country_flag = is_sol_puppet
-			      has_country_flag = is_eqs_puppet
-			      has_country_flag = is_nlr_puppet
-			    }
-        }
-        country_event = equestriancolony.2
-				break = yes
-      }
-			if = {
-        limit = {
 					NOT = { original_tag = EQS }
 			    has_country_flag = is_luna_puppet
         }
@@ -1594,3 +1557,53 @@ on_subject_free = {
       }
     }
   }
+
+	on_government_change = {
+		effect = {
+			if = {
+				limit = {
+					original_tag = BAN
+					has_government = neutrality
+				}
+				clr_country_flag = have_regular_puppets
+			}
+			if = {
+				limit = {
+					OR = {
+						has_idea = griffon_neutrality_support_idea
+						has_idea = griffon_monarchy_support_idea
+					}
+					NOT = { has_government = neutrality }
+				}
+				remove_ideas = { griffon_monarchy_support_idea griffon_neutrality_support_idea }
+			}
+			if = {
+				limit = {
+					OR = {
+						has_idea = griffon_monarchy_dem_support_idea
+						has_idea = griffon_harmony_support_idea
+					}
+					NOT = { has_government = democratic }
+				}
+				remove_ideas = { griffon_monarchy_dem_support_idea griffon_harmony_support_idea }
+			}
+			if = {
+				limit = {
+					OR = {
+						has_idea = griffon_fascism_support_idea
+						has_idea = griffon_monarchy_fas_support_idea
+					}
+					NOT = { has_government = fascism }
+				}
+				remove_ideas = { griffon_monarchy_fas_support_idea griffon_fascism_support_idea }
+			}
+			if = {
+				limit = {
+					has_idea = griffon_communism_support_idea
+					NOT = { has_government = communism }
+				}
+				remove_ideas = griffon_communism_support_idea
+			}
+		}
+	}
+}
