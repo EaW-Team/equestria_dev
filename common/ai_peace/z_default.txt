@@ -191,17 +191,6 @@ default_peace = {
 	# ROOT = Taker, FROM = State
 	take_states = {
 		factor = 200 #50
-
-		modifier = {
-			factor = 40 #5
-
-			FROM = {
-				OR = {
-					is_claimed_by = ROOT
-					is_core_of = ROOT
-				}
-			}
-		}
 		modifier = { # prefer not to take from humans in our own faction
 			factor = 0.5
 			NOT = {
@@ -221,6 +210,74 @@ default_peace = {
 				}
 			}
 		}
+		modifier = { #Only majors can take non-neighboring coastal territories for now to prevent weird results with 1.1
+			factor = 0
+			FROM = {
+				is_coastal = yes
+			}
+			NOT = {
+				FROM = {
+					OR = {
+						is_claimed_by = ROOT
+						is_core_of = ROOT
+					}
+				}
+			}
+			NOT = {
+				FROM = {
+					any_neighbor_state = {
+						OR = {
+							owner = { tag = ROOT }
+							has_claimed_state_in_peace_conference = ROOT
+							#AND = {
+							#	controller = {
+							#		tag = ROOT
+							#	}
+							#	owner = {
+							#		is_in_peace_conference = no
+							#		has_capitulated = yes
+							#	}
+							#}
+						}
+					}
+				}
+			}
+			#Is NOT a major
+			is_major = no
+		}
+		modifier = { #Don't steal claims and cores from faction members unless we also have a right to that clay unless they are puppets
+			factor = 0
+			NOT = {
+				FROM = {
+					OR = {
+						is_claimed_by = ROOT
+						is_core_of = ROOT
+					}
+				}
+			}
+			any_country = {
+				is_in_faction_with = ROOT
+				#is_subject = no
+				FROM = {
+					OR = {
+						is_claimed_by = PREV
+						is_core_of = PREV
+					}
+				}
+			}
+		}
+
+		modifier = {
+			factor = 20
+
+			FROM = {
+				OR = {
+					is_claimed_by = ROOT
+					is_core_of = ROOT
+				}
+			}
+		}
+
 		modifier = {
 			factor = 1.25
 
@@ -265,8 +322,9 @@ default_peace = {
 			}
 		}
 
+
 		modifier = {
-			factor = 1.5
+			factor = 2
 			FROM = {
 				OR = {
 					num_owned_neighbour_states = {
@@ -277,12 +335,23 @@ default_peace = {
 						count > 1
 						owner = ROOT
 					}
+					#any_neighbor_state = {
+					#	AND = {
+					#		controller = {
+					#			tag = ROOT
+					#		}
+					#		owner = {
+					#			is_in_peace_conference = no
+					#			has_capitulated = yes
+					#		}
+					#	}
+					#}
 				}
 			}
 		}
 
 		modifier = {
-			factor = 1.5
+			factor = 2
 			FROM = {
 				OR = {
 					num_owned_neighbour_states = {
@@ -298,7 +367,7 @@ default_peace = {
 		}
 
 		modifier = {
-			factor = 1.5
+			factor = 2
 			FROM = {
 				OR = {
 					num_owned_neighbour_states = {
@@ -314,7 +383,7 @@ default_peace = {
 		}
 
 		modifier = {
-			factor = 1.5
+			factor = 2
 			FROM = {
 				OR = {
 					num_owned_neighbour_states = {
@@ -330,7 +399,7 @@ default_peace = {
 		}
 
 		modifier = {
-			factor = 1.5
+			factor = 2
 			FROM = {
 				OR = {
 					num_owned_neighbour_states = {
@@ -344,8 +413,10 @@ default_peace = {
 				}
 			}
 		}
-
-
+		modifier = { #Fascists will want to keep their spoils...
+			factor = 3
+			FROM = { controller = { tag = ROOT } }
+		}
 		modifier = {
 			factor = 0
 			NOT = {
@@ -362,11 +433,61 @@ default_peace = {
 						OR = {
 							owner = { tag = ROOT }
 							has_claimed_state_in_peace_conference = ROOT
+							#AND = {
+							#	controller = {
+							#		tag = ROOT
+							#	}
+							#	owner = {
+							#		is_in_peace_conference = no
+							#		has_capitulated = yes
+							#	}
+							#}
 						}
 					}
 				}
 			}
 			OR = {
+				#Must be taken in contiguous chunks.
+				FROM = {
+					is_on_continent = europe
+					is_coastal = yes
+					is_island_state = yes
+				}
+				#Minor old world AI sticks to their own continents
+				AND = {
+					#Is NOT a major
+					is_major = no
+					OR = {
+						AND = {
+							capital_scope = { is_on_continent = europe }
+							NOT = { FROM = { is_on_continent = europe } }
+						}
+						AND = {
+							capital_scope = { is_on_continent = north_america }
+							NOT = { FROM = { is_on_continent = north_america } }
+						}
+						AND = {
+							capital_scope = { is_on_continent = south_america }
+							NOT = { FROM = { is_on_continent = south_america } }
+						}
+						AND = {
+							capital_scope = { is_on_continent = australia }
+							NOT = { FROM = { is_on_continent = australia } }
+						}
+						AND = {
+							capital_scope = { is_on_continent = africa }
+							NOT = { FROM = { is_on_continent = africa } }
+						}
+						AND = {
+							capital_scope = { is_on_continent = asia }
+							NOT = { FROM = { is_on_continent = asia } }
+						}
+						AND = {
+							capital_scope = { is_on_continent = middle_east }
+							NOT = { FROM =  { is_on_continent = middle_east } }
+						}
+					}
+				}
 				NOT = {
 					FROM = {
 						OR = {
@@ -376,49 +497,44 @@ default_peace = {
 					}
 				}
 				NOT = { any_owned_state = { is_coastal = yes } }
-				}
 			}
+		}
 
-		modifier = { #Only take claims - and colonial states (ie unclaimed) as well if major or if already colonial.
-			factor = 0
-			NOT = {
-				FROM = {
-					OR = {
-						is_claimed_by = ROOT
-						is_core_of = ROOT
-					}
-				}
-			}
+
+		modifier = { #Deter expansion outside of continent
+			factor = 0.1
 			OR = {
 				AND = {
-					#Is NOT a major
-					OR = {
-						is_major = no
-						is_subject = yes
-					}
-					NOT = {
-						OR = {
-							AND = {
-								capital_scope = { is_on_continent = europe }
-								any_owned_state = {
-									NOT = { is_on_continent = europe }
-								}
-							}
-							AND = {
-								tag = OMA
-								FROM = { is_on_continent = africa }
-							}
-							tag = JAP
-						}
-					}
+					capital_scope = { is_on_continent = europe }
+					NOT = { FROM = {is_on_continent = europe } }
 				}
-				FROM = {
-					owner = {
-						FROM = { is_core_of = PREV }
-					}
+				AND = {
+					capital_scope = { is_on_continent = north_america }
+					NOT = { FROM = { is_on_continent = north_america } }
+				}
+				AND = {
+					capital_scope = { is_on_continent = south_america }
+					NOT = { FROM = { is_on_continent = south_america } }
+				}
+				AND = {
+					capital_scope = { is_on_continent = australia }
+					NOT = { FROM = { is_on_continent = australia } }
+				}
+				AND = {
+					capital_scope = { is_on_continent = africa }
+					NOT = { FROM = { is_on_continent = africa } }
+				}
+				AND = {
+					capital_scope = { is_on_continent = asia }
+					NOT = { FROM = { is_on_continent = asia } }
+				}
+				AND = {
+					capital_scope = { is_on_continent = middle_east }
+					NOT = { FROM =  { is_on_continent = middle_east } }
 				}
 			}
 		}
+
 		modifier = { #Only take claimed/core land if a puppet.
 			factor = 0
 			is_subject = yes
