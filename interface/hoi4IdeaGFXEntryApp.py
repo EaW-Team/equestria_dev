@@ -19,13 +19,13 @@ import datetime
 ###
 ### usage: hoi4FocusGFXEntryApp.py [-h] [-d--directory directory] [--goals goals]
 ###                                [--goals_shine goals_shine]
-###                                focus_name
+###                                idea_name
 ### 
 ### Given a folder and a focus name, look for specified .gfx files and add GFX
 ### entries for the focus name.
 ### 
 ### positional arguments:
-###   focus_name            Name of the focus icon GFX entry (without GFX_ at the
+###   idea_name            Name of the focus icon GFX entry (without GFX_ at the
 ###                         beginning)
 ### 
 ### optional arguments:
@@ -59,12 +59,12 @@ def find_index_before_bracket(lines):
     return index_to_insert
 
 parser = argparse.ArgumentParser(description='Given a folder and a focus name, look for specified .gfx files and add GFX entries for the focus name.')
-parser.add_argument('focus_name', metavar='focus_name',
-                    help='Name of the focus icon GFX entry (without GFX_ at the beginning)')
+parser.add_argument('idea_name', metavar='idea_name',
+                    help='Name of the idea icon GFX entry (without GFX_ at the beginning)')
 parser.add_argument('-d' '--directory', metavar='directory', type=str, dest='directory', default=os.getcwd(), required=False,
                     help='Directory to look for .gfx files in (default: working directory)')
-parser.add_argument('--goals', metavar='goals', default="eaw_ideas.gfx", required=False,
-                    help='Name of the goals file (default:\"eaw_ideas.gfx\")')
+parser.add_argument('--ideas', metavar='ideas', default="eaw_ideas.gfx", required=False,
+                    help='Name of the ideas file (default:\"eaw_ideas.gfx\")')
 
 args = parser.parse_args()
 
@@ -73,17 +73,17 @@ try:
 except:
    sys.exit("Not a directory! Exiting...")
 
-with open(dir + "/" + args.goals, "r") as f:
+with open(dir + "/" + args.ideas, "r") as f:
     lines = f.read().splitlines()
 
 index_to_insert = find_index_before_bracket(lines)
 
 lines.insert(index_to_insert, "\t}")
-lines.insert(index_to_insert, "\t\ttexturefile = \"gfx/interface/ideas/" + args.focus_name + ".dds\"")
-lines.insert(index_to_insert, "\t\tname = \"GFX_idea_" + args.focus_name + "\"")
+lines.insert(index_to_insert, "\t\ttexturefile = \"gfx/interface/ideas/" + args.idea_name + ".dds\"")
+lines.insert(index_to_insert, "\t\tname = \"GFX_idea_" + args.idea_name + "\"")
 lines.insert(index_to_insert, "\tSpriteType = {")
 
-with open(dir + "/" + args.goals,"w+") as f:
+with open(dir + "/" + args.ideas,"w+") as f:
     f.writelines(str(line) + "\n" for line in lines)
 
 
