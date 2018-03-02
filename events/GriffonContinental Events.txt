@@ -16,9 +16,6 @@ country_event = { #History
 }
 country_event = { #History
 	id = griffonian.1
-	title = griffonian.1.t
-	desc = griffonian.1.d
-	picture = GFX_event_griffon_mountain
 	hidden = yes
 	trigger = {
 		is_subject_of = GRI
@@ -32,16 +29,12 @@ country_event = { #History
 	}
 	mean_time_to_happen = { days = 1 }
 	option = {
-		name = griffonian.1.a
 		set_cosmetic_tag = GRI_SUBJECT
 		set_country_flag = griffon_empire_puppet
 	}
 }
 country_event = { #History
 	id = griffonian.2
-	title = griffonian.2.t
-	desc = griffonian.2.d
-	picture = GFX_event_griffon_mountain
 	hidden = yes
 	trigger = {
 		NOT = { is_subject_of = GRI }
@@ -49,7 +42,6 @@ country_event = { #History
 	}
 	mean_time_to_happen = { days = 1 }
 	option = {
-		name = griffonian.2.a
 		clr_country_flag = griffon_empire_puppet
 		drop_cosmetic_tag = yes
 	}
@@ -205,6 +197,73 @@ country_event = { #History
 		set_country_flag = GRW_event_fired2
 	}
 }
+
+
+country_event = { ## Support the neighbours
+	id = griffonian.8
+	title = griffonian.8.t
+	desc = griffonian.8.d
+	picture = GFX_event_griffon_soldier
+	
+	trigger = {
+		OR = {
+			tag = LUS
+			tag = GRY
+			tag = GRU
+		}
+		NOT = { has_government = communism }
+		NOT = { has_country_flag = accepted_prywhen_communists }
+		OR = {
+			GRW = { has_war_with = LUS }
+			GRW = { has_war_with = GRY }
+			GRW = { has_war_with = GRU }
+		}
+		NOT = { has_war_with = GRW }
+	}
+	fire_only_once = yes
+	option = { # attack
+		name = griffonian.8.a # yes
+		create_wargoal = { type = puppet_wargoal_focus target = GRW }
+		add_political_power = -100
+	}
+	option = { # attack and create faction
+		name = griffonian.8.b # yes
+		create_wargoal = { type = puppet_wargoal_focus target = GRW }
+		every_country = {
+			limit = {
+				OR = {
+					tag = LUS
+					tag = GRY
+					tag = GRU
+				}
+				has_war_with = GRW
+			}
+			create_faction = Anti_communist_league
+			add_to_faction = PREV
+		}
+		add_political_power = -130
+	}
+	option = { # stay out of this
+		name = griffonian.8.c # yes
+		add_political_power = 100
+	}
+}
+country_event = { ## fighting prywhen flag
+	id = griffonian.9
+	hidden = yes
+	trigger = {
+		OR = {
+			tag = GRY
+			tag = GRU
+			tag = LUS
+		}
+		has_war_with = GRW
+	}
+	fire_only_once = yes
+	option = {
+		set_country_flag = is_fighting_prywhen
+	}
+}
 country_event = { ## Poverty Removal 1
 	id = griffonian.999
 	title = griffonian.999.t
@@ -296,7 +355,7 @@ country_event = { ## Poverty Removal 5
 	
 }
 
-country_event = { #Cosmetic tag for minors
+country_event = { #Cosmetic tag for minors, make this a decision
 	id = griffonian.1000
 	title = griffonian.1000.t
 	desc = griffonian.1000.d
@@ -307,6 +366,7 @@ country_event = { #Cosmetic tag for minors
 		is_griffon_race = yes
 		NOT = {
 			original_tag = GRI
+			original_tag = FAT
 		}
 		owns_state = 382
 		NOT = { has_country_flag = holds_griffon_capital }
@@ -315,46 +375,70 @@ country_event = { #Cosmetic tag for minors
 	mean_time_to_happen = { days = 1 }
 	option = {
 		name = griffonian.1000.a
-		if = { limit = { has_government = fascism
+		if = { 
+			limit = { has_country_flag = have_regular_puppets }
+			hidden_effect = { set_country_flag = { flag = holds_griffon_capital value = 2 } }
+			set_cosmetic_tag = GRIF_REPUBLIC
+			else = {
+				hidden_effect = { set_country_flag = { flag = holds_griffon_capital value = 1 } }
+				set_cosmetic_tag = GRIF_EMPIRE
 			}
-			set_cosmetic_tag = GRIF_EMPIRE
-			set_country_flag = holds_griffon_capital
 		}
-		if = { limit = { has_government = communism
-			}
-			set_cosmetic_tag = GRIF_COM
-			set_country_flag = holds_griffon_capital
-		}
-		if = { limit = { has_government = neutrality
-			}
-			set_cosmetic_tag = GRIF_EMPIRE
-			set_country_flag = holds_griffon_capital
-		}
-		if = { limit = { has_government = democratic
-			}
-			set_cosmetic_tag = GRIF_EMPDEM
-			set_country_flag = holds_griffon_capital
-		}
+		add_political_power = 20
+	}
+	option = {
+		name = griffonian.1000.b
+		add_political_power = 20
+		hidden_effect = { set_country_flag = holds_griffon_capital }
+		ai_chance = { factor = 0 }
 	}
 }
 
 country_event = { #Cosmetic tag removal
 	id = griffonian.1001
-	title = griffonian.1001.t
-	desc = griffonian.1001.d
-	picture = GFX_event_griffon_mountain
+	hidden = yes
 	
 	trigger = {
-		is_griffon_continent_country = yes
 		has_country_flag = holds_griffon_capital
 		NOT = { owns_state = 382 }
 		
 	}
 	mean_time_to_happen = { days = 1 }
 	option = {
-		name = griffonian.1001.a
 		drop_cosmetic_tag = yes
 		clr_country_flag = holds_griffon_capital
+	}
+}
+
+country_event = { #Cosmetic tag change
+	id = griffonian.1002
+	hidden = yes
+	
+	trigger = {
+		has_country_flag = { flag = holds_griffon_capital value > 1 }
+		NOT = { has_country_flag = have_regular_puppets }
+	}
+	mean_time_to_happen = { days = 1 }
+	option = {
+		drop_cosmetic_tag = yes
+		set_cosmetic_tag = GRIF_EMPIRE
+		set_country_flag = { flag = holds_griffon_capital value = 1 }
+	}
+}
+
+country_event = { #Cosmetic tag change
+	id = griffonian.1003
+	hidden = yes
+	
+	trigger = {
+		has_country_flag = { flag = holds_griffon_capital value < 2 }
+		has_country_flag = have_regular_puppets
+	}
+	mean_time_to_happen = { days = 1 }
+	option = {
+		drop_cosmetic_tag = yes
+		set_cosmetic_tag = GRIF_REPUBLIC
+		set_country_flag = { flag = holds_griffon_capital value = 2 }
 	}
 }
 
@@ -636,7 +720,7 @@ country_event = {
 		JER = { country_event = griffonian.153 }
 	}
 	option = {# select River Fed plane
-		name = griffonian.151.d
+		name = griffonian.151.g
 		ai_chance = {
 			factor = 30
 			modifier = {
@@ -958,7 +1042,7 @@ country_event = {
 		JER = { country_event = griffonian.154 }
 	}
 	option = {# select River Fed plane
-		name = griffonian.151.d
+		name = griffonian.151.g
 		ai_chance = {
 			factor = 30
 			modifier = {
@@ -1572,7 +1656,7 @@ country_event = {
 		JER = { country_event = griffonian.163 }
 	}
 	option = {# select River Fed plane
-		name = griffonian.151.d
+		name = griffonian.151.g
 		ai_chance = {
 			factor = 30
 			modifier = {
@@ -1892,7 +1976,7 @@ country_event = {
 		JER = { country_event = griffonian.164 }
 	}
 	option = {# select River Fed plane
-		name = griffonian.151.d
+		name = griffonian.151.g
 		ai_chance = {
 			factor = 30
 			modifier = {
@@ -2044,14 +2128,14 @@ country_event = {
 			}
 		}
 		air_experience = 20
-		ROOT = { country_event = griffonian.165 }
+		FROM = { country_event = griffonian.165 }
 		if = {
 			limit = {
 				has_tech = CAS1
 				NOT = { has_tech = CAS2 }
 			}
 			create_production_license = {
-				target = ROOT
+				target = FROM
 				equipment = {
 					type = CAS_equipment_1
 				}
@@ -2064,7 +2148,7 @@ country_event = {
 				NOT = { has_tech = CAS3 }
 			}
 			create_production_license = {
-				target = ROOT
+				target = FROM
 				equipment = {
 					type = CAS_equipment_2
 				}
@@ -2076,7 +2160,7 @@ country_event = {
 				has_tech = CAS3
 			}
 			create_production_license = {
-				target = ROOT
+				target = FROM
 				equipment = {
 					type = CAS_equipment_3
 				}
@@ -2090,32 +2174,32 @@ country_event = {
 		ai_chance = {
 			factor = 10
 			modifier = {
-				is_in_faction_with = ROOT
+				is_in_faction_with = FROM
 				factor = 0
 			}
 		}
 		if = {
 			limit = { tag = GRI }
-			ROOT = { set_country_flag = GRI_CAS_refused }
+			FROM = { set_country_flag = GRI_CAS_refused }
 		}
 		if = {
 			limit = { tag = WNG }
-			ROOT = { set_country_flag = WNG_CAS_refused }
+			FROM = { set_country_flag = WNG_CAS_refused }
 		}
 		if = {
 			limit = { tag = JER }
-			ROOT = { set_country_flag = JER_CAS_refused }
+			FROM = { set_country_flag = JER_CAS_refused }
 		}
 		if = {
 			limit = { tag = RIV }
-			ROOT = { set_country_flag = RIV_CAS_refused }
+			FROM = { set_country_flag = RIV_CAS_refused }
 		}
 		if = {
 			limit = { tag = EQS }
-			ROOT = { set_country_flag = EQS_CAS_refused }
+			FROM = { set_country_flag = EQS_CAS_refused }
 		}
-		ROOT = { country_event = griffonian.161 }
-		reverse_add_opinion_modifier = { target = ROOT modifier = refused_help }
+		FROM = { country_event = griffonian.161 }
+		reverse_add_opinion_modifier = { target = FROM modifier = refused_help }
 	}
 }
 
@@ -2137,7 +2221,7 @@ country_event = {
 				factor = 0.5
 			}
 		}
-		ROOT = { country_event = griffonian.165 }
+		FROM = { country_event = griffonian.165 }
 		air_experience = 20
 		if = {
 			limit = {
@@ -2145,7 +2229,7 @@ country_event = {
 				NOT = { has_tech = tactical_bomber2 }
 			}
 			create_production_license = {
-				target = ROOT
+				target = FROM
 				equipment = {
 					type = tac_bomber_equipment_1
 				}
@@ -2158,7 +2242,7 @@ country_event = {
 				NOT = { has_tech = tactical_bomber3 }
 			}
 			create_production_license = {
-				target = ROOT
+				target = FROM
 				equipment = {
 					type = tac_bomber_equipment_2
 				}
@@ -2170,7 +2254,7 @@ country_event = {
 				has_tech = tactical_bomber3
 			}
 			create_production_license = {
-				target = ROOT
+				target = FROM
 				equipment = {
 					type = tac_bomber_equipment_3
 				}
@@ -2184,32 +2268,32 @@ country_event = {
 		ai_chance = {
 			factor = 10
 			modifier = {
-				is_in_faction_with = ROOT
+				is_in_faction_with = FROM
 				factor = 0
 			}
 		}
 		if = {
 			limit = { tag = GRI }
-			ROOT = { set_country_flag = GRI_tactical_bomber_refused }
+			FROM = { set_country_flag = GRI_tactical_bomber_refused }
 		}
 		if = {
 			limit = { tag = WNG }
-			ROOT = { set_country_flag = WNG_tactical_bomber_refused }
+			FROM = { set_country_flag = WNG_tactical_bomber_refused }
 		}
 		if = {
 			limit = { tag = JER }
-			ROOT = { set_country_flag = JER_tactical_bomber_refused }
+			FROM = { set_country_flag = JER_tactical_bomber_refused }
 		}
 		if = {
 			limit = { tag = RIV }
-			ROOT = { set_country_flag = RIV_tactical_bomber_refused }
+			FROM = { set_country_flag = RIV_tactical_bomber_refused }
 		}
 		if = {
 			limit = { tag = EQS }
-			ROOT = { set_country_flag = EQS_tactical_bomber_refused }
+			FROM = { set_country_flag = EQS_tactical_bomber_refused }
 		}
-		ROOT = { country_event = griffonian.162 }
-		reverse_add_opinion_modifier = { target = ROOT modifier = refused_help }
+		FROM = { country_event = griffonian.162 }
+		reverse_add_opinion_modifier = { target = FROM modifier = refused_help }
 	}
 }
 
