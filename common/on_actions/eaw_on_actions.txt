@@ -3,6 +3,8 @@ on_actions = {
   #Not run on a specific country.
   on_startup = {
     effect = {
+      EQS = { save_global_event_target_as = equestria }
+      SOL = { save_global_event_target_as = solar_empire }
 			DED = {
 				every_other_country = {
 					add_opinion_modifier = { target = PREV modifier = mortal_enemies }
@@ -24,7 +26,14 @@ on_actions = {
             set_global_flag = EQS_evil_celestia
           }
         }
-        else = { set_global_flag = EQS_nice_celestia }
+        random_list = {
+          40 = {
+            set_global_flag = OLE_no_servitude
+          }
+          60 = {
+
+          }
+        }
       }
       every_country = {
         limit = { is_generic_race = yes }
@@ -40,41 +49,35 @@ on_actions = {
             NOT = { owns_major_griffon_city = yes }
           }
           add_ideas = better_science_base
-          else = {
-            if = {
-            limit = { owns_big_griffon_city = yes
-            }
-            add_ideas = big_science_base
-            else = {
-              if = {
-              limit = { owns_major_griffon_city = yes
-              }
-              add_ideas = proper_science_base
-              else = {
-                if = {
-                limit = { NOT = { owns_major_griffon_city = yes }
-                NOT = { owns_big_griffon_city = yes }
-                OR = {
-                NOT = { has_tech = melee_weapons1 }
-                NOT = { num_of_civilian_factories > 2 }
-                }
-                is_griffon_continent_country = yes
-                }
-                add_ideas = poor_science_base
-                }
-              }
-              }
-            }
-            }
+        }
+        else_if = {
+          limit = { owns_big_griffon_city = yes
           }
+          add_ideas = big_science_base
+        }
+        else_if = {
+          limit = { owns_major_griffon_city = yes }
+          add_ideas = proper_science_base
+        }
+        else_if = {
+          limit = { 
+            NOT = { owns_major_griffon_city = yes }
+            NOT = { owns_big_griffon_city = yes }
+            OR = {
+              NOT = { has_tech = melee_weapons1 }
+              NOT = { num_of_civilian_factories > 2 }
+            }
+            is_griffon_continent_country = yes
+          }
+          add_ideas = poor_science_base
         }
       }
-      every_country = {
-        limit = {
-          is_ai = yes
-        }
-        set_rule = { can_join_factions = no }
-      }
+      #every_country = {
+      #  limit = {
+      #    is_ai = yes
+      #  }
+      #  country_event = utility.1
+      #}
 
       every_country = {
         limit = {
@@ -101,8 +104,8 @@ on_actions = {
         if = {
           limit = { is_griffon_continent_country = yes }
           add_ideas = outdated_industry
-          else = { add_ideas = modern_society }
         }
+        else = { add_ideas = modern_society }
       }
       ### Development End ####
       EQS = {
@@ -110,7 +113,12 @@ on_actions = {
         set_country_flag = economic_laws_blocked
         set_country_flag = { flag = celestia_evil_meter value = 0 }
       }
-
+      BUF = {
+        add_ideas = poor_science_base
+      }
+      PLB = {
+        add_ideas = better_science_base
+      }
     }
   }
   #FROM is war target
@@ -138,8 +146,8 @@ on_actions = {
 		    if = {
 		      limit = {
 		        OR = {
-		          tag = EQS
-		          FROM = { tag = EQS }
+		          original_tag = EQS
+		          FROM = { original_tag = EQS }
 		        }
 		      }
 		      clr_country_flag = manpower_laws_blocked
@@ -160,18 +168,18 @@ on_actions = {
 							NOT = { has_completed_focus = CRY_oldorder }
 						}
 						complete_national_focus = CRY_oldorder
-						else = {
-							FROM = {
-								if = {
-									limit = {
-										has_government = democratic
-										NOT = { has_completed_focus = CRY_oldorder }
-									}
-									complete_national_focus = CRY_oldorder
-								}
-							}
-						}
 					}
+          else = {
+            FROM = {
+              if = {
+                limit = {
+                  has_government = democratic
+                  NOT = { has_completed_focus = CRY_oldorder }
+                }
+                complete_national_focus = CRY_oldorder
+              }
+            }
+          }
 				}
 		    if = {
 		      limit = {
@@ -191,10 +199,8 @@ on_actions = {
 		          }
 		        }
 		        FROM = { ROOT = { transfer_society_ideas = yes } }
-		        else = {
-		          add_ideas = modern_society
-		        }
 		      }
+		      else = { add_ideas = modern_society }
 		    }
 		    if = {
 		      limit = {
@@ -206,7 +212,10 @@ on_actions = {
 					}
 					if = {
 						limit = {
-							FROM = { has_focus_tree = generic_griffon_focus }
+              OR = {
+                tag = FAT
+							  FROM = { has_focus_tree = generic_griffon_focus }
+              }
 							has_focus_tree = generic_griffon_focus
 						}
 						if = {
@@ -236,10 +245,8 @@ on_actions = {
 		          }
 		        }
 		        FROM = { ROOT = { transfer_science_ideas = yes } }
-		        else = {
-		          add_ideas = proper_science_base
-		        }
 		      }
+          else = {add_ideas = proper_science_base }
 		    }
 			}
 			if = {
@@ -289,9 +296,7 @@ on_actions = {
       }
       if = {
         limit = {
-          OR = {
           tag = EQS
-          tag = SOL }
           FROM = { state = 251 }
           NOT = { has_country_flag = nuked_the_hive }
         }
@@ -305,6 +310,34 @@ on_actions = {
 	#ROOT = nation being puppeted, FROM = overlord
   on_puppet = {
     effect = {
+      if = {
+        limit = {
+          FROM = { tag = FAT }
+          is_griffon_continent_griffon_country = yes
+        }
+        if = {
+          limit = { 
+            FROM = { has_idea = FAT_decentralized_republic_idea }
+          }
+          if = {
+            limit = { has_dlc = "Together for Victory" }
+            FROM = { set_autonomy = { target = ROOT autonomy_state = autonomy_integrated_puppet } }
+            add_ideas = FAT_decentralized_republic_puppet
+            add_to_tech_sharing_group = FAT_research_group
+          }
+          else = { add_ideas = FAT_decentralized_republic_puppet_no_TfV }
+        }
+        if = {
+          limit = { 
+            FROM = { has_idea = FAT_griffonian_alliance_idea }
+          }
+          if = {
+            limit = { has_dlc = "Together for Victory" }
+            FROM = { set_autonomy = { target = ROOT autonomy_state = autonomy_dominion } }
+            add_to_tech_sharing_group = FAT_research_group
+          }
+        }
+      }
       if = {
         limit = {
           original_tag = JUN
@@ -321,7 +354,6 @@ on_actions = {
               FROM = {
                 OR = {
                   original_tag = EQS
-                  original_tag = SOL
                   original_tag = CHN
                 }
                 is_ai = yes
@@ -333,17 +365,17 @@ on_actions = {
       }
       if = {
         limit = {
-          original_tag = EQS
+          tag = event_target:equestria
           has_country_flag = EQS_CRY_has_twilight
-          FROM = { original_tag = SOL }
+          FROM = { tag = event_target:solar_empire }
         }
-        FROM = { news_event = solarempire.22 }
+        FROM = { country_event = solarempire.22 }
       }
       if = {
         limit = {
           original_tag = CRY
           has_country_flag = EQS_CRY_has_twilight
-          FROM = { original_tag = SOL }
+          FROM = { tag = event_target:solar_empire }
         }
         FROM = { news_event = solarempire.26 }
       }
@@ -425,10 +457,7 @@ on_actions = {
       if = {
         limit = {
           FROM = {
-            OR = {
-              original_tag = EQS
-              original_tag = SOL
-            }
+            original_tag = EQS
            }
         }
 				if = {
@@ -452,7 +481,7 @@ on_actions = {
 								}
 								AND = {
 									has_country_flag = royalty_executed
-									NOT = { country_exists = SOL }
+									NOT = { country_exists = event_target:solar_empire }
 									NOT = { has_global_flag = SOL_twilight_converted }
 								}
 							}
@@ -470,10 +499,8 @@ on_actions = {
 	          if = {
 	            limit = { has_completed_focus = CRY_eqsengineers }
 	            add_ideas = equestrian_overlord2
-	            else = {
-	              add_ideas = equestrian_overlord
-	            }
 	          }
+	          else = { add_ideas = equestrian_overlord }
 	        }
 				}
       }
@@ -484,7 +511,6 @@ on_actions = {
             OR = {
               original_tag = EQS
               original_tag = NLR
-              original_tag = SOL
             }
           }
         }
@@ -534,7 +560,7 @@ on_actions = {
       if = {
         limit = {
           FROM = {
-            original_tag = SOL
+            tag = event_target:solar_empire
             has_government = fascism
            }
         }
@@ -552,24 +578,24 @@ on_actions = {
           if = {
             limit = { NOT = { has_global_flag = SOL_twilight_converted } }
             create_country_leader = {
-              name = "Nameless Busybody"
+              name = "Arcane Nova"
               #desc = "TWILIGHT_DESC"
-              #picture = "TwilightSunrise.tga"
+              picture = "ArcaneNova.tga"
               expire = "1965.1.1"
-              ideology = fascism_ideology
+              ideology = nazism
               traits = {
               }
             }
-            else = {
-              create_country_leader = {
-                name = "Grand Inquisitor Sunrise Sparkle"
-                #desc = "TWILIGHT_DESC"
-                picture = "TwilightSunrise.tga"
-                expire = "1965.1.1"
-                ideology = fascism_ideology
-                traits = {
-                  lady_inquisitor
-                }
+          }
+          else = {
+            create_country_leader = {
+              name = "Grand Inquisitor Sunrise Sparkle"
+              #desc = "TWILIGHT_DESC"
+              picture = "TwilightSunrise.tga"
+              expire = "1965.1.1"
+              ideology = falangism
+              traits = {
+                lady_inquisitor
               }
             }
           }
@@ -839,7 +865,7 @@ on_actions = {
         }
       }
 
-			if = {
+	if = {
         limit = {
           FROM = {
             original_tag = FAT
@@ -851,13 +877,56 @@ on_actions = {
           break = yes
         }
       }
+      if = {
+        limit = {
+          FROM = {
+            original_tag = EQS
+            has_government = democratic
+           }
+        }
+        if = {
+          limit = { original_tag = BUF }
+          country_event = bufstate.36
+          break = yes
+        }
     }
   }
+}
 
   #used when puppeting through the occupied territories menu during peace time (or when releasing from non-core but owned territory, f.e. Britain releasing Egypt)
 	#ROOT = nation being released, FROM = overlord
 	on_release_as_puppet = {
 		effect = {
+      if = {
+        limit = {
+          FROM = { tag = FAT }
+          is_griffon_continent_griffon_country = yes
+        }
+        if = {
+          limit = { 
+            FROM = { has_idea = FAT_decentralized_republic_idea }
+          }
+          if = {
+            limit = { has_dlc = "Together for Victory" }
+            FROM = { set_autonomy = { target = ROOT autonomy_state = autonomy_integrated_puppet } }
+            add_ideas = FAT_decentralized_republic_puppet
+            add_to_tech_sharing_group = FAT_research_group
+          }
+          else = {
+            add_ideas = FAT_decentralized_republic_puppet_no_TfV
+          }
+        }
+        if = {
+          limit = { 
+            FROM = { has_idea = FAT_griffonian_alliance_idea }
+          }
+          if = {
+            limit = { has_dlc = "Together for Victory" }
+            FROM = { set_autonomy = { target = ROOT autonomy_state = autonomy_dominion } }
+            add_to_tech_sharing_group = FAT_research_group
+          }
+        }
+      }
       if = {
         limit = { original_tag = CHN overlord = { has_government = fascism } }
         country_event = { id = solarempire.906 }
@@ -865,10 +934,7 @@ on_actions = {
 			if = {
         limit = {
           FROM = {
-            OR = {
-              original_tag = EQS
-              original_tag = SOL
-            }
+            original_tag = EQS
            }
         }
 				if = {
@@ -892,7 +958,7 @@ on_actions = {
 								}
 								AND = {
 									has_country_flag = royalty_executed
-									NOT = { country_exists = SOL }
+									NOT = { country_exists = event_target:solar_empire }
 									NOT = { has_global_flag = SOL_twilight_converted }
 								}
 							}
@@ -910,10 +976,10 @@ on_actions = {
 	          if = {
 	            limit = { has_completed_focus = CRY_eqsengineers }
 	            add_ideas = equestrian_overlord2
-	            else = {
-	              add_ideas = equestrian_overlord
-	            }
 	          }
+            else = {
+              add_ideas = equestrian_overlord
+            }
 	        }
 				}
       }
@@ -924,9 +990,9 @@ on_actions = {
           }
         }
         hidden_effect = { FROM = { ROOT = { transfer_society_ideas = yes } } }
-        else = {
-          hidden_effect = { add_ideas = modern_society }
-        }
+      }
+      else = {
+        hidden_effect = { add_ideas = modern_society }
       }
       if = {
         limit = {
@@ -935,9 +1001,9 @@ on_actions = {
           }
         }
         hidden_effect = { FROM = { ROOT = { transfer_science_ideas = yes } } }
-        else = {
-          hidden_effect = { add_ideas = proper_science_base }
-        }
+      }
+      else = {
+        hidden_effect = { add_ideas = proper_science_base }
       }
       if = {
         limit = {
@@ -946,7 +1012,6 @@ on_actions = {
             OR = {
               original_tag = EQS
               original_tag = NLR
-              original_tag = SOL
             }
           }
         }
@@ -966,7 +1031,7 @@ on_actions = {
 			if = {
         limit = {
           FROM = {
-            original_tag = SOL
+            tag = event_target:solar_empire
             has_government = fascism
            }
         }
@@ -984,24 +1049,24 @@ on_actions = {
           if = {
             limit = { NOT = { has_global_flag = SOL_twilight_converted } }
             create_country_leader = {
-              name = "Nameless Busybody"
+              name = "Arcane Nova"
               #desc = "TWILIGHT_DESC"
-              #picture = "TwilightSunrise.tga"
+              picture = "ArcaneNova.tga"
               expire = "1965.1.1"
-              ideology = fascism_ideology
+              ideology = nazism
               traits = {
               }
             }
-            else = {
-              create_country_leader = {
-                name = "Grand Inquisitor Sunrise Sparkle"
-                #desc = "TWILIGHT_DESC"
-                picture = "TwilightSunrise.tga"
-                expire = "1965.1.1"
-                ideology = fascism_ideology
-                traits = {
-                  lady_inquisitor
-                }
+          }
+          else = {
+            create_country_leader = {
+              name = "Grand Inquisitor Sunrise Sparkle"
+              #desc = "TWILIGHT_DESC"
+              picture = "TwilightSunrise.tga"
+              expire = "1965.1.1"
+              ideology = falangism
+              traits = {
+                lady_inquisitor
               }
             }
           }
@@ -1282,6 +1347,19 @@ on_actions = {
           break = yes
         }
       }
+      if = {
+        limit = {
+          FROM = {
+            original_tag = EQS
+            has_government = democratic
+           }
+        }
+        if = {
+          limit = { original_tag = BUF }
+          country_event = bufstate.36
+          break = yes
+        }
+      }
     }
   }
 
@@ -1295,6 +1373,7 @@ on_actions = {
           FROM = { original_tag = OLE }
         }
         set_cosmetic_tag = OLE_CWWON
+        set_capital = 76
       }
 
       if = {
@@ -1307,17 +1386,17 @@ on_actions = {
 
       if = {
         limit = {
-          original_tag = SOL
+          tag = event_target:solar_empire
           FROM = {
             has_country_flag = EQS_CRY_has_twilight
             original_tag = EQS
           }
         }
-        news_event = solarempire.22
+        country_event = solarempire.22
       }
       if = {
         limit = {
-          original_tag = SOL
+          tag = event_target:solar_empire
           FROM = {
             has_country_flag = EQS_CRY_has_twilight
             original_tag = CRY
@@ -1355,10 +1434,10 @@ on_capitulation = {
 			if = {
 				limit = { is_major = yes }
 				FROM = { modify_country_flag = { flag = DED_killed_nations value = 5 } }
-				else = {
-					FROM = { modify_country_flag = { flag = DED_killed_nations value = 1 } }
-				}
 			}
+      else = {
+        FROM = { modify_country_flag = { flag = DED_killed_nations value = 1 } }
+      }
     }
 		if = {
       limit = {
@@ -1368,17 +1447,17 @@ on_capitulation = {
     }
     if = {
       limit = {
-        original_tag = EQS
+        tag = event_target:equestria
         has_country_flag = EQS_CRY_has_twilight
-        FROM = { original_tag = SOL }
+        FROM = { tag = event_target:solar_empire }
       }
-      FROM = { news_event = solarempire.22 }
+      FROM = { country_event = solarempire.22 }
     }
     if = {
       limit = {
         original_tag = CRY
         has_country_flag = EQS_CRY_has_twilight
-        FROM = { original_tag = SOL }
+        FROM = { tag = event_target:solar_empire }
       }
       FROM = { news_event = solarempire.26 }
     }
@@ -1401,10 +1480,8 @@ on_release_as_free = {
           }
       }
       FROM = { ROOT = { transfer_society_ideas = yes } }
-      else = {
-        add_ideas = modern_society
-      }
     }
+    else = { add_ideas = modern_society }
     if = {
       limit = {
         OR = {
@@ -1419,9 +1496,9 @@ on_release_as_free = {
         }
       }
       FROM = { ROOT = { transfer_science_ideas = yes } }
-      else = {
-        add_ideas = proper_science_base
-      }
+    }
+    else = {
+      add_ideas = proper_science_base
     }
   }
 }
@@ -1481,8 +1558,8 @@ on_subject_free = {
         limit = {
 					original_tag = CRY
 			    NOT = {
-			      is_subject_of = SOL
-			      is_in_faction_with = SOL
+			      is_subject_of = event_target:solar_empire
+			      is_in_faction_with = event_target:solar_empire
 			    }
 			    has_country_flag = is_sol_puppet
         }
@@ -1527,7 +1604,7 @@ on_subject_free = {
 						}
 						AND = {
 							has_country_flag = royalty_executed
-							NOT = { country_exists = SOL }
+							NOT = { country_exists = event_target:solar_empire }
 							NOT = { has_global_flag = SOL_twilight_converted }
 						}
 					}
