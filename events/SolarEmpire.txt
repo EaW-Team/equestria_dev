@@ -42,7 +42,7 @@ country_event = {
       name = "Daybreaker"
       portrait_path = "gfx/leaders/EQS/Daybreaker.tga"
       traits = { supernova }
-      skill = 3
+      skill = 1
       id = 1337
       attack_skill = 4
       defense_skill = 3
@@ -82,9 +82,7 @@ country_event = {
       set_country_flag = former_EQS_puppet
     }
     effect_tooltip = {
-      add_to_war = {
-        targeted_alliance = event_target:equestria enemy = NLR
-      }
+      add_to_war_EQS_against_NLR = yes
     }
     hidden_effect = {
       country_event = { id = equestria.166 days = 1 }
@@ -154,9 +152,7 @@ country_event = {
     reverse_add_opinion_modifier = { target = event_target:equestria modifier = cry_betrayal }
     add_popularity = { ideology = democratic popularity = -0.1 }
     effect_tooltip = {
-      add_to_war = {
-        targeted_alliance = NLR enemy = event_target:equestria
-      }
+      add_to_war_NLR_against_EQS = yes
     }
     hidden_effect = {
       country_event = { id = equestria.167 days = 1 }
@@ -197,9 +193,7 @@ country_event = {
       set_country_flag = former_EQS_puppet
     }
     effect_tooltip = {
-      add_to_war = {
-        targeted_alliance = event_target:equestria enemy = event_target:solar_empire
-      }
+      add_to_war_EQS_against_SOL = yes
     }
     hidden_effect = {
       country_event = { id = equestria.162 days = 1 }
@@ -269,9 +263,7 @@ country_event = {
     reverse_add_opinion_modifier = { target = event_target:equestria modifier = cry_betrayal }
     add_popularity = { ideology = democratic popularity = -0.1 }
     effect_tooltip = {
-      add_to_war = {
-        targeted_alliance = event_target:solar_empire enemy = event_target:equestria
-      }
+      add_to_war_SOL_against_EQS = yes
     }
     hidden_effect = {
       country_event = { id = equestria.160 days = 1 }
@@ -283,16 +275,22 @@ country_event = {
         NOT = { original_tag = CRY }
       }
       modifier = {
+        factor = 0.5
+        original_tag = CRY
+      }
+      modifier = {
         factor = 10
         has_government = fascism
       }
       modifier = {
         factor = 1.4
         has_autonomy_state = autonomy_integrated_puppet
+        NOT = { original_tag = CRY }
       }
       modifier = {
         factor = 1.2
         has_autonomy_state = autonomy_puppet
+        NOT = { original_tag = CRY }
       }
     }
   }
@@ -412,51 +410,6 @@ country_event = {
   }
 }
 
-#Rehabilitate generals
-country_event = {
-  id = solarempire.9
-  title = solarempire.9.t
-  desc = solarempire.9.d
-  picture = GFX_event_solarempire
-
-  fire_only_once = yes
-
-  trigger = {
-    tag = event_target:solar_empire
-    has_completed_focus = SOL_rehabilitate
-    NOT = { country_exists = event_target:equestria }
-    NOT = { has_country_flag = SOL_EQS_generals_rehabilitated }
-    OR = {
-      NOT = { has_unit_leader = 2 }
-      NOT = { has_unit_leader = 3 }
-      NOT = { has_unit_leader = 4 }
-      NOT = { has_unit_leader = 6 }
-    }
-  }
-
-  mean_time_to_happen = {
-    days = 20
-  }
-
-  option = { #very well
-    name = solarempire.9.a
-    event_target:equestria = {
-      every_army_leader = { 
-        limit = { 
-          OR = {
-            has_id = 2 
-            has_id = 3
-            has_id = 4
-            has_id = 6
-          }
-        }
-        set_nationality = ROOT
-      }
-    }
-    hidden_effect = { set_country_flag = SOL_EQS_generals_rehabilitated }
-  }
-}
-
 #Purge
 country_event = {
   id = solarempire.10
@@ -541,14 +494,19 @@ country_event = {
       #id = 16
     }
     if = {
-      limit = { NOT = { has_unit_leader = 110 } }
+      limit = { NOT = { has_global_flag = EQS_Eisenstadt_created } }
       create_corps_commander = {
-        name = "Kaiserslautern"
+        name = "August von Eisenstadt"
         portrait_path = "gfx/leaders/EQS/mageytash.tga"
-         traits = { }
+        traits = { career_officer }
         skill = 2
-        id = 110
+        id = 11
+        attack_skill = 2
+        defense_skill = 1
+        planning_skill = 2
+        logistics_skill = 2
       }
+      set_global_flag = EQS_Eisenstadt_created
     }
     create_corps_commander = {
       name = "Capsaicin"
@@ -573,22 +531,7 @@ country_event = {
   desc = solarempire.123.d
   picture = GFX_event_pony_statue
 
-  mean_time_to_happen = {
-    days = 5
-  }
-
-  trigger = {
-    eqs_not_has_civil_war = yes
-    OR = {
-      event_target:equestria = { has_completed_focus = EQS_Civil_War_End }
-      has_global_flag = equestrian_civil_war_daybreaker_ended
-    }
-    country_exists = event_target:equestria
-    event_target:equestria = { is_subject = no }
-    has_country_flag = former_EQS_puppet
-    has_country_flag = supported_EQS
-    is_former_subject = yes
-  }
+  is_triggered_only = yes
 
   immediate = {
     hidden_effect = {
@@ -599,25 +542,29 @@ country_event = {
 
   option = {
     name = solarempire.12.a
-    event_target:equestria = { puppet = ROOT }
+    FROM = { puppet = ROOT }
     set_previous_autonomy_level = yes
-    hidden_effect = { event_target:equestria = { country_event = { id = solarempire.28 days = 1 } } }
+    hidden_effect = { FROM = { country_event = { id = solarempire.28 days = 1 } } }
     ai_chance = {
-      factor = 4
+      factor = 2
       modifier = {
-        factor = 0.1
-        strength_ratio = { tag = event_target:equestria ratio > 0.8 }
+        factor = 5
+        has_country_flag = supported_EQS
+      }
+      modifier = {
+        factor = 0.75
+        strength_ratio = { tag = FROM ratio > 0.8 }
       }
     }
   }
   option = {
     name = solarempire.12.b
-    event_target:equestria = {
+    FROM = {
       create_wargoal = {
           target = ROOT type = puppet_wargoal_focus
       }
     }
-    hidden_effect = { event_target:equestria = { country_event = { id = solarempire.28 days = 1 } } }
+    hidden_effect = { FROM = { country_event = { id = solarempire.28 days = 1 } } }
     ai_chance = {
       factor = 1.5
     }
@@ -630,19 +577,7 @@ country_event = {
   desc = solarempire.122.d
   picture = GFX_event_lunar_republic
 
-  mean_time_to_happen = {
-    days = 5
-  }
-
-  trigger = {
-    eqs_not_has_civil_war = yes
-    NLR = { has_completed_focus = NLR_civil_war_end }
-    country_exists = NLR
-    NLR = { is_subject = no }
-    has_country_flag = former_EQS_puppet
-    has_country_flag = supported_NLR
-    is_former_subject = yes
-  }
+  is_triggered_only = yes
 
   immediate = {
     hidden_effect = {
@@ -653,25 +588,29 @@ country_event = {
 
   option = {
     name = solarempire.12.a
-    NLR = { puppet = ROOT }
+    FROM = { puppet = ROOT }
     set_previous_autonomy_level = yes
-    hidden_effect = { NLR = { country_event = { id = solarempire.28 days = 1 } } }
+    hidden_effect = { FROM = { country_event = { id = solarempire.28 days = 1 } } }
     ai_chance = {
       factor = 1
       modifier = {
+        factor = 5
+        has_country_flag = supported_NLR
+      }
+      modifier = {
         factor = 0.1
-        strength_ratio = { tag = NLR ratio > 0.8 }
+        strength_ratio = { tag = FROM ratio > 0.8 }
       }
     }
   }
   option = {
     name = solarempire.12.b
-    NLR = {
+    FROM = {
       create_wargoal = {
           target = ROOT type = puppet_wargoal_focus
       }
     }
-    hidden_effect = { NLR = { country_event = { id = solarempire.28 days = 1 } } }
+    hidden_effect = { FROM = { country_event = { id = solarempire.28 days = 1 } } }
     ai_chance = {
       factor = 1.5
     }
@@ -684,20 +623,7 @@ country_event = {
   desc = solarempire.12.d
   picture = GFX_event_solarempire
 
-  mean_time_to_happen = {
-    days = 5
-  }
-
-  trigger = {
-    eqs_not_has_civil_war = yes
-    event_target:solar_empire = { has_completed_focus = SOL_end_of_civil_war }
-    country_exists = event_target:solar_empire
-    event_target:solar_empire = { is_subject = no }
-    has_country_flag = former_EQS_puppet
-    has_country_flag = supported_SOL
-    is_former_subject = yes
-    NOT = { original_tag = CRY }
-  }
+  is_triggered_only = yes
 
   immediate = {
     hidden_effect = {
@@ -708,25 +634,29 @@ country_event = {
 
   option = {
     name = solarempire.12.a
-    event_target:solar_empire = { puppet = ROOT }
+    FROM = { puppet = ROOT }
     set_previous_autonomy_level = yes
-    hidden_effect = { event_target:solar_empire = { country_event = { id = solarempire.28 days = 1 } } }
+    hidden_effect = { FROM = { country_event = { id = solarempire.28 days = 1 } } }
     ai_chance = {
-      factor = 1
+      factor = 1.5
+      modifier = {
+        factor = 5
+        has_country_flag = supported_SOL
+      }
       modifier = {
         factor = 0.1
-        strength_ratio = { tag = event_target:solar_empire ratio > 0.8 }
+        strength_ratio = { tag = FROM ratio > 0.8 }
       }
     }
   }
   option = {
     name = solarempire.12.b
-    event_target:solar_empire = {
+    FROM = {
       create_wargoal = {
           target = ROOT type = puppet_wargoal_focus
       }
     }
-    hidden_effect = { event_target:solar_empire = { country_event = { id = solarempire.28 days = 1 } } }
+    hidden_effect = { FROM = { country_event = { id = solarempire.28 days = 1 } } }
     ai_chance = {
       factor = 1.5
     }
@@ -822,14 +752,14 @@ country_event = {
     name = solarempire.14.a
     end_puppet_this = yes
     if = {
-      limit = { is_in_faction_with = event_target:equestria }
-      event_target:equestria = { remove_from_faction = ROOT }
+      limit = { is_in_faction_with = event_target:solar_empire }
+      event_target:solar_empire = { remove_from_faction = ROOT }
     }
     reverse_add_opinion_modifier = { target = event_target:solar_empire modifier = cry_betrayal }
     hidden_effect = {
       if = {
-        limit = { has_war_with = event_target:solar_empire }
-        white_peace = event_target:solar_empire
+        limit = { has_war_with = NLR }
+        white_peace = NLR
       }
       set_country_flag = former_EQS_puppet
     }
@@ -850,27 +780,10 @@ country_event = {
   }
   option = { #Support Daybreaker
     name = solarempire.14.b
-    if = {
-      limit = { is_subject_of = event_target:equestria }
-      get_current_autonomy_level = yes
-      set_country_flag = former_EQS_puppet
-      set_country_flag = supported_SOL
-      end_puppet_this = yes
-    }
-    if = {
-      limit = { is_in_faction_with = event_target:equestria }
-      event_target:equestria = { remove_from_faction = ROOT }
-    }
-    hidden_effect = {
-      if = {
-        limit = { has_war_with = event_target:solar_empire }
-        white_peace = event_target:solar_empire
-      }
-    }
     add_popularity = { ideology = democratic popularity = -0.1 }
     effect_tooltip = {
       add_to_war = {
-        targeted_alliance = event_target:solar_empire enemy = NLR
+        targeted_alliance = EQS enemy = NLR
       }
     }
     hidden_effect = {
@@ -899,15 +812,15 @@ country_event = {
   option = { #Support NMM
     name = solarempire.14.c
     if = {
-      limit = { is_subject_of = event_target:equestria }
+      limit = { is_subject_of = event_target:solar_empire }
       get_current_autonomy_level = yes
       set_country_flag = former_EQS_puppet
       set_country_flag = supported_NLR
       end_puppet_this = yes
     }
     if = {
-      limit = { is_in_faction_with = event_target:equestria }
-      event_target:equestria = { remove_from_faction = ROOT }
+      limit = { is_in_faction_with = event_target:solar_empire }
+      event_target:solar_empire = { remove_from_faction = ROOT }
     }
     hidden_effect = {
       if = {
@@ -918,7 +831,7 @@ country_event = {
     add_popularity = { ideology = democratic popularity = -0.1 }
     effect_tooltip = {
       add_to_war = {
-        targeted_alliance = NLR enemy = event_target:solar_empire
+        targeted_alliance = NLR enemy = EQS
       }
     }
     hidden_effect = {
@@ -1260,7 +1173,10 @@ news_event = {
   option = {
     name = solarempire.18.c
     trigger = {
-      NOT = { tag = event_target:equestria }
+      NOT = { 
+        tag = event_target:equestria
+        tag = event_target:solar_empire 
+      }
     }
   }
 }
@@ -1288,6 +1204,7 @@ news_event = {
     name = solarempire.19.b
     trigger = {
       NOT = {
+        tag = event_target:solar_empire
         has_government = democratic
         has_war_with = event_target:solar_empire
       }
@@ -1296,6 +1213,7 @@ news_event = {
   option = {
     name = solarempire.19.c
     trigger = {
+      NOT = { tag = event_target:solar_empire }
       OR = {
         has_government = democratic
         has_war_with = event_target:solar_empire
@@ -1502,6 +1420,7 @@ news_event = {
   option = {
     name = solarempire.23.b
     trigger = {
+      NOT = { tag = event_target:solar_empire }
       OR = {
         has_government = democratic
         has_war_with = event_target:solar_empire
@@ -1542,7 +1461,10 @@ news_event = {
   option = {
     name = solarempire.24.c
     trigger = {
-      NOT = { original_tag = CRY }
+      NOT = { 
+        original_tag = CRY 
+        tag = event_target:solar_empire
+      }
       OR = {
         has_government = democratic
         has_war_with = event_target:solar_empire
@@ -1635,6 +1557,7 @@ news_event = {
   option = {
     name = solarempire.26.b
     trigger = {
+      NOT = { tag = event_target:solar_empire }
       OR = {
         has_government = democratic
         has_war_with = event_target:solar_empire
@@ -1655,8 +1578,8 @@ news_event = {
 
 country_event = {
   id = solarempire.27
-  title = solarempire.12.t
-  desc = solarempire.12.d
+  title = solarempire.27.t
+  desc = solarempire.27.d
   picture = GFX_event_solarempire
 
   is_triggered_only = yes
@@ -1669,20 +1592,24 @@ country_event = {
   }
 
   option = {
-    name = solarempire.12.a
+    name = solarempire.27.a
     FROM = { puppet = ROOT }
     set_previous_autonomy_level = yes
     hidden_effect = { FROM = { country_event = { id = solarempire.28 days = 1 } } }
     ai_chance = {
-      factor = 1
+      factor = 1.5
+      modifier = {
+        factor = 0.5
+        strength_ratio = { tag = event_target:solar_empire ratio > 0.8 }
+      }
       modifier = {
         factor = 0.1
-        strength_ratio = { tag = event_target:solar_empire ratio > 0.8 }
+        original_tag = CRY
       }
     }
   }
   option = {
-    name = solarempire.12.b
+    name = solarempire.27.b
     FROM = {
       create_wargoal = {
           target = ROOT type = puppet_wargoal_focus
@@ -1757,11 +1684,19 @@ country_event = {
 country_event = {
   id = solarempire.30
   title = solarempire.30.t
-  desc = solarempire.30.d
+  desc = {
+    text = solarempire.30.d_pro
+    trigger = { has_completed_focus = SOL_Protect_the_Weak }
+  }
+  desc = {
+    text = solarempire.30.d_mot
+     trigger = { has_completed_focus = SOL_Harmony_through_Order }
+  }
+  desc = {
+    text = solarempire.30.d_god
+     trigger = { has_completed_focus = SOL_Solar_Cult }
+  }
   picture = GFX_event_solarempire
-
-  is_triggered_only = yes
-  fire_only_once = yes
 
   mean_time_to_happen = { 
     days = 1
@@ -1769,6 +1704,7 @@ country_event = {
   fire_only_once = yes
   trigger = {
     tag = event_target:solar_empire
+    has_idea = SOL_harmonic_resistance_idea
     OR = {
       focus_progress = { focus = SOL_Freedom_from_Fear progress > 0.4 }
       focus_progress = { focus = SOL_Firm_but_Fair progress > 0.4 }
@@ -1792,6 +1728,101 @@ country_event = {
   }
 }
 
+#EQC breaks free
+#SOL recieves
+country_event = {
+  id = solarempire.31
+  title = solarempire.31.t
+  desc = solarempire.31.d
+  picture = GFX_event_solarempire
+
+  is_triggered_only = yes
+
+  fire_only_once = yes
+
+  immediate = {
+    end_puppet = FROM
+    hidden_effect = { FROM = { country_event = { id = equestriancolony.2 hours = 1 } } }
+  }
+
+  option = {
+    name = solarempire.31.a
+    add_political_power = -200
+    hidden_effect = { FROM = { country_event = { id = solarempire.32 days = 2 } } }
+  }
+
+  option = {
+    name = solarempire.31.b
+    create_wargoal = { type = puppet_wargoal_focus target = FROM }
+    hidden_effect = { 
+      FROM = { 
+        set_country_flag = EQC_destined_to_be_an_RK 
+        country_event = { id = solarempire.33 days = 2 }
+      } 
+    }
+  }
+}
+#SOL agreed (what???)
+country_event = {
+  id = solarempire.32
+  title = solarempire.32.t
+  desc = solarempire.32.d
+  picture = GFX_event_solarempire
+
+  is_triggered_only = yes
+
+  fire_only_once = yes
+
+  option = {
+    name = solarempire.32.a
+    add_political_power = 50
+  }
+}
+#SOL is going to rape you
+country_event = {
+  id = solarempire.33
+  title = solarempire.33.t
+  desc = solarempire.33.d
+  picture = GFX_event_solarempire
+
+  is_triggered_only = yes
+
+  fire_only_once = yes
+
+  option = {
+    name = solarempire.33.a
+  }
+}
+#Add harmonic resistance after war was won
+country_event = {
+  id = solarempire.34
+  title = solarempire.34.t
+  desc = solarempire.34.d
+  picture = GFX_event_solarempire
+
+  trigger = {
+    has_global_flag = SOL_wartime_change
+    has_war = no
+    is_EQS_SOL = yes
+    NOT = {
+      has_idea = SOL_harmonic_resistance_idea
+      has_completed_focus = SOL_Freedom_from_Fear
+      has_completed_focus = SOL_Firm_but_Fair
+      has_completed_focus = SOL_Imperial_Inquisition
+    }
+  }
+
+  mean_time_to_happen = {
+    days = 30
+  }
+
+  fire_only_once = yes
+
+  option = {
+    name = solarempire.34.a
+    add_ideas = SOL_harmonic_resistance_idea
+  }
+}
 country_event = { # Changeling Puppet
     id = solarempire.906
 
