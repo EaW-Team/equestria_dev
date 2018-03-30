@@ -5,24 +5,34 @@ on_actions = {
 		effect = {
 			EQS = { save_global_event_target_as = equestria }
 			SOL = { save_global_event_target_as = solar_empire }
+			OLE = { save_global_event_target_as = democratic_OLE }
 			DED = {
 				every_other_country = {
 					add_opinion_modifier = { target = PREV modifier = mortal_enemies }
 					add_opinion_modifier = { target = PREV modifier = embargo }
 					reverse_add_opinion_modifier = { target = PREV modifier = mortal_enemies }
 					reverse_add_opinion_modifier = { target = PREV modifier = embargo }
+					set_country_flag = DED_opinion_applied
 				}
+			}
+			CHN = {
+				add_opinion_modifier = { target = EQS modifier = embargo }
+				reverse_add_opinion_modifier = { target = EQS modifier = embargo }
+				add_opinion_modifier = { target = CRY modifier = embargo }
+				reverse_add_opinion_modifier = { target = CRY modifier = embargo }
+				add_opinion_modifier = { target = EQC modifier = embargo }
+				reverse_add_opinion_modifier = { target = EQC modifier = embargo }
 			}
 			if = {
 				limit = { is_historical_focus_on = no }
 				random_list = {
-					20 = {
+					10 = {
 						set_global_flag = EQS_nice_celestia
 					}
-					60 = {
+					65 = {
 						
 					}
-					10 = {
+					15 = {
 						set_global_flag = EQS_evil_celestia
 					}
 				}
@@ -148,6 +158,26 @@ on_actions = {
 	on_declare_war = {
 		effect = {
 			hidden_effect = {
+				if = {
+					limit = {
+						OR = {
+							original_tag = OLE
+							FROM = { original_tag = OLE }
+						}
+					}
+					if = {
+						limit = { has_government = democratic }
+						save_global_event_target_as = democratic_OLE
+					}
+					else = {
+						FROM = {
+							if = {
+								limit = { has_government = democratic }
+								save_global_event_target_as = democratic_OLE
+							}
+						}
+					}
+				}
 				if = {
 					limit = {
 						OR = {
@@ -508,6 +538,15 @@ on_actions = {
 						}
 					}
 				}
+				if = {
+					limit = { tag = CHN }
+                	remove_opinion_modifier = { target = FROM modifier = embargo }
+			    	FROM = { remove_opinion_modifier = { target = ROOT modifier = embargo } }
+                	remove_opinion_modifier = { target = CRY modifier = embargo }
+			    	CRY = { remove_opinion_modifier = { target = ROOT modifier = embargo } }
+                	remove_opinion_modifier = { target = EQC modifier = embargo }
+			    	EQC = { remove_opinion_modifier = { target = ROOT modifier = embargo } }
+				}
 			}
 			if = {
 				limit = {
@@ -520,6 +559,13 @@ on_actions = {
 					}
 				}
 				country_event = equestriancolony.1
+				if = {
+					limit = { 
+						has_country_flag = EQC_destined_to_be_an_RK  
+						FROM = { is_EQS_SOL = yes }
+					}
+					FROM = { set_autonomy = { target = ROOT autonomy_state = autonomy_reichskommissariat } }
+				}
 			}
 			if = {
 				limit = {
@@ -558,6 +604,23 @@ on_actions = {
 						original_tag = VIN
 						original_tag = JFT
 					}
+				}
+				FROM = { annex_country = { target = ROOT transfer_troops = yes } }
+				break = yes
+			}
+			if = {
+				limit = {
+					FROM = {
+						is_ai = yes
+						OR = {
+							original_tag = JEB
+							original_tag = JES
+							original_tag = JRR
+							original_tag = VIN
+							original_tag = JFT
+						}
+					}
+					original_tag = JER
 				}
 				FROM = { annex_country = { target = ROOT transfer_troops = yes } }
 				break = yes
@@ -1412,8 +1475,45 @@ on_actions = {
 		}
 	}
 	
+	#ROOT is winner FROM gets annexed
 	on_civil_war_end = {
 		effect = {
+			if = {
+				limit = {
+					tag = event_target:equestria
+					FROM = { tag = event_target:solar_empire }
+				}
+				set_capital = 3
+				SOL = { save_global_event_target_as = solar_empire }
+				break = yes
+			}
+			if = {
+				limit = {
+					FROM = {tag = event_target:equestria }
+					tag = event_target:solar_empire
+				}
+				SOL = { 
+					set_politics = { ruling_party = democratic }
+					save_global_event_target_as = equestria 
+				}
+				break = yes
+			}
+			if = {
+				limit = {
+					original_tag = CRY
+					FROM = { original_tag = CRY }
+				}
+				set_capital = 344
+				break = yes
+			}
+			if = {
+				limit = {
+					original_tag = OLE
+					FROM = { original_tag = OLE }
+				}
+				save_global_event_target_as = democratic_OLE
+				break = yes
+			}
 			#End of ideology Civil War
 			
 			# Give back WNG focus tree to Beakolini if he wins the civil war.
@@ -1688,6 +1788,25 @@ on_actions = {
 					NOT = { has_government = communism }
 				}
 				remove_ideas = griffon_communism_support_idea
+			}
+		}
+	}
+
+	#ROOT is winner #FROM is loser
+	on_peaceconference_ended = {
+		effect = {
+			if = {
+				limit = {
+					tag = event_target:solar_empire
+					FROM = { tag = event_target:equestria }
+				}
+			}
+			every_other_country = {
+				limit = { 
+					NOT = { is_subject_of = event_target:solar_empire }
+					is_in_faction_with = event_target:solar_empire 
+				}
+				leave_faction = yes
 			}
 		}
 	}
