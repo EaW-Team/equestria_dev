@@ -21,6 +21,7 @@ replace_path="common/units/names_divisions"
 replace_path="common/decisions"
 replace_path="common/decisions/categories"
 replace_path="events"
+replace_path="localisation/events_l_english.yml"
 replace_path="history/countries"
 replace_path="history/states"
 replace_path="history/units"
@@ -33,4 +34,8 @@ tags={
 }
 picture="equestria.jpg"
 remote_file_id="1096009291"
+<<<<<<< HEAD
+supported_version="1.5.1"
+=======
 supported_version="1.5.*"
+>>>>>>> master
