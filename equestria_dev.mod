@@ -1,3 +1,4 @@
+
 ﻿name="Equestria at War [Dev]"
 path="mod/equestria_dev/"
 replace_path="common/ai_focuses"
@@ -33,4 +34,8 @@ tags={
 }
 picture="equestria.jpg"
 remote_file_id="1096009291"
+<<<<<<< HEAD
 supported_version="1.5.1"
+=======
+supported_version="1.5.*"
+>>>>>>> master
