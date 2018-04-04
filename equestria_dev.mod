@@ -1,4 +1,3 @@
-
 ﻿name="Equestria at War [Dev]"
 path="mod/equestria_dev/"
 replace_path="common/ai_focuses"
@@ -21,6 +20,7 @@ replace_path="common/units/names_divisions"
 replace_path="common/decisions"
 replace_path="common/decisions/categories"
 replace_path="events"
+replace_path="localisation/events_l_english.yml"
 replace_path="history/countries"
 replace_path="history/states"
 replace_path="history/units"
