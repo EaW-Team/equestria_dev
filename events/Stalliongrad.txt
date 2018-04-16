@@ -53,11 +53,7 @@ country_event = {
 	}
 	option = {
 		name = stalliongrad.1.b
-		ai_chance = { factor = 0
-			modifier = {
-				factor = 2
-				has_war_with = FROM
-			}
+		ai_chance = { factor = 1
 		}
 	}
 }
@@ -657,7 +653,7 @@ country_event = { ## Выборы - Только старые админы ке�
 		set_country_flag = sinister_elected
 		set_cosmetic_tag = STG_SIN
 		retire_country_leader = yes
-		
+
 		create_country_leader = {
 			name = "Sinister Serov"
 			desc = "SINISTER_DESC"
@@ -723,7 +719,7 @@ country_event = { ## Выборы - Compromise Path Elections
 		name = stalliongrad.31.b
 		set_country_flag = sinister_elected
 		set_cosmetic_tag = STG_SIN
-		
+
 		create_country_leader = {
 			name = "Sinister Serov"
 			desc = "SINISTER_DESC"
@@ -1182,7 +1178,7 @@ country_event = { ## Worst Case Plan #3 Puppet
 
 	option = {
 		name = stalliongrad.49.a
-		puppet = GRF
+		puppet = FROM
 	}
 }
 country_event = { ## Worst Case Plan #4 Wargoal
@@ -1196,7 +1192,7 @@ country_event = { ## Worst Case Plan #4 Wargoal
 	option = {
 		name = stalliongrad.50.a
 		create_wargoal = {
-			type = puppet_wargoal_focus target = GRF
+			type = puppet_wargoal_focus target = FROM
 		}
 		hidden_effect = {
 			news_event = {
@@ -1213,10 +1209,20 @@ country_event = { ## Indirect Support
 
 	is_triggered_only = yes
 
+	immediate = {
+		random_other_country = {
+			limit = {
+				original_tag = GRF
+				has_government = communism
+			}
+			save_event_target_as = GRF_commie
+		}
+	}
+
 	option = {
 		name = stalliongrad.51.a
-		send_equipment = { target = GRF type = infantry_equipment amount = 10000 }
-		send_equipment = { target = GRF type = fighter1 amount = 50 }
+		send_equipment = { target = event_target:GRF_commie type = infantry_equipment amount = 1000 }
+		send_equipment = { target = event_target:GRF_commie type = fighter1 amount = 50 }
 	}
 }
 country_event = { ## Communism in GRF
@@ -1229,7 +1235,7 @@ country_event = { ## Communism in GRF
 
 	option = {
 		name = stalliongrad.5111.a
-		add_to_faction = GRF
+		add_to_faction = FROM
 	}
 }
 
@@ -1246,7 +1252,7 @@ country_event = { ## Support the party
 
 	option = {
 		name = stalliongrad.52.a
-		EQS = {
+		event_target:equestria = {
 			add_ideas = internationalism
 			set_country_flag = stalliongradian_influence
 		}
@@ -1262,7 +1268,7 @@ country_event = { ## Activists
 
 	option = {
 		name = stalliongrad.53.a
-		EQS = {
+		event_target:equestria = {
 			add_ideas = stalliongrad_propaganda
 		}
 	}
@@ -1312,13 +1318,38 @@ country_event = { ## Civil War Help { Event for Equestria Triggered Above }
 
 	is_triggered_only = yes
 
+	immediate = {
+		hidden_effect = {
+			random_other_country = {
+				limit = { 
+					original_tag = EQS 
+					NOT = { has_government = communism }
+				}
+				save_event_target_as = EQS_not_commie
+			}
+		}
+	}
+
 	option = {
 		name = stalliongrad.55.a
-		STG = {
+		FROM = {
 			add_to_faction = ROOT
-			give_guarantee = EQS
 		}
-		add_to_war = { targeted_alliance = STG enemy = D01 }
+		hidden_effect = {
+			if = {
+				limit = { threat < 50 }
+				add_threat = 50
+				set_global_flag = cw_threat_added
+			}
+		}
+		FROM = { add_to_war = { targeted_alliance = ROOT enemy = event_target:EQS_not_commie } }
+		hidden_effect = {
+			if = {
+				limit = { has_global_flag = cw_threat_added }
+				add_threat = -50
+				clr_global_flag = cw_threat_added
+			}
+		}
 	}
 }
 country_event = { ## Civil War Help { Event for Equestria Triggered Above }
@@ -1412,6 +1443,7 @@ country_event = { ## Union with EQS after EQS won the CivilWAr
 	option = { # stg owns equestria
 		name = stalliongrad.60.a
 		annex_country = { target = EQS transfer_troops = yes }
+		drop_cosmetic_tag = yes
 		set_cosmetic_tag = EQS_COM
 		set_global_flag = socrep_formed
 		ai_chance = { factor = 100 }
@@ -1734,7 +1766,7 @@ country_event = {  ## Sinnie Focus Events: Strike Griffons
 	option = { #
 		name = stalliongrad.77.a
 		create_wargoal = {
-			target = GRF type = annex_everything
+			target = FROM type = annex_everything
 		}
 	}
 }
@@ -1748,17 +1780,23 @@ country_event = {  ## Sinnie Focus Events: Strike Griffons
 
 	option = { #
 		name = stalliongrad.78.a
-		ai_chance = { factor = 40 }
-		puppet = GRF
-		GRF = {
-			annex_country = { target = GFF transfer_troops = yes }
+		ai_chance = { factor = 60 }
+		puppet = FROM
+		if = {
+			limit = { GFF = { is_puppet_of = FROM } }
+			FROM = {
+				annex_country = { target = GFF transfer_troops = yes }
+			}
 		}
 	}
 	option = { #
 		name = stalliongrad.78.b
-		ai_chance = { factor = 60 }
-		annex_country = { target = GRF transfer_troops = yes }
-		annex_country = { target = GFF transfer_troops = yes }
+		ai_chance = { factor = 40 }
+		if = {
+			limit = { GFF = { is_puppet_of = FROM } }
+			annex_country = { target = GFF transfer_troops = yes }
+		}
+		annex_country = { target = FROM transfer_troops = yes }
 	}
 }
 country_event = {  ## Sinnie Focus Annex Equestria
@@ -2196,16 +2234,7 @@ country_event = { ## Rename Konzan to Sinistergrad
 	desc = stalliongrad.97.d
 	picture = GFX_event_stg_pairlament2
 
-	trigger = {
-		tag = STG
-		has_country_flag = sinister_elected
-		OR = {
-			EQS = { has_government = communism }
-			EQS = { exists = no }
-		}
-	}
-	mean_time_to_happen = { days = 1 }
-	fire_only_once = yes
+	is_triggered_only = yes
 	option = {
 		name = stalliongrad.97.a
 		set_province_name = { id = 200 name = "Sinistergrad"}
@@ -3006,12 +3035,10 @@ country_event = {
 		name = stalliongrad.124.b
 		if = {
 			limit = {
-				NOT = {
-					is_faction_leader = yes
+					is_faction_leader = no
 				}
 				create_faction = "Comintern"
 			}
-		}
 		GRW = {
 			set_country_flag = GRW_to_join_STG
 			country_event = { id = griffonwill.114 days = 2 }
@@ -3277,5 +3304,186 @@ country_event = {
 			}
 		}
 		add_stability = 0.01
+	}
+}
+
+country_event = {
+	id = stalliongrad.138
+	title = stalliongrad.138.t
+	desc = {
+		text = stalliongrad.138.d
+		trigger = {
+			has_war = yes
+		}
+	}
+	desc = {
+		text = stalliongrad.138.d_no_war
+		trigger = {
+			has_war = no
+		}
+	}
+	picture = GFX_event_stg_pairlament2
+
+	trigger = {
+		tag = STG
+		OR = {
+			has_offensive_war_with = GRF
+			has_offensive_war_with = EQS
+		}
+		has_country_leader = { ruling_only = yes name = "Sinister Serov" }
+	}
+	immediate = {
+		if = {
+			limit = {
+				has_country_flag = ponies_disappointed_in_war
+			}
+			modify_country_flag = {
+				flag = ponies_disappointed_in_war value = 2
+			}
+		}
+	}
+	mean_time_to_happen = {
+		days = 180
+		modifier = {
+			factor = 4
+			has_idea = volunteer_only
+		}
+		modifier = {
+			factor = 3
+			has_idea = limited_conscription
+		}
+		modifier = {
+			factor = 2
+			has_idea = extensive_conscription
+		}
+		modifier = {
+			factor = 1
+			has_idea = service_by_requirement
+		}
+		modifier = {
+			factor = 0.5
+			has_idea = all_adults_serve
+		}
+		modifier = {
+			factor = 0.3
+			has_idea = scraping_the_barrel
+		}
+	}
+	option = {
+		name = stalliongrad.138.a
+		if = {
+			limit = {
+				has_country_flag = {
+					flag = ponies_disappointed_in_war value > 10
+				}
+
+			}
+			add_stability = -0.08
+				add_war_support = -0.08
+		}
+		else_if = {
+			limit = {
+				has_country_flag = {
+					flag = ponies_disappointed_in_war value > 8
+				}
+
+			}
+			add_stability = -0.07
+				add_war_support = -0.07
+		}
+		else_if = {
+			limit = {
+				has_country_flag = {
+					flag = ponies_disappointed_in_war value > 5
+				}
+
+			}
+			add_stability = -0.05
+				add_war_support = -0.05
+		}
+		else_if = {
+			limit = {
+				has_country_flag = {
+					flag = ponies_disappointed_in_war value > 3
+				}
+
+			}
+			add_stability = -0.025
+				add_war_support = -0.025
+		}
+		else_if = {
+			limit = {
+				has_country_flag = {
+					flag = ponies_disappointed_in_war value > 0
+				}
+			}
+			add_stability = -0.015
+			add_war_support = -0.015
+		}
+		else_if = {
+			limit = {
+				NOT = {
+					has_country_flag = ponies_disappointed_in_war
+				}
+			}
+			add_stability = -0.005
+			add_war_support = -0.005
+			set_country_flag = ponies_disappointed_in_war
+		}
+	}
+}
+
+country_event = {
+	id = stalliongrad.139
+	title = stalliongrad.139.t
+	desc = stalliongrad.139.d
+	picture = GFX_event_altidiya_retires
+
+	trigger = {
+		tag = STG
+		date > 1010.1.1
+	}
+	mean_time_to_happen = {
+		days = 150
+	}
+	fire_only_once = yes
+	option = {
+		name = stalliongrad.139.a
+		add_stability = -0.02
+		add_political_power = -10
+		hidden_effect = {
+			country_event = {
+				days = 50 id = stalliongrad.140
+			}
+		}
+	}
+}
+country_event = {
+	id = stalliongrad.140
+	hidden = yes
+	is_triggered_only = yes
+	option = {
+		set_country_flag = altidiya_died
+	}
+}
+
+country_event = {
+	id = stalliongrad.141
+	hidden = yes
+	trigger = {
+		tag = STG
+		has_country_flag = war_help
+		is_in_faction = yes
+		is_faction_leader = no
+		is_subject = no
+		any_other_country = {
+			original_tag = EQS
+			is_in_faction = ROOT
+			has_war = no
+			NOT = { has_government = communism }
+		}
+	}
+	option = {
+		leave_faction = yes
 	}
 }
