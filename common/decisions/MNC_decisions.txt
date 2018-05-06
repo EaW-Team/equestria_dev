@@ -70,7 +70,7 @@ MNC_raiding_category = {
 			}
 		}
 
-		cost = 100
+		cost = 25
 
 		fire_only_once = no
 
@@ -112,6 +112,196 @@ MNC_raiding_category = {
 	}
 
 	MNC_initiate_raid = {
+
+		icon = border_war
+
+		allowed = { always = no } #Activated from effect
+
+		available = {
+			var:FROM.attacker_state_vs_@ROOT = {
+				is_fully_controlled_by = ROOT
+			}
+			divisions_in_border_state = {
+				state = var:FROM.attacker_state_vs_@ROOT
+				border_state = var:FROM.defender_state_vs_@ROOT
+				size > 0
+			}
+		}
+		highlight_states = {
+			state = var:FROM.attacker_state_vs_@ROOT
+		}
+
+		ai_will_do = {
+			base = 0
+			modifier = {
+				
+			}
+		}
+
+		cancel_trigger = {
+			is_in_faction_with = FROM
+		}
+
+		fire_only_once = yes #Reactivation handled in effect
+
+		selectable_mission = yes
+
+		days_mission_timeout = 30
+
+		timeout_effect = {
+			hidden_effect = {
+				FROM = {
+					clear_variable = attacker_state_vs_@ROOT
+					clear_variable = defender_state_vs_@ROOT
+				}
+				clr_country_flag = MNC_preparing_raid
+				remove_targeted_decision = { target = FROM decision = MNC_initiate_raid }
+				activate_targeted_decision = { target = FROM decision = MNC_prepare_raid }
+			}
+		}
+
+		complete_effect = {
+			start_border_war = {
+				change_state_after_war = no
+				attacker = {
+					state = var:FROM.attacker_state_vs_@ROOT
+					num_provinces = 4
+					on_win = mountain.22
+					on_lose = mountain.24
+					on_cancel = mountain.23
+				}
+				
+				defender = {
+					state = var:FROM.defender_state_vs_@ROOT
+					num_provinces = 4
+					on_win = mountain.27
+					on_lose = mountain.25
+					on_cancel = mountain.26
+				}
+			}
+			hidden_effect = { 
+				clr_country_flag = MNC_preparing_raid 
+				remove_targeted_decision = { target = FROM decision = MNC_initiate_raid }
+				activate_targeted_decision = { target = FROM decision = MNC_prepare_raid }
+			}
+		}
+	}
+
+	MNC_prepare_raid_commie = {
+		icon = border_war		
+
+		available = {
+			any_state = {
+				is_owned_and_controlled_by = FROM
+				any_neighbor_state = {
+					is_fully_controlled_by = ROOT
+					set_temp_variable = { var:attacker_state_temp = id }
+					has_ROOT_at_least_1_div_in_current_state_scope = yes
+				}
+				set_temp_variable = { var:defender_state_temp = id }
+			}
+			NOT = { has_non_aggression_pact_with = FROM }
+			ROOT = {
+			NOT = { has_country_flag = MNC_raid_succeeded }
+			NOT = { has_country_flag = MNC_raid_failed }
+			has_completed_focus = MNC_back_to_raiding
+			}
+		}
+
+		visible = {
+			NOT = { has_country_flag = MNC_preparing_raid }
+			FROM = { exists = yes }
+			NOT = { has_war_with = FROM }
+			FROM = {
+				NOT = { is_subject_of = ROOT }
+				NOT = { is_in_faction_with = ROOT }
+				NOT = { has_idea = detached_country}
+			}
+			NOT = { is_subject_of = FROM }
+            OR = {
+			NOT = { has_government = fascism }
+			NOT = { has_government = democratic }
+			NOT = { has_government = neutrality }
+			}
+			OR = {
+				NOT = { has_border_war_with = FROM }
+				any_state = {
+					is_owned_and_controlled_by = FROM
+					any_neighbor_state = {
+						is_fully_controlled_by = ROOT
+					}
+				}
+			}
+		}
+
+		target_trigger = {
+			FROM = { 
+				is_neighbor_of = ROOT
+			}
+		}
+
+		highlight_states = {
+			OR = {
+				state = FROM.defender_state_vs_@ROOT
+				AND = {
+					is_owned_and_controlled_by = FROM
+					any_neighbor_state = {
+						has_ROOT_at_least_1_div_in_current_state_scope = yes
+						is_fully_controlled_by = ROOT
+					}
+				}
+			}
+		}
+
+		ai_will_do = {
+			base = 0
+			modifier = {
+				
+			}
+		}
+
+		cost = 25
+
+		fire_only_once = no
+
+		days_re_enable = 180
+		days_remove = 30
+
+		complete_effect = {
+			hidden_effect = {
+				random_state = {
+					limit = {
+						is_owned_and_controlled_by = FROM
+						any_neighbor_state = {
+							has_ROOT_at_least_1_div_in_current_state_scope = yes
+							is_fully_controlled_by = ROOT
+						}
+					}
+					save_event_target_as = defender_state
+					set_variable = { FROM.defender_state_vs_@ROOT = id }
+					set_temp_variable = { defender_state_temp = id }
+				}
+				random_state = {
+					limit = {
+						is_fully_controlled_by = ROOT
+						has_ROOT_at_least_1_div_in_current_state_scope = yes
+						any_neighbor_state = {
+							state = var:FROM.defender_state_vs_@ROOT
+						}
+					}
+					save_event_target_as = attacker_state
+					set_variable = { FROM.attacker_state_vs_@ROOT = id }
+					set_temp_variable = { attacker_state_temp = id }
+				}
+				set_country_flag = MNC_preparing_raid
+			}
+		}
+		remove_effect = {
+			activate_targeted_decision = { target = FROM decision = MNC_initiate_raid }
+		}
+	}
+
+	MNC_initiate_raid_commie = {
 
 		icon = border_war
 
