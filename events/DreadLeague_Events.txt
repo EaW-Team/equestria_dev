@@ -476,19 +476,26 @@ country_event = {
 	hidden = yes
 
 	mean_time_to_happen = {
-		days = 7
+		days = 8
 	}
 
 	trigger = {
-		tag = DED
-		415 = { is_owned_and_controlled_by = DED }
-		check_variable = { DED_magehold_used_crystals > 0 }
+		OR = {
+			tag = DED
+			NOT = { country_exists = DED }
+		}
+		any_owned_state = {
+			is_controlled_by = ROOT
+			check_variable = { DED_used_crystals > 0 }
+		}
 	}
 
 	option = {
-		subtract_from_variable = { DED_magehold_used_crystals = 1 }
-		415 = {
-			add_resource = { type = crystals amount = 1 state = 415 }
+		random_owned_controlled_state = {
+			limit = { check_variable = { DED_used_crystals > 0 } }
+			log = "Add 1 crystal to [This.GetName]"
+			subtract_from_variable = { DED_used_crystals = 1 }
+			add_resource = { type = crystals amount = 1 }
 		}
 	}
 
@@ -534,8 +541,8 @@ country_event = {
 		}
 	}
 
-	mean_time_to_happen = { 
-		days = 1 
+	mean_time_to_happen = {
+		days = 1
 	}
 
 	option = {
@@ -545,5 +552,71 @@ country_event = {
 		reverse_add_opinion_modifier = { target = DED modifier = mortal_enemies }
 		reverse_add_opinion_modifier = { target = DED modifier = embargo }
 		reverse_add_opinion_modifier = { target = DED modifier = CHN_Embargo }
+	}
+}
+
+country_event = {
+	id = deadempire.37
+	hidden = yes
+
+	is_triggered_only = yes
+
+	option = {
+		every_state = {
+			limit = {
+				is_controlled_by = ROOT
+				has_resources_amount = { resource = crystals amount > 0 }
+			}
+			if = {
+				limit = { check_variable = { PREV.DED_temp_used_crystals < PREV.DED_temp_used_crystals_limit } }
+				add_to_variable = { var = DED_used_crystals value = 1 }
+				add_resource = { type = crystals amount = -1 }
+				PREV = { add_to_variable = { var = DED_temp_used_crystals value = 1 } }
+			}
+			else = {
+				break = yes
+			}
+		}
+		if = {
+			limit = { check_variable = { DED_temp_used_crystals < DED_temp_used_crystals_limit } }
+			country_event = deadempire.38
+		}
+		else = {
+			clear_variable = DED_temp_used_crystals
+			clear_variable = DED_temp_used_crystals_limit
+		}
+	}
+}
+
+country_event = {
+	id = deadempire.38
+	hidden = yes
+
+	is_triggered_only = yes
+
+	option = {
+		every_state = {
+			limit = {
+				is_controlled_by = ROOT
+				has_resources_amount = { resource = crystals amount > 0 }
+			}
+			if = {
+				limit = { check_variable = { PREV.DED_temp_used_crystals < PREV.DED_temp_used_crystals_limit } }
+				add_to_variable = { var = DED_used_crystals value = 1 }
+				add_resource = { type = crystals amount = -1 }
+				PREV = { add_to_variable = { var = DED_temp_used_crystals value = 1 } }
+			}
+			else = {
+				break = yes
+			}
+		}
+		if = {
+			limit = { check_variable = { DED_temp_used_crystals < DED_temp_used_crystals_limit } }
+			country_event = deadempire.37
+		}
+		else = {
+			clear_variable = DED_temp_used_crystals
+			clear_variable = DED_temp_used_crystals_limit
+		}
 	}
 }
