@@ -1838,6 +1838,7 @@ country_event = {
 		tag = GRI
 		has_completed_focus = GRI_eagleclaw
 		has_war = no
+		382 = { is_owned_and_controlled_by = ROOT }
 	}
 
 	option = {
@@ -1847,6 +1848,7 @@ country_event = {
 
 	option = {
 		name = imperial.66.b
+		add_political_power = -50
 		every_other_country = {
 			limit = {
 				is_griffon_continent_griffon_country = yes
@@ -1865,13 +1867,16 @@ country_event = {
 						}
 					}
 				}
-				NOT = { 
+				NOT = {
 					has_country_flag = have_regular_puppets
-					has_government = communism 
+					has_government = communism
 				}
 			}
 			add_to_variable = { invited_countries = 1 }
 			country_event = { id = imperial.68 days = 1 }
+		}
+		ai_chance = {
+			factor = 0.5
 		}
 	}
 }
@@ -1896,6 +1901,102 @@ country_event = {
 			reverse_add_opinion_modifier = {
 				target = ROOT modifier = GRI_banquet
 			}
+		}
+	}
+}
+
+#Invitation
+country_event = {
+	id = imperial.68
+	immediate = {log = "[Root.GetName]: event imperial.68"}#Auto-logging
+	title = imperial.68.t
+	desc = imperial.68.d
+	picture = GFX_event_griffon_royal_guard
+	is_triggered_only = yes
+
+	option = {
+		name = imperial.68.a #agree
+		hidden_effect = {
+			ROOT = {
+				set_country_flag = banquet_agreed
+			}
+			FROM = {
+				add_to_variable = { responded_countries = 1 }
+				add_to_variable = { agreed_countries = 1 }
+				if = {
+					limit = {
+						check_variable = {
+							var = responded_countries
+							value = invited_countries
+							compare = greater_than_or_equals
+						}
+					}
+					country_event = { id = imperial.69 days = 2 }
+				}
+			}
+		}
+	}
+	option = {
+		name = imperial.68.b #disagree
+		add_political_power = 15
+		FROM = {
+			add_opinion_modifier = { target = ROOT modifier = GRI_banquet_refused }
+			hidden_effect = {
+				add_to_variable = { responded_countries = 1 }
+				if = {
+					limit = {
+						check_variable = {
+							var = responded_countries
+							value = invited_countries
+							compare = greater_than_or_equals
+						}
+					}
+					country_event = { id = imperial.69 days = 2 }
+				}
+			}
+		}
+		ai_chance = {
+			factor = 2
+		}
+	}
+}
+
+#Banquet
+country_event = {
+	id = imperial.69
+	immediate = {log = "[Root.GetName]: event imperial.69"}#Auto-logging
+	title = imperial.69.t
+	desc = imperial.69.d #scripted loc
+	picture = GFX_event_griffon_royal_guard
+	is_triggered_only = yes
+	immediate = {
+		set_variable = { half_countries = invited_countries }
+		divide_variable = { half_countries = 2 }
+	}
+	option = {
+		name = imperial.69.a
+		every_other_country = {
+			limit = {
+				OR = {
+					is_subject_of = ROOT
+					has_country_flag = banquet_agreed
+				}
+			}
+			add_opinion_modifier = {
+				target = ROOT modifier = GRI_banquet
+			}
+			reverse_add_opinion_modifier = {
+				target = ROOT modifier = GRI_banquet
+			}
+			hidden_effect = {
+				clr_country_flag = banquet_agreed
+			}
+		}
+		hidden_effect = {
+			clear_variable = responded_countries
+			clear_variable = invited_countries
+			clear_variable = agreed_countries
+			clear_variable = half_countries
 		}
 	}
 }
