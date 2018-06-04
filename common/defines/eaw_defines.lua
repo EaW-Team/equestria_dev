@@ -7,7 +7,7 @@ NDefines.NAI.RESEARCH_LAND_DOCTRINE_NEED_GAIN_FACTOR = 0.12 -- Multiplies value 
 NDefines.NAI.RESEARCH_BONUS_FACTOR = 1.5 				-- To which extent AI should care about bonuses to research
 NDefines.NAI.DYNAMIC_STRATEGIES_THREAT_FACTOR = 6.0
 NDefines.NAI.BASE_DISTANCE_TO_CARE = 400.0
-NDefines.NAI.ATTACK_HEAVILY_DEFENDED_LIMIT = 0.7
+NDefines.NAI.ATTACK_HEAVILY_DEFENDED_LIMIT = 0.8
 NDefines.NAI.SEND_VOLUNTEER_EVAL_BASE_DISTANCE = 100.0
 NDefines.NAI.SEND_VOLUNTEER_EVAL_MAJOER_POWER = 1.0
 NDefines.NAI.SEND_VOLUNTEER_EVAL_CONTAINMENT_FACTOR = 0.15
@@ -33,3 +33,31 @@ NDefines.NCountry.SPECIAL_FORCES_CAP_MIN = 32					-- You can have a minimum of t
 
 NDefines.NDiplomacy.MAX_OPINION_VALUE = 100							-- Max opinion value cap.
 NDefines.NDiplomacy.MIN_OPINION_VALUE = -300						-- Min opinion value cap.
+
+NDefines.NAI.HOUR_BAD_COMBAT_REEVALUATE = 24 --default 100
+NDefines.NAI.PLAN_ACTIVATION_SUPERIORITY_AGGRO = 1.2 --default 1.0		-- How aggressive a country is in activating a plan based on how superiour their force is.
+
+NDefines.NAI.AI_FRONT_MOVEMENT_FACTOR_FOR_READY = 0.1 --default 0.25
+NDefines.NAI.PLAN_VALUE_TO_EXECUTE = -0.2 --default -0.5
+
+NDefines.NAI.DEPLOY_MIN_TRAINING_WAR_FACTOR = 0.05	--default 0.25	-- Required percentage of training (1.0 = 100%) for AI to deploy unit in wartime
+NDefines.NAI.DEPLOY_MIN_EQUIPMENT_WAR_FACTOR = 0.80	--default 90	-- Required percentage of equipment (1.0 = 100%) for AI to deploy unit in wartime
+
+NDefines.NAI.MIN_PLAN_VALUE_TO_MICRO_INACTIVE = 0.1 --default 0.2				-- The AI will not consider members of groups which plan is not activated AND evaluates lower than this.
+
+NDefines.NAI.MAX_UNITS_FACTOR_FRONT_ORDER = 3.0	--default 1.5			-- Factor for max number of units to assign to area front orders
+NDefines.NAI.DESIRED_UNITS_FACTOR_FRONT_ORDER = 3.0	--default 1.5		-- Factor for desired number of units to assign to area front orders
+NDefines.NAI.MIN_UNITS_FACTOR_FRONT_ORDER = 2.0	--default 1.0			-- Factor for min number of units to assign to area front orders
+
+NDefines.NAI.MAX_UNITS_FACTOR_INVASION_ORDER = 0.8	--default 1.0	-- Factor for max number of units to assign to naval invasion orders
+NDefines.NAI.DESIRED_UNITS_FACTOR_INVASION_ORDER = 0.8	--default 1.0	-- Factor for desired number of units to assign to naval invasion orders
+NDefines.NAI.MIN_UNITS_FACTOR_INVASION_ORDER = 0.8	--default 1.0			-- Factor for min number of units to assign to naval invasion orders
+	
+NDefines.NAI.MAX_DIST_PORT_RUSH = 40.0	--default 20.0			-- If a unit is in enemy territory with no supply it will consider nearby ports within this distance.
+	
+NDefines.NAI.MIN_FIELD_STRENGTH_TO_BUILD_UNITS = 0.6	--default 0.7		-- Cancel unit production if below this to get resources out to units in the field
+NDefines.NAI.MIN_MANPOWER_TO_BUILD_UNITS = 0.6	--default 0.7				-- Cancel unit production if below this to get resources out to units in the field
+
+NDefines.NAI.VP_LEVEL_IMPORTANCE_HIGH = 50,				-- Victory points with values higher than or equal to this are considered to be of high importance.
+NDefines.NAI.VP_LEVEL_IMPORTANCE_MEDIUM = 25,			-- Victory points with values higher than or equal to this are considered to be of medium importance.
+NDefines.NAI.VP_LEVEL_IMPORTANCE_LOW = 5,				-- Victory points with values higher than or equal to this are considered to be of low importance.
