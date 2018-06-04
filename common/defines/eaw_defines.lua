@@ -58,6 +58,6 @@ NDefines.NAI.MAX_DIST_PORT_RUSH = 40.0	--default 20.0			-- If a unit is in enemy
 NDefines.NAI.MIN_FIELD_STRENGTH_TO_BUILD_UNITS = 0.6	--default 0.7		-- Cancel unit production if below this to get resources out to units in the field
 NDefines.NAI.MIN_MANPOWER_TO_BUILD_UNITS = 0.6	--default 0.7				-- Cancel unit production if below this to get resources out to units in the field
 
-NDefines.NAI.VP_LEVEL_IMPORTANCE_HIGH = 50,				-- Victory points with values higher than or equal to this are considered to be of high importance.
-NDefines.NAI.VP_LEVEL_IMPORTANCE_MEDIUM = 25,			-- Victory points with values higher than or equal to this are considered to be of medium importance.
-NDefines.NAI.VP_LEVEL_IMPORTANCE_LOW = 5,				-- Victory points with values higher than or equal to this are considered to be of low importance.
+NDefines.NAI.VP_LEVEL_IMPORTANCE_HIGH = 50				-- Victory points with values higher than or equal to this are considered to be of high importance.
+NDefines.NAI.VP_LEVEL_IMPORTANCE_MEDIUM = 25			-- Victory points with values higher than or equal to this are considered to be of medium importance.
+NDefines.NAI.VP_LEVEL_IMPORTANCE_LOW = 5				-- Victory points with values higher than or equal to this are considered to be of low importance.
