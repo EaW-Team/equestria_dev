@@ -46,7 +46,15 @@ EQS_celestia_evil_meter_category = {
 		icon = rifles
 		visible = {
 			has_war = no
-			threat > 0.1
+			threat > 0.4
+			any_country = {
+				is_major = yes
+				OR = {
+					has_wargoal_against = ROOT
+					is_justifying_wargoal_against = ROOT
+					hidden_trigger = { focus_progress = { focus = demand_equestria progress > 0 } }
+				}
+			}
 			has_country_flag = manpower_laws_blocked
 			OR = {
 				has_idea = disarmed_nation
@@ -67,7 +75,15 @@ EQS_celestia_evil_meter_category = {
 		visible = {
 			tag = EQS
 			has_war = no
-			threat > 0.1
+			threat > 0.4
+			any_country = {
+				is_major = yes
+				OR = {
+					has_wargoal_against = ROOT
+					is_justifying_wargoal_against = ROOT
+					hidden_trigger = { focus_progress = { focus = demand_equestria progress > 0 } }
+				}
+			}
 			has_country_flag = economic_laws_blocked
 		}
 		cost = 10
@@ -104,7 +120,10 @@ EQS_celestia_evil_meter_category = {
 	EQS_enact_war_plan_decision = {
 		icon = war_plan_eqs
 		visible = {
-			has_completed_focus = War_Plan
+			OR = {
+				is_EQS_SOL = yes
+				has_completed_focus = War_Plan
+			}
 			NOT = {
 				has_idea = war_plan_equestria_mild
 				has_idea = war_plan_equestria
@@ -116,8 +135,11 @@ EQS_celestia_evil_meter_category = {
 			OR = {
 				has_war_support > 0.5
 				surrender_progress > 0.15
-				any_enemy_country = {
-					is_major = yes
+				AND = {
+					has_defensive_war = yes
+					any_enemy_country = {
+						is_major = yes
+					}
 				}
 			}
 		}
@@ -228,6 +250,39 @@ demobilization = {
 	}
 }
 political_actions = {
+	EQS_annex_darkwing = {
+		icon = stg_cores
+		available = {
+			any_country = {
+				original_tag = STG
+				has_government = democratic
+				is_subject_of = ROOT
+				has_country_flag = darkwing_ready_to_be_annexed
+			}
+		}
+		visible = {
+			original_tag = EQS
+			has_government = democratic
+		}
+		target_trigger = {
+			FROM = {
+				original_tag = STG
+				has_government = democratic
+				is_subject_of = ROOT
+			}
+		}
+		cost = 50
+		ai_will_do = {
+			factor = 100
+		}
+		fire_only_once = yes
+		complete_effect = {
+			FROM = {
+				country_event = stalliongrad.143
+			}
+		}
+	}
+
 		SOL_rehabilitate_generals = {
 
 		icon = generic_army_support
@@ -241,7 +296,14 @@ political_actions = {
 			is_EQS_SOL = yes
 			is_subject = no
 			has_completed_focus = SOL_rehabilitate
-			NOT = { country_exists = event_target:equestria }
+			NOT = {
+				any_country = {
+					AND = {
+						is_original_EQS = yes
+						exists = yes
+					}
+				}
+			}
 			OR = {
 				NOT = { has_unit_leader = 2 }
 				NOT = { has_unit_leader = 3 }
@@ -250,6 +312,7 @@ political_actions = {
 				NOT = { has_unit_leader = 13 }
 				NOT = { has_unit_leader = 14 }
 				NOT = { has_unit_leader = 12 }
+				NOT = { has_unit_leader = 30 }
 			}
 		}
 
@@ -277,6 +340,10 @@ political_actions = {
 			if = {
 				limit = { NOT = { has_unit_leader = 12 } }
 				event_target:EQS_Berrytwist = { set_nationality = ROOT }
+			}
+			if = {
+				limit = { NOT = { has_unit_leader = 30 } }
+				event_target:EQS_Hoofgonery = { set_nationality = ROOT }
 			}
 			if = {
 				limit = { NOT = { has_unit_leader = 13 } }
@@ -313,6 +380,7 @@ EQS_bring_back_puppets = {
 		}
 		target_trigger = {
 			FROM = {
+				is_subject = no
 				has_country_flag = former_EQS_puppet
 				is_former_subject = yes
 				NOT = { has_war = yes }
@@ -573,10 +641,11 @@ EQS_foreign_affairs = {
 	EQS_sombra_return_civil_war_help = {
 		icon = sombra_return
 		available = {
+			has_war_support > 0.3
 			CRY = { has_civil_war = yes
 			has_global_flag = sombra_returned }
 		}
-		cost = 20
+		cost = 50
 		ai_will_do = {
 			factor = 150
 		}
@@ -586,9 +655,13 @@ EQS_foreign_affairs = {
 			CRY = { has_civil_war = yes
 			has_global_flag = sombra_returned }
 		}
+		cancel_trigger = {
+			CRY = {
+				has_civil_war = no
+			}
+		}
 		days_remove = 70
 		remove_effect = {
-			add_political_power = 50
 			country_event = {
 				id = equestria.53 days = 1
 			}
@@ -603,22 +676,24 @@ EQS_foreign_affairs = {
 			}
 		}
 		modifier = {
-			war_support_weekly = 0.02
 			political_power_gain = -0.3
 		}
 	}
 	EQS_sombra_return_war = {
 		icon = sombra_return
 		available = {
+			has_war_support > 0.5
 			CRY = { has_civil_war = no
 			has_global_flag = sombra_returned }
 			has_global_flag = return_of_sombra
 		}
-		cost = 20
+		cost = 50
 		ai_will_do = {
 			factor = 150
 		}
 		fire_only_once = yes
+
+		war_with_on_remove = CRY
 
 		visible = {
 			CRY = { has_civil_war = no
@@ -627,22 +702,61 @@ EQS_foreign_affairs = {
 		}
 		days_remove = 70
 		remove_effect = {
-			add_political_power = 50
 			country_event = {
 				id = equestria.53 days = 1
 			}
-			random_other_country = {
-				add_manpower = 20000
-				add_political_power = 300
-				custom_effect_tooltip = sombra_civil_war_tt
-				hidden_effect = {
-					load_oob = "EQS_sombra_civil_war"
-				}
-				country_event = {
-					id = equestria.54 days = 1
-				}
+			add_manpower = 20000
+			custom_effect_tooltip = sombra_civil_war_tt
+			hidden_effect = {
+				load_oob = "EQS_sombra_civil_war"
+			}
+			country_event = {
+				id = equestria.54 days = 1
 			}
 		}
+		modifier = {
+			political_power_gain = -0.3
+		}
+	}
+	EQS_operation_sunrise_freedom = {
+		icon = rifles
+		available = {
+			has_country_flag = EQS_will_war_with_maresoc
+		}
+		cost = 100
+		ai_will_do = {
+			factor = 150
+		}
+		fire_only_once = yes
+		
+		war_with_on_remove = EQC
+
+		visible = {
+			EQC = {
+				has_country_flag = is_maresoc
+			}
+			has_country_flag = EQS_will_war_with_maresoc
+		}
+		days_remove = 70
+		
+		complete_effect = {
+			EQC = {
+				activate_targeted_decision = { target = EQS decision = EQC_equestria_anti_maresoc }
+			}
+		}
+		
+		remove_effect = {
+			log = "[GetDateText] [Root.GetName]: decision EQS_operation_sunrise_freedom"
+			declare_war_on = {
+				type = topple_government
+				target = EQC
+			}
+			every_country ={
+				limit = { has_country_flag = will_help_against_maresoc }
+				country_event = { id = mareland.63 hours = 2 }
+			}
+		}
+		
 		modifier = {
 			war_support_weekly = 0.025
 			political_power_gain = -0.3
@@ -660,7 +774,11 @@ EQS_construction_projects = {
 		}
 		cost = 25
 		ai_will_do = {
-			factor = 2
+			base = 0
+			modifier = {
+				add = 10
+				has_political_power > 155
+			}
 		}
 		fire_only_once = yes
 		is_good = yes
@@ -724,7 +842,11 @@ EQS_construction_projects = {
 		}
 		cost = 25
 		ai_will_do = {
-			factor = 2
+			base = 0
+			modifier = {
+				add = 10
+				has_political_power > 155
+			}
 		}
 		fire_only_once = yes
 		is_good = yes
@@ -782,7 +904,11 @@ EQS_construction_projects = {
 		}
 		cost = 50
 		ai_will_do = {
-			factor = 2
+			base = 0
+			modifier = {
+				add = 10
+				has_political_power > 155
+			}
 		}
 		fire_only_once = yes
 		is_good = yes
@@ -874,6 +1000,7 @@ EQS_civil_war = {
 		cost = 15
 
 		visible = {
+			eqs_has_civil_war = yes
 			FROM = { has_country_flag = eqs_kept_ceasefire }
 		}
 
@@ -915,6 +1042,7 @@ EQS_civil_war = {
 		cost = 200
 
 		visible = {
+			eqs_has_civil_war = yes
 			NOT = { has_country_flag = eqs_kept_ceasefire_cooldown }
 			has_country_flag = eqs_kept_ceasefire
 		}
