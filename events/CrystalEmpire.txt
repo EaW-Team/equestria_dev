@@ -342,7 +342,6 @@ country_event = { ## Take the invitation
 		custom_effect_tooltip = invitation_saved
 		set_country_flag = invitation_to_join_the_club
 		set_country_flag = sakira_likes_that
-		hidden_effect = { remove_mission = CRY_looming_sombra }
 		ai_chance = {
 			base = 70
 			modifier = {
@@ -2650,13 +2649,12 @@ country_event = { ## Bringing Back Cadence
 		OR = {
 			AND = {
 				OR = {
-					has_country_flag = free_the_old_royalty
-					has_country_flag = continue_imprisonment
-					NOT = { has_country_flag = CRY_miamorefate_d_done }
+					has_global_flag = free_the_old_royalty
+					has_global_flag = continue_imprisonment
 				}
 			}
 			AND = {
-				has_country_flag = royalty_executed
+				has_global_flag = royalty_executed
 				NOT = { country_exists = event_target:solar_empire }
 				NOT = { has_global_flag = SOL_twilight_converted }
 			}
@@ -2675,49 +2673,55 @@ country_event = { ## Bringing Back Cadence
 		name = crysom.40.a
 		trigger = {
 			OR = {
-				has_country_flag = free_the_old_royalty
-				has_country_flag = continue_imprisonment
-				NOT = { has_country_flag = CRY_miamorefate_d_done }
+				has_global_flag = free_the_old_royalty
+				has_global_flag = continue_imprisonment
 			}
 		}
 		drop_cosmetic_tag = yes
 		hidden_effect = {
 			retire_country_leader = yes
-			create_country_leader = {
-				name = "Princess Mi Amore Cadenza"
-				desc = "CADENCE_DESC"
-				picture = "Cadence.tga"
-				expire = "1965.1.1"
-				ideology = alicornrule
-			}
+		}
+		create_country_leader = {
+			name = "Princess Mi Amore Cadenza"
+			desc = "CADENCE_DESC"
+			picture = "Cadence.tga"
+			expire = "1965.1.1"
+			ideology = alicornrule
+		}
+		hidden_effect = {
 			remove_ideas = crystal_buff
 			remove_ideas = sombra_dark_magic
 			remove_ideas = sombra_dark_magic1
 			remove_ideas = sombra_dark_magic2
+			clr_global_flag = continue_imprisonment
 		}
+		event_target:CRY_Shining_Armor = { set_nationality = ROOT }
 	}
 	option = {
 		name = crysom.40.a
 		trigger = {
-			has_country_flag = royalty_executed
+			has_global_flag = royalty_executed
 			NOT = { country_exists = event_target:solar_empire }
 			NOT = { has_global_flag = SOL_twilight_converted }
 		}
 		drop_cosmetic_tag = yes
 		hidden_effect = {
 			retire_country_leader = yes
-			create_country_leader = {
-				name = "Princess Twilight Sparkle"
-				desc = "TWILIGHT_DESC"
-				picture = "Twilight.tga"
-				expire = "1965.1.1"
-				ideology = alicornrule
-				id = 1000
-			}
+		}
+		create_country_leader = {
+			name = "Princess Twilight Sparkle"
+			desc = "TWILIGHT_DESC"
+			picture = "Twilight.tga"
+			expire = "1965.1.1"
+			ideology = alicornrule
+			id = 1000
+		}
+		hidden_effect = {
 			remove_ideas = crystal_buff
 			remove_ideas = sombra_dark_magic
 			remove_ideas = sombra_dark_magic1
 			remove_ideas = sombra_dark_magic2
+		}
 		}
 	}
 }
@@ -2725,27 +2729,34 @@ country_event = { ## Royal Family Captured
 	id = crysom.41
 	immediate = {log = "[Root.GetName]: event crysom.41"}#Auto-logging
 	title = crysom.41.t
-	desc = crysom.41.d
+	desc = {
+		text = crysom.41.d
+		trigger = { has_government = fascism }
+	}
+	desc = {
+		text = crysom.41.d_com
+		trigger = { has_government = communism }
+	}
 	picture = GFX_event_royal_family_captured
 	
-	trigger = {
-		original_tag = CRY
-		has_country_flag = larger_civil_war
-		has_global_flag = sombra_returned
-		has_government = fascism
-	}
-	mean_time_to_happen = { days = 5 }
+	#trigger = {
+	#	original_tag = CRY
+	#	has_global_flag = sombra_returned
+	#	has_government = fascism
+	#}
+	#mean_time_to_happen = { days = 5 }
+	is_triggered_only = yes
 	fire_only_once = yes
 	option = {
 		name = crysom.41.a
-		set_country_flag = royal_family_captured
+		add_ideas = royalfamily_imprisioned
+		set_global_flag = continue_imprisonment
 		event_target:equestria = {
-			add_timed_idea = { idea = royal_family_imprisoned days = 1200 }
-		}
-		random_other_country = {
-			limit = { original_tag = CRY
-				has_government = democratic }
-			add_timed_idea = { idea = royal_family_imprisoned days = 1200 }
+			add_ideas = royal_family_imprisoned
+			if = {
+				limit = { has_government = communism }
+				country_event = { id = equestria.45 days = 2 }
+			}
 		}
 	}
 }
@@ -2759,39 +2770,56 @@ country_event = { ## What to do with the royal family
 	is_triggered_only = yes
 	option = {
 		name = crysom.42.a
-		set_country_flag = royalty_executed
+		trigger = { has_government = fascism }
+		add_political_power = 150
+		set_global_flag = royalty_executed
+		clr_global_flag = continue_imprisonment
 		every_country = {
 			limit = {
 				original_tag = event_target:equestria
-				has_government = democratic
+				OR = {
+					is_subject_of = event_target:equestria
+					is_in_faction_with = event_target:equestria
+				}
 			}
 			add_opinion_modifier = { modifier = executed_royalty target = ROOT }
 		}
-		ai_chance = {
-			factor = 1
-			modifier = {
-				factor = 0
-				has_government = communism
+		hidden_effect = {
+			if = {
+				limit = { has_government = fascism }
+				news_event = { id = news.cry.3 days = 3 }
+			}
+			else = {
+				news_event = { id = news.cry.4 days = 1 }
 			}
 		}
 	}
 	option = {
 		name = crysom.42.b
+		add_stability = 0.05
 		ai_chance = {
 			factor = 1
 		}
-		set_country_flag = continue_imprisonment
 	}
 	option = {
 		name = crysom.42.c
-		set_country_flag = free_the_old_royalty
-		every_country = {
+		add_political_power = -50
+		set_global_flag = free_the_old_royalty
+		clr_global_flag = continue_imprisonment
+		every_other_country = {
 			limit = {
 				original_tag = event_target:equestria
-				has_government = democratic
+				OR = {
+					is_subject_of = event_target:equestria
+					is_in_faction_with = event_target:equestria
+				}
 			}
 			add_opinion_modifier = { modifier = released_royalty target = ROOT }
 		}
+		event_target:equestria = { 	
+			country_event = { id = equestria.48 days = 1 }
+ 		}
+		hidden_effect = { news_event = { id = news.cry.5 days = 1 } }
 		ai_chance = {
 			factor = 1
 			modifier = {
@@ -2938,6 +2966,7 @@ country_event = { ## Your Freindship
 }
 country_event = { ## Your Freindship
 	id = crysom.47
+	immediate = {log = "[Root.GetName]: event crysom.47"}#Auto-logging
 	title = { text = crysom.47.t
 		trigger = { has_government = fascism } }
 	title = { text = crysom.47.t_loss
@@ -2960,9 +2989,10 @@ country_event = { ## Your Freindship
 		add_political_power = -10
 	}
 }
-country_event = { ## Your Freindship
+country_event = {
 	id = crysom.48
 	hidden = yes
+	immediate = {log = "[Root.GetName]: event crysom.48"}#Auto-logging
 	is_triggered_only = yes
 	trigger = {
 		has_focus_tree = crystalempire_sombra
@@ -2970,6 +3000,49 @@ country_event = { ## Your Freindship
 	}
 	option = {
 		load_focus_tree = crystalempire
+	}
+}
+country_event = { ## Cadence escapes (for EQS)
+	id = crysom.49
+	title = crysom.49.t
+	desc = {
+		text = crysom.49.d
+		trigger = { FROM = { has_government = fascism } }
+	}
+	desc = {
+		text = crysom.49.d_com
+		trigger = { FROM = { has_government = communism } }
+	}
+	immediate = {log = "[Root.GetName]: event crysom.49"}#Auto-logging
+	picture = GFX_event_crystal_city
+
+	is_triggered_only = yes
+	fire_only_once = yes
+
+	option = {
+		name = crysom.49.a
+		country_event = { days = 1 id = equestria.50 }	
+	}
+}
+country_event = { ## Cadence escapes
+	id = crysom.50
+	title = crysom.50.t
+	desc = {
+		text = crysom.50.d
+		trigger = { has_government = fascism }
+	}
+	desc = {
+		text = crysom.50.d_com
+		trigger = { has_government = communism }
+	}
+	immediate = {log = "[Root.GetName]: event crysom.50"}#Auto-logging
+	picture = GFX_event_crystal_city
+
+	is_triggered_only = yes
+	fire_only_once = yes
+
+	option = {
+		name = crysom.50.a
 	}
 }
 ############################################################
@@ -3056,6 +3129,7 @@ country_event = {
 				}
 				set_nationality = event_target:dem_CRY
 			}
+			news_event = { id = news.cry.0 days = 1 }
 		}
 	}
 	option = {
@@ -3087,6 +3161,7 @@ country_event = {
 					set_nationality = ROOT
 				}
 			}
+			news_event = { id = news.cry.0 days = 1 }
 		}
 	}
 }
@@ -3226,9 +3301,20 @@ country_event = {
 	
 	option = {
 		name = crystalemp.10.a
+		add_political_power = -50
 		remove_ideas = royalfamily_imprisioned
-		event_target:equestria = { add_opinion_modifier  = { target = ROOT modifier = cry_accepted_demmands } }
-		ai_chance = { factor = 60 }
+		set_global_flag = free_the_old_royalty
+		event_target:equestria = { 
+			add_opinion_modifier  = { target = ROOT modifier = cry_accepted_demmands } 
+			country_event = { id = equestria.46 days = 1 }
+		}
+		ai_chance = { 
+			factor = 60 
+			modifier = {
+				factor = 0
+				has_government = fascism
+			}
+		}
 		
 	}
 	option = {
@@ -3238,6 +3324,7 @@ country_event = {
 				target = ROOT
 				modifier = cry_refused_demmands
 			}
+			country_event = { id = equestria.47 days = 1 }
 		}
 		
 		custom_effect_tooltip = crystalemp.10.b.tt
@@ -3579,14 +3666,17 @@ country_event = { ## Communist Crystal Ponies # Elections
 			communism > 0.499
 		}
 		name = crycom.3.a
+		set_politics = { ruling_party = communism elections_allowed = no }
+		end_puppet_this = yes
+		leave_faction = yes
 		hidden_effect = {
-			set_politics = { ruling_party = communism elections_allowed = no }
 			random_list = { 50 = { add_political_power = 50 } 50 = { add_political_power = 100 } }
 			add_ideas = CRY_inexperienced_officers
 			remove_ideas = royal_family
 			remove_ideas = royal_family3
 			remove_ideas = royal_family2
 			remove_ideas = equestrian_overlord
+			remove_ideas = equestrian_overlord2
 			end_puppet_this = yes
 			leave_faction = yes
 			remove_unit_leader = 1043
@@ -3594,6 +3684,13 @@ country_event = { ## Communist Crystal Ponies # Elections
 			country_event = {
 				id = crycom.9 hours = 3
 			}
+			news_event = { id = news.cry.1 days = 1 }
+			set_global_flag = free_the_old_royalty
+			clr_global_flag = continue_imprisonment
+			event_target:equestria = {
+				country_event = { id = equestria.48 days = 5 }
+			}
+			hidden_effect = { news_event = { id = news.cry.5 days = 5 } }
 		}
 	}
 	option = {
@@ -3627,6 +3724,7 @@ country_event = { ## Communist Crystal Ponies # Elections
 				}
 				set_nationality = event_target:dem_CRY
 			}
+			news_event = { id = news.cry.0 days = 1 }
 		}
 		set_cosmetic_tag = CRY_COM
 	}
