@@ -45,21 +45,25 @@ EQS_celestia_evil_meter_category = {
 	EQS_conscription_decision = {
 		icon = rifles
 		visible = {
-			has_war = no
-			threat > 0.4
-			any_country = {
-				is_major = yes
-				OR = {
-					has_wargoal_against = ROOT
-					is_justifying_wargoal_against = ROOT
-					hidden_trigger = { focus_progress = { focus = demand_equestria progress > 0 } }
+			OR = {
+				has_completed_focus = Extreme_war_comittee
+				AND = {
+					OR = {
+						threat > 0.35
+						has_war_support > 0.3
+						AND = {
+							any_country = {
+								is_major = yes
+								OR = {
+									has_wargoal_against = ROOT
+									is_justifying_wargoal_against = ROOT
+								}
+							}
+						}
+					}
 				}
 			}
 			has_country_flag = manpower_laws_blocked
-			OR = {
-				has_idea = disarmed_nation
-				has_idea = volunteer_only
-			}
 		}
 		cost = 10
 		ai_will_do = {
@@ -73,15 +77,22 @@ EQS_celestia_evil_meter_category = {
 	EQS_economy_decision = {
 		icon = generic_industry
 		visible = {
-			tag = EQS
-			has_war = no
-			threat > 0.4
-			any_country = {
-				is_major = yes
-				OR = {
-					has_wargoal_against = ROOT
-					is_justifying_wargoal_against = ROOT
-					hidden_trigger = { focus_progress = { focus = demand_equestria progress > 0 } }
+			OR = {
+				has_completed_focus = Extreme_war_comittee
+				AND = {
+					OR = {
+						threat > 0.35
+						has_war_support > 0.3
+						AND = {
+							any_country = {
+								is_major = yes
+								OR = {
+									has_wargoal_against = ROOT
+									is_justifying_wargoal_against = ROOT
+								}
+							}
+						}
+					}
 				}
 			}
 			has_country_flag = economic_laws_blocked
@@ -131,6 +142,7 @@ EQS_celestia_evil_meter_category = {
 			}
 		}
 		available = {
+			NOT = { has_country_flag = war_plan_timeout }
 			has_war = yes
 			OR = {
 				has_war_support > 0.5
@@ -146,6 +158,14 @@ EQS_celestia_evil_meter_category = {
 		cost = 100
 		ai_will_do = {
 			factor = 1000
+			modifier = {
+				factor = 0
+				OR = {
+					has_stability < 0.75
+					has_war_support < 0.75
+					surrender_progress < 0.1
+				}
+			}
 		}
 		complete_effect = {
 			if = {
@@ -171,6 +191,51 @@ EQS_celestia_evil_meter_category = {
 					}
 					add_ideas = war_economy
 				}
+			}
+			hidden_effect = {
+				set_country_flag = { flag = war_plan_timeout days = 60 value = 1 }
+			}
+		}
+	}
+	EQS_turn_off_war_plan_decision = {
+		icon = war_plan_eqs
+		visible = {
+			OR = {
+				has_idea = war_plan_equestria_mild
+				has_idea = war_plan_equestria
+				has_idea = war_plan_equestria_extreme
+			}
+		}
+		available = {
+			NOT = { has_country_flag = war_plan_timeout }
+		}
+		cost = 50
+		ai_will_do = {
+			factor = 0
+			modifier = {
+				add = 100
+				OR = {
+					has_stability < 0.75
+					has_war_support < 0.75
+					surrender_progress < 0.01
+				}
+			}
+		}
+		complete_effect = {
+			if = {
+				limit = { has_country_flag = EQS_war_plan_equestria_mild }
+				remove_ideas = war_plan_equestria_mild
+			}
+			else_if = {
+				limit = { has_country_flag = EQS_war_plan_equestria }
+				remove_ideas = war_plan_equestria
+			}
+			else_if = {
+				limit = { has_country_flag = EQS_war_plan_equestria_extreme }
+				remove_ideas = war_plan_equestria_extreme
+			}
+			hidden_effect = {
+				set_country_flag = { flag = war_plan_timeout days = 60 value = 1 }
 			}
 		}
 	}
@@ -198,9 +263,204 @@ EQS_celestia_evil_meter_category = {
 				add_ai_strategy = {
 					type = support
 					id = "CCN"
-					value = 250
+					value = 300
 				}
 			}
+		}
+	}
+}
+SOL_dealing_with_resistance = {
+	SOL_resistance_crisis = {
+		icon = decision_generic_ignite_civil_war
+		activation = {
+			democratic > 0.3
+			has_idea = SOL_harmonic_resistance_idea3
+			has_war = no
+		}
+		available = {
+			has_war = no
+			NOT = {
+				has_idea = SOL_harmonic_resistance_idea3
+			}
+		}
+		is_good = no
+		days_mission_timeout = 180
+		timeout_effect = {
+			set_temp_variable = { civ_war_size = party_popularity@democratic }
+			multiply_temp_variable = { civ_war_size = 2 }
+			clamp_variable = {
+				var = civ_war_size
+				min = 0.4
+				max = 0.6
+			}
+			add_stability = -0.3
+			add_war_support = -0.3
+			add_political_power = -250
+			start_civil_war = {
+				ideology = democratic
+				size = civ_war_size
+			}
+			hidden_effect = {
+				remove_ideas = SOL_harmonic_resistance_idea3
+				random_other_country = {
+					limit = { 
+						original_tag = EQS
+						has_government = democratic
+					}
+					load_focus_tree = { tree = equestria_focus keep_completed = yes }
+					set_capital = 75
+					add_political_power = 450
+					set_party_name = { ideology = fascism long_name = EQS_fascism_generic_party_long name = EQS_fascism_generic_party }
+					set_country_flag = EQS_force_republic
+					complete_national_focus = eqs_come_to_compromise
+					complete_national_focus = eqs_allow_the_vote
+					set_country_flag = congress_president
+					set_cosmetic_tag = EQS_DEM1
+					set_party_name = { ideology = democratic long_name = EQS_republic_long name = EQS_republic }
+					country_event = { hours = 24 id = equestriadem.1 }
+					set_country_flag = { flag = celestia_evil_meter value = 0 }
+					save_global_event_target_as = equestria
+					every_unit_leader = {
+						limit = {
+							OR = {
+								has_id = 1
+								has_id = 11
+								has_id = 204
+								has_id = 38
+								has_id = 37
+								has_id = 36
+								has_id = 34
+								has_id = 35
+							}
+						}
+						set_nationality = event_target:solar_empire
+					}
+					ROOT = {
+						every_unit_leader = {
+							limit = {
+								OR = {
+									has_id = 5
+									has_id = 6
+									has_id = 7
+									has_id = 8
+									has_id = 9
+									has_id = 10
+									has_id = 10000
+									has_id = 202
+									has_id = 205
+								}
+							}
+							set_nationality = PREV.PREV
+						}
+					}
+				}
+			}
+		}
+	}
+	SOL_laws = {
+		icon = anti_harmony
+		visible = {
+			OR = {
+				has_completed_focus = SOL_Freedom_from_Fear
+				has_completed_focus = SOL_Firm_but_Fair
+				has_completed_focus = SOL_Imperial_Inquisition
+			}
+			OR = {
+				has_idea = SOL_harmonic_resistance_idea
+				has_idea = SOL_harmonic_resistance_idea2
+				has_idea = SOL_harmonic_resistance_idea3
+			}
+		}
+		fire_only_once = yes
+		cost = 70
+		days_remove = 70
+		remove_effect = {
+			unlock_decision_tooltip = SOL_wrap_up
+			unlock_decision_tooltip = SOL_raids_2
+			unlock_decision_tooltip = SOL_raids
+			hidden_effect = { set_country_flag = SOL_laws_done }
+		}
+		ai_will_do = {
+			factor = 20
+		}
+	}
+	SOL_raids = {
+		icon = anti_harmony
+		visible = {
+			has_idea = SOL_harmonic_resistance_idea3
+		}
+		available = {
+			has_country_flag = SOL_laws_done
+		}
+		cost = 140
+		days_remove = 70
+		remove_effect = {
+			swap_ideas = { add_idea = SOL_harmonic_resistance_idea2 remove_idea = SOL_harmonic_resistance_idea3 }
+		}
+		modifier = {
+			democratic_drift = -0.02
+			stability_factor = -0.05
+			political_power_cost = 0.2
+		}
+		ai_will_do = {
+			factor = 100
+		}
+	}
+	SOL_raids_2 = {
+		icon = anti_harmony
+		visible = {
+			has_idea = SOL_harmonic_resistance_idea2
+		}
+		available = {
+			has_country_flag = SOL_laws_done
+		}
+		cost = 70
+		days_remove = 70
+		remove_effect = {
+			swap_ideas = { add_idea = SOL_harmonic_resistance_idea remove_idea = SOL_harmonic_resistance_idea2 }
+			hidden_effect = {
+				clr_country_flag = SOL_raids_2_in_progress
+			}
+		}
+		complete_effect = {
+			hidden_effect = {
+				set_country_flag = SOL_raids_2_in_progress
+			}
+		}
+		modifier = {
+			democratic_drift = -0.02
+		}
+		ai_will_do = {
+			factor = 20
+		}
+	}
+	SOL_wrap_up = {
+		icon = anti_harmony
+		visible = {
+			has_idea = SOL_harmonic_resistance_idea
+		}
+		available = {
+			has_country_flag = SOL_laws_done
+		}
+		fire_only_once = yes
+		cost = 100
+		days_remove = 70
+		remove_effect = {
+			remove_ideas = SOL_harmonic_resistance_idea
+			add_popularity = {
+				ideology = democratic
+				popularity = -0.05
+			}
+			hidden_effect = { clr_country_flag = SOL_wrap_up_in_progress }
+		}
+		complete_effect = {
+			hidden_effect = {
+				set_country_flag = SOL_wrap_up_in_progress
+				country_event = { id = solarempire.30 days = 35 }
+			}
+		}
+		ai_will_do = {
+			factor = 20
 		}
 	}
 }
@@ -283,7 +543,7 @@ political_actions = {
 		}
 	}
 
-		SOL_rehabilitate_generals = {
+	SOL_rehabilitate_generals = {
 
 		icon = generic_army_support
 
@@ -291,7 +551,7 @@ political_actions = {
 		allowed = {
 			original_tag = EQS
 		}
-		cost = 50
+		cost = 200
 		visible = {
 			is_EQS_SOL = yes
 			is_subject = no
@@ -313,6 +573,10 @@ political_actions = {
 				NOT = { has_unit_leader = 14 }
 				NOT = { has_unit_leader = 12 }
 				NOT = { has_unit_leader = 30 }
+				NOT = { has_unit_leader = 31 }
+				NOT = { has_unit_leader = 33 }
+				NOT = { has_unit_leader = 19 }
+				NOT = { has_unit_leader = 32 }
 			}
 		}
 
@@ -353,6 +617,22 @@ political_actions = {
 				limit = { NOT = { has_unit_leader = 14 } }
 				event_target:EQS_Squall = { set_nationality = ROOT }
 			}
+			if = {
+				limit = { NOT = { has_unit_leader = 31 } }
+				event_target:EQS_Spark = { set_nationality = ROOT }
+			}
+			if = {
+				limit = { NOT = { has_unit_leader = 32 } }
+				event_target:EQS_Fireflight = { set_nationality = ROOT }
+			}
+			if = {
+				limit = { NOT = { has_unit_leader = 19 } }
+				event_target:EQS_Thunderbolt = { set_nationality = ROOT }
+			}
+			if = {
+				limit = { NOT = { has_unit_leader = 33 } }
+				event_target:EQS_Sun_Marble = { set_nationality = ROOT }
+			}
 		}
 
 		ai_will_do = {
@@ -377,9 +657,11 @@ EQS_bring_back_puppets = {
 					}
 				}
 			}
+			FROM = { exists = yes }
 		}
 		target_trigger = {
 			FROM = {
+				is_subject = no
 				has_country_flag = former_EQS_puppet
 				is_former_subject = yes
 				NOT = { has_war = yes }
@@ -409,6 +691,100 @@ EQS_bring_back_puppets = {
 				limit = { tag = NLR }
 				FROM = { country_event = { id = solarempire.122 days = 1 } }
 			}
+		}
+	}
+}
+EQS_bring_back_civil_war_countries = {
+	EQS_bring_back_SCS = {
+		icon = generic_political_actions
+		visible = {
+			has_completed_focus = EQS_United_Equestria
+			country_exists = FROM
+		}
+		available = {
+			has_war = no
+		}
+		target_trigger = {
+			FROM = {
+				tag = SCS
+				exists = yes
+				is_subject = no
+				NOT = { has_war = yes }
+			}
+		}
+		fire_only_once = yes
+		cost = 10
+		complete_effect = {
+			country_event = equestria.117
+		}
+	}
+	EQS_bring_back_VAN = {
+		icon = generic_political_actions
+		visible = {
+			has_completed_focus = EQS_United_Equestria
+			country_exists = FROM
+		}
+		available = {
+			has_war = no
+		}
+		target_trigger = {
+			FROM = {
+				tag = VAN
+				exists = yes
+				is_subject = no
+				NOT = { has_war = yes }
+			}
+		}
+		fire_only_once = yes
+		cost = 10
+		complete_effect = {
+			country_event = equestria.118
+		}
+	}
+	EQS_bring_back_BAL = {
+		icon = generic_political_actions
+		visible = {
+			has_completed_focus = EQS_United_Equestria
+			country_exists = FROM
+		}
+		available = {
+			has_war = no
+		}
+		target_trigger = {
+			FROM = {
+				tag = BAL
+				exists = yes
+				is_subject = no
+				NOT = { has_war = yes }
+			}
+		}
+		fire_only_once = yes
+		cost = 10
+		complete_effect = {
+			country_event = equestria.110
+		}
+	}
+	EQS_bring_back_JUN = {
+		icon = generic_political_actions
+		visible = {
+			has_completed_focus = EQS_United_Equestria
+			country_exists = FROM
+		}
+		available = {
+			has_war = no
+		}
+		target_trigger = {
+			FROM = {
+				tag = JUN
+				exists = yes
+				is_subject = no
+				NOT = { has_war = yes }
+			}
+		}
+		fire_only_once = yes
+		cost = 10
+		complete_effect = {
+			country_event = equestria.126
 		}
 	}
 }
@@ -640,10 +1016,9 @@ EQS_foreign_affairs = {
 	EQS_sombra_return_civil_war_help = {
 		icon = sombra_return
 		available = {
-			CRY = { has_civil_war = yes
-			has_global_flag = sombra_returned }
+			has_war_support > 0.10
 		}
-		cost = 20
+		cost = 50
 		ai_will_do = {
 			factor = 150
 		}
@@ -660,7 +1035,6 @@ EQS_foreign_affairs = {
 		}
 		days_remove = 70
 		remove_effect = {
-			add_political_power = 50
 			country_event = {
 				id = equestria.53 days = 1
 			}
@@ -671,51 +1045,116 @@ EQS_foreign_affairs = {
 				custom_effect_tooltip = sombra_civil_war_tt
 				hidden_effect = {
 					load_oob = "EQS_sombra_civil_war"
-				}
+					ROOT = {
+						add_ai_strategy = {
+							type = support
+							id = PREV
+							value = 300
+						}
+					}
+				} 
 			}
 		}
 		modifier = {
-			war_support_weekly = 0.02
 			political_power_gain = -0.3
 		}
 	}
 	EQS_sombra_return_war = {
 		icon = sombra_return
 		available = {
-			CRY = { has_civil_war = no
-			has_global_flag = sombra_returned }
-			has_global_flag = return_of_sombra
+			has_war_support > 0.10
 		}
-		cost = 20
+		cost = 50
 		ai_will_do = {
 			factor = 150
 		}
 		fire_only_once = yes
 
+		war_with_on_remove = CRY
+
 		visible = {
-			CRY = { has_civil_war = no
-			has_global_flag = sombra_returned }
+			any_other_country = {
+				original_tag = CRY
+				has_country_leader = { ruling_only = yes name = "King Sombra" }
+				has_civil_war = no
+			}
+			has_global_flag = sombra_returned
 			has_global_flag = return_of_sombra
+		}
+		cancel_trigger = {
+			any_other_country = {
+				original_tag = CRY
+				has_country_leader = { ruling_only = yes name = "King Sombra" }
+				has_war_with = ROOT
+			}
 		}
 		days_remove = 70
 		remove_effect = {
-			add_political_power = 50
-			country_event = {
-				id = equestria.53 days = 1
-			}
-			add_manpower = 20000
-			add_political_power = 300
-			custom_effect_tooltip = sombra_civil_war_tt
-			hidden_effect = {
-				load_oob = "EQS_sombra_civil_war"
-			}
+			#add_manpower = 20000
+			#custom_effect_tooltip = sombra_civil_war_tt
+			#hidden_effect = {
+			#	load_oob = "EQS_sombra_civil_war"
+			#}
 			country_event = {
 				id = equestria.54 days = 1
 			}
 		}
 		modifier = {
-			war_support_weekly = 0.025
 			political_power_gain = -0.3
+		}
+	}
+	EQS_operation_sunrise_freedom = {
+		icon = rifles
+		cost = 100
+		ai_will_do = {
+			factor = 150
+		}
+		fire_only_once = yes
+		
+		war_with_on_remove = EQC
+
+		visible = {
+			any_other_country = {
+				original_tag = EQC
+				has_country_flag = is_maresoc
+			}
+			has_country_flag = EQS_will_war_with_maresoc
+		}
+		days_remove = 70
+		
+		complete_effect = {
+			random_other_country = {
+				limit = { 
+					original_tag = EQC
+					has_country_flag = is_maresoc
+				}
+				activate_targeted_decision = { target = ROOT decision = EQC_equestria_anti_maresoc }
+			}
+		}
+		
+		remove_effect = {
+			log = "[GetDateText] [Root.GetName]: decision EQS_operation_sunrise_freedom"
+			random_other_country = {
+				limit = { 
+					original_tag = EQC
+					has_country_flag = is_maresoc
+				}
+				ROOT = {
+					declare_war_on = {
+						type = topple_government
+						target = PREV
+					}
+				}
+			}
+			every_country ={
+				limit = { has_country_flag = will_help_against_maresoc }
+				country_event = { id = mareland.63 hours = 2 }
+			}
+		}
+		
+		modifier = {
+			war_support_weekly = 0.025
+			political_power_gain = -0.05
 		}
 	}
 }
