@@ -1,13 +1,13 @@
 #!/usr/bin/python3
 import argparse
 import os
+import re
 import glob
 import sys
 
 #############################
 ###
 ### HoI 4 File Formatter by Yard1, originally for Equestria at War mod
-### Warning: this script overwrites files without creating backups! While it has been tested and should not cause any in-game errors, please keep that in mind.
 ### Written in Python 3.5.2
 ###
 ### Copyright (c) 2017 Antoni Baum (Yard1)
@@ -15,7 +15,7 @@ import sys
 ### The above copyright notice and this permission notice shall be included in all copies or substantial portions of the Software.
 ### THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 ###
-### usage: hoi4fileformatter.py [-h] [-r] [--extensions [EXTENSIONS [EXTENSIONS ...]]]
+### usage: hoi4Formatter.py [-h] [-r] [--extensions [EXTENSIONS [EXTENSIONS ...]]]
 ###                         input
 ###
 ### Given a file or folder, format files to follow proper PDX-style indentation. Only indentation is changed.
@@ -25,6 +25,11 @@ import sys
 ###
 ### optional arguments:
 ###   -h, --help            show this help message and exit
+###   -ws, --whitespace     ONLY remove whitespace at the end of the line without
+###                         formatting (Default: False)
+###   -ic, --ignore_comments
+###                         Ignore lines which start with # (or whitespace #)
+###                         (Default: False)
 ###   -r, --recursive       Format files in directories recursively (Default:
 ###                         False)
 ###   --extensions [EXTENSIONS [EXTENSIONS ...]]
@@ -43,7 +48,7 @@ def readable_dir(prospective_dir):
 
 #############################
 
-def formatfile(name):
+def formatfile(name, remove_whitespace, ignore_comments):
     print("Reading file " + name + "...")
     with open(name, "r") as f:
         lines = f.read().splitlines()
@@ -51,11 +56,19 @@ def formatfile(name):
     new_lines = list()
     open_blocks = 0
     for line in lines:
+        if ignore_comments and re.match("^\s*#", line):
+            new_lines.append(line)
+            continue
+        if remove_whitespace:
+            line = re.sub(r"\s*$", "", line)
+            new_lines.append(line)
+            continue
         line = line.strip()
         if line == "}":
             line = ('\t' * (open_blocks-1)) + line
         else:
             line = ('\t' * open_blocks) + line
+        line = re.sub(r"\s*$", "", line)
         new_lines.append(line)
         open_blocks = open_blocks + line.count('{')
         open_blocks = open_blocks - line.count('}')
@@ -65,10 +78,13 @@ def formatfile(name):
 #############################
 if not sys.version_info >= (3,0):
     sys.exit("Wrong Python version. Version 3.0 or higher is required to run this script!")
-
 parser = argparse.ArgumentParser(description='Given a file or folder, format files to follow proper PDX-style indentation. Only indentation is changed.')
 parser.add_argument('input', metavar='input',
                     help='Technology file name/folder containing files')
+parser.add_argument( '-ws', '--whitespace', action='store_true', required=False, default=False,
+                    help='ONLY remove whitespace at the end of the line without formatting (Default: False)')
+parser.add_argument( '-ic', '--ignore_comments', action='store_true', required=False, default=False,
+                    help='Ignore lines which start with # (or whitespace #) (Default: False)')
 parser.add_argument( '-r', '--recursive', action='store_true', required=False, default=False,
                     help='Format files in directories recursively (Default: False)')
 parser.add_argument( "--extensions", nargs="*", type=str, required=False,default=[".txt", ".gfx"],
@@ -83,24 +99,24 @@ try:
     is_dir = True
 except:
     print("Not a directory, treating as file.")
-
 if is_dir:
     if args.recursive:
         for file in glob.glob(dir+"/**/*.*", recursive=True):
             if os.path.splitext(file)[1] in args.extensions:
                 try:
-                    formatfile(file)
-                    counter = counter+1
+                    formatfile(file, args.whitespace, args.ignore_comments)
+                    counter += 1
                 except:
                     pass
     else:
         for file in glob.glob(dir+"/*.*"):
             if os.path.splitext(file)[1] in args.extensions:
                 try:
-                    formatfile(file)
-                    counter = counter+1
+                    formatfile(file, args.whitespace, args.ignore_comments)
+                    counter += 1
                 except:
                     pass
 else:
-    formatfile(args.input)
+    formatfile(args.input, args.whitespace, args.ignore_comments)
+    counter += 1
 print("Finished, %s files formatted" % counter)
