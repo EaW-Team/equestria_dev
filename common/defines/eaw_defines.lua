@@ -63,5 +63,5 @@ NDefines.NAI.VP_LEVEL_IMPORTANCE_HIGH = 50				-- Victory points with values high
 NDefines.NAI.VP_LEVEL_IMPORTANCE_MEDIUM = 25			-- Victory points with values higher than or equal to this are considered to be of medium importance.
 NDefines.NAI.VP_LEVEL_IMPORTANCE_LOW = 5				-- Victory points with values higher than or equal to this are considered to be of low importance.
 
-NDiplomacy.BASE_STAGE_COUP_DAILY_PP = 9000					-- Daily pp cost for staging a coup
-NDiplomacy.BASE_STAGE_COUP_TOTAL_COST = 9999 				-- Equipment consume factor for stage coup.
+NDefines.NDiplomacy.BASE_STAGE_COUP_DAILY_PP = 9000					-- Daily pp cost for staging a coup
+NDefines.NDiplomacy.BASE_STAGE_COUP_TOTAL_COST = 9999 				-- Equipment consume factor for stage coup.
