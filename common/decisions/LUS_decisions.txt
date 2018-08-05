@@ -1,4 +1,96 @@
+LUS_feudalism = {
+	LUS_raise_levy = {
+		icon = clover_lushi
+		available = {
+			OR = {
+				has_war = yes
+				custom_trigger_tooltip = {
+					tooltip = preparing_a_siege_tt
+					has_country_flag = preparing_a_siege
+				}
+			}
+			any_owned_state = {
+				NOT = {
+					has_state_flag = levy_raised
+				}
+			}
+		}
+		visible = {
+			OR = {
+				has_war = yes
+				has_country_flag = preparing_a_siege
+			}
+			has_government = neutrality
+			NOT = {
+				has_outdated_industry = yes
+			}
+		}
+		cost = 20
+
+		ai_will_do = {
+			base = 100
+		}
+		days_remove = 5
+		
+		
+		highlight_states = {
+
+		}
+		complete_effect = {
+			if = {
+					limit = { NOT = { has_country_flag = Lushian_Levy } }
+					set_country_flag = Lushian_Levy
+					division_template = {
+						name = "Lushian Levy"
+						priority = 0
+						#division_names_group = GER_SS_01
+						is_locked = yes
+						regiments = {
+							infantry = { x = 0 y = 0 }
+							infantry = { x = 0 y = 1 }
+							infantry = { x = 0 y = 2 }
+						}
+					}
+				}
+				random_state = {
+					limit = {
+						is_controlled_by = ROOT
+						is_core_of = ROOT
+						NOT = {
+							has_state_flag = levy_raised
+						}
+					}
+					add_manpower = -3000
+					set_state_flag = levy_raised
+					hidden_effect = {
+						state_event = { id = lushi_states.1 days = 250 }
+					}
+					create_unit = {
+						division = "name = \"Lushian Levy\" division_template = \"Lushian Levy\" start_experience_factor = 0.01 start_equipment_factor = 0.8"
+						owner = ROOT
+					}
+				}
+		}
+	}
+}
 LUS_politics = {
+	LUS_marriage_preparations = {
+		icon = clover_lushi
+		available = {
+			always = no
+		}
+		ai_will_do = {
+			factor = 20
+		}
+		fire_only_once = yes
+		visible = {
+			always = no
+		}
+		days_remove = 30
+		remove_effect = {
+			country_event = lushi.34
+		}
+	}
 	LUS_celebration_planning = {
 		icon = clover_lushi
 		available = {
@@ -43,6 +135,7 @@ LUS_politics = {
 			country_event = lushi.1
 		}
 	}
+
 	LUS_brave_warriors = {
 		icon = clover_lushi
 		available = {
@@ -72,6 +165,570 @@ LUS_politics = {
 					25 = { set_country_flag = warriors_4 }
 				}
 			}
+		}
+	}
+	LUS_prepare_drak_siege = {
+		icon = border_war
+		available = {
+			has_country_flag = lord_drak_left
+		}
+		visible = {
+			has_country_flag = lord_drak_left
+		}
+		cost = 40
+
+		ai_will_do = {
+			base = 0
+			modifier = {
+				add = 20
+				strength_ratio = { tag = ANG ratio > 1 }
+			}
+			modifier = {
+				add = 200
+				strength_ratio = { tag = ANG ratio > 2 }
+			}
+		}
+		days_remove = 30
+		fire_only_once = yes
+
+		highlight_states = {
+			OR = {
+				state = 591
+				state = 632
+			}
+		}
+		modifier = {
+			conscription = 0.025
+			training_time_army_factor = -0.15
+		}
+		complete_effect = {
+			hidden_effect = {
+				set_country_flag = preparing_a_siege
+			}
+		}
+		remove_effect = {
+			hidden_effect = {
+				clr_country_flag = preparing_a_siege
+			}
+			activate_targeted_decision = {
+				target = LUS
+				decision = LUS_start_drak_siege
+			}
+		}
+	}
+	LUS_start_drak_siege = {
+		icon = border_war
+		allowed = {
+			always = no
+		}
+		available = {
+			has_country_flag = lord_drak_left
+		}
+		visible = {
+			has_country_flag = lord_drak_left
+		}
+		cost = 0
+
+		ai_will_do = {
+			base = 0
+			modifier = {
+				add = 20
+				strength_ratio = { tag = ANG ratio > 1 }
+			}
+			modifier = {
+				add = 200
+				strength_ratio = { tag = ANG ratio > 2 }
+			}
+		}
+
+		fire_only_once = yes
+
+		highlight_states = {
+			OR = {
+				state = 591
+				state = 632
+			}
+		}
+
+		complete_effect = {
+			hidden_effect = {
+				activate_targeted_decision = {
+					target = LUS
+					decision = LUS_siege_timeout
+				}
+			}
+			start_border_war = {
+
+				attacker = {
+					state = 591
+					num_provinces = 2
+					on_win = lushi.7
+					on_lose = lushi.8
+					on_cancel = lushi.9
+				}
+
+				defender = {
+					state = 632
+					num_provinces = 1
+					on_win = lushi.53
+					on_lose = lushi.54
+					on_cancel = lushi.55
+				}
+			}
+		}
+	}
+	LUS_siege_timeout = {
+		icon = border_war
+		allowed = { always = no }
+		available = {
+			632 = { has_border_war = no }
+			591 = { has_border_war = no }
+		}
+		highlight_states = {
+			OR = {
+				state = 591
+				state = 632
+			}
+		}
+		ai_will_do = {
+			base = 0
+		}
+		days_mission_timeout = 250
+		is_good = no
+		fire_only_once = yes
+		timeout_effect = {
+			cancel_border_war = {
+				defender = 632
+				attacker = 591
+			}
+		}
+	}
+	LUS_peasant_rebellion = {
+		allowed = {
+			always = no
+		}
+		ai_will_do = {
+			base = 0
+		}
+		available = {
+			has_stability > 0.75
+		}
+		days_mission_timeout = 30
+		is_good = no
+		fire_only_once = yes
+		timeout_effect = {
+			country_event = { id = lushi.15 hours = 5}
+		}
+	}
+	LUS_risk_of_famine_timeout = {
+		allowed = {
+			always = no
+		}
+		ai_will_do = {
+			base = 0
+		}
+		available = {
+			has_country_flag = grain_deal_signed
+		}
+		days_mission_timeout = 240
+		is_good = no
+		fire_only_once = yes
+		timeout_effect = {
+			add_ideas = LUS_recession
+			add_ideas = LUS_risk_of_famine
+		}
+	}
+	LUS_famine_start = {
+		allowed = {
+			always = no
+		}
+		ai_will_do = {
+			base = 0
+		}
+		available = {
+			has_country_flag = grain_deal_signed
+		}
+		days_mission_timeout = 150
+		is_good = no
+		fire_only_once = yes
+		timeout_effect = {
+			swap_ideas = { add_idea = GRW_famine_start remove_idea = LUS_risk_of_famine }
+		}
+	}
+####################################################
+####################################################
+####################################################
+####################################################
+	LUS_prepare_attack_on_gry = {
+		icon = border_war
+		available = {
+			has_country_flag = lushi_going_for_host_border
+		}
+		visible = {
+			has_country_flag = lushi_going_for_host_border
+		}
+		cost = 40
+
+		ai_will_do = {
+			base = 0
+			modifier = {
+				add = 20
+				strength_ratio = { tag = GRY ratio > 1 }
+			}
+			modifier = {
+				add = 200
+				GRY = { has_war = yes }
+			}
+			modifier = {
+				add = 200
+				strength_ratio = { tag = GRY ratio > 2 }
+			}
+		}
+		days_remove = 10
+		fire_only_once = yes
+
+		highlight_states = {
+			OR = {
+				state = 608
+				state = 592
+			}
+		}
+		complete_effect = {
+			hidden_effect = {
+				set_country_flag = preparing_border_war
+			}
+		}
+		remove_effect = {
+			hidden_effect = {
+				clr_country_flag = preparing_border_war
+			}
+			activate_targeted_decision = {
+				target = LUS
+				decision = LUS_war_for_aegland
+			}
+		}
+	}
+	LUS_war_for_aegland = {
+		icon = border_war
+		allowed = {
+			always = no
+		}
+		cost = 0
+
+		ai_will_do = {
+			base = 0
+			modifier = {
+				add = 20
+				strength_ratio = { tag = GRY ratio > 1 }
+			}
+			modifier = {
+				add = 200
+				strength_ratio = { tag = GRY ratio > 2 }
+			}
+		}
+
+		fire_only_once = yes
+
+		highlight_states = {
+			OR = {
+				state = 591
+				state = 632
+			}
+		}
+
+		complete_effect = {
+			hidden_effect = {
+				activate_targeted_decision = {
+					target = LUS
+					decision = LUS_siege_timeout
+				}
+			}
+			start_border_war = {
+
+				attacker = {
+					state = 608
+					num_provinces = 5
+					on_win = lushi.7
+					on_lose = lushi.8
+					on_cancel = lushi.9
+				}
+
+				defender = {
+					state = 592
+					num_provinces = 4
+					on_win = lushi.53
+					on_lose = lushi.54
+					on_cancel = lushi.55
+				}
+			}
+		}
+	}
+	LUS_siege_timeout = {
+		icon = border_war
+		allowed = { always = no }
+		available = {
+			608 = { has_border_war = no }
+			592 = { has_border_war = no }
+		}
+		highlight_states = {
+			OR = {
+				state = 592
+				state = 608
+			}
+		}
+		ai_will_do = {
+			base = 0
+		}
+		days_mission_timeout = 30
+		is_good = no
+		fire_only_once = yes
+		timeout_effect = {
+			cancel_border_war = {
+				defender = 592
+				attacker = 608
+			}
+		}
+	}
+}
+LUS_foreign_trade = {
+	LUS_buy_trains = {
+		icon = clover_lushi
+		available = {
+			has_country_flag = delayed_the_deal
+			NOT = {
+				has_country_flag = train_deal_signed
+			}
+		}
+		cost = 50
+		ai_will_do = {
+			factor = 20
+		}
+		fire_only_once = yes
+		is_good = yes
+		visible = {
+			has_country_flag = delayed_the_deal
+			NOT = {
+				has_country_flag = train_deal_signed
+			}
+		}
+		target_trigger = {
+			FROM = {
+				has_country_flag = LUS_delayed_the_deal
+			}
+		}
+		days_remove = 1
+		modifier = {
+
+		}
+		complete_effect = {
+			set_country_flag = train_deal_signed
+		add_stability = 0.05
+		increase_society_development_gradual = yes
+		add_ideas = LUS_train_deal
+		FROM = {
+			country_event = { id = lushi.19 days = 5 }
+			clr_country_flag = had_train_deal_with_lushi
+			set_country_flag = train_deal_with_lushi
+		}
+		}
+	}
+	LUS_buy_grain = {
+		icon = clover_lushi
+		available = {
+			has_country_flag = buy_grain_flag
+			NOT = { has_country_flag = grain_deal_signed }
+			NOT = {
+				has_country_flag = grain_deal_in_progress
+			}
+		}
+		visible = {
+			has_country_flag = buy_grain_flag
+			NOT = { has_country_flag = grain_deal_signed }
+		}
+		cost = 15
+		ai_will_do = {
+			factor = 20
+		}
+		fire_only_once = yes
+		
+		target_trigger = {
+			FROM = {
+				is_neighbor_of = ROOT
+				NOT = {
+					has_poverty = yes
+				}
+			}
+		}
+		days_remove = 1
+		modifier = {
+
+		}
+		complete_effect = {
+			FROM = {
+				country_event = { id = lushi.24 }
+				}
+			set_country_flag = grain_deal_in_progress
+			}
+		}
+	}
+LUS_economic_problems = {
+	LUS_modernization = {
+		icon = modern_city
+		available = {
+			has_completed_focus = LUS_expand_public_branch
+			has_completed_focus = LUS_expand_military_branch
+			has_completed_focus = LUS_expand_economic_branch
+			NOT = {
+				has_idea = modern_society
+			}
+		}
+		visible = {
+		}
+		cost = 100
+		ai_will_do = {
+			factor = 200
+		}
+		
+		days_remove = 200
+		modifier = {
+			political_power_gain = -0.2
+		}
+		remove_effect = {
+			increase_society_development_gradual = yes
+		}
+	}
+	LUS_expand_the_towns = {
+		
+		available = {
+			has_country_flag = finding_jobs
+		}
+		visible = {
+			has_country_flag = finding_jobs
+		}
+		cost = 15
+		ai_will_do = {
+			factor = 20
+		}
+		fire_only_once = yes
+		
+		days_remove = 130
+		modifier = {
+			political_power_gain = -0.45
+		}
+		remove_effect = {
+			lushi_remove_unemployment = yes
+		}
+	}
+	LUS_textile_industry = {
+		
+		available = {
+			has_country_flag = finding_jobs
+		}
+		visible = {
+			has_country_flag = finding_jobs
+		}
+		cost = 15
+		ai_will_do = {
+			factor = 20
+		}
+		fire_only_once = yes
+		
+		days_remove = 70
+		modifier = {
+			political_power_gain = -0.2
+		}
+		remove_effect = {
+			lushi_remove_unemployment = yes
+		}
+	}
+	LUS_woods_for_export = {
+		
+		available = {
+			has_country_flag = finding_jobs
+		}
+		visible = {
+			has_country_flag = finding_jobs
+		}
+		cost = 15
+		ai_will_do = {
+			factor = 20
+		}
+		fire_only_once = yes
+		
+		days_remove = 70
+		modifier = {
+			political_power_gain = -0.25
+		}
+		remove_effect = {
+			lushi_remove_unemployment = yes
+		}
+	}
+	LUS_machine_tools = {
+		
+		available = {
+			has_country_flag = finding_jobs
+		}
+		visible = {
+			has_country_flag = finding_jobs
+		}
+		cost = 15
+		ai_will_do = {
+			factor = 20
+		}
+		fire_only_once = yes
+		
+		days_remove = 80
+		modifier = {
+			political_power_gain = -0.25
+		}
+		remove_effect = {
+			lushi_remove_unemployment = yes
+			add_tech_bonus = {
+				name = industrial_bonus
+				bonus = 0.75
+				uses = 1
+				category = industry
+			}
+		}
+	}
+	LUS_potatoe_farming = {
+		
+		available = {
+			has_country_flag = unlocked_potato_farming
+		}
+		visible = {
+			has_country_flag = unlocked_potato_farming
+		}
+		cost = 15
+		ai_will_do = {
+			factor = 20
+		}
+		fire_only_once = yes
+		
+		days_remove = 150
+		modifier = {
+			political_power_gain = -0.05
+			stability_weekly = 0.01
+		}
+	}
+	LUS_rice_farming = {
+		
+		available = {
+			has_country_flag = unlocked_rice_farming
+		}
+		visible = {
+			has_country_flag = unlocked_rice_farming
+		}
+		cost = 15
+		ai_will_do = {
+			factor = 20
+		}
+		fire_only_once = yes
+		
+		days_remove = 150
+		modifier = {
+			political_power_gain = -0.025
+			industrial_capacity_factory = 0.05
 		}
 	}
 }
