@@ -62,3 +62,6 @@ NDefines.NAI.MIN_MANPOWER_TO_BUILD_UNITS = 0.6	--default 0.7				-- Cancel unit p
 NDefines.NAI.VP_LEVEL_IMPORTANCE_HIGH = 50				-- Victory points with values higher than or equal to this are considered to be of high importance.
 NDefines.NAI.VP_LEVEL_IMPORTANCE_MEDIUM = 25			-- Victory points with values higher than or equal to this are considered to be of medium importance.
 NDefines.NAI.VP_LEVEL_IMPORTANCE_LOW = 5				-- Victory points with values higher than or equal to this are considered to be of low importance.
+
+NDefines.NDiplomacy.BASE_STAGE_COUP_DAILY_PP = 0					-- Daily pp cost for staging a coup
+NDefines.NDiplomacy.BASE_STAGE_COUP_TOTAL_COST = 9999 				-- Equipment consume factor for stage coup.
