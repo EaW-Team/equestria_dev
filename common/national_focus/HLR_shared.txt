@@ -235,11 +235,7 @@
 		cost = 02.00
 		
 		available = {
-			if = {
-				limit = {
-					check_variable = { var = HLR_harmony_support value = HLR_neutrality_support compare = greater_than_or_equals}
-				}
-			}
+			check_variable = { var = HLR_harmony_support value = HLR_neutrality_support compare = greater_than_or_equals }
 		}
 		
 		ai_will_do = {
@@ -283,11 +279,7 @@
 		cost = 02.00
 		
 		available = {
-			if = {
-				limit = {
-					check_variable = { var = HLR_neutrality_support value = HLR_harmony_support compare = greater_than_or_equals}
-				}
-			}
+			check_variable = { var = HLR_neutrality_support value = HLR_harmony_support compare = greater_than_or_equals}
 		}
 		
 		ai_will_do = {
@@ -810,7 +802,10 @@
 			focus = HLR_Stable focus = HLR_War_Economy
 		}
 		bypass = {
-			has_country_flag = HLR_Dread_Attack_Flag
+			OR = {
+				has_country_flag = HLR_Dread_Attack_Flag
+				NOT = { country_exists = DED }
+			}
 		}
 		x = 2
 		y = 1
@@ -820,11 +815,17 @@
 			add_war_support = 0.30
 			add_stability = 0.30
 			
-			declare_war_on = {
-				type = annex_everything
-				target = DED
+			if = {
+				limit = {
+					country_exists = DED
+					NOT = { has_war_with = DED }
+				}
+				declare_war_on = {
+					type = annex_everything
+					target = DED
+				}
 			}
-			
+
 			hidden_effect = {
 				news_event = { days = 1 id = deadempirenews.1 }
 				country_event = {days = 1 id = arcturian.4}
@@ -1204,26 +1205,18 @@
 		x = 2
 		y = 1
 		completion_reward = {
-		
-			"FAR" = {
-				country_event = { id = arcturian.8 days = 1 }
-			}
-			WAT = {
-				country_event = { id = arcturian.8 days = 1 }
-			}
-			NCH = {
-				country_event = { id = arcturian.8 days = 1 }
-			}
-			MNC = {
-				country_event = { id = arcturian.8 days = 1 }
-			}
-			FAT = {
-				country_event = { id = arcturian.8 days = 1 }
-			}
-			GRI = {
-				country_event = { id = arcturian.8 days = 1 }
-			}
-			RIV = {
+			every_other_country = {
+				limit = {
+					OR = {
+						tag = "FAR"
+						tag = WAT
+						tag = NCH
+						tag = MNC
+						tag = FAT
+						tag = event_target:griffonian_empire
+						tag = RIV
+					}
+				}
 				country_event = { id = arcturian.8 days = 1 }
 			}
 		}
@@ -1325,9 +1318,34 @@
 		
 		x = 0
 		y = 2
+		select_effect = {
+			hidden_effect = {
+				if = {
+					limit = {
+						OR = {
+							is_ai = yes
+							DED = { is_ai = yes }
+						}
+					}
+					DED = { country_event = arcturian.71 }
+				}
+			}
+		}
 		completion_reward = {
-			country_event = {id = arcturian.66 days = 1}
-
+			if = {
+				limit = {
+					OR = {
+						is_ai = yes
+						DED = { is_ai = yes }
+					}
+				}
+				effect_tooltip = {
+					country_event = {id = arcturian.66 days = 30 }
+				}
+			}
+			else = {
+				country_event = arcturian.72
+			}
 		}
 	}
 	
@@ -1461,6 +1479,10 @@
 		mutually_exclusive = {
 			focus = HLR_kill_rosa
 		}
+
+		available = {
+			has_country_flag = HLR_rosa_saved
+		}
 		
 		
 		x = -1
@@ -1489,6 +1511,10 @@
 			focus = HLR_redeem_rosa
 		}
 		
+		available = {
+			has_country_flag = HLR_rosa_sentenced
+		}
+
 		x = 1
 		y = 1
 		completion_reward = {
@@ -2158,8 +2184,7 @@
 		y = 0
 
 		completion_reward = {
-			
-			
+			add_political_power = -50
 		}
 	}
 	shared_focus = {
@@ -2184,8 +2209,7 @@
 		y = 1
 
 		completion_reward = {
-			
-			
+			add_political_power = 50
 		}
 	}
 	shared_focus = {
@@ -2210,8 +2234,8 @@
 		y = 1
 
 		completion_reward = {
-			
-			
+			add_political_power = 150
+			add_stability = -0.1
 		}
 	}
 	
@@ -2235,7 +2259,7 @@
 		completion_reward = {
 			
 			DED = {
-				annex_country = { target = HLR }
+				annex_country = { target = ROOT }
 			}
 		}
 	}
@@ -2259,9 +2283,10 @@
 
 		completion_reward = {
 			
-			HLR = {
-				annex_country = { target = DED }
-			}
+			annex_country = { target = DED }
+
+			add_war_support = 0.20
+			add_stability = 0.20
 			
 		}
 	}
@@ -2314,9 +2339,7 @@
 		}
 		
 		available = {
-		HLR = {
 			has_government = neutrality
-			}
 		}
 		
 		mutually_exclusive = { 
@@ -2347,9 +2370,7 @@
 		}
 		
 		available = {
-		HLR = {
 			has_government = democratic
-			}
 		}
 		
 		mutually_exclusive = { 
@@ -2425,9 +2446,21 @@
 			focus = HLR_rallying_for_war
 		}
 		
+		bypass = {
+			WAT = {
+				OR = {
+					exists = no
+					is_subject_of = ROOT
+					is_in_faction_with = ROOT
+					has_war_with = ROOT
+				}
+			}
+		}
+		
+		will_lead_to_war_with = WAT
+
 		completion_reward = {
-		WAT = { country_event = arcturian.103 }
-			
+			WAT = { country_event = arcturian.103 }	
 		}
 	}
 	
@@ -2448,9 +2481,22 @@
 			focus = HLR_rallying_for_war
 		}
 		
+		bypass = {
+			MNC = {
+				OR = {
+					exists = no
+					is_subject_of = ROOT
+					is_in_faction_with = ROOT
+					has_war_with = ROOT
+				}
+			}
+		}
+		
+		will_lead_to_war_with = MNC
+
+
 		completion_reward = {
-		MNC = { country_event = arcturian.106 }
-			
+			MNC = { country_event = arcturian.106 }	
 		}
 	}
 	
@@ -2471,9 +2517,21 @@
 			focus = HLR_rallying_for_war
 		}
 		
+		bypass = {
+			NTR = {
+				OR = {
+					exists = no
+					is_subject_of = ROOT
+					is_in_faction_with = ROOT
+					has_war_with = ROOT
+				}
+			}
+		}
+		
+		will_lead_to_war_with = NTR
+
 		completion_reward = {
-		NTR = { country_event = arcturian.109 }
-			
+			NTR = { country_event = arcturian.109 }
 		}
 	}
 
@@ -2494,24 +2552,56 @@
 			focus = HLR_finish_north
 		}
 		
+		available = {
+			NOT = { AND = {
+				any_state = {
+					OR = {
+						state = 581
+						state = 475
+						state = 459
+						state = 476
+						state = 477
+						state = 480
+						state = 474
+						state = 583
+						state = 449
+						state = 450
+						state = 582
+						state = 548
+						state = 432
+						state = 485
+						state = 556
+						state = 557
+					}
+					NOT = { is_owned_and_controlled_by = ROOT }
+				}
+			} }
+		}
+
 		completion_reward = {
-		add_state_core = 581
-		add_state_core = 475
-		add_state_core = 459
-		add_state_core = 476
-		add_state_core = 477
-		add_state_core = 480
-		add_state_core = 474
-		add_state_core = 583
-		add_state_core = 449
-		add_state_core = 450
-		add_state_core = 582
-		add_state_core = 548
-		add_state_core = 432
-		add_state_core = 485
-		add_state_core = 556
-		add_state_core = 557
-			
+			every_state = {
+				limit = {
+					OR = {
+						state = 581
+						state = 475
+						state = 459
+						state = 476
+						state = 477
+						state = 480
+						state = 474
+						state = 583
+						state = 449
+						state = 450
+						state = 582
+						state = 548
+						state = 432
+						state = 485
+						state = 556
+						state = 557
+					}
+				}
+				add_core_of = ROOT
+			}
 		}
 	}
 
@@ -2547,6 +2637,33 @@
 			factor = 50
 		}
 		
+		bypass = {
+			SRS = {
+				OR = {
+					exists = no
+					is_subject_of = ROOT
+					is_in_faction_with = ROOT
+					has_war_with = ROOT
+				}
+			}
+			VED = {
+				OR = {
+					exists = no
+					is_subject_of = ROOT
+					is_in_faction_with = ROOT
+					has_war_with = ROOT
+				}
+			}
+			FAT = {
+				OR = {
+					exists = no
+					is_subject_of = ROOT
+					is_in_faction_with = ROOT
+					has_war_with = ROOT
+				}
+			}
+		}
+
 		relative_position_id = HLR_purge_heratics
 		x = 0
 		y = 1
@@ -2600,19 +2717,28 @@
 		
 		available = {
 			MNC = {
-				exists = no
+				OR = {
+					exists = no
+					is_subject_of = ROOT
+				}
 			}
 			WAT = {
-				exists = no
+				OR = {
+					exists = no
+					is_subject_of = ROOT
+				}
 			}
 			NTR = {
-				exists = no
+				OR = {
+					exists = no
+					is_subject_of = ROOT
+				}
 			}
 		}
 		
 		completion_reward = {
 			add_manpower = -10000
-			add_stability = .10
+			add_stability = 0.05
 		}		
 	
 }
@@ -2659,8 +2785,7 @@
 		}
 		
 		completion_reward = {
-			create_faction = " Holy Order "
-			
+			create_faction = "Holy Order"
 		}
 	}
 	
@@ -2704,8 +2829,28 @@
 			focus = HLR_our_faction
 		}
 		
+		bypass = {
+			WAT = {
+				OR = {
+					exists = no
+					is_subject_of = ROOT
+					is_in_faction_with = ROOT
+					has_war_with = ROOT
+				}
+			}
+		}
+
 		completion_reward = {
-			WAT = { country_event = arcturian.115 }	
+			if = {
+				limit = { WAT = { is_subject = no } }
+				WAT = { country_event = arcturian.115 }
+			}
+			else = {
+				create_wargoal = {
+					type = puppet_wargoal_focus
+					target = WAT
+				}
+			}
 		}
 	}
 	
@@ -2726,8 +2871,28 @@
 			focus = HLR_our_faction
 		}
 		
+		bypass = {
+			MNC = {
+				OR = {
+					exists = no
+					is_subject_of = ROOT
+					is_in_faction_with = ROOT
+					has_war_with = ROOT
+				}
+			}
+		}
+
 		completion_reward = {
-			MNC = { country_event = arcturian.118 }	
+			if = {
+				limit = { MNC = { is_subject = no } }
+				MNC = { country_event = arcturian.118 }
+			}
+			else = {
+				create_wargoal = {
+					type = puppet_wargoal_focus
+					target = MNC
+				}
+			}
 		}
 	}
 	
@@ -2748,9 +2913,28 @@
 			focus = HLR_our_faction
 		}
 		
+		bypass = {
+			NTR = {
+				OR = {
+					exists = no
+					is_subject_of = ROOT
+					is_in_faction_with = ROOT
+					has_war_with = ROOT
+				}
+			}
+		}
+
 		completion_reward = {
-			NTR = { country_event = arcturian.121 }
-			
+			if = {
+				limit = { NTR = { is_subject = no } }
+				NTR = { country_event = arcturian.121 }
+			}
+			else = {
+				create_wargoal = {
+					type = puppet_wargoal_focus
+					target = NTR
+				}
+			}
 		}
 	}
 
@@ -2779,10 +2963,33 @@
 			focus = HLR_northerntribes_peace
 		}
 		
+		available = {
+			WAT = {
+				OR = {
+					exists = no
+					is_subject_of = ROOT
+					is_in_faction_with = ROOT
+				}
+			}
+			MNC = {
+				OR = {
+					exists = no
+					is_subject_of = ROOT
+					is_in_faction_with = ROOT
+				}
+			}
+			NTR = {
+				OR = {
+					exists = no
+					is_subject_of = ROOT
+					is_in_faction_with = ROOT
+				}
+			}
+		}
+		
 		completion_reward = {
-		add_manpower = 10000
-		add_stability = -.10
-			
+			add_manpower = 20000
+			add_stability = -0.05
 		}
 	}
 ############## Navy and Air Trees #################
@@ -3679,7 +3886,7 @@
 		
 		available = {
 			date > 1014.01.01
-			has_country_flag = big_science_base_unclocked
+			has_idea = big_science_base
 		}
 		
 		completion_reward = {
@@ -3706,7 +3913,7 @@
 		}
 		
 		available = {
-			has_country_flag = proper_science_base
+			has_idea = proper_science_base
 		}
 		
 		completion_reward = {
