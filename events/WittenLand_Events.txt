@@ -569,3 +569,381 @@ country_event = { #ahhh! we got raided
 
 	}
 }
+
+#####################################################################################
+#AI processing
+#######################
+#Important, do not change this stuff unless you know what you're doing and have read through the logic at least
+#it relates to the specialised AI of WIT and will likely change their behaviour considerably
+
+#Flags!
+#WIT_AI_Flag_Industry_High
+#WIT_AI_Flag_Industry_Low
+#WIT_AI_Flag_Military_High
+#WIT_AI_Flag_Military_Low
+#WIT_AI_Flag_Politics_High
+#WIT_AI_Flag_Politics_Low
+#WIT_AI_Flag_Politics_Stop
+#WIT_AI_Flag_Coltstream_High
+#WIT_AI_Flag_Coltstream_Stop
+#WIT_AI_Flag_Host_Diplomacy_High
+#WIT_AI_Flag_Host_Diplomacy_Stop
+#WIT_AI_Flag_Barad_Diplomacy_High
+#WIT_AI_Flag_Barad_Diplomacy_Stop
+#WIT_AI_Flag_RIV_High
+#WIT_AI_Flag_RIV_Low
+
+country_event = { 
+	id = wittenland.100
+	
+	title = wittenland.100.t
+	desc = wittenland.100.d
+	picture = GFX_event_griffon_mountain
+
+	is_triggered_only = yes
+
+	option = { 
+		name = wittenland.100.a
+		
+		clr_country_flag = WIT_AI_Flag_Industry_High
+		clr_country_flag = WIT_AI_Flag_Industry_Low
+		clr_country_flag = WIT_AI_Flag_Military_High
+		clr_country_flag = WIT_AI_Flag_Military_Low
+		clr_country_flag = WIT_AI_Flag_Politics_High
+		clr_country_flag = WIT_AI_Flag_Politics_Low
+		clr_country_flag = WIT_AI_Flag_Politics_Stop
+		clr_country_flag = WIT_AI_Flag_Coltstream_High
+		clr_country_flag = WIT_AI_Flag_Coltstream_Stop
+		clr_country_flag = WIT_AI_Flag_Host_Diplomacy_High
+		clr_country_flag = WIT_AI_Flag_Host_Diplomacy_Stop
+		clr_country_flag = WIT_AI_Flag_Barad_Diplomacy_High
+		clr_country_flag = WIT_AI_Flag_Barad_Diplomacy_Stop
+		clr_country_flag = WIT_AI_Flag_RIV_High
+		clr_country_flag = WIT_AI_Flag_RIV_Low
+		
+		if = { #first we need to check if we're at war because if we're at war we want to be doing stuff that will help us
+			limit = {
+				WIT = {
+					has_war = yes
+				}
+			}
+			
+			if = { #if we don't have modern society yet we should really get it
+				limit = {
+					WIT = {
+						NOT = {
+							has_idea = modern_society
+						}
+					}
+				}
+				set_country_flag = WIT_AI_Flag_Industry_High
+				set_country_flag = WIT_AI_Flag_Military_Low
+			}
+			else = {
+				if = { #if we're about to do the duel, don't do it!
+					limit = {
+						has_completed_focus = WIT_Grand_Fair
+						has_completed_focus = WIT_Reclamation_Day
+						has_completed_focus = WIT_Magical_Saturnalia
+						has_completed_focus = WIT_New_Archmages
+						NOT = {
+							has_completed_focus = WIT_The_Duel
+						}
+					}
+					
+					set_country_flag = WIT_AI_Flag_Politics_Stop
+					set_country_flag = WIT_AI_Flag_Military_High
+				}
+				if = { #if we've already done the duel then do our bonus politics, but don't do coltrstream
+					limit = {
+						has_completed_focus = WIT_The_Duel
+					}
+					set_country_flag = WIT_AI_Flag_Coltstream_Stop
+					set_country_flag = WIT_AI_Flag_Politics_Low
+					set_country_flag = WIT_AI_Flag_Military_High
+				}
+				else = { #if all else fails lets do military foci and maybe political ones
+					set_country_flag = WIT_AI_Flag_Military_High
+					set_country_flag = WIT_AI_Flag_Politics_Low
+				}
+			}
+		}
+		if = {
+		
+			limit = {
+				has_war = no
+			}
+		
+			if = {
+				limit = {
+					WIT = {
+						NOT = {
+							has_idea = modern_society
+						}
+					}
+				}
+				set_country_flag = WIT_AI_Flag_Industry_High
+				set_country_flag = WIT_AI_Flag_Politics_Low
+			}
+			else = {
+				set_country_flag = WIT_AI_Flag_Politics_High
+			}
+			
+			if = {
+				limit = {
+					BAR = { #if they are not in a faction and they are weak let's kill them
+						is_in_faction = no
+						
+						strength_ratio = { 
+							tag = WIT 
+							ratio > 1.2 
+						}
+					}
+				}
+				
+				set_country_flag = WIT_AI_Flag_Barad_Diplomacy_High
+			}
+			else = {
+				if = { #they are part of a faction so we need to be clever!
+					limit = {
+						BAR = {
+							is_in_faction = yes
+						}
+					}
+					if = { #assess the strength of the whole faction first
+						limit = {
+							BAR = {
+								all_allied_country = {
+
+									strength_ratio = { 
+										tag = WIT 
+										ratio > 1.2 
+									}
+								}
+							}
+						}
+						
+						set_country_flag = WIT_AI_Flag_Barad_Diplomacy_High
+					}
+					else = { #hang on a sec, did we kill them already?
+						if = {
+							limit = {
+								BAR = {
+									exists = no
+								}
+								WIT = {
+									owns_state = 624
+									owns_state = 626
+									owns_state = 625
+								}
+							}
+							
+							set_country_flag = WIT_AI_Flag_Politics_High
+							set_country_flag = WIT_AI_Flag_Barad_Diplomacy_High
+						}
+					}
+				}
+				else = { #we are not gonna win...
+					set_country_flag = WIT_AI_Flag_Barad_Diplomacy_Stop
+				}
+			}
+			
+			if = {
+				limit = {
+					GRY = { #if they are not in a faction and they are weak let's kill them
+						is_in_faction = no
+						
+						strength_ratio = { 
+							tag = WIT 
+							ratio > 1.2 
+						}
+					}
+				}
+				
+				set_country_flag = WIT_AI_Flag_Host_Diplomacy_High
+			}
+			else = {
+				if = { #they are part of a faction so we need to be clever!
+					limit = {
+						GRY = {
+							is_in_faction = yes
+						}
+					}
+					if = { #assess the strength of the whole faction first
+						limit = {
+							GRY = {
+								all_allied_country = {
+
+									strength_ratio = { 
+										tag = WIT 
+										ratio > 1.2 
+									}
+								}
+							}
+						}
+						
+						set_country_flag = WIT_AI_Flag_Host_Diplomacy_High
+					}
+					else = { #hang on a sec, did we kill them already?
+						if = {
+							limit = {
+								GRY = {
+									exists = no
+								}
+								WIT = {
+									owns_state = 611
+									owns_state = 609
+									owns_state = 596
+									owns_state = 598
+									owns_state = 597
+									owns_state = 612
+									owns_state = 631
+									owns_state = 610
+									owns_state = 592
+								}
+							}
+							
+							set_country_flag = WIT_AI_Flag_Politics_High
+							set_country_flag = WIT_AI_Flag_Host_Diplomacy_High
+						}
+					}
+				}
+				else = { #we are not gonna win...
+					set_country_flag = WIT_AI_Flag_Host_Diplomacy_Stop
+				}
+			}
+			
+			if = {
+				limit = {
+					WIT = {
+						NOT = {
+							has_government = neutrality
+						}
+						has_idea = modern_society
+					}
+				}
+				
+				if = {
+					limit = {
+						RCT = { #if they are not in a faction and they are weak let's kill them
+							is_in_faction = no
+							
+							strength_ratio = { 
+								tag = WIT 
+								ratio > 1.2 
+							}
+						}
+					}
+					
+					set_country_flag = WIT_AI_Flag_Coltstream_High
+				}
+				else = {
+					if = { #they are part of a faction so we need to be clever!
+						limit = {
+							RCT = {
+								is_in_faction = yes
+							}
+						}
+						if = { #assess the strength of the whole faction first
+							limit = {
+								RCT = {
+									all_allied_country = {
+	
+										strength_ratio = { 
+											tag = WIT 
+											ratio > 1.2 
+										}
+									}
+								}
+							}
+							
+							set_country_flag = WIT_AI_Flag_Coltstream_High
+						}
+						else = { #hang on a sec, did we kill them already?
+							if = {
+								limit = {
+									RCT = {
+										exists = no
+									}
+								}
+								
+								set_country_flag = WIT_AI_Flag_Politics_High
+							}
+						}
+					}
+					else = { #we are not gonna win...
+						set_country_flag = WIT_AI_Flag_Coltstream_Stop
+					}
+				}
+			}
+			if = {
+				limit = {
+					has_idea = modern_society
+				}
+				set_country_flag = WIT_AI_Flag_Coltstream_High
+				set_country_flag = WIT_AI_Flag_Politics_High
+				set_country_flag = WIT_AI_Flag_Industry_Low
+			}
+		}
+		
+		if = { #what is going on in the federation?
+			limit = {
+				RCT = {
+					exists = yes
+					NOT = {
+						has_government  = democratic
+					}
+				}
+			}
+			set_country_flag = WIT_AI_Flag_RIV_High
+			
+		}
+		else = {
+			if = {
+				limit = {
+					RCT = {
+						exists = no
+					}
+				}
+				if = {
+					limit = {
+						LCT = {
+							OR = {
+								has_government  = fascism
+								has_government  = communism
+							}
+						}
+					}
+					set_country_flag = WIT_AI_Flag_RIV_High
+				}
+				else = {
+					set_country_flag = WIT_AI_Flag_RIV_Low
+				}
+			}
+		}
+		
+		if = {
+			limit = {
+				NOT = {
+					has_country_flag = WIT_AI_Flag_Industry_High
+					has_country_flag = WIT_AI_Flag_Industry_Low
+					has_country_flag = WIT_AI_Flag_Military_High
+					has_country_flag = WIT_AI_Flag_Military_Low
+					has_country_flag = WIT_AI_Flag_Politics_High
+					has_country_flag = WIT_AI_Flag_Politics_Low
+					has_country_flag = WIT_AI_Flag_Politics_Stop
+					has_country_flag = WIT_AI_Flag_Coltstream_High
+					has_country_flag = WIT_AI_Flag_Coltstream_Stop
+					has_country_flag = WIT_AI_Flag_Host_Diplomacy_High
+					has_country_flag = WIT_AI_Flag_Host_Diplomacy_Stop
+					has_country_flag = WIT_AI_Flag_Barad_Diplomacy_High
+					has_country_flag = WIT_AI_Flag_Barad_Diplomacy_Stop
+					has_country_flag = WIT_AI_Flag_RIV_High
+					has_country_flag = WIT_AI_Flag_RIV_Low
+				}
+			}
+			
+			set_country_flag = WIT_AI_Flag_Military_Low
+		}
+	}
+}
