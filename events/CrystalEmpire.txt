@@ -55,6 +55,8 @@ country_event = {
 		original_tag = CRY
 		has_country_flag = winter_solstice_planned
 		date > 1007.12.20
+		has_government = democratic
+		has_war = no
 	}
 	mean_time_to_happen =  { days = 1 }
 	fire_only_once = yes
@@ -531,22 +533,37 @@ country_event = { ## Sombra Civil War if fascism support is high enough after no
 		text = cryscr.22.d_com
 		trigger = { has_government = communism }
 	}
+	desc = {
+		text = cryscr.22.d_fas
+		trigger = { has_government = fascism }
+	}
 	picture = GFX_event_sombra_return
 	mean_time_to_happen = { days = 15 }
 	trigger = {
+		NOT = { has_global_flag = sombra_returned }
 		original_tag = CRY
-		OR = {
-			has_idea = sombra_threat
-			has_idea = sombra_threat2
-			has_idea = sombra_threat_reported
-		}
-		fascism > 0.5
 		has_war = no
-		NOT = { has_country_flag = invitation_to_join_the_club }
+		NOT = { has_country_flag = joined_the_club }
+		OR = {
+			is_subject = no
+			overlord = { NOT = { has_government = fascism } }
+		}
+		OR = {
+			has_country_leader = { ruling_only = yes name = "Radiant Hope" }
+			AND = {
+				OR = {
+					has_idea = sombra_threat
+					has_idea = sombra_threat2
+					has_idea = sombra_threat_reported
+				}
+				fascism > 0.5
+			}
+		}
 	}
 	fire_only_once = yes
 	option = {
 		name = cryscr.22.a
+		trigger = { NOT = { has_country_leader = { ruling_only = yes name = "Radiant Hope" } } }
 		set_temp_variable = { civ_war_size = 0.5 }
 		if = {
 			limit = { has_idea = sombra_threat_reported }
@@ -574,7 +591,7 @@ country_event = { ## Sombra Civil War if fascism support is high enough after no
 						warmonger
 					}
 				}
-				add_threat = 15
+				add_threat = 5
 				set_cosmetic_tag = CRY_SOM
 				load_focus_tree = crystalempire_sombra
 				set_global_flag = sombra_returned
@@ -593,6 +610,42 @@ country_event = { ## Sombra Civil War if fascism support is high enough after no
 					set_nationality = ROOT
 				}
 			}
+		}
+	}
+	option = {
+		name = cryscr.22.b
+		trigger = { has_country_leader = { ruling_only = yes name = "Radiant Hope" } }
+		random_list = { 30 = { set_country_flag = ghosts_bonus } 50 = { set_country_flag = power_bonus } 20 = { set_country_flag = strength_bonus } }
+		Evil_unicorn_magic = yes 
+		retire_country_leader = yes
+		set_party_name = { ideology = fascism name = CRY_sombra_party long_name = CRY_sombra_party }
+		create_country_leader = {
+			name = "King Sombra"
+			expire = "1965.1.1"
+			ideology = nazism
+			desc = "POLITICS_SOMBRA_DESC"
+			picture = "Sombra.tga"
+			traits = {
+				warmonger
+			}
+		}
+		add_threat = 5
+		set_cosmetic_tag = CRY_SOM
+		load_focus_tree = crystalempire_sombra
+		set_global_flag = sombra_returned
+		add_opinion_modifier = { target = event_target:equestria modifier = mortal_enemies }
+		hidden_effect = {
+			load_oob = "CRY_SOM_devoted_army"
+		}
+		reverse_add_opinion_modifier = { target = event_target:equestria modifier = mortal_enemies }
+		every_unit_leader = {
+			limit = {
+				OR = {
+					has_id = 200
+					has_id = 1043
+				}
+			}
+			retire = yes
 		}
 	}
 }
@@ -848,7 +901,6 @@ country_event = { ## The Crystal Mountains Caves, Sakira and you dive
 		name = cryscr.38.a
 		set_country_flag = sakira_sick
 		set_country_flag = player_sick
-		set_country_flag = sick_together
 		hidden_effect = {
 			country_event = { id = cryscr.39 days = 1 }
 		}
@@ -862,18 +914,21 @@ country_event = { ## The Crystal Mountains Caves, Got the Crystal
 		text = cryscr.39.d_sakira
 		trigger = {
 			has_country_flag = sakira_sick
+			NOT = { has_country_flag = player_sick }
 		}
 	}
 	desc = {
 		text = cryscr.39.d_player
 		trigger = {
 			has_country_flag = player_sick
+			NOT = { has_country_flag = sakira_sick }
 		}
 	}
 	desc = {
 		text = cryscr.39.d_sakira_and_player
 		trigger = {
-			has_country_flag = sick_together
+			has_country_flag = player_sick
+			has_country_flag = sakira_sick
 		}
 	}
 	desc = {
@@ -1198,7 +1253,16 @@ country_event = { # The club information
 	option = {
 		name = crystalemp.16.a
 		set_country_flag = dark_heart_is_ready
-		
+		hidden_effect = {
+			overlord = {
+				if = {
+					limit = {
+						has_completed_focus = increase_presense_inCRY
+					}
+					country_event = { id = cryscr.50 days = 1 random = 7 }
+				}
+			}
+		}
 	}
 }
 ############################################################
@@ -1224,6 +1288,7 @@ country_event = { ## Final Act - Club Member
 		has_country_flag = CRY_crystalheartstolen_d_done
 		has_country_flag = joined_the_club
 		NOT = { has_global_flag = sombra_returned }
+		OR = { has_idea = sombra_threat has_idea = sombra_threat2 has_idea = sombra_threat_reported }
 	}
 	mean_time_to_happen = { days = 10 }
 	fire_only_once = yes
@@ -1261,6 +1326,7 @@ country_event = { # Final Act - NOT A MEMBER
 		has_country_flag = CRY_crystalheartstolen_d_done
 		has_country_flag = support_the_club
 		NOT = { has_global_flag = sombra_returned }
+		OR = { has_idea = sombra_threat has_idea = sombra_threat2 has_idea = sombra_threat_reported }
 	}
 	mean_time_to_happen = { days = 10 }
 	fire_only_once = yes
@@ -1270,7 +1336,7 @@ country_event = { # Final Act - NOT A MEMBER
 			id = crysom.2 days = 1
 		}
 		hidden_effect = {
-			random_list = { 30 = { set_country_flag = larger_civil_war } 50 = { set_country_flag = medium_civil_war } 20 = { set_country_flag = small_civil_war } }
+			random_list = { 20 = { set_country_flag = larger_civil_war } 35 = { set_country_flag = medium_civil_war } 30 = { set_country_flag = small_civil_war } 5 = { set_country_flag = giant_civil_war } }
 			random_list = { 30 = { set_country_flag = ghosts_bonus } 50 = { set_country_flag = power_bonus } 20 = { set_country_flag = strength_bonus } }
 		}
 	}
@@ -1349,7 +1415,7 @@ country_event = { ## ACTUAL SOMBRA RETURN HERE AYY LMAOOOOOOOOO
 				states = { 318 139 77 140 343 143 324 141 236 339 345 }
 			}
 		}
-		add_threat = 15
+		add_threat = 5
 		hidden_effect = {
 			random_other_country = {
 				limit = { 
@@ -1988,22 +2054,11 @@ country_event = { ## Fiendship
 	is_triggered_only = yes
 	option = {
 		name = crysom.22.a
-		hidden_effect = {
-			every_state = {
-				limit = {
-					is_core_of = EQS
-				}
-				add_core_of = ROOT
+		every_state = {
+			limit = {
+				is_core_of = EQS
 			}
-			every_state = {
-				limit = {
-					is_core_of = ROOT
-					owner = {
-						is_in_faction_with = ROOT
-					}
-				}
-				remove_core_of = ROOT
-			}
+			add_core_of = ROOT
 		}
 		drop_cosmetic_tag = yes
 		set_cosmetic_tag = CRY_SOMIMP
@@ -2170,7 +2225,9 @@ country_event = { ## Gray Pact Fromed
 				has_war_with = CHN
 				has_global_flag = CHN_for_gray_pact
 			}
+			set_country_flag = bypass_on_peaceconference_ended
 			white_peace = CHN
+			clr_country_flag = bypass_on_peaceconference_ended
 		}
 		if = {
 			limit = {
@@ -2418,6 +2475,7 @@ country_event = { ## Luna's response
 		trigger = {
 			has_global_flag = Luna_for_marriage
 		}
+		set_country_flag = sombra_is_married
 		add_opinion_modifier = {
 			target = NLR modifier = leaders_married
 		}
@@ -2630,6 +2688,7 @@ country_event = { ## Chrysalis's response
 			id = news.44 days = 16
 		}
 		add_political_power = 50
+		set_country_flag = sombra_is_married
 	}
 	option = {
 		name = crysom.38.b
@@ -2879,6 +2938,8 @@ country_event = { ## Coronation of Flurry heart
 	trigger = {
 		original_tag = CRY
 		has_government = democratic
+		exists = yes
+		has_capitulated = no
 		date > 1020.1.1
 		NOT = {
 			has_country_leader = { id = 1000 ruling_only = yes name = "Princess Twilight Sparkle" }
@@ -2922,6 +2983,8 @@ country_event = { ## Coronation of Flurry heart
 	
 	trigger = {
 		original_tag = CRY
+		exists = yes
+		has_capitulated = no
 		has_government = democratic
 		date > 1020.1.1
 		has_country_leader = { id = 1000 ruling_only = yes name = "Princess Twilight Sparkle" }
@@ -2961,17 +3024,10 @@ country_event = { ## Your Wedding
 	fire_only_once = yes
 	option = {
 		name = crysom.45.a
-		trigger = { has_country_flag = { flag = sakira_likes_that value < 8 }
-			has_country_flag = { flag = sakira_likes_that value < 6 } }
 		add_political_power = 40
 		hidden_effect = {
 			country_event = { id = crysom.47 days = 30 }
 		}
-	}
-	option = {
-		name = crysom.45.b
-		trigger = { has_country_flag = { flag = sakira_likes_that value > 7 } }
-		add_political_power = 60
 	}
 	option = {
 		name = crysom.45.e
@@ -2981,6 +3037,9 @@ country_event = { ## Your Wedding
 	}
 	option = {
 		name = crysom.45.f
+		hidden_effect = {
+			country_event = { id = crysom.51 hours = 1 }
+		}
 	}
 }
 country_event = { ## Your Freindship
@@ -3001,7 +3060,7 @@ country_event = { ## Your Freindship
 	fire_only_once = yes
 	option = {
 		name = crysom.46.a
-		add_political_power = 5
+		add_political_power = -5
 	}
 }
 country_event = { ## Your Freindship
@@ -3066,7 +3125,6 @@ country_event = { ## Cadence escapes (for EQS)
 	picture = GFX_event_crystal_city
 
 	is_triggered_only = yes
-	fire_only_once = yes
 
 	option = {
 		name = crysom.49.a
@@ -3088,10 +3146,304 @@ country_event = { ## Cadence escapes
 	picture = GFX_event_crystal_city
 
 	is_triggered_only = yes
-	fire_only_once = yes
 
 	option = {
 		name = crysom.50.a
+	}
+}
+country_event = { ## Your Wedding
+	id = crysom.51
+	immediate = {log = "[Root.GetName]: event crysom.51"}#Auto-logging
+	title = crysom.45.t
+	desc = crysom.51.d
+	picture = GFX_event_crystal_city
+	
+	is_triggered_only = yes
+	option = {
+		name = crysom.45.a
+		add_political_power = 40
+		hidden_effect = {
+			country_event = { id = crysom.47 days = 30 }
+		}
+	}
+	option = {
+		name = crysom.45.e
+	}
+	option = {
+		name = crysom.45.k
+	}
+}
+country_event = { ## Sombra-Sinister Marriage
+	id = crysom.52
+	immediate = {log = "[Root.GetName]: event crysom.52"}#Auto-logging
+	title = {
+		text = crysom.52.t_sombra
+		trigger = { tag = CRY }
+	}
+	title = {
+		text = crysom.52.t_sinister
+		trigger = { tag = STG }
+	}
+	desc = {
+		text = crysom.52.d_sombra
+		trigger = { tag = CRY }
+	}
+	desc = {
+		text = crysom.52.d_sinister
+		trigger = { tag = STG }
+	}
+	picture = GFX_event_crystal_city
+	
+	is_triggered_only = yes
+	option = {
+		name = crysom.52.a_sinister
+		trigger = { tag = STG }
+		ai_chance = { factor = 1 }
+		CRY = { country_event = { days = 1 id = crysom.53 } }
+	}
+	option = {
+		name = crysom.52.b_sinister
+		trigger = { tag = STG }
+		ai_chance = { factor = 2 }
+		CRY = { country_event = { days = 1 id = crysom.53 } }
+		set_global_flag = sinister_for_marriage_with_sombra
+	}
+	option = {
+		name = crysom.52.a_sombra
+		trigger = { tag = CRY }
+		ai_chance = { factor = 1 }
+		STG = { country_event = { days = 1 id = crysom.54 } }
+	}
+	option = {
+		name = crysom.52.b_sombra
+		trigger = { tag = CRY }
+		ai_chance = { factor = 2 }
+		STG = { country_event = { days = 1 id = crysom.54 } }
+		set_global_flag = sombra_for_marriage_with_sinister
+	}
+}
+country_event = { ## SOMBRA GETS ANSWER FROM SINISTER
+	id = crysom.53
+	immediate = {log = "[Root.GetName]: event crysom.53"}#Auto-logging
+	title = {
+		text = crysom.53.t_sinister_agreed
+		trigger = { has_global_flag = sinister_for_marriage_with_sombra }
+	}
+	title = {
+		text = crysom.53.t_sinister_declined
+		trigger = { NOT = { has_global_flag = sinister_for_marriage_with_sombra } }
+	}
+	desc = {
+		text = crysom.53.d_sinister_agreed
+		trigger = { has_global_flag = sinister_for_marriage_with_sombra }
+	}
+	desc = {
+		text = crysom.53.d_sinister_declined
+		trigger = { NOT = { has_global_flag = sinister_for_marriage_with_sombra } }
+	}
+	picture = GFX_event_crystal_city
+	
+	is_triggered_only = yes
+	option = {
+		name = crysom.53.a
+		trigger = { has_global_flag = sinister_for_marriage_with_sombra }
+		news_event = { days = 1 id = news.cry.6 }
+		add_political_power = 50
+		add_opinion_modifier = {
+			target = STG modifier = leaders_married
+		}
+		STG = {
+			add_opinion_modifier = {
+				target = ROOT modifier = leaders_married
+			}
+			give_guarantee = ROOT
+		}
+		give_guarantee = STG
+		diplomatic_relation = {
+			country = STG
+			relation = non_aggression_pact
+			active = yes
+		}
+		hidden_effect = {
+			add_ai_strategy = {
+				type = befriend
+				id = "STG"
+				value = 999
+			}
+			add_ai_strategy = {
+				type = support
+				id = "STG"
+				value = 999
+			}
+			add_ai_strategy = {
+				type = protect
+				id = "STG"
+				value = 999
+			}
+			add_ai_strategy = {
+				type = alliance
+				id = "STG"
+				value = 999
+			}
+			add_ai_strategy = {
+				type = antagonize
+				id = "STG"
+				value = -999
+			}
+			add_ai_strategy = {
+				type = conquer
+				id = "STG"
+				value = -999
+			}
+			STG = {
+				add_ai_strategy = {
+					type = befriend
+					id = ROOT
+					value = 999
+				}
+				add_ai_strategy = {
+					type = support
+					id = ROOT
+					value = 999
+				}
+				add_ai_strategy = {
+					type = protect
+					id = ROOT
+					value = 999
+				}
+				add_ai_strategy = {
+					type = alliance
+					id = ROOT
+					value = 999
+				}
+				add_ai_strategy = {
+					type = antagonize
+					id = ROOT
+					value = -999
+				}
+				add_ai_strategy = {
+					type = conquer
+					id = ROOT
+					value = -999
+				}
+			}
+		}
+	}
+	option = {
+		name = crysom.53.b
+		trigger = { NOT = { has_global_flag = sinister_for_marriage_with_sombra } }
+	}
+}
+country_event = { ## SINISTER GETS ANSWER FROM SOMBRA
+	id = crysom.54
+	immediate = {log = "[Root.GetName]: event crysom.54"}#Auto-logging
+	title = {
+		text = crysom.54.t_sombra_agreed
+		trigger = { has_global_flag = sombra_for_marriage_with_sinister }
+	}
+	title = {
+		text = crysom.54.t_sombra_declined
+		trigger = { NOT = { has_global_flag = sombra_for_marriage_with_sinister } }
+	}
+	desc = {
+		text = crysom.54.d_sombra_agreed
+		trigger = { has_global_flag = sombra_for_marriage_with_sinister }
+	}
+	desc = {
+		text = crysom.54.d_sombra_declined
+		trigger = { NOT = { has_global_flag = sombra_for_marriage_with_sinister } }
+	}
+	picture = GFX_event_crystal_city
+	
+	is_triggered_only = yes
+	option = {
+		name = crysom.54.a
+		trigger = { has_global_flag = sombra_for_marriage_with_sinister }
+		news_event = { days = 1 id = news.cry.6 }
+		add_political_power = 50
+		add_opinion_modifier = {
+			target = CRY modifier = leaders_married
+		}
+		CRY = {
+			add_opinion_modifier = {
+				target = ROOT modifier = leaders_married
+			}
+			give_guarantee = ROOT
+		}
+		give_guarantee = CRY
+		diplomatic_relation = {
+			country = CRY
+			relation = non_aggression_pact
+			active = yes
+		}
+		hidden_effect = {
+			add_ai_strategy = {
+				type = befriend
+				id = "CRY"
+				value = 999
+			}
+			add_ai_strategy = {
+				type = support
+				id = "CRY"
+				value = 999
+			}
+			add_ai_strategy = {
+				type = protect
+				id = "CRY"
+				value = 999
+			}
+			add_ai_strategy = {
+				type = alliance
+				id = "CRY"
+				value = 999
+			}
+			add_ai_strategy = {
+				type = antagonize
+				id = "CRY"
+				value = -999
+			}
+			add_ai_strategy = {
+				type = conquer
+				id = "CRY"
+				value = -999
+			}
+			CRY = {
+				add_ai_strategy = {
+					type = befriend
+					id = ROOT
+					value = 999
+				}
+				add_ai_strategy = {
+					type = support
+					id = ROOT
+					value = 999
+				}
+				add_ai_strategy = {
+					type = protect
+					id = ROOT
+					value = 999
+				}
+				add_ai_strategy = {
+					type = alliance
+					id = ROOT
+					value = 999
+				}
+				add_ai_strategy = {
+					type = antagonize
+					id = ROOT
+					value = -999
+				}
+				add_ai_strategy = {
+					type = conquer
+					id = ROOT
+					value = -999
+				}
+			}
+		}
+	}
+	option = {
+		name = crysom.54.b
+		trigger = { NOT = { has_global_flag = sombra_for_marriage_with_sinister } }
 	}
 }
 ############################################################
@@ -3225,24 +3577,53 @@ country_event = { ## STG/EQS asks of Union
 	
 	option = {
 		name = crystalemp.3.a
-		STG = {
-			country_event = {
-				id = stalliongrad.63 days = 2
+		custom_effect_tooltip = GAME_OVER_TT
+		FROM = {
+			effect_tooltip = {
+				annex_country = { target = FROM transfer_troops = yes }
+			}
+			hidden_effect = {
+				country_event = {
+					id = stalliongrad.63 days = 2
+				}
 			}
 		}
-		ai_chance = { factor = 1
+		ai_chance = { factor = 2
 			modifier = {
 				factor = 0
 				OR = {
-					STG = { is_subject = yes }
-					STG = { has_government = democratic }
+					FROM = { is_subject = yes }
+					FROM = { has_government = democratic }
+				}
+			}
+		}
+	}
+	option = {
+		name = crystalemp.3.c
+		FROM = {
+			effect_tooltip = {
+				puppet = FROM
+			}
+			hidden_effect = {
+				set_country_flag = make_CRY_a_puppet
+				country_event = {
+					id = stalliongrad.63 days = 2
+				}
+			}
+		}
+		ai_chance = { factor = 3
+			modifier = {
+				factor = 0
+				OR = {
+					FROM = { is_subject = yes }
+					FROM = { has_government = democratic }
 				}
 			}
 		}
 	}
 	option = {
 		name = crystalemp.3.b
-		ai_chance = { factor = 1 }
+		ai_chance = { factor = 2.5 }
 		add_political_power = 150
 		add_stability = 0.05
 	}
@@ -3594,7 +3975,7 @@ country_event = { ## Join Equestrian faction
 		ai_chance = { factor = 0 }
 	}
 }
-country_event = { ## Join Equestrian faction
+country_event = {
 	id = crystalemp.23
 	immediate = {log = "[Root.GetName]: event crystalemp.23"}#Auto-logging
 	title = crystalemp.23.t
@@ -3638,21 +4019,149 @@ country_event = { ## Join Equestrian faction
 	}
 }
 
-country_event = { ## Kraccdown
+news_event = { ## Kraccdown
 	id = crystalemp.25
 	immediate = {log = "[Root.GetName]: event crystalemp.25"}#Auto-logging
 	title = crystalemp.25.t
 	desc = crystalemp.25.d
-	picture = GFX_event_crystal_city
+	picture = GFX_news_event_crystal_fair
 	
 	is_triggered_only = yes
 	option = {
 		name = crystalemp.25.a
+		trigger = { 
+			OR = {
+				tag = FROM 
+				is_in_faction_with = FROM
+				is_subject_of = FROM
+				has_government = democratic
+			}
+		}
+	}
+	option = {
+		name = crystalemp.25.b
+		trigger = { 
+			NOT = {
+				tag = FROM 
+				is_in_faction_with = FROM
+				is_subject_of = FROM
+				has_government = democratic
+			}
+		}
+	}
+}
+
+country_event = {
+	id = crystalemp.26
+	immediate = {log = "[Root.GetName]: event crystalemp.26"}#Auto-logging
+	title = crystalemp.26.t
+	desc = crystalemp.26.d
+	picture = GFX_event_crystal_city
+	
+	fire_only_once = yes
+	is_triggered_only = yes
+	option = {
+		name = crystalemp.26.a
 		remove_ideas = sombra_threat
 		hidden_effect = {
-			remove_ideas = sombra_threat2
-			remove_ideas = sombra_threat_reported
+			remove_ideas = { 
+				sombra_threat2
+				sombra_threat_reported
+			}
+			news_event = { id = crystalemp.25 hours = 6 }
 		}
+		add_stability = -0.05
+		add_autonomy_ratio = { value = -0.1 }
+	}
+}
+
+country_event = {
+	id = crystalemp.27
+	immediate = {log = "[Root.GetName]: event crystalemp.27"}#Auto-logging
+	title = crystalemp.27.t
+	desc = crystalemp.27.d
+	picture = GFX_event_crystal_city
+	
+	fire_only_once = yes
+	is_triggered_only = yes
+	option = {
+		name = crystalemp.27.a
+		hidden_effect = {
+			country_event = { id = crystalemp.28 hours = 1 }
+		}
+	}
+	option = {
+		name = crystalemp.27.b
+		hidden_effect = {
+			country_event = { id = crystalemp.29 hours = 1 }
+		}
+	}
+}
+
+country_event = {
+	id = crystalemp.28
+	immediate = {log = "[Root.GetName]: event crystalemp.28"}#Auto-logging
+	title = crystalemp.28.t
+	desc = crystalemp.28.d
+	picture = GFX_event_crystal_city
+	
+	fire_only_once = yes
+	is_triggered_only = yes
+	option = {
+		name = crystalemp.28.a
+		custom_effect_tooltip = cult_killed
+		remove_ideas = sombra_threat
+		hidden_effect = {
+			remove_ideas = { 
+				sombra_threat2
+				sombra_threat_reported
+			}
+			news_event = { id = crystalemp.25 hours = 6 }
+		}
+		add_stability = -0.05
+		add_autonomy_ratio = { value = -0.1 }
+	}
+	option = {
+		name = crystalemp.28.b
+		trigger = {
+			has_country_flag = { flag = sakira_likes_that value > 3 }
+		}
+		custom_effect_tooltip = cult_killed
+		remove_ideas = sombra_threat
+		hidden_effect = {
+			remove_ideas = { 
+				sombra_threat2
+				sombra_threat_reported
+			}
+			news_event = { id = crystalemp.25 hours = 6 }
+		}
+		add_stability = -0.05
+		add_autonomy_ratio = { value = -0.1 }
+	}
+}
+
+country_event = {
+	id = crystalemp.29
+	immediate = {log = "[Root.GetName]: event crystalemp.29"}#Auto-logging
+	title = crystalemp.29.t
+	desc = crystalemp.29.d
+	picture = GFX_event_crystal_city
+	
+	fire_only_once = yes
+	is_triggered_only = yes
+	option = {
+		name = crystalemp.29.a
+		custom_effect_tooltip = cult_killed
+		remove_ideas = sombra_threat
+		hidden_effect = {
+			remove_ideas = { 
+				sombra_threat2
+				sombra_threat_reported
+			}
+			news_event = { id = crystalemp.25 hours = 6 }
+		}
+		add_stability = -0.05
+		add_autonomy_ratio = { value = -0.1 }
 	}
 }
 #### CRYSTAL COMMUNISTS ####
@@ -3728,12 +4237,12 @@ country_event = { ## Communist Crystal Ponies # Elections
 			remove_ideas = equestrian_overlord2
 			end_puppet_this = yes
 			leave_faction = yes
-			remove_unit_leader = 1043
+			event_target:CRY_Shining_Armor = { set_nationality = event_target:equestria }
 			set_cosmetic_tag = CRY_COM
 			country_event = {
 				id = crycom.9 hours = 3
 			}
-			news_event = { id = news.cry.1 days = 1 }
+			#news_event = { id = news.cry.1 days = 1 }
 			set_global_flag = free_the_old_royalty
 			clr_global_flag = continue_imprisonment
 			event_target:equestria = {
@@ -4042,15 +4551,6 @@ country_event = { ## FORM UNION
 		FROM = {
 			country_event = crycom.16
 		}
-		if = { limit = { original_tag = STG }
-			set_country_flag = STG_CRY_union
-		}
-		if = { limit = { original_tag = STL }
-			set_country_flag = STL_CRY_union
-		}
-		if = { limit = { original_tag = EQS }
-			set_country_flag = EQS_CRY_union
-		}
 	}
 	option = { # decline annexation
 		name = crycom.15.b
@@ -4071,13 +4571,9 @@ country_event = { ## FORM UNION ACCEPTED
 	option = {
 		name = crycom.16.a
 		trigger = { is_ai = no }
-		if = { limit = { STG = { exists = yes has_government = communism has_country_flag = STG_CRY_union } }
-			annex_country = { target  = STG transfer_troops = yes } }
-		if = { limit = { STL = { exists = yes has_government = communism has_country_flag = STL_CRY_union } }
-			annex_country = { target  = STL transfer_troops = yes } }
-		if = { limit = { event_target:equestria = { exists = yes has_government = communism has_country_flag = EQS_CRY_union } }
-			annex_country = { target  = event_target:equestria transfer_troops = yes } }
-		every_owned_state = {
+		annex_country = { target = FROM transfer_troops = yes }
+		every_state = {
+			limit = { is_core_of = FROM }
 			add_core_of = ROOT
 		}
 		set_cosmetic_tag = EQS_COM
@@ -4085,21 +4581,29 @@ country_event = { ## FORM UNION ACCEPTED
 	option = {
 		name = crycom.16.a
 		trigger = { is_ai = yes }
-		if = { limit = { STG = { exists = yes has_government = communism has_country_flag = STG_CRY_union } }
-			annex_country = { target  = STG transfer_troops = yes } }
-		if = { limit = { STL = { exists = yes has_government = communism has_country_flag = STL_CRY_union } }
-			annex_country = { target  = STL transfer_troops = yes } }
-		if = { limit = { event_target:equestria = { exists = yes has_government = communism has_country_flag = EQS_CRY_union } }
-			annex_country = { target  = event_target:equestria transfer_troops = yes } }
-		set_cosmetic_tag = EQS_COM
-		if = { limit = { STG = { is_ai = no } }
-			change_tag_from = STG }
-		if = { limit = { STL = { is_ai = no } }
-			change_tag_from = STL }
-		if = { limit = { event_target:equestria = { is_ai = no } }
-			change_tag_from = event_target:equestria }
-		every_owned_state = {
-			add_core_of = ROOT
+		if = {
+			limit = {
+				FROM = {
+					OR = {
+						original_tag = EQS
+						original_tag = STG
+					}
+				}
+			}
+			FROM = {
+				annex_country = { target = ROOT transfer_troops = yes }
+				every_state = {
+					limit = { is_core_of = ROOT }
+					add_core_of = FROM
+				}
+			}
+		}
+		else = {
+			annex_country = { target = FROM transfer_troops = yes }
+			every_state = {
+				limit = { is_core_of = FROM }
+				add_core_of = ROOT
+			}
 		}
 	}
 }

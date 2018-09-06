@@ -41,7 +41,10 @@ country_event = {
 	fire_only_once = yes
 	option = {
 		name = prywhen.1.a
-		drop_cosmetic_tag = yes
+		if = {
+			limit = { is_subject = no }
+			drop_cosmetic_tag = yes
+		}
 		add_political_power = 150 #White Flower
 		set_global_flag = prywhen_civil_war_is_over
 		set_country_flag = prywhen_aggressiveness
@@ -56,7 +59,10 @@ country_event = {
 	}
 	option = {
 		name = prywhen.1.b
-		drop_cosmetic_tag = yes
+		if = {
+			limit = { is_subject = no }
+			drop_cosmetic_tag = yes
+		}
 		add_political_power = 150
 		set_capital = 508 #Kivessin
 		set_country_flag = has_set_capital_in_Kivessin
@@ -73,7 +79,10 @@ country_event = {
 	}
 	option = {
 		name = prywhen.1.c
-		drop_cosmetic_tag = yes
+		if = {
+			limit = { is_subject = no }
+			drop_cosmetic_tag = yes
+		}
 		add_political_power = 150
 		set_capital = 385 #Sydia
 		set_country_flag = has_set_capital_in_Sydia
@@ -144,6 +153,7 @@ country_event = { ## event for bandits
 			add_to_faction = BAN
 			add_opinion_modifier = { target = BAN modifier = common_threat }
 		}
+		BAN = { set_country_flag = faction_with_BRF }
 	}
 	option = {
 		name = prywhen.3.b
@@ -188,6 +198,7 @@ country_event = {
 			owns_state = 589
 			owns_state = 508
 		}
+		NOT = { has_government = communism }
 	}
 	mean_time_to_happen = { days = 30 }
 	fire_only_once = yes
@@ -405,18 +416,23 @@ country_event = { ## Civil War Aftermath Gradual dissapearance
 country_event = {
 	id = prywhen.15
 	immediate = {log = "[Root.GetName]: event prywhen.15"}#Auto-logging
-	title = prywhen.15.t
-	desc = prywhen.15.d
-	picture = GFX_event_griffon_mountain
+	hidden = yes
 
 	trigger = {
 		tag = BAN
-		BRF = { exists = no }
+		is_faction_leader = yes
+		has_country_flag = faction_with_BRF
+		BRF = { 
+			OR = {
+				exists = no
+				has_capitulated = yes
+			}
+		}
 	}
 	fire_only_once = yes
 	option = {
-		name = prywhen.15.a
 		dismantle_faction = yes
+		clr_country_flag = faction_with_BRF
 		add_political_power = -40
 	}
 }
@@ -726,6 +742,10 @@ country_event = {
 		has_global_flag = prywhen_civil_war_is_over
 		NOT = { has_country_flag = counter_revolution_successful }
 		BRF = { exists = no }
+		NOT = {
+			has_country_flag = { flag = monarchist_repressions value > 22 }
+		}
+		is_subject = no
 	}
 	mean_time_to_happen = { days = 150 }
 	fire_only_once = yes
@@ -785,6 +805,7 @@ country_event = {
 		NOT = {
 			has_country_flag = { flag = monarchist_repressions value > 10 }
 		}
+		is_subject = no
 	}
 	mean_time_to_happen = { days = 100 }
 	fire_only_once = yes
@@ -842,6 +863,7 @@ country_event = {
 		NOT = {
 			has_country_flag = { flag = monarchist_repressions value > 10 }
 		}
+		is_subject = no
 	}
 	mean_time_to_happen = { days = 100 }
 	fire_only_once = yes
@@ -1002,6 +1024,7 @@ country_event = {
 		NOT = {
 			divisions_in_state = { state = 508 size > 1 }
 		}
+		is_subject = no
 	}
 	mean_time_to_happen = { days = 100 }
 	fire_only_once = yes
@@ -1293,10 +1316,10 @@ country_event = {
 	is_triggered_only = yes
 	option = { ## yes
 		name = prywhen.39.a
-		GRW = { country_event = { id = prywhen.40 days = 10 } }
+		FROM = { country_event = { id = prywhen.40 days = 10 } }
 		add_manpower = -4000
 		set_country_flag = supported_GRW
-		add_opinion_modifier = { target = GRW modifier = sent_volunteers }
+		reverse_add_opinion_modifier = { target = FROM modifier = sent_volunteers }
 		add_popularity = { ideology = communism popularity = 0.1 }
 		ai_chance = {
 			factor = 1
@@ -1316,7 +1339,7 @@ country_event = {
 	}
 	option = { ## no
 		name = prywhen.39.b
-		GRW = { country_event = { id = prywhen.40 days = 10 } }
+		FROM = { country_event = { id = prywhen.56 days = 10 } }
 		ai_chance = {
 			factor = 1
 		}
@@ -1333,6 +1356,8 @@ country_event = {
 	option = { ## yes
 		name = prywhen.40.a
 		add_manpower = 4000
+		custom_effect_tooltip = GRW_volunteers_will_spawn
+		hidden_effect = {
 		if = { limit = { LUS = { has_country_flag = supported_GRW }
 				NOT = { has_country_flag = LUS_volunteers_arrived } }
 			load_oob = "GRW_LUS_volunteers"
@@ -1345,6 +1370,7 @@ country_event = {
 				NOT = { has_country_flag = GRU_volunteers_arrived } }
 			load_oob = "GRW_GRU_volunteers"
 			set_country_flag = GRU_volunteers_arrived }
+		}
 	}
 }
 country_event = {
@@ -1848,6 +1874,19 @@ country_event = {
 	option = { ## accept
 		name = prywhen.55.a
 		add_manpower = 5000
+	}
+}
+
+country_event = {
+	id = prywhen.56
+	immediate = {log = "[Root.GetName]: event prywhen.56"}#Auto-logging
+	title = prywhen.56.t
+	desc = prywhen.56.d
+	picture = GFX_event_griffon_mountain
+
+	is_triggered_only = yes
+	option = { ## yes
+		name = prywhen.56.a
 	}
 }
 ####################################################
@@ -2774,6 +2813,9 @@ country_event = {
 		}
 		add_to_variable = { var = peasant_anger value = 5 }
 		custom_effect_tooltip = peasant_anger_increase_tt_high
+		ai_chance = {
+			factor = 0
+		}
 	}
 	option = {
 		name = brodfeld.22.b
@@ -2783,6 +2825,9 @@ country_event = {
 		}
 		add_to_variable = { var = peasant_anger value = 3 }
 		custom_effect_tooltip = peasant_anger_increase_tt_average
+		ai_chance = {
+			factor = 1
+		}
 	}
 	option = {
 		name = brodfeld.22.c
@@ -2792,6 +2837,9 @@ country_event = {
 		}
 		add_to_variable = { var = peasant_anger value = 1 }
 		custom_effect_tooltip = peasant_anger_increase_tt_light
+		ai_chance = {
+			factor = 3
+		}
 	}
 }
 
