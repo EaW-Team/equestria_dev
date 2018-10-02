@@ -1,0 +1,358 @@
+STG_resolve_EQS_CW_effects = {
+	if = {
+		limit = { has_country_flag = STG_border_propaganda_flag }
+		country_event = { id = stalliongrad_eqs_cw.1 days = 1 random = 4 }
+	}
+	if = {
+		limit = { has_country_flag = STG_sabotage_flag }
+		country_event = { id = stalliongrad_eqs_cw.2 days = 7 random = 14 }
+	}
+	if = {
+		hidden_effect = {
+			set_variable = { desertion_size = party_popularity@communism }
+			divide_variable = { desertion_size = 3 }
+			clamp_variable = {
+				var = desertion_size
+				min = 0.04
+				max = 0.08
+			}
+		}
+		limit = { has_country_flag = STG_infiltrate_army_flag }
+		country_event = { id = stalliongrad_eqs_cw.3 days = 7 random = 7 }
+	}
+	if = {
+		limit = { has_country_flag = STG_contact_BAL_flag }
+		country_event = { id = stalliongrad_eqs_cw.4 days = 14 random = 21 }
+	}
+	if = {
+		limit = { has_country_flag = STG_contact_VAN_flag }
+		country_event = { id = stalliongrad_eqs_cw.5 days = 14 random = 21 }
+	}
+	STG_revolution_effect = yes
+	STG = {
+		remove_targeted_decision = {
+			target = ROOT
+			decision = STG_war_breaks_out
+		}
+	}
+	set_global_flag = STG_CW_EQS_done
+}
+
+STG_border_propaganda_effect = {
+	hidden_effect = {
+		STG = {
+			if = {
+				limit = { NOT = { has_country_flag = STG_border_propaganda_division } }
+				set_country_flag = STG_border_propaganda_division
+				division_template = {
+					name = "Partisan Division"
+					priority = 0
+					is_locked = yes
+					regiments = {
+						infantry = { x = 0 y = 0 }
+						infantry = { x = 0 y = 1 }
+					}
+				}
+			}
+		}
+	}
+	every_owned_state = {
+		limit = { is_core_of = STG }
+		random_list = {
+			30 = {
+				modifier = {
+					factor = 1.25
+					ROOT = {
+						divisions_in_state = {
+							size > 0
+							state = PREV
+						}
+					}
+				}
+				modifier = {
+					factor = 1.2
+					ROOT = {
+						divisions_in_state = {
+							size > 2
+							state = PREV
+						}
+					}
+				}
+				modifier = {
+					factor = 1.2
+					ROOT = {
+						divisions_in_state = {
+							size > 8
+							state = PREV
+						}
+					}
+				}
+				modifier = {
+					factor = 1.2
+					ROOT = {
+						divisions_in_state = {
+							size > 16
+							state = PREV
+						}
+					}
+				}
+				modifier = {
+					factor = 1.2
+					ROOT = {
+						divisions_in_state = {
+							size > 20
+							state = PREV
+						}
+					}
+				}
+			}
+			70 = {
+				STG = { transfer_state = PREV }
+				hidden_effect = {
+					create_unit = {
+						division = "name = \"Partisan Division\" division_template = \"Partisan Division\" start_experience_factor = 0.1 start_equipment_factor = 0.5"
+						owner = STG
+					}
+					if = {
+						limit = { state_population > 42000 }
+						30 = {}
+						70 = {
+							create_unit = {
+								division = "name = \"Partisan Division\" division_template = \"Partisan Division\" start_experience_factor = 0.1 start_equipment_factor = 0.5"
+								owner = STG
+							}
+						}
+						add_manpower = -2000
+					}
+					if = {
+						limit = { state_population > 188000 }
+						random_list = {
+							30 = {}
+							70 = {
+								create_unit = {
+									division = "name = \"Partisan Division\" division_template = \"Partisan Division\" start_experience_factor = 0.1 start_equipment_factor = 0.5"
+									owner = STG
+								}
+								add_manpower = -2000
+							}
+						}
+					}
+				}
+			}
+		}
+	}
+}
+
+STG_infiltrate_army_effect = {
+	random_list = {
+		20 = {
+			add_timed_idea = {
+				idea = STG_infiltrate_army_idea
+				days = 360
+			}
+			custom_effect_tooltip = STG_infiltrate_army_tt
+			hidden_effect = { STG_infiltrate_army_desertion_effect = yes }
+		}
+		30 = {
+			custom_effect_tooltip = STG_infiltrate_army_tt
+			hidden_effect = { STG_infiltrate_army_desertion_effect = yes }
+		}
+		50 = {
+			add_timed_idea = {
+				idea = STG_infiltrate_army_idea
+				days = 360
+			}
+			clear_variable = desertion_size
+		}
+	}
+}
+
+STG_infiltrate_army_desertion_effect = {
+	if = {
+		limit = { 
+			168 = { is_controlled_by = STG }
+		}
+		start_civil_war = {
+			ideology = communism
+			size = var:desertion_size
+			only_own_territory = no
+			states = {
+				168
+			}
+			keep_unit_leaders_trigger = {
+				always = yes
+			}
+		}
+	}
+	else_if = {
+		limit = { 
+			161 = { is_controlled_by = STG }
+		}
+		start_civil_war = {
+			ideology = communism
+			size = 0.5
+			only_own_territory = no
+			states = {
+				161
+			}
+			keep_unit_leaders_trigger = {
+				always = yes
+			}
+		}
+	}
+	else_if = {
+		limit = { 
+			165 = { is_controlled_by = STG }
+		}
+		start_civil_war = {
+			ideology = communism
+			size = 0.5
+			only_own_territory = no
+			states = {
+				165
+			}
+			keep_unit_leaders_trigger = {
+				always = yes
+			}
+		}
+	}
+	else = {
+		start_civil_war = {
+			ideology = communism
+			size = 0.5
+			only_own_territory = no
+			states_filter = {
+				is_fully_controlled_by = ROOT
+				any_neighbor_state = {
+					is_controlled_by = STG
+				}
+			}
+			keep_unit_leaders_trigger = {
+				always = yes
+			}
+		}
+		random_other_country = {
+			limit = { 
+				original_tag = EQS
+				has_government = communism
+			}
+			every_owned_state = {
+				set_state_flag = return_to_EQS
+			}
+		}
+	}
+	clear_variable = desertion_size
+	create_country_leader = { #To restore the previous commie leader
+		name = "Starlight Glimmer"
+		expire = "1965.1.1"
+		picture = "Starlight.tga"
+		desc = "POLITICS_STARLIGHTGLIMMER_DESC"
+		ideology = leninism
+		traits = {
+
+		}
+	}
+	random_other_country = {
+		limit = { 
+			original_tag = EQS
+			has_government = communism
+		}
+		STG = {
+			annex_country = {
+				target = PREV
+				transfer_troops = yes
+			}
+		}
+	}
+	every_state = {
+		limit = { has_state_flag = return_to_EQS }
+		clr_state_flag = return_to_EQS
+		ROOT = { transfer_state = PREV }
+	}
+	remove_ideas = civil_war_recovery
+}
+
+STG_revolution_effect = {
+	set_temp_variable = { cw_size = party_popularity@communism }
+	multiply_temp_variable = { cw_size = 0.6 }
+	start_civil_war = {
+		ideology = communism
+		size = cw_size
+		states_filter = {
+			if = {
+				limit = { ROOT = { has_country_flag = STG_contact_BAL_flag } }
+				NOT = {
+					state = 13
+					state = 28
+					state = 27
+					state = 82
+					state = 90
+				}
+			}
+			if = {
+				limit = { ROOT = { has_country_flag = STG_contact_VAN_flag } }
+				NOT = {
+					state = 14
+					state = 45
+				}
+			}
+		}
+		keep_unit_leaders_trigger = {
+			always = yes
+		}
+	}
+	create_country_leader = {
+		name = "Starlight Glimmer"
+		expire = "1965.1.1"
+		picture = "Starlight.tga"
+		desc = "POLITICS_STARLIGHTGLIMMER_DESC"
+		ideology = leninism
+		traits = {
+
+		}
+	}
+	random_other_country = {
+		limit = { 
+			original_tag = EQS
+			has_government = communism
+		}
+		STG = {
+			annex_country = {
+				target = PREV
+				transfer_troops = yes
+			}
+		}
+	}
+	remove_ideas = civil_war_recovery
+}
+
+remove_STG_EQS_cooperation = {
+	STG = {
+		clr_country_flag = war_help
+		remove_opinion_modifier = {
+			target = event_target:equestria
+			modifier = STG_EQS_military_cooperation
+		}
+		remove_opinion_modifier = {
+			target = event_target:equestria
+			modifier = STG_EQS_cooperation
+		}
+		remove_opinion_modifier = {
+			target = event_target:equestria
+			modifier = trading
+		}
+	}
+	remove_opinion_modifier = {
+		target = STG
+		modifier = STG_EQS_military_cooperation
+	}
+	remove_opinion_modifier = {
+		target = STG
+		modifier = STG_EQS_cooperation
+	}
+	remove_opinion_modifier = {
+		target = STG
+		modifier = trading
+	}
+	clr_global_flag = STG_EQS_cooperation_flag
+}
