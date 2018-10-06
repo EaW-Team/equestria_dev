@@ -63,6 +63,9 @@ NDefines.NAI.VP_LEVEL_IMPORTANCE_HIGH = 50				-- Victory points with values high
 NDefines.NAI.VP_LEVEL_IMPORTANCE_MEDIUM = 25			-- Victory points with values higher than or equal to this are considered to be of medium importance.
 NDefines.NAI.VP_LEVEL_IMPORTANCE_LOW = 5				-- Victory points with values higher than or equal to this are considered to be of low importance.
 
+NDefines.NGraphics.VICTORY_POINT_MAP_ICON_TEXT_CUTOFF = {200, 350, 600}  	-- Vanilla is 100, 250, 500
+NDefines.NGraphics.VICTORY_POINTS_DISTANCE_CUTOFF = {300, 500, 1000} 		-- Vanilla is 300, 500, 1500
+
 NDefines.NAI.FORTIFIED_RATIO_TO_CONSIDER_A_FRONT_FORTIFIED = 0.3
 NDefines.NAI.HEAVILY_FORTIFIED_RATIO_TO_CONSIDER_A_FRONT_FORTIFIED = 0.3
 NDefines.NAI.INVASION_DISTANCE_RANDOMNESS = 400
