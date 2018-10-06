@@ -198,55 +198,138 @@ country_event = {#RCT is asked for an alliance//unlikely to work, cannot happen 
 	 ai_chance = { factor = 100 }
 	 trigger = {
 		has_global_flag = LCT_wavebreaker_elected
+		WIT = {
+		 has_government = neutrality
+		 is_puppet = no
+		}
 	 }
 	 add_to_faction = GRY
+	 if = {
+	  limit = {
+	   NOT = {
+	    original_tag = LCT
+	   }
+	  }
 	 LCT = { 
 	  country_event = { id = gryphianhost.108}
 	  add_opinion_modifier = { target = RCT modifier = accepted_our_enemies_into_fed }
 	 }
+	 }
+	 if = {
+	  limit = {
+	   NOT = {
+	    original_tag = WIT
+	   }
+	  }
 	 WIT = {
 	  country_event = { id = gryphianhost.108}
 	  add_opinion_modifier = { target = RCT modifier = accepted_our_enemies_into_fed }
+	 }
 	 }
 	 GRY = {
 	  add_opinion_modifier = { target = RCT modifier = accepted_us }
 	  country_event = { id = gryphianhost.106 }
 	 }
+	 add_political_power = -100
 	}
 	option = {#say yes, with consequences - AI should never pick this option but if they player wants to...
 	 name = gryphianhost.105.b
 	 ai_chance = { factor = 0 }
 	 trigger = {
-	  NOT = {
+	 OR = {
+	 AND = {
+	  NOT = {#Wavebreaker is not in power, and LCT does not lead the Fed
 	   has_global_flag = LCT_wavebreaker_elected
 	  }
+	  NOT = {
+	   original_tag = LCT#Non-Wavebreaker LCT should not get this option
+	  }
 	 }
+	 AND = {
+	  WIT = {
+	   has_government = fascism	   
+	  }
+	  NOT = {
+	  original_tag = WIT
+	   }
+	 }
+	 }
+	}
 	 add_to_faction = GRY
+	 if = {#We have to check for these because it's possible that only one of them is true, ie that Honoria and Wavebreaker both took power
+	  limit = {
+	   NOT = {
+	   has_global_flag = LCT_wavebreaker_elected
+	   }
+	  }
 	 remove_from_faction = LCT
-	 remove_from_faction = WIT
 	 LCT = { 
-	  add_opinion_modifier = { target = RCT modifier = accepted_our_enemies_into_fed }
+	  add_opinion_modifier = { target = ROOT modifier = accepted_our_enemies_into_fed }
 	  country_event = { id = gryphianhost.110 }
 	 }
+	 }
+	 if = {
+	  limit = {
+	   
+	    WIT = {
+		 has_government = fascism
+		}
+	   
+	  }
+	 remove_from_faction = WIT
 	 WIT = {
 	  add_opinion_modifier = { target = RCT modifier = accepted_our_enemies_into_fed }
 	  country_event = { id = gryphianhost.110 }
 	 }
+	}
+	 if = {
+	  limit = {
+	   NOT = {
+	    WIT = {
+		 has_government = fascism
+		}
+	   }
+	  }
+	  add_political_power = -50#It still costs 50 PP per objector that goes along with it
+	}
+
+	 if = {
+	  limit = {
+		has_global_flag = LCT_wavebreaker_elected
+	  }
+	  add_political_power = -50
+	}
+	
 	 GRY = {
 	  add_opinion_modifier = { target = RCT modifier = accepted_us }
 	  country_event = { id = gryphianhost.106 }
 	 }
 	}
+
 	option = {#Just say no
 	name = gryphianhost.105.c
 	 GRY = {
 	  country_event = { id = gryphianhost.107 }
 	 }
+	 if = {
+	  limit = {
+	   NOT = {
+	    original_tag = WIT
+	   }
+	  }
 	 WIT = {
 	  country_event = { id = gryphianhost.109 }
 	 }
+	 }
+	 if = {
+	  limit = {
+	   NOT = {
+	    original_tag = LCT
+	   }
+	  }
 	 LCT = {
 	  country_event = { id = gryphianhost.109 }
+	 }
 	 }
 	}
 }
@@ -546,13 +629,16 @@ country_event = {#GRY asks LUS or GRU to form a union, but with Communism!
 	
 	option = {#Agree to cordial relations and a guarantee
 	 name = gryphianhost.118.a
+	 ai_chance = {factor = 0 }
 	 GRY = {
 	  give_guarantee = ROOT
 	 }
 	}
 	option = {#Agree to join faction
 	 name = gryphianhost.118.b
-	 trigger = {
+	 ai_chance = {factor = 100 }
+	if = {
+	 limit = {
 	  GRY = {
 	   is_in_faction = yes
 	  }
@@ -560,6 +646,14 @@ country_event = {#GRY asks LUS or GRU to form a union, but with Communism!
 	 GRY = {
 	  add_to_faction = ROOT
 	 }
+	}
+	else = {
+	 GRY = {
+	  create_faction = "Griffonian People's Defense Initiative"
+	  add_to_faction = ROOT
+	 }
+	}
+
 	}
 }
 
@@ -709,22 +803,18 @@ country_event = {#Civil War event if the Communists avoid finishing off the land
 		ideology = communism
 		size = 0.5
 	 }
-	 random_other_country = {
-		 limit = {
-			 original_tag = GRY
-			 has_government = neutrality
-		 }
+
 		 create_country_leader = {
-			name = "Severyn Nalybeako"
-			desc = "Hetman Bulba's closest associate, Nalybeako is determined to save his country from the brutal Communist thugs that killed his master and father-figure."
-			picture = ""
+			name = "Pavel Vereskopadsky"
+			desc = vereskopadsky_desc
+			picture = "Pavel_Vereskopadsky"
 			expire = "1965.1.1"
 			ideology = despotism
 			traits = {
-				FIR_great_king
+				anti_communist
 			}
 		}
-	 }
+	 
 	 set_country_flag = GRY_neutral_rebellion
 	 load_focus_tree = { tree = GRY_focus_neutral_rebellion keep_completed = yes }
 	}
