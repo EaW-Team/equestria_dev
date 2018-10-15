@@ -107,6 +107,13 @@ country_event = {#Raid event, did you succeed?
 	hidden_effect = {
 		  country_event = {  days = 4 id = gryphianhost.134 }#Describe Bulba's death to Communist insurgents even though he won, and its effects
 	     }
+		ai_chance = {
+		 factor = 50
+		 modifier = {
+		  factor = 0
+		  is_historical_focus_on = yes
+		 }
+		}
 		if = {
 			limit = {
 				has_country_flag = GRY_raiding_brodfeld
@@ -134,6 +141,13 @@ country_event = {#Raid event, did you succeed?
 	}
 	option = {#Raid fails
 		name = gryphianhost.102.b
+		ai_chance = {
+		 factor = 50
+		 modifier = {
+		  factor = 100
+		  is_historical_focus_on = yes
+		 }
+		}
 		add_political_power = -20
 		add_stability = -0.02
 		set_country_flag = GRY_raid_failed
@@ -495,20 +509,9 @@ country_event = {#Ask WNG for an alliance. Might want to use this for all the si
 	
 	option = {
 	 name = gryphianhost.111.a
-	 if = {
-	  limit = {
-	   tag = JER
-	   is_in_faction = no
-	  }
-	  create_faction = "Entente"
-	 }
-	 else_if = {
-	  limit = {
-	   tag = FAT
-	   is_in_faction = no
-	  }
-	  create_faction = "Pan-Griffonian Republic"
-	 }
+	 	ai_chance = {
+		 factor = 50
+		}
 	 add_to_faction = FROM
 	 FROM = {
 	  country_event = { id = gryphianhost.112 days = 1 }
@@ -516,6 +519,9 @@ country_event = {#Ask WNG for an alliance. Might want to use this for all the si
 	}
 	option = {
 	 name = gryphianhost.111.b
+		ai_chance = {
+		 factor = 0
+		}
 	 FROM = {
 	  country_event = { id = gryphianhost.113 days = 1 }
 	 }
@@ -882,14 +888,15 @@ country_event = {#Civil War event if the Communists avoid finishing off the land
 			ideology = neutrality
 			size = 0.5
 		}
-	every_country = {
+	random_other_country = {
 	 limit = {
 	  has_civil_war = yes
 	  has_war_with = ROOT
+	  original_tag = GRY
 	  has_government = neutrality
 	 }
 	 set_country_flag = GRY_neutral_rebellion
-	 load_focus_tree = { tree = GRY_focus_neutral_rebellion keep_completed = yes }
+	 load_focus_tree = { tree = GRY_focus_neutral_rebellion }##tried removing the keep_completed=yes trigger to see if it would result in the AI not being locked into the focus tree that Kaiv Commune was doing prior to the revolt
 		 create_country_leader = {
 			name = "Pavel Vereskopadsky"
 			desc = vereskopadsky_desc
@@ -900,6 +907,13 @@ country_event = {#Civil War event if the Communists avoid finishing off the land
 				anti_communist
 			}
 		}
+	  if = {
+	   limit = {
+	    has_idea = GRY_communist_army
+	   }
+	 remove_ideas = GRY_communist_army
+	  }
+	  
 	}
 	}
 	option = {#Side with the Hetmanate
@@ -923,7 +937,15 @@ country_event = {#Civil War event if the Communists avoid finishing off the land
 		}
 	 
 	 set_country_flag = GRY_neutral_rebellion
+	 hidden_effect = {
 	 load_focus_tree = { tree = GRY_focus_neutral_rebellion keep_completed = yes }
+	  if = {
+	   limit = {
+	    has_idea = GRY_communist_army
+	   }
+	 remove_ideas = GRY_communist_army
+	  }
+	 }
 	}
 }
 
@@ -1153,7 +1175,7 @@ country_event = {#Event To Release The GLA
 	  add_to_faction = GRW
 	}
  }
-country_event = {#Event To Release The BRF
+country_event = {#Event To Release BRF
 	id = gryphianhost.137
 	title = gryphianhost.137.t
 	desc = gryphianhost.137.d
@@ -1288,4 +1310,77 @@ country_event = {#Event To Release The BRF
 	  add_to_faction = BRF
 	}
  }
+
+ country_event = {#Annex D01 into GRY if the neutrals rise up but lose, or if the fascists come to power but manage to lose their civil war
+	id = gryphianhost.138
+	title = gryphianhost.138.t
+	desc = gryphianhost.138.d
+	picture = GFX_event_griffons_machine_gun
+	
+	trigger = {
+	 original_tag = GRY
+	 OR = {
+	 has_government = communism
+	 has_government = democratic
+	}
+	OR = {
+	 GRY = {
+	  has_country_flag = GRY_neutral_rebellion
+	 }
+	 GRY = {
+	  has_completed_focus = GRY_prevent_ruina
+	 }
+	}
+	has_civil_war = no
 }
+fire_only_once = yes
+mean_time_to_happen = {
+	weeks = 1
+}
+
+	
+	option = {#Revert to being GRY
+	 name = gryphianhost.138.a
+		if = {
+		 limit = {
+		  has_government = democratic
+		 }
+		 GRY = {
+		 set_politics = { ruling_party = democratic elections_allowed = yes }
+		create_country_leader = {
+		name = "Borad Grifnitsky"
+		desc = ""
+		picture = "Grifninsky.tga"
+		expire = "1965.1.1"
+		ideology = liberalism
+		traits = {
+			
+		}
+		}		 
+		 complete_national_focus = GRY_volnoye
+		 annex_country = { target = ROOT }
+		 }
+		}
+		if = {
+		 limit = {
+		  has_government = communism
+		 }
+		 GRY = {
+		 set_politics = { ruling_party = communism elections_allowed = no }
+		 clr_country_flag = GRY_neutral_rebellion
+		 create_country_leader = {
+			name = "Cornilo Khurshevich"
+			desc = ""
+			picture = "Cornilo_Khursevich.tga"
+			expire = "1965.1.1"
+			ideology = leninism
+			traits = {
+			
+			}
+		}		 
+		 complete_national_focus = GRY_first_universale
+		 annex_country = { target = ROOT }
+		 }
+		}
+	 }
+	}
