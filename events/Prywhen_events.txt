@@ -1,4 +1,4 @@
-﻿add_namespace = prywhen
+add_namespace = prywhen
 add_namespace = brodfeld
 add_namespace = prywhen_test
 add_namespace = prywhen_news
@@ -25,6 +25,7 @@ country_event = {
 		ai_chance = { factor = 1 }
 	}
 }
+
 country_event = {
 	id = prywhen.1
 	immediate = {log = "[Root.GetName]: event prywhen.1"}#Auto-logging
@@ -32,14 +33,17 @@ country_event = {
 	desc = prywhen.1.d
 	picture = GFX_event_griffon_mountain
 
-	trigger = {
-		tag = GRW
-		owns_state = 385
-		owns_state = 589
-		owns_state = 508
-	}
-	mean_time_to_happen = { days = 1 }
+	is_triggered_only = yes #moved to on_peaceconference_ended
 	fire_only_once = yes
+
+	immediate = {
+		hidden_effect = {
+			BAN = {
+				country_event = { id = prywhen.5 days = 1 random = 1392 } #days to hours applied
+			}
+		}
+	}
+
 	option = {
 		name = prywhen.1.a
 		if = {
@@ -210,16 +214,9 @@ country_event = {
 	picture = GFX_event_griffons_machine_gun
 
 	trigger = {
-		tag = BAN
-		BRF = { exists = no }
-		GRW = {
-			owns_state = 385
-			owns_state = 589
-			owns_state = 508
-		}
 		NOT = { has_government = communism }
 	}
-	mean_time_to_happen = { days = 30 }
+	is_triggered_only = yes #moved to prywhen.1
 	fire_only_once = yes
 	option = {
 		name = prywhen.5.a
@@ -1252,31 +1249,6 @@ country_event = {
 	}
 }
 country_event = {
-	id = prywhen.34
-	immediate = {log = "[Root.GetName]: event prywhen.34"}#Auto-logging
-
-	hidden = yes
-	trigger = {
-		tag = GRW
-		has_government = communism
-		country_exists = BRF
-		BRF = { has_government = communism }
-	}
-	mean_time_to_happen = { days = 1 }
-	fire_only_once = yes
-	option = {
-		annex_country = { target = BRF transfer_troops = yes }
-	}
-	option = {
-		trigger = {
-			is_ai = yes
-			BRF = { is_ai = no }
-		}
-		GRW = { change_tag_from = BRF }
-		annex_country = { target = BRF transfer_troops = yes }
-	}
-}
-country_event = {
 	id = prywhen.35
 	immediate = {log = "[Root.GetName]: event prywhen.35"}#Auto-logging
 	title = prywhen.35.t
@@ -1882,6 +1854,109 @@ country_event = {
 	is_triggered_only = yes
 	option = { ## yes
 		name = prywhen.56.a
+	}
+}
+
+country_event = {
+	id = prywhen.34
+	immediate = {log = "[Root.GetName]: event prywhen.34"}#Auto-logging
+	hidden = yes
+	trigger = {
+		OR = {
+			AND = {
+				tag = BRF
+				has_government = communism
+			}
+			AND = {
+				tag = GRW
+				NOT = { has_government = communism }
+			}
+		}
+	}
+	mean_time_to_happen = { days = 1 }
+	option = {
+		trigger = { tag = BRF }
+		if = {
+			limit = { is_subject = yes }
+			GRW = { get_current_autonomy_level_of_PREV = yes }
+			overlord = { set_country_flag = BRF_GRW_master }
+		}
+		else_if = {
+			limit = { is_in_faction = yes }
+			random_other_country = {
+				limit = { is_in_faction_with = ROOT is_faction_leader = yes }
+				set_country_flag = BRF_GRW_faction_leader
+			}
+		}
+		if = {
+			limit = { is_ai = no }
+			GRW = { change_tag_from = ROOT }
+		}
+		GRW = {
+			transfer_technology = yes
+			annex_country = { target = ROOT transfer_troops = yes } 
+		}
+		GRW = {
+			if = {
+				limit = { any_country = { has_country_flag = BRF_GRW_master } }
+				random_other_country = {
+					limit = { has_country_flag = BRF_GRW_master }
+					puppet = GRW
+					clr_country_flag = BRF_GRW_master
+				}
+				set_previous_autonomy_level = yes
+			}
+			else_if = {
+				limit = { any_country = { has_country_flag = BRF_GRW_faction_leader } }
+				random_other_country = {
+					limit = { has_country_flag = BRF_GRW_faction_leader }
+					add_to_faction = GRW
+					clr_country_flag = BRF_GRW_faction_leader
+				}
+			}
+		}
+	}
+	option = {
+		trigger = { tag = GRW }
+		if = {
+			limit = { is_subject = yes }
+			BRF = { get_current_autonomy_level_of_PREV = yes }
+			overlord = { set_country_flag = BRF_GRW_master }
+		}
+		else_if = {
+			limit = { is_in_faction = yes }
+			random_other_country = {
+				limit = { is_in_faction_with = ROOT is_faction_leader = yes }
+				set_country_flag = BRF_GRW_faction_leader
+			}
+		}
+		if = {
+			limit = { is_ai = no }
+			BRF = { change_tag_from = ROOT }
+		}
+		BRF = {
+			transfer_technology = yes
+			annex_country = { target = ROOT transfer_troops = yes } 
+		}
+		BRF = {
+			if = {
+				limit = { any_country = { has_country_flag = BRF_GRW_master } }
+				random_other_country = {
+					limit = { has_country_flag = BRF_GRW_master }
+					puppet = BRF
+					clr_country_flag = BRF_GRW_master
+				}
+				set_previous_autonomy_level = yes
+			}
+			else_if = {
+				limit = { any_country = { has_country_flag = BRF_GRW_faction_leader } }
+				random_other_country = {
+					limit = { has_country_flag = BRF_GRW_faction_leader }
+					add_to_faction = BRF
+					clr_country_flag = BRF_GRW_faction_leader
+				}
+			}
+		}
 	}
 }
 ####################################################
