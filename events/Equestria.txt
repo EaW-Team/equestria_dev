@@ -1,6 +1,7 @@
 ﻿add_namespace = equestria
 add_namespace = equestriachn
 add_namespace = equestria_flavour
+add_namespace = equestria_games
 
 country_event = {
 	id = equestria.1
@@ -5094,41 +5095,97 @@ country_event = {
 		add_opinion_modifier = { target = STG modifier = stg_refused_help }
 	}
 }
+
+# Equestria & Friendship Games stuff
+
 country_event = {
-	id = equestria.179
+	id = equestria_games.1
 	immediate = {
-		log = "[Root.GetName]: event equestria.179"
+		log = "[Root.GetName]: event equestria_games.1"
 	}
-	title = equestria.179.t
-	desc = equestria.179.d
+	title = equestria_games.1.t
+	desc = equestria_games.1.d
 	picture = GFX_event_friendship_games
 	is_triggered_only = yes
 	option = {
-		name = equestria.179.a
-		set_country_flag = flag_participates_in_friendship_games
+		name = equestria_games.1.a
 		add_stability = 0.025
+		clr_country_flag = friendship_games_response
+		set_country_flag = participates_in_friendship_games
 		FROM = {
-			country_event = { id = equestria.180 days = 2 }
+			country_event = { id = equestria_games.2 days = 2 }
 		}
 		ai_chance = {
 			factor = 1
 			modifier = {
-				is_neighbor_of = EQS
+				is_neighbor_of = FROM
 				factor = 2
 			}
 			modifier = {
 				OR = {
-					tag = CRY
+					is_subject_of = FROM
+					is_in_faction_with = FROM
 					tag = BUF
 				}
 				factor = 100
 			}
+			modifier = {
+				has_opinion = {
+					target = FROM
+					value < -100
+				}
+				factor = 0
+			}
+			modifier = {
+				has_opinion = {
+					target = FROM
+					value < -50
+				}
+				factor = 0.5
+			}
+			modifier = {
+				has_opinion = {
+					target = FROM
+					value < -10
+				}
+				factor = 0.75
+			}
+			modifier = {
+				has_opinion = {
+					target = FROM
+					value > 25
+				}
+				factor = 1.25
+			}
+			modifier = {
+				has_opinion = {
+					target = FROM
+					value > 50
+				}
+				factor = 1.25
+			}
+			modifier = {
+				has_opinion = {
+					target = FROM
+					value > 100
+				}
+				factor = 2
+			}
+			modifier = {
+				NOT = { has_government = democratic }
+				factor = 0.75
+			}
+			modifier = {
+				has_government = democratic
+				factor = 3
+			}
 		}
 	}
 	option = {
-		name = equestria.179.b
+		name = equestria_games.1.b
+		clr_country_flag = friendship_games_response
 		FROM = {
-			country_event = { id = equestria.181 days = 2 }
+			country_event = { id = equestria_games.3 days = 2 }
 		}
 		ai_chance = {
 			factor = 1
@@ -5136,50 +5193,165 @@ country_event = {
 	}
 }
 country_event = {
-	id = equestria.180
-	immediate = { log = "[Root.GetName]: event equestria.180" }
-	title = equestria.180.t
-	desc = equestria.180.d
+	id = equestria_games.2
+	immediate = { log = "[Root.GetName]: event equestria_games.2" }
+	title = equestria_games.2.t
+	desc = equestria_games.2.d
 	picture = GFX_event_friendship_games
 	is_triggered_only = yes
 	option = {
-		name = equestria.180.a
+		name = equestria_games.2.a
+		add_political_power = 5
 		add_opinion_modifier = { target = FROM modifier = EQS_agreed_to_partake_in_FG }
-	}
-}
-country_event = {
-	id = equestria.181
-	immediate = { log = "[Root.GetName]: event equestria.181" }
-	title = equestria.181.t
-	desc = equestria.181.d
-	picture = GFX_event_friendship_games
-	is_triggered_only = yes
-	option = {
-		name = equestria.181.a
-		add_opinion_modifier = { target = FROM modifier = EQS_rejected_to_partake_in_FG }
-	}
-}
-### Friendship Games Organization Event ###
-country_event = {
-	id = equestria.182
-	immediate = { log = "[Root.GetName]: event equestria.182" }
-	title = equestria.182.t
-	desc = equestria.182.d
-	picture = GFX_event_friendship_games
-	is_triggered_only = yes
-	option = {
-		name = equestria.182.a
-		every_other_country = {
+		hidden_effect = {
+			if = {
 				limit = {
-					is_on_equestrian_continent = yes
-					NOT = {
-						tag = GFF
+					NOT = { any_country = { has_country_flag = friendship_games_response } }
+				}
+				country_event = { id = equestria_games.6 hours = 12 }
+			}
+		}
+	}
+}
+country_event = {
+	id = equestria_games.3
+	immediate = { log = "[Root.GetName]: event equestria_games.3" }
+	title = equestria_games.3.t
+	desc = equestria_games.3.d
+	picture = GFX_event_friendship_games
+	is_triggered_only = yes
+	option = {
+		name = equestria_games.3.a
+		add_opinion_modifier = { target = FROM modifier = EQS_rejected_to_partake_in_FG }
+		hidden_effect = {
+			if = {
+				limit = {
+					NOT = { any_country = { has_country_flag = friendship_games_response } }
+				}
+				country_event = { id = equestria_games.6 hours = 12 }
+			}
+		}
+	}
+}
+
+country_event = { #organize the games
+	id = equestria_games.4
+	immediate = { log = "[Root.GetName]: event equestria_games.4" }
+	title = equestria_games.4.t
+	desc = equestria_games.4.d
+	picture = GFX_event_friendship_games
+	is_triggered_only = yes
+	option = {
+		name = equestria_games.4.a
+		every_other_country = {
+			limit = {
+				has_war = no
+				ROOT = {
+					has_opinion = {
+						target = PREV
+						value > -50
 					}
 				}
-				country_event = { id = equestria.179 days = 7 random = 48 }
+				OR = {
+					is_subject_of = ROOT
+					is_in_faction_with = ROOT
+					AND = {
+						is_on_equestrian_continent = yes
+						is_subject = no
+					}
+				}
 			}
+			set_country_flag = friendship_games_response
+			country_event = { id = equestria_games.1 days = 2 }
+		}
+		if = {
+			limit = { NOT = { has_global_flag = first_friendship_games_held } }
+			set_global_flag = first_friendship_games_held
+			set_variable = { global.friendship_games_years_counter = 4 }
+		}
+		set_global_flag = { flag = friendship_games_flag value = 1 days = 365 }
 	}
 }
+
+country_event = { #do not organize the games
+	id = equestria_games.5
+	immediate = { log = "[Root.GetName]: event equestria_games.5" }
+	title = equestria_games.5.t
+	desc = equestria_games.5.d
+	picture = GFX_event_friendship_games
+	is_triggered_only = yes
+	option = {
+		name = equestria_games.5.a
+		add_political_power = -50
+		add_stability = -0.02
+	}
+}
+
+country_event = {
+	id = equestria_games.6
+	immediate = { log = "[Root.GetName]: event equestria_games.6" }
+	title = {
+		trigger = { check_variable = { friendship_games_participants < 1 } }
+		text = equestria_games.6.t_not_enough_countries
+	}
+	title = {
+		trigger = { check_variable = { friendship_games_participants > 0 } }
+		text = equestria_games.6.t
+	}
+	desc = {
+		trigger = { check_variable = { friendship_games_participants < 1 } }
+		text = equestria_games.6.d_not_enough_countries
+	}
+	desc = {
+		trigger = { check_variable = { friendship_games_participants > 0 } }
+		text = equestria_games.6.d
+	}
+	picture = GFX_event_friendship_games
+	is_triggered_only = yes
+	immediate = {
+		hidden_effect = {
+			set_variable = { friendship_games_participants = 0 }
+			every_other_country = {
+				limit = { has_country_flag = participates_in_friendship_games }
+				add_to_variable = { friendship_games_participants = 1 }
+			}
+		}
+	}
+	option = {
+		trigger = {
+			check_variable = { friendship_games_participants < 1 }
+		}
+		name = equestria_games.6.a
+		clr_global_flag = friendship_games_flag
+	}
+	option = {
+		trigger = {
+			check_variable = { friendship_games_participants > 0 }
+		}
+		name = equestria_games.6.b
+	}
+}
+
+news_event = { #friendship games
+	id = equestria_games.7
+	immediate = {log = "[Root.GetName]: event equestria_games.7"}#Auto-logging
+	title = equestria_games.7.t
+	desc = equestria_games.7.d
+	picture = GFX_news_event_friendship_games
+	trigger = {
+		has_global_flag = friendship_games_flag
+	}
+
+	major = yes
+
+	is_triggered_only = yes
+
+	option = {
+		name = equestria_games.7.a
+	}
+
+}
+
 ### Fall of Acornage
 country_event = {
 	id = equestria_flavour.1
