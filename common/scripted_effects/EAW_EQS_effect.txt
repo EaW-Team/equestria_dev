@@ -460,9 +460,14 @@ EQS_SOL_wartime_change = {
 		}
 	}
 	set_politics = { ruling_party = fascism }
+	add_popularity = {
+		ideology = fascism
+		popularity = 0.10
+	}
 	set_country_flag = sol_wartime_change
 	set_cosmetic_tag = EQS_SOL
 	set_country_flag = is_solar_empire
+	set_party_name = { ideology = democratic long_name = EQS_republic_long name = EQS_republic }
 	save_global_event_target_as = solar_empire
 	clear_global_event_target = equestria
 	SOL = {
@@ -474,6 +479,7 @@ EQS_SOL_wartime_change = {
 	if = {
 		limit = { has_unit_leader = 9999 }
 		remove_unit_leader = 9999
+		set_country_flag = EQS_had_luna
 	}
 	if = {
 		limit = { has_unit_leader = 202 }
@@ -494,7 +500,7 @@ EQS_SOL_wartime_change = {
 			limit = {
 				OR = {
 					is_subject_of = ROOT
-					is_in_faction_with = ROOT
+					AND = { is_in_faction_with = ROOT is_subject = no }
 				}
 			}
 			if = {
@@ -510,6 +516,10 @@ EQS_SOL_wartime_change = {
 		set_country_flag = remove_db_70_days
 	}
 	EQS_SOL_remove_ideas = yes
+	if = {
+		limit = { country_exists = CES }
+		CES = { load_focus_tree = Celestial_State_Focus_db }
+	}
 	#EQS_SOL_show_advisors = yes
 	country_event = { id = solarempire.2 days = 2 }
 	news_event = { id = news.sol.4 hours = 6 }
@@ -551,7 +561,7 @@ EQS_SOL_civil_war = {
 		limit = {
 			OR = {
 				is_subject_of = ROOT
-				is_in_faction_with = ROOT
+				AND = { is_in_faction_with = ROOT is_subject = no }
 			}
 		}
 		if = {
@@ -573,6 +583,7 @@ EQS_SOL_civil_war = {
 	set_cosmetic_tag = EQS_SOL
 	set_temp_variable = { var = civil_war_size value = 1 }
 	subtract_from_temp_variable = { var = civil_war_size value = party_popularity@fascism }
+	set_party_name = { ideology = democratic long_name = EQS_republic_long name = EQS_republic }
 	divide_temp_variable = { var = civil_war_size value = 2.5 }
 	add_to_temp_variable = { var = civil_war_size value = 0.04 }
 	start_civil_war = {
@@ -677,6 +688,10 @@ EQS_SOL_civil_war = {
 		set_nationality = event_target:equestria
 	}
 	EQS_SOL_remove_ideas = yes
+	if = {
+		limit = { country_exists = CES }
+		CES = { load_focus_tree = Celestial_State_Focus_db }
+	}
 	#EQS_SOL_show_advisors = yes
 }
 
@@ -686,18 +701,17 @@ EQS_NLR_civil_war = {
 	STG = {
 		country_event = { id = stalliongrad.5 days = 2 }
 	}
-	every_country = {
-		limit = { exists = yes is_guaranteed_by = EQS }
-		EQS = { diplomatic_relation = { country = PREV relation = guarantee active = no } }
+	every_other_country = {
+		limit = { exists = yes is_guaranteed_by = ROOT }
+		ROOT = { diplomatic_relation = { country = PREV relation = guarantee active = no } }
 	}
-	every_country = {
+	every_other_country = {
 		limit = {
 			OR = {
-				is_subject_of = EQS
-				is_in_faction_with = EQS
+				is_subject_of = ROOT
+				AND = { is_in_faction_with = ROOT is_subject = no }
 			}
 			NOT = {
-				tag = EQS
 				original_tag = NLR
 			}
 		}
@@ -723,18 +737,16 @@ EQS_NLR_civil_war = {
 	#GRF = {
 	#	transfer_state = 241
 	#}
-	EQS = {
-		random_owned_controlled_state = {
-			prioritize = { 64 }
-			NLR = { transfer_state = PREV }
-		}
+	random_owned_controlled_state = {
+		prioritize = { 64 }
+		NLR = { transfer_state = PREV }
 	}
 	NLR = {
 		add_named_threat = { threat = 20 name = threat_equestrian_civil_war_NLR }
 	}
-	set_temp_variable = { civil_war_size = num_divisions }
-	multiply_temp_variable = { civil_war_size = 0.003 }
-	add_to_temp_variable = { civil_war_size = 0.05 }
+	set_variable = { civil_war_size = num_divisions }
+	multiply_variable = { civil_war_size = 0.003 }
+	add_to_variable = { civil_war_size = 0.05 }
 	clamp_variable = {
 		var = civil_war_size
 		min = 0.2
@@ -846,6 +858,7 @@ EQS_NLR_civil_war = {
 			75
 		}
 	}
+	clear_variable = civil_war_size
 	create_country_leader = {
 		name = "Chancellor Neighsay"
 		expire = "1965.1.1"
@@ -916,6 +929,9 @@ EQS_NLR_civil_war = {
 				save_global_event_target_as = EQS_Midnight_Oil
 			}
 		}
+		country_event = { id = lunas.1 days = 75 random = 2400 }#days to hours applied
+		country_event = { id = lunas.2 days = 12 random = 600 }#days to hours applied
+		country_event = { id = lunas.17 days = 35 random = 6720 }#days to hours applied
 	}
 	random_other_country = {
 		limit = {
@@ -929,262 +945,34 @@ EQS_NLR_civil_war = {
 
 add_to_war_EQS_against_SOL = {
 	#SOL is EQS
-	if = {
-		limit = { event_target:equestria = { tag = D01 } }
-		add_to_war = { targeted_alliance = D01 enemy = EQS }
-	}
-	else_if = {
-		limit = { event_target:equestria = { tag = D02 } }
-		add_to_war = { targeted_alliance = D02 enemy = EQS }
-	}
-	else_if = {
-		limit = { event_target:equestria = { tag = D03 } }
-		add_to_war = { targeted_alliance = D03 enemy = EQS }
-	}
-	else_if = {
-		limit = { event_target:equestria = { tag = D04 } }
-		add_to_war = { targeted_alliance = D04 enemy = EQS }
-	}
-	else_if = {
-		limit = { event_target:equestria = { tag = D05 } }
-		add_to_war = { targeted_alliance = D05 enemy = EQS }
-	}
-	else_if = {
-		limit = { event_target:equestria = { tag = D06 } }
-		add_to_war = { targeted_alliance = D06 enemy = EQS }
-	}
-	else_if = {
-		limit = { event_target:equestria = { tag = D07 } }
-		add_to_war = { targeted_alliance = D07 enemy = EQS }
-	}
-	else_if = {
-		limit = { event_target:equestria = { tag = D08 } }
-		add_to_war = { targeted_alliance = D08 enemy = EQS }
-	}
-	else_if = {
-		limit = { event_target:equestria = { tag = D09 } }
-		add_to_war = { targeted_alliance = D09 enemy = EQS }
-	}
-	else_if = {
-		limit = { event_target:equestria = { tag = D10 } }
-		add_to_war = { targeted_alliance = D10 enemy = EQS }
-	}
-	else_if = {
-		limit = { event_target:equestria = { tag = D11 } }
-		add_to_war = { targeted_alliance = D11 enemy = EQS }
-	}
-	else_if = {
-		limit = { event_target:equestria = { tag = D12 } }
-		add_to_war = { targeted_alliance = D12 enemy = EQS }
-	}
-	else_if = {
-		limit = { event_target:equestria = { tag = D13 } }
-		add_to_war = { targeted_alliance = D13 enemy = EQS }
-	}
-	else_if = {
-		limit = { event_target:equestria = { tag = D14 } }
-		add_to_war = { targeted_alliance = D14 enemy = EQS }
-	}
-	else_if = {
-		limit = { event_target:equestria = { tag = D15 } }
-		add_to_war = { targeted_alliance = D15 enemy = EQS }
+	event_target:equestria = {
+		ROOT = {
+			add_to_war = { targeted_alliance = PREV enemy = EQS }
+		}
 	}
 }
 
 add_to_war_SOL_against_EQS = {
 	#SOL is EQS
-	if = {
-		limit = { event_target:equestria = { tag = D01 } }
-		add_to_war = { enemy = D01 targeted_alliance = EQS }
-	}
-	else_if = {
-		limit = { event_target:equestria = { tag = D02 } }
-		add_to_war = { enemy = D02 targeted_alliance = EQS }
-	}
-	else_if = {
-		limit = { event_target:equestria = { tag = D03 } }
-		add_to_war = { enemy = D03 targeted_alliance = EQS }
-	}
-	else_if = {
-		limit = { event_target:equestria = { tag = D04 } }
-		add_to_war = { enemy = D04 targeted_alliance = EQS }
-	}
-	else_if = {
-		limit = { event_target:equestria = { tag = D05 } }
-		add_to_war = { enemy = D05 targeted_alliance = EQS }
-	}
-	else_if = {
-		limit = { event_target:equestria = { tag = D06 } }
-		add_to_war = { enemy = D06 targeted_alliance = EQS }
-	}
-	else_if = {
-		limit = { event_target:equestria = { tag = D07 } }
-		add_to_war = { enemy = D07 targeted_alliance = EQS }
-	}
-	else_if = {
-		limit = { event_target:equestria = { tag = D08 } }
-		add_to_war = { enemy = D08 targeted_alliance = EQS }
-	}
-	else_if = {
-		limit = { event_target:equestria = { tag = D09 } }
-		add_to_war = { enemy = D09 targeted_alliance = EQS }
-	}
-	else_if = {
-		limit = { event_target:equestria = { tag = D10 } }
-		add_to_war = { enemy = D10 targeted_alliance = EQS }
-	}
-	else_if = {
-		limit = { event_target:equestria = { tag = D11 } }
-		add_to_war = { enemy = D11 targeted_alliance = EQS }
-	}
-	else_if = {
-		limit = { event_target:equestria = { tag = D12 } }
-		add_to_war = { enemy = D12 targeted_alliance = EQS }
-	}
-	else_if = {
-		limit = { event_target:equestria = { tag = D13 } }
-		add_to_war = { enemy = D13 targeted_alliance = EQS }
-	}
-	else_if = {
-		limit = { event_target:equestria = { tag = D14 } }
-		add_to_war = { enemy = D14 targeted_alliance = EQS }
-	}
-	else_if = {
-		limit = { event_target:equestria = { tag = D15 } }
-		add_to_war = { enemy = D15 targeted_alliance = EQS }
+	event_target:equestria = {
+		ROOT = {
+			add_to_war = { enemy = PREV targeted_alliance = EQS }
+		}
 	}
 }
 
 add_to_war_EQS_against_NLR = {
-	if = {
-		limit = { event_target:equestria = { tag = EQS } }
-		add_to_war = { targeted_alliance = EQS enemy = NLR }
-	}
-	else_if = {
-		limit = { event_target:equestria = { tag = D01 } }
-		add_to_war = { targeted_alliance = D01 enemy = NLR }
-	}
-	else_if = {
-		limit = { event_target:equestria = { tag = D02 } }
-		add_to_war = { targeted_alliance = D02 enemy = NLR }
-	}
-	else_if = {
-		limit = { event_target:equestria = { tag = D03 } }
-		add_to_war = { targeted_alliance = D03 enemy = NLR }
-	}
-	else_if = {
-		limit = { event_target:equestria = { tag = D04 } }
-		add_to_war = { targeted_alliance = D04 enemy = NLR }
-	}
-	else_if = {
-		limit = { event_target:equestria = { tag = D05 } }
-		add_to_war = { targeted_alliance = D05 enemy = NLR }
-	}
-	else_if = {
-		limit = { event_target:equestria = { tag = D06 } }
-		add_to_war = { targeted_alliance = D06 enemy = NLR }
-	}
-	else_if = {
-		limit = { event_target:equestria = { tag = D07 } }
-		add_to_war = { targeted_alliance = D07 enemy = NLR }
-	}
-	else_if = {
-		limit = { event_target:equestria = { tag = D08 } }
-		add_to_war = { targeted_alliance = D08 enemy = NLR }
-	}
-	else_if = {
-		limit = { event_target:equestria = { tag = D09 } }
-		add_to_war = { targeted_alliance = D09 enemy = NLR }
-	}
-	else_if = {
-		limit = { event_target:equestria = { tag = D10 } }
-		add_to_war = { targeted_alliance = D10 enemy = NLR }
-	}
-	else_if = {
-		limit = { event_target:equestria = { tag = D11 } }
-		add_to_war = { targeted_alliance = D11 enemy = NLR }
-	}
-	else_if = {
-		limit = { event_target:equestria = { tag = D12 } }
-		add_to_war = { targeted_alliance = D12 enemy = NLR }
-	}
-	else_if = {
-		limit = { event_target:equestria = { tag = D13 } }
-		add_to_war = { targeted_alliance = D13 enemy = NLR }
-	}
-	else_if = {
-		limit = { event_target:equestria = { tag = D14 } }
-		add_to_war = { targeted_alliance = D14 enemy = NLR }
-	}
-	else_if = {
-		limit = { event_target:equestria = { tag = D15 } }
-		add_to_war = { targeted_alliance = D15 enemy = NLR }
+	event_target:equestria = {
+		ROOT = {
+			add_to_war = { enemy = NLR targeted_alliance = PREV }
+		}
 	}
 }
 
 add_to_war_NLR_against_EQS = {
-	if = {
-		limit = { event_target:equestria = { tag = EQS } }
-		add_to_war = { enemy = EQS targeted_alliance = NLR }
-	}
-	else_if = {
-		limit = { event_target:equestria = { tag = D01 } }
-		add_to_war = { enemy = D01 targeted_alliance = NLR }
-	}
-	else_if = {
-		limit = { event_target:equestria = { tag = D02 } }
-		add_to_war = { enemy = D02 targeted_alliance = NLR }
-	}
-	else_if = {
-		limit = { event_target:equestria = { tag = D03 } }
-		add_to_war = { enemy = D03 targeted_alliance = NLR }
-	}
-	else_if = {
-		limit = { event_target:equestria = { tag = D04 } }
-		add_to_war = { enemy = D04 targeted_alliance = NLR }
-	}
-	else_if = {
-		limit = { event_target:equestria = { tag = D05 } }
-		add_to_war = { enemy = D05 targeted_alliance = NLR }
-	}
-	else_if = {
-		limit = { event_target:equestria = { tag = D06 } }
-		add_to_war = { enemy = D06 targeted_alliance = NLR }
-	}
-	else_if = {
-		limit = { event_target:equestria = { tag = D07 } }
-		add_to_war = { enemy = D07 targeted_alliance = NLR }
-	}
-	else_if = {
-		limit = { event_target:equestria = { tag = D08 } }
-		add_to_war = { enemy = D08 targeted_alliance = NLR }
-	}
-	else_if = {
-		limit = { event_target:equestria = { tag = D09 } }
-		add_to_war = { enemy = D09 targeted_alliance = NLR }
-	}
-	else_if = {
-		limit = { event_target:equestria = { tag = D10 } }
-		add_to_war = { enemy = D10 targeted_alliance = NLR }
-	}
-	else_if = {
-		limit = { event_target:equestria = { tag = D11 } }
-		add_to_war = { enemy = D11 targeted_alliance = NLR }
-	}
-	else_if = {
-		limit = { event_target:equestria = { tag = D12 } }
-		add_to_war = { enemy = D12 targeted_alliance = NLR }
-	}
-	else_if = {
-		limit = { event_target:equestria = { tag = D13 } }
-		add_to_war = { enemy = D13 targeted_alliance = NLR }
-	}
-	else_if = {
-		limit = { event_target:equestria = { tag = D14 } }
-		add_to_war = { enemy = D14 targeted_alliance = NLR }
-	}
-	else_if = {
-		limit = { event_target:equestria = { tag = D15 } }
-		add_to_war = { enemy = D15 targeted_alliance = NLR }
+	event_target:equestria = {
+		ROOT = {
+			add_to_war = { enemy = PREV targeted_alliance = NLR }
+		}
 	}
 }

@@ -242,6 +242,7 @@ EQS_celestia_evil_meter_category = {
 	EQS_support_thorax_decision = {
 		icon = rifles
 		visible = {
+			has_government = democratic
 			CHN = { has_war_with = CCN }
 		}
 		available = {
@@ -265,6 +266,7 @@ EQS_celestia_evil_meter_category = {
 					id = "CCN"
 					value = 300
 				}
+				set_country_flag = EQS_helped_CCN
 			}
 		}
 	}
@@ -286,12 +288,12 @@ SOL_dealing_with_resistance = {
 		is_good = no
 		days_mission_timeout = 240
 		timeout_effect = {
-			set_temp_variable = { civ_war_size = party_popularity@democratic }
-			multiply_temp_variable = { civ_war_size = 2 }
+			set_variable = { civ_war_size = party_popularity@democratic }
+			multiply_variable = { civ_war_size = 2 }
 			clamp_variable = {
 				var = civ_war_size
 				min = 0.4
-				max = 0.6
+				max = 0.65
 			}
 			add_stability = -0.3
 			add_war_support = -0.3
@@ -300,6 +302,7 @@ SOL_dealing_with_resistance = {
 				ideology = democratic
 				size = civ_war_size
 			}
+			clear_variable = civ_war_size
 			hidden_effect = {
 				remove_ideas = SOL_harmonic_resistance_idea3
 				random_other_country = {
@@ -354,6 +357,7 @@ SOL_dealing_with_resistance = {
 						}
 					}
 				}
+				news_event = { id = news.sol.5 hours = 1 }
 			}
 		}
 	}
@@ -510,39 +514,6 @@ demobilization = {
 	}
 }
 political_actions = {
-	EQS_annex_darkwing = {
-		icon = stg_cores
-		available = {
-			any_country = {
-				original_tag = STG
-				has_government = democratic
-				is_subject_of = ROOT
-				has_country_flag = darkwing_ready_to_be_annexed
-			}
-		}
-		visible = {
-			original_tag = EQS
-			has_government = democratic
-		}
-		target_trigger = {
-			FROM = {
-				original_tag = STG
-				has_government = democratic
-				is_subject_of = ROOT
-			}
-		}
-		cost = 50
-		ai_will_do = {
-			factor = 100
-		}
-		fire_only_once = yes
-		complete_effect = {
-			FROM = {
-				country_event = stalliongrad.143
-			}
-		}
-	}
-
 	SOL_rehabilitate_generals = {
 
 		icon = generic_army_support
@@ -551,32 +522,27 @@ political_actions = {
 		allowed = {
 			original_tag = EQS
 		}
-		cost = 200
+		cost = sol_redemption_cost?200
 		visible = {
 			is_EQS_SOL = yes
 			has_completed_focus = SOL_rehabilitate
 			NOT = {
-				any_country = {
-					AND = {
-						is_original_EQS = yes
-						exists = yes
-					}
-				}
+				country_exists = event_target:equestria
 			}
-			OR = {
-				NOT = { has_unit_leader = 2 }
-				NOT = { has_unit_leader = 3 }
-				NOT = { has_unit_leader = 4 }
-				NOT = { has_unit_leader = 6 }
-				NOT = { has_unit_leader = 13 }
-				NOT = { has_unit_leader = 14 }
-				NOT = { has_unit_leader = 12 }
-				NOT = { has_unit_leader = 30 }
-				NOT = { has_unit_leader = 31 }
-				NOT = { has_unit_leader = 39 }
-				NOT = { has_unit_leader = 33 }
-				NOT = { has_unit_leader = 19 }
-				NOT = { has_unit_leader = 32 }
+			NOT = {
+				has_unit_leader = 2
+				has_unit_leader = 3
+				has_unit_leader = 4
+				has_unit_leader = 6
+				has_unit_leader = 13
+				has_unit_leader = 14
+				has_unit_leader = 12
+				has_unit_leader = 30
+				has_unit_leader = 31
+				has_unit_leader = 39
+				has_unit_leader = 33
+				has_unit_leader = 19
+				has_unit_leader = 32
 			}
 		}
 
@@ -644,10 +610,43 @@ political_actions = {
 		}
 	}
 }
+foreign_politics = {
+	EQS_annex_darkwing = {
+		icon = stg_cores
+		available = {
+			FROM = {
+				is_subject_of = ROOT
+				NOT = { has_country_flag = darkwing_not_ready_to_be_annexed }
+			}
+		}
+		visible = {
+			original_tag = EQS
+			has_government = democratic
+		}
+		target_trigger = {
+			FROM = {
+				original_tag = STG
+				is_subject_of = ROOT
+			}
+		}
+		cost = 50
+		ai_will_do = {
+			factor = 100
+		}
+		fire_only_once = yes
+		complete_effect = {
+			FROM = {
+				country_event = stalliongrad.143
+			}
+		}
+	}
+}
 EQS_bring_back_puppets = {
 	EQS_bring_back_puppet = {
 		icon = generic_political_actions
+		days_re_enable = 30
 		visible = {
+			has_country_flag = former_EQS_puppet
 			is_subject = no
 			eqs_not_has_civil_war = yes
 			OR = {
@@ -707,19 +706,30 @@ EQS_bring_back_civil_war_countries = {
 		}
 		available = {
 			has_war = no
+			FROM = {
+				is_subject = no
+				NOT = { has_war = yes }
+			}
 		}
 		target_trigger = {
 			FROM = {
 				tag = SCS
-				exists = yes
-				is_subject = no
-				NOT = { has_war = yes }
 			}
 		}
 		fire_only_once = yes
 		cost = 10
 		complete_effect = {
 			country_event = equestria.117
+		}
+		ai_will_do = {
+			factor = 100
+			modifier = {
+				factor = 0
+				strength_ratio = {
+					tag = FROM
+					ratio < 0.8
+				}
+			}
 		}
 	}
 	EQS_bring_back_VAN = {
@@ -730,19 +740,30 @@ EQS_bring_back_civil_war_countries = {
 		}
 		available = {
 			has_war = no
+			FROM = {
+				is_subject = no
+				NOT = { has_war = yes }
+			}
 		}
 		target_trigger = {
 			FROM = {
 				tag = VAN
-				exists = yes
-				is_subject = no
-				NOT = { has_war = yes }
 			}
 		}
 		fire_only_once = yes
 		cost = 10
 		complete_effect = {
 			country_event = equestria.118
+		}
+		ai_will_do = {
+			factor = 100
+			modifier = {
+				factor = 0
+				strength_ratio = {
+					tag = FROM
+					ratio < 0.8
+				}
+			}
 		}
 	}
 	EQS_bring_back_BAL = {
@@ -753,19 +774,30 @@ EQS_bring_back_civil_war_countries = {
 		}
 		available = {
 			has_war = no
+			FROM = {
+				is_subject = no
+				NOT = { has_war = yes }
+			}
 		}
 		target_trigger = {
 			FROM = {
 				tag = BAL
-				exists = yes
-				is_subject = no
-				NOT = { has_war = yes }
 			}
 		}
 		fire_only_once = yes
 		cost = 10
 		complete_effect = {
-			country_event = equestria.110
+			country_event = equestria.119
+		}
+		ai_will_do = {
+			factor = 100
+			modifier = {
+				factor = 0
+				strength_ratio = {
+					tag = FROM
+					ratio < 0.8
+				}
+			}
 		}
 	}
 	EQS_bring_back_JUN = {
@@ -776,19 +808,30 @@ EQS_bring_back_civil_war_countries = {
 		}
 		available = {
 			has_war = no
+			FROM = {
+				is_subject = no
+				NOT = { has_war = yes }
+			}
 		}
 		target_trigger = {
 			FROM = {
 				tag = JUN
-				exists = yes
-				is_subject = no
-				NOT = { has_war = yes }
 			}
 		}
 		fire_only_once = yes
 		cost = 10
 		complete_effect = {
-			country_event = equestria.126
+			country_event = equestria.112
+		}
+		ai_will_do = {
+			factor = 100
+			modifier = {
+				factor = 0
+				strength_ratio = {
+					tag = FROM
+					ratio < 0.8
+				}
+			}
 		}
 	}
 }
@@ -1079,6 +1122,7 @@ EQS_foreign_affairs = {
 		visible = {
 			any_other_country = {
 				original_tag = CRY
+				has_government = fascism
 				has_country_leader = { ruling_only = yes name = "King Sombra" }
 				has_civil_war = no
 			}
@@ -1088,6 +1132,7 @@ EQS_foreign_affairs = {
 		cancel_trigger = {
 			any_other_country = {
 				original_tag = CRY
+				has_government = fascism
 				has_country_leader = { ruling_only = yes name = "King Sombra" }
 				has_war_with = ROOT
 			}
@@ -1474,94 +1519,6 @@ EQS_civil_war = {
 		complete_effect = {
 			EQS = { set_truce = { target = FROM days = 7 } }
 			hidden_effect = { FROM = { clr_country_flag = eqs_kept_ceasefire } }
-		}
-	}
-}
-
-EQS_remove_NCH_trade_category = {
-	EQS_remove_NCH_trade = {
-		icon = decision_infiltrate_state
-		available = {
-			original_tag = EQS
-			has_country_flag = NCH_trading_with_flag
-		}
-		cost = 200
-		ai_will_do = {
-		
-			factor = 1
-			
-			modifier = {
-				has_idea = NCH_trading_with_NCH_harmonic
-				factor = 0.01
-			}
-			modifier = {
-				has_idea = NCH_trading_with_NCH_fascist
-				factor = 80
-			}
-		}
-		
-
-		fire_only_once = yes
-
-		visible = {
-			original_tag = EQS
-			has_country_flag = NCH_trading_with_flag
-		}
-		modifier = {
-			
-		}
-		complete_effect = {
-			if = {
-				limit = {
-					has_idea = NCH_trading_with_NCH_harmonic
-				}
-				remove_ideas = NCH_trading_with_NCH_harmonic
-			}
-			
-			if = {
-				limit = {
-					has_idea = NCH_trading_with_NCH_fascist
-				}
-				remove_ideas = NCH_trading_with_NCH_fascist
-			}
-			
-			clr_country_flag = NCH_trading_with_flag
-			
-			NCH = {
-				if = {
-					limit = {
-						check_variable = { NCH_trade_partners_iter = 1 }
-					}
-					remove_ideas = NCH_trade_1
-				}
-				if = {
-					limit = {
-						check_variable = { NCH_trade_partners_iter = 2 }
-					}
-					swap_ideas = {add_idea = NCH_trade_1 remove_idea = NCH_trade_2}
-				}
-				if = {
-					limit = {
-						check_variable = { NCH_trade_partners_iter = 3 }
-					}
-					swap_ideas = {add_idea = NCH_trade_2 remove_idea = NCH_trade_3}
-				}
-				if = {
-					limit = {
-						check_variable = { NCH_trade_partners_iter = 4 }
-					}
-					swap_ideas = {add_idea = NCH_trade_3 remove_idea = NCH_trade_4}
-				}
-
-				add_to_variable = {
-					var = NCH_trade_partners_iter
-					value = -1
-				}
-				hidden_effect = { 
-					add_to_variable = { var = gytha_sanity value = 1 } 
-					country_event = {id = greneclyf.64 days = 1}
-				} 
-			}
 		}
 	}
 }
