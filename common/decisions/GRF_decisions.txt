@@ -1,0 +1,497 @@
+operations = {
+	seize_control_of_241 = {
+		icon = border_war
+		visible = {
+			OR = {
+				original_tag = GRF
+				original_tag = GFF
+			}
+			FROM = { eqs_has_civil_war = yes }
+			241 = {
+				is_owned_and_controlled_by = FROM
+				any_neighbor_state = {
+					is_fully_controlled_by = ROOT
+				}
+			}
+		}
+		target_trigger = {
+			FROM = {
+				owns_state = 241
+				OR = {
+					original_tag = EQS
+					original_tag = NLR
+				}
+			}
+		}
+		available = {
+			is_subject = no
+			FROM = {
+				can_ROOT_get_wargoal_on_THIS = yes
+				NOT = { has_non_aggression_pact_with = ROOT }
+			}
+			if = {
+				limit = {
+					has_dlc = "Waking the Tiger"
+					FROM = {
+						divisions_in_state = {
+							size > 0
+							state = 241
+						}
+					}
+				}
+				241 = {
+					any_neighbor_state = {
+						is_fully_controlled_by = ROOT
+						ROOT = {
+							divisions_in_border_state = {
+								state = PREV
+								border_state = 241
+								size > 0
+							}
+						}
+					}
+				}
+			}
+		}
+		highlight_states = {
+			state = 241
+		}
+		cost = 25
+		ai_will_do = {
+			factor = 30
+			modifier = {
+				factor = 0
+				has_government = democratic
+			}
+			modifier = {
+				factor = 0.25
+				FROM = {
+					divisions_in_state = {
+						size > 0
+						state = 241
+					}
+				}
+			}
+		}
+		fire_only_once = yes
+		complete_effect = {
+			reverse_add_opinion_modifier = { target = FROM modifier = initiated_border_conflict }
+			random_owned_state = {
+				limit = {
+					any_neighbor_state = {
+						state = 241
+					}
+					if = {
+						limit = {
+							has_dlc = "Waking the Tiger"
+							FROM = {
+								divisions_in_state = {
+									size > 0
+									state = 241
+								}
+							}
+						}
+						ROOT = {
+							divisions_in_border_state = {
+								state = PREV
+								border_state = 241
+								size > 0
+							}
+						}
+					}
+				}
+				if = {
+					limit = {
+						has_dlc = "Waking the Tiger"
+						FROM = {
+							divisions_in_state = {
+								size > 0
+								state = 241
+							}
+						}
+					}
+					ROOT = {
+						start_border_war = {
+							change_state_after_war = no
+							attacker = {
+								state = PREV
+								num_provinces = 4
+								on_win = griffons.45
+								on_lose = griffons.46
+								on_cancel = griffons.47
+							}
+							
+							defender = {
+								state = 241
+								num_provinces = 2
+								on_win = griffons.48
+								on_lose = griffons.49
+								on_cancel = griffons.47
+							}
+						}
+					}
+				}
+				else = {
+					ROOT = { 
+						transfer_state = 241
+						hidden_effect = {
+							news_event = { id = newsg.8 hours = 6 }
+						}
+					}
+				}
+			}
+		}
+	}
+}
+
+political_actions = {
+	GRF_send_help_to_EQS = {
+		icon = rifles
+		allowed = { tag = GRF }
+		available = { 
+			has_war = no is_subject = no
+			has_equipment = { infantry_equipment > 1000 }
+		}
+		target_trigger = {
+			FROM = {
+				tag = event_target:equestria
+			}
+		}
+		visible = { 
+			FROM = { 
+				has_war_with = CHN
+			}
+		}
+		cost = 20
+		fire_only_once = yes
+		complete_effect = {
+			country_event = griffons.34
+		}
+		ai_will_do = {
+			factor = 10
+			modifier = {
+				factor = 2
+				has_government = democratic
+			}
+		}
+	}
+	GRF_send_help_to_EQS_CW = {
+		icon = rifles
+		allowed = { tag = GRF }
+		available = { 
+			has_war = no is_subject = no
+			has_equipment = { infantry_equipment > 1000 }
+		}
+		target_trigger = {
+			FROM = {
+				tag = event_target:equestria
+			}
+		}
+		visible = { 
+			FROM = { 
+				has_war_with = NLR
+			}
+		}
+		cost = 20
+		fire_only_once = yes
+		complete_effect = {
+			country_event = griffons.32
+		}
+		ai_will_do = {
+			factor = 5
+			modifier = {
+				factor = 2
+				has_government = democratic
+			}
+		}
+	}
+}
+
+GRF_sending_mercs_cat = {
+	GRF_send_mercs_dec = {
+		icon = rifles
+		available = {
+			num_divisions > 15
+			check_variable = { offsite_IC < 20 }
+			FROM = {
+				all_enemy_country = {
+					has_volunteers_amount_from = {
+						tag = GRF
+						count < 1
+					}
+					ROOT = {
+						custom_trigger_tooltip = {
+							tooltip = GRF_send_mercs_dec_offered_to_enemy
+							NOT = { 
+								has_country_flag = mercs_considered_@PREV
+								has_country_flag = agreed_to_mercs_@PREV 
+							} 
+						}
+					}
+				}
+			}
+		}
+		visible = {
+			NOT = { has_country_flag = agreed_to_mercs_@FROM }
+			FROM = {
+				exists = yes
+				has_war = yes
+				has_capitulated = no
+				NOT = { has_country_flag = refused_mercs_from_GRF }
+				NOT = {
+					has_volunteers_amount_from = {
+						tag = GRF
+						count > 0
+					}
+				}
+			}
+		}
+		target_trigger = {
+			FROM = {
+				#is_subject = no
+				has_tribal_society = no
+				NOT = { 
+					is_in_faction_with = ROOT 
+					is_subject_of = ROOT
+				}
+				NOT = {
+					has_idea = detached_country
+					has_idea = communal_society
+				}
+				has_opinion = {
+					target = ROOT
+					value > -40
+				}
+			}
+		}
+		days_re_enable = 7
+		complete_effect = {
+			set_country_flag = mercs_considered_@FROM
+			FROM = { country_event = { id = griffons.62 days = 6 } }
+		}
+		ai_will_do = {
+			factor = 5
+			modifier = {
+				factor = 0
+				check_variable = { volunteers_factor > 0.6 }
+			}
+			modifier = {
+				factor = 0.5
+				FROM = { alliance_strength_ratio > 1.2 }
+			}
+			modifier = {
+				factor = 1.5
+				FROM = { alliance_strength_ratio < 1 }
+			}
+			modifier = {
+				factor = 2
+				FROM = { alliance_strength_ratio > 0.8 }
+			}
+			modifier = {
+				factor = 0.5
+				FROM = {
+					surrender_progress < 0.1
+				}
+			}
+			modifier = {
+				factor = 1.2
+				FROM = {
+					surrender_progress > 0.2
+				}
+			}
+			modifier = {
+				factor = 2
+				FROM = {
+					surrender_progress > 0.4
+				}
+			}
+			modifier = {
+				factor = 3
+				FROM = {
+					surrender_progress > 0.6
+				}
+			}
+			modifier = {
+				factor = 0
+				FROM = {
+					surrender_progress > 0.9
+				}
+			}
+			modifier = {
+				factor = 2
+				FROM = { 
+					has_opinion = {
+						target = ROOT
+						value > 20
+					}
+				}
+			}
+			modifier = {
+				factor = 0
+				FROM = { 
+					NOT = {
+						has_government = fascism
+					}
+				}
+			}
+			modifier = {
+				factor = 3
+				FROM = { 
+					num_of_civilian_factories_available_for_projects > 18
+				}
+			}
+		}
+	}
+	GRF_send_mercs_mis = {
+		icon = rifles
+		allowed = { always = no } #Activated from effect
+
+		activation = { always = no }
+
+		fire_only_once = yes
+
+		available = {
+			FROM = {
+				has_volunteers_amount_from = {
+					tag = GRF
+					count > 4
+				}
+			}
+		}
+
+		is_good = no
+		days_mission_timeout = 30
+
+		timeout_effect = {
+			add_ai_strategy = {
+				type = support
+				id = FROM
+				value = -9999
+			}
+			add_ai_strategy = {
+				type = send_volunteers_desire
+				id = FROM
+				value = -9999
+			}
+			add_political_power = -100
+			add_war_support = -0.05
+			FROM = {
+				add_opinion_modifier = { target = ROOT modifier = GRF_failed_to_deliver_mercs }
+				set_country_flag = { flag = refused_mercs_from_GRF value = 1 days = 180 }
+				country_event = griffons.63
+				add_ai_strategy = {
+					type = befriend
+					id = GRF
+					value = -500
+				}
+			}
+			clr_country_flag = agreed_to_mercs_@FROM
+		}
+
+		complete_effect = {
+			hidden_effect = { GRF_recalc_mercs = yes }
+			FROM = { 
+				add_ai_strategy = {
+					type = befriend
+					id = GRF
+					value = -500
+				}
+			}
+			add_ai_strategy = {
+				type = support
+				id = FROM
+				value = -9999
+			}
+			add_ai_strategy = {
+				type = send_volunteers_desire
+				id = FROM
+				value = -9999
+			}
+			if = {
+				limit = { NOT = { FROM = { has_country_flag = mercs_delayed_payment } } }
+				add_to_variable = { offsite_IC = 4 }
+				add_offsite_building = { type = industrial_complex level = 4 }
+				FROM = { 
+					country_event = griffons.64
+					add_ideas = GRF_got_mercs 
+				}
+				activate_targeted_decision = { target = FROM decision = GRF_send_mercs_reward } 
+			}
+			else = {
+				FROM = {
+					country_event = griffons.64
+					add_ideas = GRF_got_mercs_delayed
+					clr_country_flag = mercs_delayed_payment
+				}
+			}
+			clr_country_flag = agreed_to_mercs_@FROM
+		}
+
+	}
+	GRF_send_mercs_reward = {
+		icon = rifles
+		days_mission_timeout = 99999
+		selectable_mission = no
+		allowed = { always = no }
+		available = { 
+			FROM = {
+				OR = {
+					has_capitulated = yes
+					exists = no
+					NOT = { has_idea = GRF_got_mercs }
+				} 
+			}
+		}
+		complete_effect = {
+			hidden_effect = { GRF_recalc_mercs = yes }
+			add_to_variable = { offsite_IC = -4 }
+			add_offsite_building = { type = industrial_complex level = -4 }
+		}
+	}
+	GRF_demand_delayed_payment = {
+		icon = rifles
+		visible = {
+			FROM = {
+				has_war = no
+				has_variable = GRF_delayed_merc_payment
+				NOT = { has_country_flag = considering_delaying_payment }
+			}
+		}
+		target_trigger = {
+			FROM = {
+				has_war = no
+				has_variable = GRF_delayed_merc_payment
+			}
+		}
+		complete_effect = {
+			FROM = {
+				set_country_flag = considering_delaying_payment
+				country_event = { id = griffons.70 days = 4 }
+			}
+		}
+		days_re_enable = 7
+	}
+	GRF_send_mercs_reward_delayed = {
+		icon = rifles
+		days_mission_timeout = var:GRF_send_mercs_reward_delayed_duration
+		selectable_mission = no
+		allowed = { always = no }
+		available = { 
+			FROM = {
+				OR = {
+					has_capitulated = yes
+					exists = no
+					NOT = { has_idea = GRF_got_mercs_delayed_payment }
+				} 
+			}
+		}
+		complete_effect = {
+			add_to_variable = { offsite_IC = -4 }
+			add_offsite_building = { type = industrial_complex level = -4 }
+		}
+		timeout_effect = {
+			add_to_variable = { offsite_IC = -4 }
+			add_offsite_building = { type = industrial_complex level = -4 }
+		}
+	}
+}
