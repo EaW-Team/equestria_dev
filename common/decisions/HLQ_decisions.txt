@@ -86,7 +86,7 @@ HLQ_invite_bankers = {
 	}
 
 HLQ_river_gurantee = {
-		icon = griffon
+		icon = RivFed
 		visible = {
 			has_completed_focus = HLQ_the_feds
 			NOT = { 
@@ -118,14 +118,14 @@ HLQ_river_gurantee = {
 	}
 
 HLQ_improve_relations = {
-		icon = griffon
+		icon = RivFed
 		visible = {
 			has_completed_focus = HLQ_the_feds
 			NOT = { has_country_flag = HLQ_embassies }
 			any_other_country = {
 				is_river_fed_member = yes
 				is_faction_leader = yes
-				ROOT = { is_guaranteed_by = PREV }
+				has_guaranteed = ROOT
 			}
 		}
 		cost = 25
@@ -148,14 +148,14 @@ HLQ_improve_relations = {
 	}
 
 HLQ_honourary_member = {
-		icon = griffon
+		icon = RivFed
 		visible = {
 			has_completed_focus = HLQ_the_feds
 			NOT = { has_idea = HLQ_honourary_member }
 			FROM = {
 				is_river_fed_member = yes
 				is_faction_leader = yes
-				ROOT = { is_guaranteed_by = PREV }
+				has_guaranteed = ROOT
 			}
 		}
 		target_trigger = {
@@ -175,7 +175,7 @@ HLQ_honourary_member = {
 	}
 
 HLQ_adopt_rivbit = {
-		icon = griffon
+		icon = RivFed
 		visible = {
 			has_completed_focus = HLQ_the_feds
 			any_country = { has_completed_focus = RIV_the_rivbit }
@@ -194,7 +194,7 @@ HLQ_adopt_rivbit = {
 	}
 
 HLQ_adopt_species_rights = {
-		icon = griffon
+		icon = RivFed
 		visible = {
 			has_completed_focus = HLQ_the_feds
 			any_country = { has_completed_focus = RIV_beings_rights }
@@ -458,18 +458,28 @@ foreign_politics = {
 			OR = {
 				original_tag = HLQ
 				original_tag = LNS
-				original_tag = LMS
+				original_tag = LSM
 			}
 		}
 
 		available = {
-			surrender_progress > 0.24
+			OR = {
+				surrender_progress > 0.4
+				AND = {
+					has_defensive_war = yes
+					surrender_progress > 0.2
+				}
+			}
 			FROM = {
 				OR = {
 					has_government = democratic
 					has_government = neutrality
+					AND = {
+						has_government = fascism
+						tag = GRI
+					}
 				}
-				is_in_faction = yes
+				is_faction_leader = yes
 				is_subject = no
 			}
 		}
@@ -479,13 +489,13 @@ foreign_politics = {
 		visible = {
 			is_in_faction = no
 			is_subject = no
-			has_defensive_war = yes
-			OR = {
-				has_government = democratic
-				has_government = neutrality
-			}
 			NOT = {
+				has_government = communism
 				has_war_with = FROM
+				has_country_flag = LNS_bandit_takeover
+			}
+			any_enemy_country = {
+				is_original_riv_fed_country = yes
 			}
 		}
 
@@ -506,7 +516,9 @@ foreign_politics = {
 		complete_effect = {
 			log = "[GetDateText]: [Root.GetName]: Decision HLQ_call_the_empire_for_aid"
 			FROM = {
-				country_event = generic.2
+				country_event = hellquill.43
+				custom_effect_tooltip = if_accepts
+				effect_tooltip = { puppet = ROOT }
 			}
 		}
 	}
@@ -519,16 +531,14 @@ foreign_politics = {
 
 		available = {
 			FROM = {
-				OR = {
-					has_government = fascism
-					has_government = neutrality
-				}
 				is_subject = no
 			}
 			NOT = {
 				has_war_with = FROM
 			}
 		}
+		
+		war_with_target_on_remove = yes
 
 		cost = 100
 
@@ -542,25 +552,46 @@ foreign_politics = {
 				is_original_riv_fed_country = yes
 			}
 			FROM = {
-				is_in_faction = no
+				NOT = {
+					has_country_flag = demanded_obedience_@ROOT
+					is_in_faction_with = ROOT
+					is_subject_of = ROOT
+				}
+			}
+		}
+
+		cancel_trigger = {
+			OR = {
+				has_war_with = FROM
+				NOT = { country_exists = FROM }
+				FROM = { has_capitulated = yes }
 			}
 		}
 
 		target_trigger = {
-			FROM = { tag = HLQ }
+			FROM = { 
+				OR = {
+					tag = HLQ
+					tag = LNS
+					tag = LSM
+				}
+			}
 		}
 
 		ai_will_do = {
 			factor = 200
 		}
 
-		fire_only_once = yes
+		days_remove = 20
 
-		complete_effect = {
+		remove_effect = {
 			log = "[GetDateText]: [Root.GetName]: Decision HLQ_GRI_demmand_the_knights_obay"
 			#TODO: Make an actuall event for this
 			FROM = {
-				country_event = generic.5
+				set_country_flag = demanded_obedience_@ROOT
+				country_event = hellquill.46
+				custom_effect_tooltip = if_accepts
+				effect_tooltip = { ROOT = { puppet = FROM } }
 			}
 		}
 	}
