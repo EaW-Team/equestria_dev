@@ -63,8 +63,8 @@ parser.add_argument('idea_name', metavar='idea_name',
                     help='Name of the idea icon GFX entry (without GFX_ at the beginning)')
 parser.add_argument('-d' '--directory', metavar='directory', type=str, dest='directory', default=os.getcwd(), required=False,
                     help='Directory to look for .gfx files in (default: working directory)')
-parser.add_argument('--ideas', metavar='ideas', default="eaw_ideas.gfx", required=False,
-                    help='Name of the ideas file (default:\"eaw_ideas.gfx\")')
+parser.add_argument('--ideas', metavar='ideas', default="ee2_ideas.gfx", required=False,
+                    help='Name of the ideas file (default:\"ee2_ideas.gfx\")')
 
 args = parser.parse_args()
 
