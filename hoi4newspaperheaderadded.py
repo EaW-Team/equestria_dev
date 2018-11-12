@@ -8,33 +8,28 @@ import glob
 
 #############################
 ###
-### HoI 4 Localisation Adder by Yard1, originally for Equestria at War mod
-### Written in Python 2.7
+### HoI 4 News Event Title Header Adder by Yard1, originally for Equestria at War mod
+### Written in Python 3.7
 ###
 ### Copyright (c) 2018 Antoni Baum (Yard1)
 ### Permission is hereby granted, free of charge, to any person obtaining a copy of this software and associated documentation files (the "Software"), to deal in the Software without restriction, including without limitation the rights to use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies of the Software, and to permit persons to whom the Software is furnished to do so, subject to the following conditions:
 ### The above copyright notice and this permission notice shall be included in all copies or substantial portions of the Software.
 ### THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 ###
-### usage: hoi4localisationadder.py [-h] [-t] input output
+### usage: hoi4newspaperheaderadded.py [-h] [--scripted_loc scripted_loc] mod_path
 ### 
-### Given an event, national_focus or ideas file, add missing localisation entries
-### to a specified localisation file. Note: custom tooltips are not supported. In
-### case of events, title, description and option names will be added (triggered
-### titles and descriptions are supported). For national_focus and ideas, names
-### and descriptions will be added. For decisions and decision_categories, names
-### and category names will be added. WARNING: The script defaults to a decisions
-### file if it cannot determine the type of file.
+### Given a mod folder, add a scripted localisation call to every news event title
+### (including triggered titles).
 ### 
 ### positional arguments:
-###   input       Event, national_focus, decisions, decision_categories or ideas file to parse
-###   output      Localisation file to write to (if empty/non-existing, a new
-###               English localisation file will be created)
+###   mod_path              Path to the root mod folder
 ### 
 ### optional arguments:
-###   -h, --help  show this help message and exit
-###   -t, --todo  Add "#TODO" to every added line instead of just once (Default:
-###               False)
+###   -h, --help            show this help message and exit
+###   --scripted_loc scripted_loc
+###                         The full string (including brackets) to prefix
+###                         localisation values with (Default:
+###                         [Root.GetNewspaperHeader])
 ### 
 #############################
 
@@ -119,11 +114,11 @@ def read_loc_file(name, loc_set, scripted_loc_re, scripted_loc):
         print("File " + name + " modified successfully!")
     return
 ###################################################################
-parser = argparse.ArgumentParser(description='Given an event, national_focus, decisions, decision_categories or ideas file, add missing localisation entries to a specified localisation file. Note: custom tooltips are not supported. In case of events, title, description and option names will be added (triggered titles and descriptions are supported). For national_focus and ideas, names and descriptions will be added. For decisions and decision_categories, names and category names will be added. WARNING: The script defaults to a decisions file if it cannot determine the type of file.')
+parser = argparse.ArgumentParser(description='Given a mod folder, add a scripted localisation call to every news event title (including triggered titles).')
 parser.add_argument('mod_path', metavar='mod_path',
                     help='Path to the root mod folder')
-parser.add_argument( 'scripted_loc', metavar='scripted_loc',
-                    help='The full string (including brackets) to prefix localisation values with')
+parser.add_argument( '--scripted_loc', metavar='scripted_loc', default="[Root.GetNewspaperHeader]", required=False,
+                    help='The full string (including brackets) to prefix localisation values with (Default: [Root.GetNewspaperHeader])')
 
 args = parser.parse_args()
 
