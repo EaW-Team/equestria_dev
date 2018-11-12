@@ -122,12 +122,12 @@ on_actions = {
 				country_event = { id = feat.21 days = 105 random = 144 }#days to hours applied
 			}
 			FAT = {
-				country_event = { id = griffonRepublic.60 days = 9 random = 19200 }#days to hours applied
-				country_event = { id = griffonRepublic.61 days = 10 random = 6960 }#days to hours applied
-				country_event = { id = griffonRepublic.62 days = 11 random = 4800 }#days to hours applied
-				country_event = { id = griffonRepublic.63 days = 12 random = 14400 }#days to hours applied
-				country_event = { id = griffonRepublic.64 days = 13 random = 11040 }#days to hours applied
-				country_event = { id = griffonRepublic.65 days = 14 random = 24000 }#days to hours applied
+				country_event = { id = griffonRepublic.60 days = 9 random = 38400 }#days to hours applied
+				country_event = { id = griffonRepublic.61 days = 10 random = 13920 }#days to hours applied
+				country_event = { id = griffonRepublic.62 days = 11 random = 9600 }#days to hours applied
+				country_event = { id = griffonRepublic.63 days = 12 random = 28800 }#days to hours applied
+				country_event = { id = griffonRepublic.64 days = 13 random = 22080 }#days to hours applied
+				country_event = { id = griffonRepublic.65 days = 14 random = 48000 }#days to hours applied
 			}
 			BRF = {
 				country_event = { id = prywhen.6 days = 1 }
@@ -147,7 +147,6 @@ on_actions = {
 			EQC = {
 				country_event = { id = mareland.19 days = 20 random = 5760 }#days to hours applied
 			}
-
 			NIM = {
 				if = {
 					limit = { is_historical_focus_on = no }
@@ -161,19 +160,21 @@ on_actions = {
 					}
 				}
 			}
+			LNS = { save_global_event_target_as = longsword }
+
 			every_country = {
 				if = {
 					limit = {
 						is_riverlands_country = yes
 					}
 					add_opinion_modifier = { target = GRI modifier = RIV_hates_the_empire }
-					add_opinion_modifier = { target = LNS modifier = mortal_enemies }
+					add_opinion_modifier = { target = event_target:longsword modifier = mortal_enemies }
 					add_opinion_modifier = { target = HLQ modifier = mortal_enemies }
-					add_opinion_modifier = { target = LNS modifier = CHN_Embargo }
+					add_opinion_modifier = { target = event_target:longsword modifier = CHN_Embargo }
 					add_opinion_modifier = { target = HLQ modifier = CHN_Embargo }
-					reverse_add_opinion_modifier = { target = LNS modifier = mortal_enemies }
+					reverse_add_opinion_modifier = { target = event_target:longsword modifier = mortal_enemies }
 					reverse_add_opinion_modifier = { target = HLQ modifier = mortal_enemies }
-					reverse_add_opinion_modifier = { target = LNS modifier = CHN_Embargo }
+					reverse_add_opinion_modifier = { target = event_target:longsword modifier = CHN_Embargo }
 					reverse_add_opinion_modifier = { target = HLQ modifier = CHN_Embargo }
 					add_opinion_modifier = { target = OLV modifier = distrustful_relations }
 					add_opinion_modifier = { target = ZES modifier = distrustful_relations }
@@ -650,7 +651,7 @@ on_actions = {
 				if = {
 					limit = {
 						has_global_flag = LCT_holy_pony_empire_founded
-						ROOT = { has_idea = griffon_race }
+						ROOT = { is_griffon_continent_griffon_country = yes }
 						FROM = { original_tag = LCT }
 					}
 					ROOT = {
@@ -1354,7 +1355,11 @@ on_actions = {
 			log = "ROOT: [Root.GetName] FROM: [From.GetName] on_annex"
 			if = {
 				limit = {
-					NOT = { has_country_flag = recovery_idea_bypass }
+					NOT = { 
+						has_country_flag = recovery_idea_bypass 
+						has_country_flag = FAT_bypass_recovery
+						FROM = { has_country_flag = FAT_bypass_recovery } 
+					}
 					OR = {
 						original_tag = FROM
 						AND = {
@@ -1365,12 +1370,28 @@ on_actions = {
 							FROM = { original_tag = EQS }
 							original_tag = NLR
 						}
+						AND = {
+							original_tag = FAW
+							FROM = { original_tag = FAT }
+						}
+						AND = {
+							FROM = { original_tag = FAW }
+							original_tag = FAT
+						}
+						AND = {
+							FROM = { 
+								OR = { tag = LNS tag = LSM tag = LSC } 
+							}
+							OR = { tag = LNS tag = LSM tag = LSC } 
+						}
 					}
 				}
 				add_timed_idea = {
 					idea = civil_war_recovery
 					days = 210
 				}
+				clr_country_flag = FAT_bypass_recovery
+				FROM = { clr_country_flag = FAT_bypass_recovery }
 			}
 
 			if = {
@@ -1671,6 +1692,38 @@ on_actions = {
 					FROM = { tag = NLR }
 				}
 				transfer_navy = { target = FROM }
+			}
+			if = {
+				limit = {
+					tag = event_target:equestria
+					FROM = { tag = CHN }
+					EQC = {
+						exists = yes
+						has_capitulated = no
+						all_owned_state = {
+							is_fully_controlled_by = EQC
+						}
+					}
+					is_in_faction_with = EQC
+					#EQC = { has_completed_focus = EQC_strengthen_equestrian_ties }
+				}
+				EQC = {
+					if = {
+						limit = { is_subject = yes }
+						end_puppet_this = yes
+					}
+					if = {
+						limit = { is_in_faction = yes }
+						leave_faction = yes
+					}
+					if = {
+						limit = { has_war_with = CHN }
+						set_country_flag = bypass_on_peaceconference_ended
+						white_peace = CHN 
+						clr_country_flag = bypass_on_peaceconference_ended
+					}
+					set_country_flag = EQC_govt_in_exile
+				}
 			}
 			if = {
 				limit = {
@@ -2549,7 +2602,7 @@ on_actions = {
 							tag = STG
 							NOT = { has_global_flag = fall_of_canterlot_stg }
 						}
-						news_event = { id = cityfall.10 }
+						news_event = { id = cityfall.12 }
 						break = yes
 					}
 					if = {
@@ -2659,6 +2712,18 @@ on_actions = {
 					}
 				}
 				remove_ideas = LCT_anti_commie_pact
+			}
+			if = {
+				limit = {
+					FROM = { is_river_fed_member = yes }
+					NOT = { tag = HLQ }
+					HLQ = { has_idea = HLQ_honourary_member }
+				}
+				diplomatic_relation = {
+					country = HLQ
+					relation = non_aggression_pact
+					active = yes
+				}
 			}
 		}
 	}
