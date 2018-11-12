@@ -146,3 +146,10 @@ scripted_loc_re = re.compile(scripted_loc_re_string, re.IGNORECASE)
 
 for file in glob.glob(os.path.join(loc_path, '*.yml'), recursive=True):
     read_loc_file(file, loc_set, scripted_loc_re, scripted_loc)
+
+try:
+    dir = readable_dir(os.path.join(loc_path, "replace"))
+    for file in glob.glob(os.path.join(loc_path, "replace", '*.yml'), recursive=True):
+        read_loc_file(file, loc_set, scripted_loc_re, scripted_loc)
+except:
+    pass
