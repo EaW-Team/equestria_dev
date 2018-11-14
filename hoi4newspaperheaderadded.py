@@ -29,7 +29,7 @@ import glob
 ###   --scripted_loc scripted_loc
 ###                         The full string (including brackets) to prefix
 ###                         localisation values with (Default:
-###                         [Root.GetNewspaperHeader])
+###                         [This.GetNewspaperHeader])
 ### 
 #############################
 
@@ -117,8 +117,8 @@ def read_loc_file(name, loc_set, scripted_loc_re, scripted_loc):
 parser = argparse.ArgumentParser(description='Given a mod folder, add a scripted localisation call to every news event title (including triggered titles).')
 parser.add_argument('mod_path', metavar='mod_path',
                     help='Path to the root mod folder')
-parser.add_argument( '--scripted_loc', metavar='scripted_loc', default="[Root.GetNewspaperHeader]", required=False,
-                    help='The full string (including brackets) to prefix localisation values with (Default: [Root.GetNewspaperHeader])')
+parser.add_argument( '--scripted_loc', metavar='scripted_loc', default="[This.GetNewspaperHeader]", required=False,
+                    help='The full string (including brackets) to prefix localisation values with (Default: [This.GetNewspaperHeader])')
 
 args = parser.parse_args()
 
