@@ -141,7 +141,7 @@ for file in glob.glob(os.path.join(events_path, '*.txt')):
     read_event_file(file, loc_set)
 
 scripted_loc = args.scripted_loc.strip()
-scripted_loc_re_string = r'\s*?([^\s]*?:[0-9]+\s*)(\")(?!' + re.escape(scripted_loc) + r')'
+scripted_loc_re_string = r'(\s*?[^\s]*?:[0-9]+\s*)(\")(?!' + re.escape(scripted_loc) + r')'
 scripted_loc_re = re.compile(scripted_loc_re_string, re.IGNORECASE)
 
 for file in glob.glob(os.path.join(loc_path, '*.yml'), recursive=True):
