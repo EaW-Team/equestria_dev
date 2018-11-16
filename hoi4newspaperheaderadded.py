@@ -29,7 +29,7 @@ import glob
 ###   --scripted_loc scripted_loc
 ###                         The full string (including brackets) to prefix
 ###                         localisation values with (Default:
-###                         [Root.GetNewspaperHeader])
+###                         [This.GetNewspaperHeader])
 ### 
 #############################
 
@@ -68,17 +68,17 @@ def read_event_file(name, loc_set):
         if open_blocks == 0 and "news_event" in line:
             is_in_news_event = True
         if is_in_news_event:
-            match = re.search(r'^\s*title\s*=\s*([^\{]+?)(\s|$)', line)
+            match = re.search(r'(^|\s)\s*title\s*=\s*([^\{]+?)(\s|$)', line)
             if match:
-                loc_set.add(match.group(1).strip())
+                loc_set.add(match.group(2).strip())
             else:
-                match = re.search(r'^\s*title\s*=\s*{', line)
+                match = re.search(r'(^|\s)\s*title\s*=\s*{', line)
                 if match:
                     is_in_title = True
             if is_in_title:
-                match = re.search(r'^\s*text\s*=\s*([^\{]+?)\s*($|\})', line)
+                match = re.search(r'(^|\s)\s*text\s*=\s*([^\{]+?)\s*($|\})', line)
                 if match:
-                    loc_set.add(match.group(1).strip())
+                    loc_set.add(match.group(2).strip())
         open_blocks += line.count('{')
         open_blocks -= line.count('}')
         if open_blocks == 1:
@@ -117,8 +117,8 @@ def read_loc_file(name, loc_set, scripted_loc_re, scripted_loc):
 parser = argparse.ArgumentParser(description='Given a mod folder, add a scripted localisation call to every news event title (including triggered titles).')
 parser.add_argument('mod_path', metavar='mod_path',
                     help='Path to the root mod folder')
-parser.add_argument( '--scripted_loc', metavar='scripted_loc', default="[Root.GetNewspaperHeader]", required=False,
-                    help='The full string (including brackets) to prefix localisation values with (Default: [Root.GetNewspaperHeader])')
+parser.add_argument( '--scripted_loc', metavar='scripted_loc', default="[This.GetNewspaperHeader]", required=False,
+                    help='The full string (including brackets) to prefix localisation values with (Default: [This.GetNewspaperHeader])')
 
 args = parser.parse_args()
 
@@ -141,7 +141,7 @@ for file in glob.glob(os.path.join(events_path, '*.txt')):
     read_event_file(file, loc_set)
 
 scripted_loc = args.scripted_loc.strip()
-scripted_loc_re_string = r'\s*?([^\s]*?:[0-9]+\s*)(\")(?!' + re.escape(scripted_loc) + r')'
+scripted_loc_re_string = r'(\s*?[^\s]*?:[0-9]+\s*)(\")(?!' + re.escape(scripted_loc) + r')'
 scripted_loc_re = re.compile(scripted_loc_re_string, re.IGNORECASE)
 
 for file in glob.glob(os.path.join(loc_path, '*.yml'), recursive=True):
