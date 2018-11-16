@@ -68,11 +68,11 @@ def read_event_file(name, loc_set):
         if open_blocks == 0 and "news_event" in line:
             is_in_news_event = True
         if is_in_news_event:
-            match = re.search(r'(^|\s)\s*title\s*=\s*([^\{]+?)(\s|$)', line)
+            match = re.search(r'(^|\s)\s*desc\s*=\s*([^\{]+?)(\s|$)', line)
             if match:
                 loc_set.add(match.group(2).strip())
             else:
-                match = re.search(r'(^|\s)\s*title\s*=\s*{', line)
+                match = re.search(r'(^|\s)\s*desc\s*=\s*{', line)
                 if match:
                     is_in_title = True
             if is_in_title:
