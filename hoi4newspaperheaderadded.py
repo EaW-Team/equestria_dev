@@ -79,8 +79,8 @@ def read_event_file(name, loc_set):
                 match = re.search(r'(^|\s)\s*text\s*=\s*([^\{]+?)\s*($|\})', line)
                 if match:
                     loc_set.add(match.group(2).strip())
-        open_blocks += line.count('{')
-        open_blocks -= line.count('}')
+        open_blocks += re.sub(r'\".*?\"', '', line).count('{')
+        open_blocks -= re.sub(r'\".*?\"', '', line).count('}')
         if open_blocks == 1:
             is_in_title = False
         if is_in_news_event and open_blocks == 0:
@@ -140,6 +140,7 @@ loc_set = set()
 for file in glob.glob(os.path.join(events_path, '*.txt')):
     read_event_file(file, loc_set)
 
+print(loc_set)
 scripted_loc = args.scripted_loc.strip()
 scripted_loc_re_string = r'(\s*?[^\s]*?:[0-9]+\s*)(\")(?!' + re.escape(scripted_loc) + r')'
 scripted_loc_re = re.compile(scripted_loc_re_string, re.IGNORECASE)
