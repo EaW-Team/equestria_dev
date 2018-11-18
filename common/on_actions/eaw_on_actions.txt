@@ -1405,7 +1405,13 @@ on_actions = {
 
 			if = {
 				limit = {
-					FROM = { tag = event_target:longsword }
+					FROM = { 
+						OR = {
+							tag = LNS
+							tag = LSM
+							tag = LSC
+						}
+					}
 					OR = {
 						tag = LNS
 						tag = LSM
@@ -1567,33 +1573,30 @@ on_actions = {
 					limit = {
 						NOT = { tag = OLE }
 					}
-					set_cosmetic_tag = OLE_CWWON
 					set_capital = 76
+					else = {
+						drop_cosmetic_tag = yes
+					}
 				}
 				if = {
-					limit = { FROM = { original_tag = OLE } }
-					set_cosmetic_tag = OLE_CWWON
-					drop_cosmetic_tag = yes
-					if = {
+					limit = {
+						any_country = {
+							original_tag = OLE
+							has_government = democratic
+						}
+					}
+					random_country = {
 						limit = {
-							any_country = {
-								original_tag = OLE
-								has_government = democratic
-							}
+							original_tag = OLE
+							has_government = democratic
+							exists = yes
 						}
+						save_global_event_target_as = democratic_OLE
+					}
+					else = {
 						random_country = {
-							limit = {
-								original_tag = OLE
-								has_government = democratic
-								exists = yes
-							}
+							limit = { original_tag = OLE exists = yes}
 							save_global_event_target_as = democratic_OLE
-						}
-						else = {
-							random_country = {
-								limit = { original_tag = OLE exists = yes}
-								save_global_event_target_as = democratic_OLE
-							}
 						}
 					}
 				}
@@ -1670,23 +1673,6 @@ on_actions = {
 	on_capitulation = {
 		effect = {
 			log = "ROOT: [Root.GetName] FROM: [From.GetName] on_capitulation"
-			if = {
-				limit = {
-					is_faction_leader = yes
-					is_river_fed_member = yes
-					any_allied_country = {
-						has_capitulated = no
-					}
-				}
-				leave_faction = yes
-				random_other_country = {
-					limit = {
-						is_river_fed_member = yes
-						is_faction_leader = yes
-					}
-					add_to_faction = ROOT
-				}
-			}
 			if = {
 				limit = {
 					tag = EQP
@@ -2108,6 +2094,53 @@ on_actions = {
 				log = "ROOT: [Root.GetName] FROM: [From.GetName] on_peaceconference_ended"
 
 				handle_op_paperclip = yes
+
+				if = {
+					limit = {
+						is_ai = yes
+						original_tag = HLQ
+						FROM = { 
+							OR = {
+								original_tag = LNS
+								original_tag = LSC
+								original_tag = LSM
+							}
+							is_subject_of = ROOT
+						}
+					}
+					annex_country = { target = FROM }
+				}
+
+				if = {
+					limit = {
+						is_ai = yes
+						OR = {
+							original_tag = LNS
+							original_tag = LSC
+							original_tag = LSM
+						}
+						FROM = { 
+							OR = {
+								original_tag = LNS
+								original_tag = LSC
+								original_tag = LSM
+								original_tag = HLQ
+							}
+							is_subject_of = ROOT
+						}
+					}
+					annex_country = { target = FROM }
+				}
+
+				if = {
+					limit = {
+						OR = {
+							is_river_fed_member = yes
+							FROM = { is_river_fed_member = yes }
+						}
+					}
+					RIV_find_new_leader = yes
+				}
 
 				if = {
 					limit = {
@@ -2745,6 +2778,14 @@ on_actions = {
 	# ROOT is country, this is ran for every country
 	on_daily = {
 		effect = {
+			if = {
+				limit = {
+					is_faction_leader = yes
+					is_river_fed_member = yes
+					NOT = { has_idea = RIV_leader_surrender_bonus }
+				}
+				add_ideas = RIV_leader_surrender_bonus
+			}
 			if = {
 				limit = { has_idea = GRF_got_mercs_delayed }
 				add_to_variable = { GRF_delayed_merc_payment = 1 }
