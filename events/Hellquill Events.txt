@@ -54,7 +54,11 @@ country_event = { #Siegfried retires due to health issues
 
 	option = {
 		name = hellquill.2.a
-		kill_country_leader = yes
+		retire_country_leader = yes
+		if = {
+			limit = { has_unit_leader = 11200 }
+			remove_unit_leader = 11200
+		}
 		create_country_leader = {
 			name = "Knightly Council"
 			picture = "KnightCouncil.tga"
@@ -218,6 +222,19 @@ country_event = { #Wingfried's Trial
 		add_political_power = -125
 		add_stability = 0.05
 		add_popularity = { ideology = fascism popularity = -0.10 }
+		hidden_effect = {
+			if = {
+				limit = { has_government = democratic }
+				set_politics = { ruling_party = fascism elections_allowed = no }
+				kill_country_leader = yes
+				set_politics = { ruling_party = democratic elections_allowed = no }
+			}
+			else = {
+				set_politics = { ruling_party = fascism elections_allowed = no }
+				kill_country_leader = yes
+				set_politics = { ruling_party = neutrality elections_allowed = no }
+			}
+		}
 	}
 }
 
@@ -358,18 +375,7 @@ country_event = { #Dealing with Longsword
 			factor = 90
 		}
 		name = hellquill.15.a
-		if = {
-			limit = { country_exists = LNS }
-			LNS = { country_event = { id = hellquill.16 days = 10 } }
-		}
-		else_if = {
-			limit = { country_exists = LSC }
-			LSC = { country_event = { id = hellquill.16 days = 10 } }
-		}
-		else_if = {
-			limit = { country_exists = LSM }
-			LSM = { country_event = { id = hellquill.16 days = 10 } }
-		}
+		event_target:longsword = { country_event = { id = hellquill.16 days = 4 } }
 	}
 
 	option = { #War
@@ -377,60 +383,26 @@ country_event = { #Dealing with Longsword
 			factor = 10
 			modifier = {
 				factor = 100
-				LNS = {
-					OR = {
-						has_government = communism
-						has_government = fascism
-					}
-				}
+				event_target:longsword = { has_government = fascism }
 			}
 		}
 		name = hellquill.15.b
 		if = {
-			limit = { LNS = {
-					OR = {
-						has_government = communism
-						has_government = fascism
-					}
-				}
+			limit = { 
+				event_target:longsword = { has_government = fascism }
 			}
 			add_political_power = 50
 			add_war_support = 0.05
 			else = { add_political_power = -100 }
 		}
-		if = {
-			limit = { country_exists = LNS }
-			declare_war_on = { target = LNS type = annex_everything }
-		}
-		else_if = {
-			limit = { country_exists = LSC }
-			declare_war_on = { target = LSC type = annex_everything }
-		}
-		else_if = {
-			limit = { country_exists = LSM }
-			declare_war_on = { target = LSM type = annex_everything }
+		create_wargoal = {
+			type = annex_everything
+			target = event_target:longsword
 		}
 		hidden_effect = {
-			if = {
-				limit = { country_exists = LNS }
-				every_state = {
-					limit = { is_core_of = LNS }
-					add_core_of = HLQ
-				}
-			}
-			else_if = {
-				limit = { country_exists = LSC }
-				every_state = {
-					limit = { is_core_of = LSC }
-					add_core_of = HLQ
-				}
-			}
-			else_if = {
-				limit = { country_exists = LSM }
-				every_state = {
-					limit = { is_core_of = LSM }
-					add_core_of = HLQ
-				}
+			every_state = {
+				limit = { is_core_of = event_target:longsword }
+				add_core_of = ROOT
 			}
 		}
 	}
@@ -450,29 +422,15 @@ country_event = { #An offer from Hellquill
 			factor = 90
 		}
 		name = hellquill.16.a
-		custom_effect_tooltip = HLQ_game_over_tp
+		custom_effect_tooltip = GAME_OVER_TT
+		effect_tooltip = {
+			FROM = { annex_country = { target = ROOT } }
+		}
 		hidden_effect = {
-			HLQ = { country_event = { id = hellquill.17 days = 10 } }
-			if = {
-				limit = { country_exists = LNS }
-				every_state = {
-					limit = { is_core_of = LNS }
-					add_core_of = HLQ
-				}
-			}
-			else_if = {
-				limit = { country_exists = LSC }
-				every_state = {
-					limit = { is_core_of = LSC }
-					add_core_of = HLQ
-				}
-			}
-			else_if = {
-				limit = { country_exists = LSM }
-				every_state = {
-					limit = { is_core_of = LSM }
-					add_core_of = HLQ
-				}
+			FROM = { country_event = { id = hellquill.17 days = 6 } }
+			every_state = {
+				limit = { is_core_of = ROOT }
+				add_core_of = FROM
 			}
 		}
 	}
@@ -482,20 +440,23 @@ country_event = { #An offer from Hellquill
 			factor = 10
 			modifier = {
 				factor = 100
-				LNS = {
-					OR = {
-						has_government = communism
-						has_government = fascism
-					}
-				}
+				has_government = fascism
 			}
 		}
 		name = hellquill.16.b
 		add_political_power = 50
 		add_stability = 0.05
 		add_war_support = 0.05
+		effect_tooltip = {
+			FROM = {
+				create_wargoal = {
+					type = annex_everything
+					target = ROOT
+				}
+			}
+		}
 		hidden_effect = {
-			HLQ = { country_event = { id = hellquill.18 days = 10 } }
+			FROM = { country_event = { id = hellquill.18 days = 6 } }
 		}
 	}
 }
@@ -511,7 +472,7 @@ country_event = { #Diplomatic success
 
 	option = { #Diplomacy
 		name = hellquill.17.a
-		HLQ = { annex_country = { target = LNS transfer_troops = yes } }
+		annex_country = { target = FROM transfer_troops = yes }
 		add_political_power = 50
 		add_stability = 0.05
 	}
@@ -540,60 +501,28 @@ country_event = { #Dealing with Longsword 2
 			factor = 50
 			modifier = {
 				factor = 100
-				LNS = {
-					OR = {
-						has_government = communism
-						has_government = fascism
-					}
+				FROM = {
+					has_government = fascism
 				}
 			}
 		}
 		name = hellquill.18.b
 		if = {
-			limit = { LNS = {
-					OR = {
-						has_government = communism
-						has_government = fascism
-					}
-				}
+			limit = { 
+				FROM = { has_government = fascism }
 			}
 			add_political_power = 50
 			add_war_support = 0.05
 			else = { add_political_power = -50 }
 		}
-		if = {
-			limit = { country_exists = LNS }
-			declare_war_on = { target = LNS type = annex_everything }
-		}
-		else_if = {
-			limit = { country_exists = LSC }
-			declare_war_on = { target = LSC type = annex_everything }
-		}
-		else_if = {
-			limit = { country_exists = LSM }
-			declare_war_on = { target = LSM type = annex_everything }
+		create_wargoal = {
+			type = annex_everything
+			target = FROM
 		}
 		hidden_effect = {
-			if = {
-				limit = { country_exists = LNS }
-				every_state = {
-					limit = { is_core_of = LNS }
-					add_core_of = HLQ
-				}
-			}
-			else_if = {
-				limit = { country_exists = LSC }
-				every_state = {
-					limit = { is_core_of = LSC }
-					add_core_of = HLQ
-				}
-			}
-			else_if = {
-				limit = { country_exists = LSM }
-				every_state = {
-					limit = { is_core_of = LSM }
-					add_core_of = HLQ
-				}
+			every_state = {
+				limit = { is_core_of = FROM }
+				add_core_of = ROOT
 			}
 		}
 	}
@@ -676,8 +605,8 @@ country_event = { #The Knights Return
 		name = hellquill.22.a
 		add_political_power = 100
 		add_stability = 0.05
-		GRI = { puppet = HLQ }
-		hidden_effect = { HLQ = { set_cosmetic_tag = GRI_SUBJECT } }
+		puppet = FROM
+		hidden_effect = { FROM = { set_cosmetic_tag = GRI_SUBJECT } }
 	}
 }
 
@@ -695,12 +624,12 @@ country_event = { #An offer from Hellquill
 			factor = 90
 		}
 		name = hellquill.23.a
-		custom_effect_tooltip = HLQ_game_over_tp
+		custom_effect_tooltip = GAME_OVER_TT
 		hidden_effect = {
-			HLQ = { country_event = { id = hellquill.17 days = 10 } }
+			FROM = { country_event = { id = hellquill.17 days = 6 } }
 			every_state = {
-				limit = { is_core_of = LNS }
-				add_core_of = HLQ
+				limit = { is_core_of = ROOT }
+				add_core_of = FROM
 			}
 		}
 	}
@@ -710,12 +639,10 @@ country_event = { #An offer from Hellquill
 			factor = 10
 			modifier = {
 				factor = 100
-				LNS = {
-					OR = {
-						has_government = communism
-						has_government = neutrality
-						has_government = democratic
-					}
+				OR = {
+					has_government = communism
+					has_government = neutrality
+					has_government = democratic
 				}
 			}
 		}
@@ -724,7 +651,7 @@ country_event = { #An offer from Hellquill
 		add_stability = 0.05
 		add_war_support = 0.05
 		hidden_effect = {
-			HLQ = { country_event = { id = hellquill.24 days = 10 } }
+			FROM = { country_event = { id = hellquill.24 days = 6 } }
 		}
 	}
 }
@@ -740,11 +667,14 @@ country_event = { #Dealing with Longsword 3
 
 	option = { #War
 		name = hellquill.24.a
-		declare_war_on = { target = LNS type = annex_everything }
+		create_wargoal = {
+			target = FROM
+			type = annex_everything
+		}
 		hidden_effect = {
 			every_state = {
-				limit = { is_core_of = LNS }
-				add_core_of = HLQ
+				limit = { is_core_of = FROM }
+				add_core_of = ROOT
 			}
 		}
 	}
@@ -851,10 +781,10 @@ country_event = { #Decrease Illiteracy
 		hidden_effect = {
 			if = {
 				limit = { has_country_flag = HLQ_the_people }
-				country_event = { days = 120 id = hellquill.30 }
+				country_event = { days = 160 id = hellquill.30 }
 			}
 			else_if = {
-				country_event = { days = 180 id = hellquill.30 }
+				country_event = { days = 220 id = hellquill.30 }
 			}
 		}
 	}
@@ -1065,6 +995,7 @@ country_event = { #Federation Guarantee Accepted
 	option = {
 		name = hellquill.37.a
 		FROM = { give_guarantee = ROOT }
+		set_country_flag = RIV_guarantee
 		add_political_power = 25
 		unlock_decision_tooltip = HLQ_improve_relations
 		unlock_decision_tooltip = HLQ_honourary_member
@@ -1153,6 +1084,17 @@ country_event = { #Became Honourary Member
 		if = {
 			limit = { any_other_country = { has_idea = RIV_beings_rights_idea } }
 			unlock_decision_tooltip = HLQ_adopt_species_rights
+		}
+		every_country = {
+			limit = { 
+				is_river_fed_member = yes 
+				is_subject = no
+			}
+			diplomatic_relation = {
+				country = ROOT
+				relation = non_aggression_pact
+				active = yes
+			}
 		}
 	}
 }
@@ -1428,7 +1370,7 @@ country_event = { #FROM demands help from the empire
 				}
 			}
 			modifier = {
-				factor = 2
+				factor = 0
 				FROM = { has_government = fascism }
 			}
 		}
