@@ -16,6 +16,7 @@ RIV_expand_fed_decisions = {
 		visible = {
 			is_subject = no
 			FROM = {
+				exists = yes
 				is_subject = no
 				has_war = no
 				NOT = { is_river_fed_member = yes }
@@ -69,6 +70,7 @@ RIV_expand_fed_decisions = {
 		}
 
 		complete_effect = {
+			log = "[GetDateText]: [Root.GetName]: Decision RIV_invite_country_decision"
 			FROM = {
 				set_country_flag = { flag = intived_to_RIV value = 1 days = 360 }
 				country_event = { id = riverfed.12 hours = 1 }
@@ -99,6 +101,7 @@ RIV_political_decisions = {
 		cost = 0
 
 		complete_effect = {
+			log = "[GetDateText]: [Root.GetName]: Decision RIV_race_counter"
 			custom_effect_tooltip = RIV_found_the_federation_tt
 			set_global_flag = { flag = RIV_fed_founded_timeout value = 1 days = 5 }
 
@@ -141,6 +144,7 @@ RIV_political_decisions = {
 		cost = 50
 
 		complete_effect = {
+			log = "[GetDateText]: [Root.GetName]: Decision RIV_join_rcsc_decision"
 			swap_ideas = {
 				remove_idea = RIV_member_state
 				add_idea = RIV_rcsc_member
@@ -175,6 +179,7 @@ RIV_political_decisions = {
 		cost = 50
 
 		complete_effect = {
+			log = "[GetDateText]: [Root.GetName]: Decision RIV_join_rec_decision"
 			swap_ideas = {
 				remove_idea = RIV_rcsc_member
 				add_idea = RIV_rec_member1
@@ -217,6 +222,7 @@ RIV_political_decisions = {
 		cost = 50
 
 		complete_effect = {
+			log = "[GetDateText]: [Root.GetName]: Decision RIV_join_social_fund_decision"
 			swap_ideas = {
 				remove_idea = RIV_rec_member1
 				add_idea = RIV_rec_member2
@@ -260,6 +266,7 @@ RIV_political_decisions = {
 		cost = 50
 
 		complete_effect = {
+			log = "[GetDateText]: [Root.GetName]: Decision RIV_join_river_parliament_decision"
 			swap_ideas = {
 				remove_idea = RIV_rec_member2
 				add_idea = RIV_rec_member3
@@ -304,6 +311,7 @@ RIV_political_decisions = {
 		cost = 50
 
 		complete_effect = {
+			log = "[GetDateText]: [Root.GetName]: Decision RIV_join_river_free_movement_decision"
 			swap_ideas = {
 				remove_idea = RIV_rec_member3
 				add_idea = RIV_rec_member4
@@ -349,9 +357,49 @@ RIV_political_decisions = {
 		cost = 50
 
 		complete_effect = {
+			log = "[GetDateText]: [Root.GetName]: Decision RIV_join_river_union_decision"
 			swap_ideas = {
 				remove_idea = RIV_rec_member4
 				add_idea = RIV_river_union_member1
+			}
+			if = {
+				limit = {
+					has_event_target = RivFed
+					is_subject_of = event_target:RivFed
+				}
+				overlord = {
+					if = {
+						limit = {
+							has_dlc = "Death or Dishonor"
+							has_government = fascism
+						}
+						hidden_effect = {
+							ROOT = { get_current_government_type = yes }
+						}
+						set_autonomy = {
+							target = ROOT
+							autonomy_state = autonomy_reichskommissariat
+						}
+						hidden_effect = {
+							ROOT = { restore_previous_government_type = yes }
+						}
+						else = {
+							if = {
+								limit = { has_dlc = "Together for Victory" }
+								hidden_effect = {
+									ROOT = { get_current_government_type = yes }
+								}
+								set_autonomy = {
+									target = ROOT
+									autonomy_state = autonomy_integrated_puppet
+								}
+								hidden_effect = {
+									ROOT = { restore_previous_government_type = yes }
+								}
+							}
+						}
+					}
+				}
 			}
 		}
 
@@ -360,7 +408,13 @@ RIV_political_decisions = {
 			modifier = {
 				OR = {
 					has_government = fascism
-					has_government = communism
+					AND = {
+						has_government = communism
+						NOT = {
+							has_event_target = RivFed
+							event_target:RivFed = { has_government = communism }
+						}
+					}
 				}
 				factor = 0
 			}
@@ -396,6 +450,7 @@ RIV_political_decisions = {
 		cost = 50
 
 		complete_effect = {
+			log = "[GetDateText]: [Root.GetName]: Decision RIV_join_river_government_decision"
 			swap_ideas = {
 				remove_idea = RIV_river_union_member1
 				add_idea = RIV_river_union_member2
@@ -407,7 +462,13 @@ RIV_political_decisions = {
 			modifier = {
 				OR = {
 					has_government = fascism
-					has_government = communism
+					AND = {
+						has_government = communism
+						NOT = {
+							has_event_target = RivFed
+							event_target:RivFed = { has_government = communism }
+						}
+					}
 				}
 				factor = 0
 			}
@@ -431,11 +492,18 @@ RIV_political_decisions = {
 
 		visible = {
 			is_river_fed_member = yes
+			FROM = { exists = yes }
 			has_global_flag = river_federation_founded
 			NOT = {
 				has_global_flag = RIV_fed_founded_timeout
 			}
 			NOT = {
+				tag = FROM
+			}
+		}
+
+		target_trigger = {
+			FROM = {
 				tag = event_target:RivFed
 			}
 		}
@@ -443,9 +511,10 @@ RIV_political_decisions = {
 		cost = 150
 
 		complete_effect = {
+			log = "[GetDateText]: [Root.GetName]: Decision RIV_join_federation_decision"
 			custom_effect_tooltip = GAME_OVER_TT
 
-			event_target:RivFed = {
+			FROM = {
 				country_event = riverfed.29
 			}
 
@@ -471,7 +540,23 @@ RIV_political_decisions = {
 			modifier = {
 				OR = {
 					has_government = fascism
-					has_government = communism
+					AND = {
+						has_government = communism
+						FROM = { NOT = { has_government = communism }}
+					}
+				}
+				factor = 0
+			}
+			modifier = {
+				FROM = {
+					OR = {
+						has_government = fascism
+						has_government = communism
+					}
+				}
+				OR = {
+					has_government = democratic
+					has_government = neutrality
 				}
 				factor = 0
 			}
@@ -517,6 +602,7 @@ RIV_political_decisions = {
 		cost = 50
 
 		complete_effect = {
+			log = "[GetDateText]: [Root.GetName]: Decision RIV_join_river_army_decision"
 			add_ideas = RIV_river_army_idea
 		}
 
@@ -525,7 +611,13 @@ RIV_political_decisions = {
 			modifier = {
 				OR = {
 					has_government = fascism
-					has_government = communism
+					AND = {
+						has_government = communism
+						NOT = {
+							has_event_target = RivFed
+							event_target:RivFed = { has_government = communism }
+						}
+					}
 				}
 				factor = 0
 			}
@@ -554,6 +646,7 @@ RIV_political_decisions = {
 		cost = 50
 
 		complete_effect = {
+			log = "[GetDateText]: [Root.GetName]: Decision RIV_rdc_decision"
 			add_ideas = RIV_rdc
 		}
 
@@ -562,7 +655,13 @@ RIV_political_decisions = {
 			modifier = {
 				OR = {
 					has_government = fascism
-					has_government = communism
+					AND = {
+						has_government = communism
+						NOT = {
+							has_event_target = RivFed
+							event_target:RivFed = { has_government = communism }
+						}
+					}
 				}
 				factor = 0.7
 			}
@@ -590,6 +689,7 @@ RIV_political_decisions = {
 		cost = 50
 
 		complete_effect = {
+			log = "[GetDateText]: [Root.GetName]: Decision RIV_apply_for_etf_decision"
 			swap_ideas = {
 				remove_idea = RIV_rdc
 				add_idea = RIV_rdc2
@@ -601,7 +701,13 @@ RIV_political_decisions = {
 			modifier = {
 				OR = {
 					has_government = fascism
-					has_government = communism
+					AND = {
+						has_government = communism
+						NOT = {
+							has_event_target = RivFed
+							event_target:RivFed = { has_government = communism }
+						}
+					}
 				}
 				factor = 0.7
 			}
@@ -613,13 +719,7 @@ RIV_political_decisions = {
 		icon = scroll
 
 		allowed = {
-
-		}
-
-		available = {
-			NOT = {
-				is_in_tech_sharing_group = RIV_science_society_group
-			}
+			has_dlc = "Together for Victory"
 		}
 
 		visible = {
@@ -631,6 +731,7 @@ RIV_political_decisions = {
 		cost = 50
 
 		complete_effect = {
+			log = "[GetDateText]: [Root.GetName]: Decision RIV_join_riv_science_sociaty_decision"
 			add_to_tech_sharing_group = RIV_science_society_group
 		}
 
@@ -639,7 +740,13 @@ RIV_political_decisions = {
 			modifier = {
 				OR = {
 					has_government = fascism
-					has_government = communism
+					AND = {
+						has_government = communism
+						NOT = {
+							has_event_target = RivFed
+							event_target:RivFed = { has_government = communism }
+						}
+					}
 				}
 				factor = 0.7
 			}
@@ -667,6 +774,7 @@ RIV_political_decisions = {
 		cost = 50
 
 		complete_effect = {
+			log = "[GetDateText]: [Root.GetName]: Decision RIV_join_riv_centeral_bank_decision"
 			add_ideas = RIV_centeral_bank_idea
 		}
 
@@ -675,7 +783,13 @@ RIV_political_decisions = {
 			modifier = {
 				OR = {
 					has_government = fascism
-					has_government = communism
+					AND = {
+						has_government = communism
+						NOT = {
+							has_event_target = RivFed
+							event_target:RivFed = { has_government = communism }
+						}
+					}
 				}
 				factor = 0.25
 			}
@@ -702,6 +816,7 @@ RIV_political_decisions = {
 		cost = 50
 
 		complete_effect = {
+			log = "[GetDateText]: [Root.GetName]: Decision RIV_join_riv_rivbit_decision"
 			swap_ideas = {
 				remove_idea = RIV_centeral_bank_idea
 				add_idea = RIV_rivbit_idea
@@ -713,7 +828,13 @@ RIV_political_decisions = {
 			modifier = {
 				OR = {
 					has_government = fascism
-					has_government = communism
+					AND = {
+						has_government = communism
+						NOT = {
+							has_event_target = RivFed
+							event_target:RivFed = { has_government = communism }
+						}
+					}
 				}
 				factor = 0.1
 			}
@@ -740,6 +861,7 @@ RIV_political_decisions = {
 		cost = 50
 
 		complete_effect = {
+			log = "[GetDateText]: [Root.GetName]: Decision RIV_sign_beings_rights_decision"
 			add_ideas = RIV_beings_rights_idea
 		}
 
@@ -748,7 +870,13 @@ RIV_political_decisions = {
 			modifier = {
 				OR = {
 					has_government = fascism
-					has_government = communism
+					AND = {
+						has_government = communism
+						NOT = {
+							has_event_target = RivFed
+							event_target:RivFed = { has_government = communism }
+						}
+					}
 				}
 				factor = 0
 			}
@@ -770,12 +898,15 @@ RIV_political_decisions = {
 		visible = {
 			is_river_fed_member = yes
 			has_global_flag = river_federation_founded
+			NOT = { has_country_flag = river_federation_founder }
 			is_faction_leader = no
+			OR = { is_subject = no has_country_flag = RIV_fed_puppet }
 		}
 
 		cost = 150
 
 		complete_effect = {
+			log = "[GetDateText]: [Root.GetName]: Decision RIV_leave_federation_decision"
 
 			every_other_country = {
 				limit = {
@@ -787,10 +918,7 @@ RIV_political_decisions = {
 				limit = {
 					is_subject_of = event_target:RivFed
 				}
-				set_autonomy = {
-					target = ROOT
-					autonomy_state = autonomy_free
-				}
+				end_puppet_this = yes
 			}
 			RIV_leave_fed = yes
 
@@ -803,6 +931,14 @@ RIV_political_decisions = {
 				OR = {
 					has_government = neutrality
 					has_government = democratic
+				}
+				NOT = {
+					event_target:RivFed = {
+						OR = {
+							has_government = communism
+							has_government = fascism
+						}
+					}
 				}
 				factor = 0
 			}
@@ -831,20 +967,68 @@ foreign_politics = {
 
 		visible = {
 			is_ai = yes
-			is_river_fed_member = yes
 			has_guaranteed = FROM
 			OR = {
-				NOT = {
-					has_government = democratic
-					has_government = neutrality
-				}
-				FROM = {
+				is_river_fed_member = no
+				is_faction_leader = no
+				AND = {
 					NOT = {
-						has_government = democratic
-						has_government = neutrality
-						AND = {
-							tag = WAT
-							has_government = communism
+						has_opinion = {
+							target = FROM
+							value > 100
+						}
+					}
+					FROM = {
+						NOT = {
+							original_tag = FBK
+							ROOT = { has_country_flag = force_guarantee_FBK }
+						}
+					}
+					OR = {
+						NOT = {
+							has_government = democratic
+							has_government = neutrality
+							AND = {
+								has_government = communism
+								FROM = { has_government = communism }
+							}
+						}
+						FROM = {
+							AND = {
+								NOT = {
+									has_government = democratic
+									has_government = neutrality
+									AND = {
+										tag = WAT
+										has_government = communism
+									}
+									AND = {
+										has_government = communism
+										FROM = { has_government = communism }
+									}
+								}
+								OR = {
+									AND = {
+										original_tag = FIR
+										has_government = fascism
+									}
+									AND = {
+										owns_state = 455
+										owns_state = 454
+										owns_state = 642
+									}
+									has_added_tension_amount > 20
+								}
+							}
+							AND = {
+								any_other_country = {
+									is_river_fed_member = yes
+									OR = {
+										FROM = { is_justifying_wargoal_against = PREV }
+										FROM = { has_wargoal_against = PREV }
+									}
+								}
+							}
 						}
 					}
 				}
@@ -864,9 +1048,40 @@ foreign_politics = {
 		ai_will_do = { factor = 100 }
 
 		complete_effect = {
+			log = "[GetDateText]: [Root.GetName]: Decision RIV_ai_stop_guarantee"
 			diplomatic_relation = {
 				country = FROM
 				relation = guarantee
+				active = no
+			}
+		}
+	}
+
+	RIV_ai_stop_non_agression = {
+		allowed = {
+			is_ai = yes
+			can_form_river_fed = yes
+		}
+
+		visible = {
+			is_ai = yes
+			has_non_aggression_pact_with = HLQ
+			HLQ = { 
+				exists = yes
+				OR = {
+					NOT = { has_idea = HLQ_honourary_member } 
+					ROOT = { is_river_fed_member = no }
+				}
+			}
+		}
+
+		ai_will_do = { factor = 100 }
+
+		complete_effect = {
+			log = "[GetDateText]: [Root.GetName]: Decision RIV_ai_stop_non_agression"
+			diplomatic_relation = {
+				country = HLQ
+				relation = non_aggression_pact
 				active = no
 			}
 		}
@@ -973,10 +1188,18 @@ foreign_politics = {
 					ROOT = { is_subject_of = PREV }
 					is_river_fed_member = yes
 				}
+				original_tag = NCH
 			}
 		}
 
 		visible = {
+			is_on_griffon_continent = yes
+			OR = {
+				is_pony_race = yes
+				original_tag = NCH
+				original_tag = GRY
+				original_tag = DMT
+			}
 			is_in_faction = yes
 			is_river_fed_member = no
 			NOT = { has_government = fascism }
@@ -1020,6 +1243,7 @@ RIV_anti_communist_infiltration_decisions = {
 		cost = 75
 		days_remove = 60
 		remove_effect = {
+			log = "[GetDateText]: [Root.GetName]: Decision remove remove_KGB_decision"
 			if = {
 				limit = {
 					has_idea = RCT_communist_infiltrators
@@ -1056,6 +1280,7 @@ RIV_anti_communist_infiltration_decisions = {
 		cost = 75
 		days_remove = 60
 		remove_effect = {
+			log = "[GetDateText]: [Root.GetName]: Decision remove emergency_leave_the_commie_coalition"
 			if = {
 				limit = {
 					has_idea = RCT_militants1
@@ -1113,6 +1338,7 @@ RIV_anti_communist_infiltration_decisions = {
 		cost = 75
 		days_remove = 60
 		remove_effect = {
+			log = "[GetDateText]: [Root.GetName]: Decision remove find_proof_decision"
 			if = {
 				limit = {
 					has_idea = RCT_KGB_1
@@ -1160,6 +1386,7 @@ RIV_anti_fabianism_decisions = {
 			}
 		}
 		complete_effect = {
+			log = "[GetDateText]: [Root.GetName]: Decision call_vote_to_expel_nova"
 
 			add_stability = -0.1
 			leave_faction = ROOT
@@ -1216,6 +1443,7 @@ RIV_anti_fabianism_decisions = {
 		days_remove = 60
 		days_re_enable = 365
 		remove_effect = {
+			log = "[GetDateText]: [Root.GetName]: Decision remove call_vote_to_expel_nova"
 			random_list = {
 				20 = {country_event = { id = rivercity.1923}}
 				80 = {country_event = { id = rivercity.1924}}
@@ -1232,6 +1460,7 @@ RIV_anti_fabianism_decisions = {
 			is_in_faction_with = RCT
 		}
 		complete_effect = {
+			log = "[GetDateText]: [Root.GetName]: Decision call_vote_to_expel_nova"
 			set_country_flag = started_the_vote_against_RCT
 			set_variable = { var = votes value = 0 }#It'll remain zero because you'll always vote yes and RCT will always vote no. Therefore the vote is always decided by the other countries
 			every_other_country = {
