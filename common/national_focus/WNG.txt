@@ -1005,7 +1005,7 @@ focus_tree = {
 	focus = {
 		id = WNG_crack_down_on_communists
 		icon = GFX_goal_anti_comintern_pact
-		cost = 10.00
+		cost = 5.00
 		prerequisite = {
 			focus = WNG_a_fascist_prime_minister
 		}
@@ -1033,7 +1033,7 @@ focus_tree = {
 	focus = {
 		id = WNG_secure_parliament
 		icon = GFX_focus_generic_strike_at_democracy1
-		cost = 10.00
+		cost = 7.00
 		prerequisite = {
 			focus = WNG_crack_down_on_communists
 		}
@@ -1061,7 +1061,7 @@ focus_tree = {
 	focus = {
 		id = WNG_education_reform
 		icon = GFX_focus_generic_military_mission
-		cost = 10.00
+		cost = 7.00
 		prerequisite = {
 			focus = WNG_trains_run_on_time
 		}
@@ -1088,7 +1088,7 @@ focus_tree = {
 	focus = {
 		id = WNG_only_fascism
 		icon = GFX_goal_support_fascism
-		cost = 10.00
+		cost = 7.00
 		prerequisite = {
 			focus = WNG_secure_parliament
 		}
@@ -1114,7 +1114,7 @@ focus_tree = {
 	focus = {
 		id = WNG_news_censorship
 		icon = GFX_goal_generic_propaganda
-		cost = 10.00
+		cost = 5.00
 		prerequisite = {
 			focus = WNG_education_reform
 		}
@@ -1137,7 +1137,7 @@ focus_tree = {
 	focus = {
 		id = WNG_glory_to_wingbardy
 		icon = GFX_goal_wng_glory_to_wingbardy
-		cost = 10.00
+		cost = 7.00
 		prerequisite = {
 			focus = WNG_news_censorship
 		}
@@ -1167,7 +1167,7 @@ focus_tree = {
 	focus = {
 		id = WNG_pressure_allies
 		icon = GFX_goal_generic_forceful_treaty
-		cost = 10.00
+		cost = 7.00
 		prerequisite = {
 			focus = WNG_glory_to_wingbardy
 		}
@@ -1213,7 +1213,7 @@ focus_tree = {
 	focus = {
 		id = WNG_renew_the_southern_alliance
 		icon = GFX_goal_generic_major_alliance
-		cost = 10.00
+		cost = 5.00
 		prerequisite = {
 			focus = WNG_glory_to_wingbardy
 			focus = WNG_strengthen_the_king
@@ -1262,7 +1262,7 @@ focus_tree = {
 	focus = {
 		id = WNG_southern_security_council
 		icon = GFX_goal_generic_national_unity_claws
-		cost = 10.00
+		cost = 5.00
 		prerequisite = {
 			focus = WNG_pressure_allies
 			focus = WNG_renew_the_southern_alliance
@@ -1305,7 +1305,7 @@ focus_tree = {
 	focus = {
 		id = WNG_southern_sociaty_of_science
 		icon = GFX_goal_tfv_generic_tech_sharing
-		cost = 10.00
+		cost = 7.00
 		prerequisite = {
 			focus = WNG_renew_the_southern_alliance
 			focus = WNG_pressure_allies
@@ -1498,17 +1498,16 @@ focus_tree = {
 		}
 
 		available = {
-			SIC = { exists = yes }
-			NOT = { is_in_faction_with = SIC }
-			NOT = { SIC = { is_subject_of = WNG } }
+
 		}
 
 		bypass = {
 			OR = {
-				WNG = { has_war_with = SIC }
+				is_in_faction_with = SIC
+				has_war_with = SIC
+				has_wargoal_against = SIC
 				SIC = { exists = no }
 				SIC = { is_subject_of = WNG }
-				WNG = { is_in_faction_with = SIC }
 			}
 		}
 
@@ -1519,6 +1518,15 @@ focus_tree = {
 		completion_reward = {
 			log = "[GetDateText]: [Root.GetName]: Focus WNG_the_sicameon_question"#Auto-logging
 			if = {
+				limit ={
+					is_ai = yes
+				}
+				declare_war_on = {
+					target = SIC
+					type = annex_everything
+				}
+			}
+			else_if = {
 				limit = {
 					is_in_faction_with = FAL
 				}
@@ -1608,11 +1616,51 @@ focus_tree = {
 
 			if = {
 				limit = {
-					BOI = { exists = yes NOT = { is_subject_of = ROOT } }
+					BOI = { 
+						exists = yes 
+						NOT = { is_subject_of = ROOT }
+					}
 				}
 				create_wargoal = {
 					type = annex_everything
 					target = BOI
+				}
+			}
+			else_if = {
+				limit = {
+					BOI = { 
+						exists = yes 
+						is_subject_of = ROOT
+					} 
+				}
+				BOI = {
+					country_event = wingbardy.2
+				}
+			}
+
+			if = {
+				limit = {
+					NOT = {
+						ROOT = {
+							owns_state = 389
+						}
+						BOI = {
+							owns_state = 389
+						}
+					}
+				}
+				hidden_effect = {
+					random_country = {
+						limit = {
+							owns_state = 389
+						}
+						save_event_target_as = BOI_owner
+					}
+				}
+				create_wargoal = {
+					type = take_state_focus
+					target = event_target:BOI_owner
+					generator = { 389 }
 				}
 			}
 		}
@@ -1696,31 +1744,47 @@ focus_tree = {
 
 		available = {
 			has_government = fascism
+			NOT = { is_in_faction_with = EQC }
 			EQC = { exists = yes }
-		}
-
-		bypass = {
-			EQC = {
-				OR = {
-					has_war_with = ROOT
+			NOT = {
+				EQC = {
 					is_subject_of = ROOT
 				}
 			}
 		}
 
+		bypass = {
+			has_war_with = EQC
+			has_wargoal_against = EQC
+		}
+
 		ai_will_do = {
-			factor = 5
+			factor = 1
 
 			modifier = {
 				EQS = {
 					has_war = yes
 					surrender_progress > 0.3
 				}
-				factor = 3
+				factor = 5
+			}
+			modifier = {
+				EQS = {
+					has_war = yes
+					surrender_progress > 0.5
+				}
+				factor = 10
+			}
+			modifier = {
+				EQS = {
+					has_war = yes
+					surrender_progress > 0.7
+				}
+				factor = 15
 			}
 			modifier = {
 				EQC = { is_subject = no }
-				factor = 3
+				factor = 15
 			}
 		}
 
@@ -2118,6 +2182,7 @@ focus_tree = {
 				target = EQC
 				modifier = WNG_equestrian_trade
 			}
+			add_political_power = 100
 		}
 
 	}
@@ -2150,7 +2215,7 @@ focus_tree = {
 				country_event = { id = generic.1 }
 			}
 			give_guarantee = FAL
-
+			add_political_power = 100
 		}
 	}
 	focus = {
@@ -2463,6 +2528,7 @@ focus_tree = {
 		completion_reward = {
 			log = "[GetDateText]: [Root.GetName]: Focus no"#Auto-logging
 			add_ideas = WNG_united_against_disharmony
+			add_political_power = 125
 		}
 
 	}
@@ -2865,6 +2931,7 @@ focus_tree = {
 		completion_reward = {
 			log = "[GetDateText]: [Root.GetName]: Focus yes"#Auto-logging
 			add_ideas = WNG_the_free_south
+			add_political_power = 125
 		}
 	}
 	#########################
@@ -2942,7 +3009,7 @@ focus_tree = {
 					limit = { is_controlled_by = ROOT }
 					add_building_construction = {
 						type = infrastructure
-						level = 1
+						level = 2
 						instant_build = yes
 					}
 				}
@@ -2952,7 +3019,7 @@ focus_tree = {
 					limit = { is_controlled_by = ROOT }
 					add_building_construction = {
 						type = infrastructure
-						level = 1
+						level = 2
 						instant_build = yes
 					}
 				}
@@ -2972,7 +3039,7 @@ focus_tree = {
 					limit = { is_controlled_by = ROOT }
 					add_building_construction = {
 						type = infrastructure
-						level = 1
+						level = 2
 						instant_build = yes
 					}
 				}
@@ -2982,7 +3049,7 @@ focus_tree = {
 					limit = { is_controlled_by = ROOT }
 					add_building_construction = {
 						type = infrastructure
-						level = 1
+						level = 2
 						instant_build = yes
 					}
 				}
@@ -2992,7 +3059,7 @@ focus_tree = {
 					limit = { is_controlled_by = ROOT }
 					add_building_construction = {
 						type = infrastructure
-						level = 1
+						level = 2
 						instant_build = yes
 					}
 				}
@@ -3002,7 +3069,7 @@ focus_tree = {
 					limit = { is_controlled_by = ROOT }
 					add_building_construction = {
 						type = infrastructure
-						level = 1
+						level = 2
 						instant_build = yes
 					}
 				}
@@ -3056,7 +3123,7 @@ focus_tree = {
 						is_controlled_by = ROOT
 						free_building_slots = {
 							building = industrial_complex
-							size > 2
+							size > 3
 							include_locked = yes
 						}
 					}
@@ -3064,19 +3131,19 @@ focus_tree = {
 			}
 		}
 		completion_reward = {
-			log = "[GetDateText]: [Root.GetName]: Focus WNG_claim_the_throne"#Auto-logging
+			log = "[GetDateText]: [Root.GetName]: Focus WNG_industrial_incentives"#Auto-logging
 			random_owned_controlled_state = {
 				limit = {
 					free_building_slots = {
 						building = industrial_complex
-						size > 1
+						size > 2
 						include_locked = yes
 					}
 				}
-				add_extra_state_shared_building_slots = 2
+				add_extra_state_shared_building_slots = 3
 				add_building_construction = {
 					type = industrial_complex
-					level = 2
+					level = 3
 					instant_build = yes
 				}
 			}
@@ -3124,7 +3191,22 @@ focus_tree = {
 			}
 		}
 		completion_reward = {
-			log = "[GetDateText]: [Root.GetName]: Focus WNG_wingbard_empire"#Auto-logging
+			log = "[GetDateText]: [Root.GetName]: Focus WNG_build_a_civilian_economy"#Auto-logging
+			random_owned_controlled_state = {
+				limit = {
+					free_building_slots = {
+						building = industrial_complex
+						size > 1
+						include_locked = yes
+					}
+				}
+				add_extra_state_shared_building_slots = 2
+				add_building_construction = {
+					type = industrial_complex
+					level = 2
+					instant_build = yes
+				}
+			}
 			random_owned_controlled_state = {
 				limit = {
 					free_building_slots = {
@@ -3197,10 +3279,10 @@ focus_tree = {
 						include_locked = yes
 					}
 				}
-				add_extra_state_shared_building_slots = 1
+				add_extra_state_shared_building_slots = 2
 				add_building_construction = {
 					type = arms_factory
-					level = 1
+					level = 2
 					instant_build = yes
 				}
 			}
@@ -3212,10 +3294,10 @@ focus_tree = {
 						include_locked = yes
 					}
 				}
-				add_extra_state_shared_building_slots = 1
+				add_extra_state_shared_building_slots = 2
 				add_building_construction = {
 					type = arms_factory
-					level = 1
+					level = 2
 					instant_build = yes
 				}
 			}
@@ -3651,7 +3733,7 @@ focus_tree = {
 			add_tech_bonus = {
 				name = WNG_owlivetti_bonus
 				bonus = 0.5
-				uses = 1
+				uses = 2
 				category = electronics
 			}
 		}
@@ -4437,12 +4519,10 @@ focus_tree = {
 		dynamic = yes
 		prerequisite = {
 			focus = WNG_cas
+			focus = WNG_build_airbase
 		}
 		prerequisite = {
 			focus = WNG_economic_recovery
-		}
-		prerequisite = {
-			focus = WNG_build_airbase
 		}
 
 		x = 40
@@ -4827,7 +4907,7 @@ focus_tree = {
 		}
 
 		bypass = {
-
+			has_tech = improved_light_tank
 		}
 
 		cancel_if_invalid = yes
@@ -4842,10 +4922,8 @@ focus_tree = {
 			log = "[GetDateText]: [Root.GetName]: Focus yes"#Auto-logging
 			add_tech_bonus = {
 				name = WNG_tanks
-				ahead_reduction = 1
-				bonus = 0.75
+				bonus = 0.5
 				uses = 2
-				technology = gwtank
 				technology = basic_light_tank
 				technology = improved_light_tank
 			}
