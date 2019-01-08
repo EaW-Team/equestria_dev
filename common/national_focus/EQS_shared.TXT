@@ -203,6 +203,15 @@
 				NOT = { has_country_flag = CRY_get_rid_of_sombra_in_progress }
 			}
 		}
+		bypass = {
+			any_other_country = {
+				original_tag = CRY
+				OR = { is_subject_of = ROOT is_in_faction_with = ROOT }
+				NOT = { has_idea = sombra_threat }
+				NOT = { has_idea = sombra_threat2 }
+				NOT = { has_idea = sombra_threat_reported }
+			}
+		}
 		allow_branch = {
 			has_government = democratic
 		}
@@ -912,18 +921,19 @@
 		completion_reward = {
 			add_political_power = 150
 			army_experience = 50
-			add_war_support = 0.05
+			add_war_support = 0.1
 			if = {
 				limit = { has_idea = alicorn_sisters }
 				create_field_marshal = {
 					name = "Princess Luna"
 					portrait_path = "gfx/leaders/EQS/Luna.tga"
+					desc = "LUNA_DESC"
 					traits = { goddess_of_the_night warrior_princess inspirational_leader }
 					id = 9999
 					skill = 2
 					attack_skill = 3
 					defense_skill = 3
-					planning_skill = 1
+					planning_skill = 2
 					logistics_skill = 1
 				}
 			}
@@ -947,7 +957,7 @@
 		y = 2
 		completion_reward = {
 			add_political_power = 150
-			add_war_support = 0.01
+			add_war_support = 0.025
 			172 = {
 				add_building_construction = {
 					type = air_base
@@ -1114,10 +1124,10 @@
 		}
 		x = 23
 		y = 3
-		available = { CHN = { has_added_tension_amount > 0.1 }
+		available = { CHN = { has_added_tension_amount > 5 }
 			NOT = { has_war_with = CHN } }
 		completion_reward = {
-			add_war_support = 0.02
+			add_war_support = 0.025
 			172 = {
 				add_building_construction = {
 					type = bunker
@@ -1304,26 +1314,24 @@
 		x = 25
 		y = 3
 		completion_reward = {
-			add_war_support = 0.025
-			add_stability = 0.01
-			if = { limit = { GRF = { has_government = democratic } }
-				GRF = { add_opinion_modifier = { target = ROOT modifier = common_threat }
-				add_war_support = 0.02 }
+			add_war_support = 0.05
+			every_other_country = {
+				limit = {
+					OR = {
+						AND = {
+							is_on_equestrian_continent = yes
+							OR = {
+								has_government = democratic
+								original_tag = YAK
+								is_pony_race = yes
+							}
+						}
+						is_in_faction_with = ROOT
+					}
+				}
+				set_country_flag = EQS_improved_relations
+				add_opinion_modifier = { target = ROOT modifier = common_threat }
 			}
-			if = { limit = { OLE = { has_government = democratic } }
-				OLE = { add_opinion_modifier = { target = ROOT modifier = common_threat }
-				add_war_support = 0.02 }
-			}
-			if = { limit = { BUF = { has_government = democratic } }
-				BUF = { add_opinion_modifier = { target = ROOT modifier = common_threat }
-				add_war_support = 0.08 }
-			}
-			CRY = { add_opinion_modifier = { target = ROOT modifier =common_threat }
-				add_war_support = 0.02 }
-			STG = { add_opinion_modifier = { target = ROOT modifier =common_threat }
-				add_war_support = 0.02 }
-			YAK = { add_opinion_modifier = { target = ROOT modifier = common_threat }
-				add_war_support = 0.02 }
 		}
 
 	}
@@ -1340,27 +1348,35 @@
 		available = {
 			OR = {
 				eqs_has_civil_war = yes
-				OR = {
-					AND = {
-						has_defensive_war = yes
-						any_enemy_country = {
-							is_major = yes
-						}
+				AND = {
+					has_defensive_war = yes
+					any_enemy_country = {
+						is_major = yes
 					}
-					surrender_progress > 0.2
 				}
-				threat > 0.6
-				has_war_support > 0.5
+				surrender_progress > 0.2
+				threat > 0.5
+				has_war_support > 0.4
 				any_country = {
 					is_major = yes
 					OR = {
 						has_wargoal_against = ROOT
 						is_justifying_wargoal_against = ROOT
-						hidden_trigger = { focus_progress = { focus = demand_equestria progress > 0 } }
+						hidden_trigger = {
+							OR = {
+								AND = {
+									ROOT = { is_ai = yes }
+									is_historical_focus_on = yes focus_progress = { focus = prepare_for_war progress > 0 } 
+								}
+								focus_progress = { focus = demand_equestria progress > 0 } 
+							}
+						}
 					}
 				}
 			}
 		}
+		cancel_if_invalid = no
+		continue_if_invalid = yes
 		completion_reward = {
 			country_event = equestria.7
 			unlock_decision_tooltip = EQS_celestia_speech_decision
@@ -1386,13 +1402,23 @@
 					OR = {
 						has_wargoal_against = ROOT
 						is_justifying_wargoal_against = ROOT
-						hidden_trigger = { focus_progress = { focus = demand_equestria progress > 0 } }
+						hidden_trigger = {
+							OR = {
+								AND = {
+									is_ai = yes
+									is_historical_focus_on = yes focus_progress = { focus = prepare_for_war progress > 0 } 
+								}
+								focus_progress = { focus = demand_equestria progress > 0 } 
+							}
+						}
 					}
 				}
 			}
 		}
 		x = 27
 		y = 2
+		cancel_if_invalid = no
+		continue_if_invalid = yes
 		completion_reward = {
 			country_event = equestria.8
 			custom_effect_tooltip = equestria_advisors
@@ -1419,7 +1445,15 @@
 					OR = {
 						has_wargoal_against = ROOT
 						is_justifying_wargoal_against = ROOT
-						hidden_trigger = { focus_progress = { focus = demand_equestria progress > 0 } }
+						hidden_trigger = {
+							OR = {
+								AND = {
+									is_ai = yes
+									is_historical_focus_on = yes focus_progress = { focus = prepare_for_war progress > 0 } 
+								}
+								focus_progress = { focus = demand_equestria progress > 0 } 
+							}
+						}
 					}
 				}
 			}
@@ -1431,6 +1465,8 @@
 				has_idea = harmonic_stagnation3
 			}
 		}
+		cancel_if_invalid = no
+		continue_if_invalid = yes
 		completion_reward = {
 			country_event = equestria.13
 			effect_tooltip = {
@@ -1514,6 +1550,8 @@
 		prerequisite = {
 			focus = Extreme_measures
 		}
+		cancel_if_invalid = no
+		continue_if_invalid = yes
 		available = {
 			OR = {
 				has_war = yes
@@ -1523,7 +1561,15 @@
 					OR = {
 						has_wargoal_against = ROOT
 						is_justifying_wargoal_against = ROOT
-						hidden_trigger = { focus_progress = { focus = demand_equestria progress > 0 } }
+						hidden_trigger = {
+							OR = {
+								AND = {
+									is_ai = yes
+									is_historical_focus_on = yes focus_progress = { focus = prepare_for_war progress > 0 } 
+								}
+								focus_progress = { focus = demand_equestria progress > 0 } 
+							}
+						}
 					}
 				}
 			}
@@ -1551,6 +1597,8 @@
 		prerequisite = {
 			focus = Forget_magic_of_friendship
 		}
+		cancel_if_invalid = no
+		continue_if_invalid = yes
 		available = {
 			OR = {
 				has_war = yes
@@ -1560,7 +1608,15 @@
 					OR = {
 						has_wargoal_against = ROOT
 						is_justifying_wargoal_against = ROOT
-						hidden_trigger = { focus_progress = { focus = demand_equestria progress > 0 } }
+						hidden_trigger = {
+							OR = {
+								AND = {
+									is_ai = yes
+									is_historical_focus_on = yes focus_progress = { focus = prepare_for_war progress > 0 } 
+								}
+								focus_progress = { focus = demand_equestria progress > 0 } 
+							}
+						}
 					}
 				}
 			}
@@ -1655,6 +1711,8 @@
 		prerequisite = {
 			focus = Extreme_measures
 		}
+		cancel_if_invalid = no
+		continue_if_invalid = yes
 		available = {
 			OR = {
 				has_war = yes
@@ -1664,7 +1722,15 @@
 					OR = {
 						has_wargoal_against = ROOT
 						is_justifying_wargoal_against = ROOT
-						hidden_trigger = { focus_progress = { focus = demand_equestria progress > 0 } }
+						hidden_trigger = {
+							OR = {
+								AND = {
+									is_ai = yes
+									is_historical_focus_on = yes focus_progress = { focus = prepare_for_war progress > 0 } 
+								}
+								focus_progress = { focus = demand_equestria progress > 0 } 
+							}
+						}
 					}
 				}
 			}
@@ -1686,6 +1752,8 @@
 		prerequisite = {
 			focus = War_Plan
 		}
+		cancel_if_invalid = no
+		continue_if_invalid = yes
 		available = {
 			OR = {
 				has_war = yes
@@ -1695,7 +1763,15 @@
 					OR = {
 						has_wargoal_against = ROOT
 						is_justifying_wargoal_against = ROOT
-						hidden_trigger = { focus_progress = { focus = demand_equestria progress > 0 } }
+						hidden_trigger = {
+							OR = {
+								AND = {
+									is_ai = yes
+									is_historical_focus_on = yes focus_progress = { focus = prepare_for_war progress > 0 } 
+								}
+								focus_progress = { focus = demand_equestria progress > 0 } 
+							}
+						}
 					}
 				}
 			}
@@ -1723,6 +1799,8 @@
 		available = { has_war = yes }
 		x = 29
 		y = 2
+		cancel_if_invalid = no
+		continue_if_invalid = yes
 		available = {
 			OR = {
 				has_war = yes
@@ -1732,7 +1810,15 @@
 					OR = {
 						has_wargoal_against = ROOT
 						is_justifying_wargoal_against = ROOT
-						hidden_trigger = { focus_progress = { focus = demand_equestria progress > 0 } }
+						hidden_trigger = {
+							OR = {
+								AND = {
+									is_ai = yes
+									is_historical_focus_on = yes focus_progress = { focus = prepare_for_war progress > 0 } 
+								}
+								focus_progress = { focus = demand_equestria progress > 0 } 
+							}
+						}
 					}
 				}
 			}
@@ -1755,6 +1841,8 @@
 		prerequisite = {
 			focus = Hire_Generals
 		}
+		cancel_if_invalid = no
+		continue_if_invalid = yes
 		available = {
 			OR = {
 				has_war = yes
@@ -1764,7 +1852,15 @@
 					OR = {
 						has_wargoal_against = ROOT
 						is_justifying_wargoal_against = ROOT
-						hidden_trigger = { focus_progress = { focus = demand_equestria progress > 0 } }
+						hidden_trigger = {
+							OR = {
+								AND = {
+									is_ai = yes
+									is_historical_focus_on = yes focus_progress = { focus = prepare_for_war progress > 0 } 
+								}
+								focus_progress = { focus = demand_equestria progress > 0 } 
+							}
+						}
 					}
 				}
 			}
@@ -1794,6 +1890,8 @@
 		prerequisite = {
 			focus = Support_aircraft_research
 		}
+		cancel_if_invalid = no
+		continue_if_invalid = yes
 		available = {
 			OR = {
 				has_war = yes
@@ -1803,7 +1901,15 @@
 					OR = {
 						has_wargoal_against = ROOT
 						is_justifying_wargoal_against = ROOT
-						hidden_trigger = { focus_progress = { focus = demand_equestria progress > 0 } }
+						hidden_trigger = {
+							OR = {
+								AND = {
+									is_ai = yes
+									is_historical_focus_on = yes focus_progress = { focus = prepare_for_war progress > 0 } 
+								}
+								focus_progress = { focus = demand_equestria progress > 0 } 
+							}
+						}
 					}
 				}
 			}
@@ -1831,6 +1937,8 @@
 		prerequisite = {
 			focus = Bomber_research
 		}
+		cancel_if_invalid = no
+		continue_if_invalid = yes
 		available = {
 			OR = {
 				has_war = yes
@@ -1840,7 +1948,15 @@
 					OR = {
 						has_wargoal_against = ROOT
 						is_justifying_wargoal_against = ROOT
-						hidden_trigger = { focus_progress = { focus = demand_equestria progress > 0 } }
+						hidden_trigger = {
+							OR = {
+								AND = {
+									is_ai = yes
+									is_historical_focus_on = yes focus_progress = { focus = prepare_for_war progress > 0 } 
+								}
+								focus_progress = { focus = demand_equestria progress > 0 } 
+							}
+						}
 					}
 				}
 			}
@@ -1893,6 +2009,8 @@
 		prerequisite = {
 			focus = Bomber_research
 		}
+		cancel_if_invalid = no
+		continue_if_invalid = yes
 		available = {
 			OR = {
 				has_war = yes
@@ -1902,7 +2020,15 @@
 					OR = {
 						has_wargoal_against = ROOT
 						is_justifying_wargoal_against = ROOT
-						hidden_trigger = { focus_progress = { focus = demand_equestria progress > 0 } }
+						hidden_trigger = {
+							OR = {
+								AND = {
+									is_ai = yes
+									is_historical_focus_on = yes focus_progress = { focus = prepare_for_war progress > 0 } 
+								}
+								focus_progress = { focus = demand_equestria progress > 0 } 
+							}
+						}
 					}
 				}
 			}
@@ -1926,6 +2052,8 @@
 		prerequisite = {
 			focus = Bomber_research
 		}
+		cancel_if_invalid = no
+		continue_if_invalid = yes
 		available = {
 			OR = {
 				has_war = yes
@@ -1935,7 +2063,15 @@
 					OR = {
 						has_wargoal_against = ROOT
 						is_justifying_wargoal_against = ROOT
-						hidden_trigger = { focus_progress = { focus = demand_equestria progress > 0 } }
+						hidden_trigger = {
+							OR = {
+								AND = {
+									is_ai = yes
+									is_historical_focus_on = yes focus_progress = { focus = prepare_for_war progress > 0 } 
+								}
+								focus_progress = { focus = demand_equestria progress > 0 } 
+							}
+						}
 					}
 				}
 			}
@@ -1960,6 +2096,8 @@
 		prerequisite = {
 			focus = EQS_WMD
 		}
+		cancel_if_invalid = no
+		continue_if_invalid = yes
 		available = {
 			OR = {
 				has_war = yes
@@ -1969,7 +2107,15 @@
 					OR = {
 						has_wargoal_against = ROOT
 						is_justifying_wargoal_against = ROOT
-						hidden_trigger = { focus_progress = { focus = demand_equestria progress > 0 } }
+						hidden_trigger = {
+							OR = {
+								AND = {
+									is_ai = yes
+									is_historical_focus_on = yes focus_progress = { focus = prepare_for_war progress > 0 } 
+								}
+								focus_progress = { focus = demand_equestria progress > 0 } 
+							}
+						}
 					}
 				}
 			}
@@ -2014,6 +2160,8 @@
 		prerequisite = {
 			focus = Remove_Harmonic_Stagnation
 		}
+		cancel_if_invalid = no
+		continue_if_invalid = yes
 		available = {
 			OR = {
 				has_war = yes
@@ -2023,7 +2171,15 @@
 					OR = {
 						has_wargoal_against = ROOT
 						is_justifying_wargoal_against = ROOT
-						hidden_trigger = { focus_progress = { focus = demand_equestria progress > 0 } }
+						hidden_trigger = {
+							OR = {
+								AND = {
+									is_ai = yes
+									is_historical_focus_on = yes focus_progress = { focus = prepare_for_war progress > 0 } 
+								}
+								focus_progress = { focus = demand_equestria progress > 0 } 
+							}
+						}
 					}
 				}
 			}
