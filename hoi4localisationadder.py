@@ -38,8 +38,19 @@ import collections
 #############################
 def readfile(name):
     print("Reading file " + name + "...")
-    with open(name, "r") as f:
-        lines = f.read().splitlines()
+    try:
+        with open(name, "r") as f:
+            lines = f.read().splitlines()
+    except:
+        try:
+            with open(name, "r", encoding='utf-8') as f:
+                lines = f.read().splitlines()
+        except:
+            try:
+                with open(name, "r", encoding='utf-8-sig') as f:
+                    lines = f.read().splitlines()
+            except:
+                print("Could not read file " + name + "!")
     tags = collections.OrderedDict()
 
     open_blocks = 0
