@@ -79,7 +79,7 @@ with open(dir + "/" + args.ideas, "r") as f:
 index_to_insert = find_index_before_bracket(lines)
 
 lines.insert(index_to_insert, "\t}")
-lines.insert(index_to_insert, "\t\ttexturefile = \"gfx/interface/event_pictures/" + args.idea_name + ".dds\"")
+lines.insert(index_to_insert, "\t\ttexturefile = \"gfx/event_pictures/" + args.idea_name + ".dds\"")
 lines.insert(index_to_insert, "\t\tname = \"GFX_" + args.idea_name + "\"")
 lines.insert(index_to_insert, "\tSpriteType = {")
 
