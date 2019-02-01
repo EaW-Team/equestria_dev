@@ -38,8 +38,19 @@ import collections
 #############################
 def readfile(name):
     print("Reading file " + name + "...")
-    with open(name, "r") as f:
-        lines = f.read().splitlines()
+    try:
+        with open(name, "r") as f:
+            lines = f.read().splitlines()
+    except:
+        try:
+            with open(name, "r", encoding='utf-8') as f:
+                lines = f.read().splitlines()
+        except:
+            try:
+                with open(name, "r", encoding='utf-8-sig') as f:
+                    lines = f.read().splitlines()
+            except:
+                print("Could not read file " + name + "!")
     tags = collections.OrderedDict()
 
     open_blocks = 0
@@ -120,8 +131,19 @@ parsed_file = readfile(args.input)
 #if not parsed_file[1][0] and not parsed_file[1][1] and not parsed_file[1][2:]:
 #    sys.exit("File " + args.input + " is not a valid event, national_focus or ideas file.")
 lines = list()
-with open(args.output,"r") as f:
-    lines = f.read().splitlines()
+try:
+    with open(args.output, "r") as f:
+        lines = f.read().splitlines()
+except:
+    try:
+        with open(args.output, "r", encoding='utf-8') as f:
+            lines = f.read().splitlines()
+    except:
+        try:
+            with open(args.output, "r", encoding='utf-8-sig') as f:
+                lines = f.read().splitlines()
+        except:
+            print("Could not read file " + args.output + "!")
 output_lines = list()
 if len(lines) < 1:
     print("Output file " + args.output + " is empty or doesn't exist, creating a new english localisation file.")
