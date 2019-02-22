@@ -238,8 +238,7 @@ STG_special_constructions = {
 		is_good = yes
 
 		modifier = {
-			stability_weekly = 0.0025
-			communism_drift = 0.01
+			stability_weekly = 0.0005
 			civilian_factory_use = 2
 		}
 		remove_effect = {
@@ -253,7 +252,6 @@ STG_special_constructions = {
 	}
 	STG_palace_construction_effort = {
 		available = {
-			has_completed_focus = the_palace
 			has_country_flag = construction_of_the_palace_began
 			has_government = communism
 			is_subject = no
@@ -294,7 +292,7 @@ STG_special_constructions = {
 			}
 		}
 		modifier = {
-			stability_weekly = 0.001
+			stability_weekly = 0.0005
 			civilian_factory_use = 1
 		}
 		cancel_trigger = {
@@ -311,8 +309,6 @@ STG_special_constructions = {
 			}
 		}
 		complete_effect = {
-			log = "[GetDateText]: [Root.GetName]: Decision STG_palace_construction_effort"
-			add_stability = 0.01
 			if = {
 				limit = {
 					OR = { has_food_shortages_STG = yes has_war = yes }
@@ -363,6 +359,60 @@ STG_special_constructions = {
 }
 
 STG_foreign_affairs = {
+	STG_declare_on_NLR_SOL = {
+		icon = anti_fascism
+		cost = 100
+		war_with_on_remove = FROM
+		ai_will_do = {
+			factor = 10
+			modifier = {
+				factor = 0
+				has_war = yes
+			}
+			modifier = {
+				factor = 0
+				strength_ratio = {
+					tag = FROM
+					ratio < 0.8
+				}
+			}
+		}
+		target_trigger = {
+			FROM = {
+				OR = {
+					tag = event_target:solar_empire
+					tag = NLR
+				}
+			}
+		}
+		visible = {
+			FROM = {
+				exists = yes
+				NOT = { 
+					has_war_with = ROOT
+					is_in_faction_with = ROOT
+					is_subject_of = ROOT
+				}
+			}
+		}
+		available = {
+			is_subject = no
+			has_completed_focus = STGVAS_communist_international
+		}
+		cancel_trigger = {
+			OR = {
+				has_war_with = FROM
+				NOT = { country_exists = FROM }
+			}
+		}
+		days_remove = 120
+		remove_effect = {
+			create_wargoal = {
+				type = annex_everything
+				target = FROM
+			}
+		}
+	}
 	STG_invite_people_to_faction = {
 		icon = hammer_and_horseshoe_decision
 		available = {
@@ -412,6 +462,43 @@ STG_foreign_affairs = {
 			}
 		}
 	}
+	STG_help_EQS_in_war = {
+		cost = 15
+		ai_will_do = {
+			factor = 100
+		}
+		fire_only_once = yes
+		target_trigger = {
+			FROM = { tag = event_target:equestria }
+		}
+		visible = {
+			FROM = {
+				exists = yes
+				has_capitulated = no
+				NOT = { 
+					has_war_with = ROOT
+					is_in_faction_with = ROOT
+				}
+			}
+			NOT = { is_subject_of = ROOT }
+		}
+		available = {
+			FROM = {
+				has_defensive_war = yes
+				any_enemy_country = {
+					OR = {
+						tag = CHN
+						is_major = yes
+					}
+				}
+			}
+		}
+		complete_effect = {
+			event_target:equestria = {
+				country_event = { id = equestria.42 days = 1 }
+			}
+		}
+	}
 	STG_claim_EQS_cores = {
 		icon = stg_cores
 		cost = 15
@@ -420,38 +507,48 @@ STG_foreign_affairs = {
 		}
 		fire_only_once = yes
 		is_good = yes
-		visible = {
-			EQS = {
+		visible = {		
+			FROM = {
 				exists = yes
-				has_capitulated = no
 			}
-			has_global_flag = the_war
-			NOT = {
-				has_war_with = CHN
-			}
-			OR = {
-				NOT = { country_exists = CHN }
-				CHN = { is_subject = yes }
-				CHN = { has_government = democratic }
-				CHN = { has_government = communism }
+			any_state = {
+				is_core_of = ROOT
+				owner = {
+					OR = {
+						tag = FROM
+						is_subject_of = FROM
+					}
+				}
 			}
 			OR = {
-				has_country_flag = war_help
-				is_in_faction_with = EQS
-				has_completed_focus = fighting_for_victory
+				AND = {
+					has_country_flag = war_help
+					NOT = {
+						has_war_with = CHN
+					}
+					OR = {
+						NOT = { country_exists = CHN }
+						CHN = { is_subject = yes }
+						CHN = { has_government = democratic }
+						CHN = { has_government = communism }
+					}
+				}
+				has_country_flag = peaceful_cores
 			}
 			NOT = {
 				has_country_flag = claimed_EQS_territory_already
 			}
 		}
 		target_trigger = {
-			FROM = { tag = EQS }
+			FROM = { tag = event_target:equestria }
 		}
 		available = {
-			EQS = {
-				exists = yes
+			is_subject = no
+			has_war = no
+			FROM = {
 				has_capitulated = no
 				is_subject = no
+				has_war = no
 			}
 		}
 		complete_effect = {
@@ -506,6 +603,39 @@ STG_foreign_affairs = {
 }
 
 STG_protection = {
+	STG_sinister_law = {
+		icon = sinister_cutiemark
+		visible = {
+			original_tag = STG
+			hidden_trigger = {
+				has_country_flag = { flag = sinister_evilness value > 11 }
+			}
+			has_war = yes
+			NOT = {
+				has_idea = sinister_conscription_law
+			}
+		}
+		ai_will_do = {
+			base = 0
+			modifier = {
+				has_war = yes
+				add = 10
+			}
+			modifier = {
+				has_manpower < 1000
+				add = 50
+			}
+			modifier = {
+				has_political_power > 250
+				add = 50
+			}
+		}
+		is_good = yes
+		cost = 50
+		complete_effect = {
+			add_ideas = sinister_conscription_law
+		}
+	}
 	STG_vasily_speech_against_CHN = {
 		icon = vasily_cutiemark
 		available = {
@@ -926,6 +1056,77 @@ form_equestrian_socialist_union_category = {
 	}
 }
 economy_decisions = {
+	STG_build_infastructure_decision  = {
+		icon = red_star
+		visible = {
+			original_tag = STG
+			has_completed_focus = STGVAS_rail_tubes
+		}
+		ai_will_do = {
+			factor = 0
+		}
+		days_remove = 150
+		modifier = {
+			production_speed_infrastructure_factor = 0.35
+		}
+	}
+	STG_choose_plan_focus_elec  = {
+		icon = red_star
+		visible = {
+			original_tag = STG
+			has_government = communism
+			has_idea = STG_five_year_plan
+			has_country_flag = second_five_year_plan_started
+		}
+		ai_will_do = {
+			factor = 0
+		}
+		complete_effect = {
+			remove_ideas = STG_five_year_plan
+			add_timed_idea = { idea = STG_five_year_plan_elec days = 1825 }
+			hidden_effect ={
+				country_event = { id = stalliongrad_vasya.7 days = 1825 }
+			}
+		}
+	}
+	STG_choose_plan_focus_industry  = {
+		icon = red_star
+		visible = {
+			original_tag = STG
+			has_government = communism
+			has_idea = STG_five_year_plan
+			has_country_flag = second_five_year_plan_started
+		}
+		ai_will_do = {
+			factor = 0
+		}
+		complete_effect = {
+			remove_ideas = STG_five_year_plan
+			add_timed_idea = { idea = STG_five_year_plan_industry days = 1825 }
+			hidden_effect ={
+				country_event = { id = stalliongrad_vasya.7 days = 1825 }
+			}
+		}
+	}
+	STG_choose_plan_focus_magic  = {
+		icon = red_star
+		visible = {
+			original_tag = STG
+			has_government = communism
+			has_idea = STG_five_year_plan
+			has_country_flag = second_five_year_plan_started
+		}
+		ai_will_do = {
+			factor = 0
+		}
+		complete_effect = {
+			remove_ideas = STG_five_year_plan
+			add_timed_idea = { idea = STG_five_year_plan_magic days = 1825 }
+			hidden_effect ={
+				country_event = { id = stalliongrad_vasya.7 days = 1825 }
+			}
+		}
+	}
 	STG_remove_huner_other_ideologies  = {
 		visible = {
 			original_tag = STG
@@ -962,6 +1163,187 @@ economy_decisions = {
 		remove_effect = {
 			log = "[GetDateText]: [Root.GetName]: Decision remove STG_incomplete_industry_other_ideologies"
 			remove_ideas = incomplete_industrialization
+		}
+	}
+}
+STG_housing_sinnie = {
+	STG_housing_decision_sinnie = {
+
+		ai_will_do = {
+			factor = 100
+		}
+		available = {
+			has_country_leader = { ruling_only = yes name = "Sinister Serov" }
+			has_completed_focus = STGSIN_serovki
+			hidden_trigger = {
+			OR = {
+				has_idea = STG_housing_problems
+				has_idea = STG_housing_problems1
+				has_idea = STG_housing_problems2
+				has_idea = STG_housing_problems3
+				has_idea = STG_housing_problems4
+			}
+			}
+			custom_trigger_tooltip = {
+				tooltip = STG_housing_problems_tt
+				OR = {
+					has_idea = STG_housing_problems
+					has_idea = STG_housing_problems1
+					has_idea = STG_housing_problems2
+					has_idea = STG_housing_problems3
+					has_idea = STG_housing_problems4
+				}
+			}
+		}
+		is_good = yes
+		visible = {
+			has_country_leader = { ruling_only = yes name = "Sinister Serov" }
+			OR = {
+				has_idea = STG_housing_problems
+				has_idea = STG_housing_problems1
+				has_idea = STG_housing_problems2
+				has_idea = STG_housing_problems3
+				has_idea = STG_housing_problems4
+			}
+		}
+		days_remove = 70
+		modifier = {
+			political_power_gain = -0.13
+		}
+		remove_effect = {
+			remove_housing_problem = yes
+			hidden_effect = {
+				remove_serovki_effect = yes
+			}
+		}
+		complete_effect = {
+			hidden_effect = {
+				if = {
+					limit = {
+						has_idea = STG_housing_problems4
+					}
+					country_event = {
+						id = stalliongrad_flavour.4 days = 140 random = 3400
+					}
+				}
+			}
+		}
+	}
+}
+STG_housing_vasiliy = {
+	STG_housing_decision_vasiliy = {
+	
+		ai_will_do = {
+			factor = 100
+		}
+		available = {
+			has_country_leader = { ruling_only = yes name = "Vasiliy Pantsushenko" }
+			has_completed_focus = STGVAS_quality_housing_focus
+			hidden_trigger = {
+			OR = {
+				has_idea = STG_housing_problems
+				has_idea = STG_housing_problems1
+				has_idea = STG_housing_problems2
+				has_idea = STG_housing_problems3
+				has_idea = STG_housing_problems4
+			}
+			}
+			custom_trigger_tooltip = {
+				tooltip = STG_housing_problems_tt
+				OR = {
+					has_idea = STG_housing_problems
+					has_idea = STG_housing_problems1
+					has_idea = STG_housing_problems2
+					has_idea = STG_housing_problems3
+					has_idea = STG_housing_problems4
+				}
+			}
+		}
+		is_good = yes
+		visible = {
+			has_country_leader = { ruling_only = yes name = "Vasiliy Pantsushenko" }
+			OR = {
+				has_idea = STG_housing_problems
+				has_idea = STG_housing_problems1
+				has_idea = STG_housing_problems2
+				has_idea = STG_housing_problems3
+				has_idea = STG_housing_problems4
+			}
+		}
+		days_remove = 70
+		modifier = {
+			political_power_gain = -0.13
+		}
+		remove_effect = {
+			remove_housing_problem = yes
+			hidden_effect = {
+				remove_serovki_effect = yes
+			}
+		}
+		complete_effect = {
+			
+		}
+	}
+}
+STG_elections_category = {
+	STG_elections_timeout = {
+		allowed = {
+			always = no
+		}
+		ai_will_do = {
+			base = 0
+		}
+		available = {
+			has_country_flag = STG_elections_finished
+		}
+		days_mission_timeout = 30
+		is_good = yes
+		timeout_effect = {
+			country_event = { id = stalliongrad_vasya.9 hours = 5 }
+			hidden_effect = {
+				clr_country_flag = STG_elections_started_flag
+			}
+		}
+	}
+	STG_Sinister_election_information = {
+		icon = sinister_cutiemark
+		visible = {
+			original_tag = STG
+			has_country_flag = STG_elections_started_flag
+			NOT = {
+				has_country_flag = sinister_assasination_success
+			}
+		}
+		ai_will_do = {
+			base = 0
+		}
+		complete_effect = {
+			country_event = stalliongrad_vasya.10
+		}
+	}
+	STG_Elena_Tankova_election_information = {
+		visible = {
+			original_tag = STG
+			has_country_flag = STG_elections_started_flag
+		}
+		ai_will_do = {
+			base = 0
+		}
+		complete_effect = {
+			country_event = stalliongrad_vasya.11
+		}
+	}
+	STG_Nestor_Lunin_election_information = {
+		visible = {
+			original_tag = STG
+			has_country_flag = STG_elections_started_flag
+			has_unit_leader = 1000
+		}
+		ai_will_do = {
+			base = 0
+		}
+		complete_effect = {
+			country_event = stalliongrad_vasya.12
 		}
 	}
 }
@@ -1050,6 +1432,36 @@ political_actions = {
 			#		set_politics = { ruling_party = neutrality }
 			#	}
 		#}
+	STG_sinister_supporters_in_soviets = {
+		visible = {
+			original_tag = STG
+			has_completed_focus = STGSIN_search_for_supporters
+		}
+		ai_will_do = {
+			factor = 2
+		}
+		fire_only_once = yes
+		cost = 30
+		days_remove = 30
+		remove_effect = {
+			
+		}
+	}
+	STG_sinister_supporters_in_the_army = {
+		visible = {
+			original_tag = STG
+			has_completed_focus = STGSIN_search_for_supporters
+		}
+		ai_will_do = {
+			factor = 2
+		}
+		fire_only_once = yes
+		cost = 30
+		days_remove = 30
+		remove_effect = {
+			
+		}
+	}
 	STG_rename_STG_to_STG = {
 		visible = {
 			original_tag = STG
@@ -1256,4 +1668,670 @@ form_the_socialist_world_republic = {
 			set_cosmetic_tag = COM_world
 		}
 	}
+}
+STG_sinister_experiments = {
+	STG_mind_experiments = {
+		icon = sinister_cutiemark
+		cost = 150
+		ai_will_do = {
+			factor = 100
+		}
+		available = {
+			has_completed_focus = STGSIN_experiments_with_mind
+		}
+		fire_only_once = yes
+		is_good = yes
+		visible = {
+			has_completed_focus = STGSIN_experiments_with_mind
+		}
+		complete_effect = {
+			
+		}
+	}
+}
+STG_sinister_provocations_big = {
+	STG_stage_provocation_big = {
+		icon = border_war
+		cost = 20
+		ai_will_do = {
+			factor = 1
+		}
+		available = {
+			any_state = {
+				is_owned_and_controlled_by = FROM
+				any_neighbor_state = {
+					is_fully_controlled_by = ROOT
+					set_temp_variable = { var:attacker_state_temp = id }
+					has_ROOT_at_least_1_div_in_current_state_scope = yes
+				}
+				set_temp_variable = { var:defender_state_temp = id }
+			}
+			NOT = { has_non_aggression_pact_with = FROM }
+		}
+		visible = {
+			NOT = { has_country_flag = MNC_preparing_raid }
+			FROM = { exists = yes }
+			NOT = { has_war_with = FROM }
+			FROM = {
+				NOT = { is_subject_of = ROOT }
+				NOT = { is_in_faction_with = ROOT }
+			}
+			NOT = { is_subject_of = FROM }
+			OR = {
+				NOT = { has_border_war_with = FROM }
+				any_state = {
+					is_owned_and_controlled_by = FROM
+					any_neighbor_state = {
+						is_fully_controlled_by = ROOT
+					}
+				}
+			}
+			has_country_flag = sinister_for_border_wars
+		}
+		target_trigger = {
+			FROM = { 
+				is_neighbor_of = ROOT
+				NOT = {
+					is_subject_of = ROOT
+					has_government = communism
+				}
+			}
+		}
+		highlight_states = {
+			OR = {
+				state = FROM.defender_state_vs_@ROOT
+				AND = {
+					is_owned_and_controlled_by = FROM
+					any_neighbor_state = {
+						has_ROOT_at_least_1_div_in_current_state_scope = yes
+						is_fully_controlled_by = ROOT
+					}
+				}
+			}
+		}
+		days_re_enable = 100
+		days_remove = 30
+		complete_effect = {
+			hidden_effect = {
+				random_state = {
+					limit = {
+						is_owned_and_controlled_by = FROM
+						any_neighbor_state = {
+							has_ROOT_at_least_1_div_in_current_state_scope = yes
+							is_fully_controlled_by = ROOT
+						}
+					}
+					save_event_target_as = defender_state
+					set_variable = { FROM.defender_state_vs_@ROOT = id }
+					set_temp_variable = { defender_state_temp = id }
+				}
+				random_state = {
+					limit = {
+						is_fully_controlled_by = ROOT
+						has_ROOT_at_least_1_div_in_current_state_scope = yes
+						any_neighbor_state = {
+							state = var:FROM.defender_state_vs_@ROOT
+						}
+					}
+					save_event_target_as = attacker_state
+					set_variable = { FROM.attacker_state_vs_@ROOT = id }
+					set_temp_variable = { attacker_state_temp = id }
+				}
+				set_country_flag = MNC_preparing_raid
+			}
+		}
+		remove_effect = {
+			activate_targeted_decision = { target = FROM decision = STG_border_conflict_big }
+		}
+	}
+	STG_border_conflict_big = {
+
+		icon = border_war
+
+		allowed = { always = no } #Activated from effect
+
+		available = {
+			var:FROM.attacker_state_vs_@ROOT = {
+				is_fully_controlled_by = ROOT
+			}
+			divisions_in_border_state = {
+				state = var:FROM.attacker_state_vs_@ROOT
+				border_state = var:FROM.defender_state_vs_@ROOT
+				size > 0
+			}
+		}
+		highlight_states = {
+			state = var:FROM.attacker_state_vs_@ROOT
+		}
+
+		ai_will_do = {
+			base = 2
+			modifier = {
+				
+			}
+		}
+
+		cancel_trigger = {
+			is_in_faction_with = FROM
+		}
+
+		fire_only_once = yes #Reactivation handled in effect
+
+		selectable_mission = yes
+
+		days_mission_timeout = 30
+
+		timeout_effect = {
+			hidden_effect = {
+				FROM = {
+					clear_variable = attacker_state_vs_@ROOT
+					clear_variable = defender_state_vs_@ROOT
+				}
+				clr_country_flag = MNC_preparing_raid
+				remove_targeted_decision = { target = FROM decision = MNC_initiate_raid }
+				activate_targeted_decision = { target = FROM decision = MNC_prepare_raid }
+			}
+		}
+
+		complete_effect = {
+			FROM = {
+				add_opinion_modifier = { modifier = enemies target = ROOT }
+			}
+			start_border_war = {
+				change_state_after_war = yes
+				attacker = {
+					state = var:FROM.attacker_state_vs_@ROOT
+					num_provinces = 4
+					on_win = mountain.22
+					on_lose = mountain.24
+					on_cancel = mountain.23
+				}
+				
+				defender = {
+					state = var:FROM.defender_state_vs_@ROOT
+					num_provinces = 4
+					on_win = mountain.27
+					on_lose = mountain.25
+					on_cancel = mountain.26
+				}
+			}
+			hidden_effect = { 
+				clr_country_flag = MNC_preparing_raid 
+				remove_targeted_decision = { target = FROM decision = MNC_initiate_raid }
+				activate_targeted_decision = { target = FROM decision = MNC_prepare_raid }
+			}
+		}
+	}
+}
+STG_sinister_provocations_small = {
+	STG_stage_provocation_small = {
+		icon = border_war
+		cost = 20
+		ai_will_do = {
+			factor = 1
+		}
+		available = {
+			any_state = {
+				is_owned_and_controlled_by = FROM
+				any_neighbor_state = {
+					is_fully_controlled_by = ROOT
+					set_temp_variable = { var:attacker_state_temp = id }
+					has_ROOT_at_least_1_div_in_current_state_scope = yes
+				}
+				set_temp_variable = { var:defender_state_temp = id }
+			}
+			NOT = { has_non_aggression_pact_with = FROM }
+		}
+		visible = {
+			NOT = { has_country_flag = MNC_preparing_raid }
+			FROM = { exists = yes }
+			NOT = { has_war_with = FROM }
+			FROM = {
+				NOT = { is_subject_of = ROOT }
+				NOT = { is_in_faction_with = ROOT }
+			}
+			NOT = { is_subject_of = FROM }
+			OR = {
+				NOT = { has_border_war_with = FROM }
+				any_state = {
+					is_owned_and_controlled_by = FROM
+					any_neighbor_state = {
+						is_fully_controlled_by = ROOT
+					}
+				}
+			}
+			has_country_flag = sinister_for_border_wars
+		}
+		target_trigger = {
+			FROM = { 
+				is_neighbor_of = ROOT
+				NOT = {
+					is_subject_of = ROOT
+					has_government = communism
+				}
+			}
+		}
+		highlight_states = {
+			OR = {
+				state = FROM.defender_state_vs_@ROOT
+				AND = {
+					is_owned_and_controlled_by = FROM
+					any_neighbor_state = {
+						has_ROOT_at_least_1_div_in_current_state_scope = yes
+						is_fully_controlled_by = ROOT
+					}
+				}
+			}
+		}
+		complete_effect = {
+
+			hidden_effect = {
+				random_state = {
+					limit = {
+						is_owned_and_controlled_by = FROM
+						any_neighbor_state = {
+							has_ROOT_at_least_1_div_in_current_state_scope = yes
+							is_fully_controlled_by = ROOT
+						}
+					}
+					save_event_target_as = defender_state
+					set_variable = { FROM.defender_state_vs_@ROOT = id }
+					set_temp_variable = { defender_state_temp = id }
+				}
+				random_state = {
+					limit = {
+						is_fully_controlled_by = ROOT
+						has_ROOT_at_least_1_div_in_current_state_scope = yes
+						any_neighbor_state = {
+							state = var:FROM.defender_state_vs_@ROOT
+						}
+					}
+					save_event_target_as = attacker_state
+					set_variable = { FROM.attacker_state_vs_@ROOT = id }
+					set_temp_variable = { attacker_state_temp = id }
+				}
+				set_country_flag = MNC_preparing_raid
+			}
+		}
+		days_re_enable = 30
+		days_remove = 10
+		remove_effect = {
+			activate_targeted_decision = { target = FROM decision = STG_border_conflict_small }
+		}
+	}
+	STG_border_conflict_small = {
+
+		icon = border_war
+
+		allowed = { always = no } #Activated from effect
+
+		available = {
+			var:FROM.attacker_state_vs_@ROOT = {
+				is_fully_controlled_by = ROOT
+			}
+			divisions_in_border_state = {
+				state = var:FROM.attacker_state_vs_@ROOT
+				border_state = var:FROM.defender_state_vs_@ROOT
+				size > 0
+			}
+		}
+		highlight_states = {
+			state = var:FROM.attacker_state_vs_@ROOT
+		}
+
+		ai_will_do = {
+			base = 2
+			modifier = {
+				
+			}
+		}
+
+		cancel_trigger = {
+			is_in_faction_with = FROM
+		}
+
+		fire_only_once = yes #Reactivation handled in effect
+
+		selectable_mission = yes
+
+		days_mission_timeout = 30
+
+		timeout_effect = {
+			hidden_effect = {
+				FROM = {
+					clear_variable = attacker_state_vs_@ROOT
+					clear_variable = defender_state_vs_@ROOT
+				}
+				clr_country_flag = MNC_preparing_raid
+				remove_targeted_decision = { target = FROM decision = MNC_initiate_raid }
+				activate_targeted_decision = { target = FROM decision = MNC_prepare_raid }
+			}
+		}
+
+		complete_effect = {
+			FROM = {
+				add_opinion_modifier = { modifier = enemies target = ROOT }
+			}
+			start_border_war = {
+				change_state_after_war = no
+				attacker = {
+					state = var:FROM.attacker_state_vs_@ROOT
+					num_provinces = 2
+					on_win = mountain.22
+					on_lose = mountain.24
+					on_cancel = mountain.23
+				}
+				
+				defender = {
+					state = var:FROM.defender_state_vs_@ROOT
+					num_provinces = 2
+					on_win = mountain.27
+					on_lose = mountain.25
+					on_cancel = mountain.26
+				}
+			}
+			hidden_effect = { 
+				clr_country_flag = MNC_preparing_raid 
+				remove_targeted_decision = { target = FROM decision = MNC_initiate_raid }
+				activate_targeted_decision = { target = FROM decision = MNC_prepare_raid }
+			}
+		}
+	}
+}
+STG_sinister_provocations = {
+	
+	STG_stage_provocation_medium = {
+		icon = border_war
+		cost = 20
+		ai_will_do = {
+			factor = 1
+		}
+		available = {
+			any_state = {
+				is_owned_and_controlled_by = FROM
+				any_neighbor_state = {
+					is_fully_controlled_by = ROOT
+					set_temp_variable = { var:attacker_state_temp = id }
+					has_ROOT_at_least_1_div_in_current_state_scope = yes
+				}
+				set_temp_variable = { var:defender_state_temp = id }
+			}
+			NOT = { has_non_aggression_pact_with = FROM }
+		}
+		visible = {
+			NOT = { has_country_flag = MNC_preparing_raid }
+			FROM = { exists = yes }
+			NOT = { has_war_with = FROM }
+			FROM = {
+				NOT = { is_subject_of = ROOT }
+				NOT = { is_in_faction_with = ROOT }
+			}
+			NOT = { is_subject_of = FROM }
+			OR = {
+				NOT = { has_border_war_with = FROM }
+				any_state = {
+					is_owned_and_controlled_by = FROM
+					any_neighbor_state = {
+						is_fully_controlled_by = ROOT
+					}
+				}
+			}
+			has_country_flag = sinister_for_border_wars
+		}
+		target_trigger = {
+			FROM = { 
+				is_neighbor_of = ROOT
+				NOT = {
+					is_subject_of = ROOT
+					has_government = communism
+				}
+			}
+		}
+		highlight_states = {
+			OR = {
+				state = FROM.defender_state_vs_@ROOT
+				AND = {
+					is_owned_and_controlled_by = FROM
+					any_neighbor_state = {
+						has_ROOT_at_least_1_div_in_current_state_scope = yes
+						is_fully_controlled_by = ROOT
+					}
+				}
+			}
+		}
+		complete_effect = {
+			hidden_effect = {
+				random_state = {
+					limit = {
+						is_owned_and_controlled_by = FROM
+						any_neighbor_state = {
+							has_ROOT_at_least_1_div_in_current_state_scope = yes
+							is_fully_controlled_by = ROOT
+						}
+					}
+					save_event_target_as = defender_state
+					set_variable = { FROM.defender_state_vs_@ROOT = id }
+					set_temp_variable = { defender_state_temp = id }
+				}
+				random_state = {
+					limit = {
+						is_fully_controlled_by = ROOT
+						has_ROOT_at_least_1_div_in_current_state_scope = yes
+						any_neighbor_state = {
+							state = var:FROM.defender_state_vs_@ROOT
+						}
+					}
+					save_event_target_as = attacker_state
+					set_variable = { FROM.attacker_state_vs_@ROOT = id }
+					set_temp_variable = { attacker_state_temp = id }
+				}
+				set_country_flag = MNC_preparing_raid
+			}
+		}
+		days_re_enable = 60
+		days_remove = 20
+		remove_effect = {
+			activate_targeted_decision = { target = FROM decision = STG_border_conflict_medium }
+		}
+	}
+	
+	
+	STG_border_conflict_medium = {
+
+		icon = border_war
+
+		allowed = { always = no } #Activated from effect
+
+		available = {
+			var:FROM.attacker_state_vs_@ROOT = {
+				is_fully_controlled_by = ROOT
+			}
+			divisions_in_border_state = {
+				state = var:FROM.attacker_state_vs_@ROOT
+				border_state = var:FROM.defender_state_vs_@ROOT
+				size > 0
+			}
+		}
+		highlight_states = {
+			state = var:FROM.attacker_state_vs_@ROOT
+		}
+
+		ai_will_do = {
+			base = 2
+			modifier = {
+				
+			}
+		}
+
+		cancel_trigger = {
+			is_in_faction_with = FROM
+		}
+
+		fire_only_once = yes #Reactivation handled in effect
+
+		selectable_mission = yes
+
+		days_mission_timeout = 30
+
+		timeout_effect = {
+			hidden_effect = {
+				FROM = {
+					clear_variable = attacker_state_vs_@ROOT
+					clear_variable = defender_state_vs_@ROOT
+				}
+				clr_country_flag = MNC_preparing_raid
+				remove_targeted_decision = { target = FROM decision = MNC_initiate_raid }
+				activate_targeted_decision = { target = FROM decision = MNC_prepare_raid }
+			}
+		}
+
+		complete_effect = {
+			start_border_war = {
+				change_state_after_war = no
+				attacker = {
+					state = var:FROM.attacker_state_vs_@ROOT
+					num_provinces = 4
+					on_win = mountain.22
+					on_lose = mountain.24
+					on_cancel = mountain.23
+				}
+				
+				defender = {
+					state = var:FROM.defender_state_vs_@ROOT
+					num_provinces = 4
+					on_win = mountain.27
+					on_lose = mountain.25
+					on_cancel = mountain.26
+				}
+			}
+			FROM = {
+				add_opinion_modifier = { modifier = enemies target = ROOT }
+			}
+			hidden_effect = { 
+				clr_country_flag = MNC_preparing_raid 
+				remove_targeted_decision = { target = FROM decision = MNC_initiate_raid }
+				activate_targeted_decision = { target = FROM decision = MNC_prepare_raid }
+			}
+		}
+	}
+	
+}
+STG_goskino_category = {
+	STG_movie_battleship_potemkin = {
+		icon = scroll
+		available = {
+
+		}
+		ai_will_do = {
+			factor = 100
+		}
+		fire_only_once = yes
+		visible = {
+			has_country_flag = flag_kino_started
+		}
+		complete_effect = {
+			country_event = stalliongrad_flavour.0
+		}
+	}
+}
+STG_book_category = {
+	STG_book_stallion_biography = {
+		icon = scroll
+		available = {
+
+		}
+		ai_will_do = {
+			factor = 100
+		}
+		fire_only_once = yes
+		visible = {
+			has_country_flag = flag_book_started
+		}
+		complete_effect = {
+			country_event = stalliongrad_flavour.10
+		}
+	}
+}
+STG_test = {
+	STG_POWER_TO_SINISTER = {
+		icon = sinister_cutiemark
+		available = {
+		}
+		ai_will_do = {
+			factor = 0
+		}
+		fire_only_once = yes
+		visible = {
+
+		}
+		complete_effect = {
+			set_country_flag = sinister_elected
+		add_stability = -0.17
+		create_country_leader = {
+				name = "Sinister Serov"
+				desc = "SINISTER_DESC"
+				picture = "Sinnie.tga"
+				expire = "1965.1.1"
+				ideology = stalinism
+				traits = {
+				}
+			}
+		load_focus_tree = stalliongrad_sinister
+		}
+	}
+	STG_POWER_TO_VASILIY = {
+		icon = vasily_cutiemark
+		available = {
+		}
+		ai_will_do = {
+			factor = 0
+		}
+		fire_only_once = yes
+		visible = {
+
+		}
+		complete_effect = {
+			set_country_flag = vasya_elected
+		add_stability = -0.1
+		create_country_leader = {
+				name = "Vasiliy Pantsushenko"
+				desc = "VASYA_DESC"
+				picture = "Vasya.tga"
+				expire = "1965.1.1"
+				ideology = leninism
+				traits = {
+				}
+			}
+		load_focus_tree = stalliongrad_vasiliy
+		}
+	}
+	STG_POWER_TO_DARKWING = {
+
+		available = {
+		}
+		ai_will_do = {
+			factor = 0
+		}
+		fire_only_once = yes
+		visible = {
+
+		}
+		complete_effect = {
+			set_country_flag = darkwing_elected
+			add_stability = -0.25
+			load_focus_tree = stalliongrad_darkwing
+			country_event = { id = stalliongrad.95 }
+			retire_country_leader = yes
+			create_country_leader = {
+				name = "Dark Wing"
+				desc = "DARKWING_DESC"
+				picture = "Darkwing.tga"
+				expire = "1965.1.1"
+				ideology = leninism
+				traits = {
+				}
+			}
+		}
+	}
+	
 }
