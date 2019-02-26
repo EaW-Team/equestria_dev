@@ -1705,15 +1705,31 @@ country_event = { #### Return of Sombra
 	desc = equestria.53.d
 	picture = GFX_event_sombra_return
 
+	trigger = {
+		NOT = { has_war_with = FROM.FROM }
+	}
+
 	is_triggered_only = yes
 	option = { ## Ask to join
 		name = equestria.53.a
-		random_country = {
-			limit = {
-				original_tag = CRY
-				has_government = fascism
+		hidden_effect = {
+			if = {
+				limit = { threat < 50 }
+				add_threat = 50
+				set_global_flag = cw_threat_added
 			}
-			ROOT = { declare_war_on = { target = PREV type = puppet_wargoal_focus } }
+		}
+		event_target:cry_dem = {
+			ROOT = {
+				add_to_war = { enemy = FROM.FROM targeted_alliance = PREV }
+			}
+		}
+		hidden_effect = {
+			if = {
+				limit = { has_global_flag = cw_threat_added }
+				add_threat = -50
+				clr_global_flag = cw_threat_added
+			}
 		}
 	}
 }
@@ -1727,15 +1743,15 @@ country_event = { #### Return of Sombra
 
 	is_triggered_only = yes
 
+	trigger = {
+		NOT = {
+			has_war_with = FROM.FROM
+		}
+	}
+
 	option = { ## Ask to join
 		name = equestria.54.b
-		random_other_country = {
-			limit = {
-				original_tag = CRY
-				has_government = fascism
-			}
-			ROOT = { create_wargoal = { type = puppet_wargoal_focus target = PREV } }
-		}
+		create_wargoal = { type = puppet_wargoal_focus target = FROM.FROM }
 		ai_chance = { factor = 50 }
 	}
 	option = { ## Ask to join
@@ -2311,6 +2327,10 @@ country_event = { #### A Referendum. A Dark Horse Candidate. And the Hopes and D
 				id = equestria.214
 				days = 20
 				random = 240
+			}
+			country_event = {
+				id = equestria.230
+				days = 16
 			}
 		}
 		custom_effect_tooltip =  luna_reforms_support
@@ -3383,6 +3403,12 @@ country_event = { ##Happy Ending
 				}
 			}
 			set_global_flag = celestia_and_luna_fused
+			hidden_effect = {
+				country_event = {
+					id = equestria.230
+					days = 3
+				}
+			}
 		}
 		if = {
 			limit = { has_completed_focus = Hire_Generals }
@@ -3456,6 +3482,23 @@ country_event = { ##Happy Ending
 						save_global_event_target_as = EQS_Midnight_Oil
 					}
 				}
+			}
+			if = {
+				limit = {
+					NOT = { has_global_flag = EQS_Oligarch_created }
+				}
+				create_corps_commander = {
+					name = "Oli Equites"
+					portrait_path = "gfx/leaders/EQS/Oligarch.tga"
+					traits = { }
+					skill = 2
+					attack_skill = 1
+					defense_skill = 2
+					planning_skill = 3
+					logistics_skill = 2
+					id = 206
+				}
+				set_global_flag = EQS_Oligarch_created
 			}
 		}
 	}
@@ -3976,6 +4019,26 @@ country_event = { #### Final reform event
 #
 #EVENT equestria.219 IS TAKEN FURTHER UP
 
+country_event = { #add ships
+	id = equestria.230
+	immediate = {log = "[GetDateText]: [Root.GetName]: event equestria.230"}#Auto-logging
+	title = equestria.230.t
+	desc = equestria.230.d
+	picture = GFX_event_canterlot
+
+	is_triggered_only = yes
+
+	option = {
+		name = equestria.230.a
+		custom_effect_tooltip = EQS_EvT_tooltip
+		hidden_effect = {
+			load_oob = "EvT_fleet"
+			set_global_flag = EQS_EvT_fleet
+			add_manpower = 3000
+		}
+	}
+}
+
 
 country_event = { #### CIVIL WAR BALANCE TESTER
 	id = equestria.333
@@ -4059,6 +4122,21 @@ country_event = {
 		hidden_effect = {
 			clr_country_flag = nightmare_moon
 			modify_country_flag = { flag = celestia_evil_meter value = 12 }
+			if = {
+				limit = {
+					check_variable = {
+						var = NMM_aggressive
+						value = 1
+						compare = greater_than_or_equals
+					}
+				}
+				NLR = {
+					country_event = {
+						id = lunas.942
+						days = 1
+					}
+				}
+			}
 		}
 	}
 
