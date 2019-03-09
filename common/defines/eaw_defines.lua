@@ -2,14 +2,13 @@ NDefines.NGame.START_DATE = "1007.1.1.12"
 NDefines.NGame.END_DATE = "1030.1.1.1"
 
 NDefines.NDiplomacy.TENSION_TIME_SCALE_START_DATE = "1007.1.1.12"
-NDefines.NTechnology.BASE_TECH_COST = 86
+NDefines.NTechnology.BASE_TECH_COST = 85
 NDefines.NAI.RESEARCH_LAND_DOCTRINE_NEED_GAIN_FACTOR = 0.12 -- Multiplies value based on relative military industry size / country size.
 NDefines.NAI.RESEARCH_BONUS_FACTOR = 1.5 				-- To which extent AI should care about bonuses to research
 NDefines.NAI.DYNAMIC_STRATEGIES_THREAT_FACTOR = 6.0
 NDefines.NAI.BASE_DISTANCE_TO_CARE = 400.0
 NDefines.NAI.ATTACK_HEAVILY_DEFENDED_LIMIT = 1.1
 NDefines.NAI.SEND_VOLUNTEER_EVAL_BASE_DISTANCE = 100.0
-NDefines.NAI.SEND_VOLUNTEER_EVAL_MAJOER_POWER = 1.0
 NDefines.NAI.SEND_VOLUNTEER_EVAL_CONTAINMENT_FACTOR = 0.15
 NDefines.NAI.DIPLOMACY_FACTION_GLOBAL_TENSION_FACTOR = 0.15
 NDefines.NAI.DIPLOMACY_FACTION_NEUTRALITY_PENALTY = 0.2
@@ -63,11 +62,11 @@ NDefines.NAI.VP_LEVEL_IMPORTANCE_HIGH = 50				-- Victory points with values high
 NDefines.NAI.VP_LEVEL_IMPORTANCE_MEDIUM = 25			-- Victory points with values higher than or equal to this are considered to be of medium importance.
 NDefines.NAI.VP_LEVEL_IMPORTANCE_LOW = 5				-- Victory points with values higher than or equal to this are considered to be of low importance.
 
+NDefines.NGraphics.VICTORY_POINT_MAP_ICON_TEXT_CUTOFF = {200, 350, 600}  	-- Vanilla is 100, 250, 500
+NDefines.NGraphics.VICTORY_POINTS_DISTANCE_CUTOFF = {300, 500, 1000} 		-- Vanilla is 300, 500, 1500
+
 NDefines.NAI.FORTIFIED_RATIO_TO_CONSIDER_A_FRONT_FORTIFIED = 0.3
 NDefines.NAI.HEAVILY_FORTIFIED_RATIO_TO_CONSIDER_A_FRONT_FORTIFIED = 0.3
 NDefines.NAI.INVASION_DISTANCE_RANDOMNESS = 400
-
-NDefines.NDiplomacy.BASE_STAGE_COUP_DAILY_PP = 0					-- Daily pp cost for staging a coup
-NDefines.NDiplomacy.BASE_STAGE_COUP_TOTAL_COST = 9999 				-- Equipment consume factor for stage coup.
 
 NDefines.NMilitary.PLAN_EXECUTE_CAREFUL_MAX_FORT = 4
