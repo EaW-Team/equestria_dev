@@ -15,6 +15,14 @@ focus_tree = {
 		available = {
 			has_government = fascism
 		}
+		cancel = {
+			AND = {
+				is_subject = yes
+				NOT = {
+					has_government = fascism
+				}
+			}
+		}
 		cost = 2.00
 		x = 4
 		y = 0
@@ -135,10 +143,13 @@ focus_tree = {
 		icon = GFX_goal_generic_small_arms
 		prerequisite = { focus = BAN_fight_prywhen }
 		available = {
-			GRW = { exists = no }
-			BRF = { exists = no }
 			has_government = fascism
+			605 = { is_controlled_by = ROOT }
+			508 = { is_controlled_by = ROOT }
+			385 = { is_controlled_by = ROOT }
+			589 = { is_controlled_by = ROOT }
 		}
+		cancel_if_invalid = yes
 		relative_position_id = BAN_gather_tribute
 		cost = 10.00
 		x = -2
@@ -153,6 +164,7 @@ focus_tree = {
 				var = loot
 				value = 2
 			}
+			save_current_manpower = yes
 			605 = {
 				remove_building  = {
 					type = infrastructure
@@ -188,6 +200,7 @@ focus_tree = {
 
 				add_manpower = -10000
 			}
+			restore_previous_manpower = yes
 		}
 	}
 
@@ -197,6 +210,8 @@ focus_tree = {
 		prerequisite = { focus = BAN_loot_the_fields }
 		available = {
 			has_government = fascism
+			508 = { is_controlled_by = ROOT }
+			385 = { is_controlled_by = ROOT }
 		}
 		relative_position_id = BAN_gather_tribute
 		cost = 10.00
@@ -212,6 +227,7 @@ focus_tree = {
 				var = loot
 				value = 2
 			}
+			save_current_manpower = yes
 			508 = {
 				remove_building  = {
 					type = industrial_complex
@@ -229,6 +245,7 @@ focus_tree = {
 
 				add_manpower = -5000
 			}
+			restore_previous_manpower = yes
 		}
 	}
 
@@ -837,6 +854,12 @@ focus_tree = {
 				has_government = democratic
 			}
 		}
+		cancel = {
+			AND = {
+				is_subject = yes
+				has_government = fascism
+			}
+		}
 		cost = 1
 		x = 13
 		y = 0
@@ -1112,9 +1135,17 @@ focus_tree = {
 		prerequisite = { focus = BAN_back_in_power }
 		prerequisite = { focus = BAN_empire_strikes_back }
 		available = {
+			has_war = no
+			is_subject = no
 			OR = {
 				has_government = neutrality
 				has_government = democratic
+			}
+		}
+		bypass = {
+			OR = {
+				is_subject_of = event_target:griffonian_empire
+				is_in_faction_with = event_target:griffonian_empire
 			}
 		}
 		relative_position_id = BAN_plot_against_blackrock
@@ -1133,10 +1164,32 @@ focus_tree = {
 		}
 		completion_reward = {
 			log = "[GetDateText]: [Root.GetName]: Focus BAN_loyalty_to_empire"
-			#event_target:griffonian_empire = {
-				#	puppet = BAN
-				#}
-			event_target:griffonian_empire = { add_to_faction = BAN }
+			hidden_effect = { get_current_government_type = yes }
+			event_target:griffonian_empire = {
+				if = {
+					limit = {
+						OR = {
+							has_dlc = "Together for Victory"
+							has_dlc = "Death or Dishonor"
+						}
+						NOT = { has_country_flag = have_regular_puppets }
+					}
+					puppet = ROOT
+					hidden_effect = {
+						set_autonomy = {
+							target = ROOT
+							autonomy_state = autonomy_nominal_vassal
+						}
+					}
+				}
+				else = {
+					add_to_faction = ROOT
+				}
+			}
+			hidden_effect = {
+				restore_previous_government_type = yes
+				country_event = griffonian.1
+			}
 			remove_ideas = BAN_lawless_land
 			remove_ideas = BAN_economic_wasteland
 			hidden_effect = {
@@ -1174,8 +1227,10 @@ focus_tree = {
 	focus = {
 		id = BAN_kingdom_with_no_king
 		icon = GFX_focus_strike_griffonstone
-		prerequisite = { focus = BAN_order_and_stability focus = BAN_loyalty_to_empire }
+		prerequisite = { focus = BAN_reconstruction }
 		available = {
+			is_subject = no
+			is_in_faction = no
 			BOI = {
 				exists = yes
 				is_subject = no
@@ -1191,8 +1246,8 @@ focus_tree = {
 		}
 		relative_position_id = BAN_plot_against_blackrock
 		cost = 10.00
-		x = -2
-		y = 7
+		x = -1
+		y = 8
 		ai_will_do = {
 			factor = 100
 		}
@@ -1217,8 +1272,8 @@ focus_tree = {
 		}
 		relative_position_id = BAN_plot_against_blackrock
 		cost = 10.00
-		x = -3
-		y = 8
+		x = -1
+		y = 9
 		ai_will_do = {
 			factor = 100
 		}
@@ -1244,7 +1299,7 @@ focus_tree = {
 	focus = {
 		id = BAN_reconstruction
 		icon = GFX_goal_reichsautobahn
-		prerequisite = { focus = BAN_kingdom_with_no_king }
+		prerequisite = { focus = BAN_order_and_stability focus = BAN_loyalty_to_empire }
 		available = {
 			OR = {
 				has_government = neutrality
@@ -1253,8 +1308,8 @@ focus_tree = {
 		}
 		relative_position_id = BAN_plot_against_blackrock
 		cost = 10.00
-		x = -1
-		y = 8
+		x = -2
+		y = 7 
 		ai_will_do = {
 			factor = 100
 		}
@@ -1280,7 +1335,7 @@ focus_tree = {
 	focus = {
 		id = BAN_blackhollow_home
 		icon = GFX_goal_generic_defence
-		prerequisite = { focus = BAN_reconstruction focus = BAN_integrate_griffonstone }
+		prerequisite = { focus = BAN_mountain_holds focus = BAN_integrate_griffonstone }
 		available = {
 			OR = {
 				has_government = neutrality
@@ -1290,7 +1345,7 @@ focus_tree = {
 		relative_position_id = BAN_plot_against_blackrock
 		cost = 10.00
 		x = -2
-		y = 9
+		y = 10
 		ai_will_do = {
 			factor = 100
 		}
@@ -1304,7 +1359,7 @@ focus_tree = {
 	focus = {
 		id = BAN_mountain_excavation
 		icon = GFX_goal_generic_construction
-		prerequisite = { focus = BAN_blackhollow_home }
+		prerequisite = { focus = BAN_reconstruction }
 		available = {
 			OR = {
 				has_government = neutrality
@@ -1314,7 +1369,7 @@ focus_tree = {
 		relative_position_id = BAN_plot_against_blackrock
 		cost = 10.00
 		x = -3
-		y = 10
+		y = 8
 		ai_will_do = {
 			factor = 100
 		}
@@ -1322,7 +1377,7 @@ focus_tree = {
 			log = "[GetDateText]: [Root.GetName]: Focus BAN_mountain_excavation"
 			add_tech_bonus = {
 				name = excavation_bonus
-				bonus = 1
+				bonus = 1.0
 				uses = 2
 				technology = excavation5
 				technology = excavation4
@@ -1363,7 +1418,7 @@ focus_tree = {
 	focus = {
 		id = BAN_mountain_holds
 		icon = GFX_goal_generic_fortify_city
-		prerequisite = { focus = BAN_blackhollow_home }
+		prerequisite = { focus = BAN_mountain_excavation }
 		available = {
 			OR = {
 				has_government = neutrality
@@ -1372,8 +1427,8 @@ focus_tree = {
 		}
 		relative_position_id = BAN_plot_against_blackrock
 		cost = 10.00
-		x = -1
-		y = 10
+		x = -3
+		y = 9
 		ai_will_do = {
 			factor = 100
 		}
@@ -1593,6 +1648,8 @@ focus_tree = {
 		prerequisite = { focus = BAN_control_restored }
 		available = {
 			has_government = communism
+			532 = { is_owned_and_controlled_by = ROOT }
+			490 = { is_owned_and_controlled_by = ROOT }
 		}
 		relative_position_id = BAN_plot_against_blackrock
 		cost = 10.00
@@ -1604,12 +1661,14 @@ focus_tree = {
 		completion_reward = {
 			log = "[GetDateText]: [Root.GetName]: Focus BAN_education_equality"
 			add_ideas = BAN_bad_education
+			save_current_manpower = yes
 			532 = {
 				add_manpower = -10000
 			}
 			490 = {
 				add_manpower = -10000
 			}
+			restore_previous_manpower = yes
 		}
 	}
 
@@ -1712,6 +1771,10 @@ focus_tree = {
 		prerequisite = { focus = BAN_equal_factories }
 		available = {
 			has_government = communism
+			532 = { is_controlled_by = ROOT }
+			490 = { is_controlled_by = ROOT }
+			606 = { is_controlled_by = ROOT }
+			446 = { is_controlled_by = ROOT }
 		}
 		relative_position_id = BAN_plot_against_blackrock
 		cost = 10.00
@@ -1723,6 +1786,7 @@ focus_tree = {
 		completion_reward = {
 			log = "[GetDateText]: [Root.GetName]: Focus BAN_equal_labor"
 			add_ideas = BAN_no_ownership
+			save_current_manpower = yes
 			532 = {
 				add_manpower = -15000
 			}
@@ -1735,6 +1799,7 @@ focus_tree = {
 			446 = {
 				add_manpower = -10000
 			}
+			restore_previous_manpower = yes
 		}
 	}
 
@@ -1766,6 +1831,8 @@ focus_tree = {
 		prerequisite = { focus = BAN_equal_labor }
 		available = {
 			has_government = communism
+			532 = { is_owned_and_controlled_by = ROOT }
+			490 = { is_owned_and_controlled_by = ROOT }
 		}
 		relative_position_id = BAN_plot_against_blackrock
 		cost = 10.00
@@ -1777,12 +1844,14 @@ focus_tree = {
 		completion_reward = {
 			log = "[GetDateText]: [Root.GetName]: Focus BAN_mandatory_work"
 			add_ideas = BAN_forced_laborss
+			save_current_manpower = yes
 			532 = {
 				add_manpower = -20000
 			}
 			490 = {
 				add_manpower = -30000
 			}
+			restore_previous_manpower = yes
 		}
 	}
 
@@ -1793,6 +1862,11 @@ focus_tree = {
 		prerequisite = { focus = BAN_mandatory_work }
 		available = {
 			has_government = communism
+			532 = { is_owned_and_controlled_by = ROOT }
+			490 = { is_owned_and_controlled_by = ROOT }
+			446 = { is_owned_and_controlled_by = ROOT }
+			606 = { is_owned_and_controlled_by = ROOT }
+			489 = { is_owned_and_controlled_by = ROOT }
 		}
 		relative_position_id = BAN_plot_against_blackrock
 		cost = 10.00
@@ -1803,10 +1877,16 @@ focus_tree = {
 		}
 		completion_reward = {
 			log = "[GetDateText]: [Root.GetName]: Focus BAN_population_redistribution"
+			add_political_power = 50
+			add_popularity = {
+				ideology = communism
+				popularity = 0.05
+			}
+			save_current_manpower = yes
 			532 = {
 				add_manpower = -300000
 			}
-
+			restore_previous_manpower = yes
 			490 = {
 				add_manpower = 100000
 			}
@@ -2093,7 +2173,7 @@ focus_tree = {
 			log = "[GetDateText]: [Root.GetName]: Focus BAN_energize_the_economy"
 			add_tech_bonus = {
 				name = industrial_bonus
-				bonus = 1
+				bonus = 1.0
 				uses = 2
 				category = industry
 			}
@@ -2499,7 +2579,7 @@ focus_tree = {
 			add_political_power = -100
 			add_tech_bonus = {
 				name = infantry_research
-				bonus = 1
+				bonus = 1.0
 				uses = 1
 				category = infantry_weapons
 			}
@@ -2547,7 +2627,7 @@ focus_tree = {
 			log = "[GetDateText]: [Root.GetName]: Focus BAN_bandit_knights"
 			add_tech_bonus = {
 				name = knights_tech
-				bonus = 1
+				bonus = 1.0
 				uses = 2
 				category = knights_tech
 			}
@@ -2593,7 +2673,7 @@ focus_tree = {
 			log = "[GetDateText]: [Root.GetName]: Focus BAN_lightning_raids"
 			add_tech_bonus = {
 				name = cat_mobile_warfare
-				bonus = 1
+				bonus = 1.0
 				uses = 2
 				category = cat_mobile_warfare
 			}
@@ -2651,7 +2731,7 @@ focus_tree = {
 			log = "[GetDateText]: [Root.GetName]: Focus BAN_our_mountains"
 			add_tech_bonus = {
 				name = special_forces_bonus
-				bonus = 1
+				bonus = 1.0
 				uses = 1
 				technology = tech_mountaineers
 				technology = tech_mountaineers2
@@ -2709,7 +2789,7 @@ focus_tree = {
 			log = "[GetDateText]: [Root.GetName]: Focus BAN_support_companies"
 			add_tech_bonus = {
 				name = infantry_bonus
-				bonus = 1
+				bonus = 1.0
 				uses = 1
 				category = support_tech
 			}
@@ -2737,7 +2817,7 @@ focus_tree = {
 			log = "[GetDateText]: [Root.GetName]: Focus BAN_special_forces"
 			add_tech_bonus = {
 				name = support_tech
-				bonus = 1
+				bonus = 1.0
 				uses = 1
 				technology = tech_special_forces
 				technology = advanced_special_forces
@@ -2791,7 +2871,7 @@ focus_tree = {
 			log = "[GetDateText]: [Root.GetName]: Focus BAN_grand_battleplans"
 			add_tech_bonus = {
 				name = grand_battleplan2
-				bonus = 1
+				bonus = 1.0
 				uses = 2
 				category = cat_grand_battle_plan
 			}
@@ -2953,7 +3033,7 @@ focus_tree = {
 			log = "[GetDateText]: [Root.GetName]: Focus BAN_griffon_wave_tactics"
 			add_tech_bonus = {
 				name = mass_assault
-				bonus = 1
+				bonus = 1.0
 				uses = 2
 				category = cat_mass_assault
 			}
@@ -3142,7 +3222,7 @@ focus_tree = {
 			log = "[GetDateText]: [Root.GetName]: Focus BAN_advanced_doctrine"
 			add_tech_bonus = {
 				name = air_doctrines
-				bonus = 1
+				bonus = 1.0
 				uses = 2
 				category = air_doctrine
 			}
@@ -3204,7 +3284,7 @@ focus_tree = {
 			log = "[GetDateText]: [Root.GetName]: Focus BAN_battleships"
 			add_tech_bonus = {
 				name = naval_doctrine_bonus
-				bonus = 1
+				bonus = 1.0
 				uses = 1
 				category = cat_fleet_in_being
 			}
@@ -3227,7 +3307,7 @@ focus_tree = {
 			log = "[GetDateText]: [Root.GetName]: Focus BAN_plunderin"
 			add_tech_bonus = {
 				name = navdoctrine_bonus
-				bonus = 1
+				bonus = 1.0
 				uses = 2
 				category = cat_trade_interdiction
 			}
@@ -3249,12 +3329,9 @@ focus_tree = {
 			log = "[GetDateText]: [Root.GetName]: Focus BAN_submarines"
 			add_tech_bonus = {
 				name = sub_op_bonus
-				bonus = 1
+				bonus = 1.0
 				uses = 4
-				technology = early_submarine
-				technology =  basic_submarine
-				technology = improved_submarine
-				technology = advanced_submarine
+				category = ss_tech
 			}
 		}
 	}
@@ -3274,12 +3351,9 @@ focus_tree = {
 			log = "[GetDateText]: [Root.GetName]: Focus BAN_destroyers"
 			add_tech_bonus = {
 				name = dd_bonus
-				bonus = 1
+				bonus = 1.0
 				uses = 1
-				technology = early_destroyer
-				technology = basic_destroyer
-				technology = improved_destroyer
-				technology = advanced_destroyer
+				category = dd_tech
 			}
 		}
 	}
@@ -3299,13 +3373,9 @@ focus_tree = {
 			log = "[GetDateText]: [Root.GetName]: Focus BAN_battlecruiser_operational"
 			add_tech_bonus = {
 				name = sub_op_bonus
-				bonus = 1
+				bonus = 1.0
 				uses = 2
-				technology = early_carrier
-				technology = basic_carrier
-				technology = improved_carrier
-				technology = light_carrier
-				technology = light_carrier2
+				category = cv_tech
 			}
 		}
 	}
