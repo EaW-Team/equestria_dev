@@ -3,9 +3,8 @@ LSP_crazy_instability = {
 
 		icon = generic_civil_support
 
-		visible = {
+		allowed = {
 			original_tag = LSP
-			DEMOCRATIC > 0.5
 		}
 		available = {
 			OR = {
@@ -13,7 +12,8 @@ LSP_crazy_instability = {
 				has_government = fascism
 				has_government = communism
 				has_country_flag = LSP_chessmayor##Only if the country has been stabilised
-			}		}
+			}		
+		}
 
 		days_mission_timeout = 180
 		#days_remove = 1
@@ -36,18 +36,8 @@ LSP_crazy_instability = {
 
 		icon = hammer_and_horseshoe_decision
 
-		visible = {
+		allowed = {
 			original_tag = LSP
-			OR = {
-				AND = {
-					COMMUNISM >0.4
-					has_government = neutrality
-				}
-				AND = {
-					COMMUNISM >0.2
-					has_government = fascism
-				}
-			}
 		}
 		available = {
 			OR = {
@@ -94,17 +84,8 @@ LSP_crazy_instability = {
 
 		icon = decision_bunker
 
-		visible = {
+		allowed = {
 			original_tag = LSP
-			OR = {
-				has_government = communism
-				AND = {
-					has_country_flag = LSP_mayor_rumbled
-					NOT = {
-						has_government = fascism
-					}
-				}
-			}
 		}
 		
 		available = {
@@ -150,7 +131,7 @@ LSP_crazy_instability = {
 
 		icon = generic_civil_support
 
-		visible = {
+		allowed = {
 			original_tag = LSP
 		}
 		available = {
@@ -201,23 +182,69 @@ LSP_crazy_instability = {
 	}
 }
 LSP_deal_with_famine = {
-	LSP_trade_for_food = {
-		available = {
-			has_completed_focus = LSP_establish_trade_relations
+	LSP_mayor_trade_for_food_from = {
+        icon = rice_bowl
+        targets = { SCS EQS CRY STG OLE D01 D02 D03 D04 D05 D06 D07 D08 D09 D10 D11 D12 D13 D14 D15 }
+        target_trigger = {
+            FROM = {
+                OR = {
+                    AND = {
+                        original_tag = SCS
+                        NOT = {
+                            has_government = fascism
+                        }
+                    }
+                    AND = {
+                        original_tag = EQS
+                        has_government = democratic
+                    }
+                    AND = {
+                        original_tag = CRY
+                        has_government = democratic
+                    }
+                    AND = {
+                        original_tag = STG
+                        NOT = {
+                            has_government = fascism
+                            has_food_shortages_STG = yes
+                        }
+                    }
+                    AND = {
+                        original_tag = OLE
+                        NOT = {
+                            has_government = fascism
+                            has_government = communism
+                        }
+                    }
+                }
+            }
+        }
+        visible = {
+            FROM = {
+                exists = yes
+                NOT = {
+                    has_idea = LSP_trade_profits                
+                }
+            }
+        }
+        available = {
+            has_completed_focus = LSP_establish_trade_relations
+        }
+        cost = 40
+        days_re_enable = 60
+        days_remove = 30
+        ai_will_do = {
+            factor = 100
+        }
+        remove_effect = {
+            log = "[GetDateText]: [Root.GetName]: Decision remove LSP_mayor_trade_for_food_from"
+            FROM = {
+                country_event = {
+                    id = lsp.33
+                }
+            }
+        }
 		}
-		visible = {
-
-		}
-		cost = 20
-
-		ai_will_do = {
-			base = 100
-		}
-		days_remove = 15
-
-		remove_effect = {
-		}	
-	}
 	LSP_grow_food = {
 		available = {
 			has_completed_focus = LSP_encourage_farming_in_waffleland
@@ -233,6 +260,51 @@ LSP_deal_with_famine = {
 		days_remove = 15
 
 		remove_effect = {
+		}	
+	}
+	LSP_reduce_famine = {
+		available = {
+			OR = {
+				has_completed_focus = LSP_encourage_farming_in_waffleland
+				has_completed_focus = LSP_establish_trade_relations
+			}
+			custom_trigger_tooltip = {
+				tooltip = LSP_costs_5_food
+					check_variable = {
+						LSP_food_supply > 4
+					}
+			}
+		}
+		visible = {
+
+		}
+		cost = 0
+
+		ai_will_do = {
+			base = 100
+		}
+
+		complete_effect = {
+			custom_effect_tooltip = LSP_removes_5_food
+			subtract_from_variable = { var = LSP_food_supply value = 5 }
+			if = {
+				limit = {
+					has_idea = LSP_severe_famine
+				}
+				swap_ideas = { remove_idea = LSP_severe_famine add_idea = LSP_famine}
+			}
+			else_if = {
+				limit = {
+					has_idea = LSP_famine
+				}
+				swap_ideas = { remove_idea = LSP_famine add_idea = LSP_fragile_food_supply } 
+			}
+			else_if = {
+				limit = {
+					has_idea = LSP_fragile_food_supply
+				}
+				remove_ideas = LSP_fragile_food_supply 
+			}
 		}	
 	}
 }
