@@ -4,13 +4,61 @@ TRD_vaults = {
 		available = {
 			always = no
 		}
-		visible = {
-			original_tag = TRD
-		}
 		complete_effect = {
 			log = "[GetDateText]: [Root.GetName]: Decision TRD_money_guichard"
 		}
 	}
+	TRD_money_mission = {
+		icon = steel
+		available = {
+			check_variable = { trade_partners^num < 1 }
+		}
+		activation = {
+			check_variable = { trade_partners^num > 0 }
+		}
+		is_good = yes
+		days_mission_timeout = 120 #4 months, change if you need to later
+		timeout_effect = {
+			log = "[GetDateText]: [Root.GetName]: Decision timeout TRD_money_mission"
+			hidden_effect = {
+				# first we wanna remove countries we are no longer trading with
+				# we use two arrays because removing stuff from an array you are iterating over is a BAD IDEA
+				for_each_scope_loop = {
+					array = trade_partners
+					if = {
+						limit = {
+							OR = {
+								exists = no
+								AND = {
+									NOT = { has_idea = TRD_trading_with_skyfall_1 }
+									NOT = { has_idea = TRD_trading_with_skyfall_2 }
+								}
+							}
+						}
+						add_to_temp_array = { ROOT.trade_partners_to_remove = THIS }
+					}
+				}
+				for_each_scope_loop = {
+					array = trade_partners_to_remove
+					remove_from_array = { ROOT.trade_partners_to_remove = THIS }
+				}
+				set_temp_variable = { add_to_bank = trade_partners^num }
+				multiply_temp_variable = { add_to_bank = 0.25 }
+			}
+
+			# Cyrus baby, localise it plz <3
+			custom_effect_tooltip = TRD_GAIN_BANK
+			add_to_variable = {
+				var = bank
+				value = add_to_bank
+			}
+
+			hidden_effect = {
+				activate_mission = TRD_money_mission
+			}
+		}
+	}
+
 }
 
 political_actions = {
@@ -18,9 +66,16 @@ political_actions = {
 		icon = ger_mefo_bills
 		available = {
 			NOT = { has_war_with = TRD }
-			any_state = {
+			any_owned_state = {
 				is_coastal = yes
-				is_controlled_by = ROOT
+				is_fully_controlled_by = ROOT
+			}
+		}
+		allowed = {
+			NOT = {
+				original_tag = FLO
+				original_tag = KAT
+				original_tag = TRD
 			}
 		}
 		visible = {
@@ -29,13 +84,8 @@ political_actions = {
 				has_idea = detached_country
 				has_idea = communal_society
 				has_tribal_society = yes
-				original_tag = FLO
-				original_tag = KAT
-				original_tag = TRD
-				OR = {
-				    has_idea = TRD_trading_with_skyfall_1
-					has_idea = TRD_trading_with_skyfall_2
-				}
+				has_idea = TRD_trading_with_skyfall_1
+				has_idea = TRD_trading_with_skyfall_2
 			}
 			FROM = {
 				exists = yes
@@ -86,19 +136,19 @@ political_actions = {
 		ai_will_do = {
 			factor = 1
 			modifier = {
-				factor = 5
+				factor = 1.5
 				has_opinion = { target = TRD value < -75 }
 			}
 			modifier = {
-				factor = 4
+				factor = 1.5
 				has_opinion = { target = TRD value < -50 }
 			}
 			modifier = {
-				factor = 3
+				factor = 1.5
 				has_opinion = { target = TRD value < -25 }
 			}
 			modifier = {
-				factor = 2
+				factor = 1.5
 				has_opinion = { target = TRD value < 0 }
 			}
 			modifier = {
@@ -109,15 +159,20 @@ political_actions = {
 		complete_effect = {
 			log = "[GetDateText]: [Root.GetName]: Decision TRD_stop_trading_with_skyfall"
 			if = { 
-		    limit = { has_idea = TRD_trading_with_skyfall_2 }
-		    remove_ideas = TRD_trading_with_skyfall_2
+		    	limit = { has_idea = TRD_trading_with_skyfall_2 }
+		    	remove_ideas = TRD_trading_with_skyfall_2
 		    }
 		    if = { 
-		    limit = { has_idea = TRD_trading_with_skyfall_1 }
-		    remove_ideas = TRD_trading_with_skyfall_1
+		    	limit = { has_idea = TRD_trading_with_skyfall_1 }
+		    	remove_ideas = TRD_trading_with_skyfall_1
 		    }
 			FROM = {
 				country_event = tradefed.10
+			}
+			hidden_effect = {
+				remove_from_array = {
+					TRD.trade_partners = ROOT
+				}
 			}
 		}
 	}
