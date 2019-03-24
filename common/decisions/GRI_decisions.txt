@@ -4,6 +4,7 @@ GRI_diplomacy = {
 		allowed = {
 			always = yes
 		}
+		#UNCOMMENT_FOR_1.6.2 targets = { TRD }
 		target_trigger = {
 			FROM = {
 				tag = TRD
@@ -18,6 +19,7 @@ GRI_diplomacy = {
 		}
 		fire_only_once = yes
 		complete_effect = {
+			log = "[GetDateText]: [Root.GetName]: Decision GRI_takeover_TRD_fleet"
 			FROM = { transfer_navy = { target = ROOT } }
 		}
 		ai_will_do = {
@@ -32,16 +34,6 @@ GRI_diplomacy = {
 		}
 		visible = {
 			is_ai = yes
-			has_war = yes
-			any_enemy_country = {
-				NOT = { is_neighbor_of = ROOT }
-				custom_trigger_tooltip = {
-					tooltip = IS_IN_GRIFFONIA_TT
-					is_on_griffon_continent = yes
-				}
-			}
-		}
-		available = {
 			has_war = yes
 			any_enemy_country = {
 				NOT = { is_neighbor_of = ROOT }
@@ -101,7 +93,96 @@ GRI_diplomacy = {
 			}
 		}
 		remove_effect = {
+			log = "[GetDateText]: [Root.GetName]: Decision remove GRI_kill_blockers"
 			create_wargoal = { type = annex_everything target = FROM }
+		}
+	}
+	GRI_demand_land = {
+		icon = infiltrate_state
+		visible = {
+			OR = {
+				has_completed_focus = GRI_unite_the_center
+				has_completed_focus = GRI_romau_proclimation
+			}
+			is_subject = no
+			FROM = {
+				exists = yes
+				NOT = { has_country_flag = GRI_demand_awaits_response }
+				OR = {
+					is_in_faction_with = ROOT
+					is_subject_of = ROOT
+				}
+				is_griffon_empire_country = no
+				OR = {
+					any_owned_state = {
+						is_core_of_griffon_empire_country = yes
+					}
+					any_allied_country = {
+						AND = {
+							is_subject_of = FROM
+							any_owned_state = {
+								is_core_of_griffon_empire_country = yes
+							}
+						}
+					}
+				}
+			}
+		}
+		#UNCOMMENT_FOR_1.6.2 target_array = allies
+		target_trigger = {
+			FROM = {
+				OR = {
+					is_in_faction_with = ROOT
+					is_subject_of = ROOT
+				}
+				is_griffon_empire_country = no
+				OR = {
+					any_owned_state = {
+						is_core_of_griffon_empire_country = yes
+					}
+					any_allied_country = {
+						AND = {
+							is_subject_of = FROM
+							any_owned_state = {
+								is_core_of_griffon_empire_country = yes
+							}
+						}
+					}
+				}
+			}
+		}
+		cost = 10
+		ai_will_do = {
+			factor = 100
+			modifier = {
+				factor = 0
+				OR = {
+					enemies_strength_ratio > 1.5
+					strength_ratio = { tag = FROM ratio < 1 }
+				}
+			}
+		}
+		complete_effect = {
+			log = "[GetDateText]: [Root.GetName]: Decision GRI_demand_land"
+			FROM = {
+				set_country_flag = { flag = GRI_demand_awaits_response value = 1 days = 30 }
+				country_event = { id = imperial.70 days = 1 }
+				custom_effect_tooltip = if_accepts
+				effect_tooltip = {
+					every_state = {
+						limit = { 
+							is_core_of_griffon_empire_country = yes
+							owner = {
+								OR = {
+									tag = FROM
+									is_subject_of = FROM
+								}
+							}
+						}
+						ROOT = { transfer_state = PREV }
+					}
+				}
+			}
 		}
 	}
 }
