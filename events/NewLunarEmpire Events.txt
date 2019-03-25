@@ -18,7 +18,7 @@
 		# }
 		# add_tech_bonus = {
 			# name = industrial_bonus
-			# bonus = 0.4
+			# bonus = 0.66
 			# uses = 2
 			# category = industry
 		# }
@@ -63,7 +63,7 @@
 			# load_oob = "NLR_CW_volunteers" }
 		# add_tech_bonus = {
 			# name = land_doc_bonus
-			# bonus = 0.65
+			# bonus = 1.5
 			# uses = 1
 			# category = land_doctrine
 		# }
@@ -75,25 +75,25 @@
 		# }
 		# add_tech_bonus = {
 			# name = secret_bonus
-			# bonus = 0.5
+			# bonus = 1.0
 			# uses = 1
 			# category = electronics
 		# }
 		# add_tech_bonus = {
 			# name = secret_bonus
-			# bonus = 0.2
+			# bonus = 0.5
 			# uses = 1
 			# category = nuclear
 		# }
 		# add_tech_bonus = {
 			# name = armor_bonus
-			# bonus = 0.4
+			# bonus = 0.66
 			# uses = 1
 			# category = armor
 		# }
 		# add_tech_bonus = {
 			# name = infantry_weapons_bonus
-			# bonus = 0.5
+			# bonus = 1.0
 			# uses = 1
 			# category = infantry_weapons
 		# }
@@ -406,14 +406,28 @@ country_event = {
 		name = lunas.13.a
 		hidden_effect = {
 			set_rule = { can_create_factions = yes }
-			every_state = {
-				limit = { is_core_of = EQS }
-				add_core_of = NLR
-			}
 			country_event = { id = lunas.33 days = 1 }
 		}
 		add_political_power = 200
-		custom_effect_tooltip = NLR_cores_tp
+		every_state = {
+			limit = { 
+				OR = {
+					is_core_of = EQS
+					is_in_array = {
+						array = global.eqs_core_states
+						value = THIS
+					}
+				}
+			}
+			add_core_of = NLR
+		}
+		every_state = {
+			limit = { is_claimed_by = EQS }
+			add_claim_by = NLR
+		}
+		hidden_effect = {
+			clear_array = global.eqs_core_states
+		}
 		ai_chance = { factor = 100 }
 	}
 }
@@ -829,6 +843,7 @@ country_event = { ## Renaming Stalliongrad to Lunargrad
 	option = {
 		name = lunas.31.f
 		set_global_flag = stg_demolished
+		save_current_manpower = yes
 		153 = { 
 			add_manpower = -10000
 			set_province_name = { id = 488 name = "Ruins of Stalliongrad"}
@@ -850,6 +865,7 @@ country_event = { ## Renaming Stalliongrad to Lunargrad
 				level = 2
 			}
 		}
+		restore_previous_manpower = yes
 		hidden_effect = {
 			news_event = { id = news.208 days = 2 }
 		}
@@ -1885,17 +1901,10 @@ country_event = {
 		NOT = { has_government = fascism }
 	}
 	mean_time_to_happen = { days = 1 }
-	immediate = {
-		EQS = { save_event_target_as = temp_eqs }
-		random_other_country = {
-			limit = { exists = yes original_tag = EQS }
-			save_event_target_as = temp_eqs
-		}
-	}
 	option = {
 		if = {
 			limit = { 
-				event_target:temp_eqs = {
+				EQS = {
 					exists = yes
 				}
 			}
@@ -1903,7 +1912,7 @@ country_event = {
 		}
 		if = {
 			limit = { is_subject = yes }
-			event_target:temp_eqs = { get_current_autonomy_level_of_PREV = yes }
+			EQS = { get_current_autonomy_level_of_PREV = yes }
 			overlord = { set_country_flag = NLR_EQS_master }
 		}
 		else_if = {
@@ -1915,20 +1924,20 @@ country_event = {
 		}
 		if = {
 			limit = { is_ai = no }
-			event_target:temp_eqs = { change_tag_from = ROOT }
+			EQS = { change_tag_from = ROOT }
 		}
-		event_target:temp_eqs = {
+		EQS = {
 			transfer_technology = yes
 			annex_country = { target = ROOT transfer_troops = yes }
 		}
 		if = {
 			limit = { NOT = { has_global_flag = EQS_exists } }
-			event_target:temp_eqs = {
+			EQS = {
 				if = {
 					limit = { any_country = { has_country_flag = NLR_EQS_master } }
 					random_other_country = {
 						limit = { has_country_flag = NLR_EQS_master }
-						puppet = event_target:temp_eqs
+						puppet = EQS
 						clr_country_flag = NLR_EQS_master
 					}
 					set_previous_autonomy_level = yes
@@ -1937,7 +1946,7 @@ country_event = {
 					limit = { any_country = { has_country_flag = NLR_EQS_faction_leader } }
 					random_other_country = {
 						limit = { has_country_flag = NLR_EQS_faction_leader }
-						add_to_faction = event:temp_eqs
+						add_to_faction = EQS
 						clr_country_flag = NLR_EQS_faction_leader
 					}
 				}
@@ -1985,5 +1994,43 @@ country_event = { # Luna sanity check
 		set_party_name = { ideology = democratic long_name = EQS_republic_long name = EQS_republic }
 		country_event = { hours = 24 id = equestriadem.1 }
 		remove_ideas = alicorn_sisters
+	}
+}
+
+country_event = { #add EvT
+	id = lunas.942
+	immediate = {log = "[GetDateText]: [Root.GetName]: event lunas.942"}#Auto-logging
+	title = lunas.942.t
+	desc = lunas.942.d
+	picture = GFX_event_EvTImperial
+
+	is_triggered_only = yes
+
+	option = {
+		name = lunas.942.a
+		custom_effect_tooltip = NLR_EvT_tooltip
+		hidden_effect = {
+			create_navy_leader = {
+				name = "Erich von Talonitz"
+				desc = "NLR_EvT_desc"
+				portrait_path = "gfx/leaders/NLR/Erich.tga"
+				traits = { gentlemanly chief_engineer }
+				skill = 2
+				attack_skill = 2
+				defense_skill = 2
+				maneuvering_skill = 3
+				coordination_skill = 4
+			}
+			if = {
+				limit = {
+					has_dlc = "Man the Guns"
+				}
+				load_oob = "EvT_fleet"
+				else = {
+					load_oob = "EvT_fleet_legacy"
+				}
+			}
+			add_manpower = 3000
+		}
 	}
 }
