@@ -512,6 +512,7 @@ EQS_SOL_wartime_change = {
 	set_country_flag = sol_wartime_change
 	set_cosmetic_tag = EQS_SOL
 	set_country_flag = is_solar_empire
+	set_faction_name = SOL_faction
 	set_party_name = { ideology = democratic long_name = EQS_republic_long name = EQS_republic }
 	save_global_event_target_as = solar_empire
 	clear_global_event_target = equestria
@@ -654,7 +655,13 @@ EQS_SOL_civil_war = {
 		}
 	}
 	set_politics = { ruling_party = fascism }
-	create_faction = SOL_faction
+	if = {
+		limit = { is_faction_leader = no }
+		create_faction = "SOL_faction"
+	}
+	else = {
+		set_faction_name = SOL_faction
+	}
 	set_country_flag = is_solar_empire
 	save_global_event_target_as = solar_empire
 	clear_global_event_target = equestria
@@ -670,8 +677,6 @@ EQS_SOL_civil_war = {
 			has_government = democratic
 		}
 		save_global_event_target_as = equestria
-	}
-	event_target:equestria = {
 		load_focus_tree = { tree = equestria_focus keep_completed = yes }
 		set_capital = 75
 		add_political_power = 450
@@ -751,6 +756,12 @@ EQS_SOL_civil_war = {
 
 #ROOT is EQS
 EQS_NLR_civil_war = {
+	every_state = {
+		limit = { is_core_of = EQS }
+		add_to_array = {
+			global.eqs_core_states = THIS
+		}
+	}
 	set_global_flag = equestrian_civil_war
 	random_list = { 50 = { set_country_flag = SCS_gonna_appear } 50 = { }}
 	news_event = { hours = 6 id = news.200 }
@@ -794,6 +805,15 @@ EQS_NLR_civil_war = {
 	#GRF = {
 		#	transfer_state = 241
 		#}
+	every_state = {
+		limit = {
+			OR = {
+				is_core_of = EQS
+				is_claimed_by = EQS
+			}
+		}
+		add_claim_by = NLR
+	}
 	random_owned_controlled_state = {
 		prioritize = { 64 }
 		NLR = { transfer_state = PREV }
@@ -804,21 +824,38 @@ EQS_NLR_civil_war = {
 	set_variable = { civil_war_size = 0.2 }
 
 	#Modify civil war size by NMM's agressiveness
-	if = { 
-		limit = { check_variable = { NMM_aggressive = 0 } }
-		set_variable = { civil_war_size = 0.30 }
+	if = {
+		limit = { 
+			check_variable = {
+				var = NMM_aggressive
+				value = 3
+				compare = greater_than_or_equals
+			}
+		}
+		set_variable = { civil_war_size = 0.70 }
 	}
 	else_if = {
-		limit = { check_variable = { NMM_aggressive = 1 } }
-		set_variable = { civil_war_size = 0.50 }
-	}
-	else_if = {
-		limit = { check_variable = { NMM_aggressive = 2 } }
+		limit = {
+			check_variable = {
+				var = NMM_aggressive
+				value = 2
+				compare = equals
+			}
+		}
 		set_variable = { civil_war_size = 0.60 }
 	}
 	else_if = {
-		limit = { check_variable = { NMM_aggressive = 3 } }
-		set_variable = { civil_war_size = 0.70 }
+		limit = {
+			check_variable = {
+				var = NMM_aggressive
+				value = 1
+				compare = equals
+			}
+		}
+		set_variable = { civil_war_size = 0.50 }
+	}
+	else = {
+		set_variable = { civil_war_size = 0.30 }
 	}	
 	if = { #Tiny size if early discovery
 		limit = { has_country_flag = nlr_early_discovery }
