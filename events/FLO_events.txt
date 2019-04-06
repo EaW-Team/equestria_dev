@@ -165,9 +165,9 @@ country_event =  { #Mayor's Masterful Negotiation With Pomovarra
 	is_triggered_only = yes
 	option = {
 		name = flowena.8.a
-		add_opinion_modifier = { target = FLO modifier = hostility }
+		add_opinion_modifier = { target = FROM modifier = hostility }
 		add_war_support = 0.05
-		FLO = {
+		FROM = {
 			country_event = { id = flowena.9  days = 2 }
 		}
 	}
@@ -184,6 +184,9 @@ country_event =  { #Mayor's Masterful Negotiation With Pomovarra Part 2
 		name = flowena.9.a
 		add_stability = -0.025
 		add_political_power = -25
+		effect_tooltip = {
+			FROM = { add_opinion_modifier = { target = ROOT modifier = hostility } }
+		}
 	}
 }
 
@@ -269,7 +272,10 @@ country_event =  { #Unleash the cats
 	is_triggered_only = yes
 	option = {
 		name = flowena.14.a
-		remove_unit_leader = 5202
+		if = {
+			limit = { has_unit_leader = 5202 }
+			remove_unit_leader = 5202
+		}
 		save_current_manpower = yes
 		442 = {
 			add_manpower = -75000
@@ -518,7 +524,19 @@ country_event =  { #Loan given
 	is_triggered_only = yes
 	option = {
 		name = flowena.21.a
-		add_timed_idea = { idea = FLO_loan_idea  days = 365 }
+		if = {
+			limit = {
+				original_tag = TRD
+			}
+			custom_effect_tooltip = TRD_1_GAIN_BANK
+			add_to_variable = {
+				var = bank
+				value = 1
+			}
+		}
+		else = {
+			add_timed_idea = { idea = FLO_loan_idea  days = 365 }
+		}
 		set_country_flag = FLO_loan_taken
 	}
 }
@@ -552,7 +570,19 @@ country_event =  { #Repayment time
 		name = flowena.23.a
 		add_political_power = -100
 		clr_country_flag = FLO_loan_taken
-		add_timed_idea = { idea = FLO_loan_repayment  days = 365 }
+		if = {
+			limit = {
+				original_tag = TRD
+			}
+			custom_effect_tooltip = TRD_2_PAID_BANK
+			subtract_from_variable = {
+				var = bank
+				value = 2
+			}
+		}
+		else = {
+			add_timed_idea = { idea = FLO_loan_repayment  days = 365 }
+		}
 		FLO = {
 			country_event = { id = flowena.24 days = 3 }
 		}
@@ -566,7 +596,19 @@ country_event =  { #Repayment time
 		}
 		name = flowena.23.b
 		add_political_power = -25
-		add_timed_idea = { idea = FLO_loan_idea  days = 365 }
+		if = {
+			limit = {
+				original_tag = TRD
+			}
+			custom_effect_tooltip = TRD_1_PAID_BANK
+			subtract_from_variable = {
+				var = bank
+				value = 1
+			}
+		}
+		else = {
+			add_timed_idea = { idea = FLO_loan_idea  days = 365 }
+		}
 		FLO = {
 			country_event = { id = flowena.25 days = 3 }
 		}
@@ -633,7 +675,19 @@ country_event =  { #Flowena jews want to buy our geld
 		name = flowena.26.a #Yes plz gib cash you jews
 		set_country_flag = FLO_gold_sold
 		add_political_power = 50
-		add_timed_idea = { idea = FLO_cash_influx  days = 365 }
+		if = {
+			limit = {
+				original_tag = TRD
+			}
+			custom_effect_tooltip = TRD_1_GAIN_BANK
+			add_to_variable = {
+				var = bank
+				value = 1
+			}
+		}
+		else = {
+			add_timed_idea = { idea = FLO_cash_influx  days = 365 }
+		}
 		FLO = {
 			country_event = { id = flowena.27 days = 3 }
 		}
@@ -676,7 +730,7 @@ country_event =  { #Offer refused
 	}
 }
 
-country_event =  { #Laurent dies
+country_event =  { #Laurent dies this is so sad
 	id = flowena.29
 	immediate = {log = "[GetDateText]: [Root.GetName]: event flowena.29"}
 	title = flowena.29.t
@@ -687,7 +741,10 @@ country_event =  { #Laurent dies
 		name = flowena.29.a
 		set_country_flag = FLO_laurent_ded
 		add_political_power = -10
-		remove_unit_leader = 5203
+		if = {
+			limit = { has_unit_leader = 5203 }
+			remove_unit_leader = 5203
+		}
 	}
 }
 
@@ -1367,7 +1424,14 @@ country_event =  { #FLO proposes alliance
 	option = { #Sure
 		name = flowena.60.a
 		if = {
-			limit = { is_in_faction = yes }
+			limit = {  
+				AND = {
+					is_in_faction = yes 
+					FROM = {
+						is_in_faction = no
+					}
+				} 
+			}
 			add_to_faction = FROM
 		}
 		add_ai_strategy = {
@@ -1432,6 +1496,10 @@ country_event = { ## They say yes
 				create_faction = FLO_TRD_ALLIANCE
 				add_to_faction = ROOT
 			}
+		}
+		if = {
+			limit = { FROM = { is_in_faction = no } }
+			add_to_faction = FROM
 		}
 		add_ai_strategy = {
 			type = alliance
@@ -1672,18 +1740,16 @@ country_event =  { #FLO wishes to become a free city again
 				}
 			}
 		}
+		hidden_effect = {
+				FROM = { get_current_government_type = yes }
+			}
+		puppet = FROM
 		if = {
 			limit = { 
-				NOT = { 
+				AND = {
 					has_dlc = "Together for Victory" 
 					has_dlc = "Death or Dishonor"
-				} 
-			}
-			puppet = FROM
-		}
-		else = {
-			hidden_effect = {
-				FROM = { get_current_government_type = yes }
+				}
 			}
 			if = {
 				limit = {
@@ -1694,7 +1760,8 @@ country_event =  { #FLO wishes to become a free city again
 			else = {
 				set_autonomy = { target = FROM autonomous_state = autonomy_autonomous_vassal }
 			}
-			hidden_effect = {
+		}
+		hidden_effect = {
 				674 = {
 					owner = {
 						add_to_tech_sharing_group = flowena_research_cooperation
@@ -1716,7 +1783,6 @@ country_event =  { #FLO wishes to become a free city again
 					}
 				}
 			}
-		}
 		FROM = {
 			country_event = flowena.71
 		}
@@ -1791,18 +1857,16 @@ country_event =  { #FLO wishes to become a vassal
 				}
 			}
 		}
+		hidden_effect = {
+				FROM = { get_current_government_type = yes }
+			}
+		puppet = FROM
 		if = {
 			limit = { 
-				NOT = { 
+				AND = {
 					has_dlc = "Together for Victory" 
 					has_dlc = "Death or Dishonor"
-				} 
-			}
-			puppet = FROM
-		}
-		else = {
-			hidden_effect = {
-				FROM = { get_current_government_type = yes }
+				}
 			}
 			if = {
 				limit = {
@@ -1813,10 +1877,16 @@ country_event =  { #FLO wishes to become a vassal
 			else = {
 				set_autonomy = { target = FROM autonomous_state = autonomy_autonomous_vassal }
 			}
-			hidden_effect = {
-				add_to_tech_sharing_group = flowena_research_cooperation
+		}
+		hidden_effect = {
+				674 = {
+					owner = {
+						add_to_tech_sharing_group = flowena_research_cooperation
+					}
+				}
 				FROM = { 
-					restore_previous_government_type = yes
+					restore_previous_government_type = yes 
+					country_event = griffonian.1
 					load_focus_tree = { tree = Flowena_neutrality_focus keep_completed = yes }
 					add_to_tech_sharing_group = flowena_research_cooperation
 					if = {
@@ -1830,7 +1900,6 @@ country_event =  { #FLO wishes to become a vassal
 					}
 				}
 			}
-		}
 		FROM = {
 			country_event = flowena.74
 		}
@@ -2188,7 +2257,7 @@ country_event =  { #FLO purchases machinery
 	immediate = {log = "[GetDateText]: [Root.GetName]: event flowena.88"}
 	title = flowena.88.t
 	desc = flowena.88.d
-	picture = GFX_event_medieval_city
+	picture = GFX_event_bank_vault
 	is_triggered_only = yes
 	option = {
 		name = flowena.88.a
@@ -2216,6 +2285,192 @@ country_event =  { #Harmony between classes
 			ideology = democratic
 			popularity = 0.05
 		}
+	}
+}
+
+country_event =  { #Flowena wishes to join faction
+	id = flowena.90
+	immediate = {log = "[GetDateText]: [Root.GetName]: event flowena.90"}
+	title = flowena.90.t
+	desc = flowena.90.d
+	picture = GFX_event_western_griffon_city
+	is_triggered_only = yes
+	option = {
+		name = flowena.90.a
+		add_to_faction = FROM
+		add_ai_strategy = {
+			type = alliance
+			id = "FROM"
+			value = 200
+		}
+		FROM = {
+			country_event = { id = flowena.91 days = 1 }
+		}
+		add_political_power = 50
+		ai_chance = {
+			factor = 10
+			modifier = {
+				factor = 4
+				has_opinion = {
+					target = FROM
+					value > 30
+				}
+			}
+			modifier = {
+				factor = 4
+				has_opinion = {
+					target = FROM
+					value > 60
+				}
+			}
+			modifier = {
+				factor = 4
+				has_opinion = {
+					target = FROM
+					value > 90
+				}
+			}
+		}
+	}
+	option = { #Fuck off
+		name = flowena.90.b
+		FROM = {
+			country_event = { id = flowena.62 days = 1 }
+		}
+		ai_chance = {
+			factor = 40
+		}
+	}
+}
+
+country_event = { ## They say yes
+	id = flowena.91
+	immediate = {log = "[GetDateText]: [Root.GetName]: event flowena.91"}
+	title = flowena.91.t
+	desc = flowena.91.d
+	picture = GFX_event_western_griffon_city
+	
+	is_triggered_only = yes
+	
+	option = {
+		name = flowena.91.a
+		add_ai_strategy = {
+			type = alliance
+			id = FROM
+			value = 200
+		}
+		add_political_power = 50
+	}
+}
+
+country_event = { ## Flowena sends financial aid
+	id = flowena.92
+	immediate = {log = "[GetDateText]: [Root.GetName]: event flowena.92"}
+	title = flowena.92.t
+	desc = flowena.92.d
+	picture = GFX_event_bank_vault
+	
+	is_triggered_only = yes
+	
+	option = {
+		name = flowena.92.a
+		if = {
+			limit = {
+				original_tag = TRD
+			}
+			custom_effect_tooltip = TRD_2_GAIN_BANK
+			add_to_variable = {
+				var = bank
+				value = 2
+			}
+		}
+		else = {
+			add_timed_idea = { idea = FLO_loan_idea  days = 365 }
+		}
+	}
+}
+country_event = { ## Flowena agitates
+	id = flowena.93
+	immediate = {log = "[GetDateText]: [Root.GetName]: event flowena.93"}
+	title = flowena.93.t
+	desc = flowena.93.d
+	picture = GFX_event_western_griffon_city
+	
+	is_triggered_only = yes
+	
+	option = {
+		name = flowena.93.a
+		add_stability = -0.05
+		add_timed_idea = { idea = FLO_democratic_agitation  days = 365 }
+		add_opinion_modifier = { target = FROM modifier = hostility }
+	}
+}
+country_event = { ## Flowena invites into alliance
+	id = flowena.94
+	immediate = {log = "[GetDateText]: [Root.GetName]: event flowena.94"}
+	title = flowena.94.t
+	desc = flowena.94.d
+	picture = GFX_event_western_griffon_city
+	
+	is_triggered_only = yes
+	
+	option = {
+		name = flowena.94.a
+		add_political_power = 50
+		FROM = {
+			country_event = flowena.95
+		}
+		add_ai_strategy = {
+			type = alliance
+			id = "FROM"
+			value = 200
+		}
+		ai_chance = {
+			factor = 40
+		}
+	}
+	option = {
+		name = flowena.94.b
+		FROM = {
+			country_event = flowena.96
+		}
+		ai_chance = {
+			factor = 5
+		}
+	}
+}
+country_event = { ## Invitation accepted
+	id = flowena.95
+	immediate = {log = "[GetDateText]: [Root.GetName]: event flowena.95"}
+	title = flowena.95.t
+	desc = flowena.95.d
+	picture = GFX_event_western_griffon_city
+	
+	is_triggered_only = yes
+	
+	option = {
+		name = flowena.95.a
+		add_political_power = 50
+		add_to_faction = FROM
+		add_ai_strategy = {
+			type = alliance
+			id = "FROM"
+			value = 200
+		}
+	}
+}
+country_event = { ## Invitation refused
+	id = flowena.96
+	immediate = {log = "[GetDateText]: [Root.GetName]: event flowena.96"}
+	title = flowena.96.t
+	desc = flowena.96.d
+	picture = GFX_event_medieval_city
+	
+	is_triggered_only = yes
+	
+	option = {
+		name = flowena.96.a
+		add_political_power = -50
 	}
 }
 
