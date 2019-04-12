@@ -138,6 +138,7 @@ focus_tree = {
 				portrait_path = "gfx/leaders/Asia/portrait_griffon_generic_land_14.dds"
 				traits = { career_officer brilliant_strategist }
 				skill = 3
+				id = 803
 				attack_skill = 2
 				defense_skill = 2
 				planning_skill = 2
@@ -148,6 +149,7 @@ focus_tree = {
 				portrait_path = "gfx/leaders/Asia/portrait_griffon_generic_land_8.dds"
 				traits = { career_officer trait_reckless }
 				skill = 2
+				id = 804
 				attack_skill = 4
 				defense_skill = 1
 				planning_skill = 2
@@ -158,6 +160,7 @@ focus_tree = {
 				portrait_path = "gfx/leaders/Asia/portrait_griffon_generic_land_1.dds"
 				traits = { career_officer trait_cautious }
 				skill = 2
+				id = 805
 				attack_skill = 1
 				defense_skill = 4
 				planning_skill = 1
@@ -2268,7 +2271,6 @@ focus_tree = {
 		prerequisite = {
 			focus = FAT_a_republican_coalition
 			focus = FAT_consolidate_gains
-
 		}
 		mutually_exclusive = { focus = FAT_retake_north }
 		x = 2
@@ -2277,24 +2279,80 @@ focus_tree = {
 		cost = 5.00
 		ai_will_do = {
 			factor = 50
+			modifier = {
+				factor = 0.5
+				SRS = {
+					is_in_faction_with = NTR
+				}
+			}
 		}
 		bypass = {
 			SRS = {
 				OR = {
-					exists = no
+					AND = {
+						exists = no
+						NTR = {
+							OR = {
+								exists = no
+								is_subject = yes
+								NOT = { has_government = communism }
+								NOT = { owns_SRS_cores = yes }
+							}
+						}
+					}
 					is_subject = yes
 					has_war_with = ROOT
 				}
 			}
 		}
+		cancel_if_invalid = yes
+		available_if_capitulated = no
 		completion_reward = {
-			log = "[GetDateText]: [Root.GetName]: Focus FAT_reconcile_with_north"
-			SRS = {
-				country_event = { days = 1 id = griffonRepublic.3 }
+			log = "[Root.GetName]: Focus FAT_reconcile_with_north"#Auto-logging
+			if = {
+				limit = {
+					NTR = {
+						has_government = communism
+						OR = {
+							owns_SRS_cores = yes
+							AND = {
+								is_faction_leader = yes
+								is_in_faction_with = SRS
+							}
+						}
+					}
+				}
+				NTR = {
+					country_event = {
+						id = griffonRepublic.33
+						days = 1
+					}
+				}
+				hidden_effect = {
+					if = {
+						limit = {
+							country_exists = SRS
+						}
+						SRS = {
+							country_event = {
+								id = griffonRepublic.333
+								days = 1
+							}
+						}
+					}
+				}
 			}
-			every_state = {
-				limit = { is_core_of = SRS }
-				add_claim_by = ROOT
+			else = {
+				SRS = {
+					country_event = {
+						id = griffonRepublic.3
+						days = 1
+					}
+				}
+				every_state = {
+					limit = { is_core_of = SRS }
+					add_claim_by = ROOT
+				}
 			}
 		}
 	}
@@ -2313,13 +2371,43 @@ focus_tree = {
 		cost = 4.00
 		ai_will_do = {
 			factor = 50
+			modifier = {
+				factor = 0.25
+				VED = {
+					is_in_faction_with = SRS # NTR completed aggressive branch
+				}
+			}
+			modifier = {
+				factor = 0
+				enemies_strength_ratio > 0.8
+			}
 		}
 		bypass = {
 			SRS = {
 				OR = {
-					exists = no
-					is_subject_of = ROOT
+					AND = {
+						exists = no
+						NTR = {
+							OR = {
+								exists = no
+								is_subject = yes
+								NOT = { has_government = communism }
+								NOT = { owns_SRS_cores = yes }
+							}
+						}
+					}
+					is_subject = yes
 					has_war_with = ROOT
+				}
+			}
+		}
+		available = {
+			NOT = {
+				NTR = {
+					exists = yes
+					is_subject = no
+					has_government = communism
+					owns_SRS_cores = yes
 				}
 			}
 		}
@@ -2339,7 +2427,6 @@ focus_tree = {
 		}
 		x = 4
 		y = 2
-
 		relative_position_id = FAT_a_republican_coalition
 		cost = 8.00
 		ai_will_do = {
