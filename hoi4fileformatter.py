@@ -70,8 +70,8 @@ def formatfile(name, remove_whitespace, ignore_comments):
             line = ('\t' * open_blocks) + line
         line = re.sub(r"\s*$", "", line)
         new_lines.append(line)
-        open_blocks = open_blocks + line.count('{')
-        open_blocks = open_blocks - line.count('}')
+        open_blocks = open_blocks + re.sub(r'\".*?\"', '', line).count('{')
+        open_blocks = open_blocks - re.sub(r'\".*?\"', '', line).count('}')
     with open(name, "w") as f:
         f.writelines(str(line) + "\n" for line in new_lines)
 
