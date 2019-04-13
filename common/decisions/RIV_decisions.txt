@@ -1,7 +1,7 @@
 RIV_expand_fed_decisions = {
 	RIV_invite_country_decision = {
 		icon = rivfed
-
+		targets = { FIR FBK WAT D01 D02 D03 D04 D05 D06 D07 D08 D09 D10 D11 D12 D13 D14 D15 }
 		target_trigger = {
 			FROM = {
 				OR = {
@@ -12,15 +12,12 @@ RIV_expand_fed_decisions = {
 				}
 			}
 		}
-
+		target_root_trigger = {
+			is_subject = no
+		}
 		visible = {
 			is_subject = no
 			FROM = {
-				OR = {
-					original_tag = FIR
-					original_tag = FBK
-					original_tag = WAT
-				}
 				exists = yes
 				is_subject = no
 				has_war = no
@@ -88,7 +85,6 @@ RIV_political_decisions = {
 		}
 
 		visible = {
-			is_river_fed_member = yes
 			NOT = { has_global_flag = river_federation_founded }
 		}
 
@@ -437,7 +433,6 @@ RIV_political_decisions = {
 				has_idea = RIV_rec_member4
 				has_idea = RIV_river_union_member1
 			}
-			is_river_fed_member = yes
 			has_global_flag = RIV_river_government_founded
 		}
 
@@ -485,9 +480,8 @@ RIV_political_decisions = {
 		}
 
 		visible = {
-			is_river_fed_member = yes
-			FROM = { exists = yes }
 			has_global_flag = river_federation_founded
+			FROM = { exists = yes }
 			NOT = {
 				has_global_flag = RIV_fed_founded_timeout
 			}
@@ -495,8 +489,11 @@ RIV_political_decisions = {
 				tag = FROM
 			}
 		}
-
+		target_root_trigger = {
+			has_global_flag = river_federation_founded
+		}
 		target_trigger = {
+			has_global_flag = river_federation_founded
 			FROM = {
 				tag = event_target:RivFed
 			}
@@ -523,8 +520,7 @@ RIV_political_decisions = {
 				every_unit_leader = {
 					set_nationality = event_target:RivFed
 				}
-				transfer_navy = { target = event_target:RivFed }
-
+				
 				event_target:RivFed = { annex_country = { target = ROOT transfer_troops = yes } }
 			}
 		}
@@ -589,7 +585,6 @@ RIV_political_decisions = {
 
 		visible = {
 			NOT = { has_idea = RIV_river_army_idea }
-			is_river_fed_member = yes
 			has_global_flag = RIV_river_army_founded
 		}
 
@@ -631,7 +626,6 @@ RIV_political_decisions = {
 		}
 
 		visible = {
-			is_river_fed_member = yes
 			has_global_flag = RIV_rdc_founded
 			NOT = { has_idea = RIV_rdc }
 			NOT = { has_idea = RIV_rdc2 }
@@ -675,7 +669,6 @@ RIV_political_decisions = {
 		}
 
 		visible = {
-			is_river_fed_member = yes
 			has_global_flag = RIV_etf_founded
 			NOT = { has_idea = RIV_rdc2 }
 		}
@@ -717,7 +710,6 @@ RIV_political_decisions = {
 		}
 
 		visible = {
-			is_river_fed_member = yes
 			NOT = { is_in_tech_sharing_group = RIV_science_society_group }
 			has_global_flag = RIV_science_society_founded
 		}
@@ -759,7 +751,6 @@ RIV_political_decisions = {
 		}
 
 		visible = {
-			is_river_fed_member = yes
 			NOT = { has_idea = RIV_centeral_bank_idea }
 			NOT = { has_idea = RIV_rivbit_idea }
 			has_global_flag = RIV_centeral_bank_founded
@@ -795,16 +786,15 @@ RIV_political_decisions = {
 		icon = scroll
 
 		allowed = {
-			has_idea = RIV_centeral_bank_idea
 		}
 
 		available = {
 		}
 
 		visible = {
-			is_river_fed_member = yes
 			NOT = { has_idea = RIV_rivbit_idea }
 			has_global_flag = RIV_rivbit_founded
+			has_idea = RIV_centeral_bank_idea
 		}
 
 		cost = 50
@@ -847,7 +837,6 @@ RIV_political_decisions = {
 		}
 
 		visible = {
-			is_river_fed_member = yes
 			NOT = { has_idea = RIV_beings_rights_idea }
 			has_global_flag = RIV_beings_rights_founded
 		}
@@ -890,7 +879,6 @@ RIV_political_decisions = {
 		}
 
 		visible = {
-			is_river_fed_member = yes
 			has_global_flag = river_federation_founded
 			NOT = { has_country_flag = river_federation_founder }
 			is_faction_leader = no
@@ -902,10 +890,8 @@ RIV_political_decisions = {
 		complete_effect = {
 			log = "[GetDateText]: [Root.GetName]: Decision RIV_leave_federation_decision"
 
-			every_other_country = {
-				limit = {
-					is_river_fed_member = yes
-				}
+			for_each_scope_loop = {
+				array = global.river_coalition_members
 				country_event = riverfed.28
 			}
 			if = {
@@ -959,10 +945,12 @@ RIV_political_decisions = {
 foreign_politics = {
 	RIV_ai_stop_guarantee = {
 		allowed = {
-			is_ai = yes
+			#is_ai = yes
 			can_form_river_fed = yes
 		}
-
+		target_root_trigger = {
+			is_ai = yes
+		}
 		visible = {
 			is_ai = yes
 			has_guaranteed = FROM
@@ -1019,11 +1007,13 @@ foreign_politics = {
 								}
 							}
 							AND = {
-								any_other_country = {
-									is_river_fed_member = yes
-									OR = {
-										FROM = { is_justifying_wargoal_against = PREV }
-										FROM = { has_wargoal_against = PREV }
+								ROOT = {
+									any_allied_country = {
+										is_river_fed_member = yes
+										OR = {
+											FROM = { is_justifying_wargoal_against = PREV }
+											FROM = { has_wargoal_against = PREV }
+										}
 									}
 								}
 							}
@@ -1032,7 +1022,7 @@ foreign_politics = {
 				}
 			}
 		}
-
+		targets = { FIR FBK WAT D01 D02 D03 D04 D05 D06 D07 D08 D09 D10 D11 D12 D13 D14 D15 }
 		target_trigger = {
 			FROM = {
 				OR = {
@@ -1057,12 +1047,13 @@ foreign_politics = {
 
 	RIV_ai_stop_non_agression = {
 		allowed = {
-			is_ai = yes
+			#is_ai = yes
 			can_form_river_fed = yes
 		}
 
 		visible = {
 			is_ai = yes
+			is_river_fed_member = yes
 			has_non_aggression_pact_with = HLQ
 			HLQ = { 
 				exists = yes
@@ -1099,12 +1090,10 @@ foreign_politics = {
 		available = {
 			OR = {
 				is_river_fed_member = yes
-
 				AND = {
 					has_war = yes
 					custom_trigger_tooltip = {
 						tooltip = will_not_interfere_in_the_north
-
 						NOT = {
 							has_war_with = FBK
 							has_war_with = FIR
@@ -1114,18 +1103,14 @@ foreign_politics = {
 					OR = {
 						custom_trigger_tooltip = {
 							tooltip = is_in_same_war_as_river_fed
-							any_other_country = {
-								is_river_fed_member = yes
-								is_faction_leader = yes
+							FROM = {
 								any_enemy_country = { has_war_with = ROOT }
 							}
 						}
 						custom_trigger_tooltip = {
 							tooltip = is_guaranteed_by_river_fed
 							has_defensive_war = yes
-							any_other_country = {
-								is_river_fed_member = yes
-								is_faction_leader = yes
+							FROM = {
 								has_guaranteed = ROOT
 
 							}
@@ -1134,13 +1119,26 @@ foreign_politics = {
 				}
 			}
 		}
-
+		target_array = "global.river_coalition_members"
+		target_trigger = {
+			FROM = {
+				is_river_fed_member = yes
+				is_faction_leader = yes
+			}
+		}
+		target_root_trigger = {
+			is_in_faction = no
+			is_subject = no
+			has_civil_war = no
+			NOT = { has_government = fascism }
+		}
 		visible = {
 			is_in_faction = no
 			is_subject = no
 			has_civil_war = no
 			NOT = { has_government = fascism }
-			any_other_country = {
+			FROM = {
+				exists = yes
 				is_river_fed_member = yes
 				is_faction_leader = yes
 				NOT = { has_war_with = ROOT }
@@ -1151,7 +1149,7 @@ foreign_politics = {
 			factor = 10
 			modifier = {
 				factor = 0
-				any_other_country = {
+				FROM = {
 					is_river_fed_member = yes
 					is_faction_leader = yes
 					has_war = yes
@@ -1164,11 +1162,7 @@ foreign_politics = {
 
 		complete_effect = {
 			log = "[GetDateText]: [Root.GetName]: Decision ally_river_fed_decision"
-			random_other_country = {
-				limit = {
-					is_river_fed_member = yes
-					is_faction_leader = yes
-				}
+			FROM = {
 				country_event = { id = generic.2 }
 			}
 		}
@@ -1177,12 +1171,23 @@ foreign_politics = {
 	sign_the_treaty_of_coltstream_decision = {
 		icon = scroll
 
+		allowed = {
+			OR = {
+				is_riverlands_country = yes
+				original_tag = LSC
+				original_tag = EQC
+				original_tag = NCH
+				original_tag = GRY
+				original_tag = DMT
+			}
+		}
+
 		available = {
 			OR = {
 				any_neighbor_country = {
 					is_river_fed_member = yes
 				}
-				any_other_country = {
+				any_allied_country = {
 					ROOT = { is_subject_of = PREV }
 					is_river_fed_member = yes
 				}
@@ -1191,17 +1196,21 @@ foreign_politics = {
 		}
 
 		visible = {
-			is_on_griffon_continent = yes
-			OR = {
-				is_pony_race = yes
-				original_tag = NCH
-				original_tag = GRY
-				original_tag = DMT
-			}
-			is_in_faction = yes
+			is_in_faction_with = FROM
 			is_river_fed_member = no
 			NOT = { has_government = fascism }
-			any_allied_country = {
+			FROM = {
+				exists = yes
+				is_river_fed_member = yes
+				is_faction_leader = yes
+			}
+		}
+		target_root_trigger = {
+			is_river_fed_member = no
+		}
+		target_array = allies
+		target_trigger = {
+			FROM = {
 				is_river_fed_member = yes
 				is_faction_leader = yes
 			}
@@ -1218,7 +1227,10 @@ foreign_politics = {
 		complete_effect = {
 			log = "[GetDateText]: [Root.GetName]: Decision sign_the_treaty_of_coltstream_decision"
 			add_ideas = RIV_member_state
-			hidden_effect = { set_cosmetic_tag = RIV_federation_mem }
+			hidden_effect = { 
+				set_cosmetic_tag = RIV_federation_mem
+				update_river_fed_array = yes
+			}
 		}
 	}
 }
@@ -1387,11 +1399,9 @@ RIV_anti_fabianism_decisions = {
 			log = "[GetDateText]: [Root.GetName]: Decision call_vote_to_expel_nova"
 
 			add_stability = -0.1
-			leave_faction = ROOT
-			every_other_country = {
-				limit = {
-					is_river_fed_member = yes
-				}
+			RIV_leave_fed = yes
+			for_each_scope_loop = {
+				array = global.river_coalition_members
 				country_event = riverfed.28
 			}
 
@@ -1411,7 +1421,7 @@ RIV_anti_fabianism_decisions = {
 		modifier = { stability_factor = -0.1 }
 		cost = 75
 		ai_will_do = {
-			factor = 5
+			factor = 3
 			modifier = {
 				factor = 10
 				OR = {
@@ -1438,7 +1448,7 @@ RIV_anti_fabianism_decisions = {
 			}
 		}
 
-		days_remove = 60
+		days_remove = 120
 		days_re_enable = 365
 		fixed_random_seed = no
 		remove_effect = {
@@ -1465,7 +1475,7 @@ RIV_anti_fabianism_decisions = {
 			every_other_country = {
 				limit = {
 					NOT = {
-						original_tag = RCT
+						tag = RCT
 					}
 					is_river_fed_member = yes
 				}

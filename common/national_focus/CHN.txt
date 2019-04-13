@@ -13,7 +13,7 @@ focus_tree = {
 	focus = {
 		id = unite_the_people
 		icon = GFX_goal_chn_unity
-		cost = 12.00
+		cost = 10.00
 		x = 8
 		y = 0
 		ai_will_do = {
@@ -21,7 +21,6 @@ focus_tree = {
 		}
 
 		available_if_capitulated = yes
-
 
 		completion_reward = {
 			log = "[GetDateText]: [Root.GetName]: Focus unite_the_people"
@@ -79,7 +78,7 @@ focus_tree = {
 			}
 			add_tech_bonus = {
 				name = industrial_bonus
-				bonus = 0.40
+				bonus = 0.66
 				uses = 2
 				category = industry
 			}
@@ -177,6 +176,9 @@ focus_tree = {
 			focus = thoraxian_betrayal
 			focus = destroy_thoraxian_opposition
 		}
+		available = {
+			has_war = no
+		}
 		x = 8
 		y = 4
 
@@ -196,12 +198,15 @@ focus_tree = {
 		prerequisite = {
 			focus = hive_funding
 		}
+		available = {
+			has_war = no
+		}
 		ai_will_do = { factor = 300 }
 		completion_reward = {
 			log = "[GetDateText]: [Root.GetName]: Focus industrial_research"
 			add_tech_bonus = {
 				name = industrial_bonus
-				bonus = 0.5
+				bonus = 1.0
 				uses = 1
 				category = industry
 
@@ -250,6 +255,7 @@ focus_tree = {
 			focus = hive_funding
 		}
 		available = {
+			has_war = no
 			309 = { is_owned_and_controlled_by = ROOT }
 		}
 		x = 6
@@ -371,6 +377,14 @@ focus_tree = {
 				amount = 12
 				state = 312
 			}
+			264 = {
+				add_extra_state_shared_building_slots = 1
+				add_building_construction = {
+					type = fuel_silo
+					level = 1
+					instant_build = yes
+				}
+			}
 		}
 	}
 	focus = {
@@ -402,7 +416,7 @@ focus_tree = {
 			}
 			add_tech_bonus = {
 				name = GER_coal_liquidization
-				bonus = 0.75
+				bonus = 3
 				uses = 1
 				category = synth_resources
 			}
@@ -555,7 +569,7 @@ focus_tree = {
 			}
 			add_tech_bonus = {
 				name = industrial_bonus
-				bonus = 0.2
+				bonus = 0.5
 				uses = 1
 				category = industry
 			}
@@ -606,20 +620,11 @@ focus_tree = {
 		x = 13
 		y = 7
 		bypass = {
-			OR = {
-				AND = {
-					any_other_country = {
-						original_tag = OLE
-						is_subject_of = ROOT
-					}
-				}
-				NOT = {
-					AND = {
-						any_other_country = {
-							original_tag = OLE
-							exists = yes
-						}
-					}
+			OLE = {
+				OR = {
+					exists = no
+					is_subject_of = ROOT
+					has_war_with = ROOT
 				}
 			}
 		}
@@ -629,16 +634,20 @@ focus_tree = {
 			add_state_claim = 300
 			add_state_claim = 292
 			country_event = { id = changelings.1 days = 1 }
-			307 = { add_building_construction = {
+			307 = { 
+				add_building_construction = {
 					type = infrastructure
 					level = 1
 					instant_build = yes
-					} }
-			291 = { add_building_construction = {
+				} 
+			}
+			291 = { 
+				add_building_construction = {
 					type = infrastructure
 					level = 3
 					instant_build = yes
-					} }
+				} 
+			}
 			add_named_threat = { threat = 1 name = pressure_olenia }
 		}
 	}
@@ -653,6 +662,7 @@ focus_tree = {
 		mutually_exclusive = {
 			focus = conquest
 		}
+		will_lead_to_war_with = OLE
 		bypass = {
 			any_other_country = {
 				original_tag = OLE
@@ -686,9 +696,21 @@ focus_tree = {
 		y = 8
 		completion_reward = {
 			log = "[GetDateText]: [Root.GetName]: Focus offer_puppet"
-			country_event = { id = changelings.2 } }
-
+			country_event = { id = changelings.2 } 
+			if = {
+				limit = { 
+					is_ai = yes 
+					NOT = {
+						has_idea = tot_economic_mobilisation
+						has_idea = war_economy
+					}
+				}
+				add_political_power = -150
+				add_ideas = war_economy
+			}
+		}
 	}
+	
 	focus = {
 		id = conquest
 		icon = GFX_goal_chn_conquest_of_olenia
@@ -701,7 +723,7 @@ focus_tree = {
 			focus = offer_puppet
 		}
 		available = {
-			any_country = {
+			any_other_country = {
 				original_tag = OLE
 				exists = yes
 				NOT = {
@@ -731,18 +753,17 @@ focus_tree = {
 			OR = {
 				has_war_with = OLE
 				NOT = {
-					AND = {
-						any_other_country = {
-							original_tag = OLE
-							exists = yes
-						}
-					}
+					country_exists = OLE
 				}
 			}
 		}
 		completion_reward = {
 			log = "[GetDateText]: [Root.GetName]: Focus conquest"
-			#hidden_effect = {
+			create_wargoal = {
+				type = annex_everything
+				target = OLE
+			}
+			hidden_effect = {
 				every_country = {
 					limit = { original_tag = OLE }
 					ROOT = {
@@ -752,8 +773,19 @@ focus_tree = {
 						}
 					}
 				}
-				add_named_threat = { threat = 5 name = pressure_olenia }
-				#}
+			}
+			add_named_threat = { threat = 5 name = pressure_olenia }
+			if = {
+				limit = { 
+					is_ai = yes 
+					NOT = {
+						has_idea = tot_economic_mobilisation
+						has_idea = war_economy
+					}
+				}
+				add_political_power = -150
+				add_ideas = war_economy
+			}
 		}
 		x = 15
 		y = 8
@@ -798,6 +830,13 @@ focus_tree = {
 			modifier = {
 				threat > 0.4
 				factor = 100
+			}
+		}
+		bypass = {
+			OR = {
+				has_war_with = EQS
+				has_war_with = NLR
+				has_war_with = event_target:equestria
 			}
 		}
 		completion_reward = {
@@ -857,6 +896,13 @@ focus_tree = {
 			modifier = {
 				threat > 0.4
 				factor = 100
+			}
+		}
+		bypass = {
+			OR = {
+				has_war_with = EQS
+				has_war_with = NLR
+				has_war_with = event_target:equestria
 			}
 		}
 		completion_reward = {
@@ -938,6 +984,17 @@ focus_tree = {
 				factor = 4
 			}
 		}
+		select_effect = {
+			#just a dummy thing to make it uncancellable
+			set_temp_variable = { aaaaa = 1 }
+		}
+		bypass = {
+			OR = {
+				has_war_with = EQS
+				has_war_with = NLR
+				has_war_with = event_target:equestria
+			}
+		}
 		completion_reward = {
 			log = "[GetDateText]: [Root.GetName]: Focus prepare_for_war"
 			add_war_support = 0.2
@@ -1002,6 +1059,8 @@ focus_tree = {
 		will_lead_to_war_with = VAN
 		will_lead_to_war_with = SCS
 		will_lead_to_war_with = BAL
+		will_lead_to_war_with = CES
+		will_lead_to_war_with = NMS
 		prerequisite = {
 			focus = prepare_for_war
 		}
@@ -1012,6 +1071,17 @@ focus_tree = {
 		y = 11
 		ai_will_do = {
 			factor = 5000
+		}
+		select_effect = {
+			#just a dummy thing to make it uncancellable
+			set_temp_variable = { aaaaa = 1 }
+		}
+		bypass = {
+			OR = {
+				has_war_with = EQS
+				has_war_with = NLR
+				has_war_with = event_target:equestria
+			}
 		}
 		completion_reward = {
 			log = "[GetDateText]: [Root.GetName]: Focus demand_equestria"
@@ -1055,11 +1125,27 @@ focus_tree = {
 			}
 			if = {
 				limit = { country_exists = SCS NOT = { has_war_with = SCS } }
-				country_event = { id = changelings.11 days = 2 }
+				create_wargoal = {
+					target = SCS type = annex_everything
+				}
 			}
 			if = {
 				limit = { country_exists = BAL NOT = { has_war_with = BAL } }
-				country_event = { id = changelings.12 days = 2 }
+				create_wargoal = {
+					target = BAL type = annex_everything
+				}
+			}
+			if = {
+				limit = { country_exists = CES NOT = { has_war_with = CES } }
+				create_wargoal = {
+					target = CES type = annex_everything
+				}
+			}
+			if = {
+				limit = { country_exists = NMS NOT = { has_war_with = NMS } }
+				create_wargoal = {
+					target = NMS type = annex_everything
+				}
 			}
 		}
 
@@ -1100,7 +1186,7 @@ focus_tree = {
 			country_event = { id = changelings.16 days = 1 }
 			add_tech_bonus = {
 				name = race_bonus
-				bonus = 0.5
+				bonus = 1.0
 				uses = 1
 				category = infiltrator_tech
 			}
@@ -1281,11 +1367,11 @@ focus_tree = {
 		y = 1
 		available = {
 			any_state = {
-				Or = {
+				OR = {
 					is_core_of = EQS
 					is_core_of = CRY
 				}
-				is_controlled_by = CHN
+				is_controlled_by = ROOT
 			}
 		}
 		ai_will_do = { factor = 100 }
@@ -1306,11 +1392,11 @@ focus_tree = {
 		y = 1
 		available = {
 			any_state = {
-				Or = {
+				OR = {
 					is_core_of = EQS
 					is_core_of = CRY
 				}
-				is_controlled_by = CHN
+				is_controlled_by = ROOT
 				state_population > 100000
 			}
 		}
@@ -1318,6 +1404,7 @@ focus_tree = {
 		completion_reward = {
 			log = "[GetDateText]: [Root.GetName]: Focus CHN_force_ponies_to_work"
 			add_political_power = -150
+			save_current_manpower = yes
 			random_state = {
 				limit = {
 					OR = {
@@ -1330,6 +1417,31 @@ focus_tree = {
 				add_manpower = -100000
 				set_state_flag = flag_CHN_moved_ponies_from_here
 			}
+			random_state = {
+				limit = {
+					OR = {
+						is_core_of = EQS
+						is_core_of = CRY
+					}
+					is_controlled_by = CHN
+					state_population > 100000
+				}
+				add_manpower = -100000
+				set_state_flag = flag_CHN_moved_ponies_from_here
+			}
+			random_state = {
+				limit = {
+					OR = {
+						is_core_of = EQS
+						is_core_of = CRY
+					}
+					is_controlled_by = CHN
+					state_population > 100000
+				}
+				add_manpower = -100000
+				set_state_flag = flag_CHN_moved_ponies_from_here
+			}
+			restore_previous_manpower = yes
 			random_owned_controlled_state = {
 				limit = {
 					is_core_of = CHN
@@ -1338,18 +1450,6 @@ focus_tree = {
 				add_manpower = 100000
 				set_state_flag = flag_CHN_moved_ponies_here
 			}
-			random_state = {
-				limit = {
-					OR = {
-						is_core_of = EQS
-						is_core_of = CRY
-					}
-					is_controlled_by = CHN
-					state_population > 100000
-				}
-				add_manpower = -100000
-				set_state_flag = flag_CHN_moved_ponies_from_here
-			}
 			random_owned_controlled_state = {
 				limit = {
 					is_core_of = CHN
@@ -1357,18 +1457,6 @@ focus_tree = {
 				}
 				add_manpower = 100000
 				set_state_flag = flag_CHN_moved_ponies_here
-			}
-			random_state = {
-				limit = {
-					OR = {
-						is_core_of = EQS
-						is_core_of = CRY
-					}
-					is_controlled_by = CHN
-					state_population > 100000
-				}
-				add_manpower = -100000
-				set_state_flag = flag_CHN_moved_ponies_from_here
 			}
 			random_owned_controlled_state = {
 				limit = {
@@ -1521,6 +1609,21 @@ focus_tree = {
 		completion_reward = {
 			log = "[GetDateText]: [Root.GetName]: Focus war_academy"
 			add_ideas = changeling_school_of_war
+			add_tech_bonus = {
+				bonus = 0.25
+				uses = 1
+				category = land_doctrine
+			}
+			add_tech_bonus = {
+				bonus = 0.25
+				uses = 1
+				category = air_doctrine
+			}
+			add_tech_bonus = {
+				bonus = 0.25
+				uses = 1
+				category = naval_doctrine
+			}
 		}
 
 	}
@@ -1560,9 +1663,9 @@ focus_tree = {
 		completion_reward = {
 			log = "[GetDateText]: [Root.GetName]: Focus CHN_Paratroopers"
 			add_tech_bonus = {
-				bonus = 0.5
+				bonus = 1.0
 				uses = 1
-				ahead_reduction = 1
+				ahead_reduction = 2
 				category = para_tech
 			}
 		}
@@ -1585,7 +1688,7 @@ focus_tree = {
 			log = "[GetDateText]: [Root.GetName]: Focus CHN_Fighter_1"
 			add_tech_bonus = {
 				name =  fighter_bonus
-				bonus = 0.5
+				bonus = 1.0
 				uses = 2
 				category = light_fighter
 			}
@@ -1609,10 +1712,10 @@ focus_tree = {
 			log = "[GetDateText]: [Root.GetName]: Focus CHN_Fighter_2"
 			add_tech_bonus = {
 				name =  fighter_bonus
-				bonus = 0.25
+				bonus = 0.5
 				uses = 1
 				category = light_fighter
-				ahead_reduction = 1
+				ahead_reduction = 2
 			}
 		}
 	}
@@ -1634,7 +1737,7 @@ focus_tree = {
 			log = "[GetDateText]: [Root.GetName]: Focus CHN_Fighter_3"
 			add_tech_bonus = {
 				name =  fighter_bonus
-				bonus = 0.5
+				bonus = 1.0
 				uses = 1
 				category = cat_heavy_fighter
 			}
@@ -1657,7 +1760,7 @@ focus_tree = {
 			log = "[GetDateText]: [Root.GetName]: Focus CHN_Bomber_1"
 			add_tech_bonus = {
 				name =  tactical_bombers
-				bonus = 0.5
+				bonus = 1.0
 				uses = 2
 				category = tactical_bomber
 			}
@@ -1681,7 +1784,7 @@ focus_tree = {
 			log = "[GetDateText]: [Root.GetName]: Focus CHN_Bomber_2"
 			add_tech_bonus = {
 				name = CAS_bonus
-				bonus = 0.5
+				bonus = 1.0
 				uses = 2
 				category = cas_bomber
 			}
@@ -1705,7 +1808,7 @@ focus_tree = {
 			log = "[GetDateText]: [Root.GetName]: Focus CHN_Bomber_3"
 			add_tech_bonus = {
 				name =  bomber_bonus
-				bonus = 0.5
+				bonus = 1.0
 				uses = 2
 				category = cat_strategic_bomber
 			}
@@ -1730,7 +1833,7 @@ focus_tree = {
 			log = "[GetDateText]: [Root.GetName]: Focus CHN_Air_Doctrine_1"
 			add_tech_bonus = {
 				name =  air_doc_bonus
-				bonus = 0.5
+				bonus = 1.0
 				uses = 2
 				category = strategic_destruction_tree
 			}
@@ -1754,7 +1857,7 @@ focus_tree = {
 			log = "[GetDateText]: [Root.GetName]: Focus CHN_Air_Doctrine_2"
 			add_tech_bonus = {
 				name =  air_doc_bonus
-				bonus = 0.5
+				bonus = 1.0
 				uses = 2
 				category = operational_integrity_tree
 			}
@@ -1820,9 +1923,9 @@ focus_tree = {
 		completion_reward = {
 			log = "[GetDateText]: [Root.GetName]: Focus CHN_Rocketry"
 			add_tech_bonus = {
-				bonus = 0.50
+				bonus = 1.0
 				uses = 1
-				ahead_reduction = 1
+				ahead_reduction = 2
 				category = rocketry
 			}
 		}
@@ -1843,7 +1946,7 @@ focus_tree = {
 		completion_reward = {
 			log = "[GetDateText]: [Root.GetName]: Focus CHN_Rocketry_Phase_Two"
 			add_tech_bonus = {
-				bonus = 0.50
+				bonus = 1.0
 				uses = 1
 				category = rocketry
 			}
@@ -1866,7 +1969,7 @@ focus_tree = {
 		completion_reward = {
 			log = "[GetDateText]: [Root.GetName]: Focus CHN_Wunderwaffe"
 			add_tech_bonus = {
-				bonus = 0.50
+				bonus = 1.0
 				uses = 1
 				technology = atomic_research
 				technology = nuclear_reactor
@@ -1893,10 +1996,10 @@ focus_tree = {
 		completion_reward = {
 			log = "[GetDateText]: [Root.GetName]: Focus CHN_Jets"
 			add_tech_bonus = {
-				bonus = 0.50
+				bonus = 1.0
 				uses = 1
 				technology = jet_engines
-				ahead_reduction = 1
+				ahead_reduction = 2
 			}
 		}
 	}
@@ -1916,7 +2019,7 @@ focus_tree = {
 		completion_reward = {
 			log = "[GetDateText]: [Root.GetName]: Focus CHN_Jet_Fighter"
 			add_tech_bonus = {
-				bonus = 0.50
+				bonus = 1.0
 				uses = 1
 				technology = jet_fighter1
 			}
@@ -1938,7 +2041,7 @@ focus_tree = {
 		completion_reward = {
 			log = "[GetDateText]: [Root.GetName]: Focus CHN_Jet_Tactical_Bomber"
 			add_tech_bonus = {
-				bonus = 0.50
+				bonus = 1.0
 				uses = 1
 				technology = jet_tactical_bomber1
 			}
@@ -1960,7 +2063,7 @@ focus_tree = {
 		completion_reward = {
 			log = "[GetDateText]: [Root.GetName]: Focus CHN_Jet_Strategic_Bomber"
 			add_tech_bonus = {
-				bonus = 0.50
+				bonus = 1.0
 				uses = 1
 				technology = jet_strategic_bomber1
 			}
@@ -1983,7 +2086,7 @@ focus_tree = {
 			log = "[GetDateText]: [Root.GetName]: Focus CHN_Army"
 			add_tech_bonus = {
 				name = land_doc_bonus
-				bonus = 0.25
+				bonus = 0.5
 				uses = 1
 				category = land_doctrine
 			}
@@ -2009,19 +2112,19 @@ focus_tree = {
 			log = "[GetDateText]: [Root.GetName]: Focus CHN_Infantry_1"
 			add_tech_bonus = {
 				name = infantry_research
-				bonus = 0.5
+				bonus = 1.0
 				uses = 1
 				category = infantry_weapons
 			}
 			add_tech_bonus = {
 				name = arty_bonus
-				bonus = 0.5
+				bonus = 1.0
 				uses = 1
 				category = artillery
 			}
 			add_tech_bonus = {
 				name = support_bonus
-				bonus = 0.33
+				bonus = 0.65
 				uses = 1
 				category = support_tech
 			}
@@ -2043,7 +2146,7 @@ focus_tree = {
 		completion_reward = {
 			log = "[GetDateText]: [Root.GetName]: Focus CHN_Jager_1"
 			add_tech_bonus = {
-				bonus = 0.5
+				bonus = 1.0
 				uses = 1
 				category = jager_tech
 			}
@@ -2066,7 +2169,7 @@ focus_tree = {
 			log = "[GetDateText]: [Root.GetName]: Focus CHN_Magical_Infantry"
 			add_tech_bonus = {
 				name = infantry_weapons_bonus
-				bonus = 0.5
+				bonus = 1.0
 				uses = 2
 				technology = magical_weapons
 				technology = magical_weapons1
@@ -2091,7 +2194,7 @@ focus_tree = {
 		completion_reward = {
 			log = "[GetDateText]: [Root.GetName]: Focus CHN_Infiltrators"
 			add_tech_bonus = {
-				bonus = 0.5
+				bonus = 1.0
 				uses = 2
 				category = infiltrator_tech
 			}
@@ -2114,7 +2217,7 @@ focus_tree = {
 			log = "[GetDateText]: [Root.GetName]: Focus CHN_Motorized_1"
 			add_tech_bonus = {
 				name = motorized_research
-				bonus = 0.5
+				bonus = 1.0
 				uses = 1
 				category = motorized_equipment
 			}
@@ -2138,10 +2241,10 @@ focus_tree = {
 			army_experience = 5
 			add_tech_bonus = {
 				name = mech_army_bonus
-				bonus = 0.5
+				bonus = 1.0
 				uses = 1
 				category = cat_mechanized_equipment
-				ahead_reduction = 1
+				ahead_reduction = 2
 
 			}
 		}
@@ -2163,10 +2266,10 @@ focus_tree = {
 			log = "[GetDateText]: [Root.GetName]: Focus CHN_Support_Companies_1"
 			army_experience = 5
 			add_tech_bonus = {
-				bonus = 0.5
+				bonus = 1.0
 				uses = 2
 				category = support_tech
-				ahead_reduction = 1
+				ahead_reduction = 2
 
 			}
 		}
@@ -2188,19 +2291,19 @@ focus_tree = {
 			log = "[GetDateText]: [Root.GetName]: Focus CHN_Blitzkrieg_1"
 			add_tech_bonus = {
 				name = land_doc_bonus
-				bonus = 0.5
-				uses = 2
+				bonus = 1.0
+				uses = 1
 				category = cat_mobile_warfare
 			}
 			add_tech_bonus = {
 				name = tank_research
-				bonus = 0.5
+				bonus = 1.0
 				uses = 1
 				category = cat_light_armor
 			}
 			add_tech_bonus = {
 				name = tank_research
-				bonus = 0.5
+				bonus = 1.0
 				uses = 1
 				category = cat_medium_armor
 			}
@@ -2223,20 +2326,20 @@ focus_tree = {
 			log = "[GetDateText]: [Root.GetName]: Focus CHN_Blitzkrieg_2"
 			add_tech_bonus = {
 				name = tank_research
-				bonus = 0.5
+				bonus = 1.0
 				uses = 2
 				category = cat_light_armor
-				ahead_reduction = 1
+				ahead_reduction = 2
 			}
 			add_tech_bonus = {
 				name = tank_research
-				bonus = 0.5
+				bonus = 1.0
 				uses = 1
 				category = cat_medium_armor
 			}
 			add_tech_bonus = {
 				name = tank_research
-				bonus = 0.5
+				bonus = 1.0
 				uses = 1
 				category = cat_heavy_armor
 			}
@@ -2259,15 +2362,21 @@ focus_tree = {
 			log = "[GetDateText]: [Root.GetName]: Focus CHN_Infantry_2"
 			add_tech_bonus = {
 				name = infantry_research
-				bonus = 0.5
+				bonus = 1.0
 				uses = 1
 				category = infantry_weapons
 			}
 			add_tech_bonus = {
 				name = arty_bonus
-				bonus = 0.5
+				bonus = 1.0
 				uses = 1
 				category = artillery
+			}
+			add_tech_bonus = {
+				name = support_bonus
+				bonus = 0.65
+				uses = 1
+				category = support_tech
 			}
 		}
 	}
@@ -2421,11 +2530,15 @@ focus_tree = {
 			log = "[GetDateText]: [Root.GetName]: Focus CHN_carrier_navy"
 			navy_experience = 10
 			add_tech_bonus = {
-				bonus = 0.25
+				bonus = 0.5
 				uses = 2
 				category = cat_base_strike
 			}
-			set_technology = { basic_carrier = 1 }
+			add_tech_bonus = {
+				bonus = 3
+				uses = 1
+				category = ca_tech
+			}
 		}
 	}
 
@@ -2449,7 +2562,7 @@ focus_tree = {
 			log = "[GetDateText]: [Root.GetName]: Focus CHN_submarine_effort"
 			add_tech_bonus = {
 				name = submarine_research
-				bonus = 0.5
+				bonus = 1.0
 				uses = 2
 				category = ss_tech
 			}
@@ -2476,7 +2589,7 @@ focus_tree = {
 			log = "[GetDateText]: [Root.GetName]: Focus CHN_Naval_Bomber"
 			add_tech_bonus = {
 				name = naval_bomber_research
-				bonus = 0.5
+				bonus = 1.0
 				uses = 2
 				category = naval_bomber
 			}
@@ -2503,12 +2616,12 @@ focus_tree = {
 			log = "[GetDateText]: [Root.GetName]: Focus CHN_Marine_Operations"
 			navy_experience = 10
 			add_tech_bonus = {
-				bonus = 0.5
+				bonus = 1.0
 				uses = 2
 				category = tp_tech
 			}
 			add_tech_bonus = {
-				bonus = 0.25
+				bonus = 0.5
 				uses = 1
 				category = marine_tech
 			}
@@ -2535,7 +2648,7 @@ focus_tree = {
 			log = "[GetDateText]: [Root.GetName]: Focus CHN_Navy_Doctrine"
 			add_tech_bonus = {
 				name = naval_doctrine_bonus
-				bonus = 0.5
+				bonus = 1.0
 				uses = 2
 				category = naval_doctrine
 			}
@@ -2563,11 +2676,15 @@ focus_tree = {
 			log = "[GetDateText]: [Root.GetName]: Focus CHN_battleship_navy"
 			navy_experience = 10
 			add_tech_bonus = {
-				bonus = 0.25
+				bonus = 0.5
 				uses = 2
 				category = cat_fleet_in_being
 			}
-			set_technology = { heavy_battleship = 1 }
+			add_tech_bonus = {
+				bonus = 3
+				uses = 1
+				category = bb_tech
+			}
 		}
 	}
 
@@ -2591,7 +2708,7 @@ focus_tree = {
 			log = "[GetDateText]: [Root.GetName]: Focus CHN_Destroyers"
 			add_tech_bonus = {
 				name = naval_doctrine_bonus
-				bonus = 0.5
+				bonus = 1.0
 				uses = 2
 				category = dd_tech
 			}
@@ -2618,7 +2735,7 @@ focus_tree = {
 			log = "[GetDateText]: [Root.GetName]: Focus CHN_Light_Cruisers"
 			add_tech_bonus = {
 				name = naval_doctrine_bonus
-				bonus = 0.5
+				bonus = 1.0
 				uses = 2
 				category = cl_tech
 			}
@@ -2644,7 +2761,7 @@ focus_tree = {
 			log = "[GetDateText]: [Root.GetName]: Focus CHN_Heavy_Cruisers"
 			add_tech_bonus = {
 				name = naval_doctrine_bonus
-				bonus = 0.5
+				bonus = 1.0
 				uses = 2
 				category = ca_tech
 			}
@@ -2670,7 +2787,7 @@ focus_tree = {
 			log = "[GetDateText]: [Root.GetName]: Focus CHN_Battlecruisers"
 			add_tech_bonus = {
 				name = naval_doctrine_bonus
-				bonus = 0.5
+				bonus = 1.0
 				uses = 2
 				category = bc_tech
 			}
@@ -2697,7 +2814,7 @@ focus_tree = {
 			log = "[GetDateText]: [Root.GetName]: Focus CHN_Battleships"
 			add_tech_bonus = {
 				name = naval_doctrine_bonus
-				bonus = 0.5
+				bonus = 1.0
 				uses = 2
 				category = bb_tech
 			}
@@ -2724,10 +2841,9 @@ focus_tree = {
 			log = "[GetDateText]: [Root.GetName]: Focus CHN_Escort_Carriers"
 			add_tech_bonus = {
 				name = carrier_research
-				bonus = 0.25
-				uses = 2
-				technology = escort_carrier
-				technology = light_carrier
+				bonus = 0.5
+				uses = 1
+				category = ca_tech
 			}
 		}
 	}
@@ -2752,7 +2868,7 @@ focus_tree = {
 			log = "[GetDateText]: [Root.GetName]: Focus CHN_Carriers"
 			add_tech_bonus = {
 				name = carrier_research
-				bonus = 0.5
+				bonus = 1.0
 				uses = 2
 				category = cv_tech
 			}
@@ -3002,7 +3118,7 @@ focus_tree = {
 			log = "[GetDateText]: [Root.GetName]: Focus CHN_thermonuclear_research_in_PLB"
 			add_tech_bonus = {
 				name = secret_bonus
-				bonus = 0.5
+				bonus = 1.0
 				uses = 1
 				category = nuclear
 			}

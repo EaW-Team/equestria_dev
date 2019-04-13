@@ -1,5 +1,125 @@
 ﻿add_namespace = raiding
 
+country_event = { #We are being raided!
+	id = raiding.100
+	immediate = {log = "[GetDateText]: [Root.GetName]: event raiding.100"}#Auto-logging
+	title = raiding.100.t
+	desc = raiding.100.d
+
+	picture = GFX_event_griffon_with_gun
+	is_triggered_only = yes
+
+	option = { #fight!
+		name = raiding.100.a
+		ai_chance = {
+			factor = 10
+			modifier = {
+				has_war = yes
+				divisions_in_state = {
+					state = var:defender_state_vs_@FROM
+					size < 1
+				}
+				any_owned_state = {
+					state = var:defender_state_vs_@FROM
+					any_neighbor_state = {
+						ROOT = {
+							divisions_in_state = {
+								state = PREV
+								size < 1
+							}
+						}
+						NOT = {
+							any_neighbor_state = {
+								controller = { has_war_with = ROOT }
+							}
+						}
+					}
+				}
+				factor = 0.3
+			}
+			modifier = {
+				has_war = yes
+				enemies_strength_ratio > 0.8
+				any_neighbor_country = {
+					has_war_with = ROOT
+				}
+				factor = 0.3
+			}
+			modifier = {
+				has_war = yes
+				enemies_strength_ratio > 0.9
+				any_neighbor_country = {
+					has_war_with = ROOT
+				}
+				factor = 0.3
+			}
+			modifier = {
+				has_war = yes
+				enemies_strength_ratio > 1
+				any_neighbor_country = {
+					has_war_with = ROOT
+				}
+				factor = 0
+			}
+		}
+		FROM = {
+			start_border_war = {
+                change_state_after_war = no
+                attacker = {
+                    state = var:ROOT.attacker_state_vs_@THIS
+                    num_provinces = 4
+                    on_win = raiding.1
+                    on_lose = raiding.3
+                    on_cancel = raiding.2
+                }
+
+                defender = {
+                    state = var:ROOT.defender_state_vs_@THIS
+                    num_provinces = 4
+                    on_win = raiding.6
+                    on_lose = raiding.4
+                    on_cancel = raiding.5
+                }
+            }
+		}
+	}
+	option = { #give up
+		name = raiding.100.b
+		ai_chance = {
+			factor = 1
+		}
+		hidden_effect = {
+			random_owned_state = {
+				limit = { state = var:ROOT.defender_state_vs_@FROM }
+				save_event_target_as = raided_state
+			}
+		}
+		FROM = {
+			country_event = { id = raiding.1 hours = 1 }
+		}
+		hidden_effect = { country_event = { id = raiding.4 hours = 1 } }
+		effect_tooltip = {
+			random_list = {
+				20 = {
+					country_event = { id = raiding.7 days = 2 }
+				}
+				20 = {
+					country_event = { id = raiding.8 days = 2 }
+				}
+				20 = {
+					country_event = { id = raiding.9 days = 2 }
+				}
+				20 = {
+					country_event = { id = raiding.10 days = 2 }
+				}
+				20 = {
+					country_event = { id = raiding.11 days = 2 }
+				}
+			}
+		}
+	}
+}
+
 country_event = { #Raid Successful/Attacker
 	id = raiding.1
 	immediate = {log = "[GetDateText]: [Root.GetName]: event raiding.1"}#Auto-logging
@@ -11,8 +131,15 @@ country_event = { #Raid Successful/Attacker
 
 	immediate = {
 		hidden_effect = {
-			set_variable = { temp_loot = FROM.FROM.FROM.industrial_complex_level }
-			add_to_variable = { temp_loot = FROM.FROM.FROM.arms_factory_level }
+			if = {
+				limit = { has_event_target = raided_state }
+				set_variable = { temp_loot = raided_state.industrial_complex_level }
+				add_to_variable = { temp_loot = raided_state.arms_factory_level }
+			}
+			else = {
+				set_variable = { temp_loot = FROM.FROM.FROM.industrial_complex_level }
+				add_to_variable = { temp_loot = FROM.FROM.FROM.arms_factory_level }
+			}
 			clamp_variable = {
 				var = temp_loot
 				min = 2
@@ -83,23 +210,32 @@ country_event = { #Raid Successful/Defender
 	is_triggered_only = yes
 	hidden = yes
 
+	immediate = {
+		hidden_effect = {
+			if = {
+				limit = { NOT = { has_event_target = raided_state } }
+				FROM.FROM.FROM = { save_event_target_as = raided_state }
+			}
+		}
+	}
+
 	option = {
 		name = raiding.4.a
 		random_list = {
 			20 = {
-				country_event = { id = raiding.7 days = 2 }
+				country_event = { id = raiding.7 days = 1 }
 			}
 			20 = {
-				country_event = { id = raiding.8 days = 2 }
+				country_event = { id = raiding.8 days = 1 }
 			}
 			20 = {
-				country_event = { id = raiding.9 days = 2 }
+				country_event = { id = raiding.9 days = 1 }
 			}
 			20 = {
-				country_event = { id = raiding.10 days = 2 }
+				country_event = { id = raiding.10 days = 1 }
 			}
 			20 = {
-				country_event = { id = raiding.11 days = 2 }
+				country_event = { id = raiding.11 days = 1 }
 			}
 		}
 	}
@@ -134,72 +270,6 @@ country_event = { #Raid Failed/Defender
 		name = raiding.6.a
 		add_political_power = 25
 		add_stability = 0.01
-		if = {
-			limit = {
-				FROM = { has_tech = advanced_infantry_weapons }
-			}
-
-			add_equipment_to_stockpile = {
-				type = infantry_equipment_3
-				amount = 500
-				producer = MNC
-			}
-		}
-		else_if = {
-			limit = {
-				FROM = { has_tech = improved_infantry_weapons }
-			}
-			add_equipment_to_stockpile = {
-				type = infantry_equipment_2
-				amount = 500
-				producer = MNC
-			}
-		}
-		else_if = {
-			limit = {
-				FROM = { has_tech = infantry_weapons1 }
-
-			}
-
-			add_equipment_to_stockpile = {
-				type = infantry_equipment_1
-				amount = 500
-				producer = MNC
-			}
-		}
-		else_if = {
-			limit = {
-				FROM = { has_tech = infantry_weapons }
-			}
-			add_equipment_to_stockpile = {
-				type = infantry_equipment_0
-				amount = 500
-				producer = MNC
-			}
-		}
-		else_if = {
-			limit = {
-				FROM = { has_tech = melee_weapons1 }
-			}
-
-			add_equipment_to_stockpile = {
-				type = melee_equipment_1
-				amount = 500
-				producer = MNC
-			}
-		}
-
-		else_if = {
-			limit = {
-				FROM = { has_tech = melee_weapons }
-			}
-
-			add_equipment_to_stockpile = {
-				type = melee_equipment_0
-				amount = 500
-				producer = MNC
-			}
-		}
 	}
 }
 
@@ -254,17 +324,17 @@ country_event = { #Raid Defeat/Factory Burnt
 		add_stability = -0.03
 		if = {
 			limit = {
-				FROM.FROM.FROM = {
+				event_target:raided_state = {
 					industrial_complex > 0
 				}
 			}
-			FROM.FROM.FROM = {
+			event_target:raided_state = {
 				damage_building = { type = industrial_complex damage = 0.40 }
 			}
 		}
 		else_if = {
 			limit = {
-				FROM.FROM.FROM = {
+				event_target:raided_state = {
 					any_neighbor_state = {
 						industrial_complex > 0
 					}
@@ -274,7 +344,7 @@ country_event = { #Raid Defeat/Factory Burnt
 				limit = { 
 					industrial_complex > 0 
 					any_neighbor_state = {
-						state = FROM.FROM.FROM
+						state = event_target:raided_state
 					}
 				}
 				damage_building = { type = industrial_complex damage = 0.40 }
@@ -288,17 +358,17 @@ country_event = { #Raid Defeat/Factory Burnt
 		}
 		if = {
 			limit = {
-				FROM.FROM.FROM = {
+				event_target:raided_state = {
 					infrastructure > 0
 				}
 			}
-			FROM.FROM.FROM = {
+			event_target:raided_state = {
 				damage_building = { type = infrastructure damage = 0.25 }
 			}
 		}
 		else_if = {
 			limit = {
-				FROM.FROM.FROM = {
+				event_target:raided_state = {
 					any_neighbor_state = {
 						infrastructure > 0
 					}
@@ -308,7 +378,7 @@ country_event = { #Raid Defeat/Factory Burnt
 				limit = { 
 					infrastructure > 0 
 					any_neighbor_state = {
-						state = FROM.FROM.FROM
+						state = event_target:raided_state
 					}
 				}
 				damage_building = { type = infrastructure damage = 0.25 }
@@ -340,17 +410,17 @@ country_event = { #Raid Defeat/Armoury Looted
 		add_war_support = -0.02
 		if = {
 			limit = {
-				FROM.FROM.FROM = {
+				event_target:raided_state = {
 					arms_factory > 0
 				}
 			}
-			FROM.FROM.FROM = {
+			event_target:raided_state = {
 				damage_building = { type = arms_factory damage = 0.40 }
 			}
 		}
 		else_if = {
 			limit = {
-				FROM.FROM.FROM = {
+				event_target:raided_state = {
 					any_neighbor_state = {
 						arms_factory > 0
 					}
@@ -360,7 +430,7 @@ country_event = { #Raid Defeat/Armoury Looted
 				limit = { 
 					arms_factory > 0 
 					any_neighbor_state = {
-						state = FROM.FROM.FROM
+						state = event_target:raided_state
 					}
 				}
 				damage_building = { type = infrastructure damage = 0.40 }
@@ -388,19 +458,20 @@ country_event = { #Raid Defeat/Villages Slaugthered
 		name = raiding.11.a
 		add_political_power = -50
 		add_stability = -0.03
+		save_current_manpower = yes
 		if = {
 			limit = {
-				FROM.FROM.FROM = {
+				event_target:raided_state = {
 					state_population > 5000
 				}
 			}
-			FROM.FROM.FROM = {
+			event_target:raided_state = {
 				add_manpower = -5000
 			}
 		}
 		else_if = {
 			limit = {
-				FROM.FROM.FROM = {
+				event_target:raided_state = {
 					any_neighbor_state = {
 						state_population > 5000
 					}
@@ -410,7 +481,7 @@ country_event = { #Raid Defeat/Villages Slaugthered
 				limit = { 
 					state_population > 5000
 					any_neighbor_state = {
-						state = FROM.FROM.FROM
+						state = event_target:raided_state
 					}
 				}
 				add_manpower = -5000
@@ -424,5 +495,6 @@ country_event = { #Raid Defeat/Villages Slaugthered
 				add_manpower = -5000
 			}
 		}
+		restore_previous_manpower = yes
 	}
 }

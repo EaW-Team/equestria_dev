@@ -1154,7 +1154,7 @@ country_event = {
 	hidden = yes
 
 	mean_time_to_happen = {
-		days = 8
+		days = 3
 	}
 
 	trigger = {
@@ -1163,17 +1163,42 @@ country_event = {
 			NOT = { country_exists = DED }
 		}
 		any_owned_state = {
-			is_controlled_by = ROOT
 			check_variable = { DED_used_crystals > 0 }
 		}
 	}
 
 	option = {
-		random_owned_controlled_state = {
-			limit = { check_variable = { DED_used_crystals > 0 } }
-			log = "Add 1 crystal to [This.GetName]"
-			subtract_from_variable = { DED_used_crystals = 1 }
-			add_resource = { type = crystals amount = 1 }
+		if = {
+			limit = {
+				tag = DED
+				415 = {
+					is_owned_by = ROOT
+					check_variable = { DED_used_crystals > 0 }
+				}
+			}
+			415 = {
+				log = "deadempire.34: Add 1 crystal to [This.GetName]"
+				subtract_from_variable = { DED_used_crystals = 1 }
+				clamp_variable = {
+					var = DED_used_crystals
+					min = 0
+					max = 10000
+				}
+				add_resource = { type = crystals amount = 1 }
+			}
+		}
+		else = {
+			random_owned_state = {
+				limit = { check_variable = { DED_used_crystals > 0 } }
+				log = "deadempire.34: Add 1 crystal to [This.GetName]"
+				subtract_from_variable = { DED_used_crystals = 1 }
+				clamp_variable = {
+					var = DED_used_crystals
+					min = 0
+					max = 10000
+				}
+				add_resource = { type = crystals amount = 1 }
+			}
 		}
 	}
 
@@ -1193,6 +1218,7 @@ country_event = {
 	}
 
 	option = {
+		save_current_manpower = yes
 		every_owned_state = {
 			limit = { has_state_flag = DED_former_state }
 			add_manpower = -25000
@@ -1201,6 +1227,7 @@ country_event = {
 				clr_state_flag = DED_former_state
 			}
 		}
+		restore_previous_manpower = yes
 		if = {
 			limit = {
 				NOT = {
@@ -1247,65 +1274,64 @@ country_event = {
 	is_triggered_only = yes
 
 	option = {
-		every_state = {
-			limit = {
-				is_controlled_by = ROOT
-				has_resources_amount = { resource = crystals amount > 0 }
-			}
-			if = {
-				limit = { check_variable = { PREV.DED_temp_used_crystals < PREV.DED_temp_used_crystals_limit } }
-				add_to_variable = { var = DED_used_crystals value = 1 }
-				add_resource = { type = crystals amount = -1 }
-				PREV = { add_to_variable = { var = DED_temp_used_crystals value = 1 } }
-			}
-			else = {
-				break = yes
-			}
-		}
-		if = {
+		while_loop_effect = {
 			limit = { check_variable = { DED_temp_used_crystals < DED_temp_used_crystals_limit } }
-			country_event = deadempire.38
+			every_state = {
+				limit = {
+					is_controlled_by = ROOT
+					has_resources_amount = { resource = crystals amount > 0 }
+				}
+				if = {
+					limit = { check_variable = { PREV.DED_temp_used_crystals < PREV.DED_temp_used_crystals_limit } }
+					add_to_variable = { var = DED_used_crystals value = 1 }
+					log = "deadempire.34: Remove 1 crystal from [This.GetName]"
+					add_resource = { type = crystals amount = -1 }
+					add_to_variable = { var = PREV.DED_temp_used_crystals value = 1 }
+				}
+				else = {
+					set_temp_variable = { break = 0 }
+					set_temp_variable = { PREV.break = 0 }
+				}
+			}
 		}
-		else = {
-			clear_variable = DED_temp_used_crystals
-			clear_variable = DED_temp_used_crystals_limit
-		}
+		clear_variable = DED_temp_used_crystals
+		clear_variable = DED_temp_used_crystals_limit
 	}
 }
 
-country_event = {
-	id = deadempire.38
-	immediate = {log = "[GetDateText]: [Root.GetName]: event deadempire.38"}#Auto-logging
-	hidden = yes
-
-	is_triggered_only = yes
-
-	option = {
-		every_state = {
-			limit = {
-				is_controlled_by = ROOT
-				has_resources_amount = { resource = crystals amount > 0 }
-			}
-			if = {
-				limit = { check_variable = { PREV.DED_temp_used_crystals < PREV.DED_temp_used_crystals_limit } }
-				add_to_variable = { var = DED_used_crystals value = 1 }
-				add_resource = { type = crystals amount = -1 }
-				PREV = { add_to_variable = { var = DED_temp_used_crystals value = 1 } }
-			}
-			else = {
-				break = yes
-			}
-		}
-		if = {
-			limit = { check_variable = { DED_temp_used_crystals < DED_temp_used_crystals_limit } }
-			country_event = deadempire.37
-		}
-		else = {
-			clear_variable = DED_temp_used_crystals
-			clear_variable = DED_temp_used_crystals_limit
-		}
-	}
-}
+#country_event = {
+#	id = deadempire.38
+#	immediate = {log = "[GetDateText]: [Root.GetName]: event deadempire.38"}#Auto-logging
+#	hidden = yes
+#
+#	is_triggered_only = yes
+#
+#	option = {
+#		every_state = {
+#			limit = {
+#				is_controlled_by = ROOT
+#				has_resources_amount = { resource = crystals amount > 0 }
+#			}
+#			if = {
+#				limit = { check_variable = { PREV.DED_temp_used_crystals < PREV.DED_temp_used_crystals_limit } }
+#				add_to_variable = { var = DED_used_crystals value = 1 }
+#				add_resource = { type = crystals amount = -1 }
+#				PREV = { add_to_variable = { var = DED_temp_used_crystals value = 1 } }
+#			}
+#			else = {
+#				break = yes
+#			}
+#		}
+#		if = {
+#			limit = { check_variable = { DED_temp_used_crystals < DED_temp_used_crystals_limit } }
+#			country_event = deadempire.37
+#		}
+#		else = {
+#			clear_variable = DED_temp_used_crystals
+#			clear_variable = DED_temp_used_crystals_limit
+#		}
+#	}
+#}
 
 country_event = {
 	id = deadempire.56

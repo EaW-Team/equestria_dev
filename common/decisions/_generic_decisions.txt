@@ -15,6 +15,12 @@ political_actions = {
 			NOT = { has_idea = race_for_the_bomb }
 		}
 
+		target_root_trigger = {
+			has_tech = atomic_research
+			NOT = { has_global_flag = first_nuke_dropped }
+			NOT = { has_idea = race_for_the_bomb }
+		}
+
 		#If this trigger matches a country.
 		target_trigger = {
 			#Target is FROM
@@ -61,7 +67,7 @@ political_actions = {
 		icon = generic_industry
 
 		available = {
-
+			has_stability < 1.0
 		}
 
 		visible = {
@@ -106,6 +112,7 @@ political_actions = {
 		available = {
 			has_war = no
 			has_war_support > 0.2
+			has_stability < 1.0
 			if = {
 				limit = { tag = NIM }
 				has_government = democratic
@@ -219,48 +226,84 @@ propaganda_efforts = {
 			NOT = { has_country_flag = war_propaganda_campaign_running }
 			FROM = {
 				OR = {
-					has_offensive_war = yes
 					is_justifying_wargoal_against = ROOT
+					AND = {
+						has_war_with = ROOT
+						is_neighbor_of = ROOT
+					}
+					has_offensive_war = yes
 				}
 			}
 		}
 
 		visible = {
-			FROM = { NOT = { has_government = ROOT } }
 			FROM = {
-				NOT = { is_neighbor_of = ROOT }
+				NOT = { is_in_faction_with = ROOT }
 				OR = {
-					AND = {
-						NOT = { has_government = ROOT }
-						has_offensive_war = yes
-						has_added_tension_amount > 30
-					}
 					is_justifying_wargoal_against = ROOT
-					has_offensive_war_with = ROOT
+					AND = {
+						is_neighbor_of = ROOT
+						OR = {
+							has_war_with = ROOT
+							AND = {
+								NOT = { has_government = ROOT }
+								has_offensive_war = yes
+								has_added_tension_amount > 5
+							}
+						}
+					}
+					AND = {
+						NOT = { is_neighbor_of = ROOT }
+						OR = {
+							has_offensive_war_with = ROOT
+							AND = {
+								NOT = { has_government = ROOT }
+								has_offensive_war = yes
+								has_added_tension_amount > 30
+							}
+						}
+					}
 				}
 			}
 		}
 
 		target_trigger = {
 			FROM = {
-				NOT = { is_neighbor_of = ROOT }
+				NOT = { is_in_faction_with = ROOT }
 				OR = {
-					AND = {
-						NOT = { has_government = ROOT }
-						has_offensive_war = yes
-						has_added_tension_amount > 30
-					}
 					is_justifying_wargoal_against = ROOT
-					has_offensive_war_with = ROOT
+					AND = {
+						is_neighbor_of = ROOT
+						OR = {
+							has_war_with = ROOT
+							AND = {
+								NOT = { has_government = ROOT }
+								has_offensive_war = yes
+								has_added_tension_amount > 5
+							}
+						}
+					}
+					AND = {
+						NOT = { is_neighbor_of = ROOT }
+						OR = {
+							has_offensive_war_with = ROOT
+							AND = {
+								NOT = { has_government = ROOT }
+								has_offensive_war = yes
+								has_added_tension_amount > 30
+							}
+						}
+					}
 				}
 			}
 		}
 
 		days_remove = 90
+		days_re_enable = 180
 
 		fire_only_once = yes
 
-		cost = 75
+		cost = 25
 
 		modifier = {
 			war_support_weekly = 0.01
@@ -275,75 +318,6 @@ propaganda_efforts = {
 			clr_country_flag = war_propaganda_campaign_running
 		}
 
-		ai_will_do = {
-			factor = 0
-		}
-	}
-
-	#Propaganda campaign against a neighbor
-	war_propaganda_against_warmonger_neighbor = {
-
-		icon = generic_prepare_civil_war
-
-		available = {
-			NOT = { has_country_flag = war_propaganda_campaign_running }
-			FROM = {
-				OR = {
-					has_offensive_war = yes
-					is_justifying_wargoal_against = ROOT
-					has_war_with = ROOT
-				}
-			}
-		}
-
-		visible = {
-			FROM = { NOT = { has_government = ROOT } }
-			FROM = {
-				is_neighbor_of = ROOT
-				OR = {
-					AND = {
-						NOT = { has_government = ROOT }
-						has_offensive_war = yes
-					}
-					is_justifying_wargoal_against = ROOT
-					has_war_with = ROOT
-				}
-				has_added_tension_amount > 5
-			}
-		}
-
-		target_trigger = {
-			FROM = {
-				is_neighbor_of = ROOT
-				OR = {
-					AND = {
-						NOT = { has_government = ROOT }
-						has_offensive_war = yes
-					}
-					is_justifying_wargoal_against = ROOT
-					has_war_with = ROOT
-				}
-				has_added_tension_amount > 5
-			}
-		}
-
-		days_remove = 90
-		days_re_enable = 180
-
-		cost = 50
-
-		modifier = {
-			war_support_weekly = 0.01
-		}
-
-		complete_effect = {
-			log = "[GetDateText]: [Root.GetName]: Decision war_propaganda_against_warmonger_neighbor"
-			set_country_flag = war_propaganda_campaign_running
-		}
-		remove_effect = {
-			log = "[GetDateText]: [Root.GetName]: Decision remove war_propaganda_against_warmonger_neighbor"
-			clr_country_flag = war_propaganda_campaign_running
-		}
 		ai_will_do = {
 			factor = 1
 			modifier = {
@@ -512,7 +486,7 @@ war_measures = {
 		ai_will_do = {
 			factor = 1
 			modifier = {
-				has_political_power < 150
+				has_political_power < 100
 				factor = 0 #use as pp dump
 			}
 		}
@@ -526,12 +500,10 @@ war_measures = {
 			log = "[GetDateText]: [Root.GetName]: Decision war_bonds"
 			if = {
 				limit = {
-					NOT = {
-						check_variable = {
-							var = GER_war_bonds_var
-							value = 100
-							compare = greater_than_or_equals
-						}
+					check_variable = {
+						var = GER_war_bonds_var
+						value = 50
+						compare = less_than
 					}
 				}
 				set_variable = {
@@ -550,48 +522,40 @@ war_measures = {
 						value = 100
 						compare = greater_than_or_equals
 					}
-					NOT = {
-						check_variable = {
-							var = GER_war_bonds_war_support_var
-							value = 5
-							compare = greater_than_or_equals
-						}
+					check_variable = {
+						var = GER_war_bonds_war_support_var
+						value = -0.025
+						compare = greater_than
 					}
 				}
 				set_variable = {
 					var = GER_war_bonds_war_support_var
-					value = -5
+					value = -0.025
 				}
-				add_war_support = GER_war_bonds_war_support_var
 			}
 			if = {
 				limit = {
 					check_variable = {
-						var = GER_war_bonds_var
-						value = 100
-						compare = greater_than_or_equals
-					}
-					check_variable = {
 						var = GER_war_bonds_war_support_var
-						value = 5
-						compare = greater_than_or_equals
+						value = -0.025
+						compare = less_than_or_equals
 					}
 				}
 				add_to_variable = {
 					var = GER_war_bonds_war_support_var
-					value = -2.5
+					value = -0.025
 				}
 				add_war_support = GER_war_bonds_war_support_var
 			}
 		}
-	}
+    }
 }
 
 foreign_politics = {
 	object_to_attaches = {
 
 		allowed = {
-			always = yes
+			has_dlc = "Waking the Tiger"
 		}
 
 		cost = 50
@@ -604,17 +568,23 @@ foreign_politics = {
 
 		visible = {
 			NOT = { has_idea = detached_country }
+			has_war = yes
+			has_capitulated = no
 			FROM = {
 				NOT = { has_country_flag = rejected_withdrawing_attache }
 				NOT = { has_country_flag = rejected_withdrawing_attache@ROOT }
 				NOT = { has_country_flag = object_attache_going_on }
 			}
-			has_war = yes
-			has_capitulated = no
 			NOT = { has_war_with = FROM }
 			any_enemy_country = {
 				has_attache_from = FROM
 			}
+		}
+
+		target_root_trigger = {
+			NOT = { has_idea = detached_country }
+			has_war = yes
+			has_capitulated = no
 		}
 
 		target_trigger = {
@@ -692,53 +662,123 @@ economy_decisions = {
 		}
 	}
 
-	war_building_slot = {
+    war_building_slot = {
 
-		icon = generic_construction
+    	icon = generic_construction
 
-		allowed = {
-			always = yes
-		}
+        allowed = {
+            always = yes
+        }
 
-		cost = 50
-		fire_only_once = no
+        cost = 50
+        fire_only_once = no
 
-		visible = {
+        available = {
+            has_war = yes
+            any_owned_state = {
+            	NOT = { has_state_flag = war_building_slot_flag }
+            	is_fully_controlled_by = ROOT
+            }
+        }
+
+        visible = {
+			has_war = yes
 			any_owned_state = {
 				NOT = { has_state_flag = war_building_slot_flag }
 				is_fully_controlled_by = ROOT
 			}
-			has_war = yes
 		}
 
-		complete_effect = {
+        complete_effect = {
 			log = "[GetDateText]: [Root.GetName]: Decision war_building_slot"
-			add_war_support = -0.025
+        	add_war_support = -0.025
 			add_stability = -0.025
-			random_owned_state = {
+			if = {
 				limit = {
-					is_fully_controlled_by = ROOT
-					free_building_slots = {
-						building = industrial_complex
-						size > 1
-						include_locked = yes
+					any_owned_state = {
+						is_fully_controlled_by = ROOT
+            			free_building_slots = {
+							building = industrial_complex
+							size > 1
+							include_locked = yes
+						}
+						NOT = { has_state_flag = war_building_slot_flag }
+						infrastructure > 8
 					}
-					NOT = { has_state_flag = war_building_slot_flag }
 				}
-				add_extra_state_shared_building_slots = 1
-				set_state_flag = war_building_slot_flag
+				random_owned_state = {
+					limit = {
+						is_fully_controlled_by = ROOT
+            			free_building_slots = {
+							building = industrial_complex
+							size > 1
+							include_locked = yes
+						}
+						NOT = { has_state_flag = war_building_slot_flag }
+						infrastructure > 8
+					}
+					add_extra_state_shared_building_slots = 1
+					set_state_flag = war_building_slot_flag
+				}
+			}
+			else_if = {
+				limit = {
+					any_owned_state = {
+						is_fully_controlled_by = ROOT
+            			free_building_slots = {
+							building = industrial_complex
+							size > 1
+							include_locked = yes
+						}
+						NOT = { has_state_flag = war_building_slot_flag }
+						infrastructure > 5
+					}
+				}
+				random_owned_state = {
+					limit = {
+						is_fully_controlled_by = ROOT
+            			free_building_slots = {
+							building = industrial_complex
+							size > 1
+							include_locked = yes
+						}
+						NOT = { has_state_flag = war_building_slot_flag }
+						infrastructure > 5
+					}
+					add_extra_state_shared_building_slots = 1
+					set_state_flag = war_building_slot_flag
+				}
+			}
+			else = {
+				random_owned_state = {
+					limit = {
+						is_fully_controlled_by = ROOT
+            			free_building_slots = {
+							building = industrial_complex
+							size > 1
+							include_locked = yes
+						}
+						NOT = { has_state_flag = war_building_slot_flag }
+						infrastructure > 8
+					}
+					add_extra_state_shared_building_slots = 1
+					set_state_flag = war_building_slot_flag
+				}
 			}
 		}
 		ai_will_do = {
 			factor = 1
 			modifier = {
 				factor = 10
-				any_owned_state = { free_building_slots = { building = industrial_complex size < 1 include_locked = no } }
+				all_owned_state = { free_building_slots = { building = industrial_complex size < 1 include_locked = no } }
+			}
+			modifier = {
+				any_owned_state = {
+					infrastructure > 5
+					free_building_slots = { building = industrial_complex size > 0 include_locked = no }
+				}
+				factor = 0
 			}
 		}
-	}
-}
-
-foreign_support = {
-
+    }
 }
