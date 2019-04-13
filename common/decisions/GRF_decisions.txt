@@ -1,6 +1,8 @@
 GRF_war_with_GFF_category = {
 	GRF_GFF_war_crisis = {
 		icon = generic_civil_support
+		fire_only_once = yes
+		allowed = { always = no }
 		activation = { always = no } #Activated by event
 		available = {
 			FROM = {
@@ -19,6 +21,7 @@ GRF_war_with_GFF_category = {
 		days_mission_timeout = 180
 		is_good = no
 		timeout_effect = {
+			log = "[GetDateText]: [Root.GetName]: Decision timeout GRF_GFF_war_crisis"
 			country_event = griffons.28
 		}
 	}
@@ -27,29 +30,39 @@ GRF_war_with_GFF_category = {
 operations = {
 	seize_control_of_241 = {
 		icon = border_war
-		visible = {
+		allowed = {
 			OR = {
 				original_tag = GRF
 				original_tag = GFF
 			}
+		}
+		target_root_trigger = {
+			eqs_has_civil_war = yes
+			NOT = { owns_state = 241 }
+		}
+		visible = {
+			is_subject = no
 			FROM = {
-				NOT = { tag = ROOT }
+				NOT = { has_war_with = ROOT }
 				eqs_has_civil_war = yes
 			}
 			241 = {
-				is_owned_and_controlled_by = FROM
+				is_owned_by = FROM
+				is_fully_controlled_by = FROM
 				any_neighbor_state = {
 					is_fully_controlled_by = ROOT
 				}
 			}
 		}
+		targets = { 241.owner_var }
 		target_trigger = {
 			FROM = {
-				owns_state = 241
 				OR = {
 					original_tag = EQS
 					original_tag = NLR
 				}
+				has_war = yes
+				owns_state = 241
 			}
 		}
 		available = {
@@ -60,7 +73,6 @@ operations = {
 			}
 			if = {
 				limit = {
-					has_dlc = "Waking the Tiger"
 					FROM = {
 						divisions_in_state = {
 							size > 0
@@ -104,6 +116,7 @@ operations = {
 		}
 		fire_only_once = yes
 		complete_effect = {
+			log = "[GetDateText]: [Root.GetName]: Decision seize_control_of_241"
 			reverse_add_opinion_modifier = { target = FROM modifier = initiated_border_conflict }
 			random_owned_state = {
 				limit = {
@@ -112,7 +125,6 @@ operations = {
 					}
 					if = {
 						limit = {
-							has_dlc = "Waking the Tiger"
 							FROM = {
 								divisions_in_state = {
 									size > 0
@@ -131,7 +143,6 @@ operations = {
 				}
 				if = {
 					limit = {
-						has_dlc = "Waking the Tiger"
 						FROM = {
 							divisions_in_state = {
 								size > 0
@@ -178,9 +189,11 @@ political_actions = {
 		icon = rifles
 		allowed = { tag = GRF }
 		available = {
-			has_war = no is_subject = no
+			has_war = no 
+			is_subject = no
 			has_equipment = { infantry_equipment > 1000 }
 		}
+		targets = { EQS D01 D02 D03 D04 D05 D06 D07 D08 D09 D10 D11 D12 D13 D14 D15 }
 		target_trigger = {
 			FROM = {
 				tag = event_target:equestria
@@ -195,6 +208,7 @@ political_actions = {
 		cost = 20
 		fire_only_once = yes
 		complete_effect = {
+			log = "[GetDateText]: [Root.GetName]: Decision GRF_send_help_to_EQS"
 			country_event = griffons.34
 			set_country_flag = GRF_helped_EQS
 		}
@@ -210,23 +224,26 @@ political_actions = {
 		icon = rifles
 		allowed = { tag = GRF }
 		available = {
-			has_war = no is_subject = no
+			has_war = no
+			is_subject = no
 			has_equipment = { infantry_equipment > 1000 }
 		}
+		targets = { EQS D01 D02 D03 D04 D05 D06 D07 D08 D09 D10 D11 D12 D13 D14 D15 }
 		target_trigger = {
 			FROM = {
-				exists = yes
 				tag = event_target:equestria
 			}
 		}
 		visible = {
 			FROM = {
+				exists = yes
 				has_war_with = NLR
 			}
 		}
 		cost = 20
 		fire_only_once = yes
 		complete_effect = {
+			log = "[GetDateText]: [Root.GetName]: Decision GRF_send_help_to_EQS_CW"
 			country_event = griffons.32
 			set_country_flag = GRF_helped_EQS_cw
 		}
@@ -264,6 +281,9 @@ GRF_sending_mercs_cat = {
 				}
 			}
 		}
+		target_root_trigger = {
+			has_idea = GRF_send_mercs
+		}
 		visible = {
 			NOT = { has_country_flag = agreed_to_mercs_@FROM }
 			FROM = {
@@ -283,6 +303,8 @@ GRF_sending_mercs_cat = {
 			FROM = {
 				#is_subject = no
 				exists = yes
+				has_war = yes
+				has_capitulated = no
 				has_tribal_society = no
 				NOT = {
 					is_in_faction_with = ROOT
@@ -290,8 +312,8 @@ GRF_sending_mercs_cat = {
 				}
 				NOT = {
 					has_idea = detached_country
-					has_idea = communal_society
 				}
+				does_not_have_communal_society = yes
 				has_opinion = {
 					target = ROOT
 					value > -40
@@ -300,6 +322,7 @@ GRF_sending_mercs_cat = {
 		}
 		days_re_enable = 7
 		complete_effect = {
+			log = "[GetDateText]: [Root.GetName]: Decision GRF_send_mercs_dec"
 			set_country_flag = mercs_considered_@FROM
 			FROM = { country_event = { id = griffons.62 days = 6 } }
 		}
@@ -397,6 +420,7 @@ GRF_sending_mercs_cat = {
 		days_mission_timeout = 30
 
 		timeout_effect = {
+			log = "[GetDateText]: [Root.GetName]: Decision timeout GRF_send_mercs_mis"
 			add_ai_strategy = {
 				type = support
 				id = FROM
@@ -423,6 +447,7 @@ GRF_sending_mercs_cat = {
 		}
 
 		complete_effect = {
+			log = "[GetDateText]: [Root.GetName]: Decision GRF_send_mercs_mis"
 			hidden_effect = { GRF_recalc_mercs = yes }
 			FROM = {
 				add_ai_strategy = {
@@ -477,6 +502,7 @@ GRF_sending_mercs_cat = {
 			}
 		}
 		complete_effect = {
+			log = "[GetDateText]: [Root.GetName]: Decision GRF_send_mercs_reward"
 			hidden_effect = { GRF_recalc_mercs = yes }
 			add_to_variable = { offsite_IC = -4 }
 			add_offsite_building = { type = industrial_complex level = -4 }
@@ -484,6 +510,9 @@ GRF_sending_mercs_cat = {
 	}
 	GRF_demand_delayed_payment = {
 		icon = rifles
+		target_root_trigger = {
+			has_idea = GRF_send_mercs
+		}
 		visible = {
 			FROM = {
 				has_war = no
@@ -499,6 +528,7 @@ GRF_sending_mercs_cat = {
 			}
 		}
 		complete_effect = {
+			log = "[GetDateText]: [Root.GetName]: Decision GRF_demand_delayed_payment"
 			FROM = {
 				set_country_flag = considering_delaying_payment
 				country_event = { id = griffons.70 days = 4 }
@@ -521,10 +551,12 @@ GRF_sending_mercs_cat = {
 			}
 		}
 		complete_effect = {
+			log = "[GetDateText]: [Root.GetName]: Decision GRF_send_mercs_reward_delayed"
 			add_to_variable = { offsite_IC = -4 }
 			add_offsite_building = { type = industrial_complex level = -4 }
 		}
 		timeout_effect = {
+			log = "[GetDateText]: [Root.GetName]: Decision timeout GRF_send_mercs_reward_delayed"
 			add_to_variable = { offsite_IC = -4 }
 			add_offsite_building = { type = industrial_complex level = -4 }
 		}
