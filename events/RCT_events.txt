@@ -101,7 +101,14 @@ country_event = { #New Treasury Officer
 	trigger = {
 		original_tag = RCT
 		has_government = democratic
-		NOT = { has_idea = RCT_unstable_government }
+		NOT = { 
+			has_idea = RCT_unstable_government 
+			has_country_flag = Promoted_Cousin_Pumpkin
+		}
+		amount_taken_ideas = {
+			amount < 3
+			slots = { political_advisor }
+		}
 		has_country_leader = { ruling_only = yes name = "River Swirl" }
 	}
 
@@ -113,7 +120,7 @@ country_event = { #New Treasury Officer
 
 	option = { #Promote some low level administrator
 		name = rivercity.8.a
-		add_political_power = 150
+		add_political_power = -100
 		custom_effect_tooltip = RCT_idiot
 		custom_effect_tooltip = RCT_babushka_mad
 	}
@@ -123,18 +130,37 @@ country_event = { #New Treasury Officer
 			set_country_flag = Promoted_Cousin_Pumpkin
 		}
 		custom_effect_tooltip = RCT_babushka
-		if = {
-			limit = {
-				amount_taken_ideas = {
-					amount < 3
-					slots = { political_advisor }
-				}
-			}
-			add_ideas = RCT_pumpkin_swirl
-		}
-		else = {
-			custom_effect_tooltip = available_political_advisor
-			show_ideas_tooltip = RCT_pumpkin_swirl
+		set_country_flag = { flag = Cousin_Pumpkin_timeout value = 1 days = 180 }
+		add_ideas = RCT_pumpkin_swirl
+	}
+}
+
+country_event = {
+	id = rivercity.9
+	immediate = {log = "[GetDateText]: [Root.GetName]: event rivercity.9"}#Auto-logging
+	title = rivercity.9.t
+	desc = rivercity.9.d
+	picture = GFX_event_bank_vault
+
+	trigger = {
+		original_tag = RCT
+		has_government = democratic
+		has_idea = RCT_pumpkin_swirl 
+		NOT = { has_country_flag = Cousin_Pumpkin_timeout }
+	}
+
+	mean_time_to_happen = {
+		months = 6
+	}
+
+	fire_only_once = yes
+
+	option = {
+		name = rivercity.9.a
+		set_country_flag = Cousin_Pumpkin_Is_Better
+		swap_ideas = {
+			add_idea = RCT_pumpkin_swirl2
+			remove_idea = RCT_pumpkin_swirl
 		}
 	}
 }
@@ -1204,18 +1230,20 @@ country_event = {#You find proof that Nova Whirl is behind the propaganda
 			add_opinion_modifier = { target = RCT modifier = RCT_proof_nova_is_a_traitor }
 			set_country_flag = has_discovered_novas_treason
 		}
-		every_other_country = {
-			limit = {
-				is_river_fed_member = yes
-				NOT ={
-					OR = {
-						has_government = communism
-						original_tag = RCT
+		for_each_scope_loop = {
+			array = global.river_coalition_members
+			if = {
+				limit = {
+					NOT ={
+						OR = {
+							has_government = communism
+							original_tag = RCT
+						}
 					}
 				}
+				add_opinion_modifier = { target = RCT modifier = RCT_proof_nova_is_a_traitor }
+				RIV_decrease_socialist_indoctrination = yes
 			}
-			add_opinion_modifier = { target = RCT modifier = RCT_proof_nova_is_a_traitor }
-			RIV_decrease_socialist_indoctrination = yes
 		}
 	}
 }
@@ -1294,10 +1322,8 @@ country_event = {#The result of the vote comes back. If votes > 0, then that mea
 		else = {
 			leave_faction = yes
 		}
-		every_other_country = {
-			limit = {
-				is_river_fed_member = yes
-			}
+		for_each_scope_loop = {
+			array = global.river_coalition_members
 			country_event = { id = rivercity.1938}
 		}
 	}
@@ -1699,8 +1725,8 @@ country_event = {#Hector revolts
 				set_country_flag = RCT_hector_revolt
 				load_focus_tree = RCT_hector
 				load_oob = "RCT_hector_units"
-				every_other_country = {
-					limit = { is_river_fed_member = yes }
+				for_each_scope_loop = {
+					array = global.river_coalition_members
 					add_ai_strategy = {
 						id = PREV
 						type = alliance
@@ -1999,9 +2025,11 @@ country_event = {#River games begin - The games are - Sprint, Swimming, Long Jum
 		hidden_effect = {
 			if = {#NIM has the best chance to win the sprint
 				limit = {
-					any_state = {
-						is_core_of = NIM
-						has_state_flag = state_competes_in_river_games
+					any_of = {
+						array = NIM.core_states
+						var:v = {
+							has_state_flag = state_competes_in_river_games
+						}
 					}
 				}
 				random_list = {
@@ -2039,9 +2067,11 @@ country_event = {#River games begin - The games are - Sprint, Swimming, Long Jum
 			}
 			if = {#BAK has the best chance to win the sailing
 				limit = {
-					any_state = {
-						is_core_of = BAK
-						has_state_flag = state_competes_in_river_games
+					any_of = {
+						array = BAK.core_states
+						var:v = {
+							has_state_flag = state_competes_in_river_games
+						}
 					}
 				}
 				random_list = {
@@ -2079,9 +2109,11 @@ country_event = {#River games begin - The games are - Sprint, Swimming, Long Jum
 			}
 			if = {#LCT has a bunch of practised Long Jumpers
 				limit = {
-					any_state = {
-						is_core_of = LCT
-						has_state_flag = state_competes_in_river_games
+					any_of = {
+						array = LCT.core_states
+						var:v = {
+							has_state_flag = state_competes_in_river_games
+						}
 					}
 				}
 				random_list = {
@@ -2119,9 +2151,11 @@ country_event = {#River games begin - The games are - Sprint, Swimming, Long Jum
 			}
 			if = {#DMT has the best chance of winning the Javelin event - strong arms
 				limit = {
-					any_state = {
-						is_core_of = DMT
-						has_state_flag = state_competes_in_river_games
+					any_of = {
+						array = DMT.core_states
+						var:v = {
+							has_state_flag = state_competes_in_river_games
+						}
 					}
 				}
 				random_list = {
@@ -2159,9 +2193,11 @@ country_event = {#River games begin - The games are - Sprint, Swimming, Long Jum
 			}
 			if = {#WIT has the best fencers - what else do the nobles do all day?
 				limit = {
-					any_state = {
-						is_core_of = WIT
-						has_state_flag = state_competes_in_river_games
+					any_of = {
+						array = WIT.core_states
+						var:v = {
+							has_state_flag = state_competes_in_river_games
+						}
 					}
 				}
 				random_list = {
@@ -2320,7 +2356,9 @@ country_event = {#players are told about the result of the vote
 
 	option = {
 		name = rivercity.1938.a
-
+		add_opinion_modifier = {
+			target = FROM modifier = distrustful_relations
+		}
 	}
 }
 
@@ -2335,7 +2373,11 @@ country_event = {#Helquill informed that RCT is agitating
 
 	option = {
 		name = rivercity.1939.a
-
+		add_ideas = RCT_influence
+		add_popularity = {
+			ideology = democratic
+			popularity = 0.05
+		}
 	}
 }
 
@@ -2350,7 +2392,7 @@ country_event = {#Helquill informed that RCT is shipping guns to harmonist rebel
 
 	option = {
 		name = rivercity.1940.a
-
+		swap_ideas = { add_idea = RCT_influence2 remove_idea = RCT_influence }
 	}
 }
 
@@ -2365,7 +2407,8 @@ country_event = {#Helquill informed that RCT is sending officers to lead harmoni
 
 	option = {
 		name = rivercity.1941.a
-
+		swap_ideas = { add_idea = RCT_influence3 remove_idea = RCT_influence2 }
+		custom_effect_tooltip = RCT_influence_tooltip
 	}
 }
 country_event = {#Helquill informed that Harmonists have started a revolution
@@ -2381,16 +2424,45 @@ country_event = {#Helquill informed that Harmonists have started a revolution
 		name = rivercity.1942.a
 		start_civil_war = {
 			ideology = democratic
-			size = 0.5
+			size = party_popularity@democratic
 		}
 		random_other_country = {
 			limit = {
 				original_tag = ROOT
 			}
+			add_equipment_to_stockpile = {
+				type = infantry_equipment
+				amount = 3000
+				producer = RCT
+			}
+			add_ai_strategy = {
+				id = FROM
+				type = alliance
+				value = 200
+			}
+			remove_opinion_modifier = {
+				target = FROM modifier = distrustful_relations
+			}
+			add_opinion_modifier = {
+				target = FROM modifier = friendly_government
+			}
 			FROM = {
-				add_to_faction = PREV
+				hidden_effect = {
+					if = {
+						limit = { threat < 50 }
+						add_threat = 50
+						set_global_flag = cw_threat_added
+					}
+				}
 				add_to_war = {
 					targeted_alliance = PREV enemy = ROOT
+				}
+				hidden_effect = {
+					if = {
+						limit = { has_global_flag = cw_threat_added }
+						add_threat = -50
+						clr_global_flag = cw_threat_added
+					}
 				}
 				add_ai_strategy = {
 					id = ROOT
@@ -2418,8 +2490,31 @@ country_event = {#Helquill told they must join with River Swirl or else
 
 	option = {#submit
 		name = rivercity.1943.a
-		FROM = {
-			puppet = ROOT
+		add_political_power = -100
+		if = {
+			limit = { is_in_faction = yes }
+			leave_faction = yes
+		}
+		if = {
+			limit = { has_dlc = "Together for Victory" }
+			hidden_effect = {
+				get_current_government_type = yes
+			}
+			FROM = {
+				puppet = ROOT
+				set_autonomy = {
+					target = ROOT
+					autonomy_state = autonomy_dominion
+				}
+			}
+			hidden_effect = {
+				restore_previous_government_type = yes
+			}
+		}
+		else = {
+			FROM = {
+				add_to_faction = ROOT
+			}
 		}
 	}
 	option = {#assert independence
@@ -2429,9 +2524,76 @@ country_event = {#Helquill told they must join with River Swirl or else
 				target = ROOT type = puppet_wargoal_focus
 			}
 		}
+		ai_chance = {
+			factor = 0
+			modifier = {
+				add = 1000
+				has_opinion = {
+					target = FROM
+					value < -20
+				}
+				OR = {
+					strength_ratio = { tag = FROM ratio > 0.8 }
+					is_in_faction = yes
+					AND = {
+						any_other_country = {
+							NOT = {
+								tag = FROM
+								is_in_faction_with = FROM
+							}
+							is_major = yes
+							has_guaranteed = ROOT
+						}
+					}
+				}
+			}
+		}
 	}
 }
 
+country_event = {#Helquill told they must join with River Swirl or else
+	id = rivercity.1944
+	immediate = {log = "[GetDateText]: [Root.GetName]: event rivercity.1944"}#Auto-logging
+	title = rivercity.1944.t
+	desc = rivercity.1944.d
+	picture = GFX_report_event_military_planning
+
+	is_triggered_only = yes
+
+	option = {#submit
+		name = rivercity.1944.a
+		if = {
+			limit = { has_dlc = "Together for Victory" }
+			effect_tooltip = {
+				puppet = FROM
+			}
+		}
+		else = {
+			effect_tooltip = {
+				add_to_faction = FROM
+			}
+		}
+	}
+}
+
+country_event = {#Helquill told they must join with River Swirl or else
+	id = rivercity.1945
+	immediate = {log = "[GetDateText]: [Root.GetName]: event rivercity.1945"}#Auto-logging
+	title = rivercity.1945.t
+	desc = rivercity.1945.d
+	picture = GFX_report_event_military_planning
+
+	is_triggered_only = yes
+
+	option = {#submit
+		name = rivercity.1945.a
+		effect_tooltip = {
+			create_wargoal = {
+				target = FROM type = puppet_wargoal_focus
+			}
+		}
+	}
+}
 
 country_event = {
 	id = rivercity.28

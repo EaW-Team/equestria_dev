@@ -365,29 +365,41 @@ STG_special_constructions = {
 STG_foreign_affairs = {
 	STG_invite_people_to_faction = {
 		icon = hammer_and_horseshoe_decision
-		available = {
-			FROM = {
-				has_government = communism
-				NOT = {
-					is_in_faction_with = ROOT
+		cost = 25
+		ai_will_do = {
+			factor = 10
+			modifier = {
+				factor = 5
+				has_war = yes
+				FROM = { 
+					has_war = yes 
+					any_enemy_country = {
+						has_war_with = ROOT
+					}
 				}
 			}
-			is_faction_leader = yes
-		}
-		cost = 0
-		ai_will_do = {
-			factor = 50
+			modifier = {
+				factor = 0.25
+				has_war = no
+				FROM = { has_war = yes }
+			}
 		}
 		is_good = yes
 		visible = {
+			is_faction_leader = yes
 			FROM = {
 				has_government = communism
+				is_subject = no
 				NOT = {
 					is_in_faction_with = ROOT
+					has_country_flag = STG_invitation_cooldown
 				}
 			}
+		}
+		target_root_trigger = {
 			is_faction_leader = yes
 		}
+		targets = { YAK JAK GRF PNG CRY OLE CHN CCN D01 D02 D03 D04 D05 D06 D07 D08 D09 D10 D11 D12 D13 D14 D15 }
 		target_trigger = {
 			FROM = {
 				OR = {
@@ -398,17 +410,20 @@ STG_foreign_affairs = {
 					original_tag = CRY
 					original_tag = OLE
 					original_tag = CHN
+					original_tag = CCN
 				}
 				has_government = communism
 				NOT = {
 					is_in_faction_with = ROOT
 				}
+				is_subject = no
 			}
 		}
 		complete_effect = {
 			log = "[GetDateText]: [Root.GetName]: Decision STG_invite_people_to_faction"
 			FROM = {
-				country_event = stalliongrad.146
+				country_event = generic.5
+				set_country_flag = { flag = STG_invitation_cooldown value = 1 days = 360 }
 			}
 		}
 	}
@@ -420,11 +435,7 @@ STG_foreign_affairs = {
 		}
 		fire_only_once = yes
 		is_good = yes
-		visible = {
-			EQS = {
-				exists = yes
-				has_capitulated = no
-			}
+		target_root_trigger = {
 			has_global_flag = the_war
 			NOT = {
 				has_war_with = CHN
@@ -435,20 +446,40 @@ STG_foreign_affairs = {
 				CHN = { has_government = democratic }
 				CHN = { has_government = communism }
 			}
-			OR = {
-				has_country_flag = war_help
-				is_in_faction_with = EQS
-				has_completed_focus = fighting_for_victory
-			}
 			NOT = {
 				has_country_flag = claimed_EQS_territory_already
 			}
 		}
+		visible = {
+			has_global_flag = the_war
+			NOT = {
+				has_war_with = CHN
+			}
+			OR = {
+				NOT = { country_exists = CHN }
+				CHN = { is_subject = yes }
+				CHN = { has_government = democratic }
+				CHN = { has_government = communism }
+			}
+			NOT = {
+				has_country_flag = claimed_EQS_territory_already
+			}
+			OR = {
+				has_country_flag = war_help
+				is_in_faction_with = FROM
+				has_completed_focus = fighting_for_victory
+			}
+			FROM = {
+				exists = yes
+				has_capitulated = no
+			}
+		}
+		targets = { EQS D01 D02 D03 D04 D05 D06 D07 D08 D09 D10 D11 D12 D13 D14 D15 }
 		target_trigger = {
-			FROM = { tag = EQS }
+			FROM = { original_tag = EQS }
 		}
 		available = {
-			EQS = {
+			FROM = {
 				exists = yes
 				has_capitulated = no
 				is_subject = no
@@ -519,11 +550,16 @@ STG_protection = {
 		}
 		fire_only_once = yes
 		is_good = yes
-		visible = {
-			has_defensive_war_with = FROM
+		target_root_trigger = {
 			has_completed_focus = vasya_leader
 			is_subject = no
 		}
+		visible = {
+			has_completed_focus = vasya_leader
+			is_subject = no
+			has_defensive_war_with = FROM
+		}
+		targets = { CHN }
 		target_trigger = {
 			FROM = { tag = CHN }
 		}
@@ -546,11 +582,16 @@ STG_protection = {
 		}
 		fire_only_once = yes
 		is_good = yes
-		visible = {
-			has_defensive_war_with = FROM
+		target_root_trigger = {
 			has_completed_focus = vasya_leader
 			is_subject = no
 		}
+		visible = {
+			has_completed_focus = vasya_leader
+			is_subject = no
+			has_defensive_war_with = FROM
+		}
+		targets = { EQS D01 D02 D03 D04 D05 D06 D07 D08 D09 D10 D11 D12 D13 D14 D15 }
 		target_trigger = {
 			FROM = { original_tag = EQS }
 		}
@@ -573,11 +614,16 @@ STG_protection = {
 		}
 		fire_only_once = yes
 		is_good = yes
-		visible = {
-			has_offensive_war_with = FROM
+		target_root_trigger = {
 			has_completed_focus = vasya_leader
 			is_subject = no
 		}
+		visible = {
+			has_completed_focus = vasya_leader
+			is_subject = no
+			has_offensive_war_with = FROM
+		}
+		targets = { EQS D01 D02 D03 D04 D05 D06 D07 D08 D09 D10 D11 D12 D13 D14 D15 }
 		target_trigger = {
 			FROM = { original_tag = EQS }
 		}
@@ -595,19 +641,22 @@ STG_protection = {
 		}
 		fire_only_once = yes
 		is_good = yes
-		visible = {
-			NOT = {
-				OR = {
-					has_war_with = EQS
-					has_defensive_war_with = CHN
-				}
-			}
+		target_root_trigger = {
 			has_completed_focus = vasya_leader
 			is_subject = no
 		}
+		visible = {
+			has_completed_focus = vasya_leader
+			is_subject = no
+		}
+		target_array = "global.majors"
 		target_trigger = {
 			FROM = {
 				is_major = yes
+				NOT = {
+					original_tag = EQS
+					tag = CHN
+				}
 				OR = {
 					AND = {
 						NOT = { has_government = ROOT }
@@ -637,19 +686,21 @@ STG_protection = {
 		}
 		fire_only_once = yes
 		is_good = yes
-		visible = {
-			NOT = {
-				OR = {
-					has_war_with = EQS
-					has_defensive_war_with = CHN
-				}
-			}
-
+		target_root_trigger = {
 			has_completed_focus = vasya_leader
 			is_subject = no
 		}
+		visible = {
+			has_completed_focus = vasya_leader
+			is_subject = no
+		}
+		target_array = "global.majors"
 		target_trigger = {
 			FROM = {
+				NOT = {
+					original_tag = EQS
+					tag = CHN
+				}
 				is_major = yes
 				OR = {
 					ROOT = {
@@ -681,13 +732,18 @@ STG_protection = {
 		fire_only_once = yes
 		is_good = yes
 		visible = {
+			has_completed_focus = sinister_leader
+			is_subject = no
 			OR = {
 				has_offensive_war_with = FROM
 				is_justifying_wargoal_against = FROM
 			}
+		}
+		target_root_trigger = {
 			has_completed_focus = sinister_leader
 			is_subject = no
 		}
+		targets = { CHN }
 		target_trigger = {
 			FROM = { tag = CHN }
 		}
@@ -705,11 +761,16 @@ STG_protection = {
 		}
 		fire_only_once = yes
 		is_good = yes
-		visible = {
-			has_defensive_war_with = FROM
+		target_root_trigger = {
 			has_completed_focus = sinister_leader
 			is_subject = no
 		}
+		visible = {
+			has_completed_focus = sinister_leader
+			is_subject = no
+			has_defensive_war_with = FROM
+		}
+		targets = { CHN }
 		target_trigger = {
 			FROM = { tag = CHN }
 		}
@@ -728,10 +789,15 @@ STG_protection = {
 		fire_only_once = yes
 		is_good = yes
 		visible = {
+			has_completed_focus = sinister_leader
+			is_subject = no
 			has_defensive_war_with = FROM
+		}
+		target_root_trigger = {
 			has_completed_focus = sinister_leader
 			is_subject = no
 		}
+		targets = { EQS D01 D02 D03 D04 D05 D06 D07 D08 D09 D10 D11 D12 D13 D14 D15 }
 		target_trigger = {
 			FROM = { original_tag = EQS }
 		}
@@ -750,13 +816,18 @@ STG_protection = {
 		fire_only_once = yes
 		is_good = yes
 		visible = {
+			has_completed_focus = sinister_leader
+			is_subject = no
 			OR = {
 				has_offensive_war_with = FROM
 				is_justifying_wargoal_against = FROM
 			}
+		}
+		target_root_trigger = {
 			has_completed_focus = sinister_leader
 			is_subject = no
 		}
+		targets = { EQS D01 D02 D03 D04 D05 D06 D07 D08 D09 D10 D11 D12 D13 D14 D15 }
 		target_trigger = {
 			FROM = { original_tag = EQS }
 		}
@@ -775,18 +846,21 @@ STG_protection = {
 		}
 		fire_only_once = yes
 		is_good = yes
-		visible = {
-			NOT = {
-				OR = {
-					has_war_with = EQS
-					has_war_with = CHN
-				}
-			}
+		target_root_trigger = {
 			has_completed_focus = sinister_leader
 			is_subject = no
 		}
+		visible = {
+			has_completed_focus = sinister_leader
+			is_subject = no
+		}
+		target_array = "global.majors"
 		target_trigger = {
 			FROM = {
+				NOT = {
+					original_tag = EQS
+					tag = CHN
+				}
 				is_major = yes
 				OR = {
 					ROOT = {
@@ -812,16 +886,7 @@ form_equestrian_socialist_union_category = {
 	form_equestrian_socialist_republic = {
 		icon = red_star
 		available = {
-			OR = {
-				original_tag = STG
-				original_tag = BAL
-				original_tag = CRY
-				original_tag = VAN
-				original_tag = BUF
-				original_tag = CES
-			}
-			has_government = communism
-			3 = { is_controlled_by = ROOT }
+			3 = { is_owned_and_controlled_by = ROOT }
 			has_war = no
 		}
 		cost = 25
@@ -861,15 +926,6 @@ form_equestrian_socialist_union_category = {
 	form_equestrian_socialist_union = {
 		icon = equestrian_union
 		available = {
-			OR = {
-				original_tag = STG
-				original_tag = BAL
-				original_tag = CRY
-				original_tag = VAN
-				original_tag = BUF
-				original_tag = CES
-			}
-			has_government = communism
 			controls_fillydelphia = yes
 			controls_manehattan = yes
 			controls_canterlot = yes
@@ -877,6 +933,7 @@ form_equestrian_socialist_union_category = {
 			controls_baltimare = yes
 			controls_stableside = yes
 			controls_stalliongrad = yes
+			controls_canterlot = yes
 			controls_crystal_city = yes
 			controls_startlight_country = yes
 			has_war = no
@@ -889,17 +946,6 @@ form_equestrian_socialist_union_category = {
 		is_good = yes
 		visible = {
 			is_subject = no
-			OR = {
-				original_tag = EQS
-				original_tag = STG
-				original_tag = BAL
-				original_tag = CRY
-				original_tag = VAN
-				original_tag = BUF
-				original_tag = CES
-				original_tag = STL
-			}
-			has_war = no
 			controls_stalliongrad = yes
 			controls_canterlot = yes
 			has_government = communism
@@ -909,18 +955,29 @@ form_equestrian_socialist_union_category = {
 			drop_cosmetic_tag = yes
 			set_cosmetic_tag = EQS_COMUNI
 			set_global_flag = union_formed
-			hidden_effect = {
-				every_state = {
-					limit = {
-						OR = {
-							is_core_of = STG
-							is_core_of = EQS
-							is_core_of = CRY
-							is_core_of = STL
-						}
+			every_state = {
+				limit = {
+					OR = {
+						is_core_of = STG
+						is_core_of = EQS
+						is_core_of = CRY
+						is_core_of = STL
 					}
-					add_core_of = ROOT
 				}
+				add_core_of = ROOT
+			}
+			every_other_country = {
+				limit = { 
+					OR = {
+						is_eqs_civil_war_tag = yes
+						original_tag = CRY
+						original_tag = STL
+					}
+					has_government = communism
+					is_subject = no
+					has_war = no
+				}
+				country_event = stalliongrad.148
 			}
 		}
 	}
@@ -968,10 +1025,15 @@ economy_decisions = {
 political_actions = {
 	STG_help_EQS_in_war = {
 		allowed = {
-			is_historical_focus_on = yes
 			original_tag = STG
 		}
+		target_root_trigger = {
+			is_historical_focus_on = yes
+			NOT = { has_country_flag = war_help }
+			is_ai = yes
+		}
 		visible = {
+			is_historical_focus_on = yes
 			NOT = { has_country_flag = war_help }
 			is_ai = yes
 			FROM = {
@@ -985,6 +1047,7 @@ political_actions = {
 		ai_will_do = {
 			factor = 10000
 		}
+		targets = { EQS D01 D02 D03 D04 D05 D06 D07 D08 D09 D10 D11 D12 D13 D14 D15 }
 		target_trigger = {
 			FROM = { tag = event_target:equestria }
 		}
@@ -1306,6 +1369,7 @@ form_the_socialist_world_republic = {
 		is_good = yes
 		visible = {
 			has_government = communism
+			has_war = no
 			all_state = {
 				is_owned_by = ROOT
 			}
