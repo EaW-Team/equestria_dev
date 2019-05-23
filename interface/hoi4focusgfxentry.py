@@ -62,6 +62,8 @@ parser.add_argument('--goals', metavar='goals', default="goals.gfx", required=Fa
                     help='Name of the goals file (default:\"goals.gfx\")')
 parser.add_argument('--goals_shine', metavar='goals_shine', default="goals_shine.gfx", required=False,
                     help='Name of the goals_shine file (default:\"goals_shine.gfx\")')
+parser.add_argument('--fileformat', metavar='fileformat', default="dds", required=False,
+                    help='Extension of the file format, i.e. dds or tga')
 
 args = parser.parse_args()
 
@@ -76,7 +78,8 @@ with open(dir + "/" + args.goals, "r") as f:
 index_to_insert = find_index_before_bracket(lines)
 
 lines.insert(index_to_insert, "\t}")
-lines.insert(index_to_insert, "\t\ttexturefile = \"gfx/interface/goals/" + args.icon_name + ".dds\"")
+
+lines.insert(index_to_insert, "\t\ttexturefile = \"gfx/interface/goals/" + args.icon_name + "." + args.fileformat + "\"")
 lines.insert(index_to_insert, "\t\tname = \"GFX_" + args.icon_name + "\"")
 lines.insert(index_to_insert, "\tSpriteType = {")
 
