@@ -40,7 +40,7 @@ country_event = {
 			hidden_effect = {
 				every_other_country = {
 					limit = { is_in_faction_with = FROM }
-					FROM = { give_military_access = PREV }
+					ROOT = { give_military_access = PREV }
 					give_military_access = ROOT
 				}
 			}
@@ -341,14 +341,24 @@ country_event = { ## BAL help against NLR
 
 	is_triggered_only = yes
 
+	trigger = {
+		country_exists = NLR
+		NOT = {
+			has_war_with = NLR
+		}
+		FROM = { has_war_with = NLR }
+	}
+
 	option = {
 		name = stalliongrad.11.a
-		declare_war_on = { target = NLR type = puppet_wargoal_focus }
+		add_to_war = {
+			targeted_alliance = FROM enemy = NLR
+		}
 		ai_chance = { factor = 100 }
 	}
 	option = {
 		name = stalliongrad.11.b
-		BAL = { add_opinion_modifier = { target = ROOT modifier = stg_refused_help } }
+		FROM = { add_opinion_modifier = { target = ROOT modifier = stg_refused_help } }
 		ai_chance = { factor = 0 }
 	}
 }
@@ -1498,7 +1508,7 @@ country_event = { ## Civil War Help { Event for Equestria Triggered Above }
 				set_global_flag = cw_threat_added
 			}
 		}
-		FROM = { add_to_war = { targeted_alliance = ROOT enemy = event_target:EQS_not_commie } }
+		event_target:EQS_not_commie = { FROM = { add_to_war = { targeted_alliance = ROOT enemy = PREV } } }
 		hidden_effect = {
 			if = {
 				limit = { has_global_flag = cw_threat_added }
@@ -1572,6 +1582,10 @@ country_event = { ## Union with EQS after EQS won the CivilWAr
 	picture = GFX_event_stg_pairlament2
 
 	is_triggered_only = yes
+
+	trigger = {
+		EQS = { has_government = communism }
+	}
 
 	option = { # stg owns equestria
 		name = stalliongrad.59.a
@@ -1658,7 +1672,7 @@ country_event = { ## Union with CRY
 
 	option = { # stg changes tag
 		name = stalliongrad.62.a
-		event_target:communism = {
+		event_target:commie_cry = {
 			country_event = { id = crystalemp.3 }
 		}
 	}
@@ -1821,34 +1835,16 @@ country_event = {
 		trigger = { owns_state = 75 }
 		ai_chance = { factor = 0 }
 		set_capital = 75
-		every_state = {
-			limit = {
-				is_owned_by = ROOT
-			}
-			add_core_of = ROOT
-		}
 	}
 	option = { # Canterlot
 		name = stalliongrad.72.b
 		trigger = { owns_state = 3 }
 		set_capital = 3
 		ai_chance = { factor = 100 }
-		every_state = {
-			limit = {
-				is_owned_by = ROOT
-			}
-			add_core_of = ROOT
-		}
 	}
 	option = { # STG
 		name = stalliongrad.72.c
 		ai_chance = { factor = 0 }
-		every_state = {
-			limit = {
-				is_owned_by = ROOT
-			}
-			add_core_of = ROOT
-		}
 	}
 }
 country_event = {  ## Revolt in Yakistan
@@ -2001,8 +1997,9 @@ country_event = {  ## Sinnie Focus Annex Equestria
 		ai_chance = { factor = 100 }
 		trigger = { EQS = { is_subject_of = STG } }
 		every_state = {
-			limit = { is_owned_by = STG
-				is_owned_by = EQS }
+			limit = { 
+				is_core_of = EQS
+			}
 			add_core_of = STG
 		}
 		annex_country = { target = EQS transfer_troops = yes }
@@ -2010,10 +2007,10 @@ country_event = {  ## Sinnie Focus Annex Equestria
 	option = { #
 		name = stalliongrad.79.b
 		every_state = {
-			limit = { is_owned_by = STG }
+			limit = { is_core_of = EQS }
 			add_core_of = STG
 		}
-		ai_chance = { factor = 0 }
+		ai_chance = { factor = 1 }
 	}
 }
 country_event = { ## Universities and Colleges
@@ -2833,18 +2830,31 @@ country_event = {
 		set_country_flag = nestor_coup
 		hidden_effect = {
 			retire_country_leader = yes
+		}
+		set_politics = {
+			ruling_party = communism
+		}
+		create_country_leader = {
+			name = "Nestor Lunin"
+			desc = "NESTOR_DESC"
+			picture = "Nestor.tga"
+			expire = "1965.1.1"
+			ideology = leninism
+			traits = {
+			}
+		}
+		if = {
+			limit = { is_subject_of = EQS }
+			end_puppet_this = yes
+		}
+		if = {
+			limit = { is_in_faction = yes is_faction_leader = no }
+			leave_faction = yes
+		}
+		hidden_effect = {
 			if = {
 				limit = { has_unit_leader = 1000 }
 				remove_unit_leader = 1000
-			}
-			create_country_leader = {
-				name = "Nestor Lunin"
-				desc = "NESTOR_DESC"
-				picture = "Nestor.tga"
-				expire = "1965.1.1"
-				ideology = leninism
-				traits = {
-				}
 			}
 			news_event = { days = 1 id = stalliongrad_news.106 }
 			country_event = stalliongrad.113
@@ -3866,5 +3876,160 @@ country_event = {
 	is_triggered_only = yes
 	option = {
 		name = stalliongrad.147.a
+	}
+}
+
+#fires in the scope of the country to be annexed/puppeted by STG
+country_event = {
+	id = stalliongrad.148
+	title = stalliongrad.148.t
+	desc = stalliongrad.148.d
+	picture = GFX_event_stg_pairlament
+
+	immediate = {log = "[GetDateText]: [Root.GetName]: event stalliongrad.148"}
+
+	fire_only_once = no
+	is_triggered_only = yes
+
+	#okay we gonna die
+	option = {
+		name = stalliongrad.148.a
+		hidden_effect = {
+			every_other_country = {
+				limit = { is_subject_of = ROOT }
+				if = {
+					limit = { is_eqs_civil_war_tag = yes is_ai = yes }
+					FROM = { annex_country = { target = PREV transfer_troops = yes } }
+				}
+				else = {
+					end_puppet_this = yes
+					hidden_effect = {
+						get_current_government_type = yes
+					}
+					FROM = { puppet = PREV }
+					hidden_effect = {
+						restore_previous_government_type = yes
+					}
+				}
+			}
+		}
+		custom_effect_tooltip = GAME_OVER_TT
+		FROM = { 
+			annex_country = { target = ROOT transfer_troops = yes }
+			country_event = { id = stalliongrad.149 days = 1 } 
+		}
+		ai_chance = {
+			factor = 10
+		}
+	}
+
+	#okay we gonna be puppet
+	option = {
+		name = stalliongrad.148.b
+		hidden_effect = {
+			every_other_country = {
+				limit = { is_subject_of = ROOT }
+				if = {
+					limit = { is_eqs_civil_war_tag = yes is_ai = yes }
+					FROM = { annex_country = { target = PREV transfer_troops = yes } }
+				}
+				else = {
+					end_puppet_this = yes
+					hidden_effect = {
+						get_current_government_type = yes
+					}
+					FROM = { puppet = PREV }
+					hidden_effect = {
+						restore_previous_government_type = yes
+					}
+				}
+			}
+		}
+		FROM = {
+			puppet = ROOT
+			country_event = { id = stalliongrad.149 days = 1 } 
+		}
+		ai_chance = {
+			factor = 0
+		}
+	}
+
+	#nah fuck you fam
+	option = {
+		name = stalliongrad.148.c
+		FROM = { 
+			effect_tooltip = {
+				add_opinion_modifier = {
+					target = ROOT
+					modifier = hostility
+				}
+				create_wargoal = {
+					type = annex_everything
+					target = ROOT
+				}
+			}
+			country_event = { id = stalliongrad.150 days = 1 } 
+		}
+		ai_chance = {
+			factor = 0
+		}
+	}
+}
+
+#Country accepted our annexation (yay!)
+#Fires for STG
+country_event = {
+	id = stalliongrad.149
+	title = stalliongrad.149.t
+	desc = stalliongrad.149.desc
+	picture = GFX_event_stg_pairlament
+
+	immediate = {log = "[GetDateText]: [Root.GetName]: event stalliongrad.149"}
+
+	fire_only_once = no
+	is_triggered_only = yes
+
+	#dab
+	option = {
+		name = stalliongrad.149.a
+		if = {
+			limit = { country_exists = FROM }
+			effect_tooltip = { puppet = FROM }
+		}
+		else = {
+			effect_tooltip = {
+				annex_country = {
+					target = FROM
+					transfer_troops = yes
+				}
+			}
+		}
+	}
+}
+
+#Country says no (losers)
+#Fires for STG
+country_event = {
+	id = stalliongrad.150
+	title = stalliongrad.150.t
+	desc = stalliongrad.150.d
+	picture = GFX_event_stg_pairlament
+
+	immediate = {log = "[GetDateText]: [Root.GetName]: event stalliongrad.150"}
+
+	fire_only_once = no
+	is_triggered_only = yes
+
+	#reeeeeeeeeeeeeeeee
+	option = {
+		name = stalliongrad.150.a
+		add_opinion_modifier = {
+			target = FROM
+			modifier = hostility
+		}
+		create_wargoal = {
+			type = annex_everything
+			target = FROM
+		}
 	}
 }

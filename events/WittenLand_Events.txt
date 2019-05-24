@@ -355,7 +355,11 @@ country_event = { #they denied us, how do we respond?
 	option = { #Bring on the tanks
 		name = wittenland.18.a
 		if = {
-			limit = { is_river_fed_member = yes }
+			limit = {
+				682 = { is_river_fed_member = yes }
+				is_river_fed_member = yes 
+				is_faction_leader = no
+			}
 			RIV_leave_fed = yes
 		}
 		create_wargoal = {
@@ -1446,6 +1450,7 @@ country_event = { #Volaire 'Won' 2
 
 			random_other_country = {
 				limit = { original_tag = WIT }
+				load_focus_tree = { tree = WIT_focus_tree keep_completed = yes }
 				if = {
 					limit = { is_in_faction = yes }
 					set_cosmetic_tag = RIV_federation_mem
@@ -1538,7 +1543,6 @@ country_event = {
 			limit = {
 				has_war = yes
 			}
-
 			if = { #if we don't have modern society yet we should really get it
 				limit = {
 					NOT = {
@@ -1547,40 +1551,34 @@ country_event = {
 				}
 				set_country_flag = WIT_AI_Flag_Industry_High
 				set_country_flag = WIT_AI_Flag_Military_Low
-
-				else = {
-					if = { #if we're about to do the duel, don't do it!
-						limit = {
-							has_completed_focus = WIT_Grand_Fair
-							has_completed_focus = WIT_Reclamation_Day
-							has_completed_focus = WIT_Magical_Saturnalia
-							has_completed_focus = WIT_New_Archmages
-							NOT = {
-								has_completed_focus = WIT_The_Duel
-							}
-						}
-
-						set_country_flag = WIT_AI_Flag_Politics_Stop
-						set_country_flag = WIT_AI_Flag_Military_High
+			}
+			else_if = { #if we're about to do the duel, don't do it!
+				limit = {
+					NOT = {
+						has_completed_focus = WIT_The_Duel
 					}
-					if = { #if we've already done the duel then do our bonus politics, but don't do coltrstream
-						limit = {
-							has_completed_focus = WIT_The_Duel
-						}
-						set_country_flag = WIT_AI_Flag_Coltstream_Stop
-						set_country_flag = WIT_AI_Flag_Politics_Low
-						set_country_flag = WIT_AI_Flag_Military_High
-
-						else = { #if all else fails lets do military foci and maybe political ones
-							set_country_flag = WIT_AI_Flag_Military_High
-							set_country_flag = WIT_AI_Flag_Politics_Low
-						}
-					}
+					has_completed_focus = WIT_Grand_Fair
+					has_completed_focus = WIT_Reclamation_Day
+					has_completed_focus = WIT_Magical_Saturnalia
+					has_completed_focus = WIT_New_Archmages
 				}
+				set_country_flag = WIT_AI_Flag_Politics_Stop
+				set_country_flag = WIT_AI_Flag_Military_High
+			}
+			else_if = { #if we've already done the duel then do our bonus politics, but don't do coltrstream
+				limit = {
+					has_completed_focus = WIT_The_Duel
+				}
+				set_country_flag = WIT_AI_Flag_Coltstream_Stop
+				set_country_flag = WIT_AI_Flag_Politics_Low
+				set_country_flag = WIT_AI_Flag_Military_High
+			}
+			else = { #if all else fails lets do military foci and maybe political ones
+				set_country_flag = WIT_AI_Flag_Military_High
+				set_country_flag = WIT_AI_Flag_Politics_Low
 			}
 		}
 		else = {
-
 			if = {
 				limit = {
 					NOT = {
@@ -1589,140 +1587,124 @@ country_event = {
 				}
 				set_country_flag = WIT_AI_Flag_Industry_High
 				set_country_flag = WIT_AI_Flag_Politics_Low
-
-				else = {
-					set_country_flag = WIT_AI_Flag_Politics_High
-				}
+			}
+			else = {
+				set_country_flag = WIT_AI_Flag_Politics_High
 			}
 
-			if = {
+			if = { # BAR
+				limit = {
+					OR = {
+						AND = {
+							BAR = {
+								exists = no
+							}
+							owns_state = 624
+							owns_state = 626
+							owns_state = 625
+						}
+						BAR = {
+							OR = {
+								is_subject_of = ROOT
+								is_in_faction_with = ROOT
+							}
+						}
+					}
+				}
+				set_country_flag = WIT_AI_Flag_Politics_High
+				set_country_flag = WIT_AI_Flag_Barad_Diplomacy_High
+			}
+			else_if = {
 				limit = {
 					BAR = { #if they are not in a faction and they are weak let's kill them
 						is_in_faction = no
-
 						strength_ratio = {
 							tag = ROOT
-							ratio > 1.2
+							ratio < 0.8
 						}
 					}
 					date > 1010.1.1
 				}
 
 				set_country_flag = WIT_AI_Flag_Barad_Diplomacy_High
-
-				else = {
-					if = { #they are part of a faction so we need to be clever!
-						limit = {
-							BAR = {
-								is_in_faction = yes
-							}
-						}
-						if = { #assess the strength of the whole faction first
-							limit = {
-								BAR = {
-									all_allied_country = {
-
-										strength_ratio = {
-											tag = ROOT
-											ratio > 1.2
-										}
-									}
-								}
-								date > 1010.1.1
-							}
-
-							set_country_flag = WIT_AI_Flag_Barad_Diplomacy_High
-
-							else = { #hang on a sec, did we kill them already?
-								if = {
-									limit = {
-										BAR = {
-											exists = no
-										}
-										owns_state = 624
-										owns_state = 626
-										owns_state = 625
-									}
-
-									set_country_flag = WIT_AI_Flag_Politics_High
-									set_country_flag = WIT_AI_Flag_Barad_Diplomacy_High
-								}
-							}
-						}
-
-						else = { #we are not gonna win...
-							set_country_flag = WIT_AI_Flag_Barad_Diplomacy_Stop
-						}
-					}
-				}
 			}
-
-			if = {
+			else_if = { #they are part of a faction so we need to be clever!
 				limit = {
-					GRY = { #if they are not in a faction and they are weak let's kill them
-						is_in_faction = no
-
-						strength_ratio = {
-							tag = ROOT
-							ratio > 1.2
+					BAR = {
+						is_in_faction = yes
+						all_allied_country = {
+							strength_ratio = {
+								tag = ROOT
+								ratio < 0.8
+							}
 						}
 					}
 					date > 1010.1.1
 				}
+				set_country_flag = WIT_AI_Flag_Barad_Diplomacy_High
+			}
+			else = { #we are not gonna win...
+				set_country_flag = WIT_AI_Flag_Barad_Diplomacy_Stop
+			}
 
-				set_country_flag = WIT_AI_Flag_Host_Diplomacy_High
-
-				else = {
-					if = { #they are part of a faction so we need to be clever!
-						limit = {
+			if = { # The Host
+				limit = {
+					OR = {
+						AND = {
 							GRY = {
-								is_in_faction = yes
+								exists = no
 							}
+							owns_state = 611
+							owns_state = 609
+							owns_state = 596
+							owns_state = 598
+							owns_state = 597
+							owns_state = 612
+							owns_state = 631
+							owns_state = 610
+							owns_state = 592
 						}
-						if = { #assess the strength of the whole faction first
-							limit = {
-								GRY = {
-									all_allied_country = {
-
-										strength_ratio = {
-											tag = ROOT
-											ratio > 1.2
-										}
-									}
-								}
-								date > 1010.1.1
+						GRY = {
+							OR = {
+								is_subject_of = ROOT
+								is_in_faction_with = ROOT
 							}
-
-							set_country_flag = WIT_AI_Flag_Host_Diplomacy_High
-
-							else = { #hang on a sec, did we kill them already?
-								if = {
-									limit = {
-										GRY = {
-											exists = no
-										}
-										owns_state = 611
-										owns_state = 609
-										owns_state = 596
-										owns_state = 598
-										owns_state = 597
-										owns_state = 612
-										owns_state = 631
-										owns_state = 610
-										owns_state = 592
-									}
-
-									set_country_flag = WIT_AI_Flag_Politics_High
-									set_country_flag = WIT_AI_Flag_Host_Diplomacy_High
-								}
-							}
-						}
-
-						else = { #we are not gonna win...
-							set_country_flag = WIT_AI_Flag_Host_Diplomacy_Stop
 						}
 					}
 				}
+				set_country_flag = WIT_AI_Flag_Politics_High
+				set_country_flag = WIT_AI_Flag_Host_Diplomacy_High
+			}
+			else_if = {
+				limit = {
+					GRY = { #if they are not in a faction and they are weak let's kill them
+						is_in_faction = no
+						strength_ratio = {
+							tag = ROOT
+							ratio < 0.8
+						}
+					}
+					date > 1010.1.1
+				}
+				set_country_flag = WIT_AI_Flag_Host_Diplomacy_High
+			}
+			else_if = { #they are part of a faction so we need to be clever!
+				limit = {
+					GRY = {
+						is_in_faction = yes
+						all_allied_country = {
+							strength_ratio = {
+								tag = ROOT
+								ratio < 0.8
+							}
+						}
+					}
+					date > 1010.1.1
+				}
+				set_country_flag = WIT_AI_Flag_Host_Diplomacy_High
+			}
+			else = { #we are not gonna win...
+				set_country_flag = WIT_AI_Flag_Host_Diplomacy_Stop
 			}
 
 			if = {
@@ -1732,62 +1714,48 @@ country_event = {
 					}
 					has_idea = modern_society
 				}
+
 				if = {
+					limit = {
+						event_target:coltstream_owner = {
+							OR = { exists = no tag = ROOT }
+						}
+					}
+					set_country_flag = WIT_AI_Flag_Politics_High
+				}
+				else_if = {
 					limit = {
 						event_target:coltstream_owner = { #if they are not in a faction and they are weak let's kill them
 							is_in_faction = no
-
 							strength_ratio = {
 								tag = ROOT
-								ratio > 1.2
+								ratio < 0.8
 							}
 						}
 					}
 
 					set_country_flag = WIT_AI_Flag_Coltstream_High
 				}
-				else = {
-					if = { #they are part of a faction so we need to be clever!
-						limit = {
-							event_target:coltstream_owner = {
-								is_in_faction = yes
-							}
-						}
-						if = { #assess the strength of the whole faction first
-							limit = {
-								event_target:coltstream_owner = {
-									all_allied_country = {
+				else_if = { #they are part of a faction so we need to be clever!
+					limit = {
+						event_target:coltstream_owner = {
+						is_in_faction = yes
+							all_allied_country = {
 
-										strength_ratio = {
-											tag = ROOT
-											ratio > 1.2
-										}
-									}
+								strength_ratio = {
+									tag = ROOT
+									ratio < 0.8
 								}
 							}
-
-							set_country_flag = WIT_AI_Flag_Coltstream_High
-
-							else = { #hang on a sec, did we kill them already?
-								if = {
-									limit = {
-										event_target:coltstream_owner = {
-											exists = no
-										}
-									}
-
-									set_country_flag = WIT_AI_Flag_Politics_High
-								}
-							}
-						}
-
-						else = { #we are not gonna win...
-							set_country_flag = WIT_AI_Flag_Coltstream_Stop
 						}
 					}
+					set_country_flag = WIT_AI_Flag_Coltstream_High
+				}
+				else = { #we are not gonna win...
+					set_country_flag = WIT_AI_Flag_Coltstream_Stop
 				}
 			}
-			if = {
+			else_if = {
 				limit = {
 					has_government = neutrality
 					has_idea = modern_society
@@ -1798,40 +1766,38 @@ country_event = {
 			}
 		}
 
-		if = { #what is going on in the federation?
+		if = {
 			limit = {
-				RCT = {
-					exists = yes
-					NOT = {
-						has_government  = democratic
-					}
-				}
+				has_country_leader = { name = "Queen White Star" ruling_only = yes }
 			}
-			set_country_flag = WIT_AI_Flag_RIV_High
-
-
-			else = {
-				if = {
-					limit = {
-						RCT = {
-							exists = no
-						}
-					}
-					if = {
-						limit = {
-							LCT = {
-								OR = {
-									has_government  = fascism
-									has_government  = communism
+			if = { #what is going on in the federation?
+				limit = {
+					OR = {
+						AND = {
+							RCT = {
+								exists = yes
+								NOT = {
+									has_government  = democratic
 								}
 							}
 						}
-						set_country_flag = WIT_AI_Flag_RIV_High
-					}
-					else = {
-						set_country_flag = WIT_AI_Flag_RIV_Low
+						AND = {
+							RCT = {
+								exists = no
+								LCT = {
+									OR = {
+										has_government  = fascism
+										has_government  = communism
+									}
+								}
+							}
+						}
 					}
 				}
+				set_country_flag = WIT_AI_Flag_RIV_High
+			}
+			else = {
+				set_country_flag = WIT_AI_Flag_RIV_Low
 			}
 		}
 
