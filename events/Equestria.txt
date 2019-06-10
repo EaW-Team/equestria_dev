@@ -469,27 +469,6 @@ country_event = { #### AI PONYPOWER BUFF 2
 		swap_ideas = { remove_idea = eqs_ai_buff add_idea = eqs_ai_buff2 }
 	}
 }
-country_event = { #### AI PONYPOWER BUFF
-	id = equestria.24
-	immediate = {log = "[Root.GetName]: event equestria.24"}#Auto-logging
-	title = equestria.24.t
-	desc = equestria.24.d
-	picture = GFX_event_canterlot
-
-	trigger = {
-		tag = EQS
-		is_ai = yes
-		has_completed_focus = Ministry_of_defense
-		NOT = { has_war_with = NLR }
-	}
-
-	fire_only_once = yes
-
-	option = {
-		name = equestria.24.a
-		add_manpower = 200000
-	}
-}
 country_event = { #### Stalliongrad invites traders ###  asks for help
 	id = equestria.27
 	immediate = {log = "[GetDateText]: [Root.GetName]: event equestria.27"}#Auto-logging
@@ -730,20 +709,20 @@ country_event = { #### STG wants to help against CHN
 	is_triggered_only = yes
 	option = { ##
 		name = equestria.42.a
-		FROM = { give_military_access = ROOT }
 		give_military_access = FROM
-		if = {
-			limit = { has_war_with = CHN }
-			FROM = {
-				add_to_war = {
-					targeted_alliance = ROOT enemy = CHN
-				}
+		FROM = {
+			give_military_access = ROOT
+		}
+		hidden_effect = {
+			every_other_country = {
+				limit = { is_in_faction_with = ROOT }
+				FROM = { give_military_access = PREV }
+				give_military_access = FROM
 			}
 		}
-		else = {
-			every_enemy_country = {
-				FROM = { add_to_war = { targeted_alliance = ROOT enemy = PREV } }
-			}
+		country_event = { days = 1 id = equestria.10 }
+		every_enemy_country = {
+			FROM = { add_to_war = { targeted_alliance = ROOT enemy = PREV } }
 		}
 		hidden_effect = {
 			FROM = { 
@@ -1065,19 +1044,27 @@ country_event = { #### Create faction
 		name = equestria.58.a
 		ai_chance = { factor = 100 }
 		#create_faction = "Ponyleague_faction"
-		CRY = {
+		FROM = {
 			country_event = { id = crystalemp.22 days = 1 }
 		}
 	}
 	option = { ## No civil war
 		name = equestria.58.b
+		remove_from_faction = FROM
 		ai_chance = { factor = 0 }
 	}
 	option = { ## No civil war
 		name = equestria.58.c
 		ai_chance = { factor = 0 }
 		create_wargoal = {
-			target = CRY type = annex_everything
+			target = FROM type = annex_everything
+		}
+		add_stability = -0.2
+		add_war_support = -0.4
+		add_political_power = -200
+		add_popularity = {
+			ideology = democratic
+			popularity = -0.2
 		}
 		add_threat = 10
 	}
@@ -1359,7 +1346,7 @@ country_event = { #### Buffalo Becomes Puppet from their focus tree
 		trigger = { NOT = { has_completed_focus = eqs_buffalo2 } } }
 	desc = { text = equestria.68.d_attempt
 		trigger = { has_completed_focus = eqs_buffalo2
-			NOT = { BUF = { is_subject_of = EQS } } } }
+			NOT = { FROM = { is_subject_of = ROOT } } } }
 	picture = GFX_event_buffalo_relations
 
 	is_triggered_only = yes
@@ -1367,18 +1354,18 @@ country_event = { #### Buffalo Becomes Puppet from their focus tree
 	option = {
 		name = equestria.68.a
 		trigger = { has_country_flag = BUF_puppet }
-		puppet = BUF
-		BUF = { set_cosmetic_tag = EQSBUF_DEM }
+		puppet = FROM
+		FROM = { set_cosmetic_tag = EQSBUF_DEM }
 		if = {
 			limit = { has_dlc = "Together for Victory" }
-			set_autonomy = { target = BUF autonomy_state = autonomy_integrated_puppet }
+			set_autonomy = { target = FROM autonomy_state = autonomy_integrated_puppet }
 		}
 		hidden_effect = { news_event = { id = news.12 hours = 6 } }
 	}
 	option = {
 		name = equestria.68.b
 		trigger = { has_country_flag = BUF_annex }
-		annex_country = { target = BUF transfer_troops = yes }
+		annex_country = { target = FROM transfer_troops = yes }
 		hidden_effect = { news_event = { id = news.12 hours = 6 } }
 	}
 }
@@ -1393,7 +1380,7 @@ country_event = { #### Buffalo Requests Solution to Protests
 
 	option = {
 		name = equestria.69.a
-		BUF = { country_event = { id = bufstate.21 days = 3 } }
+		FROM = { country_event = { id = bufstate.21 days = 3 } }
 		ai_chance = {
 			factor = 1
 			modifier = {
@@ -1405,9 +1392,9 @@ country_event = { #### Buffalo Requests Solution to Protests
 	option = {
 		name = equestria.69.b
 		add_political_power = 10
-		add_opinion_modifier = { target = BUF modifier = supported_somehow }
-		reverse_add_opinion_modifier = { target = BUF modifier = supported_somehow }
-		BUF = { set_country_flag = protests_settled
+		add_opinion_modifier = { target = FROM modifier = supported_somehow }
+		reverse_add_opinion_modifier = { target = FROM modifier = supported_somehow }
+		FROM = { set_country_flag = protests_settled
 			country_event = { id = bufstate.21 days = 3 } }
 		ai_chance = {
 			factor = 2
@@ -3893,6 +3880,9 @@ country_event = { #### Civil War EQS Events: Vanhoover Breaks Free
 				add_ideas = VAN_Fear_Uncertainty_And_Doubt
 				country_event = { id = civwar.3 hours = 1 }
 			}
+			event_target:EQS_Dust_Hoover = {
+				set_nationality = VAN
+			}
 			CHN = {
 				if = {
 					limit = {
@@ -3915,6 +3905,9 @@ country_event = { #### Civil War EQS Events: Vanhoover Breaks Free
 				country_event = civwar.110
 				add_ideas = VAN_Fear_Uncertainty_And_Doubt
 				country_event = { id = civwar.3 hours = 1 }
+			}
+			event_target:EQS_Dust_Hoover = {
+				set_nationality = VAN
 			}
 			CHN = {
 				if = {
@@ -3946,11 +3939,19 @@ country_event = { #### Civil War EQS Events: Tall Tales Counterrevolt
 
 	option = {
 		name = equestria.107.a
-		transfer_state = 132
-		transfer_state = 133
-		transfer_state = 61
-		transfer_state = 60
-		transfer_state = 59
+		every_state = {
+			limit = {
+				is_controlled_by = NLR
+				OR = {
+					state = 132
+					state = 133
+					state = 61
+					state = 60
+					state = 59
+				}
+			}
+			ROOT = { transfer_state = PREV }
+		}
 		NLR = { country_event = { id = lunas.3 days = 1 } }
 	}
 }
@@ -4768,6 +4769,13 @@ country_event = { #### Changeling Spies
 	picture = GFX_event_changeling_spies
 
 	is_triggered_only = yes
+	trigger = {
+		CHN = {
+			exists = yes
+			is_subject = no
+			has_government = fascism
+		}
+	}
 
 	fire_only_once = yes
 	option = { ## Find them all
@@ -4812,6 +4820,13 @@ country_event = { #### Changeling Spies
 	picture = GFX_event_changeling_spies
 
 	is_triggered_only = yes
+	trigger = {
+		CHN = {
+			exists = yes
+			is_subject = no
+			has_government = fascism
+		}
+	}
 
 	fire_only_once = yes
 	option = { ## Find them all
@@ -6317,7 +6332,17 @@ country_event ={
 		clr_country_flag = economic_laws_blocked
 	}
 }
-
+country_event = { #pure flavor event
+	id = equestria.170
+	immediate = {log = "[GetDateText]: [Root.GetName]: event equestria.170"}#Auto-logging
+	title = equestria.170.t
+	desc = equestria.170.d
+	picture = GFX_event_pony_statue
+	is_triggered_only = yes
+	option = {
+		name = equestria.170.a
+	}
+}
 country_event ={
 	id = equestria.171
 	immediate = {log = "[GetDateText]: [Root.GetName]: event equestria.171"}#Auto-logging
@@ -6326,11 +6351,11 @@ country_event ={
 	trigger = {
 		has_dlc = "Together for Victory"
 		is_pony_race = yes
+		NOT = { is_in_tech_sharing_group = equestrian_research }
 		any_allied_country = {
 			original_tag = EQS
 			is_faction_leader = yes
 		}
-		NOT = { is_in_tech_sharing_group = equestrian_research }
 	}
 	mean_time_to_happen = { days = 1 }
 
@@ -6341,9 +6366,6 @@ country_event ={
 country_event = {
 	id = equestria.178
 	immediate = {log = "[GetDateText]: [Root.GetName]: event equestria.178"}#Auto-logging
-	immediate = {
-		log = "[GetDateText]: [Root.GetName]: event equestria.178"
-	}
 	title = equestria.178.t
 	desc = equestria.178.d
 	picture = GFX_event_stg_pairlament2

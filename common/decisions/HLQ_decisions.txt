@@ -16,6 +16,14 @@ HLQ_diplomacy_category = {
 				is_subject = yes
 			}
 		}
+		target_root_trigger = {
+			OR = {
+				has_completed_focus = HLQ_the_empire
+				has_completed_focus = HLQ_shield_of_griffonkind
+			}
+			is_subject = no
+		}
+		targets = { global.griffonian_empire_var }
 		target_trigger = {
 			FROM = { tag = event_target:griffonian_empire }
 		}
@@ -90,7 +98,7 @@ HLQ_diplomacy_category = {
 	}
 
 	HLQ_river_gurantee = {
-		icon = RivFed
+		icon = rivfed
 		visible = {
 			NOT = { tag = FROM }
 			has_completed_focus = HLQ_the_feds
@@ -103,10 +111,16 @@ HLQ_diplomacy_category = {
 				FROM = { has_government = fascism }
 			}
 			FROM = {
+				exists = yes
 				is_river_fed_member = yes
 				is_faction_leader = yes
 			}
 		}
+		target_root_trigger = {
+			has_completed_focus = HLQ_the_feds
+			is_subject = no
+		}
+		target_array = "global.river_coalition_members"
 		target_trigger = {
 			FROM = {
 				is_river_fed_member = yes
@@ -124,18 +138,24 @@ HLQ_diplomacy_category = {
 	}
 
 	HLQ_improve_relations = {
-		icon = RivFed
+		icon = rivfed
 		visible = {
 			has_war = no
 			NOT = { tag = FROM }
 			has_completed_focus = HLQ_the_feds
 			NOT = { has_country_flag = HLQ_embassies }
 			FROM = {
+				exists = yes
 				is_river_fed_member = yes
 				is_faction_leader = yes
 				has_guaranteed = ROOT
 			}
 		}
+		target_root_trigger = {
+			has_completed_focus = HLQ_the_feds
+			NOT = { has_country_flag = HLQ_embassies }
+		}
+		target_array = "global.river_coalition_members"
 		target_trigger = {
 			FROM = {
 				is_river_fed_member = yes
@@ -147,8 +167,8 @@ HLQ_diplomacy_category = {
 		fire_only_once = yes
 		remove_effect = {
 			log = "[GetDateText]: [Root.GetName]: Decision remove HLQ_improve_relations"
-			every_other_country = {
-				limit = { is_river_fed_member = yes }
+			for_each_scope_loop = {
+				array = global.river_coalition_members
 				add_opinion_modifier = {
 					target = ROOT modifier = HLQ_diplomacy
 				}
@@ -177,7 +197,7 @@ HLQ_diplomacy_category = {
 	}
 
 	HLQ_honourary_member = {
-		icon = RivFed
+		icon = rivfed
 		visible = {
 			NOT = { tag = FROM }
 			has_completed_focus = HLQ_the_feds
@@ -189,6 +209,11 @@ HLQ_diplomacy_category = {
 				has_guaranteed = ROOT
 			}
 		}
+		target_root_trigger = {
+			has_completed_focus = HLQ_the_feds
+			NOT = { has_idea = HLQ_honourary_member }
+		}
+		target_array = "global.river_coalition_members"
 		target_trigger = {
 			FROM = {
 				is_river_fed_member = yes
@@ -207,7 +232,7 @@ HLQ_diplomacy_category = {
 	}
 
 	HLQ_adopt_rivbit = {
-		icon = RivFed
+		icon = rivfed
 		visible = {
 			has_completed_focus = HLQ_the_feds
 			has_global_flag = RIV_rivbit_founded
@@ -227,7 +252,7 @@ HLQ_diplomacy_category = {
 	}
 
 	HLQ_adopt_species_rights = {
-		icon = RivFed
+		icon = rivfed
 		visible = {
 			has_completed_focus = HLQ_the_feds
 			has_global_flag = RIV_beings_rights_founded
@@ -394,12 +419,7 @@ HLQ_crusade_category = {
 		icon = griffon
 		visible = {
 			has_completed_focus = HLQ_prepare_the_crusade
-			OR = {
-				is_subject = no
-				overlord = {
-					is_original_riv_fed_country = no
-				}
-			}
+			is_subject = no
 			OR = {
 				has_government = fascism
 				has_government = neutrality
@@ -666,6 +686,13 @@ foreign_politics = {
 				is_faction_leader = yes
 				is_subject = no
 			}
+			any_neighbor_country = {
+				OR = {
+					tag = FROM
+					is_subject_of = FROM
+					is_in_faction_with = FROM
+				}
+			}
 		}
 
 		cost = 10
@@ -675,7 +702,6 @@ foreign_politics = {
 			is_in_faction = no
 			is_subject = no
 			country_exists = FROM
-			has_global_flag = LNS_civil_war_end_flag
 			NOT = {
 				has_government = communism
 				has_war_with = FROM
@@ -685,7 +711,15 @@ foreign_politics = {
 				is_original_riv_fed_country = yes
 			}
 		}
-
+		target_root_trigger = {
+			is_in_faction = no
+			is_subject = no
+			has_global_flag = LNS_civil_war_end_flag
+			NOT = {
+				has_government = communism
+			}
+		}
+		targets = { global.griffonian_empire_var }
 		target_trigger = {
 			FROM = { tag = event_target:griffonian_empire }
 		}
@@ -713,7 +747,7 @@ foreign_politics = {
 	HLQ_GRI_demmand_the_knights_obay = {
 		icon = generic_political_discourse
 		allowed = {
-			is_griffon_race = yes
+			is_griffon_continent_griffon_country = yes
 		}
 
 		available = {
@@ -723,11 +757,29 @@ foreign_politics = {
 			NOT = {
 				has_war_with = FROM
 			}
+			any_neighbor_country = {
+				OR = {
+					tag = FROM
+					is_subject_of = FROM
+					is_in_faction_with = FROM
+				}
+			}
 		}
 
 		war_with_target_on_remove = yes
 
 		cost = 100
+
+		target_root_trigger = {
+			tag = event_target:griffonian_empire
+			OR = {
+				has_government = fascism
+				has_government = neutrality
+			}
+			any_enemy_country = {
+				is_original_riv_fed_country = yes
+			}
+		}
 
 		visible = {
 			NOT = { tag = FROM }
@@ -761,7 +813,7 @@ foreign_politics = {
 				FROM = { has_capitulated = yes }
 			}
 		}
-
+		targets = { HLQ LNS LSC LSM D01 D02 D03 D04 D05 D06 D07 D08 D09 D10 D11 D12 D13 D14 D15 }
 		target_trigger = {
 			FROM = {
 				OR = {
