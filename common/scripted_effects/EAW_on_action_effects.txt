@@ -704,6 +704,27 @@ BRF_load_mason_focus = {
 	}
 }
 
+GRU_load_commie_tree = {
+	if = {
+		limit = {
+			FROM = { has_government = communism }
+			ROOT = { original_tag = GRU }
+		}
+		ROOT = {
+			load_focus_tree = { tree = gryphus_commie_tree keep_completed = yes }
+		}
+	}
+	else_if = {
+		limit = {
+			FROM = { NOT = { has_government = communism } }
+			ROOT = { original_tag = GRU }
+		}
+		ROOT = {
+			load_focus_tree = { tree = gryphus keep_completed = yes }
+		}
+	}
+}
+
 FAT_add_puppet_ideas = {
 	if = {
 		limit = {
@@ -898,6 +919,13 @@ AI_puppet_to_annex = {
 	}
 	if = {
 		limit = {
+			FROM = { tag = MIT }
+			ROOT = { tag = CYA }
+		}
+		FROM = { annex_country = { target = ROOT } }
+	}
+	if = {
+		limit = {
 			FROM = { tag = GRW }
 			ROOT = { tag = BRF }
 		}
@@ -1061,6 +1089,40 @@ AI_puppet_to_annex = {
 			}
 		}
 		FROM = { annex_country = { target = ROOT transfer_troops = no } }
+	}
+	if = {
+		limit = {
+			ROOT = {
+				all_owned_state = {
+					OR = {
+						is_core_of = FROM
+						is_claimed_by = FROM
+					}
+				}
+			}
+		}
+		FROM = { annex_country = { target = ROOT } }
+	}
+	else_if = {
+		limit = {
+			ROOT = { 
+				any_owned_state = {
+					OR = {
+						is_core_of = FROM
+						is_claimed_by = FROM
+					}
+				}
+			}
+		}
+		every_owned_state = {
+			limit = {
+				OR = {
+					is_core_of = FROM
+					is_claimed_by = FROM
+				}
+			}
+			FROM = { transfer_state = PREV }
+		}
 	}
 }
 
@@ -1322,10 +1384,7 @@ adjust_research_modifier = {
 	}
 	if = {
 		limit = {
-			OR = {
-				check_variable = { modifier@research_speed_factor > 0.1 }
-				check_variable = { modifier@research_speed_factor < -0.1 }
-			}
+			check_variable = { modifier@research_speed_factor < -0.1 }
 		}
 		set_temp_variable = { var_research_adjustment_pre_ironclad_temp = 1 }
 		set_variable = { var_research_adjustment_pre_ironclad = 1 }
