@@ -613,6 +613,14 @@ focus_tree = {
 		
 		ai_will_do = {
 			base = 100
+			
+			modifier = {
+				factor = 0
+				
+				NOT = {
+					has_completed_focus = NTR_the_beginning_of_a_long_journey
+				}
+			}
 		}
 		
 		prerequisite = {
@@ -723,7 +731,7 @@ focus_tree = {
 		}
 		
 		mutually_exclusive = {
-			focus = NTR_free_trade
+			focus = NTR_free_trade_focus
 		}
 		
 		available = {
@@ -1370,7 +1378,7 @@ focus_tree = {
 ### Trade branch (start) ###
 
 	shared_focus = {
-		id = NTR_free_trade
+		id = NTR_free_trade_focus
 		icon = GFX_goal_generic_positive_trade_relations
 		
 		relative_position_id = NTR_first_constitution
@@ -1419,7 +1427,7 @@ focus_tree = {
 		available_if_capitulated = no
 		
 		completion_reward = {
-			log = "[GetDateText]: [Root.GetName]: Focus NTR_free_trade"
+			log = "[GetDateText]: [Root.GetName]: Focus NTR_free_trade_focus"
 			
 			add_ideas = free_trade
 			
@@ -1434,7 +1442,7 @@ focus_tree = {
 		id = NTR_our_own_future
 		icon = GFX_goal_COS_Peace
 		
-		relative_position_id = NTR_free_trade
+		relative_position_id = NTR_free_trade_focus
 		x = 1
 		y = 1
 		
@@ -1457,7 +1465,7 @@ focus_tree = {
 		}
 		
 		prerequisite = {
-			focus = NTR_free_trade
+			focus = NTR_free_trade_focus
 		}
 		
 		available = {
@@ -4383,7 +4391,24 @@ focus_tree = {
 					is_in_faction_with = SRS
 				}
 				
-				has_completed_focus = NTR_folk_spirit
+				VED = {
+					OR = {
+						is_subject_of = SRS
+						has_government = communism
+						
+						custom_trigger_tooltip = {
+							tooltip = owns_all_cores_SRS_tt
+							hidden_trigger = {
+								all_of = {
+									array = core_states
+									var:v = {
+										is_owned_by = SRS
+									}
+								}
+							}
+						}
+					}
+				}
 			}
 		}
 		
@@ -4393,7 +4418,7 @@ focus_tree = {
 		completion_reward = {
 			log = "[GetDateText]: [Root.GetName]: Focus NTR_war_experience"
 			
-			add_ideas = NTR_commi_war_production
+			add_ideas = NTR_war_experience_idea
 		}
 	}
 	
@@ -6798,6 +6823,22 @@ focus_tree = {
 			focus = NTR_breaking_the_shackles
 		}
 		
+		bypass = {
+			VED = {
+				custom_trigger_tooltip = {
+					tooltip = owns_all_cores_SRS_tt
+					hidden_trigger = {
+						all_of = {
+							array = core_states
+							var:v = {
+								is_owned_by = SRS
+							}
+						}
+					}
+				}
+			}
+		}
+		
 		available = {
 			has_government = communism
 			
@@ -6808,7 +6849,11 @@ focus_tree = {
 			}
 			
 			VED = {
-				exists = yes
+				AND = {
+					exists = yes
+					has_government = communism
+				}
+				
 				is_subject_of = SRS
 			}
 		}
@@ -6832,7 +6877,7 @@ focus_tree = {
 		icon = GFX_goal_generic_construct_naval_dockyard
 		
 		relative_position_id = NTR_folk_spirit
-		x = -1
+		x = 1
 		y = 1
 		
 		cost = 10
@@ -6862,18 +6907,25 @@ focus_tree = {
 				is_in_faction_with = SRS
 			}
 			
-			hidden_trigger = {
-				any_controlled_state_is_coastal = yes
-			}
-			
 			VED = {
-				is_subject_of = SRS
-				
-				any_controlled_state_is_coastal = yes
-				
-				hidden_trigger = {
-					SRS = {
-						any_controlled_state_is_coastal = yes
+				OR = {
+					AND = {
+						exists = yes
+						has_government = communism
+					}
+					
+					is_subject_of = SRS
+					
+					custom_trigger_tooltip = {
+						tooltip = owns_all_cores_SRS_tt
+						hidden_trigger = {
+							all_of = {
+								array = core_states
+								var:v = {
+									is_owned_by = SRS
+								}
+							}
+						}
 					}
 				}
 			}
@@ -6885,7 +6937,11 @@ focus_tree = {
 		completion_reward = {
 			log = "[GetDateText]: [Root.GetName]: Focus NTR_northern_shipyards"
 			
-			VED = {
+			if = {
+				limit = {
+					is_subject = no
+				}
+				
 				random_owned_controlled_state = {
 					limit = {
 						is_coastal = yes
@@ -6905,7 +6961,7 @@ focus_tree = {
 						instant_build = yes
 					}
 					
-					PREV.PREV = {
+					ROOT = {
 						random_owned_controlled_state = {
 							limit = {
 								is_coastal = yes
@@ -6931,11 +6987,65 @@ focus_tree = {
 						}
 					}
 				}
+				
+				SRS = {
+					one_random_dockyard = yes
+				}
 			}
 			
-			one_random_dockyard = yes
+			else = {
+				one_random_dockyard = yes
+				
+				SRS = {
+					random_owned_controlled_state = {
+						limit = {
+							is_coastal = yes
+							
+							free_building_slots = {
+								building = dockyard
+								size > 0
+								include_locked = yes
+							}
+						}
+						
+						add_extra_state_shared_building_slots = 1
+						
+						add_building_construction = {
+							type = dockyard
+							level = 1
+							instant_build = yes
+						}
+						
+						PREV.PREV = {
+							random_owned_controlled_state = {
+								limit = {
+									is_coastal = yes
+									
+									NOT = {
+										state = PREV.PREV
+									}
+									
+									free_building_slots = {
+										building = dockyard
+										size > 0
+										include_locked = yes
+									}
+								}
+								
+								add_extra_state_shared_building_slots = 1
+								
+								add_building_construction = {
+									type = dockyard
+									level = 1
+									instant_build = yes
+								}
+							}
+						}
+					}
+				}
+			}
 			
-			SRS = {
+			VED = {
 				one_random_dockyard = yes
 			}
 		}
@@ -6945,68 +7055,9 @@ focus_tree = {
 		id = NTR_polar_fleet
 		icon = GFX_goal_battleship
 		
-		relative_position_id = NTR_folk_spirit
+		relative_position_id = NTR_northern_shipyards
 		x = 1
 		y = 1
-		
-		cost = 8
-		
-		ai_will_do = {
-			base = 100
-			
-			modifier = {
-				factor = 0.5
-				
-				NOT = {
-					has_completed_focus = NTR_economic_miracle
-				}
-			}
-		}
-		
-		prerequisite = {
-			focus = NTR_folk_spirit
-		}
-		
-		available = {
-			has_government = communism
-			
-			OR = {
-				is_subject_of = SRS
-				is_guaranteed_by = SRS
-				is_in_faction_with = SRS
-			}
-			
-			VED = {
-				exists = yes
-				is_subject_of = SRS
-			}
-		}
-		
-		cancel_if_invalid = yes
-		available_if_capitulated = no
-		
-		completion_reward = {
-			log = "[GetDateText]: [Root.GetName]: Focus NTR_polar_fleet"
-			
-			add_ideas = NTR_SRS_VED_polar_fleet
-			
-			SRS = {
-				add_ideas = NTR_SRS_VED_polar_fleet
-			}
-			
-			VED = {
-				add_ideas = VED_NTR_SRS_polar_fleet
-			}
-		}
-	}
-	
-	shared_focus = {
-		id = NTR_time_to_go_to_the_future
-		icon = GFX_goal_griffon_clock
-		
-		relative_position_id = NTR_folk_spirit
-		x = 0
-		y = 2
 		
 		cost = 8
 		
@@ -7026,6 +7077,83 @@ focus_tree = {
 			focus = NTR_northern_shipyards
 		}
 		
+		available = {
+			has_government = communism
+			
+			OR = {
+				is_subject_of = SRS
+				is_guaranteed_by = SRS
+				is_in_faction_with = SRS
+			}
+			
+			VED = {
+				AND = {
+					exists = yes
+					has_government = communism
+				}
+				
+				is_subject_of = SRS
+				
+				custom_trigger_tooltip = {
+					tooltip = owns_all_cores_SRS_tt
+					hidden_trigger = {
+						all_of = {
+							array = core_states
+							var:v = {
+								is_owned_by = SRS
+							}
+						}
+					}
+				}
+			}
+		}
+		
+		cancel_if_invalid = yes
+		available_if_capitulated = no
+		
+		completion_reward = {
+			log = "[GetDateText]: [Root.GetName]: Focus NTR_polar_fleet"
+			
+			add_ideas = NTR_SRS_VED_polar_fleet
+			
+			SRS = {
+				add_ideas = NTR_SRS_VED_polar_fleet
+			}
+			
+			if = {
+				limit = {
+					country_exists = VED
+				}
+				
+				VED = {
+					add_ideas = VED_NTR_SRS_polar_fleet
+				}
+			}
+		}
+	}
+	
+	shared_focus = {
+		id = NTR_together_on_a_new_day
+		icon = GFX_goal_griffon_clock
+		
+		relative_position_id = NTR_polar_fleet
+		x = 1
+		y = 1
+		
+		cost = 8
+		
+		ai_will_do = {
+			base = 100
+			
+			modifier = {
+				factor = 0.5
+				
+				NOT = {
+					has_completed_focus = NTR_economic_miracle
+				}
+			}
+		}
+		
 		prerequisite = {
 			focus = NTR_polar_fleet
 		}
@@ -7040,8 +7168,24 @@ focus_tree = {
 			}
 			
 			VED = {
-				exists = yes
+				AND = {
+					exists = yes
+					has_government = communism
+				}
+				
 				is_subject_of = SRS
+				
+				custom_trigger_tooltip = {
+					tooltip = owns_all_cores_SRS_tt
+					hidden_trigger = {
+						all_of = {
+							array = core_states
+							var:v = {
+								is_owned_by = SRS
+							}
+						}
+					}
+				}
 			}
 		}
 		
@@ -7049,19 +7193,308 @@ focus_tree = {
 		available_if_capitulated = no
 		
 		completion_reward = {
-			log = "[GetDateText]: [Root.GetName]: Focus NTR_time_to_go_to_the_future"
+			log = "[GetDateText]: [Root.GetName]: Focus NTR_together_on_a_new_day"
 			
 			swap_ideas = {
 				remove_idea = NTR_lack_of_competitiveness_half
 				add_idea = NTR_lack_of_competitiveness_communism
 			}
 			
-			VED = {
-				add_to_tech_sharing_group = Northen_griffonia_science_organisation_communism
+			if = {
+				limit = {
+					country_exists = VED
+				}
+				
+				VED = {
+					add_to_tech_sharing_group = Northen_griffonia_science_organisation_communism
+				}
 			}
 			
 			hidden_effect = {
 				clr_country_flag = trade_laws_blocked
+			}
+		}
+	}
+	
+	shared_focus = {
+		id = NTR_joint_training
+		#icon = GFX_
+		
+		relative_position_id = NTR_northern_shipyards
+		x = -1
+		y = 1
+		
+		cost = 8
+		
+		ai_will_do = {
+			base = 100
+			
+			modifier = {
+				factor = 5
+				
+				has_war = yes
+			}
+			
+			modifier = {
+				factor = 2.5
+				
+				any_other_country = {
+					has_or_is_justifying_wargoal_against_ROOT = yes
+				}
+			}
+			
+			modifier = {
+				factor = 0.5
+				
+				NOT = {
+					has_completed_focus = NTR_economic_miracle
+				}
+			}
+			
+			modifier = {
+				factor = 0
+				
+				has_war = no
+				
+				NOT = {
+					any_other_country = {
+						has_or_is_justifying_wargoal_against_ROOT = yes
+					}
+				}
+				
+				OR = {
+					AND = {
+						is_subject = no
+						
+						NOT = {
+							has_completed_focus = NTR_together_on_a_new_day
+						}
+					}
+					
+					AND = {
+						is_subject = yes
+						
+						NOT = {
+							has_completed_focus = NTR_polar_fleet
+						}
+					}
+				}
+			}
+		}
+		
+		prerequisite = {
+			focus = NTR_northern_shipyards
+		}
+		
+		available = {
+			has_government = communism
+			
+			OR = {
+				is_subject_of = SRS
+				is_guaranteed_by = SRS
+				is_in_faction_with = SRS
+			}
+			
+			VED = {
+				OR = {
+					AND = {
+						exists = yes
+						has_government = communism
+					}
+					
+					is_subject_of = SRS
+					
+					custom_trigger_tooltip = {
+						tooltip = owns_all_cores_SRS_tt
+						hidden_trigger = {
+							all_of = {
+								array = core_states
+								var:v = {
+									is_owned_by = SRS
+								}
+							}
+						}
+					}
+				}
+			}
+		}
+		
+		cancel_if_invalid = yes
+		available_if_capitulated = no
+		
+		completion_reward = {
+			log = "[GetDateText]: [Root.GetName]: Focus NTR_joint_training"
+			
+			add_ideas = NTR_war_experience_full_idea
+			
+			if = {
+				limit = {
+					country_exists = VED
+				}
+				
+				VED = {
+					add_ideas = NTR_war_experience_idea
+				}
+			}
+		}
+	}
+	
+	shared_focus = {
+		id = NTR_new_chivalry
+		#icon = GFX_
+		
+		relative_position_id = NTR_joint_training
+		x = 1
+		y = 1
+		
+		cost = 6
+		
+		ai_will_do = {
+			base = 100
+			
+			modifier = {
+				factor = 5
+				
+				has_war = yes
+			}
+			
+			modifier = {
+				factor = 2.5
+				
+				any_other_country = {
+					has_or_is_justifying_wargoal_against_ROOT = yes
+				}
+			}
+			
+			modifier = {
+				factor = 0.5
+				
+				NOT = {
+					has_completed_focus = NTR_economic_miracle
+				}
+			}
+			
+			modifier = {
+				factor = 0.25
+				
+				has_war = no
+			}
+			
+			modifier = {
+				factor = 0
+				
+				has_war = no
+				
+				NOT = {
+					any_other_country = {
+						has_or_is_justifying_wargoal_against_ROOT = yes
+					}
+				}
+				
+				OR = {
+					AND = {
+						is_subject = no
+						
+						NOT = {
+							has_completed_focus = NTR_together_on_a_new_day
+						}
+					}
+					
+					AND = {
+						is_subject = yes
+						
+						NOT = {
+							has_completed_focus = NTR_polar_fleet
+						}
+					}
+				}
+			}
+		}
+		
+		prerequisite = {
+			focus = NTR_joint_training
+		}
+		
+		available = {
+			is_subject = no
+			has_government = communism
+			
+			OR = {
+				is_guaranteed_by = SRS
+				is_in_faction_with = SRS
+			}
+			
+			VED = {
+				OR = {
+					AND = {
+						exists = yes
+						has_government = communism
+					}
+					
+					is_subject_of = SRS
+					
+					custom_trigger_tooltip = {
+						tooltip = owns_all_cores_SRS_tt
+						hidden_trigger = {
+							all_of = {
+								array = core_states
+								var:v = {
+									is_owned_by = SRS
+								}
+							}
+						}
+					}
+				}
+			}
+		}
+		
+		cancel_if_invalid = yes
+		available_if_capitulated = no
+		
+		completion_reward = { #???
+			log = "[GetDateText]: [Root.GetName]: Focus NTR_new_chivalry"
+			
+			hidden_effect = {
+				division_template = {
+					name = "Crusader-Knights of Socialism"
+					division_names_group = SRS_MILITIA_04
+					is_locked = yes
+					
+					regiments = {
+						knights = { x = 0 y = 0 }
+						knights = { x = 0 y = 1 }
+						knights = { x = 1 y = 0 }
+						knights = { x = 1 y = 1 }
+						knights = { x = 2 y = 0 }
+						knights = { x = 2 y = 1 }
+					}
+					
+					support = { 
+						recon = { x = 0 y = 0 }
+					}
+					
+					priority = 0
+				}
+			}
+			
+			562 = {
+				create_unit = {
+					division = " name = \"Order of the \" division_template = \"Crusader-Knights of Socialism\" start_experience_factor = 0.5 "
+					
+					owner = ROOT
+				}
+				
+				create_unit = {
+					division = " name = \"Order of the \" division_template = \"Crusader-Knights of Socialism\" start_experience_factor = 0.5 "
+					
+					owner = ROOT
+				}
+				
+				create_unit = {
+					division = " name = \"Order of the \" division_template = \"Crusader-Knights of Socialism\" start_experience_factor = 0.5 "
+					
+					owner = ROOT
+				}
 			}
 		}
 	}
@@ -7216,8 +7649,8 @@ focus_tree = {
 		id = NTR_consolidation_of_success
 		icon = GFX_focus_generic_soviet_politics
 		
-		relative_position_id = NTR_help_to_organize_the_government
-		x = 1
+		relative_position_id = NTR_help_to_organize_commune_policy
+		x = -1
 		y = 1
 		
 		cost = 8
@@ -7227,7 +7660,7 @@ focus_tree = {
 		}
 		
 		prerequisite = {
-			focus = NTR_help_to_organize_the_government
+			focus = NTR_help_to_organize_commune_policy
 		}
 		
 		available = {
@@ -7256,12 +7689,12 @@ focus_tree = {
 	}
 	
 	shared_focus = {
-		id = NTR_the_crucible_of_revolution #???
+		id = NTR_the_crucible_of_revolution
 		icon = GFX_focus_ger_great_red_menace
 		
-		relative_position_id = NTR_help_to_organize_the_government
-		x = 0
-		y = 3
+		relative_position_id = NTR_consolidation_of_success
+		x = -1
+		y = 1
 		
 		cost = 8
 		
@@ -7278,10 +7711,6 @@ focus_tree = {
 		}
 		
 		prerequisite = {
-			focus = NTR_help_to_organize_commune_policy
-		}
-		
-		prerequisite = {
 			focus = NTR_consolidation_of_success
 		}
 		
@@ -7292,11 +7721,6 @@ focus_tree = {
 			OR = {
 				is_guaranteed_by = SRS
 				is_in_faction_with = SRS
-			}
-			
-			SRS = {
-				is_subject = no
-				has_government = communism
 			}
 		}
 		
@@ -7311,43 +7735,58 @@ focus_tree = {
 	}
 	
 	shared_focus = {
-		id = NTR_update_the_trade_agreement
-		icon = GFX_focus_generic_treaty
+		id = NTR_development_of_crossborder_industry
+		#icon = GFX_
 		
-		relative_position_id = NTR_southern_border
-		x = 2
+		relative_position_id = NTR_help_to_organize_commune_policy
+		x = 1
 		y = 1
 		
-		cost = 8
+		cost = 10
 		
 		ai_will_do = {
 			base = 100
+			
+			modifier = {
+				factor = 0.5
+				
+				NOT = {
+					has_completed_focus = NTR_economic_miracle
+				}
+			}
 		}
 		
-		allow_branch = {
-			has_country_flag = NTR_picnic_time_branch
+		prerequisite = {
+			focus = NTR_consolidation_of_success
 		}
 		
 		available = {
-			is_subject = no
 			has_government = communism
 			
 			OR = {
+				is_subject_of = SRS
 				is_guaranteed_by = SRS
 				is_in_faction_with = SRS
 			}
 			
-			has_completed_focus = NTR_help_to_organize_the_government
-			
 			FAT = {
-				is_subject_of = SRS
-				
-				hidden_trigger = {
-					480 = {
-						OR = {
-							is_owned_and_controlled_by = PREV
-							is_owned_and_controlled_by = ROOT
-							is_owned_and_controlled_by = SRS
+				OR = {
+					AND = {
+						exists = yes
+						has_government = communism
+					}
+					
+					is_subject_of = SRS
+					
+					custom_trigger_tooltip = {
+						tooltip = owns_all_cores_SRS_tt
+						hidden_trigger = {
+							all_of = {
+								array = core_states
+								var:v = {
+									is_owned_by = SRS
+								}
+							}
 						}
 					}
 				}
@@ -7358,13 +7797,7 @@ focus_tree = {
 		available_if_capitulated = no
 		
 		completion_reward = {
-			log = "[GetDateText]: [Root.GetName]: Focus NTR_update_the_trade_agreement"
-			
-			add_ideas = NTR_FAT_partnership
-			
-			FAT = {
-				add_ideas = FAT_NTR_partnership
-			}
+			log = "[GetDateText]: [Root.GetName]: Focus NTR_development_of_crossborder_industry"
 			
 			if = { # Sunstriker shit
 				limit = {
@@ -7387,6 +7820,402 @@ focus_tree = {
 					}
 				}
 			}
+			
+			add_offsite_building = {
+				type = industrial_complex
+				level = 1
+			}
+		}
+	}
+	
+	shared_focus = {
+		id = NTR_modern_warfare
+		#icon = GFX_
+		
+		relative_position_id = NTR_development_of_crossborder_industry
+		x = 1
+		y = 1
+		
+		cost = 6
+		
+		ai_will_do = {
+			base = 100
+			
+			modifier = {
+				factor = 5
+				
+				has_war = yes
+			}
+			
+			modifier = {
+				factor = 2.5
+				
+				any_other_country = {
+					has_or_is_justifying_wargoal_against_ROOT = yes
+				}
+			}
+			
+			modifier = {
+				factor = 0.5
+				
+				NOT = {
+					has_completed_focus = NTR_economic_miracle
+				}
+			}
+			
+			modifier = {
+				factor = 0.25
+				
+				has_war = no
+			}
+			
+			modifier = {
+				factor = 0
+				
+				has_war = no
+				
+				NOT = {
+					any_other_country = {
+						has_or_is_justifying_wargoal_against_ROOT = yes
+					}
+				}
+				
+				OR = {
+					AND = {
+						is_subject = no
+						
+						NOT = {
+							has_completed_focus = NTR_the_crucible_of_revolution
+						}
+					}
+					
+					AND = {
+						is_subject = yes
+						
+						NOT = {
+							has_completed_focus = NTR_consolidation_of_success
+						}
+					}
+				}
+			}
+		}
+		
+		prerequisite = {
+			focus = NTR_development_of_crossborder_industry
+		}
+		
+		available = {
+			has_government = communism
+			
+			OR = {
+				is_subject_of = SRS
+				is_guaranteed_by = SRS
+				is_in_faction_with = SRS
+			}
+			
+			FAT = {
+				OR = {
+					AND = {
+						exists = yes
+						has_government = communism
+					}
+					
+					is_subject_of = SRS
+					
+					custom_trigger_tooltip = {
+						tooltip = owns_all_cores_SRS_tt
+						hidden_trigger = {
+							all_of = {
+								array = core_states
+								var:v = {
+									is_owned_by = SRS
+								}
+							}
+						}
+					}
+				}
+			}
+		}
+		
+		cancel_if_invalid = yes
+		available_if_capitulated = no
+		
+		completion_reward = {
+			log = "[GetDateText]: [Root.GetName]: Focus NTR_modern_warfare"
+			
+			#???
+		}
+	}
+	
+	shared_focus = {
+		id = NTR_update_the_trade_agreement
+		icon = GFX_focus_generic_treaty
+		
+		relative_position_id = NTR_southern_border
+		x = 2
+		y = 1
+		
+		cost = 7
+		
+		ai_will_do = {
+			base = 100
+		}
+		
+		allow_branch = {
+			has_country_flag = NTR_picnic_time_branch
+		}
+		
+		bypass = {
+			FAT = {
+				custom_trigger_tooltip = {
+					tooltip = owns_all_cores_SRS_tt
+					hidden_trigger = {
+						all_of = {
+							array = core_states
+							var:v = {
+								is_owned_by = SRS
+							}
+						}
+					}
+				}
+			}
+		}
+		
+		available = {
+			has_government = communism
+			
+			OR = {
+				is_subject_of = SRS
+				is_guaranteed_by = SRS
+				is_in_faction_with = SRS
+			}
+			
+			has_completed_focus = NTR_help_to_organize_the_government
+			
+			FAT = {
+				OR = {
+					AND = {
+						exists = yes
+						has_government = communism
+					}
+					
+					is_subject_of = SRS
+				}
+			}
+		}
+		
+		cancel_if_invalid = yes
+		available_if_capitulated = no
+		
+		completion_reward = {
+			log = "[GetDateText]: [Root.GetName]: Focus NTR_update_the_trade_agreement"
+			
+			add_ideas = NTR_FAT_partnership
+			
+			FAT = {
+				add_ideas = FAT_NTR_partnership
+			}
+		}
+	}
+	
+	shared_focus = {
+		id = NTR_help_from_comrades
+		#icon = GFX
+		
+		relative_position_id = NTR_southern_border
+		x = 0
+		y = 2
+		
+		cost = 6
+		
+		ai_will_do = {
+			base = 100
+			
+			modifier = {
+				factor = 0.5
+				
+				NOT = {
+					has_completed_focus = NTR_new_lifestyle
+					has_completed_focus = NTR_war_forges
+				}
+			}
+			
+			modifier = {
+				factor = 0
+				
+				NOT = {
+					has_completed_focus = NTR_public_education
+					has_completed_focus = NTR_blood_of_war
+				}
+			}
+		}
+		
+		prerequisite = {
+			focus = NTR_war_experience
+		}
+		
+		prerequisite = {
+			focus = NTR_update_the_trade_agreement
+		}
+		
+		prerequisite = {
+			focus = NTR_breaking_the_shackles
+		}
+		
+		prerequisite = {
+			focus = NTR_crush_resistance
+		}
+		
+		available = {
+			has_government = communism
+			
+			OR = {
+				is_guaranteed_by = SRS
+				is_in_faction_with = SRS
+			}
+			
+			VED = {
+				OR = {
+					is_subject_of = SRS
+					has_government = communism
+					
+					custom_trigger_tooltip = {
+						tooltip = owns_all_cores_SRS_tt
+						hidden_trigger = {
+							all_of = {
+								array = core_states
+								var:v = {
+									is_owned_by = SRS
+								}
+							}
+						}
+					}
+				}
+			}
+			
+			FAT = {
+				OR = {
+					is_subject_of = SRS
+					has_government = communism
+					
+					custom_trigger_tooltip = {
+						tooltip = owns_all_cores_SRS_tt
+						hidden_trigger = {
+							all_of = {
+								array = core_states
+								var:v = {
+									is_owned_by = SRS
+								}
+							}
+						}
+					}
+				}
+			}
+		}
+		
+		cancel_if_invalid = yes
+		available_if_capitulated = no
+		
+		completion_reward = {
+			log = "[GetDateText]: [Root.GetName]: Focus NTR_help_from_comrades"
+			
+			unlock_national_focus = NTR_economic_miracle
+		}
+	}
+	
+	shared_focus = {
+		id = NTR_forgotten_by_all # todivide #???
+		icon = GFX_goal_unknown
+		
+		relative_position_id = NTR_southern_border
+		x = -2
+		y = 2
+		
+		cost = 7
+		
+		ai_will_do = {
+			base = 100
+			
+			modifier = {
+				factor = 0.5
+				
+				NOT = {
+					has_completed_focus = NTR_economic_miracle
+				}
+			}
+			
+			modifier = {
+				factor = 0
+				
+				NOT = {
+					has_completed_focus = NTR_unitary_country
+				}
+			}
+		}
+		
+		prerequisite = {
+			focus = NTR_southern_border
+		}
+		
+		allow_branch = {
+			has_country_flag = NTR_picnic_time_branch
+		}
+		
+		available = {
+			is_subject = no
+			has_government = communism
+			
+			567 = { is_owned_and_controlled_by = ROOT }
+			573 = { is_owned_and_controlled_by = ROOT }
+			
+			OR = {
+				HLR = {
+					exists = yes
+					is_subject = no
+					has_completed_focus = HLR_Unification
+					
+					hidden_trigger = {
+						NOT = {
+							has_government = communism
+							
+							has_or_is_justifying_wargoal_against_ROOT = yes
+							
+							ROOT = {
+								aggressive_towards_PREV = yes
+							}
+						}
+					}
+				}
+				
+				AND = {
+					country_exists = DED
+					
+					NOT = {
+						country_exists = HLR
+					}
+				}
+			}
+		}
+		
+		cancel_if_invalid = yes
+		available_if_capitulated = no
+		
+		completion_reward = {
+			log = "[GetDateText]: [Root.GetName]: Focus NTR_forgotten_by_all"
+			
+			if = {
+				limit = {
+					country_exists = HLR
+				}
+				
+				HLR = {
+					country_event = Ntribes.265
+				}
+			}
+			
+			else = {
+				country_event = Ntribes.214
+			}
 		}
 	}
 	
@@ -7395,7 +8224,7 @@ focus_tree = {
 		icon = GFX_goal_generic_territory_or_war
 		
 		relative_position_id = NTR_southern_border
-		x = -2
+		x = 2
 		y = 2
 		
 		cost = 4
@@ -7500,8 +8329,8 @@ focus_tree = {
 		icon = GFX_goal_red_menace_griffonia
 		
 		relative_position_id = NTR_southern_border
-		x = -2
-		y = 1
+		x = 2
+		y = 2
 		
 		cost = 5
 		
@@ -7587,21 +8416,21 @@ focus_tree = {
 		completion_reward = {
 			log = "[GetDateText]: [Root.GetName]: Focus NTR_one_future_for_all"
 			
-			SRS = {
+			MNC = {
 				country_event = Ntribes.258
 			}
 		}
 	}
 	
 	shared_focus = {
-		id = NTR_elf_lake_industry_expansion
-		icon = GFX_goal_generic_construct_civ_factory
+		id = NTR_influx_of_volunteers
+		icon = GFX_focus_generic_little_entente
 		
-		relative_position_id = NTR_war_experience
-		x = 0
-		y = 3
+		relative_position_id = NTR_help_from_comrades
+		x = -1
+		y = 1
 		
-		cost = 10
+		cost = 8
 		
 		ai_will_do = {
 			base = 100
@@ -7613,12 +8442,92 @@ focus_tree = {
 					has_completed_focus = NTR_economic_miracle
 				}
 			}
+		}
+		
+		prerequisite = {
+			focus = NTR_forgotten_by_all
+		}
+		
+		prerequisite = {
+			focus = NTR_help_from_comrades
+		}
+		
+		available = {
+			is_subject = no
+			has_government = communism
+			
+			OR = {
+				is_guaranteed_by = SRS
+				is_in_faction_with = SRS
+			}
+			
+			VED = {
+				OR = {
+					is_subject_of = SRS
+					has_government = communism
+					
+					custom_trigger_tooltip = {
+						tooltip = owns_all_cores_SRS_tt
+						hidden_trigger = {
+							all_of = {
+								array = core_states
+								var:v = {
+									is_owned_by = SRS
+								}
+							}
+						}
+					}
+				}
+			}
+			
+			FAT = {
+				OR = {
+					is_subject_of = SRS
+					has_government = communism
+					
+					custom_trigger_tooltip = {
+						tooltip = owns_all_cores_SRS_tt
+						hidden_trigger = {
+							all_of = {
+								array = core_states
+								var:v = {
+									is_owned_by = SRS
+								}
+							}
+						}
+					}
+				}
+			}
+		}
+		
+		cancel_if_invalid = yes
+		available_if_capitulated = no
+		
+		completion_reward = {
+			log = "[GetDateText]: [Root.GetName]: Focus NTR_influx_of_volunteers"
+			
+			add_ideas = NTR_volunteers
+		}
+	}
+	
+	shared_focus = {
+		id = NTR_elf_lake_industry_expansion
+		icon = GFX_goal_generic_construct_civ_factory
+		
+		relative_position_id = NTR_help_from_comrades
+		x = 1
+		y = 1
+		
+		cost = 10
+		
+		ai_will_do = {
+			base = 100
 			
 			modifier = {
-				factor = 0
+				factor = 0.5
 				
 				NOT = {
-					has_completed_focus = NTR_unitary_country
+					has_completed_focus = NTR_economic_miracle
 				}
 			}
 		}
@@ -7639,15 +8548,24 @@ focus_tree = {
 			}
 		}
 		
+		prerequisite = {
+			focus = NTR_help_from_comrades
+		}
+		
 		available = {
+			is_subject = no
 			has_government = communism
 			
 			574 = {
 				is_owned_and_controlled_by = ROOT
 			}
 			
-			MNC = {
-				has_country_flag = MNC_defeat_in_border_war
+			OR = {
+				has_government = communism
+				
+				MNC = {
+					has_country_flag = MNC_defeat_in_border_war
+				}
 			}
 		}
 		
@@ -7658,98 +8576,120 @@ focus_tree = {
 			log = "[GetDateText]: [Root.GetName]: Focus NTR_elf_lake_industry_expansion"
 			
 			574 = {
-				add_building_construction = {
-					type = infrastructure
-					level = 2
-					instant_build = yes
-				}
-				
 				add_extra_state_shared_building_slots = 3
 				
-				add_building_construction = {
-					type = industrial_complex
-					level = 2
-					instant_build = yes
+				if = {
+					limit = {
+						MNC = {
+							has_country_flag = MNC_defeat_in_border_war
+						}
+					}
+					
+					add_building_construction = {
+						type = industrial_complex
+						level = 1
+						instant_build = yes
+					}
+					
+					add_building_construction = {
+						type = arms_factory
+						level = 2
+						instant_build = yes
+					}
 				}
 				
-				add_building_construction = {
-					type = arms_factory
-					level = 1
-					instant_build = yes
+				else = {
+					add_building_construction = {
+						type = industrial_complex
+						level = 2
+						instant_build = yes
+					}
+					
+					add_building_construction = {
+						type = arms_factory
+						level = 1
+						instant_build = yes
+					}
 				}
 			}
 		}
 	}
 	
 	shared_focus = {
-		id = NTR_forgotten_by_all # todivide #???
-		icon = GFX_goal_unknown
+		id = NTR_unite_commonwealth
+		icon = GFX_goal_generic_construct_civ_factory
 		
-		relative_position_id = NTR_southern_border
-		x = 2
+		relative_position_id = NTR_help_from_comrades
+		x = 0
 		y = 2
 		
-		cost = 7
+		cost = 10
 		
 		ai_will_do = {
 			base = 100
 			
 			modifier = {
-				factor = 0.5
+				factor = 0
 				
 				NOT = {
 					has_completed_focus = NTR_economic_miracle
 				}
 			}
-			
-			modifier = {
-				factor = 0
-				
-				NOT = {
-					has_completed_focus = NTR_unitary_country
-				}
-			}
 		}
 		
 		prerequisite = {
-			focus = NTR_southern_border
+			focus = NTR_influx_of_volunteers
 		}
 		
-		allow_branch = {
-			has_country_flag = NTR_picnic_time_branch
+		prerequisite = {
+			focus = NTR_elf_lake_industry_expansion
 		}
 		
 		available = {
 			is_subject = no
 			has_government = communism
 			
-			567 = { is_owned_and_controlled_by = ROOT }
-			573 = { is_owned_and_controlled_by = ROOT }
+			has_outdated_industry = yes
 			
 			OR = {
-				HLR = {
-					exists = yes
-					is_subject = no
-					has_completed_focus = HLR_Unification
+				is_guaranteed_by = SRS
+				is_in_faction_with = SRS
+			}
+			
+			VED = {
+				OR = {
+					is_subject_of = SRS
+					has_government = communism
 					
-					hidden_trigger = {
-						NOT = {
-							has_government = communism
-							
-							has_or_is_justifying_wargoal_against_ROOT = yes
-							
-							ROOT = {
-								aggressive_towards_PREV = yes
+					custom_trigger_tooltip = {
+						tooltip = owns_all_cores_SRS_tt
+						hidden_trigger = {
+							all_of = {
+								array = core_states
+								var:v = {
+									is_owned_by = SRS
+								}
 							}
 						}
 					}
 				}
-				
-				AND = {
-					country_exists = DED
+			}
+			
+			FAT = {
+				OR = {
+					is_subject_of = SRS
+					has_government = communism
 					
-					NOT = {
-						country_exists = HLR
+					custom_trigger_tooltip = {
+						tooltip = owns_all_cores_SRS_tt
+						hidden_trigger = {
+							all_of = {
+								array = core_states
+								var:v = {
+									is_owned_by = SRS
+								}
+							}
+						}
 					}
 				}
 			}
@@ -7759,33 +8699,21 @@ focus_tree = {
 		available_if_capitulated = no
 		
 		completion_reward = {
-			log = "[GetDateText]: [Root.GetName]: Focus NTR_forgotten_by_all"
+			log = "[GetDateText]: [Root.GetName]: Focus NTR_unite_commonwealth"
 			
-			if = {
-				limit = {
-					country_exists = HLR
-				}
-				
-				HLR = {
-					country_event = Ntribes.265
-				}
-			}
-			
-			else = {
-				country_event = Ntribes.214
-			}
+			# much infra and sharing of spirits
 		}
 	}
 	
 	shared_focus = {
-		id = NTR_influx_of_volunteers
-		icon = GFX_focus_generic_little_entente
+		id = NTR_the_future_is_calling
+		icon = GFX_goal_generic_construct_civ_factory
 		
-		relative_position_id = NTR_forgotten_by_all
+		relative_position_id = NTR_unite_commonwealth
 		x = 0
-		y = 2
+		y = 1
 		
-		cost = 7
+		cost = 6
 		
 		ai_will_do = {
 			base = 100
@@ -7794,54 +8722,37 @@ focus_tree = {
 				factor = 0
 				
 				NOT = {
-					has_completed_focus = NTR_unitary_country
-				}
-			}
-			
-			modifier = {
-				factor = 0.5
-				
-				NOT = {
-					has_completed_focus = NTR_economic_miracle
+					has_completed_focus = NTR_the_forefront_of_science
 				}
 			}
 		}
 		
 		prerequisite = {
-			focus = NTR_forgotten_by_all
+			focus = NTR_unite_commonwealth
+		}
+		
+		prerequisite = {
+			focus = NTR_together_on_a_new_day
+		}
+		
+		prerequisite = {
+			focus = NTR_the_crucible_of_revolution
 		}
 		
 		available = {
 			is_subject = no
 			has_government = communism
 			
-			OR = {
-				HLR = {
-					exists = yes
-					
-					OR = {
-						has_government = communism
-						has_idea = HLR_NTR_autonomy
-					}
-				}
-				
-				AND = {
-					country_exists = DED
-					
-					NOT = {
-						country_exists = HLR
-					}
-				}
-			}
+			has_completed_focus = NTR_towards_utopia
 		}
 		
 		cancel_if_invalid = yes
 		available_if_capitulated = no
 		
 		completion_reward = {
-			log = "[GetDateText]: [Root.GetName]: Focus NTR_influx_of_volunteers"
+			log = "[GetDateText]: [Root.GetName]: Focus NTR_the_future_is_calling"
 			
-			add_ideas = NTR_volunteers
+			unlock_national_focus = NTR_bright_future
 		}
 	}
 
