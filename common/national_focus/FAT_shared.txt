@@ -2653,16 +2653,16 @@ shared_focus = {
 			factor = 40
 		}
 		prerequisite = {
-		focus = FST_looking_out
+			focus = FST_looking_out
 		}
 		mutually_exclusive = {
-		focus = FST_kingly_ambitions
+			focus = FST_kingly_ambitions
 		}
 		mutually_exclusive = {
-		focus = FST_alliance_of_northern_monarchs
+			focus = FST_alliance_of_northern_monarchs
 		}
 		available = {
-		is_in_faction = no
+			is_in_faction = no
 			is_subject = no
 			country_exists = GRI
 			NOT = {
@@ -2670,25 +2670,25 @@ shared_focus = {
 			}
 		}
 		completion_reward = {
-		add_stability = 0.075
-		add_war_support = 0.075
-		GRI = {
-					if = {
-						limit = {
-							OR = {
-								has_dlc = "Together for Victory"
-								has_dlc = "Death or Dishonor"
-							}
-							NOT = { has_country_flag = have_regular_puppets }
+			add_stability = 0.075
+			add_war_support = 0.075
+			GRI = {
+				if = {
+					limit = {
+						OR = {
+							has_dlc = "Together for Victory"
+							has_dlc = "Death or Dishonor"
 						}
-						set_autonomy = {
-							target = ROOT
-							autonomy_state = autonomy_nominal_vassal
-						}
+						NOT = { has_country_flag = have_regular_puppets }
 					}
-					else = {
-						add_to_faction = ROOT
+					set_autonomy = { # But what if GRI fascism?
+						target = ROOT
+						autonomy_state = autonomy_nominal_vassal
 					}
+				}
+				else = {
+					add_to_faction = ROOT
+				}
 			}
 		}
 	}
@@ -2703,14 +2703,14 @@ shared_focus = {
 			factor = 40
 		}
 		prerequisite = {
-		focus = FST_looking_out
+			focus = FST_looking_out
 		}
 		available = {
-		has_completed_focus = FST_the_dream_is_not_dead
+			has_completed_focus = FST_the_dream_is_not_dead
 		}
 		completion_reward = {
-		add_stability = 0.05
-		create_faction = FAT_alliance_of_northern_monarchs
+			add_stability = 0.05
+			create_faction = FAT_alliance_of_northern_monarchs
 		}
 	}
 	shared_focus = {
@@ -2724,22 +2724,27 @@ shared_focus = {
 			factor = 40
 		}
 		prerequisite = {
-		focus = FST_alliance_of_northern_monarchs
+			focus = FST_alliance_of_northern_monarchs
 		}
 		bypass = {
-		OR = {
-		VED = { exists = no }
-		VED = { has_government = communism }
-		}
+			VED = {
+				OR = {
+					exists = no
+					has_government = communism
+				}
+			}
 		}
 		available = {
-		VED = {OR = {
-		has_government = neutrality
-		has_government = democratic
-		}}
+			VED = {
+				NOT = {
+					has_government = fascism
+				}
+			}
 		}
 		completion_reward = {
-		VED = { country_event = generic.5 }
+			VED = {
+				country_event = generic.5
+			}
 		}
 	}
 	shared_focus = {
@@ -2753,22 +2758,20 @@ shared_focus = {
 			factor = 40
 		}
 		prerequisite = {
-		focus = FST_alliance_of_northern_monarchs
+			focus = FST_alliance_of_northern_monarchs
 		}
 		bypass = {
-		OR = {
-		NTR = { exists = no }
-		NTR = { has_government = neutrality }
-		NTR = { has_government = communism }
-		}
-		}
-		available = {
-		NTR = {
-		has_government = democratic
-		}
+			NTR = {
+				OR = {
+					exists = no
+					NOT = { has_government = democratic } # MB peaceful council will fit? #???
+				}
+			}
 		}
 		completion_reward = {
-		NTR = { country_event = generic.5 }
+			NTR = {
+				country_event = generic.5
+			}
 		}
 	}
 	shared_focus = {
@@ -2782,26 +2785,63 @@ shared_focus = {
 			factor = 40
 		}
 		prerequisite = {
-		focus = FST_ally_northern_tribes
+			focus = FST_ally_northern_tribes
 		}
 		prerequisite = {
-		focus = FST_ally_vedina
-		}
-		available = {
+			focus = FST_ally_vedina
 		}
 		bypass = {
-			SRS = {
+			SRS = { # What if SRS - neutrals?
 				OR = {
 					exists = no
 					is_subject_of = ROOT
 					has_war_with = ROOT
 				}
 			}
+			NTR = {
+				OR = {
+					exists = no
+					NOT = { has_government = communism }
+				}
+			}
 		}
 		will_lead_to_war_with = SRS
+		will_lead_to_war_with = NTR
 		completion_reward = {
-		601 = { add_core_of = FAW }
-		create_wargoal = { type = annex_everything target = SRS }
+			601 = { add_core_of = ROOT }
+			if = {
+				limit = {
+					country_exists = SRS
+				}
+				create_wargoal = {
+					type = annex_everything
+					target = SRS
+				}
+			}
+			if = {
+				limit = {
+					NTR = {
+						has_government = communism
+					}
+					SRS = {
+						custom_trigger_tooltip = {
+							tooltip = owns_all_cores_NTR_tt
+							hidden_trigger = {
+								all_of = {
+									array = core_states
+									var:v = {
+										is_owned_by = NTR
+									}
+								}
+							}
+						}
+					}
+				}
+				create_wargoal = {
+					type = annex_everything
+					target = NTR
+				}
+			}
 		}
 	}
 	shared_focus = {
@@ -2815,7 +2855,7 @@ shared_focus = {
 			factor = 40
 		}
 		prerequisite = {
-		focus = FST_strike_at_skynavia
+			focus = FST_strike_at_skynavia
 		}
 		available = {
 			is_in_faction_with = NTR
@@ -2833,82 +2873,36 @@ shared_focus = {
 				}
 			}
 		}
-		bypass = {
-		}
 		completion_reward = {
-		if = {
-		limit = { 
-		AND = {
-		NTR = { is_in_faction_with = FAW }
-		VED = { is_in_faction_with = FAW }
-		}
-		}
-		NTR = {
-		transfer_state = 522
-		transfer_state = 542
-		transfer_state = 561
-		522 = { add_core_of = NTR }
-		542 = { add_core_of = NTR }
-		561 = { add_core_of = NTR }
-		}
-		VED = {
-		transfer_state = 585
-		585 = { add_core_of = VED }
-		}
-		}
-		if = {
-		limit = { 
-		NOT = { VED = { is_in_faction_with = FAW }}
-		NTR = { is_in_faction_with = FAW }
-		}
-		NTR = {
-		transfer_state = 522
-		transfer_state = 542
-		transfer_state = 561
-		transfer_state = 585
-		585 = { add_core_of = NTR }
-		522 = { add_core_of = NTR }
-		542 = { add_core_of = NTR }
-		561 = { add_core_of = NTR }
-		}
-		}
-		}
-	}
-	shared_focus = {
-		id = FST_restore_monarchies
-		icon = GFX_goal_generic_major_war
-		relative_position_id = FST_the_unthinkable_option
-		x = 6
-		y = 9
-		cost = 8.00
-		ai_will_do = {
-			factor = 40
-		}
-		prerequisite = {
-		focus = FST_ally_northern_tribes focus = FST_ally_vedina focus = FST_ally_the_sane_sunstriker
-		}
-		available = {
-		}
-		completion_reward = {
-		custom_effect_tooltip = restore_monarchies_tt
-		if = {
-		limit = { VED = { OR = { has_government = communism has_government = fascism }
-			create_wargoal = { type = puppet_wargoal_focus  target = VED }
-		}
-		}
-		}
-		if = {
-		limit = { NTR = { OR = { has_government = communism has_government = fascism }
-			create_wargoal = { type = puppet_wargoal_focus  target = NTR }
-		}
-		}
-		}
-		if = {
-		limit = { MNC = { OR = { has_government = communism has_government = democratic }
-			create_wargoal = { type = puppet_wargoal_focus  target = MNC }
-		}
-		}
-		}
+			if = {
+				limit = {
+					VED = { is_in_faction_with = ROOT }
+				}
+				NTR = {
+					transfer_state = 522
+					transfer_state = 542
+					transfer_state = 561
+					522 = { add_core_of = PREV }
+					542 = { add_core_of = PREV }
+					561 = { add_core_of = PREV }
+				}
+				VED = {
+					transfer_state = 585
+					585 = { add_core_of = PREV }
+				}
+			}
+			else = {
+				NTR = {
+					transfer_state = 522
+					transfer_state = 542
+					transfer_state = 561
+					transfer_state = 585
+					585 = { add_core_of = PREV }
+					522 = { add_core_of = PREV }
+					542 = { add_core_of = PREV }
+					561 = { add_core_of = PREV }
+				}
+			}
 		}
 	}
 	shared_focus = {
@@ -2922,21 +2916,78 @@ shared_focus = {
 			factor = 40
 		}
 		prerequisite = {
-		focus = FST_alliance_of_northern_monarchs
+			focus = FST_alliance_of_northern_monarchs
 		}
 		bypass = {
-		OR = {
-		MNC = { exists = no }
-		MNC = { NOT = { has_government = neutrality }}
-		}
-		}
-		available = {
-		MNC = {
-		has_government = neutrality
-		}
+			MNC = {
+				OR = {
+					exists = no
+					NOT = { has_government = neutrality }
+				}
+			}
 		}
 		completion_reward = {
-		MNC = { country_event = generic.5 }
+			MNC = {
+				country_event = generic.5
+			}
+		}
+	}
+	shared_focus = {
+		id = FST_restore_monarchies
+		icon = GFX_goal_generic_major_war
+		relative_position_id = FST_the_unthinkable_option
+		x = 6
+		y = 9
+		cost = 8.00
+		ai_will_do = {
+			factor = 40
+		}
+		prerequisite = {
+			focus = FST_ally_northern_tribes
+			focus = FST_ally_vedina
+			focus = FST_ally_the_sane_sunstriker
+		}
+		completion_reward = {
+			custom_effect_tooltip = restore_monarchies_tt
+			if = {
+				limit = {
+					VED = {
+						OR = {
+							has_government = communism
+							has_government = fascism
+						}
+					}
+				}
+				create_wargoal = {
+					type = puppet_wargoal_focus
+					target = VED
+				}
+			}
+			if = {
+				limit = {
+					NTR = {
+						NOT = { has_government = democratic }
+					}
+				}
+				create_wargoal = {
+					type = puppet_wargoal_focus
+					target = NTR
+				}
+			}
+			if = {
+				limit = {
+					MNC = {
+						OR = {
+							has_government = communism
+							has_government = democratic
+						}
+					}
+				}
+				create_wargoal = {
+					type = puppet_wargoal_focus
+					target = MNC
+				}
+			}
 		}
 	}
 	shared_focus = {
@@ -3572,16 +3623,16 @@ shared_focus = {
 	shared_focus = {
 		id = FST_retake_north
 		icon = GFX_goal_generic_war_with_comintern
-		prerequisite = {
-			focus = FST_a_republican_coalition
-			focus = FST_consolidate_gains
-		}
 		x = 4
 		y = 1
 		relative_position_id = FST_a_republican_coalition
 		cost = 4.00
 		ai_will_do = {
 			factor = 50
+		}
+		prerequisite = {
+			focus = FST_a_republican_coalition
+			focus = FST_consolidate_gains
 		}
 		bypass = {
 			SRS = {
@@ -3601,15 +3652,15 @@ shared_focus = {
 				limit = {
 					NTR = {
 						has_government = communism
-						SRS = {
-							custom_trigger_tooltip = {
-								tooltip = owns_all_cores_NTR_tt
-								hidden_trigger = {
-									all_of = {
-										array = core_states
-										var:v = {
-											is_owned_by = PREV
-										}
+					}
+					SRS = {
+						custom_trigger_tooltip = {
+							tooltip = owns_all_cores_NTR_tt
+							hidden_trigger = {
+								all_of = {
+									array = core_states
+									var:v = {
+										is_owned_by = NTR
 									}
 								}
 							}
@@ -3624,16 +3675,15 @@ shared_focus = {
 	shared_focus = {
 		id = FST_core_SRS
 		icon = GFX_goal_demand_sudetenland
-		prerequisite = {
-			focus = FST_retake_north
-		}
 		x = 4
 		y = 2
-
 		relative_position_id = FST_a_republican_coalition
 		cost = 8.00
 		ai_will_do = {
 			factor = 50
+		}
+		prerequisite = {
+			focus = FST_retake_north
 		}
 		available = {
 			SRS = {
@@ -3671,32 +3721,22 @@ shared_focus = {
 	shared_focus = {
 		id = FST_core_VED
 		icon = GFX_goal_generic_forceful_treaty
+		x = -2
+		y = 1
+		relative_position_id = FST_retake_north
+		cost = 8.00
+		ai_will_do = {
+			factor = 50
+		}
 		prerequisite = {
 			focus = FST_question_vedina
 		}
 		available = {
 			VED = {
-				custom_trigger_tooltip = {
-					tooltip = owns_all_cores_tt
-					hidden_trigger = {
-						all_of = {
-							array = core_states
-							var:v = {
-								is_owned_by = ROOT
-							}
-						}
-					}
-				}
+				all_cores_owned_by_ROOT = yes
 			}
 		}
-		x = -2
-		y = 1
-		relative_position_id = FST_retake_north
 		will_lead_to_war_with = VED
-		cost = 8.00
-		ai_will_do = {
-			factor = 50
-		}
 		completion_reward = {
 			every_state = {
 				limit = { is_core_of = VED }
@@ -3754,17 +3794,7 @@ shared_focus = {
 		}
 		available = {
 			MNC = {
-				custom_trigger_tooltip = {
-					tooltip = owns_all_cores_tt
-					hidden_trigger = {
-						all_of = {
-							array = core_states
-							var:v = {
-								is_owned_by = ROOT
-							}
-						}
-					}
-				}
+				all_cores_owned_by_ROOT = yes
 			}
 		}
 		completion_reward = {
@@ -5137,15 +5167,15 @@ shared_focus = {
 				limit = {
 					NTR = {
 						has_government = communism
-						SRS = {
-							custom_trigger_tooltip = {
-								tooltip = owns_all_cores_NTR_tt
-								hidden_trigger = {
-									all_of = {
-										array = core_states
-										var:v = {
-											is_owned_by = PREV
-										}
+					}
+					SRS = {
+						custom_trigger_tooltip = {
+							tooltip = owns_all_cores_NTR_tt
+							hidden_trigger = {
+								all_of = {
+									array = core_states
+									var:v = {
+										is_owned_by = NTR
 									}
 								}
 							}
