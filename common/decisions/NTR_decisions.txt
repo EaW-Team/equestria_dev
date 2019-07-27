@@ -37,6 +37,28 @@ political_actions = {
 		
 		ai_will_do = {
 			base = 25
+			
+			modifier = {
+				factor = 0.5
+				
+				has_navy_size = {
+					type = convoy
+					size > 40
+				}
+			}
+			
+			modifier = {
+				factor = 0
+				
+				has_navy_size = {
+					type = convoy
+					size > 80
+				}
+				
+				NOT = {
+					has_political_power > 800
+				}
+			}
 		}
 		
 		allowed = {
@@ -45,50 +67,36 @@ political_actions = {
 		
 		visible = {
 			has_completed_focus = NTR_guilds_oath
-			has_completed_focus = NTR_free_trade_focus
 			
 			has_government = democratic
 		}
 		
 		is_good = yes
 		
-		remove_effect = {
-			log = "[GetDateText]: [Root.GetName]: Decision remove NTR_purchase_cargo_ships"
+		complete_effect = {
+			log = "[GetDateText]: [Root.GetName]: Decision NTR_purchase_cargo_ships"
 			
-			# MB convoys = dockyards (limit max) ?
+			set_variable = { NTR_dockyards_num = num_of_naval_factories }
 			
-			if = {
-				limit = {
-					has_pre_industrial_society = yes
-				}
-				
-				add_equipment_to_stockpile = {
-					type = convoy
-					amount = 6
-				}
-			}
-			
-			else_if = {
-				limit = {
-					has_outdated_industry = yes
-				}
-				
-				add_equipment_to_stockpile = {
-					type = convoy
-					amount = 8
-				}
-			}
-			
-			else = {
-				add_equipment_to_stockpile = {
-					type = convoy
-					amount = 10
-				}
+			clamp_variable = {
+				var = NTR_dockyards_num
+				max = 10
 			}
 		}
 		
-		days_remove = 30
-		days_re_enable = 120
+		remove_effect = {
+			log = "[GetDateText]: [Root.GetName]: Decision remove NTR_purchase_cargo_ships"
+			
+			add_equipment_to_stockpile = {
+				type = convoy
+				amount = var:NTR_dockyards_num
+			}
+			
+			clear_variable = NTR_dockyards_num
+		}
+		
+		days_remove = 90
+		days_re_enable = 180
 	}
 	
 	NTR_use_external_relations = {
@@ -97,7 +105,7 @@ political_actions = {
 		cost = 75
 		
 		ai_will_do = {
-			base = 50
+			base = 25
 		}
 		
 		allowed = {
@@ -115,18 +123,21 @@ political_actions = {
 			
 			if = {
 				limit = {
-					has_pre_industrial_society = yes
+					has_idea = modern_society
 				}
 				
 				add_offsite_building = {
 					type = industrial_complex
-					level = 1
+					level = 3
 				}
 			}
 			
 			else_if = {
 				limit = {
-					has_outdated_industry = yes
+					OR = {
+						has_idea = outdated_industry
+						has_idea = outdated_industry2
+					}
 				}
 				
 				add_offsite_building = {
@@ -138,7 +149,7 @@ political_actions = {
 			else = {
 				add_offsite_building = {
 					type = industrial_complex
-					level = 3
+					level = 1
 				}
 			}
 		}
@@ -148,18 +159,21 @@ political_actions = {
 			
 			if = {
 				limit = {
-					has_pre_industrial_society = yes
+					has_idea = modern_society
 				}
 				
 				add_offsite_building = {
 					type = industrial_complex
-					level = -1
+					level = -3
 				}
 			}
 			
 			else_if = {
 				limit = {
-					has_outdated_industry = yes
+					OR = {
+						has_idea = outdated_industry
+						has_idea = outdated_industry2
+					}
 				}
 				
 				add_offsite_building = {
@@ -171,32 +185,65 @@ political_actions = {
 			else = {
 				add_offsite_building = {
 					type = industrial_complex
-					level = -3
+					level = -1
 				}
 			}
 		}
 		
-		days_remove = 60
-		days_re_enable = 120
+		days_remove = 90
+		days_re_enable = 180
 	}
 	
 	NTR_investments_in_industry = {
 		#icon = 
 		
-		cost = 75
+		cost = 25
 		
 		ai_will_do = {
-			base = 25
-			
-			modifier = {
-				factor = 4
-				
-				has_war = yes
-			}
+			base = 50
 		}
 		
 		allowed = {
 			tag = NTR
+		}
+		
+		available = {
+			political_power_daily > 0.5
+			
+			if = {
+				limit = {
+					has_idea = modern_society
+				}
+				
+				custom_trigger_tooltip = {
+					tooltip = NTR_internal_politics_no_more_than_3
+					
+					check_variable = { NTR_internal_politics_var > 0 }
+				}
+			}
+			
+			else_if = {
+				limit = {
+					OR = {
+						has_idea = outdated_industry
+						has_idea = outdated_industry2
+					}
+				}
+				
+				custom_trigger_tooltip = {
+					tooltip = NTR_internal_politics_no_more_than_2
+					
+					check_variable = { NTR_internal_politics_var > 0 }
+				}
+			}
+			
+			else = {
+				custom_trigger_tooltip = {
+					tooltip = NTR_internal_politics_no_more_than_1
+					
+					check_variable = { NTR_internal_politics_var > 0 }
+				}
+			}
 		}
 		
 		visible = {
@@ -205,26 +252,56 @@ political_actions = {
 			has_government = democratic
 		}
 		
-		complete_effect = {
-			log = "[GetDateText]: [Root.GetName]: Decision NTR_investments_in_industry"
+		remove_trigger = {
+			has_decision = NTR_investments_in_industry_OFF
 		}
 		
-		remove_effect = {
-			log = "[GetDateText]: [Root.GetName]: Decision remove NTR_investments_in_industry"
+		complete_effect = {
+			log = "[GetDateText]: [Root.GetName]: Decision NTR_investments_in_industry"
+			
+			subtract_from_variable = { NTR_internal_politics_var = 1 }
 		}
 		
 		modifier = {
+			political_power_gain = -0.25
 			production_speed_buildings_factor = 0.1
 		}
 		
-		days_remove = 60
-		days_re_enable = 120
+		days_remove = -1
+		days_re_enable = 30
+	}
+	
+	NTR_investments_in_industry_OFF = {
+		#icon = 
+		
+		cost = 0
+		
+		ai_will_do = {
+			base = 0
+		}
+		
+		allowed = {
+			tag = NTR
+		}
+		
+		visible = {
+			has_decision = NTR_investments_in_industry
+		}
+		
+		complete_effect = {
+			log = "[GetDateText]: [Root.GetName]: Decision NTR_investments_in_industry_OFF"
+			
+			add_to_variable = { NTR_internal_politics_var = 1 }
+		}
+		
+		days_remove = 1
+		days_re_enable = 1
 	}
 	
 	NTR_war_preparation = {
 		#icon = 
 		
-		cost = 75
+		cost = 25
 		
 		ai_will_do = {
 			base = 25
@@ -240,34 +317,101 @@ political_actions = {
 			tag = NTR
 		}
 		
+		available = {
+			political_power_daily > 0.5
+			
+			if = {
+				limit = {
+					has_idea = modern_society
+				}
+				
+				custom_trigger_tooltip = {
+					tooltip = NTR_internal_politics_no_more_than_3
+					
+					check_variable = { NTR_internal_politics_var > 0 }
+				}
+			}
+			
+			else_if = {
+				limit = {
+					OR = {
+						has_idea = outdated_industry
+						has_idea = outdated_industry2
+					}
+				}
+				
+				custom_trigger_tooltip = {
+					tooltip = NTR_internal_politics_no_more_than_2
+					
+					check_variable = { NTR_internal_politics_var > 0 }
+				}
+			}
+			
+			else = {
+				custom_trigger_tooltip = {
+					tooltip = NTR_internal_politics_no_more_than_1
+					
+					check_variable = { NTR_internal_politics_var > 0 }
+				}
+			}
+		}
+		
 		visible = {
 			has_completed_focus = NTR_guilds_oath
-			has_completed_focus = NTR_protection_of_values
-			NOT = { has_completed_focus = NTR_free_trade_focus }
 			
 			has_government = democratic
 		}
 		
-		complete_effect = {
-			log = "[GetDateText]: [Root.GetName]: Decision NTR_war_preparation"
+		remove_trigger = {
+			has_decision = NTR_war_preparation_OFF
 		}
 		
-		remove_effect = {
-			log = "[GetDateText]: [Root.GetName]: Decision remove NTR_war_preparation"
+		complete_effect = {
+			log = "[GetDateText]: [Root.GetName]: Decision NTR_war_preparation"
+			
+			subtract_from_variable = { NTR_internal_politics_var = 1 }
 		}
 		
 		modifier = {
+			political_power_gain = -0.25
 			industrial_capacity_factory = 0.075
 		}
 		
-		days_remove = 45
-		days_re_enable = 90
+		days_remove = -1
+		days_re_enable = 30
+	}
+	
+	NTR_war_preparation_OFF = {
+		#icon = 
+		
+		cost = 0
+		
+		ai_will_do = {
+			base = 0
+		}
+		
+		allowed = {
+			tag = NTR
+		}
+		
+		visible = {
+			has_decision = NTR_war_preparation
+		}
+		
+		complete_effect = {
+			log = "[GetDateText]: [Root.GetName]: Decision NTR_war_preparation_OFF"
+			
+			add_to_variable = { NTR_internal_politics_var = 1 }
+		}
+		
+		days_remove = 1
+		days_re_enable = 1
 	}
 	
 	NTR_mining_efforts = {
 		#icon = 
 		
-		cost = 75
+		cost = 25
 		
 		ai_will_do = {
 			base = 25
@@ -277,32 +421,101 @@ political_actions = {
 			tag = NTR
 		}
 		
+		available = {
+			political_power_daily > 0.5
+			
+			if = {
+				limit = {
+					has_idea = modern_society
+				}
+				
+				custom_trigger_tooltip = {
+					tooltip = NTR_internal_politics_no_more_than_3
+					
+					check_variable = { NTR_internal_politics_var > 0 }
+				}
+			}
+			
+			else_if = {
+				limit = {
+					OR = {
+						has_idea = outdated_industry
+						has_idea = outdated_industry2
+					}
+				}
+				
+				custom_trigger_tooltip = {
+					tooltip = NTR_internal_politics_no_more_than_2
+					
+					check_variable = { NTR_internal_politics_var > 0 }
+				}
+			}
+			
+			else = {
+				custom_trigger_tooltip = {
+					tooltip = NTR_internal_politics_no_more_than_1
+					
+					check_variable = { NTR_internal_politics_var > 0 }
+				}
+			}
+		}
+		
 		visible = {
 			has_completed_focus = NTR_guilds_oath
 			
 			has_government = democratic
 		}
 		
-		complete_effect = {
-			log = "[GetDateText]: [Root.GetName]: Decision NTR_mining_efforts"
+		remove_trigger = {
+			has_decision = NTR_mining_efforts_OFF
 		}
 		
-		remove_effect = {
-			log = "[GetDateText]: [Root.GetName]: Decision remove NTR_mining_efforts"
+		complete_effect = {
+			log = "[GetDateText]: [Root.GetName]: Decision NTR_mining_efforts"
+			
+			subtract_from_variable = { NTR_internal_politics_var = 1 }
 		}
 		
 		modifier = {
+			political_power_gain = -0.25
 			local_resources_factor = 0.1
 		}
 		
-		days_remove = 60
-		days_re_enable = 120
+		days_remove = -1
+		days_re_enable = 30
+	}
+	
+	NTR_mining_efforts_OFF = {
+		#icon = 
+		
+		cost = 0
+		
+		ai_will_do = {
+			base = 0
+		}
+		
+		allowed = {
+			tag = NTR
+		}
+		
+		visible = {
+			has_decision = NTR_mining_efforts
+		}
+		
+		complete_effect = {
+			log = "[GetDateText]: [Root.GetName]: Decision NTR_mining_efforts_OFF"
+			
+			add_to_variable = { NTR_internal_politics_var = 1 }
+		}
+		
+		days_remove = 1
+		days_re_enable = 1
 	}
 	
 	NTR_buying_foreign_ideas = {
 		#icon = 
 		
-		cost = 75
+		cost = 25
 		
 		ai_will_do = {
 			base = 50
@@ -312,33 +525,101 @@ political_actions = {
 			tag = NTR
 		}
 		
+		available = {
+			political_power_daily > 0.5
+			
+			if = {
+				limit = {
+					has_idea = modern_society
+				}
+				
+				custom_trigger_tooltip = {
+					tooltip = NTR_internal_politics_no_more_than_3
+					
+					check_variable = { NTR_internal_politics_var > 0 }
+				}
+			}
+			
+			else_if = {
+				limit = {
+					OR = {
+						has_idea = outdated_industry
+						has_idea = outdated_industry2
+					}
+				}
+				
+				custom_trigger_tooltip = {
+					tooltip = NTR_internal_politics_no_more_than_2
+					
+					check_variable = { NTR_internal_politics_var > 0 }
+				}
+			}
+			
+			else = {
+				custom_trigger_tooltip = {
+					tooltip = NTR_internal_politics_no_more_than_1
+					
+					check_variable = { NTR_internal_politics_var > 0 }
+				}
+			}
+		}
+		
 		visible = {
 			has_completed_focus = NTR_guilds_oath
-			has_completed_focus = NTR_free_trade_focus
 			
 			has_government = democratic
 		}
 		
-		complete_effect = {
-			log = "[GetDateText]: [Root.GetName]: Decision NTR_buying_foreign_ideas"
+		remove_trigger = {
+			has_decision = NTR_buying_foreign_ideas_OFF
 		}
 		
-		remove_effect = {
-			log = "[GetDateText]: [Root.GetName]: Decision remove NTR_buying_foreign_ideas"
+		complete_effect = {
+			log = "[GetDateText]: [Root.GetName]: Decision NTR_buying_foreign_ideas"
+			
+			subtract_from_variable = { NTR_internal_politics_var = 1 }
 		}
 		
 		modifier = {
-			research_speed_factor = 0.05
+			political_power_gain = -0.25
+			research_speed_factor = 0.075
 		}
 		
-		days_remove = 45
-		days_re_enable = 90
+		days_remove = -1
+		days_re_enable = 30
+	}
+	
+	NTR_buying_foreign_ideas_OFF = {
+		#icon = 
+		
+		cost = 0
+		
+		ai_will_do = {
+			base = 0
+		}
+		
+		allowed = {
+			tag = NTR
+		}
+		
+		visible = {
+			has_decision = NTR_buying_foreign_ideas
+		}
+		
+		complete_effect = {
+			log = "[GetDateText]: [Root.GetName]: Decision NTR_buying_foreign_ideas_OFF"
+			
+			add_to_variable = { NTR_internal_politics_var = 1 }
+		}
+		
+		days_remove = 1
+		days_re_enable = 1
 	}
 	
 	NTR_fertility_programs = {
 		#icon = 
 		
-		cost = 75
+		cost = 25
 		
 		ai_will_do = {
 			base = 50
@@ -348,26 +629,95 @@ political_actions = {
 			tag = NTR
 		}
 		
+		available = {
+			political_power_daily > 0.5
+			
+			if = {
+				limit = {
+					has_idea = modern_society
+				}
+				
+				custom_trigger_tooltip = {
+					tooltip = NTR_internal_politics_no_more_than_3
+					
+					check_variable = { NTR_internal_politics_var > 0 }
+				}
+			}
+			
+			else_if = {
+				limit = {
+					OR = {
+						has_idea = outdated_industry
+						has_idea = outdated_industry2
+					}
+				}
+				
+				custom_trigger_tooltip = {
+					tooltip = NTR_internal_politics_no_more_than_2
+					
+					check_variable = { NTR_internal_politics_var > 0 }
+				}
+			}
+			
+			else = {
+				custom_trigger_tooltip = {
+					tooltip = NTR_internal_politics_no_more_than_1
+					
+					check_variable = { NTR_internal_politics_var > 0 }
+				}
+			}
+		}
+		
 		visible = {
 			has_completed_focus = NTR_guilds_oath
 			
 			has_government = democratic
 		}
 		
-		complete_effect = {
-			log = "[GetDateText]: [Root.GetName]: Decision NTR_fertility_programs"
+		remove_trigger = {
+			has_decision = NTR_fertility_programs_OFF
 		}
 		
-		remove_effect = {
-			log = "[GetDateText]: [Root.GetName]: Decision remove NTR_fertility_programs"
+		complete_effect = {
+			log = "[GetDateText]: [Root.GetName]: Decision NTR_fertility_programs"
+			
+			subtract_from_variable = { NTR_internal_politics_var = 1 }
 		}
 		
 		modifier = {
+			political_power_gain = -0.25
 			MONTHLY_POPULATION = 0.15
 		}
 		
-		days_remove = 120
-		days_re_enable = 240
+		days_remove = -1
+		days_re_enable = 30
+	}
+	
+	NTR_fertility_programs_OFF = {
+		#icon = 
+		
+		cost = 0
+		
+		ai_will_do = {
+			base = 0
+		}
+		
+		allowed = {
+			tag = NTR
+		}
+		
+		visible = {
+			has_decision = NTR_fertility_programs
+		}
+		
+		complete_effect = {
+			log = "[GetDateText]: [Root.GetName]: Decision NTR_fertility_programs_OFF"
+			
+			add_to_variable = { NTR_internal_politics_var = 1 }
+		}
+		
+		days_remove = 1
+		days_re_enable = 1
 	}
 }
 
@@ -1239,6 +1589,254 @@ NTR_integration_of_neutral_tribes_category = {
 		
 		days_remove = 30
 		days_re_enable = 90
+	}
+}
+
+NTR_meritocracy_category = {
+	NTR_political_advisor_1_1_up = {
+		#icon = 
+		
+		cost = 75
+		
+		ai_will_do = {
+			base = 50
+		}
+		
+		available = {
+			has_idea = NTR_popular_figurehead_advisor2
+		}
+		
+		visible = {
+			has_country_flag = {
+				flag = NTR_political_advisor_1_flag
+				value = 0
+			}
+		}
+		
+		is_good = yes
+		fire_only_once = yes
+		cancel_if_not_visible = yes
+		
+		remove_effect = {
+			swap_ideas = {
+				remove_idea = NTR_popular_figurehead_advisor2
+				add_idea = NTR_popular_figurehead_advisor1
+			}
+			
+			hidden_effect = {
+				modify_country_flag = {
+					flag = NTR_political_advisor_1_flag
+					value = 1
+				}
+			}
+		}
+		
+		days_remove = 90
+	}
+	
+	NTR_political_advisor_1_2_up = {
+		#icon = 
+		
+		cost = 100
+		
+		ai_will_do = {
+			base = 25
+		}
+		
+		available = {
+			has_idea = NTR_popular_figurehead_advisor1
+		}
+		
+		visible = {
+			has_country_flag = {
+				flag = NTR_political_advisor_1_flag
+				value = 1
+			}
+		}
+		
+		is_good = yes
+		fire_only_once = yes
+		cancel_if_not_visible = yes
+		
+		remove_effect = {
+			swap_ideas = {
+				remove_idea = NTR_popular_figurehead_advisor1
+				add_idea = NTR_popular_figurehead_advisor
+			}
+			
+			hidden_effect = {
+				modify_country_flag = {
+					flag = NTR_political_advisor_1_flag
+					value = 2
+				}
+			}
+		}
+		
+		days_remove = 120
+	}
+	
+	NTR_political_advisor_2_1_up = {
+		#icon = 
+		
+		cost = 75
+		
+		ai_will_do = {
+			base = 50
+		}
+		
+		available = {
+			has_idea = NTR_silent_workgriffon_advisor2
+		}
+		
+		visible = {
+			has_country_flag = {
+				flag = NTR_political_advisor_2_flag
+				value = 0
+			}
+		}
+		
+		is_good = yes
+		fire_only_once = yes
+		cancel_if_not_visible = yes
+		
+		remove_effect = {
+			swap_ideas = {
+				remove_idea = NTR_silent_workgriffon_advisor2
+				add_idea = NTR_silent_workgriffon_advisor1
+			}
+			
+			hidden_effect = {
+				modify_country_flag = {
+					flag = NTR_political_advisor_2_flag
+					value = 1
+				}
+			}
+		}
+		
+		days_remove = 90
+	}
+	
+	NTR_political_advisor_2_2_up = {
+		#icon = 
+		
+		cost = 100
+		
+		ai_will_do = {
+			base = 25
+		}
+		
+		available = {
+			has_idea = NTR_silent_workgriffon_advisor1
+		}
+		
+		visible = {
+			has_country_flag = {
+				flag = NTR_political_advisor_2_flag
+				value = 1
+			}
+		}
+		
+		is_good = yes
+		fire_only_once = yes
+		cancel_if_not_visible = yes
+		
+		remove_effect = {
+			swap_ideas = {
+				remove_idea = NTR_silent_workgriffon_advisor1
+				add_idea = NTR_silent_workgriffon_advisor
+			}
+			
+			hidden_effect = {
+				modify_country_flag = {
+					flag = NTR_political_advisor_2_flag
+					value = 2
+				}
+			}
+		}
+		
+		days_remove = 120
+	}
+	
+	NTR_ideological_crusader_advisor1_up = {
+		#icon = 
+		
+		cost = 100
+		
+		ai_will_do = {
+			base = 25
+		}
+		
+		available = {
+			has_idea = NTR_ideological_crusader_advisor1
+		}
+		
+		visible = {
+			has_country_flag = {
+				flag = NTR_political_advisor_3_flag
+				value = 0
+			}
+		}
+		
+		is_good = yes
+		fire_only_once = yes
+		cancel_if_not_visible = yes
+		
+		remove_effect = {
+			swap_ideas = {
+				remove_idea = NTR_ideological_crusader_advisor1
+				add_idea = NTR_ideological_crusader_advisor
+			}
+			
+			hidden_effect = {
+				modify_country_flag = {
+					flag = NTR_political_advisor_3_flag
+					value = 1
+				}
+			}
+		}
+		
+		days_remove = 120
+	}
+	
+	NTR_smooth_talking_charmer_advisor1_up = {
+		#icon = 
+		
+		cost = 100
+		
+		ai_will_do = {
+			base = 25
+		}
+		
+		available = {
+			has_idea = NTR_smooth_talking_charmer_advisor1
+		}
+		
+		visible = {
+			has_country_flag = {
+				flag = NTR_smooth_talking_charmer_advisor_flag
+				value = 0
+			}
+		}
+		
+		is_good = yes
+		fire_only_once = yes
+		cancel_if_not_visible = yes
+		
+		remove_effect = {
+			swap_ideas = {
+				remove_idea = NTR_smooth_talking_charmer_advisor1
+				add_idea = NTR_smooth_talking_charmer_advisor
+			}
+			
+			hidden_effect = {
+				modify_country_flag = {
+					flag = NTR_smooth_talking_charmer_advisor_flag
+					value = 1
+				}
+			}
+		}
+		
+		days_remove = 120
 	}
 }
 
