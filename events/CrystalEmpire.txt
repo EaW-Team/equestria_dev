@@ -78,7 +78,13 @@ country_event = {
 
 	option = {
 		name = cryscr.4.a
-		add_political_power = 16
+		add_opinion_modifier = {
+			target = EQS modifier = friendship_games_mod
+		}
+		reverse_add_opinion_modifier = {
+			target = EQS modifier = friendship_games_mod
+		}
+		add_political_power = 25
 	}
 }
 country_event = { ## Crysal Empire asks Equestria for Crysal Fair
@@ -194,7 +200,7 @@ country_event = { ## Mi Amore Family Story
 	immediate = {log = "[GetDateText]: [Root.GetName]: event cryscr.9"}#Auto-logging
 	title = cryscr.9.t
 	desc = cryscr.9.d
-	picture = GFX_event_mi_amore
+	picture = GFX_event_crystal_fair
 
 	is_triggered_only = yes
 
@@ -295,6 +301,11 @@ country_event = { ## The Return of Sombra event chain
 						rule = CRY_ai_behavior
 						option = CRY_HISTORICAL_PATH
 					}
+					has_country_flag = CRY_AI_INTEGRATION_PATH
+					has_game_rule = {
+						rule = CRY_ai_behavior
+						option = CRY_INTEGRATION_PATH
+					}
 				}
 			}
 		}
@@ -352,6 +363,11 @@ country_event = { ## The Return of Sombra event chain
 					has_game_rule = {
 						rule = CRY_ai_behavior
 						option = CRY_HISTORICAL_PATH
+					}
+					has_country_flag = CRY_AI_INTEGRATION_PATH
+					has_game_rule = {
+						rule = CRY_ai_behavior
+						option = CRY_INTEGRATION_PATH
 					}
 					has_country_flag = CRY_AI_COMMUNIST_PATH
 					has_game_rule = {
@@ -693,6 +709,14 @@ country_event = { ## Sombra Civil War if fascism support is high enough after no
 						}
 					}
 					set_nationality = ROOT
+				}
+				ROOT = {
+					random_unit_leader = {
+						limit = {
+							has_id = 1045
+						}
+						set_nationality = PREV
+					}
 				}
 			}
 		}
@@ -1532,6 +1556,12 @@ country_event = { ## ACTUAL SOMBRA RETURN HERE AYY LMAOOOOOOOOO
 				set_cosmetic_tag = CRY_DEM
 				add_popularity = { ideology = democratic popularity = 0.3 }
 				save_event_target_as = dem_CRY
+				random_unit_leader = {
+					limit = {
+						has_id = 1045
+					}
+					set_nationality = ROOT
+				}
 			}
 			every_unit_leader = {
 				limit = {
@@ -2197,23 +2227,39 @@ country_event = { ## Fiendship
 	is_triggered_only = yes
 	option = {
 		name = crysom.22.a
-		if = {
-			limit = {
-				any_other_country = { 
-					is_in_faction_with = ROOT 
-					any_owned_state = {
-						is_core_of = EQS
-					}
-				}
-			}
-			every_state = {
-				limit = { 
-					is_core_of = EQS 
+		every_state = {
+			limit = { 
+				is_core_of = EQS
+				OR = {
 					is_owned_by = ROOT
 					owner = { NOT = { is_in_faction_with = ROOT } }
 				}
-				add_core_of = ROOT
 			}
+			add_core_of = ROOT
+		}
+		every_state = {
+			limit = { 
+				NOT = {
+					is_in_array = {
+						array = global.original_CRY_cores
+						value = THIS
+					}
+				}
+				OR = {
+					is_core_of = ROOT
+					is_claimed_by = ROOT
+				}
+				owner = {
+					is_in_faction_with = ROOT 
+					OR = {
+						tag = STG
+						tag = CHN
+						tag = NLR
+					}
+				}
+			}
+			remove_core_of = ROOT
+			remove_claim_by = ROOT
 		}
 		every_other_country = {
 			limit = { is_in_faction_with = ROOT }
@@ -2309,6 +2355,14 @@ country_event = { ## Alliance with Changelings Declined
 	is_triggered_only = yes
 	option = {
 		name = crysom.26.a
+		if = {
+			limit = { FROM = { is_ai = yes } }
+			effect_tooltip = {
+				FROM = {
+					create_wargoal = { type = annex_everything target = ROOT }
+				}
+			}
+		}
 		add_political_power = -200
 	}
 }
@@ -2390,6 +2444,7 @@ country_event = { ## Gray Pact Fromed
 		if = {
 			limit = {
 				has_global_flag = CHN_for_gray_pact
+				CHN = { is_subject = no }
 			}
 			CHN = { dismantle_faction = yes }
 			add_to_faction = CHN
@@ -2411,6 +2466,7 @@ country_event = { ## Gray Pact Fromed
 		if = {
 			limit = {
 				has_global_flag = NLR_for_gray_pact
+				NLR = { is_subject = no }
 			}
 			add_to_faction = NLR
 			hidden_effect = {
@@ -2431,6 +2487,7 @@ country_event = { ## Gray Pact Fromed
 		if = {
 			limit = {
 				has_global_flag = STG_for_gray_pact
+				STG = { is_subject = no }
 			}
 			add_to_faction = STG
 			hidden_effect = {
@@ -2942,6 +2999,10 @@ country_event = { ## Bringing Back Cadence
 			}
 		}
 		hidden_effect = {
+			if = {
+				limit = { has_completed_focus = CRY_miamore_forever }
+				add_country_leader_trait = princess_of_ponies
+			}
 			remove_ideas = crystal_buff
 			remove_ideas = sombra_dark_magic
 			remove_ideas = sombra_dark_magic1
@@ -2952,6 +3013,38 @@ country_event = { ## Bringing Back Cadence
 		if = {
 			limit = { NOT = { has_focus_tree = crystalempire } }
 			load_focus_tree = crystalempire
+		}
+		if = {
+			limit = { NOT = { has_completed_focus = CRY_oldorder } }
+			complete_national_focus = CRY_oldorder
+		}
+		if = {
+			limit = {
+				NOT = {
+					has_idea = royal_family
+					has_idea = royal_family2
+					has_idea = royal_family3
+				}
+			}
+			if = {
+				limit = {
+					has_completed_focus = CRY_miamore
+					has_completed_focus = CRY_crystallinganniversary
+				}
+				add_ideas = royal_family3
+			}
+			else_if = {
+				limit = {
+					OR = {
+						has_completed_focus = CRY_miamore
+						has_completed_focus = CRY_crystallinganniversary
+					}
+				}
+				add_ideas = royal_family2
+			}
+			else = {
+				add_ideas = royal_family
+			}
 		}
 	}
 	option = {
@@ -2985,6 +3078,10 @@ country_event = { ## Bringing Back Cadence
 		if = {
 			limit = { NOT = { has_focus_tree = crystalempire } }
 			load_focus_tree = crystalempire
+		}
+		if = {
+			limit = { NOT = { has_completed_focus = CRY_oldorder } }
+			complete_national_focus = CRY_oldorder
 		}
 	}
 }
@@ -3136,6 +3233,12 @@ country_event = { ## Coronation of Flurry heart
 			expire = "1965.1.1"
 			ideology = alicornrule
 		}
+		hidden_effect = {
+			if = {
+				limit = { has_completed_focus = CRY_miamore_forever }
+				add_country_leader_trait = princess_of_ponies
+			}
+		}
 		set_country_flag = cry_regency
 		hidden_effect = {
 			news_event = {
@@ -3160,6 +3263,10 @@ country_event = { ## Coronation of Flurry heart
 			ideology = alicornrule
 		}
 		hidden_effect = {
+			if = {
+				limit = { has_completed_focus = CRY_miamore_forever }
+				add_country_leader_trait = princess_of_ponies
+			}
 			news_event = {
 				id = news.38 days = 1
 			}
@@ -3694,6 +3801,7 @@ country_event = {
 					OR = {
 						has_id = 200
 						has_id = 1043
+						has_id = 1045
 					}
 				}
 				set_nationality = event_target:dem_CRY
@@ -3725,6 +3833,7 @@ country_event = {
 						OR = {
 							has_id = 200
 							has_id = 1043
+							has_id = 1045
 						}
 					}
 					set_nationality = ROOT
@@ -4449,6 +4558,7 @@ country_event = { ## Communist Crystal Ponies # Elections
 					OR = {
 						has_id = 200
 						has_id = 1043
+						has_id = 1045
 					}
 				}
 				set_nationality = event_target:dem_CRY

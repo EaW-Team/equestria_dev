@@ -1,7 +1,7 @@
 RIV_expand_fed_decisions = {
 	RIV_invite_country_decision = {
 		icon = rivfed
-
+		targets = { FIR FBK WAT D01 D02 D03 D04 D05 D06 D07 D08 D09 D10 D11 D12 D13 D14 D15 }
 		target_trigger = {
 			FROM = {
 				OR = {
@@ -12,7 +12,9 @@ RIV_expand_fed_decisions = {
 				}
 			}
 		}
-
+		target_root_trigger = {
+			is_subject = no
+		}
 		visible = {
 			is_subject = no
 			FROM = {
@@ -59,6 +61,13 @@ RIV_expand_fed_decisions = {
 						has_government = fascism
 						has_government = communism
 					}
+				}
+			}
+			modifier = {
+				factor = 0
+				FROM = {
+					is_ai = yes
+					is_in_faction = yes
 				}
 			}
 		}
@@ -492,7 +501,9 @@ RIV_political_decisions = {
 				tag = FROM
 			}
 		}
-
+		target_root_trigger = {
+			has_global_flag = river_federation_founded
+		}
 		target_trigger = {
 			has_global_flag = river_federation_founded
 			FROM = {
@@ -787,7 +798,6 @@ RIV_political_decisions = {
 		icon = scroll
 
 		allowed = {
-			has_idea = RIV_centeral_bank_idea
 		}
 
 		available = {
@@ -796,6 +806,7 @@ RIV_political_decisions = {
 		visible = {
 			NOT = { has_idea = RIV_rivbit_idea }
 			has_global_flag = RIV_rivbit_founded
+			has_idea = RIV_centeral_bank_idea
 		}
 
 		cost = 50
@@ -891,10 +902,8 @@ RIV_political_decisions = {
 		complete_effect = {
 			log = "[GetDateText]: [Root.GetName]: Decision RIV_leave_federation_decision"
 
-			every_other_country = {
-				limit = {
-					is_river_fed_member = yes
-				}
+			for_each_scope_loop = {
+				array = global.river_coalition_members
 				country_event = riverfed.28
 			}
 			if = {
@@ -948,13 +957,22 @@ RIV_political_decisions = {
 foreign_politics = {
 	RIV_ai_stop_guarantee = {
 		allowed = {
-			is_ai = yes
+			#is_ai = yes
 			can_form_river_fed = yes
 		}
-
+		target_root_trigger = {
+			is_ai = yes
+		}
 		visible = {
 			is_ai = yes
 			has_guaranteed = FROM
+			FROM = {
+				OR = {
+					original_tag = FBK
+					original_tag = WAT
+					original_tag = FIR
+				}
+			}
 			OR = {
 				is_river_fed_member = no
 				is_faction_leader = no
@@ -1023,7 +1041,7 @@ foreign_politics = {
 				}
 			}
 		}
-
+		targets = { FIR FBK WAT D01 D02 D03 D04 D05 D06 D07 D08 D09 D10 D11 D12 D13 D14 D15 }
 		target_trigger = {
 			FROM = {
 				OR = {
@@ -1048,7 +1066,7 @@ foreign_politics = {
 
 	RIV_ai_stop_non_agression = {
 		allowed = {
-			is_ai = yes
+			#is_ai = yes
 			can_form_river_fed = yes
 		}
 
@@ -1120,20 +1138,26 @@ foreign_politics = {
 				}
 			}
 		}
-
+		target_array = "global.river_coalition_members"
 		target_trigger = {
 			FROM = {
 				is_river_fed_member = yes
 				is_faction_leader = yes
 			}
 		}
-
+		target_root_trigger = {
+			is_in_faction = no
+			is_subject = no
+			has_civil_war = no
+			NOT = { has_government = fascism }
+		}
 		visible = {
 			is_in_faction = no
 			is_subject = no
 			has_civil_war = no
 			NOT = { has_government = fascism }
 			FROM = {
+				exists = yes
 				is_river_fed_member = yes
 				is_faction_leader = yes
 				NOT = { has_war_with = ROOT }
@@ -1179,14 +1203,16 @@ foreign_politics = {
 
 		available = {
 			OR = {
+				original_tag = NCH
+				AND = {
+					is_subject = yes
+					overlord = {
+						is_river_fed_member = yes
+					}
+				}
 				any_neighbor_country = {
 					is_river_fed_member = yes
 				}
-				any_allied_country = {
-					ROOT = { is_subject_of = PREV }
-					is_river_fed_member = yes
-				}
-				original_tag = NCH
 			}
 		}
 
@@ -1195,11 +1221,15 @@ foreign_politics = {
 			is_river_fed_member = no
 			NOT = { has_government = fascism }
 			FROM = {
+				exists = yes
 				is_river_fed_member = yes
 				is_faction_leader = yes
 			}
 		}
-
+		target_root_trigger = {
+			is_river_fed_member = no
+		}
+		target_array = allies
 		target_trigger = {
 			FROM = {
 				is_river_fed_member = yes
@@ -1218,7 +1248,10 @@ foreign_politics = {
 		complete_effect = {
 			log = "[GetDateText]: [Root.GetName]: Decision sign_the_treaty_of_coltstream_decision"
 			add_ideas = RIV_member_state
-			hidden_effect = { set_cosmetic_tag = RIV_federation_mem }
+			hidden_effect = { 
+				set_cosmetic_tag = RIV_federation_mem
+				update_river_fed_array = yes
+			}
 		}
 	}
 }
@@ -1387,11 +1420,9 @@ RIV_anti_fabianism_decisions = {
 			log = "[GetDateText]: [Root.GetName]: Decision call_vote_to_expel_nova"
 
 			add_stability = -0.1
-			leave_faction = ROOT
-			every_other_country = {
-				limit = {
-					is_river_fed_member = yes
-				}
+			RIV_leave_fed = yes
+			for_each_scope_loop = {
+				array = global.river_coalition_members
 				country_event = riverfed.28
 			}
 
@@ -1465,7 +1496,7 @@ RIV_anti_fabianism_decisions = {
 			every_other_country = {
 				limit = {
 					NOT = {
-						original_tag = RCT
+						tag = RCT
 					}
 					is_river_fed_member = yes
 				}
