@@ -2693,7 +2693,6 @@ shared_focus = {
 			focus = FST_looking_out
 		}
 		available = {
-			has_completed_focus = FST_the_dream_is_not_dead
 		}
 		completion_reward = {
 			add_stability = 0.05
@@ -2717,19 +2716,20 @@ shared_focus = {
 			VED = {
 				OR = {
 					exists = no
+					is_subject_of = ROOT
+					is_in_faction_with = ROOT
 					has_government = communism
+					has_government = fascism
 				}
 			}
 		}
 		available = {
 			VED = {
-				NOT = {
-					has_government = fascism
-				}
+				is_subject = no
 			}
 		}
 		completion_reward = {
-			VED = {
+			VED = { # man, VED can be in faction with NTR, so in generic.5 your invitation will be rejected
 				country_event = generic.5
 			}
 		}
@@ -2751,12 +2751,19 @@ shared_focus = {
 			NTR = {
 				OR = {
 					exists = no
-					NOT = { has_government = democratic } # MB peaceful council will fit? #???
+					is_subject_of = ROOT
+					is_in_faction_with = ROOT
+					NOT = { has_government = democratic }
 				}
 			}
 		}
-		completion_reward = {
+		available = {
 			NTR = {
+				is_subject = no
+			}
+		}
+		completion_reward = {
+			NTR = { # see above and Fiana is not interested in alliance with aggressive griffons countries
 				country_event = generic.5
 			}
 		}
@@ -2783,17 +2790,20 @@ shared_focus = {
 					exists = no
 					is_subject_of = ROOT
 					has_war_with = ROOT
+					all_cores_owned_by_ROOT = yes
 				}
 			}
 			NTR = {
 				OR = {
 					exists = no
+					is_subject_of = ROOT
+					has_war_with = ROOT
 					NOT = { has_government = communism }
 				}
 			}
 		}
 		will_lead_to_war_with = SRS
-		will_lead_to_war_with = NTR
+		will_lead_to_war_with = NTR # ai_strategy #???
 		completion_reward = {
 			601 = { add_core_of = ROOT }
 			if = {
@@ -2805,7 +2815,7 @@ shared_focus = {
 					target = SRS
 				}
 			}
-			if = {
+			else_if = {
 				limit = {
 					NTR = {
 						has_government = communism
@@ -2832,67 +2842,6 @@ shared_focus = {
 		}
 	}
 	shared_focus = {
-		id = FST_finalize_the_partition
-		icon = GFX_goal_socialist_skynavia
-		relative_position_id = FST_the_unthinkable_option
-		x = 3
-		y = 10
-		cost = 3.00
-		ai_will_do = {
-			factor = 40
-		}
-		prerequisite = {
-			focus = FST_strike_at_skynavia
-		}
-		available = {
-			is_in_faction_with = NTR
-			SRS = {
-				custom_trigger_tooltip = {
-					tooltip = owns_all_cores_tt
-					hidden_trigger = {
-						all_of = {
-							array = core_states
-							var:v = {
-								is_owned_by = ROOT
-							}
-						}
-					}
-				}
-			}
-		}
-		completion_reward = {
-			if = {
-				limit = {
-					VED = { is_in_faction_with = ROOT }
-				}
-				NTR = {
-					transfer_state = 522
-					transfer_state = 542
-					transfer_state = 561
-					522 = { add_core_of = PREV }
-					542 = { add_core_of = PREV }
-					561 = { add_core_of = PREV }
-				}
-				VED = {
-					transfer_state = 585
-					585 = { add_core_of = PREV }
-				}
-			}
-			else = {
-				NTR = {
-					transfer_state = 522
-					transfer_state = 542
-					transfer_state = 561
-					transfer_state = 585
-					585 = { add_core_of = PREV }
-					522 = { add_core_of = PREV }
-					542 = { add_core_of = PREV }
-					561 = { add_core_of = PREV }
-				}
-			}
-		}
-	}
-	shared_focus = {
 		id = FST_ally_the_sane_sunstriker
 		icon = GFX_goal_generic_major_alliance
 		relative_position_id = FST_the_unthinkable_option
@@ -2909,13 +2858,122 @@ shared_focus = {
 			MNC = {
 				OR = {
 					exists = no
+					is_subject_of = ROOT
+					is_in_faction_with = ROOT
 					NOT = { has_government = neutrality }
 				}
+			}
+		}
+		available = {
+			MNC = {
+				is_subject = no
 			}
 		}
 		completion_reward = {
 			MNC = {
 				country_event = generic.5
+			}
+		}
+	}
+	shared_focus = {
+		id = FST_finalize_the_partition
+		icon = GFX_goal_socialist_skynavia
+		relative_position_id = FST_the_unthinkable_option
+		x = 3
+		y = 10
+		cost = 3.00
+		ai_will_do = {
+			factor = 40
+		}
+		prerequisite = {
+			focus = FST_strike_at_skynavia
+		}
+		available = {
+			is_in_faction_with = NTR
+			SRS = {
+				custom_trigger_tooltip = {
+					tooltip = owns_all_cores_tt # I think that after the war with SRS, FAT are unlikely to control all states (change tooltip for this) #???
+					hidden_trigger = {
+						NOT = {
+							any_of = {
+								array = core_states
+								var:v = {
+									NOT = {
+										OR = {
+											is_owned_by = ROOT
+											is_owned_by = NTR
+											is_owned_by = VED
+										}
+									}
+								}
+							}
+						}
+					}
+				}
+			}
+		}
+		completion_reward = {
+			if = {
+				limit = {
+					VED = { is_in_faction_with = ROOT }
+				}
+				NTR = { # I will rework these later #???
+					if = {
+						limit = {
+							522 = { is_controlled_by = ROOT }
+						}
+						transfer_state = 522
+					}
+					if = {
+						limit = {
+							542 = { is_controlled_by = ROOT }
+						}
+						transfer_state = 542
+					}
+					if = {
+						limit = {
+							561 = { is_controlled_by = ROOT }
+						}
+						transfer_state = 561
+					}
+				}
+				VED = { # note (some conflicts with NTR tree) #???
+					if = {
+						limit = {
+							585 = { is_controlled_by = ROOT }
+						}
+						transfer_state = 585
+					}
+					585 = { add_core_of = PREV }
+				}
+			}
+			else = { # I will rework these later #???
+				NTR = {
+					if = {
+						limit = {
+							522 = { is_controlled_by = ROOT }
+						}
+						transfer_state = 522
+					}
+					if = {
+						limit = {
+							542 = { is_controlled_by = ROOT }
+						}
+						transfer_state = 542
+					}
+					if = {
+						limit = {
+							561 = { is_controlled_by = ROOT }
+						}
+						transfer_state = 561
+					}
+					if = {
+						limit = {
+							585 = { is_controlled_by = ROOT }
+						}
+						transfer_state = 585
+					}
+				}
 			}
 		}
 	}
@@ -2934,8 +2992,44 @@ shared_focus = {
 			focus = FST_ally_vedina
 			focus = FST_ally_the_sane_sunstriker
 		}
+		available = {
+			OR = {
+				NTR = {
+					exists = yes
+					NOT = { has_government = democratic }
+				}
+				VED = {
+					exists = yes
+					OR = {
+						has_government = communism
+						has_government = fascism
+					}
+				}
+				MNC = {
+					exists = yes
+					OR = {
+						has_government = communism
+						has_government = fascism
+					}
+				}
+			}
+		}
+		will_lead_to_war_with = NTR # I think this is essential
+		will_lead_to_war_with = VED # You could make strategies for monarchist countries to ignore will_lead_to_war behavior 
+		will_lead_to_war_with = MNC
 		completion_reward = {
-			custom_effect_tooltip = restore_monarchies_tt
+			custom_effect_tooltip = restore_monarchies_tt # MB custom effect tooltip?
+			if = {
+				limit = {
+					NTR = {
+						NOT = { has_government = democratic }
+					}
+				}
+				create_wargoal = {
+					type = puppet_wargoal_focus
+					target = NTR
+				}
+			}
 			if = {
 				limit = {
 					VED = {
@@ -2948,17 +3042,6 @@ shared_focus = {
 				create_wargoal = {
 					type = puppet_wargoal_focus
 					target = VED
-				}
-			}
-			if = {
-				limit = {
-					NTR = {
-						NOT = { has_government = democratic }
-					}
-				}
-				create_wargoal = {
-					type = puppet_wargoal_focus
-					target = NTR
 				}
 			}
 			if = {
@@ -3630,16 +3713,14 @@ shared_focus = {
 				}
 			}
 		}
-		will_lead_to_war_with = SRS
-		will_lead_to_war_with = NTR
-		completion_reward = {
-			log = "[GetDateText]: [Root.GetName]: Focus FST_retake_north"
-			create_wargoal = { type = annex_everything target = SRS }
-			if = {
-				limit = {
-					NTR = {
-						has_government = communism
-					}
+		available {
+			OR = {
+				SRS = {
+					exists = yes
+					has_government = communism
+				}
+				NTR = {
+					has_government = communism
 					SRS = {
 						custom_trigger_tooltip = {
 							tooltip = owns_all_cores_NTR_tt
@@ -3652,6 +3733,20 @@ shared_focus = {
 								}
 							}
 						}
+					}
+				}
+			}
+		}
+		will_lead_to_war_with = SRS
+		will_lead_to_war_with = NTR # ai_strategy #???
+		completion_reward = {
+			log = "[GetDateText]: [Root.GetName]: Focus FST_retake_north"
+			create_wargoal = { type = annex_everything target = SRS }
+			if = {
+				limit = {
+					NTR = {
+						exists = yes
+						has_government = communism
 					}
 				}
 				create_wargoal = { type = puppet_wargoal_focus target = NTR }
@@ -5096,7 +5191,7 @@ shared_focus = {
 					is_subject = no
 					has_government = communism
 					NOT = {
-						has_country_flag = FAT_check_for_peace_on
+						has_country_flag = FAT_check_for_peace_on # flag for war check
 					}
 				}
 			}
@@ -5145,16 +5240,14 @@ shared_focus = {
 				}
 			}
 		}
-		will_lead_to_war_with = SRS
-		will_lead_to_war_with = NTR
-		completion_reward = {
-			log = "[GetDateText]: [Root.GetName]: Focus FAT_retake_north"
-			create_wargoal = { type = annex_everything target = SRS }
-			if = {
-				limit = {
-					NTR = {
-						has_government = communism
-					}
+		available = {
+			OR = {
+				SRS = {
+					exists = yes
+					has_government = communism
+				}
+				NTR = {
+					has_government = communism
 					SRS = {
 						custom_trigger_tooltip = {
 							tooltip = owns_all_cores_NTR_tt
@@ -5167,6 +5260,20 @@ shared_focus = {
 								}
 							}
 						}
+					}
+				}
+			}
+		}
+		will_lead_to_war_with = SRS
+		will_lead_to_war_with = NTR # ai_strategy #???
+		completion_reward = {
+			log = "[GetDateText]: [Root.GetName]: Focus FAT_retake_north"
+			create_wargoal = { type = annex_everything target = SRS }
+			if = {
+				limit = {
+					NTR = {
+						exists = yes
+						has_government = communism
 					}
 				}
 				create_wargoal = { type = puppet_wargoal_focus target = NTR }
