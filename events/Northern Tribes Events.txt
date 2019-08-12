@@ -13,6 +13,8 @@ country_event = { # Up to agrarian (start)
 	option = {
 		name = Ntribes.1.a
 		
+		add_stability = 0.05
+		
 		if = {
 			limit = {
 				has_government = democratic
@@ -73,7 +75,11 @@ country_event = { # Up to agrarian (middle)
 			}
 		}
 		
-		else = {
+		else_if = {
+			limit = {
+				has_government = communism
+			}
+			
 			add_popularity = {
 				ideology = communism
 				popularity = 0.05
@@ -86,10 +92,29 @@ country_event = { # Up to agrarian (middle)
 		}
 		
 		hidden_effect = {
-			country_event = {
-				id = Ntribes.3
-				days = 120
-				random = 480
+			if = {
+				limit = {
+					has_government = neutrality
+				}
+				
+				swap_ideas = {
+					remove_idea = NTR_neutral_research_bonus_full
+					add_idea = NTR_neutral_research_bonus_full_half
+				}
+				
+				country_event = {
+					id = Ntribes.3
+					days = 91
+					random = 336
+				}
+			}
+			
+			else = {
+				country_event = {
+					id = Ntribes.3
+					days = 120
+					random = 480
+				}
 			}
 		}
 	}
@@ -119,7 +144,11 @@ country_event = { # Up to agrarian (end)
 			}
 		}
 		
-		else = {
+		else_if = {
+			limit = {
+				has_government = communism
+			}
+			
 			add_popularity = {
 				ideology = communism
 				popularity = 0.05
@@ -131,10 +160,6 @@ country_event = { # Up to agrarian (end)
 			add_idea = agrarian_society
 		}
 		
-		hidden_effect = {
-			remove_ideas = NTR_society_increase_upkeep
-		}
-		
 		if = {
 			limit = {
 				has_poverty = yes
@@ -144,6 +169,21 @@ country_event = { # Up to agrarian (end)
 			
 			hidden_effect = {
 				set_country_flag = can_improve_poverty
+			}
+		}
+		
+		hidden_effect = {
+			remove_ideas = NTR_society_increase_upkeep
+			
+			if = {
+				limit = {
+					has_government = neutrality
+				}
+				
+				swap_ideas = {
+					remove_idea = NTR_neutral_research_bonus_full_half
+					add_idea = NTR_neutral_research_bonus_full_agrarian
+				}
 			}
 		}
 	}
@@ -1195,10 +1235,24 @@ country_event = { # Up to outdated (start)
 		hidden_effect = {	
 			add_ideas = NTR_society_increase_upkeep
 			
-			country_event = {
-				id = Ntribes.999
-				days = 70
-				random = 280
+			if = {
+				limit = {
+					has_government = neutrality
+				}
+				
+				country_event = {
+					id = Ntribes.999
+					days = 90
+					random = 360
+				}
+			}
+			
+			else = {
+				country_event = {
+					id = Ntribes.999
+					days = 70
+					random = 280
+				}
 			}
 		}
 	}
@@ -1225,7 +1279,15 @@ country_event = { # Up to outdated (end)
 		hidden_effect = {
 			remove_ideas = NTR_society_increase_upkeep
 			
-			add_to_variable = { NTR_internal_politics_var = 1 }
+			if = {
+				limit = {
+					NOT = {
+						has_government = neutrality
+					}
+				}
+				
+				add_to_variable = { NTR_internal_politics_var = 1 }
+			}
 		}
 	}
 }
@@ -1380,14 +1442,14 @@ country_event = { # Request for help
 		name = Ntribes.53.a
 		
 		ai_chance = {
-			base = 50 # focus modifiers #???
+			base = 75
 		}
 		
-		add_political_power = 100
+		add_political_power = 50
 		
 		add_popularity = {
 			ideology = democratic
-			popularity = 0.05
+			popularity = 0.025
 		}
 		
 		hidden_effect = {
@@ -1403,10 +1465,37 @@ country_event = { # Request for help
 		name = Ntribes.53.b
 		
 		ai_chance = {
-			base = 50 # focus modifiers #???
+			base = 25
+			
+			modifier = {
+				factor = 0
+				
+				FROM = {
+					OR = {
+						is_ai = no
+						
+						has_country_flag = NTR_AI_VEDINA
+						
+						has_game_rule = {
+							rule = NTR_ai_behavior
+							option = VEDINA
+						}
+						
+						AND = {
+							is_historical_focus_on = yes
+							
+							has_game_rule = {
+								rule = NTR_ai_behavior
+								option = DEFAULT
+							}
+						}
+					}
+				}
+			}
 		}
 		
-		add_stability = -0.05
+		add_political_power = -25
+		add_stability = -0.025
 		
 		add_popularity = {
 			ideology = democratic
@@ -2782,20 +2871,22 @@ country_event = { # Everyone was given a choice
 	immediate = {
 		log = "[GetDateText]: [Root.GetName]: event Ntribes.110"
 		
-		set_variable = { divider = -100 }
-		set_variable = { randomizer = 0.2 }
-		set_variable = { rounder = 100 }
-		
-		every_owned_state = {
-			limit = {
-				is_core_of = SRS
+		hidden_effect = {
+			set_variable = { divider = -100 }
+			set_variable = { randomizer = 0.2 }
+			set_variable = { rounder = 100 }
+			
+			every_owned_state = {
+				limit = {
+					is_core_of = SRS
+				}
+				
+				set_variable = { population = state_population }
+				population_calculator_multifunctional = yes
 			}
 			
-			set_variable = { population = state_population }
-			population_calculator_multifunctional = yes
+			population_calculator_cleaner = yes
 		}
-		
-		population_calculator_cleaner = yes
 	}
 	
 	is_triggered_only = yes
@@ -3181,27 +3272,10 @@ country_event = { # Strengthen the border
 		
 		add_political_power = -50
 		
-		#decision for border bunkers (MNC) #???
-	}
-}
-
-country_event = { # Gathering storm
-	id = Ntribes.123
-	immediate = { log = "[GetDateText]: [Root.GetName]: event Ntribes.123" }
-	title = Ntribes.123.t
-	desc = Ntribes.123.d
-	#picture = 
-	
-	is_triggered_only = yes
-	fire_only_once = yes
-	
-	option = {
-		name = Ntribes.123.a
-		
-		unlock_decision_category_tooltip = NTR_border_problems_category #???
+		unlock_decision_tooltip = NTR_MNC_bunkers
 		
 		hidden_effect = {
-			set_country_flag = NTR_DED_reconnaissance
+			set_country_flag = NTR_MNC_border_bunkers
 		}
 	}
 }
@@ -3448,6 +3522,7 @@ country_event = { # Trade ties with [From.GetName] expand
 	#picture = 
 	
 	is_triggered_only = yes
+	fire_only_once = no
 	
 	option = {
 		name = Ntribes.132.a
@@ -3494,6 +3569,7 @@ country_event = { # [From.GetName] refused the deal
 	#picture = 
 	
 	is_triggered_only = yes
+	fire_only_once = no
 	
 	option = {
 		name = Ntribes.133.a
@@ -4266,6 +4342,22 @@ country_event = { # New power in the North
 		
 		ai_chance = {
 			base = 50
+			
+			modifier = {
+				factor = 0.5
+				
+				tag = FAW
+				has_government = neutrality
+				has_completed_focus = FST_look_to_the_nobility
+			}
+			
+			modifier = {
+				factor = 0.25
+				
+				tag = FAT
+				has_government = neutrality
+				has_completed_focus = FAT_plactate_the_generals
+			}
 		}
 		
 		if = {
@@ -4311,16 +4403,52 @@ country_event = { # New power in the North
 		ai_chance = {
 			base = 50
 			
-			modifier = { # more better triggers for FAW #???
+			modifier = {
+				factor = 0.5
+				
+				OR = {
+					AND = {
+						tag = FAT
+						has_government = communism
+						has_completed_focus = FAT_justiceaboveall
+					}
+					
+					AND = {
+						tag = FAW
+						has_government = neutrality
+						has_completed_focus = FST_keep_rosewing
+					}
+				}
+			}
+			
+			modifier = {
 				factor = 0.25
 				
-				has_government = neutrality
+				tag = FAT
+				
+				OR = {
+					has_government = democratic
+					
+					AND = {
+						has_government = neutrality
+						has_completed_focus = FAT_a_pragmatic_cabinet
+					}
+					
+					AND = {
+						has_government = communism
+						has_completed_focus = FAT_rehabilitatethecriminals
+					}
+				}
 			}
 			
 			modifier = {
 				factor = 0
 				
-				has_government = democratic
+				AND = {
+					tag = FAW
+					has_government = neutrality
+					has_completed_focus = FST_prime_minister_sivenhof
+				}
 			}
 		}
 		
@@ -4366,8 +4494,10 @@ country_event = { # Messengers of the throne
 	immediate = {
 		log = "[GetDateText]: [Root.GetName]: event Ntribes.162"
 		
-		set_variable = { communards_vs_internationalists_support_var = internationalists_support_var }
-		subtract_from_variable = { communards_vs_internationalists_support_var = communards_support_var }
+		hidden_effect = {
+			set_variable = { communards_vs_internationalists_support_var = internationalists_support_var }
+			subtract_from_variable = { communards_vs_internationalists_support_var = communards_support_var }
+		}
 	}
 	
 	is_triggered_only = yes
@@ -4764,11 +4894,13 @@ country_event = { # Fiana herself decided to visit Сanterlot
 	immediate = {
 		log = "[GetDateText]: [Root.GetName]: event Ntribes.168"
 		
-		event_target:equestria = {
-			country_event = {
-				id = Ntribes.168
-				hours = 3
-				random = 3
+		hidden_effect = {
+			event_target:equestria = {
+				country_event = {
+					id = Ntribes.168
+					hours = 3
+					random = 3
+				}
 			}
 		}
 	}
@@ -5102,7 +5234,7 @@ country_event = { # Trade agreement
 		name = Ntribes.172.a
 		
 		ai_chance = {
-			base = 100 # only dem # later more triggers for neu #???
+			base = 80
 		}
 		
 		if = {
@@ -5140,7 +5272,13 @@ country_event = { # Trade agreement
 		name = Ntribes.172.b
 		
 		ai_chance = {
-			base = 0
+			base = 20
+			
+			modifier = {
+				factor = 0
+				
+				has_government = democratic
+			}
 		}
 		
 		FROM = {
@@ -5266,9 +5404,7 @@ country_event = { # Check for integration gradation
 	option = {
 		if = {
 			limit = {
-				SRS = {
-					all_cores_owned_by_ROOT = yes
-				}
+				owns_SRS_cores = yes
 				
 				NOT = {
 					has_government = communism
@@ -5517,7 +5653,9 @@ country_event = { # Guesses confirmed
 	immediate = {
 		log = "[GetDateText]: [Root.GetName]: event Ntribes.203"
 		
-		set_country_flag = NTR_we_love_home_branch
+		hidden_effect = {
+			set_country_flag = NTR_we_love_home_branch
+		}
 	}
 	
 	is_triggered_only = yes
@@ -5688,7 +5826,9 @@ country_event = { # To new frontiers #???
 	immediate = {
 		log = "[GetDateText]: [Root.GetName]: event Ntribes.207"
 		
-		set_country_flag = NTR_we_love_home_branch
+		hidden_effect = {
+			set_country_flag = NTR_we_love_home_branch
+		}
 	}
 	
 	is_triggered_only = yes
@@ -5722,7 +5862,9 @@ country_event = { # Utopia will wait
 	immediate = {
 		log = "[GetDateText]: [Root.GetName]: event Ntribes.208"
 		
-		set_country_flag = NTR_picnic_time_branch
+		hidden_effect = {
+			set_country_flag = NTR_picnic_time_branch
+		}
 	}
 	
 	is_triggered_only = yes
@@ -6338,8 +6480,10 @@ country_event = { # SRS proposal
 	immediate = {
 		log = "[GetDateText]: [Root.GetName]: event Ntribes.250"
 		
-		set_variable = { communards_vs_internationalists_support_var = internationalists_support_var }
-		subtract_from_variable = { communards_vs_internationalists_support_var = communards_support_var }
+		hidden_effect = {
+			set_variable = { communards_vs_internationalists_support_var = internationalists_support_var }
+			subtract_from_variable = { communards_vs_internationalists_support_var = communards_support_var }
+		}
 	}
 	
 	is_triggered_only = yes
@@ -7804,22 +7948,24 @@ country_event = { # Genocide communists
 	immediate = {
 		log = "[GetDateText]: [Root.GetName]: event Ntribes.301"
 		
-		set_variable = { divider = -100 }
-		set_variable = { randomizer = 0.3 }
-		set_variable = { rounder = 100 }
-		
-		every_owned_state = {
-			limit = {
-				is_core_of = SRS
+		hidden_effect = {
+			set_variable = { divider = -100 }
+			set_variable = { randomizer = 0.3 }
+			set_variable = { rounder = 100 }
+			
+			every_owned_state = {
+				limit = {
+					is_core_of = SRS
+				}
+				
+				set_variable = { population = state_population }
+				population_calculator_multifunctional = yes
 			}
 			
-			set_variable = { population = state_population }
-			population_calculator_multifunctional = yes
+			population_calculator_cleaner = yes
+			
+			set_country_flag = NTR_traditions_branch
 		}
-		
-		population_calculator_cleaner = yes
-		
-		set_country_flag = NTR_traditions_branch
 	}
 	
 	is_triggered_only = yes
@@ -7838,6 +7984,10 @@ country_event = { # Genocide communists
 			add_manpower = population
 			add_core_of = ROOT
 			clear_variable = population
+			
+			add_dynamic_modifier = {
+				modifier = de_facto_non_core_state
+			}
 		}
 		
 		restore_previous_manpower = yes
@@ -7916,10 +8066,15 @@ country_event = { # Assemble Thing
 			base = 0
 		}
 		
-		add_political_power = -50
+		add_political_power = -75
 		
-		add_stability = -0.075
+		add_stability = -0.1
 		add_war_support = 0.05
+		
+		add_popularity = {
+			ideology = fascism
+			popularity = 0.025
+		}
 		
 		add_state_claim = 430
 		add_state_claim = 483
@@ -7929,10 +8084,32 @@ country_event = { # Assemble Thing
 			type = take_state_focus
 			generator = { 430 483 }
 		}
+		
+		hidden_effect = {
+			add_ideas = NTR_thirst_for_revenge
+		}
+	}
+	
+	option = { # Require reparation
+		name = Ntribes.304.b
+		
+		ai_chance = {
+			base = 0
+		}
+		
+		add_political_power = -50
+		
+		VED = {
+			country_event = {
+				id = Ntribes.353
+				days = 3
+				random = 24
+			}
+		}
 	}
 	
 	option = { # Enough, we survived too much
-		name = Ntribes.304.b
+		name = Ntribes.304.c
 		
 		ai_chance = {
 			base = 100
@@ -7963,7 +8140,17 @@ country_event = { # Our ancestors would be proud of us
 	immediate = {
 		log = "[GetDateText]: [Root.GetName]: event Ntribes.305"
 		
-		set_country_flag = NTR_neutrality_war
+		hidden_effect = {
+			add_stability = -0.15
+			add_war_support = -0.1
+			
+			add_popularity = {
+				ideology = neutrality
+				popularity = 0.05
+			}
+			
+			set_country_flag = NTR_neutrality_war
+		}
 	}
 	
 	is_triggered_only = yes
@@ -7977,13 +8164,7 @@ country_event = { # Our ancestors would be proud of us
 		custom_effect_tooltip = unlock_focuses
 		
 		hidden_effect = {
-			add_stability = -0.15
-			add_war_support = -0.1
-			
-			add_popularity = {
-				ideology = neutrality
-				popularity = -0.075
-			}
+			remove_ideas = NTR_thirst_for_revenge
 			
 			load_focus_tree = {
 				tree = NTR_focus_tree_neutral_traditions_vedina
@@ -8002,23 +8183,25 @@ country_event = { # Griffons refugees
 	immediate = {
 		log = "[GetDateText]: [Root.GetName]: event Ntribes.306"
 		
-		set_variable = { divider = -10 }
-		set_variable = { randomizer = 0.5 }
-		set_variable = { rounder = 1000 }
-		
-		430 = {
-			set_variable = { population = state_population }
-			population_calculator_multifunctional = yes
-			increase_population_multifunctional_preset = yes
+		hidden_effect = {
+			set_variable = { divider = -15 }
+			set_variable = { randomizer = 0.25 }
+			set_variable = { rounder = 100 }
+			
+			430 = {
+				set_variable = { population = state_population }
+				population_calculator_multifunctional = yes
+				increase_population_multifunctional_preset = yes
+			}
+			
+			483 = {
+				set_variable = { population = state_population }
+				population_calculator_multifunctional = yes
+				increase_population_multifunctional_preset = yes
+			}
+			
+			population_calculator_cleaner = yes
 		}
-		
-		483 = {
-			set_variable = { population = state_population }
-			population_calculator_multifunctional = yes
-			increase_population_multifunctional_preset = yes
-		}
-		
-		population_calculator_cleaner = yes
 	}
 	
 	is_triggered_only = yes
@@ -8062,48 +8245,61 @@ country_event = { # Relocation program
 	immediate = {
 		log = "[GetDateText]: [Root.GetName]: event Ntribes.307"
 		
-		save_current_manpower = yes
-		
-		set_variable = { divider = -10 }
-		set_variable = { randomizer = 0.5 }
-		set_variable = { rounder = 1000 }
-		
-		562 = {
-			set_variable = { population = state_population }
+		hidden_effect = { # MB new calculator for state_population_k ?
+			set_variable = { divider = -10 }
+			set_variable = { randomizer = 0.5 }
+			set_variable = { rounder = 100 }
+			
+			save_current_manpower = yes
+			
+			562 = {
+				set_variable = { population = state_population }
+				population_calculator_multifunctional = yes
+				population_calculation_for_sum = yes
+			}
+			
+			574 = {
+				set_variable = { population = state_population }
+				population_calculator_multifunctional = yes
+				population_calculation_for_sum = yes
+			}
+			
+			563	= {
+				set_variable = { population = state_population }
+				population_calculator_multifunctional = yes
+				population_calculation_for_sum = yes
+			}
+			
+			522	= {
+				set_variable = { population = state_population }
+				population_calculator_multifunctional = yes
+				population_calculation_for_sum = yes
+			}
+			
+			multiply_variable = { population_sum = -1 }
+			
+			set_variable = { divider = 2 }
+			set_variable = { randomizer = 0.1 }
+			set_variable = { rounder = 100 }
+			
+			set_variable = { population = population_sum }
 			population_calculator_multifunctional = yes
-			population_calculation_for_sum = yes
+			subtract_from_variable = { population_sum = population }
+			
+			430 = {
+				add_manpower = ROOT.population
+				clear_variable = ROOT.population
+			}
+			
+			483 = {
+				add_manpower = ROOT.population_sum
+				clear_variable = ROOT.population_sum
+			}
+			
+			restore_previous_manpower = yes
+			
+			population_calculator_cleaner = yes
 		}
-		
-		574 = {
-			set_variable = { population = state_population }
-			population_calculator_multifunctional = yes
-			population_calculation_for_sum = yes
-		}
-		
-		563	= {
-			set_variable = { population = state_population }
-			population_calculator_multifunctional = yes
-			population_calculation_for_sum = yes
-		}
-		
-		522	= {
-			set_variable = { population = state_population }
-			population_calculator_multifunctional = yes
-			population_calculation_for_sum = yes
-		}
-		
-		multiply_variable = { population_sum = -1 }
-		
-		set_variable = { divider = 2 }
-		set_variable = { randomizer = 0.1 }
-		set_variable = { rounder = 100 }
-		set_variable = { population = population_sum }
-		
-		population_calculator_multifunctional = yes
-		
-		subtract_from_variable = { population_sum = population }
-		
-		population_calculator_cleaner = yes
 	}
 	
 	is_triggered_only = yes
@@ -8112,20 +8308,18 @@ country_event = { # Relocation program
 	option = {
 		name = Ntribes.307.a
 		
-		430 = {
-			add_manpower = ROOT.population
-			clear_variable = ROOT.population
-		}
-		
-		483 = {
-			add_manpower = ROOT.population_sum
-			clear_variable = ROOT.population_sum
+		effect_tooltip = {
+			430 = {
+				add_manpower = ROOT.population
+			}
+			
+			483 = {
+				add_manpower = ROOT.population_sum
+			}
 		}
 		
 		clear_variable = population
 		clear_variable = population_sum
-		
-		restore_previous_manpower = yes
 	}
 }
 
@@ -8195,9 +8389,11 @@ country_event = { # Up to pre-industrial (start)
 	immediate = {
 		log = "[GetDateText]: [Root.GetName]: event Ntribes.309"
 		
-		swap_ideas = {
-			remove_idea = communal_society1
-			add_idea = agrarian_society
+		hidden_effect = {
+			swap_ideas = {
+				remove_idea = agrarian_society
+				add_idea = agrarian_society2
+			}
 		}
 	}
 	
@@ -8209,8 +8405,8 @@ country_event = { # Up to pre-industrial (start)
 		
 		effect_tooltip = {
 			swap_ideas = {
-				remove_idea = communal_society1
-				add_idea = agrarian_society
+				remove_idea = agrarian_society
+				add_idea = agrarian_society2
 			}
 		}
 		
@@ -8271,12 +8467,6 @@ country_event = { # Up to pre-industrial (continue)
 				}
 			}
 		}
-		
-		else = {
-			hidden_effect = {
-				remove_ideas = NTR_society_increase_upkeep
-			}
-		}
 	}
 }
 
@@ -8334,7 +8524,7 @@ country_event = { # Our real destiny
 		}
 		
 		hidden_effect = {
-			retire_country_leader = yes #???
+			retire_country_leader = yes
 		}
 		
 		create_country_leader = {
@@ -8403,13 +8593,7 @@ country_event = { # Vedina reckon with us
 	option = {
 		name = Ntribes.315.a
 		
-		hidden_effect = {
-			country_event = {
-				id = Ntribes.319
-				hours = 6
-				random = 6
-			}
-		}
+		custom_effect_tooltip = NTR_tribute_gain
 	}
 }
 
@@ -8425,131 +8609,23 @@ country_event = { # They asked for it themselves
 	option = {
 		name = Ntribes.316.a
 		
+		add_political_power = -50
+		
 		create_wargoal = {
 			target = FROM
 			type = take_state_focus
 			generator = { 430 483 }
 		}
-		
-		hidden_effect = {
-			country_event = Ntribes.396
-		}
-	}
-}
-
-country_event = { # Up to agrarian (start)
-	id = Ntribes.317
-	immediate = { log = "[GetDateText]: [Root.GetName]: event Ntribes.317" }
-	title = Ntribes.317.t
-	desc = Ntribes.317.d
-	
-	is_triggered_only = yes
-	fire_only_once = yes
-	
-	option = {
-		name = Ntribes.317.a
-		
-		swap_ideas = {
-			remove_idea = communal_society
-			add_idea = communal_society1
-		}
-		
-		hidden_effect = {
-			swap_ideas = {
-				remove_idea = NTR_neutral_research_bonus_full
-				add_idea = NTR_neutral_research_bonus_full_half
-			}
-			
-			country_event = {
-				id = Ntribes.318
-				days = 91
-				random = 336
-			}
-		}
-	}
-}
-
-country_event = { # Up to agrarian (end)
-	id = Ntribes.318
-	immediate = { log = "[GetDateText]: [Root.GetName]: event Ntribes.318" }
-	title = Ntribes.318.t
-	desc = Ntribes.318.d
-	
-	is_triggered_only = yes
-	fire_only_once = yes
-	
-	option = {
-		name = Ntribes.318.a
-		
-		swap_ideas = {
-			remove_idea = communal_society1
-			add_idea = agrarian_society
-		}
-		
-		hidden_effect = {
-			swap_ideas = {
-				remove_idea = NTR_neutral_research_bonus_full_half
-				add_idea = NTR_neutral_research_bonus_full_agrarian
-			}
-		}
-	}
-}
-
-country_event = { # Up to outdated (start)
-	id = Ntribes.319
-	immediate = { log = "[GetDateText]: [Root.GetName]: event Ntribes.319" }
-	title = Ntribes.319.t
-	desc = Ntribes.319.d
-	
-	is_triggered_only = yes
-	fire_only_once = yes
-	
-	option = {
-		name = Ntribes.319.a
-		
-		swap_ideas = {
-			remove_idea = pre_industrial_society
-			add_idea = pre_industrial_society1
-		}
-		
-		hidden_effect = {
-			add_ideas = NTR_society_increase_upkeep
-			
-			country_event = Ntribes.999
-		}
-	}
-}
-
-country_event = { # Up to outdated (end)
-	id = Ntribes.320
-	immediate = { log = "[GetDateText]: [Root.GetName]: event Ntribes.320" }
-	title = Ntribes.320.t
-	desc = Ntribes.320.d
-	
-	is_triggered_only = yes
-	fire_only_once = yes
-	
-	option = {
-		name = Ntribes.320.a
-		
-		swap_ideas = {
-			remove_idea = pre_industrial_society3
-			add_idea = outdated_industry
-		}
-		
-		hidden_effect = {
-			remove_ideas = NTR_society_increase_upkeep
-		}
 	}
 }
 
 country_event = { # Skynavia Reaction Council
-	id = Ntribes.321
-	title = Ntribes.321.t
-	desc = Ntribes.321.d
+	id = Ntribes.317
+	title = Ntribes.317.t
+	desc = Ntribes.317.d
 	
 	immediate = {
-		log = "[GetDateText]: [Root.GetName]: event Ntribes.321"
+		log = "[GetDateText]: [Root.GetName]: event Ntribes.317"
 		
 		hidden_effect = {
 			add_political_power = -150
@@ -8570,7 +8646,7 @@ country_event = { # Skynavia Reaction Council
 	fire_only_once = yes
 	
 	option = { # We must act
-		name = Ntribes.321.a
+		name = Ntribes.317.a
 		
 		effect_tooltip = {
 			add_political_power = -150
@@ -8589,12 +8665,12 @@ country_event = { # Skynavia Reaction Council
 }
 
 country_event = { # Crossing the autonomy border
-	id = Ntribes.322
-	title = Ntribes.322.t
-	desc = Ntribes.322.d
+	id = Ntribes.318
+	title = Ntribes.318.t
+	desc = Ntribes.318.d
 	
 	immediate = {
-		log = "[GetDateText]: [Root.GetName]: event Ntribes.322"
+		log = "[GetDateText]: [Root.GetName]: event Ntribes.318"
 		
 		hidden_effect = {
 			every_owned_state = {
@@ -8633,7 +8709,7 @@ country_event = { # Crossing the autonomy border
 				popularity = 0.25
 			}
 			
-			# remove procommi ideas #???
+			remove_ideas = NTR_neu_commi_influence
 			
 			# divisions #???
 		}
@@ -8643,7 +8719,7 @@ country_event = { # Crossing the autonomy border
 	fire_only_once = yes
 	
 	option = { # We will restore order there
-		name = Ntribes.322.a
+		name = Ntribes.318.a
 		
 		effect_tooltip = {
 			add_political_power = -200
@@ -8658,15 +8734,15 @@ country_event = { # Crossing the autonomy border
 	}
 	
 	option = { # Death to the oppressors
-		name = Ntribes.322.b
+		name = Ntribes.318.b
 		
 		SRS = {
-			change_tag_from = ROOT
-			
 			declare_war_on = {
 				type = annex_everything
 				target = ROOT
 			}
+			
+			change_tag_from = ROOT
 		}
 	}
 }
@@ -8723,43 +8799,45 @@ country_event = { # Refugees arrived
 	immediate = {
 		log = "[GetDateText]: [Root.GetName]: event Ntribes.352"
 		
-		set_variable = { divider = 2 }
-		set_variable = { randomizer = 0.2 }
-		set_variable = { rounder = 10 }
-		
-		430 = {
-			set_variable = { population = refugees }
-			population_calculator_multifunctional = yes
+		hidden_effect = {
+			set_variable = { divider = 2 }
+			set_variable = { randomizer = 0.2 }
+			set_variable = { rounder = 10 }
 			
-			subtract_from_variable = { refugees = population }
-			set_variable = { refigees_half = population }
-		}
-		
-		483 = {
-			set_variable = { population = refugees }
-			population_calculator_multifunctional = yes
+			430 = {
+				set_variable = { population = refugees }
+				population_calculator_multifunctional = yes
+				
+				subtract_from_variable = { refugees = population }
+				set_variable = { refigees_half = population }
+			}
 			
-			subtract_from_variable = { refugees = population }
-			set_variable = { refigees_half = population }
-		}
-		
-		430 = {
-			set_variable = { population = refugees }
-			population_calculator_multifunctional = yes
+			483 = {
+				set_variable = { population = refugees }
+				population_calculator_multifunctional = yes
+				
+				subtract_from_variable = { refugees = population }
+				set_variable = { refigees_half = population }
+			}
 			
-			subtract_from_variable = { refugees = population }
-			set_variable = { residual = population }
-		}
-		
-		483 = {
-			set_variable = { population = refugees }
-			population_calculator_multifunctional = yes
+			430 = {
+				set_variable = { population = refugees }
+				population_calculator_multifunctional = yes
+				
+				subtract_from_variable = { refugees = population }
+				set_variable = { residual = population }
+			}
 			
-			subtract_from_variable = { refugees = population }
-			set_variable = { residual = population }
+			483 = {
+				set_variable = { population = refugees }
+				population_calculator_multifunctional = yes
+				
+				subtract_from_variable = { refugees = population }
+				set_variable = { residual = population }
+			}
+			
+			population_calculator_cleaner = yes
 		}
-		
-		population_calculator_cleaner = yes
 	}
 	
 	is_triggered_only = yes
@@ -8814,19 +8892,15 @@ country_event = { # Tribal envoys
 		name = Ntribes.353.a
 		
 		ai_chance = {
-			base = 50
+			base = 25
 			
 			modifier = {
 				factor = 0.75
 				
 				strength_ratio = {
 					tag = FROM
-					ratio > 0.65
+					ratio < 0.75
 				}
-			}
-			
-			modifier = {
-				factor = 0.5
 				
 				strength_ratio = {
 					tag = FROM
@@ -8835,7 +8909,12 @@ country_event = { # Tribal envoys
 			}
 			
 			modifier = {
-				factor = 0.25
+				factor = 0.5
+				
+				strength_ratio = {
+					tag = FROM
+					ratio < 0.8
+				}
 				
 				strength_ratio = {
 					tag = FROM
@@ -8844,10 +8923,26 @@ country_event = { # Tribal envoys
 			}
 			
 			modifier = {
+				factor = 0.25
+				
+				strength_ratio = {
+					tag = FROM
+					ratio < 0.85
+				}
+				
+				strength_ratio = {
+					tag = FROM
+					ratio > 0.8
+				}
+			}
+			
+			modifier = {
 				factor = 0
 				
+				num_faction_members > 1
+				
 				OR = {
-					num_faction_members > 1
+					surrender_progress < 0.2
 					
 					strength_ratio = {
 						tag = FROM
@@ -8936,11 +9031,7 @@ country_event = { # Tribal envoys
 			}
 			
 			FROM = {
-				country_event = {
-					id = Ntribes.315
-					days = 10
-					random = 120
-				}
+				country_event = Ntribes.315
 			}
 		}
 	}
@@ -8949,14 +9040,19 @@ country_event = { # Tribal envoys
 		name = Ntribes.353.b
 		
 		ai_chance = {
-			base = 50
+			base = 75
 			
 			modifier = {
 				factor = 0.75
 				
 				strength_ratio = {
 					tag = FROM
-					ratio < 0.6
+					ratio < 0.65
+				}
+				
+				strength_ratio = {
+					tag = FROM
+					ratio > 0.6
 				}
 			}
 			
@@ -8965,32 +9061,31 @@ country_event = { # Tribal envoys
 				
 				strength_ratio = {
 					tag = FROM
-					ratio < 0.65
+					ratio < 0.6
+				}
+				
+				strength_ratio = {
+					tag = FROM
+					ratio > 0.55
 				}
 			}
 			
 			modifier = {
 				factor = 0.25
 				
-				OR = {
-					enemies_strength_ratio > 1.5
-					surrender_progress > 0.25
+				strength_ratio = {
+					tag = FROM
+					ratio < 0.55
 				}
-			}
-			
-			modifier = {
-				factor = 0.5
 				
 				strength_ratio = {
 					tag = FROM
-					ratio < 0.6
+					ratio > 0.5
 				}
 			}
 			
 			modifier = {
 				factor = 0
-				
-				num_faction_members < 2
 				
 				OR = {
 					AND = {
@@ -8998,9 +9093,13 @@ country_event = { # Tribal envoys
 						surrender_progress > 0.25
 					}
 					
-					strength_ratio = {
-						tag = FROM
-						ratio < 0.55
+					AND = {
+						num_faction_members < 2
+						
+						strength_ratio = {
+							tag = FROM
+							ratio < 0.5
+						}
 					}
 				}
 			}
@@ -9429,27 +9528,6 @@ country_event = { # One more problem
 #}
 
 country_event = { # MNC lost border conflict
-	id = Ntribes.392
-	immediate = { log = "[GetDateText]: [Root.GetName]: event Ntribes.392" }
-	title = Ntribes.392.t
-	desc = Ntribes.392.d
-	#picture = 
-	
-	is_triggered_only = yes
-	fire_only_once = yes
-	
-	option = {
-		name = Ntribes.392.a
-		
-		add_political_power = -100
-		add_stability = -0.05
-		add_war_support = -0.1
-		
-		set_country_flag = MNC_defeat_in_border_war
-	}
-}
-
-country_event = { # MNC won border conflict
 	id = Ntribes.393
 	immediate = { log = "[GetDateText]: [Root.GetName]: event Ntribes.393" }
 	title = Ntribes.393.t
@@ -9462,13 +9540,15 @@ country_event = { # MNC won border conflict
 	option = {
 		name = Ntribes.393.a
 		
-		add_political_power = 75
-		add_stability = 0.05
-		add_war_support = 0.05
+		add_political_power = -100
+		add_stability = -0.05
+		add_war_support = -0.1
+		
+		set_country_flag = MNC_defeat_in_border_war
 	}
 }
 
-country_event = { # NTR lost border conflict
+country_event = { # MNC won border conflict
 	id = Ntribes.394
 	immediate = { log = "[GetDateText]: [Root.GetName]: event Ntribes.394" }
 	title = Ntribes.394.t
@@ -9481,13 +9561,13 @@ country_event = { # NTR lost border conflict
 	option = {
 		name = Ntribes.394.a
 		
-		add_political_power = -75
-		add_stability = -0.05
-		add_war_support = -0.05
+		add_political_power = 75
+		add_stability = 0.05
+		add_war_support = 0.05
 	}
 }
 
-country_event = { # NTR won border conflict
+country_event = { # NTR lost border conflict
 	id = Ntribes.395
 	immediate = { log = "[GetDateText]: [Root.GetName]: event Ntribes.395" }
 	title = Ntribes.395.t
@@ -9499,6 +9579,25 @@ country_event = { # NTR won border conflict
 	
 	option = {
 		name = Ntribes.395.a
+		
+		add_political_power = -75
+		add_stability = -0.05
+		add_war_support = -0.05
+	}
+}
+
+country_event = { # NTR won border conflict
+	id = Ntribes.396
+	immediate = { log = "[GetDateText]: [Root.GetName]: event Ntribes.396" }
+	title = Ntribes.396.t
+	desc = Ntribes.396.d
+	#picture = 
+	
+	is_triggered_only = yes
+	fire_only_once = yes
+	
+	option = {
+		name = Ntribes.396.a
 		
 		add_political_power = 100
 		add_stability = 0.05
@@ -9615,6 +9714,500 @@ country_event = { # Tribute calculation
 		country_event = {
 			id = Ntribes.399
 			days = 30
+		}
+	}
+}
+
+##### Neutrality branch #####
+
+country_event = { # Meeting at midnight
+	id = Ntribes.400
+	immediate = { log = "[GetDateText]: [Root.GetName]: event Ntribes.400" }
+	title = Ntribes.400.t
+	desc = Ntribes.400.d
+	#picture = 
+	
+	is_triggered_only = yes
+	fire_only_once = yes
+	
+	option = { # Gather strength, supporters, all you can... Hard times await us
+		name = Ntribes.400.a
+		
+		hidden_effect = {
+			add_ideas = NTR_dissent_movements
+		}
+	}
+}
+
+country_event = { # First assembly
+	id = Ntribes.401
+	immediate = { log = "[GetDateText]: [Root.GetName]: event Ntribes.401" }
+	title = Ntribes.401.t
+	desc = Ntribes.401.d
+	#picture = 
+	
+	is_triggered_only = yes
+	fire_only_once = yes
+	
+	option = { # Join
+		name = Ntribes.401.a
+		
+		hidden_effect = {
+			country_event = {
+				id = Ntribes.402
+				days = 14
+				random = 168
+			}
+		}
+	}
+	
+	option = { # Report
+		name = Ntribes.401.b
+		
+		hidden_effect = {
+			country_event = {
+				id = Ntribes.403
+				days = 14
+				random = 168
+			}
+		}
+	}
+}
+
+country_event = { # Lights of the polar night
+	id = Ntribes.402
+	title = Ntribes.402.t
+	desc = Ntribes.402.d
+	#picture = 
+	
+	immediate = {
+		log = "[GetDateText]: [Root.GetName]: event Ntribes.402"
+		
+		hidden_effect = {
+			# Political power after effect = Political power before effect * -(popularity of neu / popularity of fasci). Example: -400 * ( 0.3 / 0.4 ) = -400 * 0.75 = -300. The greater the difference in popularity, the more power will be at the end.
+			
+			set_temp_variable = { NTR_polit_power_for_fasci = party_popularity@neutrality }
+			divide_temp_variable = { NTR_polit_power_for_fasci = party_popularity@fascism }
+			multiply_temp_variable = { NTR_polit_power_for_fasci = political_power }
+			set_political_power = NTR_polit_power_for_fasci
+			
+			add_political_power = -150
+			add_stability = -0.2
+			add_war_support = -0.2
+			
+			add_manpower = -25
+			
+			save_current_manpower = yes
+			
+			562 = {
+				add_manpower = -80
+			}
+			
+			restore_previous_manpower = yes
+			
+			create_country_leader = {
+				name = "Child of the Blizzard"
+				picture = "Governor.tga" # portrait #???
+				expire = "1965.1.1"
+				ideology = fascism_ideology
+				traits = { incognito nationalist_symbol }
+			}
+			
+			set_politics = {
+				ruling_party = fascism
+				elections_allowed = no
+			}
+			
+			set_cosmetic_tag = NTR_blizzard
+			
+			set_country_flag = NTR_blizzard_branch
+		}
+	}
+	
+	is_triggered_only = yes
+	fire_only_once = yes
+	
+	option = { # Much more to come
+		name = Ntribes.402.a
+		
+		effect_tooltip = {
+			add_political_power = -150
+			add_stability = -0.2
+			add_war_support = -0.2
+			
+			add_manpower = -25
+			
+			562 = {
+				add_manpower = -80
+			}
+			
+			create_country_leader = {
+				name = "Child of the Blizzard"
+				picture = "Governor.tga" # portrait #???
+				expire = "1965.1.1"
+				ideology = fascism_ideology
+				traits = { incognito nationalist_symbol }
+			}
+			
+			set_politics = {
+				ruling_party = fascism
+				elections_allowed = no
+			}
+			
+			set_cosmetic_tag = NTR_blizzard
+		}
+		
+		custom_effect_tooltip = unlock_focuses
+		
+		hidden_effect = {
+			load_focus_tree = {
+				tree = NTR_focus_tree_blizzard
+				keep_completed = yes
+			}
+		}
+	}
+}
+
+country_event = { # We were ready
+	id = Ntribes.403
+	title = Ntribes.403.t
+	desc = Ntribes.403.d
+	#picture = 
+	
+	immediate = {
+		log = "[GetDateText]: [Root.GetName]: event Ntribes.403"
+		
+		hidden_effect = {
+			add_political_power = -75
+			add_stability = -0.075
+			add_war_support = -0.125
+			
+			add_manpower = -48
+			
+			save_current_manpower = yes
+			
+			562 = {
+				add_manpower = -56
+			}
+			
+			restore_previous_manpower = yes
+		}
+	}
+	
+	is_triggered_only = yes
+	fire_only_once = yes
+	
+	option = { # We will stay loyal to our past
+		name = Ntribes.403.a
+		
+		effect_tooltip = {
+			add_political_power = -75
+			add_stability = -0.075
+			add_war_support = -0.125
+			
+			add_manpower = -48
+			
+			save_current_manpower = yes
+			
+			562 = {
+				add_manpower = -56
+			}
+			
+			restore_previous_manpower = yes
+		}
+	}
+}
+
+country_event = { # Glow of the New North
+	id = Ntribes.404
+	title = Ntribes.404.t
+	desc = Ntribes.404.d
+	#picture = 
+	
+	immediate = {
+		log = "[GetDateText]: [Root.GetName]: event Ntribes.404"
+		
+		hidden_effect = {
+			set_variable = { divider = -75 } # forced labor victims (more factories)
+			set_variable = { randomizer = 0.3 }
+			set_variable = { rounder = 10 }
+			
+			every_owned_state = {
+				limit = {
+					is_core_of = ROOT
+					
+					NOT = {
+						is_core_of = SRS
+						
+						state = 430
+						state = 483
+					}
+				}
+				
+				set_variable = { population = state_population }
+				population_calculator_multifunctional = yes
+			}
+			
+			population_calculator_cleaner = yes
+		}
+	}
+	
+	is_triggered_only = yes
+	fire_only_once = yes
+	
+	option = { # That was always their weakness.
+		name = Ntribes.404.a
+		
+		add_stability = 0.025
+		add_war_support = 0.05
+		
+		save_current_manpower = yes
+		
+		562 = {
+			add_manpower = population
+			clear_variable = population
+		}
+		
+		563 = {
+			add_manpower = population
+			clear_variable = population
+		}
+		
+		567 = {
+			add_manpower = population
+			clear_variable = population
+		}
+		
+		573 = {
+			add_manpower = population
+			clear_variable = population
+		}
+		
+		602 = {
+			add_manpower = population
+			clear_variable = population
+		}
+		
+		677 = {
+			add_manpower = population
+			clear_variable = population
+		}
+		
+		if = {
+			limit = {
+				574 = { is_owned_by = ROOT }
+			}
+			
+			574 = {
+				add_manpower = population
+				clear_variable = population
+			}
+		}
+		
+		restore_previous_manpower = yes
+	}
+}
+
+country_event = { # The Lights of the Old Kingdom
+	id = Ntribes.405
+	title = Ntribes.405.t
+	desc = Ntribes.405.d
+	#picture = 
+	
+	immediate = {
+		log = "[GetDateText]: [Root.GetName]: event Ntribes.405"
+		
+		hidden_effect = {
+			set_variable = { divider = -50 }
+			set_variable = { randomizer = 0.3 }
+			set_variable = { rounder = 100 }
+			
+			every_owned_state = {
+				limit = {
+					is_core_of = VED
+					
+					NOT = {
+						is_core_of = ROOT
+					}
+				}
+				
+				set_variable = { population = state_population }
+				population_calculator_multifunctional = yes
+			}
+			
+			population_calculator_cleaner = yes
+		}
+	}
+	
+	is_triggered_only = yes
+	fire_only_once = yes
+	
+	option = { # We have no choice
+		name = Ntribes.405.a
+		
+		add_stability = -0.025
+		
+		save_current_manpower = yes
+		
+		403 = {
+			add_manpower = population
+			clear_variable = population
+		}
+		
+		404 = {
+			add_manpower = population
+			clear_variable = population
+		}
+		
+		429 = {
+			add_manpower = population
+			clear_variable = population
+		}
+		
+		431 = {
+			add_manpower = population
+			clear_variable = population
+		}
+		
+		482 = {
+			add_manpower = population
+			clear_variable = population
+		}
+		
+		484 = {
+			add_manpower = population
+			clear_variable = population
+		}
+		
+		575 = {
+			add_manpower = population
+			clear_variable = population
+		}
+		
+		576 = {
+			add_manpower = population
+			clear_variable = population
+		}
+		
+		584 = {
+			add_manpower = population
+			clear_variable = population
+		}
+		
+		restore_previous_manpower = yes
+	}
+}
+
+country_event = { # Up to pre-industrial (start)
+	id = Ntribes.406
+	title = Ntribes.406.t
+	desc = Ntribes.406.d
+	
+	immediate = {
+		log = "[GetDateText]: [Root.GetName]: event Ntribes.406"
+		
+		hidden_effect = {
+			swap_ideas = {
+				remove_idea = agrarian_society
+				add_idea = agrarian_society2
+			}
+		}
+	}
+	
+	is_triggered_only = yes
+	fire_only_once = yes
+	
+	option = {
+		name = Ntribes.406.a
+		
+		effect_tooltip = {
+			swap_ideas = {
+				remove_idea = agrarian_society
+				add_idea = agrarian_society2
+			}
+		}
+		
+		hidden_effect = {
+			add_ideas = NTR_society_increase_upkeep
+			
+			country_event = {
+				id = Ntribes.407
+				days = 56
+				random = 336
+			}
+		}
+	}
+}
+
+country_event = { # Up to pre-industrial (continue)
+	id = Ntribes.407
+	immediate = { log = "[GetDateText]: [Root.GetName]: event Ntribes.407" }
+	title = Ntribes.407.t
+	desc = Ntribes.407.d
+	
+	is_triggered_only = yes
+	fire_only_once = no
+	
+	option = {
+		name = Ntribes.407.a
+		
+		if = {
+			limit = {
+				has_agrarian_society = yes
+			}
+			
+			increase_society_development_gradual = yes
+			
+			hidden_effect = {
+				if = {
+					limit = {
+						has_idea = agrarian_society6
+					}
+					
+					country_event = {
+						id = Ntribes.408
+						days = 56 
+						random = 336
+					}
+				}
+				
+				else = {
+					country_event = {
+						id = Ntribes.407
+						days = 56
+						random = 336
+					}
+				}	
+			}
+		}
+	}
+}
+
+country_event = { # Up to pre-industrial (end)
+	id = Ntribes.408
+	immediate = { log = "[GetDateText]: [Root.GetName]: event Ntribes.408" }
+	title = Ntribes.408.t
+	desc = Ntribes.408.d
+	
+	is_triggered_only = yes
+	fire_only_once = yes
+	
+	option = {
+		name = Ntribes.408.a
+		
+		if = {
+			limit = {
+				has_idea = agrarian_society6
+			}
+			
+			swap_ideas = {
+				remove_idea = agrarian_society6
+				add_idea = pre_industrial_society
+			}
+		}
+		
+		hidden_effect = {
+			remove_ideas = NTR_society_increase_upkeep
 		}
 	}
 }
@@ -9742,7 +10335,7 @@ country_event = { # Dozens of tribes have rejected our path of development
 	}
 }
 
-country_event = { # Request from the palace # Tomission? #???
+country_event = { # Request from the palace
 	id = Ntribes.545
 	title = Ntribes.545.t
 	desc = Ntribes.545.d
@@ -9751,8 +10344,10 @@ country_event = { # Request from the palace # Tomission? #???
 	immediate = {
 		log = "[GetDateText]: [Root.GetName]: event Ntribes.545"
 		
-		set_variable = { communards_vs_internationalists_support_var = internationalists_support_var }
-		subtract_from_variable = { communards_vs_internationalists_support_var = communards_support_var }
+		hidden_effect = {
+			set_variable = { communards_vs_internationalists_support_var = internationalists_support_var }
+			subtract_from_variable = { communards_vs_internationalists_support_var = communards_support_var }
+		}
 	}
 	
 	is_triggered_only = yes
@@ -9760,6 +10355,12 @@ country_event = { # Request from the palace # Tomission? #???
 	
 	option = { # While the battle is going on, sabotage groups will be able to pass
 		name = Ntribes.545.a
+		
+		trigger = {
+			NOT = {
+				has_border_war_with = NTR
+			}
+		}
 		
 		ai_chance = {
 			base = 50
@@ -9879,6 +10480,25 @@ country_event = { # Request from the palace # Tomission? #???
 					random = 168
 				}
 			}
+		}
+	}
+	
+	option = { # We need time to prepare an attack plan
+		name = Ntribes.545.e
+		
+		trigger = {
+			NOT = {
+				has_border_war_with = NTR
+			}
+		}
+		
+		ai_chance = {
+			base = 0
+		}
+		
+		activate_targeted_decision = {
+			target = ROOT
+			decision = SRS_NTR_emergency_request
 		}
 	}
 }
@@ -11601,17 +12221,17 @@ country_event = { # The End (communism)
 		log = "[GetDateText]: [Root.GetName]: event Ntribes.568"
 		
 		hidden_effect = {
-			add_popularity = {
-				ideology = communism
-				popularity = 0.075
-			}
-			
 			# Political power after effect = Political power before effect * -(popularity of dem / popularity of coomi). Example: -400 * ( 0.3 / 0.4 ) = -400 * 0.75 = -300. The greater the difference in popularity, the more power will be at the end.
 			
 			set_temp_variable = { NTR_polit_power_for_commi = party_popularity@democratic }
 			divide_temp_variable = { NTR_polit_power_for_commi = party_popularity@communism }
 			multiply_temp_variable = { NTR_polit_power_for_commi = political_power }
 			set_political_power = NTR_polit_power_for_commi
+			
+			add_popularity = {
+				ideology = communism
+				popularity = 0.075
+			}
 			
 			563 = {
 				set_demilitarized_zone = no
@@ -11654,7 +12274,7 @@ country_event = { # The End (communism)
 		}
 		
 		hidden_effect = {
-			retire_country_leader = yes # - Yngvar Thorncrest #???
+			retire_country_leader = yes
 		}
 		
 		create_country_leader = {
@@ -11739,17 +12359,17 @@ country_event = { # Weak, but government (neutrality)
 		log = "[GetDateText]: [Root.GetName]: event Ntribes.570"
 		
 		hidden_effect = {
-			add_popularity = {
-				ideology = neutrality
-				popularity = 0.075
-			}
-			
 			# Political power after effect = Political power before effect * -(popularity of dem / popularity of neu). Example: -400 * ( 0.3 / 0.4 ) = -400 * 0.75 = -300. The greater the difference in popularity, the more power will be at the end.
 			
 			set_temp_variable = { NTR_polit_power_for_neu = party_popularity@democratic }
 			divide_temp_variable = { NTR_polit_power_for_neu = party_popularity@neutrality }
 			multiply_temp_variable = { NTR_polit_power_for_neu = political_power }
 			set_political_power = NTR_polit_power_for_neu
+			
+			add_popularity = {
+				ideology = neutrality
+				popularity = 0.05
+			}
 			
 			563 = {
 				set_demilitarized_zone = no
@@ -11787,7 +12407,7 @@ country_event = { # Weak, but government (neutrality)
 		effect_tooltip = {
 			add_popularity = {
 				ideology = neutrality
-				popularity = 0.075
+				popularity = 0.05
 			}
 		}
 		
@@ -11799,11 +12419,6 @@ country_event = { # Weak, but government (neutrality)
 		}
 		
 		add_ideas = NTR_fianas_supporters_half
-		
-		swap_ideas = {
-			remove_idea = NTR_self_isolationism
-			add_idea = NTR_self_isolationism_half # neu vs dem and commi
-		}
 		
 		remove_ideas = NTR_adam_watershed
 		remove_ideas = NTR_ivor_eklund
@@ -12059,8 +12674,8 @@ country_event = { # Up to outdated (continue)
 				
 				country_event = { # for council
 					id = Ntribes.999
-					days = 80
-					random = 320
+					days = 90
+					random = 360
 				}
 			}
 			
@@ -12073,15 +12688,7 @@ country_event = { # Up to outdated (continue)
 			}
 		}
 		
-		else_if = { # for council
-			limit = {
-				has_government = neutrality
-			}
-			
-			country_event = Ntribes.320
-		}
-		
-		else = { # for dem and commi
+		else = { # for all
 			country_event = Ntribes.23
 		}
 	}
@@ -12135,15 +12742,15 @@ country_event = { #	Calculation of variables for reintegration
 		}
 		
 		else = {
-			set_variable = { NTR_popularity_democratic_half = party_popularity@democratic }
-			divide_variable = { NTR_popularity_democratic_half = 2 }
+			set_variable = { NTR_popularity_democratic_quarter = party_popularity@democratic }
+			divide_variable = { NTR_popularity_democratic_quarter = 2 }
 			
-			set_variable = { NTR_reintegration_half = NTR_popularity_democratic_half }
+			set_variable = { NTR_reintegration_half = NTR_popularity_democratic_quarter }
 			
-			set_variable = { NTR_popularity_communism_half = party_popularity@communism }
-			divide_variable = { NTR_popularity_communism_half = 2 }
+			set_variable = { NTR_popularity_communism_quarter = party_popularity@communism }
+			divide_variable = { NTR_popularity_communism_quarter = 2 }
 			
-			add_to_variable = { NTR_reintegration_half = NTR_popularity_communism_half }
+			add_to_variable = { NTR_reintegration_half = NTR_popularity_communism_quarter }
 		}
 		
 		set_country_flag = NTR_integration
@@ -12194,25 +12801,27 @@ country_event = { #	Increase poverty
 	immediate = {
 		log = "[GetDateText]: [Root.GetName]: event Ntribes.996"
 		
-		if = {
-			limit = {
-				has_government = democratic
+		hidden_effect = {
+			if = {
+				limit = {
+					has_government = democratic
+				}
+				
+				add_popularity = {
+					ideology = democratic
+					popularity = -0.05
+				}
 			}
 			
-			add_popularity = {
-				ideology = democratic
-				popularity = -0.05
+			else = {
+				add_popularity = {
+					ideology = communism
+					popularity = -0.05
+				}
 			}
+			
+			increase_poverty = yes
 		}
-		
-		else = {
-			add_popularity = {
-				ideology = communism
-				popularity = -0.05
-			}
-		}
-		
-		increase_poverty = yes
 	}
 	
 	is_triggered_only = yes
@@ -12390,10 +12999,48 @@ country_event = { #	Check for decreasing of ideological ideas # Rework for counc
 			}
 		}
 		
-		#else = { # council rework #???
-		#	set_temp_variable = { NTR_reintegration_check_for_half = party_popularity@democratic }
-		#	add_to_temp_variable = { NTR_reintegration_check_for_half = party_popularity@communism }
-		#}
+		else = { # council rework #???
+			set_temp_variable = { NTR_reintegration_check_for_half = party_popularity@democratic }
+			add_to_temp_variable = { NTR_reintegration_check_for_half = party_popularity@communism }
+			
+			set_temp_variable = { NTR_popularity_democratic_check_for_quarter = party_popularity@democratic }
+			
+			if = {
+				limit = {
+					check_variable = {
+						var = NTR_popularity_democratic_check_for_quarter
+						value = NTR_popularity_democratic_quarter # todelete #???
+						compare = less_than_or_equals
+					}
+				}
+				
+				swap_ideas = {
+					remove_idea = NTR_fianas_supporters_half
+					add_idea = NTR_fianas_supporters_quarter
+				}
+				
+				country_event = Ntribes.991
+			}
+			
+			set_temp_variable = { NTR_popularity_communism_check_for_quarter = party_popularity@communism }
+			
+			if = {
+				limit = {
+					check_variable = {
+						var = NTR_popularity_communism_check_for_quarter
+						value = NTR_popularity_communism_quarter # todelete #???
+						compare = less_than_or_equals
+					}
+				}
+				
+				swap_ideas = {
+					remove_idea = NTR_communist_partisans_half
+					add_idea = NTR_communist_partisans_quarter
+				}
+				
+				country_event = Ntribes.989
+			}
+		}
 		
 		if = {
 			limit = {
@@ -12404,7 +13051,7 @@ country_event = { #	Check for decreasing of ideological ideas # Rework for counc
 				}
 			}
 			
-			country_event = Ntribes.994
+			country_event = Ntribes.
 		}
 		
 		if = {
@@ -12412,7 +13059,7 @@ country_event = { #	Check for decreasing of ideological ideas # Rework for counc
 				check_variable = { NTR_reintegration_check_for_half < 0.1 }
 			}
 			
-			country_event = Ntribes.993
+			country_event = Ntribes.
 		}
 	}
 }
@@ -12458,32 +13105,34 @@ country_event = { # Bypassing the autistic paradox decision code
 	immediate = {
 		log = "[GetDateText]: [Root.GetName]: event Ntribes.992"
 		
-		if = {
-			limit = {
-				has_government = democratic
+		hidden_effect = {
+			if = {
+				limit = {
+					has_government = democratic
+				}
+				
+				add_popularity = {
+					ideology = democratic
+					popularity = NTR_popularity_var
+				}
 			}
 			
-			add_popularity = {
-				ideology = democratic
-				popularity = NTR_popularity_var
-			}
-		}
-		
-		else_if = {
-			limit = {
-				has_government = communism
+			else_if = {
+				limit = {
+					has_government = communism
+				}
+				
+				add_popularity = {
+					ideology = communism
+					popularity = NTR_popularity_var
+				}
 			}
 			
-			add_popularity = {
-				ideology = communism
-				popularity = NTR_popularity_var
-			}
-		}
-		
-		else = {
-			add_popularity = {
-				ideology = neutrality
-				popularity = NTR_popularity_var
+			else = {
+				add_popularity = {
+					ideology = neutrality
+					popularity = NTR_popularity_var
+				}
 			}
 		}
 	}
@@ -12560,16 +13209,18 @@ country_event = { # Last day of monarchy
 	immediate = {
 		log = "[GetDateText]: [Root.GetName]: event Ntribes.990"
 		
-		set_temp_variable = { NTR_deal_with_snowflakes = party_popularity@democratic }
-		
-		multiply_temp_variable = { NTR_deal_with_snowflakes = -1 }
-		
-		add_popularity = {
-			ideology = democratic
-			popularity = var:NTR_deal_with_snowflakes
+		hidden_effect = {
+			set_temp_variable = { NTR_deal_with_snowflakes = party_popularity@democratic }
+			
+			multiply_temp_variable = { NTR_deal_with_snowflakes = -1 }
+			
+			add_popularity = {
+				ideology = democratic
+				popularity = var:NTR_deal_with_snowflakes
+			}
+			
+			set_country_flag = NTR_dem_integration_completed
 		}
-		
-		set_country_flag = NTR_dem_integration_completed
 	}
 	
 	is_triggered_only = yes
@@ -12708,16 +13359,18 @@ country_event = { # Siege of Elf Lake
 	immediate = {
 		log = "[GetDateText]: [Root.GetName]: event Ntribes.985"
 		
-		set_temp_variable = { NTR_deal_with_council = party_popularity@neutrality }
-		
-		multiply_temp_variable = { NTR_deal_with_council = -1 }
-		
-		add_popularity = {
-			ideology = neutrality
-			popularity = var:NTR_deal_with_council
+		hidden_effect = {
+			set_temp_variable = { NTR_deal_with_council = party_popularity@neutrality }
+			
+			multiply_temp_variable = { NTR_deal_with_council = -1 }
+			
+			add_popularity = {
+				ideology = neutrality
+				popularity = var:NTR_deal_with_council
+			}
+			
+			set_country_flag = NTR_neu_integration_completed
 		}
-		
-		set_country_flag = NTR_neu_integration_completed
 	}
 	
 	is_triggered_only = yes
@@ -12729,6 +13382,50 @@ country_event = { # Siege of Elf Lake
 		add_political_power = 75
 		
 		remove_ideas = NTR_self_isolationism_quarter
+	}
+}
+
+country_event = { # Nothing can replace old traditions
+	id = Ntribes.984
+	immediate = { log = "[GetDateText]: [Root.GetName]: event Ntribes.984" }
+	title = Ntribes.984.t
+	desc = Ntribes.984.d
+	#picture = 
+	
+	is_triggered_only = yes
+	fire_only_once = yes
+	
+	option = {
+		name = Ntribes.984.a
+		
+		swap_ideas = {
+			remove_idea = NTR_self_isolationism
+			add_idea = NTR_neutrality_idea_half
+		}
+		
+		set_country_flag = NTR_reintegration_half_completed
+	}
+}
+
+country_event = { # Nothing can replace old traditions
+	id = Ntribes.983
+	immediate = { log = "[GetDateText]: [Root.GetName]: event Ntribes.983" }
+	title = Ntribes.983.t
+	desc = Ntribes.983.d
+	#picture = 
+	
+	is_triggered_only = yes
+	fire_only_once = yes
+	
+	option = {
+		name = Ntribes.983.a
+		
+		swap_ideas = {
+			remove_idea = NTR_neutrality_idea_half
+			add_idea = NTR_neutrality_idea
+		}
+		
+		set_country_flag = NTR_reintegration_completed
 	}
 }
 
@@ -13166,6 +13863,573 @@ country_event = { # Modified oppaperclip.1 for always = yes
 			
 			SRS = {
 				ROOT = { paperclip_tech = yes }
+			}
+		}
+	}
+}
+
+country_event = { # Refugees from the East
+	id = Ntribes.943
+	title = Ntribes.943.t
+	desc = Ntribes.943.d
+	#picture = 
+	
+	immediate = {
+		log = "[GetDateText]: [Root.GetName]: event Ntribes.943"
+		
+		hidden_effect = {
+			add_stability = -0.075
+			
+			set_variable = { divider = -10 }
+			set_variable = { randomizer = 0.3 }
+			set_variable = { rounder = 100 }
+			
+			DED = {
+				save_current_manpower = yes
+			}
+			
+			every_state = {
+				limit = {
+					OR = {
+						state = 565
+						state = 566
+						state = 428
+					}
+				}
+				
+				set_variable = { population = state_population }
+				population_calculator_multifunctional = yes
+				population_calculation_for_sum = yes
+			}
+			
+			DED = {
+				restore_previous_manpower = yes
+			}
+			
+			multiply_variable = { population_sum = -1 }
+			
+			set_variable = { divider = 2 }
+			set_variable = { randomizer = 0.2 }
+			set_variable = { rounder = 100 }
+			
+			set_variable = { population = population_sum }
+			population_calculator_multifunctional = yes
+			subtract_from_variable = { population_sum = population }
+			
+			population_calculator_cleaner = yes
+			
+			save_current_manpower = yes
+			
+			if = {
+				limit = {
+					check_variable = { population_sum > population }
+				}
+				
+				573 = {
+					add_manpower = ROOT.population_sum
+					clear_variable = ROOT.population_sum
+				}
+				
+				563 = {
+					add_manpower = ROOT.population
+					clear_variable = ROOT.population
+				}
+			}
+			
+			else = {
+				573 = {
+					add_manpower = ROOT.population
+					clear_variable = ROOT.population
+				}
+				
+				563 = {
+					add_manpower = ROOT.population_sum
+					clear_variable = ROOT.population_sum
+				}
+			}
+			
+			restore_previous_manpower = yes
+		}
+	}
+	
+	is_triggered_only = yes
+	fire_only_once = yes
+	
+	option = { # Give them all the help they need
+		name = Ntribes.943.a
+		
+		trigger = {
+			has_government = democratic
+		}
+		
+		effect_tooltip = {
+			add_stability = -0.075
+			
+			if = {
+				limit = {
+					check_variable = { population_sum > population }
+				}
+				
+				573 = {
+					add_manpower = ROOT.population_sum
+					clear_variable = ROOT.population_sum
+				}
+				
+				563 = {
+					add_manpower = ROOT.population
+					clear_variable = ROOT.population
+				}
+			}
+			
+			else = {
+				573 = {
+					add_manpower = ROOT.population
+					clear_variable = ROOT.population
+				}
+				
+				563 = {
+					add_manpower = ROOT.population_sum
+					clear_variable = ROOT.population_sum
+				}
+			}
+		}
+		
+		hidden_effect = {
+			country_event = {
+				id = Ntribes.942
+				days = 3
+				random = 24
+			}
+		}
+	}
+	
+	option = { # Free communes will welcome them
+		name = Ntribes.943.b
+		
+		trigger = {
+			has_government = communism
+		}
+		
+		effect_tooltip = {
+			add_stability = -0.075
+			
+			if = {
+				limit = {
+					check_variable = { population_sum > population }
+				}
+				
+				573 = {
+					add_manpower = ROOT.population_sum
+					clear_variable = ROOT.population_sum
+				}
+				
+				563 = {
+					add_manpower = ROOT.population
+					clear_variable = ROOT.population
+				}
+			}
+			
+			else = {
+				573 = {
+					add_manpower = ROOT.population
+					clear_variable = ROOT.population
+				}
+				
+				563 = {
+					add_manpower = ROOT.population_sum
+					clear_variable = ROOT.population_sum
+				}
+			}
+		}
+		
+		hidden_effect = {
+			country_event = {
+				id = Ntribes.942
+				days = 3
+				random = 24
+			}
+		}
+	}
+	
+	option = { # Find out why they came
+		name = Ntribes.943.c
+		
+		trigger = {
+			has_government = neutrality
+		}
+		
+		effect_tooltip = {
+			add_stability = -0.075
+			
+			if = {
+				limit = {
+					check_variable = { population_sum > population }
+				}
+				
+				573 = {
+					add_manpower = ROOT.population_sum
+					clear_variable = ROOT.population_sum
+				}
+				
+				563 = {
+					add_manpower = ROOT.population
+					clear_variable = ROOT.population
+				}
+			}
+			
+			else = {
+				573 = {
+					add_manpower = ROOT.population
+					clear_variable = ROOT.population
+				}
+				
+				563 = {
+					add_manpower = ROOT.population_sum
+					clear_variable = ROOT.population_sum
+				}
+			}
+		}
+		
+		hidden_effect = {
+			country_event = {
+				id = Ntribes.942
+				days = 3
+				random = 24
+			}
+		}
+	}
+}
+
+country_event = { # The worst enemy of all living has returned
+	id = Ntribes.942
+	immediate = { log = "[GetDateText]: [Root.GetName]: event Ntribes.942" }
+	title = Ntribes.942.t
+	desc = Ntribes.942.d
+	#picture = 
+	
+	is_triggered_only = yes
+	fire_only_once = yes
+	
+	option = { # We will organize a search for survivors!
+		name = Ntribes.942.a
+		
+		trigger = {
+			has_government = democratic
+		}
+		
+		unlock_decision_tooltip = NTR_DED_search_for_survivors_norrbeak
+		unlock_decision_tooltip = NTR_DED_search_for_survivors_path
+		
+		hidden_effect = {
+			set_country_flag = NTR_search_for_survivors
+		}
+	}
+	
+	option = { # We will protect our home!
+		name = Ntribes.942.b
+		
+		trigger = {
+			has_government = communism
+		}
+		
+		unlock_decision_tooltip = NTR_DED_bunkers
+		
+		hidden_effect = {
+			set_country_flag = NTR_DED_border_bunkers
+		}
+	}
+	
+	option = { # Legends didn’t lie...
+		name = Ntribes.942.c
+		
+		trigger = {
+			has_government = neutrality
+		}
+		
+		unlock_decision_tooltip = NTR_DED_bunkers
+		
+		hidden_effect = {
+			set_country_flag = NTR_DED_border_bunkers # add more triggers #???
+		}
+	}
+}
+
+country_event = { # Significant success
+	id = Ntribes.941
+	title = Ntribes.941.t
+	desc = Ntribes.941.d
+	#picture = 
+	
+	immediate = {
+		log = "[GetDateText]: [Root.GetName]: event Ntribes.941"
+		
+		hidden_effect = {
+			add_to_variable = { NTR_DED_border_conflict = 1 }
+			set_country_flag = NTR_DED_search_for_survivors_norrbeak_success
+			
+			set_variable = { divider = -25 }
+			set_variable = { randomizer = 0.2 }
+			set_variable = { rounder = 10 }
+			
+			DED = {
+				save_current_manpower = yes
+			}
+			
+			565 = {
+				set_variable = { population = state_population }
+				population_calculator_multifunctional = yes
+				add_manpower = population
+				
+				population_calculation_for_sum = yes
+			}
+			
+			DED = {
+				restore_previous_manpower = yes
+			}
+			
+			population_calculator_cleaner = yes
+			
+			save_current_manpower = yes
+			
+			563 = {
+				add_manpower = ROOT.population_sum
+				clear_variable = ROOT.population_sum
+			}
+			
+			restore_previous_manpower = yes
+		}
+	}
+	
+	is_triggered_only = yes
+	fire_only_once = yes
+	
+	option = { # Save as much as you can and retreat
+		name = Ntribes.941.a
+		
+		add_political_power = 50
+		army_experience = 20
+		
+		add_manpower = 10000
+		
+		effect_tooltip = {
+			563 = {
+				add_manpower = ROOT.population_sum
+				clear_variable = ROOT.population_sum
+			}
+		}
+	}
+}
+
+country_event = { # Crossing organized
+	id = Ntribes.940
+	title = Ntribes.940.t
+	desc = Ntribes.940.d
+	#picture = 
+	
+	immediate = {
+		log = "[GetDateText]: [Root.GetName]: event Ntribes.940"
+		
+		hidden_effect = {
+			add_to_variable = { NTR_DED_border_conflict = 1 }
+			set_country_flag = NTR_DED_search_for_survivors_path_success
+			
+			set_variable = { divider = -25 }
+			set_variable = { randomizer = 0.2 }
+			set_variable = { rounder = 10 }
+			
+			DED = {
+				save_current_manpower = yes
+			}
+			
+			428 = {
+				set_variable = { population = state_population }
+				population_calculator_multifunctional = yes
+				add_manpower = population
+				
+				population_calculation_for_sum = yes
+			}
+			
+			DED = {
+				restore_previous_manpower = yes
+			}
+			
+			population_calculator_cleaner = yes
+			
+			save_current_manpower = yes
+			
+			573 = {
+				add_manpower = ROOT.population_sum
+				clear_variable = ROOT.population_sum
+			}
+			
+			restore_previous_manpower = yes
+		}
+	}
+	
+	is_triggered_only = yes
+	fire_only_once = yes
+	
+	option = { # Save as much as possible
+		name = Ntribes.940.a
+		
+		effect_tooltip = {
+			573 = {
+				add_manpower = ROOT.population_sum
+				clear_variable = ROOT.population_sum
+			}
+		}
+	}
+}
+
+country_event = { # We could not succeed
+	id = Ntribes.939
+	immediate = { log = "[GetDateText]: [Root.GetName]: event Ntribes.939" }
+	title = Ntribes.939.t
+	desc = Ntribes.939.d
+	#picture = 
+	
+	is_triggered_only = yes
+	fire_only_once = no
+	
+	option = { # Regroup and hold the line
+		name = Ntribes.939.a
+	}
+}
+
+country_event = { # "Border" skirmishes
+	id = Ntribes.938
+	title = Ntribes.938.t
+	desc = Ntribes.938.d
+	#picture = 
+	
+	immediate = {
+		log = "[GetDateText]: [Root.GetName]: event Ntribes.938"
+		
+		hidden_effect = {
+			if = {
+				limit = {
+					has_border_war_between = {
+						attacker = 563
+						defender = 565
+					}
+				}
+				
+				hidden_effect = {
+					563 = {
+						set_state_flag = NTR_DED_border_skirmishes
+					}
+				}
+			}
+			
+			else = {
+				hidden_effect = {
+					573 = {
+						set_state_flag = NTR_DED_border_skirmishes
+					}
+				}
+			}
+		}
+	}
+	
+	is_triggered_only = yes
+	fire_only_once = yes
+	
+	option = { # Do not dare to delve further into their territory, we are not ready yet.
+		name = Ntribes.938.a
+		
+		effect_tooltip = {
+			if = {
+				limit = {
+					has_border_war_between = {
+						attacker = 563
+						defender = 565
+					}
+				}
+				
+				start_border_war = {
+					change_state_after_war = no
+					
+					attacker = {
+						state = 563
+						num_provinces = 3
+					}
+					
+					defender = {
+						state = 565
+						num_provinces = 4
+					}
+				}
+			}
+			
+			else = {
+				start_border_war = {
+					change_state_after_war = no
+					
+					attacker = {
+						state = 573
+						num_provinces = 3
+					}
+					
+					defender = {
+						state = 428
+						num_provinces = 4
+					}
+				}
+			}
+		}
+	}
+}
+
+country_event = { # Another front
+	id = Ntribes.937
+	immediate = { log = "[GetDateText]: [Root.GetName]: event Ntribes.937" }
+	title = Ntribes.937.t
+	desc = Ntribes.937.d
+	#picture = 
+	
+	is_triggered_only = yes
+	fire_only_once = yes
+	
+	option = { # What do they allow themselves!?
+		name = Ntribes.937.a
+		
+		effect_tooltip = {
+			if = {
+				limit = {
+					563 = {
+						has_state_flag = NTR_DED_border_skirmishes
+					}
+				}
+				
+				start_border_war = {
+					change_state_after_war = no
+					
+					attacker = {
+						state = 573
+						num_provinces = 3
+					}
+					
+					defender = {
+						state = 428
+						num_provinces = 4
+					}
+				}
+			}
+			
+			else = {
+				start_border_war = {
+					change_state_after_war = no
+					
+					attacker = {
+						state = 563
+						num_provinces = 3
+					}
+					
+					defender = {
+						state = 565
+						num_provinces = 4
+					}
+				}
 			}
 		}
 	}
