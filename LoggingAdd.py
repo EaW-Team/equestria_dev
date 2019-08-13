@@ -153,7 +153,7 @@ def event(cpath):
                         triggered = True
                         new_event = False
                 if line.strip().startswith('id') and new_event is True and 'immediate = {log =' not in lines[line_number+1]:
-                    if 'log = ' not in lines[line_number+1]:
+                    if 'log = ' not in lines[line_number+1] and 'hours' not in lines[line_number+1] and 'hours' not in lines[line_number] and 'days' not in lines[line_number+1] and 'days' not in lines[line_number]:
                         if triggered is False:
                             new_event = False
                             event_id = line.split('=')[1].strip()
