@@ -1834,7 +1834,7 @@ country_event = {
 		name = griffons.62.a
 		add_ai_strategy = {
 			type = befriend
-			id = GRF
+			id = FROM
 			value = 500
 		}
 		FROM = {
@@ -1854,7 +1854,7 @@ country_event = {
 			country_event = griffons.65
 		}
 		ai_chance = {
-			factor = 1.5
+			factor = 2.5
 			modifier = {
 				factor = 2
 				is_major = no
@@ -1896,7 +1896,7 @@ country_event = {
 				}
 			}
 			modifier = {
-				factor = 1.2
+				factor = 1.5
 				num_of_civilian_factories_available_for_projects > 18
 			}
 			modifier = {
@@ -1912,7 +1912,7 @@ country_event = {
 			country_event = { id = griffons.67 days = 1 }
 		}
 		ai_chance = {
-			factor = 1.5
+			factor = 1
 			modifier = {
 				factor = 2
 				is_major = no
@@ -1955,13 +1955,22 @@ country_event = {
 
 	option = {
 		name = griffons.62.c
-		set_country_flag = { flag = refused_mercs_from_GRF value = 1 days = 180 }
+		set_country_flag = { flag = refused_mercs_from_@FROM value = 1 days = 180 }
 		FROM = {
 			clr_country_flag = mercs_considered_@ROOT
 			country_event = griffons.66
 		}
 		ai_chance = {
 			factor = 5
+			modifier = {
+				factor = 10
+				OR = {
+					has_idea = TRD_got_mercs
+					has_idea = GRF_got_mercs
+					has_idea = TRD_got_mercs_delayed
+					has_idea = GRF_got_mercs_delayed
+				}
+			}
 			modifier = {
 				factor = 3
 				OR = {
@@ -2051,7 +2060,7 @@ country_event = {
 		FROM = {
 			add_ai_strategy = {
 				type = befriend
-				id = GRF
+				id = ROOT
 				value = 500
 			}
 			set_country_flag = mercs_delayed_payment
@@ -2077,7 +2086,7 @@ country_event = {
 				factor = 0
 				FROM = {
 					strength_ratio = {
-						tag = GRF
+						tag = ROOT
 						ratio > 0.8
 					}
 				}
@@ -2111,7 +2120,7 @@ country_event = {
 				factor = 2
 				FROM = {
 					ic_ratio = {
-						tag = GRF
+						tag = ROOT
 						ratio > 0.8
 					}
 				}
@@ -2171,7 +2180,7 @@ country_event = {
 	option = { #Nope
 		name = griffons.67.b
 		FROM = {
-			set_country_flag = { flag = refused_mercs_from_GRF value = 1 days = 180 }
+			set_country_flag = { flag = refused_mercs_from_@ROOT value = 1 days = 180 }
 			country_event = { id = griffons.69 days = 1 }
 		}
 		clr_country_flag = mercs_considered_@FROM
@@ -2220,53 +2229,70 @@ country_event = {
 	is_triggered_only = yes
 
 	immediate = {
-		hidden_effect = { multiply_variable = { GRF_delayed_merc_payment = 1.15 } }
+		hidden_effect = { multiply_variable = { delayed_merc_payment_@FROM = 1.15 } }
 	}
 
 	option = { #Ok
 		name = griffons.70.a
-		add_timed_idea = { idea = GRF_got_mercs_delayed_payment days = var:GRF_delayed_merc_payment }
+		if = {
+			limit = { FROM = { tag = GRF } }
+			hidden_effect = { remove_ideas = GRF_got_mercs_delayed }
+			add_timed_idea = { idea = GRF_got_mercs_delayed_payment days = var:delayed_merc_payment_@FROM }
+		}
+		else = {
+			hidden_effect = { remove_ideas = TRD_got_mercs_delayed }
+			add_timed_idea = { idea = TRD_got_mercs_delayed_payment days = var:delayed_merc_payment_@FROM }
+		}
 		FROM = {
 			hidden_effect = {
-				set_variable = { GRF_send_mercs_reward_delayed_duration = ROOT.GRF_delayed_merc_payment }
-				add_offsite_building = { type = industrial_complex level = 4 }
-				activate_targeted_decision = { target = ROOT decision = GRF_send_mercs_reward_delayed }
+				if = {
+					limit = { tag = GRF }
+					set_variable = { GRF_send_mercs_reward_delayed_duration = ROOT.delayed_merc_payment_GRF }
+					add_offsite_building = { type = industrial_complex level = 4 }
+					activate_targeted_decision = { target = ROOT decision = GRF_send_mercs_reward_delayed }
+				}
+				else = {
+					set_variable = { TRD_send_mercs_reward_delayed_duration_@ROOT = ROOT.delayed_merc_payment_TRD }
+					log = "ROOT.delayed_merc_payment_TRD: [?ROOT.delayed_merc_payment_TRD]"
+					log = "TRD_send_mercs_reward_delayed_duration_@ROOT: [?TRD_send_mercs_reward_delayed_duration_@ROOT]"
+					activate_targeted_decision = { target = ROOT decision = TRD_send_mercs_reward_delayed }
+				}
 			}
 			country_event = { id = griffons.71 days = 1 }
 		}
-		clear_variable = GRF_delayed_merc_payment
-		clr_country_flag = considering_delaying_payment
+		clear_variable = delayed_merc_payment_@FROM
+		clr_country_flag = considering_delaying_payment_@FROM
 		ai_chance = {
 			factor = 2
 			modifier = {
 				factor = 3
-				is_neighbor_of = GRF
+				is_neighbor_of = FROM
 			}
 			modifier = {
 				factor = 0
 				strength_ratio = {
-					tag = GRF
+					tag = FROM
 					ratio > 1.3
 				}
 			}
 			modifier = {
 				factor = 2
 				strength_ratio = {
-					tag = GRF
+					tag = FROM
 					ratio < 1
 				}
 			}
 			modifier = {
 				factor = 2
 				strength_ratio = {
-					tag = GRF
+					tag = FROM
 					ratio < 0.8
 				}
 			}
 			modifier = {
 				factor = 3
 				strength_ratio = {
-					tag = GRF
+					tag = FROM
 					ratio < 0.6
 				}
 			}
@@ -2285,42 +2311,42 @@ country_event = {
 			modifier = {
 				factor = 0.8
 				has_opinion = {
-					target = GRF
+					target = FROM
 					value < -40
 				}
 			}
 			modifier = {
 				factor = 0.9
 				has_opinion = {
-					target = GRF
+					target = FROM
 					value < -20
 				}
 			}
 			modifier = {
 				factor = 0.95
 				has_opinion = {
-					target = GRF
+					target = FROM
 					value < -10
 				}
 			}
 			modifier = {
 				factor = 1.1
 				has_opinion = {
-					target = GRF
+					target = FROM
 					value > 10
 				}
 			}
 			modifier = {
 				factor = 1.1
 				has_opinion = {
-					target = GRF
+					target = FROM
 					value > 20
 				}
 			}
 			modifier = {
 				factor = 1.1
 				has_opinion = {
-					target = GRF
+					target = FROM
 					value > 40
 				}
 			}
@@ -2329,6 +2355,15 @@ country_event = {
 
 	option = { #No
 		name = griffons.70.b
+		hidden_effect = {
+			if = {
+				limit = { FROM = { tag = GRF } }
+				remove_ideas = GRF_got_mercs_delayed
+			}
+			else = {
+				remove_ideas = TRD_got_mercs_delayed
+			}
+		}
 		FROM = {
 			effect_tooltip = {
 				create_wargoal = {
@@ -2339,14 +2374,14 @@ country_event = {
 			}
 			country_event = { id = griffons.72 days = 1 }
 		}
-		clear_variable = GRF_delayed_merc_payment
-		clr_country_flag = considering_delaying_payment
+		clear_variable = delayed_merc_payment_@FROM
+		clr_country_flag = considering_delaying_payment_@FROM
 		ai_chance = {
 			factor = 1
 			modifier = {
 				factor = 4
 				strength_ratio = {
-					tag = GRF
+					tag = FROM
 					ratio > 1
 				}
 			}
@@ -2377,10 +2412,19 @@ country_event = {
 
 	option = {
 		name = griffons.71.a
+		trigger = { tag = GRF }
 		effect_tooltip = {
-			FROM = { add_timed_idea = { idea = GRF_got_mercs_delayed_payment days = var:GRF_delayed_merc_payment } }
+			FROM = { add_timed_idea = { idea = GRF_got_mercs_delayed_payment days = var:delayed_merc_payment_@ROOT } }
 			add_offsite_building = { type = industrial_complex level = 4 }
 			activate_targeted_decision = { target = FROM decision = GRF_send_mercs_reward_delayed }
+		}
+	}
+	option = {
+		name = griffons.71.a
+		trigger = { tag = TRD }
+		effect_tooltip = {
+			FROM = { add_timed_idea = { idea = TRD_got_mercs_delayed_payment days = var:delayed_merc_payment_@ROOT } }
+			activate_targeted_decision = { target = FROM decision = TRD_send_mercs_reward_delayed }
 		}
 	}
 }
