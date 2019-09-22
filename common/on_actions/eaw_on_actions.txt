@@ -91,7 +91,7 @@ on_actions = {
 					country_event = { id = news.300 days = 171 }
 					news_event = { id = news.16 days = 200 random = 960 }#days to hours applied
 				}
-#				country_event = { id = equestria.102 days = 93 }
+				#country_event = { id = equestria.102 days = 93 }
 				set_country_flag = manpower_laws_blocked
 				set_country_flag = economic_laws_blocked
 				set_country_flag = { flag = celestia_evil_meter value = 0 }
@@ -417,6 +417,7 @@ on_actions = {
 
 				adjust_research_modifier = yes
 				update_global_arrays = yes
+				actually_fix_weapon_techs = yes
 			}
 
 			BUF = {
@@ -1191,6 +1192,9 @@ on_actions = {
 				limit = { FROM = { is_river_fed_member = yes } }
 				custom_effect_tooltip = RivCol_capitulation_TT
 			}
+
+			actually_fix_weapon_techs = yes
+			FROM = { actually_fix_weapon_techs = yes }
 		}
 	}
 
@@ -1808,6 +1812,9 @@ on_actions = {
 			}
 
 			FROM = { ROOT = { apply_cosmetic_tags_on_puppet_PREV_is_overlord = yes } }
+
+			actually_fix_weapon_techs = yes
+			FROM = { actually_fix_weapon_techs = yes }
 		}
 	}
 
@@ -2266,10 +2273,20 @@ on_actions = {
 					original_tag = EQS
 					has_government = democratic
 					is_in_faction_with = EQC
-					FROM = { tag = CHN }
+					FROM = { 
+						OR = {
+							tag = CHN 
+							tag = NLR
+						}
+					}
 					EQC = {
 						exists = yes
 						has_capitulated = no
+						NOT = {
+							any_owned_state = {
+								is_controlled_by = FROM
+							}
+						}
 						#all_owned_state = {
 						#	is_fully_controlled_by = EQC
 						#}
@@ -2277,11 +2294,14 @@ on_actions = {
 					#EQC = { has_completed_focus = EQC_strengthen_equestrian_ties }
 				}
 				EQC = {
-					ROOT = {
-						transfer_navy = { target = EQC }
-						every_navy_leader = {
-							set_unit_leader_flag = used_to_be_EQS
-							set_nationality = EQC
+					if = {
+						limit = { FROM = { tag = CHN } }
+						ROOT = {
+							transfer_navy = { target = EQC }
+							every_navy_leader = {
+								set_unit_leader_flag = used_to_be_EQS
+								set_nationality = EQC
+							}
 						}
 					}
 					if = {
@@ -2293,11 +2313,38 @@ on_actions = {
 						leave_faction = yes
 					}
 					if = {
-						limit = { has_war_with = CHN }
+						limit = { has_war_with = FROM }
 						set_country_flag = { flag = bypass_on_peaceconference_ended days = 1 value = 1 }
-						white_peace = CHN
+						white_peace = FROM
 					}
-					set_country_flag = EQC_govt_in_exile
+					if = {
+						limit = { FROM = { tag = CHN } }
+						set_country_flag = EQC_govt_in_exile
+					}
+					else_if = {
+						limit = { FROM = { is_ai = no } }
+						FROM = {
+							create_wargoal = { target = ROOT type = puppet_wargoal_focus }
+						}
+					}
+				}
+			}
+			if = {
+				limit = {
+					tag = BAL
+				}
+				if = {
+					limit = {
+						SIC = {
+							exists = yes
+						}
+					}
+					SIC = {
+						country_event = {
+							id = baltimare.28
+							days = 7
+						}
+					}
 				}
 			}
 			if = {
@@ -2476,6 +2523,9 @@ on_actions = {
 
 			JER_complete_focuses_based_on_overlord = yes
 			BRF_load_mason_focus = yes
+
+			actually_fix_weapon_techs = yes
+			FROM = { actually_fix_weapon_techs = yes }
 		}
 	}
 
@@ -3796,6 +3846,7 @@ on_actions = {
 		effect = {
 			update_global_arrays = yes
 			adjust_research_modifier = yes
+			actually_fix_weapon_techs = yes
 			if = {
 				limit = {
 					NOT = { has_global_flag = river_federation_founded }
