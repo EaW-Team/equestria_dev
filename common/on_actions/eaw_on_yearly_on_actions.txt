@@ -1,69 +1,142 @@
 on_actions = {
-
 	on_startup = { # on_daily is executed before on_startup
-		effect = {
+		effect = { # Note: on_daily can work with scripted effects, but on_startup can't (I tried to do this, but on_startup just ignores all scripts that are without scopes; version: 1.7.1)
 			add_to_variable = { global.next_month = 1 }
+			
+			log = "[GetYear]: on_YEARLY" # duplicated part
+			NTR = {
+				# Winter stuff
+				country_event = { id = Ntribes.905 days = 120 random = 360 } # May(beginning-middle)
+				country_event = { id = Ntribes.904 days = 273 } # October
+				
+				# Famine stuff
+				if = {
+					limit = { has_country_flag = NTR_agricultural_support_was_provided }
+					clr_country_flag = NTR_agricultural_support_was_provided
+				}
+				
+				country_event = { id = Ntribes.997 days = 273 random = 744 } # October-November
+				country_event = { id = Ntribes.996 days = 334 random = 1488 } # December-February
+			}
 		}
 	}
-
+	
 	# ROOT is country, this is ran for every country
 	on_daily = {
 		effect = {
-			# ON YEARLY
-			if = {
-				#don't touch!
-				limit = { 
-					NOT = { 
-						check_variable = { global.last_year = global.year }
-						has_global_flag = on_yearly_done
-					}
-				}
-				#this is done only ONCE per year, even though on_daily fires for every country
-				#will also be done on startup
-				log = "[GetDateText] on_yearly"
-
-				#your code here
-				SRS = { country_event = socrep_grif.76 }
-				
-				#don't touch!
-				set_variable = { global.last_year = global.year }
-				set_global_flag = { flag = on_yearly_done value = 1 days = 1 }
-			}
-
 			# ON MONTHLY
 			if = {
 				# don't touch!
 				limit = {
-					NOT = { 
-						has_global_flag = on_monthly_done
-					}
+					NOT = { has_global_flag = on_monthly_done }
 					meta_trigger = {
 						text = {
-							date > [YEAR].[MONTH].1
+							date > [YEAR].[MONTH].1 # It seems that the zero day of the month is its last day
 						}
 						YEAR = "[?global.year]"
 						MONTH = "[?global.next_month]"
 					}
 				}
+				
+				log = "[GetMonth]: [Root.GetName]: on_MONTHLY"
+				
 				add_to_variable = { global.month = 1 }
 				add_to_variable = { global.next_month = 1 }
 				set_global_flag = { flag = on_monthly_done value = 1 days = 27 }
-				if = {
+				
+				if = { # ON YEARLY was included in the check for January, since this is a more logical IMO.
 					limit = { check_variable = { global.month > 12 } }
 					set_variable = { global.month = 1 }
+					
+					log = "[GetDateText] on_YEARLY"
+					# duplicate your code on_startup as well (because autistic paradox scripted effects doesn't normally works with on_startup)
+					
+					SRS = { country_event = socrep_grif.76 }
+					
+					NTR = {
+						# Winter stuff
+						country_event = { id = Ntribes.905 days = 120 random = 360 } # May(beginning-middle)
+						country_event = { id = Ntribes.904 days = 273 } # October
+						
+						# Famine stuff
+						if = {
+							limit = { has_country_flag = NTR_agricultural_support_was_provided }
+							clr_country_flag = NTR_agricultural_support_was_provided
+						}
+						
+						country_event = { id = Ntribes.997 days = 273 random = 744 } # October-November
+						country_event = { id = Ntribes.996 days = 334 random = 1488 } # December-February
+					}
 				}
+				
 				if = {
 					limit = { check_variable = { global.next_month > 12 } }
 					set_variable = { global.next_month = 1 }
 					set_global_flag = { flag = on_monthly_done value = 1 days = 31 }
 				}
+				
 				# this is done only ONCE per month, even though on_daily fires for every country
 				# will also be done on startup
-
+				
 				# your code here
-
+				if = {
+					limit = {
+						OR = {
+							check_variable = { global.month < 6 }
+							check_variable = { global.month > 9 }
+						}
+					}
+					
+					if = {
+						limit = {
+							OR = {
+								check_variable = { global.month = 4 }
+								check_variable = { global.month = 10 }
+							}
+						}
+						NTR = {
+							if = {
+								limit = {
+									has_country_flag = moderate_winter
+								}
+								clr_country_flag = moderate_winter
+							}
+							set_country_flag = soft_winter
+							adjust_northern_winter_modifier = yes
+						}
+					}
+					
+					else_if = {
+						limit = {
+							OR = {
+								check_variable = { global.month = 3 }
+								check_variable = { global.month = 11 }
+							}
+						}
+						NTR = {
+							if = {
+								limit = {
+									has_country_flag = soft_winter
+								}
+								clr_country_flag = soft_winter
+							}
+							set_country_flag = moderate_winter
+							adjust_northern_winter_modifier = yes
+						}
+					}
+					
+					else = {
+						NTR = {
+							if = {
+								limit = {
+									has_country_flag = moderate_winter
+								}
+								clr_country_flag = moderate_winter
+							}
+						}
+					}
+				}
 			}
 		}
 	}
-
 }
