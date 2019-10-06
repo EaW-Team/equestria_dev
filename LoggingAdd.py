@@ -38,7 +38,6 @@ def focus(cpath):
     ttime = 0
     #immediate = {log = "Focus id: "+ id + "\n"}  # autolog
     for filename in listdir(os.path.join(cpath, "common", "national_focus")):
-        print(filename)
         if ".txt" in filename:
             file = open(os.path.join(cpath, "common", "national_focus", filename), 'r', 'utf-8')
             size = os.path.getsize(os.path.join(cpath, "common", "national_focus", filename))
@@ -117,7 +116,6 @@ def event(cpath):
     ttime = 0
     # immediate = {log = "[Root.GetName]: event "+ id + "\n"}  # autolog
     for filename in listdir(os.path.join(cpath, "events")):
-        print(filename)
         if ".txt" in filename:
             file = open(os.path.join(cpath, "events", filename), 'r', 'utf-8-sig')
             try:
@@ -141,7 +139,7 @@ def event(cpath):
                     continue
                 if '#' in line:
                     line = line.split('#')[0]
-                if 'country_event' in line or 'news_event' in line or 'unit_leader_event' in line: #New Event
+                if 'country_event' in line or 'news_event' in line or 'unit_leader_event' in line or 'state_event' in line: #New Event
                     if check_triggered(line_number, lines) is False:
                         if "}" not in line or "days" not in line:
                             new_event = True
@@ -155,7 +153,7 @@ def event(cpath):
                         triggered = True
                         new_event = False
                 if line.strip().startswith('id') and new_event is True and 'immediate = {log =' not in lines[line_number+1]:
-                    if 'log = ' not in lines[line_number+1]:
+                    if 'log = ' not in lines[line_number+1] and 'hours' not in lines[line_number+1] and 'hours' not in lines[line_number] and 'days' not in lines[line_number+1] and 'days' not in lines[line_number]:
                         if triggered is False:
                             new_event = False
                             event_id = line.split('=')[1].strip()
@@ -173,9 +171,8 @@ def event(cpath):
                 if line_number in ids:
                     extra = ""
                     event_id = idss[ids.index(line_number)]
-                    if '#' in event_id:
-                        event_id = event_id.split('#')[0].strip()
-                        extra = "#" + event_id.split('#')[len(event_id.split('#'))-1].strip()
+                    if '#' in line:
+                        extra = " #" + line.split('#')[len(line.split('#'))-1].strip()
                     if '.' not in event_id:
                         outputfile.write(line)
                         continue
@@ -244,6 +241,8 @@ def idea(cpath):
 
 
 
+
+
     time1 = time.time() - timestart
     #Second Bit
 
@@ -252,139 +251,126 @@ def idea(cpath):
     return ttime
 
 
-def decision(cpath):
-    ttime = 0
-    # log = "[GetDateText] [Root.GetName]: decision (remove) name"
-    #common\decisions
-    #for filename in listdir(cpath + "\\common\\decisions"):
+def decision_improved(cpath):
+
+    timestart = time.time()
+
+    # log = "[GetDateText] [Root.GetName]: decision (remove) name (target: [From.GetName])"
+
+    # Thanks Yard Very Cool
     for filename in listdir(os.path.join(cpath, "common", "decisions")):
+
+        # listdir also provides directories and this is very annoying thank you very much
         if 'categories' in filename:
             continue
-        if ".txt" in filename:
-            file = open(os.path.join(cpath, "common", "decisions", filename), 'r', 'utf-8')
-            size = os.path.getsize(os.path.join(cpath, "common", "decisions", filename))
-            if size < 100:
-                continue
-            lines = file.readlines()
-            line_number = 0
-            level = 0
-            ids = [] #array of the names
-            idss = [] #line numbers of completion effect
-            idsss = [] #line numbers of remove effect
-            idssss = [] #line numbers of imteout_effect
-            timestart = time.time()
-            found_one = False
-            for line in lines:
-                line_number += 1
-                if '#' in line:
-                    if line.strip().startswith("#") is True:
-                        continue
-                    else:
-                        line = line.split('#')[0]
-                if '= {' in line or '={' in line:
-                    if level == 1:
-                        if found_one is False:
-                            try:
-                                ids.pop()
-                            except IndexError:
-                                found_one = False
-                        else:
-                            found_one = False
-                        ids.append(line.split('=')[0].strip())
-                if 'complete_effect' in line:
-                    if '[Root.GetName]:' not in lines[line_number] and 'log = \"[GetDateText]:' not in line:
-                            #print(lines[line_number])
-                            idss.append(line_number)
-                            found_one = True
-                if 'remove_effect' in line:
-                    if 'log = \"[GetDateText]:' not in lines[line_number] and 'log = \"[GetDateText]:' not in line:
-                            idsss.append(line_number)
-                            found_one = True
-                if 'timeout_effect' in line:
-                    if 'log = \"[GetDateText]:' not in lines[line_number] and 'log = \"[GetDateText]:' not in line:
-                            idssss.append(line_number)
-                            found_one = True
-                if '{' in line:
-                    level += line.count('{')
-                if '}' in line:
-                    level -= line.count('}')
-            if found_one is False:
-                try:
-                    ids.pop()
-                except IndexError:
-                    found_one = False
-            file.close()
-            time1 = time.time() - timestart
-            line_number = 0
-            backup_index = 0
-            if ids == []:
-                continue
-            outputfile = open(os.path.join(cpath, "common", "decisions", filename), 'w', 'utf-8')
-            outputfile.truncate()
-            dec_id = ""
-            dec_bu = ""
-            index_wip = 0
-            level = 0
-            if ids == []:
-                continue
-            for line in lines:
-                line_number += 1
-                if line.strip().startswith('#'):
-                    outputfile.write(line)
-                    continue
-                if '= {' in line or '={' in line:
-                    if level == 1:
-                        try:
-                            dec_id = ids[index_wip]
-                        except IndexError:
-                            print(filename + ", " + line_number.__str__() + ", " + index_wip.__str__())
-                        index_wip += 1
-                if dec_id in ["{", "}"]:
-                    dec_id = "Error, focus name not found"
-                if line_number in idss:
-                    if '}' in line:
-                        temp = line.split("{")
-                        replacement_text = temp[0] + "{\n\n\t\t\tlog = \"[GetDateText]: [Root.GetName]: Decision " + dec_id + "\"\n" + "{".join(temp)[len(temp[0])+1:] + "\n"
-                    else:
-                        replacement_text = "\t\tcomplete_effect = {\n\t\t\tlog = \"[GetDateText]: [Root.GetName]: Decision " + dec_id + "\"\n"
-                    outputfile.write(replacement_text)
-                    #print("Inserted loc at {0} in file {1}".format(line_number.__str__(), filename))
-                elif line_number in idsss:
-                    if '}' in line:
-                        temp = line.split("{")
-                        replacement_text = temp[0] + "{\n\n\t\t\tlog = \"[GetDateText]: [Root.GetName]: Decision remove " + dec_id + "\"\n" + "{".join(temp)[len(temp[0])+1:] + "\n"
-                    else:
-                        replacement_text = "\t\tremove_effect = {\n\t\t\tlog = \"[GetDateText]: [Root.GetName]: Decision remove " + dec_id + "\"\n"
-                    outputfile.write(replacement_text)
-                    #print("Inserted remove loc at {0} in file {1}".format(line_number.__str__(), filename))
-                elif line_number in idssss:
-                    if dec_id is "":
-                        dec_id = ids[backup_index]
-                    elif dec_id == dec_bu:
-                        dec_id = ids[backup_index+1]
-                    dec_bu = dec_id
-                    if '}' in line:
-                        temp = line.split("{")
-                        replacement_text = temp[0] + "{\n\n\t\t\tlog = \"[GetDateText]: [Root.GetName]: Decision timeout " + dec_id + "\"\n" + "{".join(temp)[len(temp[0])+1:] + "\n"
-                    else:
-                        replacement_text = "\t\ttimeout_effect = {\n\t\t\tlog = \"[GetDateText]: [Root.GetName]: Decision timeout " + dec_id + "\"\n"
-                    outputfile.write(replacement_text)
-                    #print("Inserted remove loc at {0} in file {1}".format(line_number.__str__(), filename))
-                else:
-                    outputfile.write(line)
-                if '#' in line:
-                    line_2 = line.split('#')[0]
-                else:
-                    line_2 = line
-                if '{' in line_2:
-                    level += line.count('{')
-                if '}' in line_2:
-                    level -= line.count('}')
-            time2 = time.time() - timestart - time1
 
-            #print(filename + " 1: %.3f ms  2: %.3f ms" % (time1*1000, time2*1000))
-            ttime += time1 + time2
-    return ttime
+        # We gottem boys
+        # This check is here because sometimes smart people put other files in this directory
+        if ".txt" in filename:
+            # Open that sucker right up
+            with open(os.path.join(cpath, "common", "decisions", filename), 'r', 'utf-8') as file:
+
+                # Because this scripts hates empty files, we just ignore all that are below 100 bytes
+                if os.path.getsize(os.path.join(cpath, "common", "decisions", filename)) < 100:
+                    continue
+
+                # Get them lines
+                lines = file.readlines()
+
+                # This is the var that indicates the bracket level
+                level = 0
+
+                # The dictionary that will hold all our stuff
+                found_decisions = {}  # Numbers denote line numbers: decision_name: [complete_effect, remove_effect, timeout_effect, targeted_decision_bool]
+
+                # Loop over all lines this file to detect where the decisions are
+                for line_number, line in enumerate(lines):
+
+                    # If the line is a comment, we skip it, and if it contains a comment, strip it out
+                    if '#' in line:
+                        if line.strip().startswith("#") is True:
+                            continue
+                        else:
+                            line = line.split('#')[0]
+
+                    # Check for a ={ and the right level denoting a new decision
+                    if ('= {' in line or '={' in line) and level == 1:
+
+                        # Keep track of the latest decision found
+                        latest_found = line_number
+                        # Add an default reference to this decision
+                        found_decisions[line_number] = [0, 0, 0, False]
+
+                    if 'complete_effect' in line:
+                        found_decisions[latest_found][0] = line_number
+
+                    elif 'remove_effect' in line:
+                        found_decisions[latest_found][1] = line_number
+
+                    elif 'timeout_effect' in line:
+                        found_decisions[latest_found][2] = line_number
+
+                    elif 'target_trigger' in line or 'targets' in line:
+                        found_decisions[latest_found][3] = True
+
+                    if '{' in line:
+                        level += line.count('{')
+                    if '}' in line:
+                        level -= line.count('}')
+
+
+            if found_decisions == {}:
+                continue
+
+            id = ""
+            index = [-1, -1, -1, False]
+
+            main_line_numbers = list(found_decisions.keys())
+
+            with open(os.path.join(cpath, "common", "decisions", filename), 'w', 'utf-8') as outputfile:
+                outputfile.truncate()
+
+                for line_number, line in enumerate(lines):
+
+                    if line.strip().startswith('#'):
+                        outputfile.write(line)
+                        continue
+
+                    replacement_text = line
+
+                    if line_number in main_line_numbers:
+                        index = found_decisions[line_number]
+
+                        id = line.split('=')[0].strip()
+
+                        if index[3] is True:
+                            id += " target: [From.GetName]"
+
+                    elif line_number == index[0]:
+                        if '}' in line:
+                            temp = line.split("{")
+                            replacement_text = temp[0] + "{\n\n\t\t\tlog = \"[GetDateText]: [Root.GetName]: Decision " + id + "\"\n" + "{".join(temp)[len(temp[0]) + 1:] + "\n"
+                        else:
+                            replacement_text = "\t\tcomplete_effect = {\n\t\t\tlog = \"[GetDateText]: [Root.GetName]: Decision " + id + "\"\n"
+
+                    elif line_number == index[1]:
+                        if '}' in line:
+                            temp = line.split("{")
+                            replacement_text = temp[0] + "{\n\n\t\t\tlog = \"[GetDateText]: [Root.GetName]: Decision remove " + id + "\"\n" + "{".join(temp)[len(temp[0]) + 1:] + "\n"
+                        else:
+                            replacement_text = "\t\tremove_effect = {\n\t\t\tlog = \"[GetDateText]: [Root.GetName]: Decision remove " + id + "\"\n"
+
+                    elif line_number == index[2]:
+                        if '}' in line:
+                            temp = line.split("{")
+                            replacement_text = temp[0] + "{\n\n\t\t\tlog = \"[GetDateText]: [Root.GetName]: Decision timeout " + id + "\"\n" + "{".join(temp)[len(temp[0]) + 1:] + "\n"
+                        else:
+                            replacement_text = "\t\ttimeout_effect = {\n\t\t\tlog = \"[GetDateText]: [Root.GetName]: Decision timeout " + id + "\"\n"
+
+
+                    outputfile.write(replacement_text)
+
+    return time.time() - timestart
 
 def tech(cpath):
     ttime = time.time()
@@ -442,6 +428,7 @@ def tech(cpath):
 
 def main():
     cpath = sys.argv[1]
+
     ok = 0
     for string in sys.argv:
         if ok < 2:
@@ -454,7 +441,7 @@ def main():
     ttime += event(cpath)
     ttime += focus(cpath)
     #ttime += idea(cpath)
-    ttime += decision(cpath)
+    ttime += decision_improved(cpath)
     #ttime += tech(cpath)
     print("Total Time: %.3f ms" % (ttime * 1000))
 

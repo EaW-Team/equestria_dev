@@ -1,0 +1,69 @@
+on_actions = {
+
+	on_startup = { # on_daily is executed before on_startup
+		effect = {
+			add_to_variable = { global.next_month = 1 }
+		}
+	}
+
+	# ROOT is country, this is ran for every country
+	on_daily = {
+		effect = {
+			# ON YEARLY
+			if = {
+				#don't touch!
+				limit = { 
+					NOT = { 
+						check_variable = { global.last_year = global.year }
+						has_global_flag = on_yearly_done
+					}
+				}
+				#this is done only ONCE per year, even though on_daily fires for every country
+				#will also be done on startup
+				log = "[GetDateText] on_yearly"
+
+				#your code here
+				SRS = { country_event = socrep_grif.76 }
+				
+				#don't touch!
+				set_variable = { global.last_year = global.year }
+				set_global_flag = { flag = on_yearly_done value = 1 days = 1 }
+			}
+
+			# ON MONTHLY
+			if = {
+				# don't touch!
+				limit = {
+					NOT = { 
+						has_global_flag = on_monthly_done
+					}
+					meta_trigger = {
+						text = {
+							date > [YEAR].[MONTH].1
+						}
+						YEAR = "[?global.year]"
+						MONTH = "[?global.next_month]"
+					}
+				}
+				add_to_variable = { global.month = 1 }
+				add_to_variable = { global.next_month = 1 }
+				set_global_flag = { flag = on_monthly_done value = 1 days = 27 }
+				if = {
+					limit = { check_variable = { global.month > 12 } }
+					set_variable = { global.month = 1 }
+				}
+				if = {
+					limit = { check_variable = { global.next_month > 12 } }
+					set_variable = { global.next_month = 1 }
+					set_global_flag = { flag = on_monthly_done value = 1 days = 31 }
+				}
+				# this is done only ONCE per month, even though on_daily fires for every country
+				# will also be done on startup
+
+				# your code here
+
+			}
+		}
+	}
+
+}

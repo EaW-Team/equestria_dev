@@ -1,0 +1,4789 @@
+SRS_political_discussion = {
+	SRS_elections_timer = {
+		icon = eng_propaganda_campaigns
+		activation = { 
+			always = yes 
+			has_government = communism
+			has_country_flag = SRS_the_game_has_begun
+			NOT = { has_country_flag = SRS_turned_into_the_PGSC }
+			NOT = { has_country_flag = SRS_suspended_the_general_congress }
+		}
+		available = { always = no }
+		is_good = yes
+		days_mission_timeout = 123
+		timeout_effect = {
+			log = "[GetDateText]: [Root.GetName]: Decision timeout SRS_elections_timer"
+			country_event = socrep_grif.8
+		}
+	}
+	SRS_communalist_decision_cooldown = {
+		activation = { 
+			always = no 
+			has_government = communism
+			NOT = { has_country_flag = SRS_turned_into_the_PGSC }
+		}
+		available = { always = no }
+		is_good = yes
+		days_mission_timeout = 10
+		timeout_effect = {
+			log = "[GetDateText]: [Root.GetName]: Decision timeout SRS_communalist_decision_cooldown"
+			clr_country_flag = SRS_communalist_decision_cooldown_in_progress
+			remove_mission = SRS_communalist_decision_cooldown
+			custom_effect_tooltip = SRS_reenables_communalist_decisions
+		}
+	}
+	SRS_internationalist_decision_cooldown = {
+		activation = { 
+			always = no 
+			has_government = communism
+			NOT = { has_country_flag = SRS_turned_into_the_PGSC }
+		}
+		available = { always = no }
+		is_good = yes
+		days_mission_timeout = 10
+		timeout_effect = {
+			log = "[GetDateText]: [Root.GetName]: Decision timeout SRS_internationalist_decision_cooldown"
+			clr_country_flag = SRS_internationalist_decision_cooldown_in_progress
+			remove_mission = SRS_internationalist_decision_cooldown
+			custom_effect_tooltip = SRS_reenables_internationalist_decisions
+		}
+	}
+	SRS_suspend_the_congress = {
+		icon = griffon
+		allowed = {
+			tag = SRS
+		}
+		visible = {
+			has_war = yes
+			OR = { 
+				surrender_progress > 0.05
+				casualties > 15000
+			}
+		}
+		available = { 
+			surrender_progress > 0.20
+		}
+		ai_will_do = {
+			factor = 0
+		}
+		cost = 50
+		days_remove = 250
+		fire_only_once = no
+		days_re_enable = 50
+		complete_effect = {
+			log = "[GetDateText]: [Root.GetName]: Decision SRS_suspend_the_congress"
+			create_country_leader = {
+				name = "Asper Sickleclaw"
+				desc = ""
+				picture = "provisional_sickleclaw.tga"
+				expire = "1965.1.1"
+				ideology = leninism
+				traits = { dictator generallissimo }
+			}
+			if = {
+				limit = { has_idea = SRS_the_general_congress }
+				remove_ideas = SRS_the_general_congress
+				set_country_flag = removed_idea_SRS_the_general_congress_og
+			}
+			if = {
+				limit = { has_idea = SRS_the_general_congress_1 }
+				remove_ideas = SRS_the_general_congress_1
+				set_country_flag = removed_idea_SRS_the_general_congress_1 
+			}
+			set_country_flag = SRS_suspended_the_general_congress 
+			remove_mission = SRS_elections_timer
+		}
+		modifier = {
+			conscription_factor = 0.02
+			army_core_attack_factor = 0.1
+			army_core_defence_factor = 0.1
+			industrial_capacity_factory = 0.1
+			war_support_factor = 0.05
+			political_power_factor = 0.05
+			stability_factor = 0.05
+		}
+		remove_effect = {
+			log = "[GetDateText]: [Root.GetName]: Decision remove SRS_suspend_the_congress"
+			country_event = socrep_grif.30
+		}
+	}
+	SRS_raise_communal_militias = {
+		icon = generic_prepare_civil_war
+		allowed = {
+			tag = SRS
+		}
+		visible = {
+		}
+		available = {
+			NOT = { has_country_flag = SRS_internationalist_decision_cooldown_in_progress }
+			is_subject = no
+			custom_trigger_tooltip = {
+				tooltip = SRS_internationalist_delagates_tt_30
+				check_variable = { internationalists_support_var > 29 }
+			}
+		}
+		ai_will_do = {
+			factor = 10
+			modifier = {
+				factor = 100
+				has_war = yes
+			}
+		}
+		cost = 40
+		days_remove = 150
+		fire_only_once = no
+		days_re_enable = 70
+		modifier = {
+			political_power_factor = -0.1
+		}
+		complete_effect = {
+			log = "[GetDateText]: [Root.GetName]: Decision SRS_raise_communal_militias"
+			set_country_flag = SRS_internationalist_decision_cooldown_in_progress
+			activate_mission = SRS_internationalist_decision_cooldown
+			add_to_variable = { var = displeasure_towards_internationalists_var value = 1 }
+			set_variable = { total_sum_of_internationalist_and_communalist_displeasure = 0 }
+			add_to_variable = { total_sum_of_internationalist_and_communalist_displeasure = displeasure_towards_communards_var } 
+			add_to_variable = { total_sum_of_internationalist_and_communalist_displeasure = displeasure_towards_internationalists_var } 
+			set_temp_variable = { internationalist_displeasure_as_a_percentage_ersatz = displeasure_towards_internationalists_var }
+			divide_temp_variable = { internationalist_displeasure_as_a_percentage_ersatz = total_sum_of_internationalist_and_communalist_displeasure }
+			set_variable = { internationalist_displeasure_as_a_percentage = internationalist_displeasure_as_a_percentage_ersatz }
+			set_temp_variable = { communalist_displeasure_as_a_percentage_ersatz = displeasure_towards_communards_var }
+			divide_temp_variable = { communalist_displeasure_as_a_percentage_ersatz = total_sum_of_internationalist_and_communalist_displeasure }
+			set_variable = { communalist_displeasure_as_a_percentage = communalist_displeasure_as_a_percentage_ersatz }
+			custom_effect_tooltip = SRS_call_up_communal_militias_decision_tt
+			hidden_effect = {
+				division_template = {
+					name = "Commune Militia"
+					is_locked = yes
+					regiments = {
+						infantry = { x = 0 y = 0 }
+						infantry = { x = 0 y = 1 }
+					}
+				}
+				random_owned_controlled_state = {
+					create_unit = { division = "name = \"Skynavian Commune Militia\" division_template = \"Commune Militia\" start_experience_factor = 0.3" 
+					owner = SRS }
+					create_unit = { division = "name = \"Ostfloy Commune Militia\" division_template = \"Commune Militia\" start_experience_factor = 0.3" 
+					owner = SRS }
+					create_unit = { division = "name = \"Littlegriff Commune Militia\" division_template = \"Commune Militia\" start_experience_factor = 0.3" 
+					owner = SRS }
+					create_unit = { division = "name = \"Braunles Commune Militia\" division_template = \"Commune Militia\" start_experience_factor = 0.3" 
+					owner = SRS }
+					create_unit = { division = "name = \"Hail Forest Commune Militia\" division_template = \"Commune Militia\" start_experience_factor = 0.3" 
+					owner = SRS }
+					create_unit = { division = "name = \"Free Rifle Brigade\" division_template = \"Commune Militia\" start_experience_factor = 0.45" 
+					owner = SRS }
+				}
+			}
+		}
+		remove_effect = {
+			log = "[GetDateText]: [Root.GetName]: Decision remove SRS_raise_communal_militias"
+			delete_unit_template_and_units = { division_template = "Commune Militia" }
+		}
+	}
+	SRS_coopt_communal_manufactories = {
+		icon = generic_industry
+		allowed = {
+			tag = SRS
+		}
+		visible = {
+		}
+		available = {
+			NOT = { has_country_flag = SRS_internationalist_decision_cooldown_in_progress }
+			is_subject = no
+			custom_trigger_tooltip = {
+				tooltip = SRS_internationalist_delagates_tt_30
+				check_variable = { internationalists_support_var > 29 }
+			}
+		}
+		ai_will_do = {
+			factor = 10
+			modifier = {
+				factor = 100
+				has_war = yes
+			}
+		}
+		cost = 40
+		days_remove = 120
+		fire_only_once = no
+		days_re_enable = 120
+		modifier = {
+			political_power_factor = -0.1
+			production_factory_max_efficiency_factor = 0.1
+			consumer_goods_factor = 0.05
+		}
+		complete_effect = {
+			log = "[GetDateText]: [Root.GetName]: Decision SRS_coopt_communal_manufactories"
+			set_country_flag = SRS_internationalist_decision_cooldown_in_progress
+			activate_mission = SRS_internationalist_decision_cooldown
+			add_to_variable = { var = displeasure_towards_internationalists_var value = 1 }
+			set_variable = { total_sum_of_internationalist_and_communalist_displeasure = 0 }
+			add_to_variable = { total_sum_of_internationalist_and_communalist_displeasure = displeasure_towards_communards_var } 
+			add_to_variable = { total_sum_of_internationalist_and_communalist_displeasure = displeasure_towards_internationalists_var } 
+			set_temp_variable = { internationalist_displeasure_as_a_percentage_ersatz = displeasure_towards_internationalists_var }
+			divide_temp_variable = { internationalist_displeasure_as_a_percentage_ersatz = total_sum_of_internationalist_and_communalist_displeasure }
+			set_variable = { internationalist_displeasure_as_a_percentage = internationalist_displeasure_as_a_percentage_ersatz }
+			set_temp_variable = { communalist_displeasure_as_a_percentage_ersatz = displeasure_towards_communards_var }
+			divide_temp_variable = { communalist_displeasure_as_a_percentage_ersatz = total_sum_of_internationalist_and_communalist_displeasure }
+			set_variable = { communalist_displeasure_as_a_percentage = communalist_displeasure_as_a_percentage_ersatz }
+		}
+	}
+	SRS_braunles_fortresses = {
+		icon = bunker
+		allowed = {
+			tag = SRS
+		}
+		visible = {
+		}
+		available = {
+			NOT = { has_country_flag = SRS_internationalist_decision_cooldown_in_progress }
+			is_subject = no
+			custom_trigger_tooltip = {
+				tooltip = SRS_internationalist_delagates_tt_30
+				check_variable = { internationalists_support_var > 29 }
+			}
+			has_completed_focus = SRS_military_tree
+			num_of_civilian_factories_available_for_projects > 1
+			has_country_flag = SRS_northern_war_has_been_resolved
+		}
+		ai_will_do = {
+			factor = 60
+		}
+		cost = 40
+		days_remove = 70
+		fire_only_once = yes
+		highlight_provinces = {
+			1737
+			4413
+			12890
+			2074
+			1943
+		}
+		modifier = {
+			civilian_factory_use = 1
+		}
+		complete_effect = {
+			log = "[GetDateText]: [Root.GetName]: Decision SRS_braunles_fortresses"
+			set_country_flag = SRS_internationalist_decision_cooldown_in_progress
+			activate_mission = SRS_internationalist_decision_cooldown
+			add_to_variable = { var = displeasure_towards_internationalists_var value = 1 }
+			set_variable = { total_sum_of_internationalist_and_communalist_displeasure = 0 }
+			add_to_variable = { total_sum_of_internationalist_and_communalist_displeasure = displeasure_towards_communards_var } 
+			add_to_variable = { total_sum_of_internationalist_and_communalist_displeasure = displeasure_towards_internationalists_var } 
+			set_temp_variable = { internationalist_displeasure_as_a_percentage_ersatz = displeasure_towards_internationalists_var }
+			divide_temp_variable = { internationalist_displeasure_as_a_percentage_ersatz = total_sum_of_internationalist_and_communalist_displeasure }
+			set_variable = { internationalist_displeasure_as_a_percentage = internationalist_displeasure_as_a_percentage_ersatz }
+			set_temp_variable = { communalist_displeasure_as_a_percentage_ersatz = displeasure_towards_communards_var }
+			divide_temp_variable = { communalist_displeasure_as_a_percentage_ersatz = total_sum_of_internationalist_and_communalist_displeasure }
+			set_variable = { communalist_displeasure_as_a_percentage = communalist_displeasure_as_a_percentage_ersatz }
+		}
+		remove_effect = {
+			log = "[GetDateText]: [Root.GetName]: Decision remove SRS_braunles_fortresses"
+			601 = {
+				add_building_construction = {
+					type = bunker
+					level = 2
+					instant_build = yes
+					province = 1737
+				}
+				add_building_construction = {
+					type = bunker
+					level = 2
+					instant_build = yes
+					province = 4413
+				}
+				add_building_construction = {
+					type = bunker
+					level = 2
+					instant_build = yes
+					province = 12890
+				}
+				add_building_construction = {
+					type = bunker
+					level = 2
+					instant_build = yes
+					province = 2074
+				}
+				add_building_construction = {
+					type = bunker
+					level = 2
+					instant_build = yes
+					province = 1943
+				}
+			}
+			set_country_flag = SRS_constructed_the_braunles_fortresses
+		}
+	}
+	SRS_braunles_redoubt = {
+		icon = bunker
+		allowed = {
+			tag = SRS
+		}
+		visible = {
+		}
+		available = {
+			NOT = { has_country_flag = SRS_internationalist_decision_cooldown_in_progress }
+			is_subject = no
+			custom_trigger_tooltip = {
+				tooltip = SRS_internationalist_delagates_tt_30
+				check_variable = { internationalists_support_var > 29 }
+			}
+			has_completed_focus = SRS_military_tree
+			num_of_civilian_factories_available_for_projects > 1
+			has_country_flag = SRS_constructed_the_braunles_fortresses
+		}
+		ai_will_do = {
+			factor = 80
+		}
+		cost = 50
+		days_remove = 150
+		fire_only_once = yes
+		highlight_provinces = {
+			370
+			12864
+			1943
+		}
+		modifier = {
+			civilian_factory_use = 1
+		}
+		complete_effect = {
+			log = "[GetDateText]: [Root.GetName]: Decision SRS_braunles_redoubt"
+			set_country_flag = SRS_internationalist_decision_cooldown_in_progress
+			activate_mission = SRS_internationalist_decision_cooldown
+			add_to_variable = { var = displeasure_towards_internationalists_var value = 1 }
+			set_variable = { total_sum_of_internationalist_and_communalist_displeasure = 0 }
+			add_to_variable = { total_sum_of_internationalist_and_communalist_displeasure = displeasure_towards_communards_var } 
+			add_to_variable = { total_sum_of_internationalist_and_communalist_displeasure = displeasure_towards_internationalists_var } 
+			set_temp_variable = { internationalist_displeasure_as_a_percentage_ersatz = displeasure_towards_internationalists_var }
+			divide_temp_variable = { internationalist_displeasure_as_a_percentage_ersatz = total_sum_of_internationalist_and_communalist_displeasure }
+			set_variable = { internationalist_displeasure_as_a_percentage = internationalist_displeasure_as_a_percentage_ersatz }
+			set_temp_variable = { communalist_displeasure_as_a_percentage_ersatz = displeasure_towards_communards_var }
+			divide_temp_variable = { communalist_displeasure_as_a_percentage_ersatz = total_sum_of_internationalist_and_communalist_displeasure }
+			set_variable = { communalist_displeasure_as_a_percentage = communalist_displeasure_as_a_percentage_ersatz }
+		}
+		remove_effect = {
+			log = "[GetDateText]: [Root.GetName]: Decision remove SRS_braunles_redoubt"
+			601 = {
+				add_building_construction = {
+					type = bunker
+					level = 4
+					instant_build = yes
+					province = 12864
+				}
+				add_building_construction = {
+					type = bunker
+					level = 4
+					instant_build = yes
+					province = 370
+				}
+				add_building_construction = {
+					type = bunker
+					level = 2
+					instant_build = yes
+					province = 1943
+				}
+			}
+		}
+	}
+	SRS_welcome_foreign_fighters = {
+		icon = generic_form_nation
+		allowed = {
+			tag = SRS
+		}
+		visible = {
+		}
+		available = {
+			NOT = { has_country_flag = SRS_internationalist_decision_cooldown_in_progress }
+			is_subject = no
+			custom_trigger_tooltip = {
+				tooltip = SRS_internationalist_delagates_tt_30
+				check_variable = { internationalists_support_var > 29 }
+			}
+			has_country_flag = SRS_our_neighbours_have_been_liberated
+		}
+		ai_will_do = {
+			factor = 40
+		}
+		cost = 50
+		days_remove = 150
+		fire_only_once = no
+		days_re_enable = 70
+		modifier = {
+			weekly_manpower = 500
+		}
+		complete_effect = {
+			log = "[GetDateText]: [Root.GetName]: Decision SRS_welcome_foreign_fighters"
+			set_country_flag = SRS_internationalist_decision_cooldown_in_progress
+			activate_mission = SRS_internationalist_decision_cooldown
+			add_to_variable = { var = displeasure_towards_internationalists_var value = 1 }
+			set_variable = { total_sum_of_internationalist_and_communalist_displeasure = 0 }
+			add_to_variable = { total_sum_of_internationalist_and_communalist_displeasure = displeasure_towards_communards_var } 
+			add_to_variable = { total_sum_of_internationalist_and_communalist_displeasure = displeasure_towards_internationalists_var } 
+			set_temp_variable = { internationalist_displeasure_as_a_percentage_ersatz = displeasure_towards_internationalists_var }
+			divide_temp_variable = { internationalist_displeasure_as_a_percentage_ersatz = total_sum_of_internationalist_and_communalist_displeasure }
+			set_variable = { internationalist_displeasure_as_a_percentage = internationalist_displeasure_as_a_percentage_ersatz }
+			set_temp_variable = { communalist_displeasure_as_a_percentage_ersatz = displeasure_towards_communards_var }
+			divide_temp_variable = { communalist_displeasure_as_a_percentage_ersatz = total_sum_of_internationalist_and_communalist_displeasure }
+			set_variable = { communalist_displeasure_as_a_percentage = communalist_displeasure_as_a_percentage_ersatz }
+		}
+	}
+	SRS_appoint_carlini = {
+		icon = generic_army_support
+		allowed = {
+			tag = SRS
+		}
+		visible = {
+			has_unit_leader = 9871
+		}
+		available = {
+			NOT = { has_country_flag = SRS_internationalist_decision_cooldown_in_progress }
+			is_subject = no
+			custom_trigger_tooltip = {
+				tooltip = SRS_internationalist_delagates_tt_30
+				check_variable = { internationalists_support_var > 29 }
+			}
+		}
+		ai_will_do = {
+			factor = 50
+		}
+		cost = 50
+		days_remove = 30
+		fire_only_once = yes
+		modifier = {
+			political_power_factor = -0.05
+		}
+		complete_effect = {
+			log = "[GetDateText]: [Root.GetName]: Decision SRS_appoint_carlini"
+			set_country_flag = SRS_internationalist_decision_cooldown_in_progress
+			activate_mission = SRS_internationalist_decision_cooldown
+			add_to_variable = { var = displeasure_towards_internationalists_var value = 1 }
+			set_variable = { total_sum_of_internationalist_and_communalist_displeasure = 0 }
+			add_to_variable = { total_sum_of_internationalist_and_communalist_displeasure = displeasure_towards_communards_var } 
+			add_to_variable = { total_sum_of_internationalist_and_communalist_displeasure = displeasure_towards_internationalists_var } 
+			set_temp_variable = { internationalist_displeasure_as_a_percentage_ersatz = displeasure_towards_internationalists_var }
+			divide_temp_variable = { internationalist_displeasure_as_a_percentage_ersatz = total_sum_of_internationalist_and_communalist_displeasure }
+			set_variable = { internationalist_displeasure_as_a_percentage = internationalist_displeasure_as_a_percentage_ersatz }
+			set_temp_variable = { communalist_displeasure_as_a_percentage_ersatz = displeasure_towards_communards_var }
+			divide_temp_variable = { communalist_displeasure_as_a_percentage_ersatz = total_sum_of_internationalist_and_communalist_displeasure }
+			set_variable = { communalist_displeasure_as_a_percentage = communalist_displeasure_as_a_percentage_ersatz }
+		}
+		remove_effect = {
+			log = "[GetDateText]: [Root.GetName]: Decision remove SRS_appoint_carlini"
+			set_country_flag = SRS_unlocked_john_carlini_as_high_command
+			custom_effect_tooltip = available_military_high_command
+			show_ideas_tooltip = SRS_john_carlini
+		}
+	}
+	SRS_appoint_horson = {
+		icon = generic_army_support
+		allowed = {
+			tag = SRS
+		}
+		visible = {
+			has_unit_leader = 9870
+		}
+		available = {
+			NOT = { has_country_flag = SRS_internationalist_decision_cooldown_in_progress }
+			is_subject = no
+			custom_trigger_tooltip = {
+				tooltip = SRS_internationalist_delagates_tt_30
+				check_variable = { internationalists_support_var > 29 }
+			}
+		}
+		ai_will_do = {
+			factor = 50
+		}
+		cost = 50
+		days_remove = 30
+		fire_only_once = yes
+		modifier = {
+			political_power_factor = -0.05
+		}
+		complete_effect = {
+			log = "[GetDateText]: [Root.GetName]: Decision SRS_appoint_horson"
+			set_country_flag = SRS_internationalist_decision_cooldown_in_progress
+			activate_mission = SRS_internationalist_decision_cooldown
+			add_to_variable = { var = displeasure_towards_internationalists_var value = 1 }
+			set_variable = { total_sum_of_internationalist_and_communalist_displeasure = 0 }
+			add_to_variable = { total_sum_of_internationalist_and_communalist_displeasure = displeasure_towards_communards_var } 
+			add_to_variable = { total_sum_of_internationalist_and_communalist_displeasure = displeasure_towards_internationalists_var } 
+			set_temp_variable = { internationalist_displeasure_as_a_percentage_ersatz = displeasure_towards_internationalists_var }
+			divide_temp_variable = { internationalist_displeasure_as_a_percentage_ersatz = total_sum_of_internationalist_and_communalist_displeasure }
+			set_variable = { internationalist_displeasure_as_a_percentage = internationalist_displeasure_as_a_percentage_ersatz }
+			set_temp_variable = { communalist_displeasure_as_a_percentage_ersatz = displeasure_towards_communards_var }
+			divide_temp_variable = { communalist_displeasure_as_a_percentage_ersatz = total_sum_of_internationalist_and_communalist_displeasure }
+			set_variable = { communalist_displeasure_as_a_percentage = communalist_displeasure_as_a_percentage_ersatz }
+		}
+		remove_effect = {
+			log = "[GetDateText]: [Root.GetName]: Decision remove SRS_appoint_horson"
+			set_country_flag = SRS_unlocked_horson_welles_as_high_command
+			custom_effect_tooltip = available_military_high_command
+			show_ideas_tooltip = SRS_horson_welles
+		}
+	}
+	SRS_appoint_ponehon = {
+		icon = generic_army_support
+		allowed = {
+			tag = SRS
+		}
+		visible = {
+			has_unit_leader = 9873
+		}
+		available = {
+			NOT = { has_country_flag = SRS_internationalist_decision_cooldown_in_progress }
+			is_subject = no
+			custom_trigger_tooltip = {
+				tooltip = SRS_internationalist_delagates_tt_30
+				check_variable = { internationalists_support_var > 29 }
+			}
+		}
+		ai_will_do = {
+			factor = 50
+		}
+		cost = 50
+		days_remove = 30
+		fire_only_once = yes
+		modifier = {
+			political_power_factor = -0.05
+		}
+		complete_effect = {
+			log = "[GetDateText]: [Root.GetName]: Decision SRS_appoint_ponehon"
+			set_country_flag = SRS_internationalist_decision_cooldown_in_progress
+			activate_mission = SRS_internationalist_decision_cooldown
+			add_to_variable = { var = displeasure_towards_internationalists_var value = 1 }
+			set_variable = { total_sum_of_internationalist_and_communalist_displeasure = 0 }
+			add_to_variable = { total_sum_of_internationalist_and_communalist_displeasure = displeasure_towards_communards_var } 
+			add_to_variable = { total_sum_of_internationalist_and_communalist_displeasure = displeasure_towards_internationalists_var } 
+			set_temp_variable = { internationalist_displeasure_as_a_percentage_ersatz = displeasure_towards_internationalists_var }
+			divide_temp_variable = { internationalist_displeasure_as_a_percentage_ersatz = total_sum_of_internationalist_and_communalist_displeasure }
+			set_variable = { internationalist_displeasure_as_a_percentage = internationalist_displeasure_as_a_percentage_ersatz }
+			set_temp_variable = { communalist_displeasure_as_a_percentage_ersatz = displeasure_towards_communards_var }
+			divide_temp_variable = { communalist_displeasure_as_a_percentage_ersatz = total_sum_of_internationalist_and_communalist_displeasure }
+			set_variable = { communalist_displeasure_as_a_percentage = communalist_displeasure_as_a_percentage_ersatz }
+		}
+		remove_effect = {
+			log = "[GetDateText]: [Root.GetName]: Decision remove SRS_appoint_ponehon"
+			set_country_flag = SRS_unlocked_pierre_ponehon_as_high_command
+			custom_effect_tooltip = available_military_high_command
+			show_ideas_tooltip = SRS_pierre_ponehon
+		}
+	}
+	SRS_appoint_beakunin = {
+		icon = generic_army_support
+		allowed = {
+			tag = SRS
+		}
+		visible = {
+			has_unit_leader = 9872
+		}
+		available = {
+			NOT = { has_country_flag = SRS_internationalist_decision_cooldown_in_progress }
+			is_subject = no
+			custom_trigger_tooltip = {
+				tooltip = SRS_internationalist_delagates_tt_30
+				check_variable = { internationalists_support_var > 29 }
+			}
+		}
+		ai_will_do = {
+			factor = 50
+		}
+		cost = 50
+		days_remove = 30
+		fire_only_once = yes
+		modifier = {
+			political_power_factor = -0.05
+		}
+		complete_effect = {
+			log = "[GetDateText]: [Root.GetName]: Decision SRS_appoint_beakunin"
+			set_country_flag = SRS_internationalist_decision_cooldown_in_progress
+			activate_mission = SRS_internationalist_decision_cooldown
+			add_to_variable = { var = displeasure_towards_internationalists_var value = 1 }
+			set_variable = { total_sum_of_internationalist_and_communalist_displeasure = 0 }
+			add_to_variable = { total_sum_of_internationalist_and_communalist_displeasure = displeasure_towards_communards_var } 
+			add_to_variable = { total_sum_of_internationalist_and_communalist_displeasure = displeasure_towards_internationalists_var } 
+			set_temp_variable = { internationalist_displeasure_as_a_percentage_ersatz = displeasure_towards_internationalists_var }
+			divide_temp_variable = { internationalist_displeasure_as_a_percentage_ersatz = total_sum_of_internationalist_and_communalist_displeasure }
+			set_variable = { internationalist_displeasure_as_a_percentage = internationalist_displeasure_as_a_percentage_ersatz }
+			set_temp_variable = { communalist_displeasure_as_a_percentage_ersatz = displeasure_towards_communards_var }
+			divide_temp_variable = { communalist_displeasure_as_a_percentage_ersatz = total_sum_of_internationalist_and_communalist_displeasure }
+			set_variable = { communalist_displeasure_as_a_percentage = communalist_displeasure_as_a_percentage_ersatz }
+		}
+		remove_effect = {
+			log = "[GetDateText]: [Root.GetName]: Decision remove SRS_appoint_beakunin"
+			set_country_flag = SRS_unlocked_mikhail_beakunin_as_advisor
+			custom_effect_tooltip = available_political_advisor
+			show_ideas_tooltip = SRS_mikhail_beakunin
+		}
+	}
+	SRS_appoint_goldgriff = {
+		icon = generic_army_support
+		allowed = {
+			tag = SRS
+		}
+		visible = {
+			has_unit_leader = 9874
+		}
+		available = {
+			NOT = { has_country_flag = SRS_internationalist_decision_cooldown_in_progress }
+			is_subject = no
+			custom_trigger_tooltip = {
+				tooltip = SRS_internationalist_delagates_tt_30
+				check_variable = { internationalists_support_var > 29 }
+			}
+		}
+		ai_will_do = {
+			factor = 50
+		}
+		cost = 50
+		days_remove = 30
+		fire_only_once = yes
+		modifier = {
+			political_power_factor = -0.05
+		}
+		complete_effect = {
+			log = "[GetDateText]: [Root.GetName]: Decision SRS_appoint_goldgriff"
+			set_country_flag = SRS_internationalist_decision_cooldown_in_progress
+			activate_mission = SRS_internationalist_decision_cooldown
+			add_to_variable = { var = displeasure_towards_internationalists_var value = 1 }
+			set_variable = { total_sum_of_internationalist_and_communalist_displeasure = 0 }
+			add_to_variable = { total_sum_of_internationalist_and_communalist_displeasure = displeasure_towards_communards_var } 
+			add_to_variable = { total_sum_of_internationalist_and_communalist_displeasure = displeasure_towards_internationalists_var } 
+			set_temp_variable = { internationalist_displeasure_as_a_percentage_ersatz = displeasure_towards_internationalists_var }
+			divide_temp_variable = { internationalist_displeasure_as_a_percentage_ersatz = total_sum_of_internationalist_and_communalist_displeasure }
+			set_variable = { internationalist_displeasure_as_a_percentage = internationalist_displeasure_as_a_percentage_ersatz }
+			set_temp_variable = { communalist_displeasure_as_a_percentage_ersatz = displeasure_towards_communards_var }
+			divide_temp_variable = { communalist_displeasure_as_a_percentage_ersatz = total_sum_of_internationalist_and_communalist_displeasure }
+			set_variable = { communalist_displeasure_as_a_percentage = communalist_displeasure_as_a_percentage_ersatz }
+		}
+		remove_effect = {
+			log = "[GetDateText]: [Root.GetName]: Decision remove SRS_appoint_goldgriff"
+			set_country_flag = SRS_unlocked_emma_goldgriff_as_advisor
+			custom_effect_tooltip = available_political_advisor
+			show_ideas_tooltip = SRS_emma_goldgriff
+		}
+	}
+	SRS_petr_the_general = {
+		icon = generic_army_support
+		allowed = {
+			tag = SRS
+		}
+		visible = {
+			has_country_flag = SRS_northern_war_has_been_resolved
+		}
+		available = {
+			NOT = { has_country_flag = SRS_internationalist_decision_cooldown_in_progress }
+			is_subject = no
+			custom_trigger_tooltip = {
+				tooltip = SRS_internationalist_delagates_tt_30
+				check_variable = { internationalists_support_var > 29 }
+			}
+		}
+		ai_will_do = {
+			factor = 40
+		}
+		cost = 50
+		days_remove = 30
+		fire_only_once = yes
+		modifier = {
+			political_power_factor = -0.05
+		}
+		remove_effect = {
+			log = "[GetDateText]: [Root.GetName]: Decision remove SRS_petr_the_general"
+			create_corps_commander = {
+				name = "Petr Pulitorov"
+				portrait_path = "gfx/leaders/SRS/Pulitorov.tga"
+				traits = { supply_raider }
+				skill = 2
+				attack_skill = 2
+				defense_skill = 1
+				planning_skill = 2
+				logistics_skill = 3
+			}
+		}
+		complete_effect = {
+			log = "[GetDateText]: [Root.GetName]: Decision SRS_petr_the_general"
+			set_country_flag = SRS_internationalist_decision_cooldown_in_progress
+			activate_mission = SRS_internationalist_decision_cooldown
+			add_to_variable = { var = displeasure_towards_internationalists_var value = 1 }
+			set_variable = { total_sum_of_internationalist_and_communalist_displeasure = 0 }
+			add_to_variable = { total_sum_of_internationalist_and_communalist_displeasure = displeasure_towards_communards_var } 
+			add_to_variable = { total_sum_of_internationalist_and_communalist_displeasure = displeasure_towards_internationalists_var } 
+			set_temp_variable = { internationalist_displeasure_as_a_percentage_ersatz = displeasure_towards_internationalists_var }
+			divide_temp_variable = { internationalist_displeasure_as_a_percentage_ersatz = total_sum_of_internationalist_and_communalist_displeasure }
+			set_variable = { internationalist_displeasure_as_a_percentage = internationalist_displeasure_as_a_percentage_ersatz }
+			set_temp_variable = { communalist_displeasure_as_a_percentage_ersatz = displeasure_towards_communards_var }
+			divide_temp_variable = { communalist_displeasure_as_a_percentage_ersatz = total_sum_of_internationalist_and_communalist_displeasure }
+			set_variable = { communalist_displeasure_as_a_percentage = communalist_displeasure_as_a_percentage_ersatz }
+		}
+	}
+	SRS_call_up_the_reserves = {
+		icon = generic_prepare_civil_war
+		allowed = {
+			tag = SRS
+		}
+		visible = {
+		}
+		available = {
+			NOT = { has_country_flag = SRS_internationalist_decision_cooldown_in_progress }
+			is_subject = no
+			custom_trigger_tooltip = {
+				tooltip = SRS_internationalist_delagates_tt_40
+				check_variable = { internationalists_support_var > 39 }
+			}
+		}
+		ai_will_do = {
+			factor = 10
+			modifier = {
+				factor = 100
+				has_war = yes
+			}
+		}
+		cost = 50
+		days_remove = 120
+		fire_only_once = no
+		days_re_enable = 120
+		modifier = {
+			political_power_factor = -0.15
+			mobilization_speed = 0.15
+			conscription = 0.025
+		}
+		complete_effect = {
+			log = "[GetDateText]: [Root.GetName]: Decision SRS_call_up_the_reserves"
+			set_country_flag = SRS_internationalist_decision_cooldown_in_progress
+			activate_mission = SRS_internationalist_decision_cooldown
+			add_to_variable = { var = displeasure_towards_internationalists_var value = 2 }
+			set_variable = { total_sum_of_internationalist_and_communalist_displeasure = 0 }
+			add_to_variable = { total_sum_of_internationalist_and_communalist_displeasure = displeasure_towards_communards_var } 
+			add_to_variable = { total_sum_of_internationalist_and_communalist_displeasure = displeasure_towards_internationalists_var } 
+			set_temp_variable = { internationalist_displeasure_as_a_percentage_ersatz = displeasure_towards_internationalists_var }
+			divide_temp_variable = { internationalist_displeasure_as_a_percentage_ersatz = total_sum_of_internationalist_and_communalist_displeasure }
+			set_variable = { internationalist_displeasure_as_a_percentage = internationalist_displeasure_as_a_percentage_ersatz }
+			set_temp_variable = { communalist_displeasure_as_a_percentage_ersatz = displeasure_towards_communards_var }
+			divide_temp_variable = { communalist_displeasure_as_a_percentage_ersatz = total_sum_of_internationalist_and_communalist_displeasure }
+			set_variable = { communalist_displeasure_as_a_percentage = communalist_displeasure_as_a_percentage_ersatz }
+		}
+	}
+	SRS_expropriate_communal_lands = {
+		icon = generic_operation
+		allowed = {
+			tag = SRS
+		}
+		visible = {
+		}
+		available = {
+			NOT = { has_country_flag = SRS_internationalist_decision_cooldown_in_progress }
+			is_subject = no
+			custom_trigger_tooltip = {
+				tooltip = SRS_internationalist_delagates_tt_40
+				check_variable = { internationalists_support_var > 39 }
+			}
+		}
+		ai_will_do = {
+			factor = 10
+			modifier = {
+				factor = 100
+				has_war = yes
+			}
+		}
+		cost = 50
+		days_remove = 100
+		fire_only_once = no
+		days_re_enable = 20
+		modifier = {
+			political_power_factor = -0.1
+			stability_factor = -0.01
+		}
+		remove_effect = {
+			log = "[GetDateText]: [Root.GetName]: Decision remove SRS_expropriate_communal_lands"
+			random_owned_controlled_state = { 
+				add_extra_state_shared_building_slots  = 1
+			}
+		}
+		complete_effect = {
+			log = "[GetDateText]: [Root.GetName]: Decision SRS_expropriate_communal_lands"
+			set_country_flag = SRS_internationalist_decision_cooldown_in_progress
+			activate_mission = SRS_internationalist_decision_cooldown
+			add_to_variable = { var = displeasure_towards_internationalists_var value = 2 }
+			set_variable = { total_sum_of_internationalist_and_communalist_displeasure = 0 }
+			add_to_variable = { total_sum_of_internationalist_and_communalist_displeasure = displeasure_towards_communards_var } 
+			add_to_variable = { total_sum_of_internationalist_and_communalist_displeasure = displeasure_towards_internationalists_var } 
+			set_temp_variable = { internationalist_displeasure_as_a_percentage_ersatz = displeasure_towards_internationalists_var }
+			divide_temp_variable = { internationalist_displeasure_as_a_percentage_ersatz = total_sum_of_internationalist_and_communalist_displeasure }
+			set_variable = { internationalist_displeasure_as_a_percentage = internationalist_displeasure_as_a_percentage_ersatz }
+			set_temp_variable = { communalist_displeasure_as_a_percentage_ersatz = displeasure_towards_communards_var }
+			divide_temp_variable = { communalist_displeasure_as_a_percentage_ersatz = total_sum_of_internationalist_and_communalist_displeasure }
+			set_variable = { communalist_displeasure_as_a_percentage = communalist_displeasure_as_a_percentage_ersatz }
+		}
+	}
+	SRS_union_with_neighbouring_commie_country = {
+		icon = generic_form_nation
+		allowed = {
+			tag = SRS
+		}
+		visible = {
+		}
+		available = {
+			NOT = { has_country_flag = SRS_internationalist_decision_cooldown_in_progress }
+			is_subject = no
+			custom_trigger_tooltip = {
+				tooltip = SRS_internationalist_delagates_tt_40
+				check_variable = { internationalists_support_var > 39 }
+			}
+			FROM = {
+				strength_ratio = {
+					tag = SRS
+					ratio < 0.5
+				}
+				has_opinion = {
+					target = SRS
+					value > 89
+				}
+			}
+		}
+		ai_will_do = {
+			factor = 0
+		}
+		target_root_trigger = {
+			has_war = no
+			is_subject = no
+			has_government = communism
+			has_country_flag = SRS_our_neighbours_have_been_liberated
+		}
+		target_trigger = {
+			FROM = {
+				exists = yes
+				is_subject = no
+				has_government = communism
+				is_neighbor_of = SRS
+				NOT = {
+					tag = STG
+					tag = EQC
+				}
+			}
+		}
+		cost = 100
+		days_remove = 50
+		fire_only_once = no
+		days_re_enable = 250
+		modifier = {
+			political_power_factor = -0.25
+		}
+		remove_effect = {
+			log = "[GetDateText]: [Root.GetName]: Decision remove SRS_union_with_neighbouring_commie_country target: [From.GetName]"
+			FROM = { country_event = { id = socrep_grif.98 hours = 3 } }
+		}
+		complete_effect = {
+			log = "[GetDateText]: [Root.GetName]: Decision SRS_union_with_neighbouring_commie_country target: [From.GetName]"
+			set_country_flag = SRS_internationalist_decision_cooldown_in_progress
+			activate_mission = SRS_internationalist_decision_cooldown
+			add_to_variable = { var = displeasure_towards_internationalists_var value = 4 }
+			set_variable = { total_sum_of_internationalist_and_communalist_displeasure = 0 }
+			add_to_variable = { total_sum_of_internationalist_and_communalist_displeasure = displeasure_towards_communards_var } 
+			add_to_variable = { total_sum_of_internationalist_and_communalist_displeasure = displeasure_towards_internationalists_var } 
+			set_temp_variable = { internationalist_displeasure_as_a_percentage_ersatz = displeasure_towards_internationalists_var }
+			divide_temp_variable = { internationalist_displeasure_as_a_percentage_ersatz = total_sum_of_internationalist_and_communalist_displeasure }
+			set_variable = { internationalist_displeasure_as_a_percentage = internationalist_displeasure_as_a_percentage_ersatz }
+			set_temp_variable = { communalist_displeasure_as_a_percentage_ersatz = displeasure_towards_communards_var }
+			divide_temp_variable = { communalist_displeasure_as_a_percentage_ersatz = total_sum_of_internationalist_and_communalist_displeasure }
+			set_variable = { communalist_displeasure_as_a_percentage = communalist_displeasure_as_a_percentage_ersatz }
+		}
+	}
+	SRS_integrate_your_puppets = {
+		icon = generic_form_nation
+		allowed = {
+			tag = SRS
+		}
+		visible = {
+			FROM = {
+				exists = yes
+				is_subject_of = SRS
+				is_neighbor_of = SRS
+			}
+		}
+		available = {
+			NOT = { has_country_flag = SRS_internationalist_decision_cooldown_in_progress }
+			is_subject = no
+			custom_trigger_tooltip = {
+				tooltip = SRS_internationalist_delagates_tt_40
+				check_variable = { internationalists_support_var > 39 }
+			}
+		}
+		ai_will_do = {
+			factor = 10
+		}
+		target_root_trigger = {
+			has_government = communism
+			has_country_flag = SRS_our_neighbours_have_been_liberated
+		}
+		target_trigger = {
+			FROM = {
+				exists = yes
+				is_subject_of = SRS
+				is_neighbor_of = SRS
+				if = {
+					limit = { tag = NTR } 
+					SRS = { 
+						has_completed_focus = SRS_war_4
+						has_completed_focus = SRS_war_5
+					}
+				}
+			}
+		}
+		cost = 70
+		days_remove = 30
+		fire_only_once = no
+		days_re_enable = 150
+		modifier = {
+			political_power_factor = -0.25
+		}
+		remove_effect = {
+			log = "[GetDateText]: [Root.GetName]: Decision remove SRS_integrate_your_puppets target: [From.GetName]"
+			FROM = { country_event = { id = socrep_grif.92 hours = 3 } }
+		}
+		complete_effect = {
+			log = "[GetDateText]: [Root.GetName]: Decision SRS_integrate_your_puppets target: [From.GetName]"
+			set_country_flag = SRS_internationalist_decision_cooldown_in_progress
+			activate_mission = SRS_internationalist_decision_cooldown
+			add_to_variable = { var = displeasure_towards_internationalists_var value = 3 }
+			set_variable = { total_sum_of_internationalist_and_communalist_displeasure = 0 }
+			add_to_variable = { total_sum_of_internationalist_and_communalist_displeasure = displeasure_towards_communards_var } 
+			add_to_variable = { total_sum_of_internationalist_and_communalist_displeasure = displeasure_towards_internationalists_var } 
+			set_temp_variable = { internationalist_displeasure_as_a_percentage_ersatz = displeasure_towards_internationalists_var }
+			divide_temp_variable = { internationalist_displeasure_as_a_percentage_ersatz = total_sum_of_internationalist_and_communalist_displeasure }
+			set_variable = { internationalist_displeasure_as_a_percentage = internationalist_displeasure_as_a_percentage_ersatz }
+			set_temp_variable = { communalist_displeasure_as_a_percentage_ersatz = displeasure_towards_communards_var }
+			divide_temp_variable = { communalist_displeasure_as_a_percentage_ersatz = total_sum_of_internationalist_and_communalist_displeasure }
+			set_variable = { communalist_displeasure_as_a_percentage = communalist_displeasure_as_a_percentage_ersatz }
+		}
+	}
+	SRS_invite_blackrock_exiles = {
+		icon = eng_propaganda_campaigns
+		allowed = {
+			tag = SRS
+		}
+		visible = {
+			BAN = {
+				has_completed_focus = BAN_control_restored
+			}
+			has_country_flag = SRS_northern_war_has_been_resolved
+		}
+		available = {
+			NOT = { has_country_flag = SRS_internationalist_decision_cooldown_in_progress }
+			is_subject = no
+			custom_trigger_tooltip = {
+				tooltip = SRS_internationalist_delagates_tt_40
+				check_variable = { internationalists_support_var > 39 }
+			}
+		}
+		ai_will_do = {
+			factor = 52
+		}
+		cost = 30
+		days_remove = 30
+		fire_only_once = yes
+		modifier = {
+			political_power_factor = -0.05
+		}
+		remove_effect = {
+			log = "[GetDateText]: [Root.GetName]: Decision remove SRS_invite_blackrock_exiles"
+			every_owned_state = { add_manpower = 3500 }
+		}
+		complete_effect = {
+			log = "[GetDateText]: [Root.GetName]: Decision SRS_invite_blackrock_exiles"
+			set_country_flag = SRS_internationalist_decision_cooldown_in_progress
+			activate_mission = SRS_internationalist_decision_cooldown
+			add_to_variable = { var = displeasure_towards_internationalists_var value = 1 }
+			set_variable = { total_sum_of_internationalist_and_communalist_displeasure = 0 }
+			add_to_variable = { total_sum_of_internationalist_and_communalist_displeasure = displeasure_towards_communards_var } 
+			add_to_variable = { total_sum_of_internationalist_and_communalist_displeasure = displeasure_towards_internationalists_var } 
+			set_temp_variable = { internationalist_displeasure_as_a_percentage_ersatz = displeasure_towards_internationalists_var }
+			divide_temp_variable = { internationalist_displeasure_as_a_percentage_ersatz = total_sum_of_internationalist_and_communalist_displeasure }
+			set_variable = { internationalist_displeasure_as_a_percentage = internationalist_displeasure_as_a_percentage_ersatz }
+			set_temp_variable = { communalist_displeasure_as_a_percentage_ersatz = displeasure_towards_communards_var }
+			divide_temp_variable = { communalist_displeasure_as_a_percentage_ersatz = total_sum_of_internationalist_and_communalist_displeasure }
+			set_variable = { communalist_displeasure_as_a_percentage = communalist_displeasure_as_a_percentage_ersatz }
+		}
+	}
+	SRS_invite_brantbeak_exiles = {
+		icon = eng_propaganda_campaigns
+		allowed = {
+			tag = SRS
+		}
+		visible = {
+			MNC = {
+				has_completed_focus = MNC_journey_to_the_center_of_the_mind
+			}
+			has_country_flag = SRS_northern_war_has_been_resolved
+		}
+		available = {
+			NOT = { has_country_flag = SRS_internationalist_decision_cooldown_in_progress }
+			is_subject = no
+			custom_trigger_tooltip = {
+				tooltip = SRS_internationalist_delagates_tt_40
+				check_variable = { internationalists_support_var > 39 }
+			}
+		}
+		ai_will_do = {
+			factor = 45
+		}
+		cost = 30
+		days_remove = 30
+		fire_only_once = yes
+		modifier = {
+			political_power_factor = -0.05
+		}
+		remove_effect = {
+			log = "[GetDateText]: [Root.GetName]: Decision remove SRS_invite_brantbeak_exiles"
+			every_owned_state = { add_manpower = 12000 }
+		}
+		complete_effect = {
+			log = "[GetDateText]: [Root.GetName]: Decision SRS_invite_brantbeak_exiles"
+			set_country_flag = SRS_internationalist_decision_cooldown_in_progress
+			activate_mission = SRS_internationalist_decision_cooldown
+			add_to_variable = { var = displeasure_towards_internationalists_var value = 1 }
+			set_variable = { total_sum_of_internationalist_and_communalist_displeasure = 0 }
+			add_to_variable = { total_sum_of_internationalist_and_communalist_displeasure = displeasure_towards_communards_var } 
+			add_to_variable = { total_sum_of_internationalist_and_communalist_displeasure = displeasure_towards_internationalists_var } 
+			set_temp_variable = { internationalist_displeasure_as_a_percentage_ersatz = displeasure_towards_internationalists_var }
+			divide_temp_variable = { internationalist_displeasure_as_a_percentage_ersatz = total_sum_of_internationalist_and_communalist_displeasure }
+			set_variable = { internationalist_displeasure_as_a_percentage = internationalist_displeasure_as_a_percentage_ersatz }
+			set_temp_variable = { communalist_displeasure_as_a_percentage_ersatz = displeasure_towards_communards_var }
+			divide_temp_variable = { communalist_displeasure_as_a_percentage_ersatz = total_sum_of_internationalist_and_communalist_displeasure }
+			set_variable = { communalist_displeasure_as_a_percentage = communalist_displeasure_as_a_percentage_ersatz }
+		}
+	}
+	SRS_invite_stalliongrad_exiles = {
+		icon = eng_propaganda_campaigns
+		allowed = {
+			tag = SRS
+		}
+		visible = {
+			STG = {
+				OR = {
+					exists = no
+					NOT = {
+						has_government = communism
+					}
+				}
+			}
+			has_country_flag = SRS_our_neighbours_have_been_liberated
+		}
+		available = {
+			NOT = { has_country_flag = SRS_internationalist_decision_cooldown_in_progress }
+			is_subject = no
+			custom_trigger_tooltip = {
+				tooltip = SRS_internationalist_delagates_tt_40
+				check_variable = { internationalists_support_var > 39 }
+			}
+		}
+		ai_will_do = {
+			factor = 65
+		}
+		cost = 30
+		days_remove = 30
+		fire_only_once = yes
+		modifier = {
+			political_power_factor = -0.05
+		}
+		remove_effect = {
+			log = "[GetDateText]: [Root.GetName]: Decision remove SRS_invite_stalliongrad_exiles"
+			STG = {
+				every_unit_leader = {
+					limit = {
+						OR = { 
+							has_id = 6970 
+							has_id = 6969
+							has_id = 6968 
+							has_id = 6967
+						} 
+					}
+					set_nationality = ROOT
+				}
+			}
+		}
+		complete_effect = {
+			log = "[GetDateText]: [Root.GetName]: Decision SRS_invite_stalliongrad_exiles"
+			set_country_flag = SRS_internationalist_decision_cooldown_in_progress
+			activate_mission = SRS_internationalist_decision_cooldown
+			add_to_variable = { var = displeasure_towards_internationalists_var value = 2 }
+			set_variable = { total_sum_of_internationalist_and_communalist_displeasure = 0 }
+			add_to_variable = { total_sum_of_internationalist_and_communalist_displeasure = displeasure_towards_communards_var } 
+			add_to_variable = { total_sum_of_internationalist_and_communalist_displeasure = displeasure_towards_internationalists_var } 
+			set_temp_variable = { internationalist_displeasure_as_a_percentage_ersatz = displeasure_towards_internationalists_var }
+			divide_temp_variable = { internationalist_displeasure_as_a_percentage_ersatz = total_sum_of_internationalist_and_communalist_displeasure }
+			set_variable = { internationalist_displeasure_as_a_percentage = internationalist_displeasure_as_a_percentage_ersatz }
+			set_temp_variable = { communalist_displeasure_as_a_percentage_ersatz = displeasure_towards_communards_var }
+			divide_temp_variable = { communalist_displeasure_as_a_percentage_ersatz = total_sum_of_internationalist_and_communalist_displeasure }
+			set_variable = { communalist_displeasure_as_a_percentage = communalist_displeasure_as_a_percentage_ersatz }
+		}
+	}
+	SRS_invite_prywhen_exiles = {
+		icon = eng_propaganda_campaigns
+		allowed = {
+			tag = SRS
+		}
+		visible = {
+			GRW = {
+				OR = {
+					exists = no
+					has_government = fascism
+				}
+			}
+			has_country_flag = SRS_our_neighbours_have_been_liberated
+		}
+		available = {
+			NOT = { has_country_flag = SRS_internationalist_decision_cooldown_in_progress }
+			is_subject = no
+			custom_trigger_tooltip = {
+				tooltip = SRS_internationalist_delagates_tt_40
+				check_variable = { internationalists_support_var > 39 }
+			}
+		}
+		ai_will_do = {
+			factor = 55
+		}
+		cost = 30
+		days_remove = 30
+		fire_only_once = yes
+		modifier = {
+			political_power_factor = -0.05
+		}
+		remove_effect = {
+			log = "[GetDateText]: [Root.GetName]: Decision remove SRS_invite_prywhen_exiles"
+			GRW = {
+				every_unit_leader = {
+					limit = { 
+						OR = { 
+							has_id = 789 
+							has_id = 777 
+							has_id = 778 
+						} 
+					}
+					set_nationality = ROOT
+				}
+			}
+		}
+		complete_effect = {
+			log = "[GetDateText]: [Root.GetName]: Decision SRS_invite_prywhen_exiles"
+			set_country_flag = SRS_internationalist_decision_cooldown_in_progress
+			activate_mission = SRS_internationalist_decision_cooldown
+			add_to_variable = { var = displeasure_towards_internationalists_var value = 2 }
+			set_variable = { total_sum_of_internationalist_and_communalist_displeasure = 0 }
+			add_to_variable = { total_sum_of_internationalist_and_communalist_displeasure = displeasure_towards_communards_var } 
+			add_to_variable = { total_sum_of_internationalist_and_communalist_displeasure = displeasure_towards_internationalists_var } 
+			set_temp_variable = { internationalist_displeasure_as_a_percentage_ersatz = displeasure_towards_internationalists_var }
+			divide_temp_variable = { internationalist_displeasure_as_a_percentage_ersatz = total_sum_of_internationalist_and_communalist_displeasure }
+			set_variable = { internationalist_displeasure_as_a_percentage = internationalist_displeasure_as_a_percentage_ersatz }
+			set_temp_variable = { communalist_displeasure_as_a_percentage_ersatz = displeasure_towards_communards_var }
+			divide_temp_variable = { communalist_displeasure_as_a_percentage_ersatz = total_sum_of_internationalist_and_communalist_displeasure }
+			set_variable = { communalist_displeasure_as_a_percentage = communalist_displeasure_as_a_percentage_ersatz }
+		}
+	}
+	SRS_invite_baltimare_exiles = {
+		icon = eng_propaganda_campaigns
+		allowed = {
+			tag = SRS
+		}
+		visible = {
+			BAL = {
+				exists = no
+			}
+			OR = {
+				CES = {
+					exists = yes
+				}
+				NMS = {
+					exists = yes
+				}
+				JUN = {
+					exists = yes
+				}
+				NLR = {
+					exists = yes
+				}
+			}
+			has_country_flag = SRS_our_neighbours_have_been_liberated
+		}
+		available = {
+			NOT = { has_country_flag = SRS_internationalist_decision_cooldown_in_progress }
+			is_subject = no
+			custom_trigger_tooltip = {
+				tooltip = SRS_internationalist_delagates_tt_40
+				check_variable = { internationalists_support_var > 39 }
+			}
+		}
+		ai_will_do = {
+			factor = 55
+		}
+		cost = 30
+		days_remove = 30
+		fire_only_once = yes
+		modifier = {
+			political_power_factor = -0.05
+		}
+		remove_effect = {
+			log = "[GetDateText]: [Root.GetName]: Decision remove SRS_invite_baltimare_exiles"
+			BAL = {
+				every_unit_leader = {
+					limit = { 
+						OR = { 
+							has_id = 24601 
+							has_id = 1971 
+							has_id = 11250 
+						} 
+					}
+					set_nationality = ROOT
+				}
+			}
+		}
+		complete_effect = {
+			log = "[GetDateText]: [Root.GetName]: Decision SRS_invite_baltimare_exiles"
+			set_country_flag = SRS_internationalist_decision_cooldown_in_progress
+			activate_mission = SRS_internationalist_decision_cooldown
+			add_to_variable = { var = displeasure_towards_internationalists_var value = 2 }
+			set_variable = { total_sum_of_internationalist_and_communalist_displeasure = 0 }
+			add_to_variable = { total_sum_of_internationalist_and_communalist_displeasure = displeasure_towards_communards_var } 
+			add_to_variable = { total_sum_of_internationalist_and_communalist_displeasure = displeasure_towards_internationalists_var } 
+			set_temp_variable = { internationalist_displeasure_as_a_percentage_ersatz = displeasure_towards_internationalists_var }
+			divide_temp_variable = { internationalist_displeasure_as_a_percentage_ersatz = total_sum_of_internationalist_and_communalist_displeasure }
+			set_variable = { internationalist_displeasure_as_a_percentage = internationalist_displeasure_as_a_percentage_ersatz }
+			set_temp_variable = { communalist_displeasure_as_a_percentage_ersatz = displeasure_towards_communards_var }
+			divide_temp_variable = { communalist_displeasure_as_a_percentage_ersatz = total_sum_of_internationalist_and_communalist_displeasure }
+			set_variable = { communalist_displeasure_as_a_percentage = communalist_displeasure_as_a_percentage_ersatz }
+		}
+	}
+	SRS_invite_longsword_exiles = {
+		icon = eng_propaganda_campaigns
+		allowed = {
+			tag = SRS
+		}
+		visible = {
+			LSC = { exists = no }
+			has_country_flag = SRS_our_neighbours_have_been_liberated
+		}
+		available = {
+			NOT = { has_country_flag = SRS_internationalist_decision_cooldown_in_progress }
+			is_subject = no
+			custom_trigger_tooltip = {
+				tooltip = SRS_internationalist_delagates_tt_40
+				check_variable = { internationalists_support_var > 39 }
+			}
+		}
+		ai_will_do = {
+			factor = 55
+		}
+		cost = 30
+		days_remove = 30
+		fire_only_once = yes
+		modifier = {
+			political_power_factor = -0.05
+		}
+		remove_effect = {
+			log = "[GetDateText]: [Root.GetName]: Decision remove SRS_invite_longsword_exiles"
+			custom_effect_tooltip = SRS_form_longsword_ponies_brigade
+			hidden_effect = {
+				division_template = {
+					name = "Pony Volunteers"
+					division_names_group = SRS_MILITIA_06
+					regiments = {
+						infantry = { x = 0 y = 0 }
+						infantry = { x = 0 y = 1 }
+						infantry = { x = 1 y = 0 }
+						infantry = { x = 1 y = 1 }
+						pegasi = { x = 2 y = 0 }
+						pegasi = { x = 2 y = 1 }
+					}
+					support = {
+						recon = { x = 0 y = 0 }
+					}
+				}
+				522 = {
+					create_unit = { division = "name = \"'Hope' Brigade\" division_template = \"Pony Volunteers\" start_experience_factor = 0.54" 
+					owner = SRS }
+					create_unit = { division = "name = \"'Determination' Brigade\" division_template = \"Pony Volunteers\" start_experience_factor = 0.68" 
+					owner = SRS }
+				}
+			}
+		}
+		complete_effect = {
+			log = "[GetDateText]: [Root.GetName]: Decision SRS_invite_longsword_exiles"
+			set_country_flag = SRS_internationalist_decision_cooldown_in_progress
+			activate_mission = SRS_internationalist_decision_cooldown
+			add_to_variable = { var = displeasure_towards_internationalists_var value = 2 }
+			set_variable = { total_sum_of_internationalist_and_communalist_displeasure = 0 }
+			add_to_variable = { total_sum_of_internationalist_and_communalist_displeasure = displeasure_towards_communards_var } 
+			add_to_variable = { total_sum_of_internationalist_and_communalist_displeasure = displeasure_towards_internationalists_var } 
+			set_temp_variable = { internationalist_displeasure_as_a_percentage_ersatz = displeasure_towards_internationalists_var }
+			divide_temp_variable = { internationalist_displeasure_as_a_percentage_ersatz = total_sum_of_internationalist_and_communalist_displeasure }
+			set_variable = { internationalist_displeasure_as_a_percentage = internationalist_displeasure_as_a_percentage_ersatz }
+			set_temp_variable = { communalist_displeasure_as_a_percentage_ersatz = displeasure_towards_communards_var }
+			divide_temp_variable = { communalist_displeasure_as_a_percentage_ersatz = total_sum_of_internationalist_and_communalist_displeasure }
+			set_variable = { communalist_displeasure_as_a_percentage = communalist_displeasure_as_a_percentage_ersatz }
+		}
+	}
+	SRS_invite_wingbardian_exiles = {
+		icon = eng_propaganda_campaigns
+		allowed = {
+			tag = SRS
+		}
+		visible = {
+			WNG = {
+				has_government = fascism
+				has_completed_focus = WNG_a_fascist_prime_minister
+			}
+			has_country_flag = SRS_our_neighbours_have_been_liberated
+		}
+		available = {
+			NOT = { has_country_flag = SRS_internationalist_decision_cooldown_in_progress }
+			is_subject = no
+			custom_trigger_tooltip = {
+				tooltip = SRS_internationalist_delagates_tt_40
+				check_variable = { internationalists_support_var > 39 }
+			}
+		}
+		ai_will_do = {
+			factor = 50
+		}
+		cost = 30
+		days_remove = 30
+		fire_only_once = yes
+		modifier = {
+			political_power_factor = -0.05
+		}
+		remove_effect = {
+			log = "[GetDateText]: [Root.GetName]: Decision remove SRS_invite_wingbardian_exiles"
+			custom_effect_tooltip = SRS_form_wingbardy_volunteer_brigade
+			hidden_effect = {
+				division_template = {
+					name = "Volunteer Brigade"
+					division_names_group = SRS_MILITIA_06
+					regiments = {
+						infantry = { x = 0 y = 0 }
+						infantry = { x = 0 y = 1 }
+						infantry = { x = 0 y = 2 }
+						infantry = { x = 1 y = 0 }
+						infantry = { x = 1 y = 1 }
+						infantry = { x = 1 y = 2 }
+					}
+					support = {
+						recon = { x = 0 y = 0 }
+					}
+				}
+				522 = {
+					create_unit = { division = "name = \"'Solidarietà' Brigade\" division_template = \"Volunteer Brigade\" start_experience_factor = 0.65" 
+					owner = SRS }
+					create_unit = { division = "name = \"'Autodeterminazione' Brigade\" division_template = \"Volunteer Brigade\" start_experience_factor = 0.62" 
+					owner = SRS }
+					create_unit = { division = "name = \"'Rivoluzionario' Brigade\" division_template = \"Volunteer Brigade\" start_experience_factor = 0.61" 
+					owner = SRS }
+				}
+			}
+		}
+		complete_effect = {
+			log = "[GetDateText]: [Root.GetName]: Decision SRS_invite_wingbardian_exiles"
+			set_country_flag = SRS_internationalist_decision_cooldown_in_progress
+			activate_mission = SRS_internationalist_decision_cooldown
+			add_to_variable = { var = displeasure_towards_internationalists_var value = 2 }
+			set_variable = { total_sum_of_internationalist_and_communalist_displeasure = 0 }
+			add_to_variable = { total_sum_of_internationalist_and_communalist_displeasure = displeasure_towards_communards_var } 
+			add_to_variable = { total_sum_of_internationalist_and_communalist_displeasure = displeasure_towards_internationalists_var } 
+			set_temp_variable = { internationalist_displeasure_as_a_percentage_ersatz = displeasure_towards_internationalists_var }
+			divide_temp_variable = { internationalist_displeasure_as_a_percentage_ersatz = total_sum_of_internationalist_and_communalist_displeasure }
+			set_variable = { internationalist_displeasure_as_a_percentage = internationalist_displeasure_as_a_percentage_ersatz }
+			set_temp_variable = { communalist_displeasure_as_a_percentage_ersatz = displeasure_towards_communards_var }
+			divide_temp_variable = { communalist_displeasure_as_a_percentage_ersatz = total_sum_of_internationalist_and_communalist_displeasure }
+			set_variable = { communalist_displeasure_as_a_percentage = communalist_displeasure_as_a_percentage_ersatz }
+		}
+	}
+	SRS_invite_romau_peoples_legion = {
+		icon = eng_propaganda_campaigns
+		allowed = {
+			tag = SRS
+		}
+		visible = {
+			ROU = {
+				OR = {
+					exists = no
+					has_government = fascism
+				}
+			}
+			has_country_flag = SRS_our_neighbours_have_been_liberated
+		}
+		available = {
+			NOT = { has_country_flag = SRS_internationalist_decision_cooldown_in_progress }
+			is_subject = no
+			custom_trigger_tooltip = {
+				tooltip = SRS_internationalist_delagates_tt_40
+				check_variable = { internationalists_support_var > 39 }
+			}
+		}
+		ai_will_do = {
+			factor = 50
+		}
+		cost = 30
+		days_remove = 30
+		fire_only_once = yes
+		modifier = {
+			political_power_factor = -0.05
+		}
+		remove_effect = {
+			log = "[GetDateText]: [Root.GetName]: Decision remove SRS_invite_romau_peoples_legion"
+			custom_effect_tooltip = SRS_form_romau_peoples_legion
+			hidden_effect = {
+				division_template = {
+					name = "People's Legion"
+					division_names_group = SRS_MILITIA_06
+					regiments = {
+						infantry = { x = 0 y = 0 }
+						infantry = { x = 0 y = 1 }
+						infantry = { x = 1 y = 0 }
+						infantry = { x = 1 y = 1 }
+						infantry = { x = 2 y = 0 }
+						infantry = { x = 2 y = 1 }
+					}
+					support = {
+						recon = { x = 0 y = 0 }
+					}
+				}
+				522 = {
+					create_unit = { division = "name = \"Romau People's Legion\" division_template = \"People's Legion\" start_experience_factor = 0.77" 
+					owner = SRS }
+				}
+			}
+		}
+		complete_effect = {
+			log = "[GetDateText]: [Root.GetName]: Decision SRS_invite_romau_peoples_legion"
+			set_country_flag = SRS_internationalist_decision_cooldown_in_progress
+			activate_mission = SRS_internationalist_decision_cooldown
+			add_to_variable = { var = displeasure_towards_internationalists_var value = 2 }
+			set_variable = { total_sum_of_internationalist_and_communalist_displeasure = 0 }
+			add_to_variable = { total_sum_of_internationalist_and_communalist_displeasure = displeasure_towards_communards_var } 
+			add_to_variable = { total_sum_of_internationalist_and_communalist_displeasure = displeasure_towards_internationalists_var } 
+			set_temp_variable = { internationalist_displeasure_as_a_percentage_ersatz = displeasure_towards_internationalists_var }
+			divide_temp_variable = { internationalist_displeasure_as_a_percentage_ersatz = total_sum_of_internationalist_and_communalist_displeasure }
+			set_variable = { internationalist_displeasure_as_a_percentage = internationalist_displeasure_as_a_percentage_ersatz }
+			set_temp_variable = { communalist_displeasure_as_a_percentage_ersatz = displeasure_towards_communards_var }
+			divide_temp_variable = { communalist_displeasure_as_a_percentage_ersatz = total_sum_of_internationalist_and_communalist_displeasure }
+			set_variable = { communalist_displeasure_as_a_percentage = communalist_displeasure_as_a_percentage_ersatz }
+		}
+	}
+	SRS_safe_harbour_for_river_socialists = {
+		icon = eng_propaganda_campaigns
+		allowed = {
+			tag = SRS
+		}
+		visible = {
+			RCT = {
+				has_completed_focus = RCT_crackdown_on_dissent
+			}
+			has_country_flag = SRS_our_neighbours_have_been_liberated
+		}
+		available = {
+			NOT = { has_country_flag = SRS_internationalist_decision_cooldown_in_progress }
+			is_subject = no
+			custom_trigger_tooltip = {
+				tooltip = SRS_internationalist_delagates_tt_40
+				check_variable = { internationalists_support_var > 39 }
+			}
+		}
+		ai_will_do = {
+			factor = 50
+		}
+		cost = 30
+		days_remove = 30
+		fire_only_once = yes
+		modifier = {
+			political_power_factor = -0.05
+		}
+		remove_effect = {
+			log = "[GetDateText]: [Root.GetName]: Decision remove SRS_safe_harbour_for_river_socialists"
+			add_manpower = 25000
+			create_corps_commander = {
+				name = "Nova Whirl"
+				portrait_path = "gfx/leaders/RCT/Nova_Whirl.tga"
+				traits = { commissar_general }
+				skill = 1
+				attack_skill = 1
+				defense_skill = 1
+				planning_skill = 3
+				logistics_skill = 2
+				female = yes
+			}
+		}
+		complete_effect = {
+			log = "[GetDateText]: [Root.GetName]: Decision SRS_safe_harbour_for_river_socialists"
+			set_country_flag = SRS_internationalist_decision_cooldown_in_progress
+			activate_mission = SRS_internationalist_decision_cooldown
+			add_to_variable = { var = displeasure_towards_internationalists_var value = 2 }
+			set_variable = { total_sum_of_internationalist_and_communalist_displeasure = 0 }
+			add_to_variable = { total_sum_of_internationalist_and_communalist_displeasure = displeasure_towards_communards_var } 
+			add_to_variable = { total_sum_of_internationalist_and_communalist_displeasure = displeasure_towards_internationalists_var } 
+			set_temp_variable = { internationalist_displeasure_as_a_percentage_ersatz = displeasure_towards_internationalists_var }
+			divide_temp_variable = { internationalist_displeasure_as_a_percentage_ersatz = total_sum_of_internationalist_and_communalist_displeasure }
+			set_variable = { internationalist_displeasure_as_a_percentage = internationalist_displeasure_as_a_percentage_ersatz }
+			set_temp_variable = { communalist_displeasure_as_a_percentage_ersatz = displeasure_towards_communards_var }
+			divide_temp_variable = { communalist_displeasure_as_a_percentage_ersatz = total_sum_of_internationalist_and_communalist_displeasure }
+			set_variable = { communalist_displeasure_as_a_percentage = communalist_displeasure_as_a_percentage_ersatz }
+		}
+	}
+	SRS_internationalist_intelligence_agency = {
+		icon = eng_propaganda_campaigns
+		allowed = {
+			tag = SRS
+		}
+		visible = {
+		}
+		available = {
+			NOT = { has_country_flag = SRS_internationalist_decision_cooldown_in_progress }
+			is_subject = no
+			custom_trigger_tooltip = {
+				tooltip = SRS_internationalist_delagates_tt_40
+				check_variable = { internationalists_support_var > 39 }
+			}
+			has_country_flag = SRS_our_neighbours_have_been_liberated
+		}
+		ai_will_do = {
+			factor = 80
+		}
+		cost = 50
+		days_remove = 70
+		fire_only_once = yes
+		modifier = {
+			political_power_factor = -0.1
+		}
+		remove_effect = {
+			log = "[GetDateText]: [Root.GetName]: Decision remove SRS_internationalist_intelligence_agency"
+			add_ideas = SRS_internationalist_intelligence_agency_the_idea
+		}
+		complete_effect = {
+			log = "[GetDateText]: [Root.GetName]: Decision SRS_internationalist_intelligence_agency"
+			set_country_flag = SRS_internationalist_decision_cooldown_in_progress
+			activate_mission = SRS_internationalist_decision_cooldown
+			add_to_variable = { var = displeasure_towards_internationalists_var value = 2 }
+			set_variable = { total_sum_of_internationalist_and_communalist_displeasure = 0 }
+			add_to_variable = { total_sum_of_internationalist_and_communalist_displeasure = displeasure_towards_communards_var } 
+			add_to_variable = { total_sum_of_internationalist_and_communalist_displeasure = displeasure_towards_internationalists_var } 
+			set_temp_variable = { internationalist_displeasure_as_a_percentage_ersatz = displeasure_towards_internationalists_var }
+			divide_temp_variable = { internationalist_displeasure_as_a_percentage_ersatz = total_sum_of_internationalist_and_communalist_displeasure }
+			set_variable = { internationalist_displeasure_as_a_percentage = internationalist_displeasure_as_a_percentage_ersatz }
+			set_temp_variable = { communalist_displeasure_as_a_percentage_ersatz = displeasure_towards_communards_var }
+			divide_temp_variable = { communalist_displeasure_as_a_percentage_ersatz = total_sum_of_internationalist_and_communalist_displeasure }
+			set_variable = { communalist_displeasure_as_a_percentage = communalist_displeasure_as_a_percentage_ersatz }
+		}
+	}
+	SRS_promote_socialist_identity = {
+		icon = eng_propaganda_campaigns
+		allowed = {
+			tag = SRS
+		}
+		visible = {
+		}
+		available = {
+			NOT = { has_country_flag = SRS_internationalist_decision_cooldown_in_progress }
+			is_subject = no
+			custom_trigger_tooltip = {
+				tooltip = SRS_internationalist_delagates_tt_40
+				check_variable = { internationalists_support_var > 39 }
+			}
+			has_country_flag = SRS_our_neighbours_have_been_liberated
+		}
+		ai_will_do = {
+			factor = 40
+		}
+		cost = 50
+		days_remove = 150
+		fire_only_once = yes
+		modifier = {
+			political_power_factor = -0.1
+		}
+		remove_effect = {
+			log = "[GetDateText]: [Root.GetName]: Decision remove SRS_promote_socialist_identity"
+			add_ideas = SRS_international_socialist_identity
+		}
+		complete_effect = {
+			log = "[GetDateText]: [Root.GetName]: Decision SRS_promote_socialist_identity"
+			set_country_flag = SRS_internationalist_decision_cooldown_in_progress
+			activate_mission = SRS_internationalist_decision_cooldown
+			add_to_variable = { var = displeasure_towards_internationalists_var value = 2 }
+			set_variable = { total_sum_of_internationalist_and_communalist_displeasure = 0 }
+			add_to_variable = { total_sum_of_internationalist_and_communalist_displeasure = displeasure_towards_communards_var } 
+			add_to_variable = { total_sum_of_internationalist_and_communalist_displeasure = displeasure_towards_internationalists_var } 
+			set_temp_variable = { internationalist_displeasure_as_a_percentage_ersatz = displeasure_towards_internationalists_var }
+			divide_temp_variable = { internationalist_displeasure_as_a_percentage_ersatz = total_sum_of_internationalist_and_communalist_displeasure }
+			set_variable = { internationalist_displeasure_as_a_percentage = internationalist_displeasure_as_a_percentage_ersatz }
+			set_temp_variable = { communalist_displeasure_as_a_percentage_ersatz = displeasure_towards_communards_var }
+			divide_temp_variable = { communalist_displeasure_as_a_percentage_ersatz = total_sum_of_internationalist_and_communalist_displeasure }
+			set_variable = { communalist_displeasure_as_a_percentage = communalist_displeasure_as_a_percentage_ersatz }
+		}
+	}
+	SRS_declare_the_srfg = {
+		icon = generic_form_nation
+		allowed = {
+			tag = SRS
+		}
+		visible = {
+			NOT = { has_country_flag = SRS_has_switched_name_to_srfg }
+		}
+		available = {
+			NOT = { has_country_flag = SRS_internationalist_decision_cooldown_in_progress }
+			is_subject = no
+			custom_trigger_tooltip = {
+				tooltip = SRS_internationalist_delagates_tt_40
+				check_variable = { internationalists_support_var > 39 }
+			}
+		}
+		ai_will_do = {
+			factor = 0
+		}
+		cost = 60
+		days_remove = 30
+		fire_only_once = no
+		days_re_enable = 30
+		modifier = {
+			political_power_factor = -0.1
+		}
+		remove_effect = {
+			log = "[GetDateText]: [Root.GetName]: Decision remove SRS_declare_the_srfg"
+			set_cosmetic_tag = SRS_SRFG
+			set_country_flag = SRS_has_switched_name_to_srfg
+		}
+		complete_effect = {
+			log = "[GetDateText]: [Root.GetName]: Decision SRS_declare_the_srfg"
+			set_country_flag = SRS_internationalist_decision_cooldown_in_progress
+			activate_mission = SRS_internationalist_decision_cooldown
+			add_to_variable = { var = displeasure_towards_internationalists_var value = 4 }
+			set_variable = { total_sum_of_internationalist_and_communalist_displeasure = 0 }
+			add_to_variable = { total_sum_of_internationalist_and_communalist_displeasure = displeasure_towards_communards_var } 
+			add_to_variable = { total_sum_of_internationalist_and_communalist_displeasure = displeasure_towards_internationalists_var } 
+			set_temp_variable = { internationalist_displeasure_as_a_percentage_ersatz = displeasure_towards_internationalists_var }
+			divide_temp_variable = { internationalist_displeasure_as_a_percentage_ersatz = total_sum_of_internationalist_and_communalist_displeasure }
+			set_variable = { internationalist_displeasure_as_a_percentage = internationalist_displeasure_as_a_percentage_ersatz }
+			set_temp_variable = { communalist_displeasure_as_a_percentage_ersatz = displeasure_towards_communards_var }
+			divide_temp_variable = { communalist_displeasure_as_a_percentage_ersatz = total_sum_of_internationalist_and_communalist_displeasure }
+			set_variable = { communalist_displeasure_as_a_percentage = communalist_displeasure_as_a_percentage_ersatz }
+		}
+	}
+	SRS_form_the_socialist_internationale = {
+		icon = generic_form_nation
+		allowed = {
+			tag = SRS
+		}
+		visible = {
+		}
+		available = {
+			NOT = { has_country_flag = SRS_internationalist_decision_cooldown_in_progress }
+			is_subject = no
+			has_completed_focus = SRS_diplomacy_5
+			num_of_factories > 15
+			custom_trigger_tooltip = {
+				tooltip = SRS_internationalist_delagates_tt_50
+				check_variable = { internationalists_support_var > 49 }
+			}
+			has_country_flag = SRS_our_neighbours_have_been_liberated
+		}
+		ai_will_do = {
+			factor = 0
+		}
+		cost = 70
+		days_remove = 30
+		fire_only_once = yes
+		modifier = {
+			political_power_factor = -0.05
+		}
+		remove_effect = {
+			log = "[GetDateText]: [Root.GetName]: Decision remove SRS_form_the_socialist_internationale"
+			create_faction = "Socialist_International"
+			custom_effect_tooltip = SRS_unlocks_decisions_to_invite_others
+			set_country_flag = SRS_has_formed_the_socialist_international
+		}
+		complete_effect = {
+			log = "[GetDateText]: [Root.GetName]: Decision SRS_form_the_socialist_internationale"
+			set_country_flag = SRS_internationalist_decision_cooldown_in_progress
+			activate_mission = SRS_internationalist_decision_cooldown
+			add_to_variable = { var = displeasure_towards_internationalists_var value = 3 }
+			set_variable = { total_sum_of_internationalist_and_communalist_displeasure = 0 }
+			add_to_variable = { total_sum_of_internationalist_and_communalist_displeasure = displeasure_towards_communards_var } 
+			add_to_variable = { total_sum_of_internationalist_and_communalist_displeasure = displeasure_towards_internationalists_var } 
+			set_temp_variable = { internationalist_displeasure_as_a_percentage_ersatz = displeasure_towards_internationalists_var }
+			divide_temp_variable = { internationalist_displeasure_as_a_percentage_ersatz = total_sum_of_internationalist_and_communalist_displeasure }
+			set_variable = { internationalist_displeasure_as_a_percentage = internationalist_displeasure_as_a_percentage_ersatz }
+			set_temp_variable = { communalist_displeasure_as_a_percentage_ersatz = displeasure_towards_communards_var }
+			divide_temp_variable = { communalist_displeasure_as_a_percentage_ersatz = total_sum_of_internationalist_and_communalist_displeasure }
+			set_variable = { communalist_displeasure_as_a_percentage = communalist_displeasure_as_a_percentage_ersatz }
+		}
+	}
+	SRS_invite_a_country_to_join_the_socialist_internationale = {
+		icon = generic_form_nation
+		allowed = {
+			tag = SRS
+		}
+		visible = {
+			FROM = {
+				NOT = {
+					is_in_faction_with = ROOT
+				}
+			}
+			has_country_flag = SRS_our_neighbours_have_been_liberated
+			has_country_flag = SRS_has_formed_the_socialist_international
+		}
+		target_root_trigger = {
+			has_government = communism
+			is_faction_leader = yes
+			has_country_flag = SRS_has_formed_the_socialist_international
+		}
+		available = {
+			NOT = { has_country_flag = SRS_internationalist_decision_cooldown_in_progress }
+			custom_trigger_tooltip = {
+				tooltip = SRS_internationalist_delagates_tt_30
+				check_variable = { internationalists_support_var > 29 }
+			}
+		}
+		target_trigger = {
+			FROM = {
+				OR = {
+					is_neighbor_of = SRS
+					any_owned_state = { is_coastal = yes }
+				}
+				is_subject = no
+				has_government = communism
+				NOT = {
+          has_idea = detached_country
+					has_idea = communal_society 
+					has_war_with = SRS 
+					tag = BAN ## nasty people ##
+					tag = LSC ## isolationists ##
+					AND = {
+						tag = FEA
+						has_completed_focus = FEA_rozenkamp_strasserists
+					}
+				}
+			}
+		}
+		ai_will_do = {
+			factor = 0 ## this is so it doesn't break the game ##
+		}
+		cost = 70
+		days_remove = 30
+		modifier = {
+			political_power_factor = -0.05
+		}
+		remove_effect = {
+			log = "[GetDateText]: [Root.GetName]: Decision remove SRS_invite_a_country_to_join_the_socialist_internationale target: [From.GetName]"
+			FROM = { country_event = { id = socrep_grif.78 hours = 1 } }
+		}
+		complete_effect = {
+			log = "[GetDateText]: [Root.GetName]: Decision SRS_invite_a_country_to_join_the_socialist_internationale target: [From.GetName]"
+			set_country_flag = SRS_internationalist_decision_cooldown_in_progress
+			activate_mission = SRS_internationalist_decision_cooldown
+			add_to_variable = { var = displeasure_towards_internationalists_var value = 1 }
+			set_variable = { total_sum_of_internationalist_and_communalist_displeasure = 0 }
+			add_to_variable = { total_sum_of_internationalist_and_communalist_displeasure = displeasure_towards_communards_var } 
+			add_to_variable = { total_sum_of_internationalist_and_communalist_displeasure = displeasure_towards_internationalists_var } 
+			set_temp_variable = { internationalist_displeasure_as_a_percentage_ersatz = displeasure_towards_internationalists_var }
+			divide_temp_variable = { internationalist_displeasure_as_a_percentage_ersatz = total_sum_of_internationalist_and_communalist_displeasure }
+			set_variable = { internationalist_displeasure_as_a_percentage = internationalist_displeasure_as_a_percentage_ersatz }
+			set_temp_variable = { communalist_displeasure_as_a_percentage_ersatz = displeasure_towards_communards_var }
+			divide_temp_variable = { communalist_displeasure_as_a_percentage_ersatz = total_sum_of_internationalist_and_communalist_displeasure }
+			set_variable = { communalist_displeasure_as_a_percentage = communalist_displeasure_as_a_percentage_ersatz }
+		}
+	}
+	SRS_settle_political_exiles = {
+		icon = red_star
+		allowed = {
+			tag = SRS
+		}
+		visible = {
+		}
+		available = {
+			NOT = { has_country_flag = SRS_communalist_decision_cooldown_in_progress }
+			is_subject = no
+			custom_trigger_tooltip = {
+				tooltip = SRS_communard_delagates_tt_30
+				check_variable = { communards_support_var > 29 }
+			}
+			has_country_flag = SRS_our_neighbours_have_been_liberated
+		}
+		ai_will_do = {
+			factor = 40
+		}
+		cost = 30
+		days_remove = 150
+		fire_only_once = no
+		days_re_enable = 70
+		modifier = {
+			MONTHLY_POPULATION = 0.5
+		}
+		complete_effect = {
+			log = "[GetDateText]: [Root.GetName]: Decision SRS_settle_political_exiles"
+			set_country_flag = SRS_communalist_decision_cooldown_in_progress
+			activate_mission = SRS_communalist_decision_cooldown
+			add_to_variable = { var = displeasure_towards_communards_var value = 1 }
+			set_variable = { total_sum_of_internationalist_and_communalist_displeasure = 0 }
+			add_to_variable = { total_sum_of_internationalist_and_communalist_displeasure = displeasure_towards_communards_var } 
+			add_to_variable = { total_sum_of_internationalist_and_communalist_displeasure = displeasure_towards_internationalists_var } 
+			set_temp_variable = { internationalist_displeasure_as_a_percentage_ersatz = displeasure_towards_internationalists_var }
+			divide_temp_variable = { internationalist_displeasure_as_a_percentage_ersatz = total_sum_of_internationalist_and_communalist_displeasure }
+			set_variable = { internationalist_displeasure_as_a_percentage = internationalist_displeasure_as_a_percentage_ersatz }
+			set_temp_variable = { communalist_displeasure_as_a_percentage_ersatz = displeasure_towards_communards_var }
+			divide_temp_variable = { communalist_displeasure_as_a_percentage_ersatz = total_sum_of_internationalist_and_communalist_displeasure }
+			set_variable = { communalist_displeasure_as_a_percentage = communalist_displeasure_as_a_percentage_ersatz }
+		}
+	}
+	SRS_reconciliation_with_the_tribals = {
+		icon = red_star
+		allowed = {
+			tag = SRS
+		}
+		visible = {
+		}
+		available = {
+			NOT = { has_country_flag = SRS_communalist_decision_cooldown_in_progress }
+			is_subject = no
+			custom_trigger_tooltip = {
+				tooltip = SRS_communard_delagates_tt_30
+				check_variable = { communards_support_var > 29 }
+			}
+			has_country_flag = SRS_northern_war_has_been_resolved
+		}
+		ai_will_do = {
+			factor = 10
+			modifier = {
+				factor = 100
+				has_war = yes
+			}
+		}
+		cost = 40
+		days_remove = 120
+		fire_only_once = yes
+		modifier = {
+			political_power_factor = -0.15
+			stability_factor = -0.05
+		}
+		remove_effect = {
+			log = "[GetDateText]: [Root.GetName]: Decision remove SRS_reconciliation_with_the_tribals"
+			522 = { 
+				add_manpower = 12000
+			}
+			561 = { 
+				add_manpower = 12000
+			}
+			542 = { 
+				add_manpower = 11000
+			}
+			585 = { 
+				add_manpower = 10000
+			}
+			601 = { 
+				add_manpower = 10000
+			}
+		}
+		complete_effect = {
+			log = "[GetDateText]: [Root.GetName]: Decision SRS_reconciliation_with_the_tribals"
+			set_country_flag = SRS_communalist_decision_cooldown_in_progress
+			activate_mission = SRS_communalist_decision_cooldown
+			add_to_variable = { var = displeasure_towards_communards_var value = 1 }
+			set_variable = { total_sum_of_internationalist_and_communalist_displeasure = 0 }
+			add_to_variable = { total_sum_of_internationalist_and_communalist_displeasure = displeasure_towards_communards_var } 
+			add_to_variable = { total_sum_of_internationalist_and_communalist_displeasure = displeasure_towards_internationalists_var } 
+			set_temp_variable = { internationalist_displeasure_as_a_percentage_ersatz = displeasure_towards_internationalists_var }
+			divide_temp_variable = { internationalist_displeasure_as_a_percentage_ersatz = total_sum_of_internationalist_and_communalist_displeasure }
+			set_variable = { internationalist_displeasure_as_a_percentage = internationalist_displeasure_as_a_percentage_ersatz }
+			set_temp_variable = { communalist_displeasure_as_a_percentage_ersatz = displeasure_towards_communards_var }
+			divide_temp_variable = { communalist_displeasure_as_a_percentage_ersatz = total_sum_of_internationalist_and_communalist_displeasure }
+			set_variable = { communalist_displeasure_as_a_percentage = communalist_displeasure_as_a_percentage_ersatz }
+		}
+	}
+	SRS_approach_tingkau_exiles = {
+		icon = eng_trade_unions_support
+		allowed = {
+			tag = SRS
+		}
+		visible = {
+		}
+		available = {
+			NOT = { has_country_flag = SRS_communalist_decision_cooldown_in_progress }
+			controls_state = 522
+			is_subject = no
+			custom_trigger_tooltip = {
+				tooltip = SRS_communard_delagates_tt_30
+				check_variable = { communards_support_var > 29 }
+			}
+		}
+		ai_will_do = {
+			factor = 50
+		}
+		cost = 40
+		days_remove = 70
+		fire_only_once = yes
+		modifier = {
+			political_power_factor = -0.05
+		}
+		complete_effect = {
+			log = "[GetDateText]: [Root.GetName]: Decision SRS_approach_tingkau_exiles"
+			set_country_flag = SRS_communalist_decision_cooldown_in_progress
+			activate_mission = SRS_communalist_decision_cooldown
+			add_to_variable = { var = displeasure_towards_communards_var value = 1 }
+			set_variable = { total_sum_of_internationalist_and_communalist_displeasure = 0 }
+			add_to_variable = { total_sum_of_internationalist_and_communalist_displeasure = displeasure_towards_communards_var } 
+			add_to_variable = { total_sum_of_internationalist_and_communalist_displeasure = displeasure_towards_internationalists_var } 
+			set_temp_variable = { internationalist_displeasure_as_a_percentage_ersatz = displeasure_towards_internationalists_var }
+			divide_temp_variable = { internationalist_displeasure_as_a_percentage_ersatz = total_sum_of_internationalist_and_communalist_displeasure }
+			set_variable = { internationalist_displeasure_as_a_percentage = internationalist_displeasure_as_a_percentage_ersatz }
+			set_temp_variable = { communalist_displeasure_as_a_percentage_ersatz = displeasure_towards_communards_var }
+			divide_temp_variable = { communalist_displeasure_as_a_percentage_ersatz = total_sum_of_internationalist_and_communalist_displeasure }
+			set_variable = { communalist_displeasure_as_a_percentage = communalist_displeasure_as_a_percentage_ersatz }
+		}
+		remove_effect = {
+			log = "[GetDateText]: [Root.GetName]: Decision remove SRS_approach_tingkau_exiles"
+			522 = {
+				add_manpower = 35600 
+				add_extra_state_shared_building_slots = 1
+				add_building_construction = {
+						type = industrial_complex
+						level = 1
+						instant_build = yes
+				}
+			}
+		}
+	}
+	SRS_approach_hail_forest_communes = {
+		icon = eng_trade_unions_support
+		allowed = {
+			tag = SRS
+		}
+		visible = {
+			NOT = { has_country_flag = SRS_suppressed_the_hail_forest_communes }
+		}
+		available = {
+			NOT = { has_country_flag = SRS_communalist_decision_cooldown_in_progress }
+			controls_state = 542
+			is_subject = no
+			custom_trigger_tooltip = {
+				tooltip = SRS_communard_delagates_tt_30
+				check_variable = { communards_support_var > 29 }
+			}
+			has_country_flag = SRS_hail_forest_communes_cooperation
+		}
+		ai_will_do = {
+			factor = 25
+			modifier = {
+				factor = 70
+				has_war = yes
+			}
+		}
+		highlight_states = {
+			state = 542
+		}
+		cost = 40
+		days_remove = 150
+		fire_only_once = no
+		days_re_enable = 150
+		modifier = {
+			political_power_factor = -0.05
+			production_factory_max_efficiency_factor = 0.1
+			production_factory_efficiency_gain_factor = 0.1
+			research_speed_factor = 0.1
+		}
+		complete_effect = {
+			log = "[GetDateText]: [Root.GetName]: Decision SRS_approach_hail_forest_communes"
+			set_country_flag = SRS_communalist_decision_cooldown_in_progress
+			activate_mission = SRS_communalist_decision_cooldown
+			add_to_variable = { var = displeasure_towards_communards_var value = 2 }
+			set_variable = { total_sum_of_internationalist_and_communalist_displeasure = 0 }
+			add_to_variable = { total_sum_of_internationalist_and_communalist_displeasure = displeasure_towards_communards_var } 
+			add_to_variable = { total_sum_of_internationalist_and_communalist_displeasure = displeasure_towards_internationalists_var } 
+			set_temp_variable = { internationalist_displeasure_as_a_percentage_ersatz = displeasure_towards_internationalists_var }
+			divide_temp_variable = { internationalist_displeasure_as_a_percentage_ersatz = total_sum_of_internationalist_and_communalist_displeasure }
+			set_variable = { internationalist_displeasure_as_a_percentage = internationalist_displeasure_as_a_percentage_ersatz }
+			set_temp_variable = { communalist_displeasure_as_a_percentage_ersatz = displeasure_towards_communards_var }
+			divide_temp_variable = { communalist_displeasure_as_a_percentage_ersatz = total_sum_of_internationalist_and_communalist_displeasure }
+			set_variable = { communalist_displeasure_as_a_percentage = communalist_displeasure_as_a_percentage_ersatz }
+		}
+	}
+	SRS_develop_the_bluffhead_harbour = {
+		icon = generic_construction
+		allowed = {
+			tag = SRS
+		}
+		visible = {
+			NOT = { has_country_flag = SRS_suppressed_the_hail_forest_communes }
+		}
+		available = {
+			NOT = { has_country_flag = SRS_communalist_decision_cooldown_in_progress }
+			controls_state = 542
+			is_subject = no
+			custom_trigger_tooltip = {
+				tooltip = SRS_communard_delagates_tt_30
+				check_variable = { communards_support_var > 29 }
+			}
+			has_country_flag = SRS_hail_forest_communes_cooperation
+		}
+		ai_will_do = {
+			factor = 30
+		}
+		highlight_provinces = {
+			1808
+		}
+		cost = 40
+		days_remove = 70
+		fire_only_once = yes
+		modifier = {
+			political_power_factor = -0.05
+			production_factory_max_efficiency_factor = -0.1
+		}
+		complete_effect = {
+			log = "[GetDateText]: [Root.GetName]: Decision SRS_develop_the_bluffhead_harbour"
+			set_country_flag = SRS_communalist_decision_cooldown_in_progress
+			activate_mission = SRS_communalist_decision_cooldown
+			add_to_variable = { var = displeasure_towards_communards_var value = 2 }
+			set_variable = { total_sum_of_internationalist_and_communalist_displeasure = 0 }
+			add_to_variable = { total_sum_of_internationalist_and_communalist_displeasure = displeasure_towards_communards_var } 
+			add_to_variable = { total_sum_of_internationalist_and_communalist_displeasure = displeasure_towards_internationalists_var } 
+			set_temp_variable = { internationalist_displeasure_as_a_percentage_ersatz = displeasure_towards_internationalists_var }
+			divide_temp_variable = { internationalist_displeasure_as_a_percentage_ersatz = total_sum_of_internationalist_and_communalist_displeasure }
+			set_variable = { internationalist_displeasure_as_a_percentage = internationalist_displeasure_as_a_percentage_ersatz }
+			set_temp_variable = { communalist_displeasure_as_a_percentage_ersatz = displeasure_towards_communards_var }
+			divide_temp_variable = { communalist_displeasure_as_a_percentage_ersatz = total_sum_of_internationalist_and_communalist_displeasure }
+			set_variable = { communalist_displeasure_as_a_percentage = communalist_displeasure_as_a_percentage_ersatz }
+		}
+		remove_effect = {
+			log = "[GetDateText]: [Root.GetName]: Decision remove SRS_develop_the_bluffhead_harbour"
+			542 = {
+				add_extra_state_shared_building_slots = 1
+				add_building_construction = {
+					type = dockyard
+					level = 1
+					instant_build = yes
+				}
+				add_building_construction = {
+					type = naval_base
+					level = 2
+					province = 1808
+					instant_build = yes
+				}
+			}
+		}
+	}
+	SRS_support_plover_cove_shipwrights = {
+		icon = generic_construction
+		allowed = {
+			tag = SRS
+		}
+		visible = {
+		}
+		available = {
+			NOT = { has_country_flag = SRS_communalist_decision_cooldown_in_progress }
+			is_subject = no
+			custom_trigger_tooltip = {
+				tooltip = SRS_communard_delagates_tt_30
+				check_variable = { communards_support_var > 29 }
+			}
+			has_country_flag = SRS_northern_war_has_been_resolved
+		}
+		ai_will_do = {
+			factor = 30
+		}
+		cost = 50
+		days_remove = 30
+		fire_only_once = yes
+		modifier = {
+			political_power_factor = -0.05
+		}
+		complete_effect = {
+			log = "[GetDateText]: [Root.GetName]: Decision SRS_support_plover_cove_shipwrights"
+			set_country_flag = SRS_communalist_decision_cooldown_in_progress
+			activate_mission = SRS_communalist_decision_cooldown
+			add_to_variable = { var = displeasure_towards_communards_var value = 2 }
+			set_variable = { total_sum_of_internationalist_and_communalist_displeasure = 0 }
+			add_to_variable = { total_sum_of_internationalist_and_communalist_displeasure = displeasure_towards_communards_var } 
+			add_to_variable = { total_sum_of_internationalist_and_communalist_displeasure = displeasure_towards_internationalists_var } 
+			set_temp_variable = { internationalist_displeasure_as_a_percentage_ersatz = displeasure_towards_internationalists_var }
+			divide_temp_variable = { internationalist_displeasure_as_a_percentage_ersatz = total_sum_of_internationalist_and_communalist_displeasure }
+			set_variable = { internationalist_displeasure_as_a_percentage = internationalist_displeasure_as_a_percentage_ersatz }
+			set_temp_variable = { communalist_displeasure_as_a_percentage_ersatz = displeasure_towards_communards_var }
+			divide_temp_variable = { communalist_displeasure_as_a_percentage_ersatz = total_sum_of_internationalist_and_communalist_displeasure }
+			set_variable = { communalist_displeasure_as_a_percentage = communalist_displeasure_as_a_percentage_ersatz }
+		}
+		remove_effect = {
+			log = "[GetDateText]: [Root.GetName]: Decision remove SRS_support_plover_cove_shipwrights"
+			set_country_flag = SRS_unlocked_shipwrights_collective_as_naval_designer
+			custom_effect_tooltip = available_designer
+			show_ideas_tooltip = plover_cove_shipwrights_collective
+		}
+	}
+	SRS_support_automobile_collective = {
+		icon = generic_construction
+		allowed = {
+			tag = SRS
+		}
+		visible = {
+		}
+		available = {
+			NOT = { has_country_flag = SRS_communalist_decision_cooldown_in_progress }
+			has_tech = motorised_infantry 
+			is_subject = no
+			custom_trigger_tooltip = {
+				tooltip = SRS_communard_delagates_tt_30
+				check_variable = { communards_support_var > 29 }
+			}
+		}
+		ai_will_do = {
+			factor = 20
+		}
+		cost = 50
+		days_remove = 30
+		fire_only_once = yes
+		modifier = {
+			political_power_factor = -0.05
+		}
+		complete_effect = {
+			log = "[GetDateText]: [Root.GetName]: Decision SRS_support_automobile_collective"
+			set_country_flag = SRS_communalist_decision_cooldown_in_progress
+			activate_mission = SRS_communalist_decision_cooldown
+			add_to_variable = { var = displeasure_towards_communards_var value = 2 }
+			set_variable = { total_sum_of_internationalist_and_communalist_displeasure = 0 }
+			add_to_variable = { total_sum_of_internationalist_and_communalist_displeasure = displeasure_towards_communards_var } 
+			add_to_variable = { total_sum_of_internationalist_and_communalist_displeasure = displeasure_towards_internationalists_var } 
+			set_temp_variable = { internationalist_displeasure_as_a_percentage_ersatz = displeasure_towards_internationalists_var }
+			divide_temp_variable = { internationalist_displeasure_as_a_percentage_ersatz = total_sum_of_internationalist_and_communalist_displeasure }
+			set_variable = { internationalist_displeasure_as_a_percentage = internationalist_displeasure_as_a_percentage_ersatz }
+			set_temp_variable = { communalist_displeasure_as_a_percentage_ersatz = displeasure_towards_communards_var }
+			divide_temp_variable = { communalist_displeasure_as_a_percentage_ersatz = total_sum_of_internationalist_and_communalist_displeasure }
+			set_variable = { communalist_displeasure_as_a_percentage = communalist_displeasure_as_a_percentage_ersatz }
+		}
+		remove_effect = {
+			log = "[GetDateText]: [Root.GetName]: Decision remove SRS_support_automobile_collective"
+			custom_effect_tooltip = available_materiel_manufacturer
+			show_ideas_tooltip = SRS_skynavian_automobile_cooperative
+			custom_effect_tooltip = SRS_gain_skynavian_automobile_cooperative_tt
+			set_country_flag = SRS_picked_the_skynavian_automobile_cooperative
+		}
+	}
+	SRS_open_up_ostfloy_oil = {
+		icon = oil
+		allowed = {
+			tag = SRS
+		}
+		visible = {
+		}
+		available = {
+			NOT = { has_country_flag = SRS_communalist_decision_cooldown_in_progress }
+			controls_state = 561
+			is_subject = no
+			custom_trigger_tooltip = {
+				tooltip = SRS_communard_delagates_tt_40
+				check_variable = { communards_support_var > 39 }
+			}
+			has_country_flag = SRS_northern_war_has_been_resolved
+		}
+		ai_will_do = {
+			factor = 5
+			modifier = {
+				factor = 70
+				has_war = yes
+			}
+		}
+		highlight_states = {
+			state = 561
+		}
+		cost = 30
+		days_remove = 250
+		fire_only_once = no
+		days_re_enable = 150
+		modifier = {
+			political_power_factor = -0.05
+		}
+		complete_effect = {
+			log = "[GetDateText]: [Root.GetName]: Decision SRS_open_up_ostfloy_oil"
+			set_country_flag = SRS_communalist_decision_cooldown_in_progress
+			activate_mission = SRS_communalist_decision_cooldown
+			add_resource = { type = oil amount = 50 state = 561 }
+			add_to_variable = { var = displeasure_towards_communards_var value = 2 }
+			set_variable = { total_sum_of_internationalist_and_communalist_displeasure = 0 }
+			add_to_variable = { total_sum_of_internationalist_and_communalist_displeasure = displeasure_towards_communards_var } 
+			add_to_variable = { total_sum_of_internationalist_and_communalist_displeasure = displeasure_towards_internationalists_var } 
+			set_temp_variable = { internationalist_displeasure_as_a_percentage_ersatz = displeasure_towards_internationalists_var }
+			divide_temp_variable = { internationalist_displeasure_as_a_percentage_ersatz = total_sum_of_internationalist_and_communalist_displeasure }
+			set_variable = { internationalist_displeasure_as_a_percentage = internationalist_displeasure_as_a_percentage_ersatz }
+			set_temp_variable = { communalist_displeasure_as_a_percentage_ersatz = displeasure_towards_communards_var }
+			divide_temp_variable = { communalist_displeasure_as_a_percentage_ersatz = total_sum_of_internationalist_and_communalist_displeasure }
+			set_variable = { communalist_displeasure_as_a_percentage = communalist_displeasure_as_a_percentage_ersatz }
+		}
+		remove_effect = {
+			log = "[GetDateText]: [Root.GetName]: Decision remove SRS_open_up_ostfloy_oil"
+			add_resource = { type = oil amount = -50 state = 561 }
+		}
+	}
+	SRS_open_up_littlegriff_minerals = {
+		icon = crystals
+		allowed = {
+			tag = SRS
+		}
+		visible = {
+		}
+		available = {
+			NOT = { has_country_flag = SRS_communalist_decision_cooldown_in_progress }
+			controls_state = 585
+			is_subject = no
+			custom_trigger_tooltip = {
+				tooltip = SRS_communard_delagates_tt_40
+				check_variable = { communards_support_var > 39 }
+			}
+		}
+		ai_will_do = {
+			factor = 5
+			modifier = {
+				factor = 70
+				has_war = yes
+			}
+		}
+		highlight_states = {
+			state = 585
+		}
+		cost = 30
+		days_remove = 250
+		fire_only_once = no
+		days_re_enable = 150
+		modifier = {
+			political_power_factor = -0.05
+		}
+		complete_effect = {
+			log = "[GetDateText]: [Root.GetName]: Decision SRS_open_up_littlegriff_minerals"
+			set_country_flag = SRS_communalist_decision_cooldown_in_progress
+			activate_mission = SRS_communalist_decision_cooldown
+			add_resource = { type = crystals amount = 10 state = 585 }
+			add_resource = { type = steel amount = 5 state = 585 }
+			add_resource = { type = aluminium amount = 5 state = 585 }
+			add_to_variable = { var = displeasure_towards_communards_var value = 2 }
+			set_variable = { total_sum_of_internationalist_and_communalist_displeasure = 0 }
+			add_to_variable = { total_sum_of_internationalist_and_communalist_displeasure = displeasure_towards_communards_var } 
+			add_to_variable = { total_sum_of_internationalist_and_communalist_displeasure = displeasure_towards_internationalists_var } 
+			set_temp_variable = { internationalist_displeasure_as_a_percentage_ersatz = displeasure_towards_internationalists_var }
+			divide_temp_variable = { internationalist_displeasure_as_a_percentage_ersatz = total_sum_of_internationalist_and_communalist_displeasure }
+			set_variable = { internationalist_displeasure_as_a_percentage = internationalist_displeasure_as_a_percentage_ersatz }
+			set_temp_variable = { communalist_displeasure_as_a_percentage_ersatz = displeasure_towards_communards_var }
+			divide_temp_variable = { communalist_displeasure_as_a_percentage_ersatz = total_sum_of_internationalist_and_communalist_displeasure }
+			set_variable = { communalist_displeasure_as_a_percentage = communalist_displeasure_as_a_percentage_ersatz }
+		}
+		remove_effect = {
+			log = "[GetDateText]: [Root.GetName]: Decision remove SRS_open_up_littlegriff_minerals"
+			add_resource = { type = crystals amount = -10 state = 585 }
+			add_resource = { type = steel amount = -5 state = 585 }
+			add_resource = { type = aluminium amount = -5 state = 585 }
+		}
+	}
+	SRS_open_up_communal_manufacturing_capacity = {
+		icon = generic_industry
+		allowed = {
+			tag = SRS
+		}
+		visible = {
+		}
+		available = {
+			NOT = { has_country_flag = SRS_communalist_decision_cooldown_in_progress }
+			is_subject = no
+			custom_trigger_tooltip = {
+				tooltip = SRS_communard_delagates_tt_40
+				check_variable = { communards_support_var > 39 }
+			}
+		}
+		ai_will_do = {
+			factor = 5
+			modifier = {
+				factor = 70
+				has_war = yes
+			}
+		}
+		cost = 30
+		days_remove = 120
+		fire_only_once = no
+		days_re_enable = 150
+		modifier = {
+			political_power_factor = -0.05
+		}
+		complete_effect = {
+			log = "[GetDateText]: [Root.GetName]: Decision SRS_open_up_communal_manufacturing_capacity"
+			set_country_flag = SRS_communalist_decision_cooldown_in_progress
+			activate_mission = SRS_communalist_decision_cooldown
+			add_offsite_building = { type = industrial_complex level = 3 }
+			add_to_variable = { var = displeasure_towards_communards_var value = 2 }
+			set_variable = { total_sum_of_internationalist_and_communalist_displeasure = 0 }
+			add_to_variable = { total_sum_of_internationalist_and_communalist_displeasure = displeasure_towards_communards_var } 
+			add_to_variable = { total_sum_of_internationalist_and_communalist_displeasure = displeasure_towards_internationalists_var } 
+			set_temp_variable = { internationalist_displeasure_as_a_percentage_ersatz = displeasure_towards_internationalists_var }
+			divide_temp_variable = { internationalist_displeasure_as_a_percentage_ersatz = total_sum_of_internationalist_and_communalist_displeasure }
+			set_variable = { internationalist_displeasure_as_a_percentage = internationalist_displeasure_as_a_percentage_ersatz }
+			set_temp_variable = { communalist_displeasure_as_a_percentage_ersatz = displeasure_towards_communards_var }
+			divide_temp_variable = { communalist_displeasure_as_a_percentage_ersatz = total_sum_of_internationalist_and_communalist_displeasure }
+			set_variable = { communalist_displeasure_as_a_percentage = communalist_displeasure_as_a_percentage_ersatz }
+		}
+		remove_effect = {
+			log = "[GetDateText]: [Root.GetName]: Decision remove SRS_open_up_communal_manufacturing_capacity"
+			add_offsite_building = { type = industrial_complex level = -3 }
+		}
+	}
+	SRS_declare_the_socialist_republic_skynavia = {
+		icon = generic_civil_support
+		allowed = {
+			tag = SRS
+		}
+		visible = {
+			has_country_flag = SRS_has_switched_name_to_srfg
+		}
+		available = {
+			NOT = { has_country_flag = SRS_communalist_decision_cooldown_in_progress }
+			is_subject = no
+			custom_trigger_tooltip = {
+				tooltip = SRS_communard_delagates_tt_40
+				check_variable = { communards_support_var > 39 }
+			}
+		}
+		ai_will_do = {
+			factor = 0
+		}
+		cost = 60
+		days_remove = 30
+		fire_only_once = no
+		days_re_enable = 30
+		modifier = {
+			political_power_factor = -0.1
+		}
+		remove_effect = {
+			log = "[GetDateText]: [Root.GetName]: Decision remove SRS_declare_the_socialist_republic_skynavia"
+			drop_cosmetic_tag = yes
+			clr_country_flag = SRS_has_switched_name_to_srfg
+		}
+		complete_effect = {
+			log = "[GetDateText]: [Root.GetName]: Decision SRS_declare_the_socialist_republic_skynavia"
+			set_country_flag = SRS_communalist_decision_cooldown_in_progress
+			activate_mission = SRS_communalist_decision_cooldown
+			add_to_variable = { var = displeasure_towards_communards_var value = 3 }
+			set_variable = { total_sum_of_internationalist_and_communalist_displeasure = 0 }
+			add_to_variable = { total_sum_of_internationalist_and_communalist_displeasure = displeasure_towards_communards_var } 
+			add_to_variable = { total_sum_of_internationalist_and_communalist_displeasure = displeasure_towards_internationalists_var } 
+			set_temp_variable = { internationalist_displeasure_as_a_percentage_ersatz = displeasure_towards_internationalists_var }
+			divide_temp_variable = { internationalist_displeasure_as_a_percentage_ersatz = total_sum_of_internationalist_and_communalist_displeasure }
+			set_variable = { internationalist_displeasure_as_a_percentage = internationalist_displeasure_as_a_percentage_ersatz }
+			set_temp_variable = { communalist_displeasure_as_a_percentage_ersatz = displeasure_towards_communards_var }
+			divide_temp_variable = { communalist_displeasure_as_a_percentage_ersatz = total_sum_of_internationalist_and_communalist_displeasure }
+			set_variable = { communalist_displeasure_as_a_percentage = communalist_displeasure_as_a_percentage_ersatz }
+		}
+	}
+	SRS_form_the_environmentalist_league = {
+		icon = eng_trade_unions_support
+		allowed = {
+			tag = SRS
+		}
+		visible = {
+		}
+		available = {
+			NOT = { has_country_flag = SRS_communalist_decision_cooldown_in_progress }
+			is_subject = no
+			custom_trigger_tooltip = {
+				tooltip = SRS_communard_delagates_tt_40
+				check_variable = { communards_support_var > 39 }
+			}
+		}
+		ai_will_do = {
+			factor = 40
+		}
+		cost = 50
+		days_remove = 70
+		fire_only_once = yes
+		modifier = {
+			political_power_factor = -0.1
+		}
+		remove_effect = {
+			log = "[GetDateText]: [Root.GetName]: Decision remove SRS_form_the_environmentalist_league"
+			add_ideas = SRS_welfare_league
+		}
+		complete_effect = {
+			log = "[GetDateText]: [Root.GetName]: Decision SRS_form_the_environmentalist_league"
+			set_country_flag = SRS_communalist_decision_cooldown_in_progress
+			activate_mission = SRS_communalist_decision_cooldown
+			add_to_variable = { var = displeasure_towards_communards_var value = 2 }
+			set_variable = { total_sum_of_internationalist_and_communalist_displeasure = 0 }
+			add_to_variable = { total_sum_of_internationalist_and_communalist_displeasure = displeasure_towards_communards_var } 
+			add_to_variable = { total_sum_of_internationalist_and_communalist_displeasure = displeasure_towards_internationalists_var } 
+			set_temp_variable = { internationalist_displeasure_as_a_percentage_ersatz = displeasure_towards_internationalists_var }
+			divide_temp_variable = { internationalist_displeasure_as_a_percentage_ersatz = total_sum_of_internationalist_and_communalist_displeasure }
+			set_variable = { internationalist_displeasure_as_a_percentage = internationalist_displeasure_as_a_percentage_ersatz }
+			set_temp_variable = { communalist_displeasure_as_a_percentage_ersatz = displeasure_towards_communards_var }
+			divide_temp_variable = { communalist_displeasure_as_a_percentage_ersatz = total_sum_of_internationalist_and_communalist_displeasure }
+			set_variable = { communalist_displeasure_as_a_percentage = communalist_displeasure_as_a_percentage_ersatz }
+		}
+	}
+	SRS_form_the_free_womens_corps = {
+		icon = eng_trade_unions_support
+		allowed = {
+			tag = SRS
+		}
+		visible = {
+		}
+		available = {
+			NOT = { has_country_flag = SRS_communalist_decision_cooldown_in_progress }
+			is_subject = no
+			custom_trigger_tooltip = {
+				tooltip = SRS_communard_delagates_tt_40
+				check_variable = { communards_support_var > 39 }
+			}
+			has_country_flag = SRS_northern_war_has_been_resolved
+		}
+		ai_will_do = {
+			factor = 40
+		}
+		cost = 50
+		days_remove = 70
+		fire_only_once = yes
+		modifier = {
+			political_power_factor = -0.1
+		}
+		remove_effect = {
+			log = "[GetDateText]: [Root.GetName]: Decision remove SRS_form_the_free_womens_corps"
+			add_ideas = SRS_free_womens_corps
+		}
+		complete_effect = {
+			log = "[GetDateText]: [Root.GetName]: Decision SRS_form_the_free_womens_corps"
+			set_country_flag = SRS_communalist_decision_cooldown_in_progress
+			activate_mission = SRS_communalist_decision_cooldown
+			add_to_variable = { var = displeasure_towards_communards_var value = 2 }
+			set_variable = { total_sum_of_internationalist_and_communalist_displeasure = 0 }
+			add_to_variable = { total_sum_of_internationalist_and_communalist_displeasure = displeasure_towards_communards_var } 
+			add_to_variable = { total_sum_of_internationalist_and_communalist_displeasure = displeasure_towards_internationalists_var } 
+			set_temp_variable = { internationalist_displeasure_as_a_percentage_ersatz = displeasure_towards_internationalists_var }
+			divide_temp_variable = { internationalist_displeasure_as_a_percentage_ersatz = total_sum_of_internationalist_and_communalist_displeasure }
+			set_variable = { internationalist_displeasure_as_a_percentage = internationalist_displeasure_as_a_percentage_ersatz }
+			set_temp_variable = { communalist_displeasure_as_a_percentage_ersatz = displeasure_towards_communards_var }
+			divide_temp_variable = { communalist_displeasure_as_a_percentage_ersatz = total_sum_of_internationalist_and_communalist_displeasure }
+			set_variable = { communalist_displeasure_as_a_percentage = communalist_displeasure_as_a_percentage_ersatz }
+		}
+	}
+}
+SRS_the_war_in_the_north = {
+	SRS_border_skirmish= {
+		icon = rifles
+		allowed = {
+			tag = SRS
+		}
+		targets = { NTR D01 D02 D03 D04 D05 D06 D07 D08 D09 D10 D11 D12 D13 D14 D15 }
+		target_trigger = {
+			FROM = {
+				original_tag = NTR
+			}
+		}
+		visible = {
+			has_war = no
+			is_subject = no
+			NOT = { has_country_flag = SRS_northwar_skirmish_timeout }
+			owns_state = 561
+			FROM = {
+				owns_state = 677
+				original_tag = NTR
+				NOT = {
+					is_subject_of = ROOT
+					is_in_faction_with = ROOT
+				}
+			}
+			561 = { has_border_war = no }
+			677 = { has_border_war = no }
+		}
+		available = { 
+			561 = { has_border_war = no }
+			562 = { has_border_war = no }
+			677 = { has_border_war = no }
+			601 = { has_border_war = no }
+			FROM = { 
+				has_civil_war = no
+			}
+		}
+		cost = 50
+
+		ai_will_do = {
+			factor = 20
+		}
+		days_re_enable = 150
+
+		highlight_states = {
+			state = 561
+		}
+
+		complete_effect = {
+			log = "[GetDateText]: [Root.GetName]: Decision SRS_border_skirmish target: [From.GetName]"
+			hidden_effect = {
+				activate_targeted_decision = {
+					target = ROOT
+					decision = SRS_border_skirmish_timeout
+				}
+			}
+			start_border_war = {
+				change_state_after_war = no
+				attacker = {
+					state = 561
+					num_provinces = 6
+					on_win = srs_borderwar.3
+					on_lose = srs_borderwar.4
+					on_cancel = srs_borderwar.5
+				}
+
+				defender = {
+					state = 677
+					num_provinces = 5
+					on_win = srs_borderwar.6
+					on_lose = srs_borderwar.7
+					on_cancel = srs_borderwar.5
+				}
+			}
+			set_country_flag = { flag = SRS_northwar_skirmish_timeout value = 1 days = 50 }
+		}
+	}
+	SRS_border_skirmish_timeout = {
+		icon = border_war
+		allowed = { always = no }
+		available = {
+			561 = { has_border_war = no }
+			677 = { has_border_war = no }
+		}
+		highlight_states = {
+			OR = {
+				state = 561
+				state = 677
+			}
+		}
+		ai_will_do = {
+			base = 0
+		}
+		days_mission_timeout = 30
+		is_good = no
+		fire_only_once = yes
+		timeout_effect = {
+			log = "[GetDateText]: [Root.GetName]: Decision timeout SRS_border_skirmish_timeout"
+			cancel_border_war = {
+				defender = 677
+				attacker = 561
+			}
+		}
+	}
+	NTR_border_skirmish= {
+		icon = rifles
+		allowed = {
+			tag = NTR
+		}
+		targets = { SRS D01 D02 D03 D04 D05 D06 D07 D08 D09 D10 D11 D12 D13 D14 D15 }
+		target_trigger = {
+			FROM = {
+				original_tag = SRS
+			}
+		}
+		visible = {
+			has_war = no
+			is_subject = no
+			NOT = { has_country_flag = SRS_northwar_skirmish_timeout }
+			owns_state = 677
+			FROM = {
+				owns_state = 561
+				original_tag = SRS
+				NOT = {
+					is_subject_of = ROOT
+					is_in_faction_with = ROOT
+				}
+			}
+			561 = { has_border_war = no }
+			677 = { has_border_war = no }
+		}
+		available = { 
+			561 = { has_border_war = no }
+			562 = { has_border_war = no }
+			677 = { has_border_war = no }
+			601 = { has_border_war = no }
+			FROM = {
+				has_civil_war = no
+			}
+		}
+		cost = 50
+
+		ai_will_do = {
+			factor = 20
+		}
+		days_re_enable = 150
+
+		highlight_states = {
+			state = 677
+		}
+
+		complete_effect = {
+			log = "[GetDateText]: [Root.GetName]: Decision NTR_border_skirmish target: [From.GetName]"
+			hidden_effect = {
+				activate_targeted_decision = {
+					target = ROOT
+					decision = NTR_border_skirmish_timeout
+				}
+			}
+			start_border_war = {
+				change_state_after_war = no
+				attacker = {
+					state = 677
+					num_provinces = 5
+					on_win = srs_borderwar.3
+					on_lose = srs_borderwar.4
+					on_cancel = srs_borderwar.5
+				}
+
+				defender = {
+					state = 561
+					num_provinces = 6
+					on_win = srs_borderwar.6
+					on_lose = srs_borderwar.7
+					on_cancel = srs_borderwar.5
+				}
+			}
+			set_country_flag = { flag = SRS_northwar_skirmish_timeout value = 1 days = 50 }
+		}
+	}
+	NTR_border_skirmish_timeout = {
+		icon = border_war
+		allowed = { always = no }
+		available = {
+			561 = { has_border_war = no }
+			677 = { has_border_war = no }
+		}
+		highlight_states = {
+			OR = {
+				state = 561
+				state = 677
+			}
+		}
+		ai_will_do = {
+			base = 0
+		}
+		days_mission_timeout = 30
+		is_good = no
+		fire_only_once = yes
+		timeout_effect = {
+			log = "[GetDateText]: [Root.GetName]: Decision timeout NTR_border_skirmish_timeout"
+			cancel_border_war = {
+				defender = 561
+				attacker = 677
+			}
+		}
+	}
+	SRS_border_skirmish_2= {
+		icon = rifles
+		allowed = {
+			tag = SRS
+		}
+		targets = { NTR D01 D02 D03 D04 D05 D06 D07 D08 D09 D10 D11 D12 D13 D14 D15 }
+		target_trigger = {
+			FROM = {
+				original_tag = NTR
+			}
+		}
+		visible = {
+			has_war = no
+			is_subject = no
+			NOT = { has_country_flag = SRS_northwar_skirmish_2_timeout }
+			owns_state = 601
+			FROM = {
+				owns_state = 562
+				original_tag = NTR
+				NOT = {
+					is_subject_of = ROOT
+					is_in_faction_with = ROOT
+				}
+			}
+			601 = { has_border_war = no }
+			562 = { has_border_war = no }
+		}
+		available = { 
+			561 = { has_border_war = no }
+			562 = { has_border_war = no }
+			677 = { has_border_war = no }
+			601 = { has_border_war = no }
+			FROM = { 
+				has_civil_war = no
+			}
+		}
+		cost = 50
+
+		ai_will_do = {
+			factor = 20
+		}
+		days_re_enable = 150
+
+		highlight_states = {
+			state = 601
+		}
+
+		complete_effect = {
+			log = "[GetDateText]: [Root.GetName]: Decision SRS_border_skirmish_2 target: [From.GetName]"
+			hidden_effect = {
+				activate_targeted_decision = {
+					target = ROOT
+					decision = SRS_border_skirmish_2_timeout
+				}
+			}
+			start_border_war = {
+				change_state_after_war = no
+				attacker = {
+					state = 601
+					num_provinces = 5
+					on_win = srs_borderwar.3
+					on_lose = srs_borderwar.4
+					on_cancel = srs_borderwar.5
+				}
+
+				defender = {
+					state = 562
+					num_provinces = 5
+					on_win = srs_borderwar.6
+					on_lose = srs_borderwar.7
+					on_cancel = srs_borderwar.5
+				}
+			}
+			set_country_flag = { flag = SRS_northwar_skirmish_2_timeout value = 1 days = 50 }
+		}
+	}
+	SRS_border_skirmish_2_timeout = {
+		icon = border_war
+		allowed = { always = no }
+		available = {
+			601 = { has_border_war = no }
+			562 = { has_border_war = no }
+		}
+		highlight_states = {
+			OR = {
+				state = 601
+				state = 562
+			}
+		}
+		ai_will_do = {
+			base = 0
+		}
+		days_mission_timeout = 30
+		is_good = no
+		fire_only_once = yes
+		timeout_effect = {
+			log = "[GetDateText]: [Root.GetName]: Decision timeout SRS_border_skirmish_2_timeout"
+			cancel_border_war = {
+				attacker = 601
+				defender = 562
+			}
+		}
+	}
+	NTR_border_skirmish_2= {
+		icon = rifles
+		allowed = {
+			tag = NTR
+		}
+		targets = { SRS D01 D02 D03 D04 D05 D06 D07 D08 D09 D10 D11 D12 D13 D14 D15 }
+		target_trigger = {
+			FROM = {
+				original_tag = SRS
+			}
+		}
+		visible = {
+			has_war = no
+			is_subject = no
+			NOT = { has_country_flag = SRS_northwar_skirmish_2_timeout }
+			owns_state = 562
+			FROM = {
+				owns_state = 601
+				original_tag = SRS
+				NOT = {
+					is_subject_of = ROOT
+					is_in_faction_with = ROOT
+				}
+			}
+			601 = { has_border_war = no }
+			562 = { has_border_war = no }
+		}
+		available = { 
+			561 = { has_border_war = no }
+			562 = { has_border_war = no }
+			677 = { has_border_war = no }
+			601 = { has_border_war = no }
+			FROM = {
+				has_civil_war = no
+			}
+		}
+		cost = 50
+
+		ai_will_do = {
+			factor = 20
+		}
+		days_re_enable = 150
+
+		highlight_states = {
+			state = 562
+		}
+
+		complete_effect = {
+			log = "[GetDateText]: [Root.GetName]: Decision NTR_border_skirmish_2 target: [From.GetName]"
+			hidden_effect = {
+				activate_targeted_decision = {
+					target = ROOT
+					decision = NTR_border_skirmish_2_timeout
+				}
+			}
+			start_border_war = {
+				change_state_after_war = no
+				attacker = {
+					state = 562
+					num_provinces = 5
+					on_win = srs_borderwar.3
+					on_lose = srs_borderwar.4
+					on_cancel = srs_borderwar.5
+				}
+
+				defender = {
+					state = 601
+					num_provinces = 5
+					on_win = srs_borderwar.6
+					on_lose = srs_borderwar.7
+					on_cancel = srs_borderwar.5
+				}
+			}
+			set_country_flag = { flag = SRS_northwar_skirmish_2_timeout value = 1 days = 50 }
+		}
+	}
+	NTR_border_skirmish_2_timeout = {
+		icon = border_war
+		allowed = { always = no }
+		available = {
+			601 = { has_border_war = no }
+			562 = { has_border_war = no }
+		}
+		highlight_states = {
+			OR = {
+				state = 601
+				state = 562
+			}
+		}
+		ai_will_do = {
+			base = 0
+		}
+		days_mission_timeout = 30
+		is_good = no
+		fire_only_once = yes
+		timeout_effect = {
+			log = "[GetDateText]: [Root.GetName]: Decision timeout NTR_border_skirmish_2_timeout"
+			cancel_border_war = {
+				defender = 601
+				attacker = 562
+			}
+		}
+	}
+}
+SRS_the_inundation_of_skynavia = {
+	
+	SRS_inundate_the_water_lines = {
+
+		icon = hol_inundate_water_lines
+
+		allowed = {
+			tag = SRS
+		}
+
+		available = {
+			has_war = yes
+			522 = { is_controlled_by = ROOT }
+		}
+
+		cost = 30
+
+		fire_only_once = no
+
+		days_remove = 10
+
+		highlight_states = { state = 522 }
+
+		highlight_provinces = {
+			12567
+			12157
+			11307
+			4758
+			3316
+			1334
+			6339
+			6502
+			237
+			12287
+			11421
+			9577
+		}
+
+		modifier = {
+			political_power_factor = -0.25
+		}
+
+		visible = {
+			NOT = { has_global_flag = SRS_inundation_lines_flooded }
+		}
+
+		remove_effect = {
+			log = "[GetDateText]: [Root.GetName]: Decision remove SRS_inundate_the_water_lines"
+			if = {
+				limit = {
+					522 = { is_controlled_by = ROOT }
+				}
+				522 = {
+					add_province_modifier = {
+						static_modifiers = { flooded }
+						province = {
+							id = 12567
+							id = 12157
+							id = 11307
+							id = 4758
+							id = 3316
+							id = 1334
+							id = 6339
+							id = 6502
+							id = 237
+							id = 12287
+							id = 11421
+							id = 9577
+						}
+					}
+					damage_building = {
+					    type = infrastructure
+					    damage = 2
+					}
+					damage_building = {
+					    type = industrial_complex
+					    damage = 0.2
+					}
+					damage_building = {
+					    type = arms_factory
+					    damage = 0.2
+					}
+				}
+			}
+			set_global_flag = SRS_inundation_lines_flooded
+		}
+	}
+
+	SRS_drain_the_water_lines = {
+
+		icon = hol_drain_water_lines
+
+		allowed = {
+			tag = SRS
+		}
+
+		available = {
+			522 = { is_fully_controlled_by = ROOT }
+		}
+
+		cost = 30
+
+		fire_only_once = no
+
+		days_remove = 30
+
+		highlight_states = { state = 522 }
+
+		highlight_provinces = {
+			12567
+			12157
+			11307
+			4758
+			3316
+			1334
+			6339
+			6502
+			237
+			12287
+			11421
+			9577
+		}
+
+		modifier = {
+			civilian_factory_use = 1
+		}
+
+		visible = {
+			522 = { is_controlled_by = ROOT }
+			has_global_flag = SRS_inundation_lines_flooded
+		}
+
+		remove_effect = {
+			log = "[GetDateText]: [Root.GetName]: Decision remove SRS_drain_the_water_lines"
+			522 = {
+				remove_province_modifier = {
+					static_modifiers = { flooded }
+						province = {
+							id = 12567
+							id = 12157
+							id = 11307
+							id = 4758
+							id = 3316
+							id = 1334
+							id = 6339
+							id = 6502
+							id = 237
+							id = 12287
+							id = 11421
+							id = 9577
+						}
+				}
+			}
+			clr_global_flag = SRS_inundation_lines_flooded
+		}
+	}
+}
+SRS_the_defence_of_skynavia = {
+	SRS_for_the_cause = {
+		icon = red_star
+		allowed = {
+			tag = SRS
+		}
+		available = {
+			has_war = yes
+			surrender_progress > 0.3
+		}
+		ai_will_do = {
+			factor = 500
+		}
+		cost = 25
+		days_remove = 120
+		fire_only_once = no
+		days_re_enable = 200
+		modifier = {
+			industry_free_repair_factor = 0.15
+			industry_repair_factor = 0.15
+			equipment_conversion_speed = 0.15
+			industrial_capacity_factory = 0.15
+			conversion_cost_civ_to_mil_factor = -0.15
+		}
+	}
+	SRS_for_our_children = {
+		icon = red_star
+		allowed = {
+			tag = SRS
+		}
+		available = {
+			has_war = yes
+			surrender_progress > 0.35
+		}
+		ai_will_do = {
+			factor = 500
+		}
+		cost = 25
+		days_remove = 120
+		fire_only_once = no
+		days_re_enable = 200
+		modifier = {
+			minimum_training_level = -0.15
+			planning_speed = 0.15
+			dig_in_speed_factor = 0.15
+			land_reinforce_rate = 0.15
+			training_time_factor = -0.15
+			army_morale_factor = 0.15
+			army_org_factor = 0.15
+		}
+	}
+	SRS_for_each_other = {
+		icon = red_star
+		allowed = {
+			tag = SRS
+		}
+		available = {
+			has_war = yes
+			surrender_progress > 0.4
+		}
+		ai_will_do = {
+			factor = 500
+		}
+		cost = 25
+		days_remove = 120
+		fire_only_once = no
+		days_re_enable = 200
+		modifier = {
+			army_core_attack_factor = 0.15
+			army_core_defence_factor = 0.15
+			partisan_effect = 0.15
+			conscription = 0.15
+			attrition = -0.15
+		}
+	}
+}
+SRS_agitation_in_neighbours = {
+	SRS_FAT_conquer_skynavia = {                       
+		allowed = { 
+			tag = FAT
+		}                 
+		available = {                           
+			controls_state = 522                  
+		}
+		activation = {                          
+			always = no                    
+		}
+		is_good = no                          
+		days_mission_timeout = 120              
+		timeout_effect = {
+			log = "[GetDateText]: [Root.GetName]: Decision timeout SRS_FAT_conquer_skynavia"
+			FAT = { country_event = { id = socrep_grif.43 hours = 3 } }
+			custom_effect_tooltip = SRS_a_civil_war_will_start_in_our_country
+		}
+		complete_effect = {
+			log = "[GetDateText]: [Root.GetName]: Decision SRS_FAT_conquer_skynavia"
+			custom_effect_tooltip = SRS_the_revolution_will_be_averted
+		}
+    }
+	SRS_VED_conquer_skynavia = {                        
+		allowed = {
+			tag = VED
+		}                 
+		available = {                           
+			controls_state = 522                  
+		}
+		activation = {                          
+			always = no                    
+		}
+		is_good = no                          
+		days_mission_timeout = 120              
+		timeout_effect = {
+			log = "[GetDateText]: [Root.GetName]: Decision timeout SRS_VED_conquer_skynavia"
+			VED = { country_event = { id = socrep_grif.44 hours = 3 } }
+			custom_effect_tooltip = SRS_a_civil_war_will_start_in_our_country
+		}
+		complete_effect = {
+			log = "[GetDateText]: [Root.GetName]: Decision SRS_VED_conquer_skynavia"
+			custom_effect_tooltip = SRS_the_revolution_will_be_averted
+		}
+    }
+	NTR_VED_conquer_skynavia = {                        
+		allowed = {
+			tag = NTR
+		}                 
+		available = {                           
+			controls_state = 522                  
+		}
+		activation = {                          
+			always = no                    
+		}
+		is_good = no                          
+		days_mission_timeout = 70             
+		timeout_effect = {
+			log = "[GetDateText]: [Root.GetName]: Decision timeout NTR_VED_conquer_skynavia"
+			NTR = { country_event = { id = socrep_grif.63 hours = 3 } }
+			custom_effect_tooltip = SRS_a_civil_war_will_start_in_our_country
+		}
+		complete_effect = {
+			log = "[GetDateText]: [Root.GetName]: Decision NTR_VED_conquer_skynavia"
+			custom_effect_tooltip = SRS_the_revolution_will_be_averted
+		}
+    }
+}
+SRS_agitated_in_neighbours = {
+	SRS_survive_the_onslaught_until_rebellions_occur_FAT = {                      
+		allowed = { 
+			tag = SRS
+		}                 
+		available = {          
+				FAT = {
+						OR = {
+							exists = no
+							has_civil_war = yes
+							has_government = communism
+							is_subject_of = ROOT
+						}                
+				}
+		}
+		activation = {                          
+			always = no                      
+		}
+		is_good = no                          
+		days_mission_timeout = 125             
+		timeout_effect = {
+			log = "[GetDateText]: [Root.GetName]: Decision timeout SRS_survive_the_onslaught_until_rebellions_occur_FAT"
+			custom_effect_tooltip = SRS_the_socialist_dream_will_be_crushed
+		}
+		complete_effect = {
+			log = "[GetDateText]: [Root.GetName]: Decision SRS_survive_the_onslaught_until_rebellions_occur_FAT"
+			custom_effect_tooltip = SRS_the_revolution_will_be_gin
+		}
+    }
+	SRS_survive_the_onslaught_until_rebellions_occur_VED = {                     
+		allowed = { 
+			tag = SRS
+		}                 
+		available = {          
+				VED = {
+						OR = {
+							exists = no
+							has_civil_war = yes
+							has_government = communism
+							is_subject_of = ROOT
+						}                
+				}
+		}
+		activation = {                          
+			always = no                 
+		}
+		is_good = no                          
+		days_mission_timeout = 125             
+		timeout_effect = {
+			log = "[GetDateText]: [Root.GetName]: Decision timeout SRS_survive_the_onslaught_until_rebellions_occur_VED"
+			custom_effect_tooltip = SRS_the_socialist_dream_will_be_crushed
+		}
+		complete_effect = {
+			log = "[GetDateText]: [Root.GetName]: Decision SRS_survive_the_onslaught_until_rebellions_occur_VED"
+			custom_effect_tooltip = SRS_the_revolution_will_be_gin
+		}
+    }
+	SRS_survive_the_onslaught_until_rebellions_occur_NTR = {                     
+		allowed = { 
+			tag = SRS
+		}                 
+		available = {          
+				NTR = {
+						OR = {
+							exists = no
+							has_civil_war = yes
+							has_government = communism
+							is_subject_of = ROOT
+						}                
+				}
+		}
+		activation = {                          
+			always = no                 
+		}
+		is_good = no                          
+		days_mission_timeout = 75              
+		timeout_effect = {
+			log = "[GetDateText]: [Root.GetName]: Decision timeout SRS_survive_the_onslaught_until_rebellions_occur_NTR"
+			custom_effect_tooltip = SRS_the_socialist_dream_will_be_crushed
+		}
+		complete_effect = {
+			log = "[GetDateText]: [Root.GetName]: Decision SRS_survive_the_onslaught_until_rebellions_occur_NTR"
+			custom_effect_tooltip = SRS_the_revolution_will_be_gin
+		}
+    }
+}
+SRS_special_province_modifiers_projects = {
+	SRS_construct_the_dinkau_lighthouse = {
+		icon = STG_palace_construction_effort
+		allowed = {
+			tag = SRS
+		}
+		available = {
+			controls_state = 522
+			is_subject = no
+		}
+		highlight_provinces = { 11307 }
+		ai_will_do = {
+			factor = 15
+		}
+		cost = 30
+		days_remove = 30
+		fire_only_once = yes
+		modifier = {
+		}
+		complete_effect = {
+			log = "[GetDateText]: [Root.GetName]: Decision SRS_construct_the_dinkau_lighthouse"
+		}
+		remove_effect = {
+			log = "[GetDateText]: [Root.GetName]: Decision remove SRS_construct_the_dinkau_lighthouse"
+			522 = {
+				add_province_modifier = { static_modifiers = { dinkau_lighthouse } province = { id = 11307 } }
+			}
+			add_political_power = 100
+		}
+	}
+	SRS_construct_the_old_dragon_gardens = {
+		icon = flower
+		allowed = {
+			tag = SRS
+		}
+		available = {
+			controls_state = 601
+			is_subject = no
+		}
+		highlight_provinces = { 13235 }
+		ai_will_do = {
+			factor = 10
+		}
+		cost = 30
+		days_remove = 30
+		fire_only_once = yes
+		modifier = {
+		}
+		complete_effect = {
+			log = "[GetDateText]: [Root.GetName]: Decision SRS_construct_the_old_dragon_gardens"
+		}
+		remove_effect = {
+			log = "[GetDateText]: [Root.GetName]: Decision remove SRS_construct_the_old_dragon_gardens"
+			601 = {
+				add_province_modifier = { static_modifiers = { old_dragon_gardens } province = { id = 13235 } }
+			}
+			add_political_power = 100
+		}
+	}
+	SRS_construct_the_new_skynavia_trolleybus_system = {
+		icon = railroad
+		allowed = {
+			tag = SRS
+		}
+		available = {
+			controls_state = 522
+			is_subject = no
+		}
+		highlight_provinces = { 6502 }
+		ai_will_do = {
+			factor = 20
+		}
+		cost = 30
+		days_remove = 30
+		fire_only_once = yes
+		modifier = {
+		}
+		complete_effect = {
+			log = "[GetDateText]: [Root.GetName]: Decision SRS_construct_the_new_skynavia_trolleybus_system"
+		}
+		remove_effect = {
+			log = "[GetDateText]: [Root.GetName]: Decision remove SRS_construct_the_new_skynavia_trolleybus_system"
+			522 = {
+				add_province_modifier = { static_modifiers = { skynavia_trolleybus_network } province = { id = 6502 } }
+			}
+			add_political_power = 100
+		}
+	}
+	SRS_construct_the_skynavian_peoples_archives = {
+		icon = book
+		allowed = {
+			tag = SRS
+		}
+		available = {
+			controls_state = 522
+			is_subject = no
+		}
+		highlight_provinces = { 6502 }
+		ai_will_do = {
+			factor = 15
+		}
+		cost = 30
+		days_remove = 30
+		fire_only_once = yes
+		modifier = {
+		}
+		complete_effect = {
+			log = "[GetDateText]: [Root.GetName]: Decision SRS_construct_the_skynavian_peoples_archives"
+		}
+		remove_effect = {
+			log = "[GetDateText]: [Root.GetName]: Decision remove SRS_construct_the_skynavian_peoples_archives"
+			522 = {
+				add_province_modifier = { static_modifiers = { skynavian_peoples_archives } province = { id = 6502 } }
+			}
+			add_political_power = 100
+		}
+	}
+	SRS_construct_the_great_hall_of_the_proletariat = {
+		icon = modern_city
+		allowed = {
+			tag = SRS
+		}
+		available = {
+			controls_state = 522
+			is_subject = no
+		}
+		highlight_provinces = { 6502 }
+		ai_will_do = {
+			factor = 20
+		}
+		cost = 30
+		days_remove = 30
+		fire_only_once = yes
+		modifier = {
+		}
+		complete_effect = {
+			log = "[GetDateText]: [Root.GetName]: Decision SRS_construct_the_great_hall_of_the_proletariat"
+		}
+		remove_effect = {
+			log = "[GetDateText]: [Root.GetName]: Decision remove SRS_construct_the_great_hall_of_the_proletariat"
+			522 = {
+				add_province_modifier = { static_modifiers = { great_hall_of_the_proletariat } province = { id = 6502 } }
+			}
+			add_political_power = 100
+		}
+	}
+	SRS_construct_the_hail_forest_obelisk = {
+		icon = statue
+		allowed = {
+			tag = SRS
+		}
+		available = {
+			controls_state = 542
+			is_subject = no
+		}
+		highlight_provinces = { 3517 }
+		ai_will_do = {
+			factor = 10
+		}
+		cost = 30
+		days_remove = 30
+		fire_only_once = yes
+		modifier = {
+		}
+		complete_effect = {
+			log = "[GetDateText]: [Root.GetName]: Decision SRS_construct_the_hail_forest_obelisk"
+		}
+		remove_effect = {
+			log = "[GetDateText]: [Root.GetName]: Decision remove SRS_construct_the_hail_forest_obelisk"
+			542 = {
+				add_province_modifier = { static_modifiers = { hail_forest_obelisk } province = { id = 3517 } }
+			}
+			add_political_power = 100
+		}
+	}
+	SRS_construct_the_ostfloy_nature_reserve = {
+		icon = swamp
+		allowed = {
+			tag = SRS
+		}
+		available = {
+			controls_state = 561
+			is_subject = no
+		}
+		highlight_provinces = { 3551 }
+		ai_will_do = {
+			factor = 10
+		}
+		cost = 30
+		days_remove = 30
+		fire_only_once = yes
+		modifier = {
+		}
+		complete_effect = {
+			log = "[GetDateText]: [Root.GetName]: Decision SRS_construct_the_ostfloy_nature_reserve"
+		}
+		remove_effect = {
+			log = "[GetDateText]: [Root.GetName]: Decision remove SRS_construct_the_ostfloy_nature_reserve"
+			561 = {
+				add_province_modifier = { static_modifiers = { ostfloy_nature_reserve } province = { id = 3551 } }
+			}
+			add_political_power = 100
+		}
+	}
+}
+SRS_recruit_foreign_units = { 
+	SRS_socialist_mages = {
+		icon = rifles
+		visible = {
+			has_completed_focus = SRS_diplomacy_4
+			original_tag = SRS
+		}
+		available = {
+			has_government = communism
+			is_subject = no
+		}
+		cost = 50
+		days_remove = 30
+		fire_only_once = yes
+		remove_effect = {
+			log = "[GetDateText]: [Root.GetName]: Decision remove SRS_socialist_mages"
+
+			set_technology = { tech_unicorn = 1 }
+			custom_effect_tooltip = SRS_form_the_w_o_t_r_tt
+			hidden_effect = {
+				division_template = {
+					name = "Socialist Unicorn Company"
+					regiments = {
+					}
+					support = { 
+						unicorn_company = { x = 0 y = 0 }
+					}
+					priority = 2
+				}
+				random_owned_controlled_state = {
+					create_unit = { division = "name = \"Warlocks of the Revolution\" division_template = \"Socialist Unicorn Company\" start_experience_factor = 0.8" 
+					owner = SRS }
+				}
+			}
+		}
+		ai_will_do = {
+			factor = 20
+		}
+	}
+	SRS_jagers1 = {
+		icon = rifles
+		visible = {
+			has_completed_focus = SRS_diplomacy_4
+			original_tag = SRS
+		}
+		available = {
+			has_government = communism
+			is_subject = no
+		}
+		cost = 70
+		days_remove = 70
+		fire_only_once = yes
+		remove_effect = {
+			log = "[GetDateText]: [Root.GetName]: Decision remove SRS_jagers1"
+
+			set_technology = { tech_jager = 1 }
+			set_technology = { infantry_weapons_jager = 1 }
+			custom_effect_tooltip = SRS_form_the_f_c_b_tt
+			hidden_effect = {
+				division_template = {
+					name = "Changeling Volunteer Brigade"
+					regiments = {
+						jager = { x = 0 y = 0 }
+						jager = { x = 0 y = 1 }
+						jager = { x = 1 y = 0 }
+						jager = { x = 1 y = 1 }
+						jager = { x = 2 y = 0 }
+						jager = { x = 2 y = 1 }
+					}
+					support = { 
+						recon = { x = 0 y = 0 }
+					}
+					priority = 2
+				}
+				random_owned_controlled_state = {
+					create_unit = { division = "name = \"Free Changeling Brigade\" division_template = \"Changeling Volunteer Brigade\" start_experience_factor = 0.55" 
+					owner = SRS }
+				}
+			}
+		}
+		ai_will_do = {
+			factor = 25
+		}
+	}
+	SRS_jagers2 = {
+		icon = rifles
+		visible = {
+			has_tech = tech_jager
+			original_tag = SRS
+		}
+		available = {
+			has_tech = tech_jager
+		}
+		custom_cost_trigger = {
+			command_power > 29
+			has_political_power > 24
+		}
+		custom_cost_text = decision_cost_CP_30_pp_25
+		days_remove = 250
+		modifier = {
+			experience_gain_army_factor = -0.25
+		}
+		fire_only_once = yes
+		complete_effect = {
+			log = "[GetDateText]: [Root.GetName]: Decision SRS_jagers2"
+			add_political_power = -25
+			add_command_power = -30
+		}
+		remove_effect = {
+			log = "[GetDateText]: [Root.GetName]: Decision remove SRS_jagers2"
+
+			set_technology = { tech_jager2 = 1 }
+		}
+		ai_will_do = {
+			factor = 15
+		}
+	}
+
+	SRS_jagers3 = {
+		icon = rifles
+		visible = {
+			has_tech = tech_jager
+			original_tag = SRS
+		}
+		available = {
+			has_tech = tech_jager2
+		}
+		custom_cost_trigger = {
+			command_power > 29
+			has_political_power > 24
+		}
+		custom_cost_text = decision_cost_CP_30_pp_25
+		days_remove = 250
+		modifier = {
+			experience_gain_army_factor = -0.25
+		}
+		fire_only_once = yes
+		complete_effect = {
+			log = "[GetDateText]: [Root.GetName]: Decision SRS_jagers3"
+			add_political_power = -25
+			add_command_power = -30
+		}
+		remove_effect = {
+			log = "[GetDateText]: [Root.GetName]: Decision remove SRS_jagers3"
+
+			set_technology = { tech_jager3 = 1 }
+		}
+		ai_will_do = {
+			factor = 15
+		}
+	}
+		
+	SRS_jagers4 = {
+		icon = rifles
+		visible = {
+			has_tech = tech_jager
+			original_tag = SRS
+		}
+		available = {
+			has_tech = tech_jager3
+		}
+		custom_cost_trigger = {
+			command_power > 29
+			has_political_power > 24
+		}
+		custom_cost_text = decision_cost_CP_30_pp_25
+		days_remove = 250
+		modifier = {
+			experience_gain_army_factor = -0.25
+		}
+		fire_only_once = yes
+		complete_effect = {
+			log = "[GetDateText]: [Root.GetName]: Decision SRS_jagers4"
+			add_political_power = -25
+			add_command_power = -30
+		}
+		remove_effect = {
+			log = "[GetDateText]: [Root.GetName]: Decision remove SRS_jagers4"
+
+			set_technology = { tech_jager_a = 1 }
+		}
+		ai_will_do = {
+			factor = 15
+		}
+	}
+		
+	SRS_jagers5 = {
+		icon = rifles
+		visible = {
+			has_tech = tech_jager
+			original_tag = SRS
+		}
+		available = {
+			has_tech = tech_jager_a
+		}
+		allowed = { always = no } ## disabled ##
+		custom_cost_trigger = {
+			command_power > 29
+			has_political_power > 24
+		}
+		custom_cost_text = decision_cost_CP_30_pp_25
+		days_remove = 70
+		modifier = {
+			experience_gain_army_factor = -0.15
+		}
+		fire_only_once = yes
+		complete_effect = {
+			log = "[GetDateText]: [Root.GetName]: Decision SRS_jagers5"
+			add_political_power = -25
+			add_command_power = -30
+		}
+		remove_effect = {
+			log = "[GetDateText]: [Root.GetName]: Decision remove SRS_jagers5"
+
+			set_technology = { tech_jager_b = 1 }
+		}
+		ai_will_do = {
+			factor = 15
+		}
+	}
+	SRS_pegasus1 = {
+		icon = rifles
+		visible = {
+			has_completed_focus = SRS_diplomacy_4
+			original_tag = SRS
+		}
+		available = {
+			has_government = communism
+			is_subject = no
+		}
+		cost = 70
+		days_remove = 70
+		fire_only_once = yes
+		remove_effect = {
+			log = "[GetDateText]: [Root.GetName]: Decision remove SRS_pegasus1"
+
+			set_technology = { tech_pegasi = 1 }
+			set_technology = { infantry_weapons_pegasi = 1 }
+			custom_effect_tooltip = SRS_form_the_w_v_tt
+			hidden_effect = {
+				division_template = {
+					name = "Pegasi Volunteer Brigade"
+					regiments = {
+						pegasi = { x = 0 y = 0 }
+						pegasi = { x = 0 y = 1 }
+						pegasi = { x = 1 y = 0 }
+						pegasi = { x = 1 y = 1 }
+						pegasi = { x = 2 y = 0 }
+						pegasi = { x = 2 y = 1 }
+					}
+					support = { 
+						recon = { x = 0 y = 0 }
+					}
+					priority = 2
+				}
+				random_owned_controlled_state = {
+					create_unit = { division = "name = \"Winged Vanguard\" division_template = \"Pegasi Volunteer Brigade\" start_experience_factor = 0.55" 
+					owner = SRS }
+				}
+			}
+		}
+		ai_will_do = {
+			factor = 25
+		}
+	}
+	SRS_pegasus2 = {
+		icon = rifles
+		visible = {
+			has_tech = tech_pegasi
+			original_tag = SRS
+		}
+		available = {
+			has_tech = tech_pegasi
+		}
+		custom_cost_trigger = {
+			command_power > 29
+			has_political_power > 24
+		}
+		custom_cost_text = decision_cost_CP_30_pp_25
+		days_remove = 250
+		modifier = {
+			experience_gain_army_factor = -0.25
+		}
+		fire_only_once = yes
+		complete_effect = {
+			log = "[GetDateText]: [Root.GetName]: Decision SRS_pegasus2"
+			add_political_power = -25
+			add_command_power = -30
+		}
+		remove_effect = {
+			log = "[GetDateText]: [Root.GetName]: Decision remove SRS_pegasus2"
+
+			set_technology = { tech_pegasi2 = 1 }
+		}
+		ai_will_do = {
+			factor = 15
+		}
+	}
+	
+	SRS_pegasus3 = {
+		icon = rifles
+		visible = {
+			has_tech = tech_pegasi
+			original_tag = SRS
+		}
+		available = {
+			has_tech = tech_pegasi2
+		}
+		custom_cost_trigger = {
+			command_power > 29
+			has_political_power > 24
+		}
+		custom_cost_text = decision_cost_CP_30_pp_25
+		days_remove = 250
+		modifier = {
+			experience_gain_army_factor = -0.25
+		}
+		fire_only_once = yes
+		complete_effect = {
+			log = "[GetDateText]: [Root.GetName]: Decision SRS_pegasus3"
+			add_political_power = -25
+			add_command_power = -30
+		}
+		remove_effect = {
+			log = "[GetDateText]: [Root.GetName]: Decision remove SRS_pegasus3"
+
+			set_technology = { tech_pegasi3 = 1 }
+		}
+		ai_will_do = {
+			factor = 15
+		}
+	}
+	
+	SRS_pegasus4 = {
+		icon = rifles
+		visible = {
+			has_tech = tech_pegasi
+			original_tag = SRS
+		}
+		available = {
+			has_tech = tech_pegasi3
+		}
+		custom_cost_trigger = {
+			command_power > 29
+			has_political_power > 24
+		}
+		custom_cost_text = decision_cost_CP_30_pp_25
+		days_remove = 250
+		modifier = {
+			experience_gain_army_factor = -0.25
+		}
+		fire_only_once = yes
+		complete_effect = {
+			log = "[GetDateText]: [Root.GetName]: Decision SRS_pegasus4"
+			add_political_power = -25
+			add_command_power = -30
+		}
+		remove_effect = {
+			log = "[GetDateText]: [Root.GetName]: Decision remove SRS_pegasus4"
+
+			set_technology = { tech_pegasi_a = 1 }
+		}
+		ai_will_do = {
+			factor = 15
+		}
+	}
+	
+	SRS_pegasus5 = {
+		icon = rifles
+		visible = {
+			has_tech = tech_pegasi
+			original_tag = SRS
+		}
+		available = {
+			has_tech = tech_pegasi_a
+		}
+		allowed = { always = no } ## disabled ##
+		custom_cost_trigger = {
+			command_power > 29
+			has_political_power > 24
+		}
+		custom_cost_text = decision_cost_CP_30_pp_25
+		days_remove = 70
+		modifier = {
+			experience_gain_army_factor = -0.15
+		}
+		fire_only_once = yes
+		complete_effect = {
+			log = "[GetDateText]: [Root.GetName]: Decision SRS_pegasus5"
+			add_political_power = -25
+			add_command_power = -30
+		}
+		remove_effect = {
+			log = "[GetDateText]: [Root.GetName]: Decision remove SRS_pegasus5"
+
+			set_technology = { tech_pegasi_b = 1 }
+		}
+		ai_will_do = {
+			factor = 15
+		}
+	}
+	SRS_ironpaws1 = {
+		icon = rifles
+		visible = {
+			has_completed_focus = SRS_diplomacy_4
+			original_tag = SRS
+		}
+		available = {
+			has_government = communism
+			is_subject = no
+		}
+		cost = 70
+		days_remove = 70
+		fire_only_once = yes
+		remove_effect = {
+			log = "[GetDateText]: [Root.GetName]: Decision remove SRS_ironpaws1"
+
+			set_technology = { tech_ironpaws = 1 }
+			custom_effect_tooltip = SRS_form_the_p_r_h_tt
+			hidden_effect = {
+				division_template = {
+					name = "Diamond Dogs Volunteer Brigade"
+					regiments = {
+						ironpaws = { x = 0 y = 0 }
+						ironpaws = { x = 0 y = 1 }
+						ironpaws = { x = 1 y = 0 }
+						ironpaws = { x = 1 y = 1 }
+						ironpaws = { x = 2 y = 0 }
+						ironpaws = { x = 2 y = 1 }
+					}
+					support = { 
+						recon = { x = 0 y = 0 }
+					}
+					priority = 2
+				}
+				random_owned_controlled_state = {
+					create_unit = { division = "name = \"Proletarian Red Warhounds\" division_template = \"Diamond Dogs Volunteer Brigade\" start_experience_factor = 0.55" 
+					owner = SRS }
+				}
+			}
+		}
+		ai_will_do = {
+			factor = 25
+		}
+	}
+	SRS_ironpaws2 = {
+		icon = rifles
+		visible = {
+			has_tech = tech_ironpaws 
+			original_tag = SRS
+		}
+		available = {
+			has_tech = tech_ironpaws 
+		}
+		custom_cost_trigger = {
+			command_power > 29
+			has_political_power > 24
+		}
+		custom_cost_text = decision_cost_CP_30_pp_25
+		days_remove = 250
+		modifier = {
+			experience_gain_army_factor = -0.25
+		}
+		fire_only_once = yes
+		complete_effect = {
+			log = "[GetDateText]: [Root.GetName]: Decision SRS_ironpaws2"
+			add_political_power = -25
+			add_command_power = -30
+		}
+		remove_effect = {
+			log = "[GetDateText]: [Root.GetName]: Decision remove SRS_ironpaws2"
+
+			set_technology = { tech_ironpaws2  = 1 }
+		}
+		ai_will_do = {
+			factor = 15
+		}
+	}
+	
+	SRS_ironpaws3 = {
+		icon = rifles
+		visible = {
+			has_tech = tech_ironpaws 
+			original_tag = SRS
+		}
+		available = {
+			has_tech = tech_ironpaws2 
+		}
+		custom_cost_trigger = {
+			command_power > 29
+			has_political_power > 24
+		}
+		custom_cost_text = decision_cost_CP_30_pp_25
+		days_remove = 250
+		modifier = {
+			experience_gain_army_factor = -0.25
+		}
+		fire_only_once = yes
+		complete_effect = {
+			log = "[GetDateText]: [Root.GetName]: Decision SRS_ironpaws3"
+			add_political_power = -25
+			add_command_power = -30
+		}
+		remove_effect = {
+			log = "[GetDateText]: [Root.GetName]: Decision remove SRS_ironpaws3"
+
+			set_technology = { tech_ironpaws3  = 1 }
+		}
+		ai_will_do = {
+			factor = 15
+		}
+	}
+	
+	SRS_ironpaws4 = {
+		icon = rifles
+		visible = {
+			has_tech = tech_ironpaws 
+			original_tag = SRS
+		}
+		available = {
+			has_tech = tech_ironpaws3 
+		}
+		custom_cost_trigger = {
+			command_power > 29
+			has_political_power > 24
+		}
+		custom_cost_text = decision_cost_CP_30_pp_25
+		days_remove = 250
+		modifier = {
+			experience_gain_army_factor = -0.25
+		}
+		fire_only_once = yes
+		complete_effect = {
+			log = "[GetDateText]: [Root.GetName]: Decision SRS_ironpaws4"
+			add_political_power = -25
+			add_command_power = -30
+		}
+		remove_effect = {
+			log = "[GetDateText]: [Root.GetName]: Decision remove SRS_ironpaws4"
+
+			set_technology = { tech_ironpaws_a  = 1 }
+		}
+		ai_will_do = {
+			factor = 15
+		}
+	}
+	
+	SRS_ironpaws5 = {
+		icon = rifles
+		visible = {
+			has_tech = tech_ironpaws 
+			original_tag = SRS
+		}
+		allowed = { always = no } ## disabled ##
+		available = {
+			has_tech = tech_ironpaws_a 
+		}
+		custom_cost_trigger = {
+			command_power > 29
+			has_political_power > 24
+		}
+		custom_cost_text = decision_cost_CP_30_pp_25
+		days_remove = 70
+		modifier = {
+			experience_gain_army_factor = -0.15
+		}
+		fire_only_once = yes
+		complete_effect = {
+			log = "[GetDateText]: [Root.GetName]: Decision SRS_ironpaws5"
+			add_political_power = -25
+			add_command_power = -30
+		}
+		remove_effect = {
+			log = "[GetDateText]: [Root.GetName]: Decision remove SRS_ironpaws5"
+
+			set_technology = { tech_ironpaws_b = 1 }
+		}
+		ai_will_do = {
+			factor = 15
+		}
+	}
+}
+SRS_stability_for_reforms_mission = {
+	SRS_stability_for_reforms_timer = {
+		allowed = {
+			tag = SRS
+		}                 
+		available = {             
+			NOT = { has_focus_tree = republic_of_skynavia }
+		}
+		activation = {                          
+			always = no                    
+		}
+		is_good = no                          
+		days_mission_timeout = 450             
+		timeout_effect = {
+			log = "[GetDateText]: [Root.GetName]: Decision timeout SRS_stability_for_reforms_timer"
+			country_event = socrep_grif.51
+		}
+		complete_effect = {
+			log = "[GetDateText]: [Root.GetName]: Decision SRS_stability_for_reforms_timer"
+			country_event = socrep_grif.52
+		}
+    }
+	SRS_stability_for_reforms_add_stability = {
+		visible = {
+			has_completed_focus = SRS_purge_1  
+		}
+		days_remove = 30     
+		days_re_enable = 10
+		complete_effect = {
+			log = "[GetDateText]: [Root.GetName]: Decision SRS_stability_for_reforms_add_stability"
+			add_political_power = -120
+		}   
+		remove_effect = {
+			log = "[GetDateText]: [Root.GetName]: Decision remove SRS_stability_for_reforms_add_stability"
+			add_stability = 0.05
+		}
+		ai_will_do = {
+			factor = 100
+		}
+    }
+}
+military_training_category = {
+	
+	SRS_aviation_corps = {
+		icon = generic_air
+		allowed = {
+			original_tag = SRS
+		}
+		available = {
+			has_completed_focus = SRS_military_tree
+		}
+		custom_cost_trigger = {
+			command_power > 29
+			has_political_power > 24
+		}
+		custom_cost_text = decision_cost_CP_30_pp_25
+		days_remove = 70
+		fire_only_once = yes
+		complete_effect = {
+			log = "[GetDateText]: [Root.GetName]: Decision SRS_aviation_corps"
+			add_political_power = -25
+			add_command_power = -30
+		}
+		remove_effect = {
+			log = "[GetDateText]: [Root.GetName]: Decision remove SRS_aviation_corps"
+
+			air_experience = 25
+			522 = {
+				add_building_construction = {
+					type = air_base
+					level = 1
+					instant_build = yes
+				}
+			}
+			add_tech_bonus = {
+				name =  air_doc_bonus
+				bonus = 0.25
+				uses = 1
+				category = air_doctrine
+			}
+			add_tech_bonus = {
+				name = fighter_research
+				bonus = 0.5
+				uses = 1
+				category = light_fighter
+			}
+			hidden_effect = {
+				add_command_power = -50
+				add_political_power = -45
+			}
+		}
+		ai_will_do = {
+			factor = 25
+		}
+	}
+	
+	SRS_winter_warfare_tech = {
+		icon = generic_prepare_civil_war
+		allowed = {
+			original_tag = SRS
+		}
+		visible = {
+			has_completed_focus = SRS_military_tree
+		}
+		custom_cost_trigger = {
+			command_power > 29
+			has_political_power > 24
+		}
+		custom_cost_text = decision_cost_CP_30_pp_25
+		days_remove = 70
+		modifier = {
+			experience_gain_army_factor = -0.05
+		}
+		fire_only_once = yes
+		complete_effect = {
+			log = "[GetDateText]: [Root.GetName]: Decision SRS_winter_warfare_tech"
+			add_political_power = -25
+			add_command_power = -30
+		}
+		remove_effect = {
+			log = "[GetDateText]: [Root.GetName]: Decision remove SRS_winter_warfare_tech"
+			custom_effect_tooltip = SRS_winter_warfare_tech_tt
+			hidden_effect = { set_technology = { SRS_winter_warfare = 1 } }
+		}
+		ai_will_do = {
+			factor = 15
+		}
+	}
+	
+	SRS_gorilla_warfare_tech = {
+		icon = generic_prepare_civil_war
+		allowed = {
+			original_tag = SRS
+		}
+		visible = {
+			has_completed_focus = SRS_military_tree
+		}
+		custom_cost_trigger = {
+			command_power > 29
+			has_political_power > 24
+		}
+		custom_cost_text = decision_cost_CP_30_pp_25
+		days_remove = 70
+		modifier = {
+			experience_gain_army_factor = -0.05
+		}
+		fire_only_once = yes
+		complete_effect = {
+			log = "[GetDateText]: [Root.GetName]: Decision SRS_gorilla_warfare_tech"
+			add_political_power = -25
+			add_command_power = -30
+		}
+		remove_effect = {
+			log = "[GetDateText]: [Root.GetName]: Decision remove SRS_gorilla_warfare_tech"
+			custom_effect_tooltip = SRS_gorilla_warfare_tech_tt
+			hidden_effect = { set_technology = { guerrila_warfare_enable = 1 } }
+		}
+		ai_will_do = {
+			factor = 15
+		}
+	}
+	
+	SRS_light_inf_division_tech = {
+		icon = generic_prepare_civil_war
+		allowed = {
+			original_tag = SRS
+		}
+		visible = {
+			has_completed_focus = SRS_military_tree
+		}
+		custom_cost_trigger = {
+			command_power > 29
+			has_political_power > 24
+		}
+		custom_cost_text = decision_cost_CP_30_pp_25
+		days_remove = 70
+		modifier = {
+			experience_gain_army_factor = -0.05
+		}
+		fire_only_once = yes
+		complete_effect = {
+			log = "[GetDateText]: [Root.GetName]: Decision SRS_light_inf_division_tech"
+			add_political_power = -25
+			add_command_power = -30
+		}
+		remove_effect = {
+			log = "[GetDateText]: [Root.GetName]: Decision remove SRS_light_inf_division_tech"
+			custom_effect_tooltip = HUN_light_infantry_divisions_doctrine_tech_tt
+			hidden_effect = { set_technology = { HUN_light_infantry_tech = 1 } }
+		}
+		ai_will_do = {
+			factor = 15
+		}
+	}
+}
+SRS_deal_with_the_undead_threat = { 
+	SRS_eastern_fortresses = {
+		icon = generic_scorched_earth
+		allowed = {
+			tag = SRS
+		}
+		visible = {
+		}
+		available = {
+			is_subject = no
+			has_government = communism
+			NTR = { 
+				is_subject_of = SRS
+				controls_state = 563
+				controls_state = 573
+			}
+			num_of_civilian_factories_available_for_projects > 1
+		}
+		ai_will_do = {
+			factor = 55
+		}
+		cost = 70
+		days_remove = 150
+		fire_only_once = yes
+		highlight_provinces = {
+			10299
+			9420
+			13243
+			1318
+			7348
+			8962
+			2090
+			763
+			13046
+			5099
+			10835
+			381
+		}
+		modifier = {
+			civilian_factory_use = 1
+		}
+		complete_effect = {
+			log = "[GetDateText]: [Root.GetName]: Decision SRS_eastern_fortresses"
+		}
+		remove_effect = {
+			log = "[GetDateText]: [Root.GetName]: Decision remove SRS_eastern_fortresses"
+			563 = {
+				add_building_construction = {
+					type = bunker
+					level = 3
+					instant_build = yes
+					province = 10299
+				}
+				add_building_construction = {
+					type = bunker
+					level = 3
+					instant_build = yes
+					province = 9420
+				}
+				add_building_construction = {
+					type = bunker
+					level = 3
+					instant_build = yes
+					province = 13243
+				}
+				add_building_construction = {
+					type = bunker
+					level = 3
+					instant_build = yes
+					province = 1318
+				}
+			}
+			573 = {
+				add_building_construction = {
+					type = bunker
+					level = 3
+					instant_build = yes
+					province = 7348
+				}
+				add_building_construction = {
+					type = bunker
+					level = 3
+					instant_build = yes
+					province = 8962
+				}
+				add_building_construction = {
+					type = bunker
+					level = 3
+					instant_build = yes
+					province = 2090
+				}
+				add_building_construction = {
+					type = bunker
+					level = 3
+					instant_build = yes
+					province = 763
+				}
+				add_building_construction = {
+					type = bunker
+					level = 3
+					instant_build = yes
+					province = 13046
+				}
+				add_building_construction = {
+					type = bunker
+					level = 3
+					instant_build = yes
+					province = 5099
+				}
+				add_building_construction = {
+					type = bunker
+					level = 3
+					instant_build = yes
+					province = 10835
+				}
+				add_building_construction = {
+					type = bunker
+					level = 3
+					instant_build = yes
+					province = 381
+				}
+			}
+		}
+	}
+	SRS_raise_socialist_knights = {
+		icon = generic_scorched_earth
+		allowed = {
+			tag = SRS
+		}
+		visible = {
+		}
+		available = {
+			is_subject = no
+			has_government = communism
+			has_tech = tech_knights 
+		}
+		ai_will_do = {
+			factor = 30
+			modifier = {
+				factor = 100
+				has_war = yes
+			}
+		}
+		cost = 50
+		days_remove = 50
+		fire_only_once = yes
+		modifier = {
+			political_power_factor = -0.1
+		}
+		remove_effect = {
+			log = "[GetDateText]: [Root.GetName]: Decision remove SRS_raise_socialist_knights"
+			custom_effect_tooltip = SRS_form_crusader_knights_socialism_decision_tt
+			hidden_effect = {
+				division_template = {
+					name = "Crusader-Knights of Socialism"
+					division_names_group = SRS_MILITIA_04
+					regiments = {
+						knights = { x = 0 y = 0 }
+						knights = { x = 0 y = 1 }
+						knights = { x = 1 y = 0 }
+						knights = { x = 1 y = 1 }
+						knights = { x = 2 y = 0 }
+						knights = { x = 2 y = 1 }
+					}
+					support = { 
+						recon = { x = 0 y = 0 }
+					}
+					priority = 2
+				}
+				random_owned_controlled_state = {
+					create_unit = { division = "name = \"Order of the Will of the Proletariat\" division_template = \"Crusader-Knights of Socialism\" start_experience_factor = 0.55" 
+					owner = SRS }
+					create_unit = { division = "name = \"Order of the Sickle and Star\" division_template = \"Crusader-Knights of Socialism\" start_experience_factor = 0.55" 
+					owner = SRS }
+				}
+			}
+		}
+	}
+	SRS_welcome_socialist_clergy = {
+		icon = generic_scorched_earth
+		allowed = {
+			tag = SRS
+		}
+		visible = {
+		}
+		available = {
+			is_subject = no
+			has_government = communism
+		}
+		ai_will_do = {
+			factor = 30
+			modifier = {
+				factor = 100
+				has_war = yes
+			}
+		}
+		cost = 50
+		days_remove = 30
+		fire_only_once = yes
+		modifier = {
+			political_power_factor = -0.1
+		}
+		remove_effect = {
+			log = "[GetDateText]: [Root.GetName]: Decision remove SRS_welcome_socialist_clergy"
+			add_ideas = SRS_socialist_clergy
+		}
+	}
+}
+SRS_form_the_pan_griffonian_commonwealth = { 
+	SRS_foundation_day = {
+		icon = red_star ## owns all griffonian states; has cosmetic tag SRFG ##
+		allowed = {
+			tag = SRS
+		}
+		visible = {
+			is_subject = no
+			has_government = communism
+		}
+		available = {
+			SRS = { has_country_flag = SRS_has_switched_name_to_srfg }
+			has_full_control_of_state = 382
+			has_full_control_of_state = 376
+			has_full_control_of_state = 377
+			has_full_control_of_state = 435
+			has_full_control_of_state = 381
+			has_full_control_of_state = 391
+			has_full_control_of_state = 389
+			has_full_control_of_state = 423
+			has_full_control_of_state = 411
+			has_full_control_of_state = 378
+			has_full_control_of_state = 398
+			has_full_control_of_state = 674
+			has_full_control_of_state = 486
+			has_full_control_of_state = 520
+			has_full_control_of_state = 515
+			has_full_control_of_state = 366
+			has_full_control_of_state = 369
+			has_full_control_of_state = 371
+			has_full_control_of_state = 530
+			has_full_control_of_state = 508
+			has_full_control_of_state = 598
+			has_full_control_of_state = 512
+		}
+		ai_will_do = {
+			factor = 25
+		}
+		cost = 150
+		days_remove = 30
+		fire_only_once = yes
+		modifier = {
+			political_power_factor = -0.15
+		}
+		remove_effect = {
+			log = "[GetDateText]: [Root.GetName]: Decision remove SRS_foundation_day"
+			country_event = { hours = 1 id = socrep_grif.64 }
+			custom_effect_tooltip = SRS_warning_will_remove_congress_and_tree_tt
+		}
+	}
+}
+SRS_the_hail_forest_dmz = { 
+	SRS_request_temporary_access = { 
+		icon = rifles
+		allowed = {
+			tag = SRS
+		}
+		visible = {
+			is_subject = no
+			has_government = communism
+			542 = { is_demilitarized_zone = yes }
+		}
+		ai_will_do = {
+			factor = 0
+		}
+		days_remove = 70
+		days_re_enable = 30
+		modifier = {
+			political_power_factor = -0.25
+		}
+		complete_effect = {
+			log = "[GetDateText]: [Root.GetName]: Decision SRS_request_temporary_access"
+			add_political_power = -70
+			add_stability = -0.025
+			542 = { set_demilitarized_zone = no }
+		}
+		remove_effect = {
+			log = "[GetDateText]: [Root.GetName]: Decision remove SRS_request_temporary_access"
+			542 = { set_demilitarized_zone = yes }
+		}
+	}
+	SRS_speedbump_1 = {
+		allowed = {
+			tag = SRS
+		}
+		visible = {
+			is_subject = no
+			has_government = communism
+			542 = { is_demilitarized_zone = yes }
+			has_country_flag = SRS_completed_beginning_5a
+		}
+		available = {
+			has_country_flag = SRS_general_congress_in_power
+			num_of_civilian_factories_available_for_projects > 1
+			NOT = { has_country_flag = SRS_communalist_decision_cooldown_in_progress }
+			custom_trigger_tooltip = {
+				tooltip = SRS_communard_delagates_tt_30
+				check_variable = { communards_support_var > 29 }
+			}
+		}
+		ai_will_do = {
+			factor = 30
+		}
+		cost = 30
+		days_remove = 30
+		fire_only_once = yes
+		modifier = {
+			political_power_factor = -0.25
+			civilian_factory_use = 1
+		}
+		complete_effect = {
+			log = "[GetDateText]: [Root.GetName]: Decision SRS_speedbump_1"
+			set_country_flag = SRS_communalist_decision_cooldown_in_progress
+			activate_mission = SRS_communalist_decision_cooldown
+			add_to_variable = { var = displeasure_towards_communards_var value = 1 }
+			set_variable = { total_sum_of_internationalist_and_communalist_displeasure = 0 }
+			add_to_variable = { total_sum_of_internationalist_and_communalist_displeasure = displeasure_towards_communards_var } 
+			add_to_variable = { total_sum_of_internationalist_and_communalist_displeasure = displeasure_towards_internationalists_var } 
+			set_temp_variable = { internationalist_displeasure_as_a_percentage_ersatz = displeasure_towards_internationalists_var }
+			divide_temp_variable = { internationalist_displeasure_as_a_percentage_ersatz = total_sum_of_internationalist_and_communalist_displeasure }
+			set_variable = { internationalist_displeasure_as_a_percentage = internationalist_displeasure_as_a_percentage_ersatz }
+			set_temp_variable = { communalist_displeasure_as_a_percentage_ersatz = displeasure_towards_communards_var }
+			divide_temp_variable = { communalist_displeasure_as_a_percentage_ersatz = total_sum_of_internationalist_and_communalist_displeasure }
+			set_variable = { communalist_displeasure_as_a_percentage = communalist_displeasure_as_a_percentage_ersatz }
+		}
+		remove_effect = {
+			log = "[GetDateText]: [Root.GetName]: Decision remove SRS_speedbump_1"
+			unlock_decision_tooltip = SRS_speedbump_2
+			set_country_flag = SRS_unlock_speedbump_2
+		}
+	}
+	SRS_speedbump_2 = {
+		allowed = {
+			tag = SRS
+		}
+		visible = {
+			is_subject = no
+			has_government = communism
+			542 = { is_demilitarized_zone = yes }
+			has_country_flag = SRS_completed_beginning_5a
+		}
+		available = { 
+			has_country_flag = SRS_general_congress_in_power
+			has_country_flag = SRS_unlock_speedbump_2 
+			has_completed_focus = SRS_debates_2c
+			NOT = { has_country_flag = SRS_communalist_decision_cooldown_in_progress }
+			custom_trigger_tooltip = {
+				tooltip = SRS_communard_delagates_tt_30
+				check_variable = { communards_support_var > 29 }
+			}
+		}
+		ai_will_do = {
+			factor = 25
+		}
+		cost = 30
+		days_remove = 30
+		fire_only_once = yes
+		modifier = {
+			political_power_factor = -0.25
+		}
+		complete_effect = {
+			log = "[GetDateText]: [Root.GetName]: Decision SRS_speedbump_2"
+			set_country_flag = SRS_communalist_decision_cooldown_in_progress
+			activate_mission = SRS_communalist_decision_cooldown
+			add_to_variable = { var = displeasure_towards_communards_var value = 1 }
+			set_variable = { total_sum_of_internationalist_and_communalist_displeasure = 0 }
+			add_to_variable = { total_sum_of_internationalist_and_communalist_displeasure = displeasure_towards_communards_var } 
+			add_to_variable = { total_sum_of_internationalist_and_communalist_displeasure = displeasure_towards_internationalists_var } 
+			set_temp_variable = { internationalist_displeasure_as_a_percentage_ersatz = displeasure_towards_internationalists_var }
+			divide_temp_variable = { internationalist_displeasure_as_a_percentage_ersatz = total_sum_of_internationalist_and_communalist_displeasure }
+			set_variable = { internationalist_displeasure_as_a_percentage = internationalist_displeasure_as_a_percentage_ersatz }
+			set_temp_variable = { communalist_displeasure_as_a_percentage_ersatz = displeasure_towards_communards_var }
+			divide_temp_variable = { communalist_displeasure_as_a_percentage_ersatz = total_sum_of_internationalist_and_communalist_displeasure }
+			set_variable = { communalist_displeasure_as_a_percentage = communalist_displeasure_as_a_percentage_ersatz }
+		}
+		remove_effect = {
+			log = "[GetDateText]: [Root.GetName]: Decision remove SRS_speedbump_2"
+			unlock_decision_tooltip = SRS_speedbump_3
+			set_country_flag = SRS_unlock_speedbump_3
+		}
+	}
+	SRS_speedbump_3 = {
+		allowed = {
+			tag = SRS
+		}
+		visible = {
+			is_subject = no
+			has_government = communism
+			542 = { is_demilitarized_zone = yes }
+			has_country_flag = SRS_completed_beginning_5a
+		}
+		available = { 
+			has_country_flag = SRS_general_congress_in_power
+			has_country_flag = SRS_unlock_speedbump_3 
+			NOT = { has_country_flag = SRS_communalist_decision_cooldown_in_progress }
+			custom_trigger_tooltip = {
+				tooltip = SRS_communard_delagates_tt_30
+				check_variable = { communards_support_var > 29 }
+			}
+		}
+		ai_will_do = {
+			factor = 20
+		}
+		cost = 30
+		days_remove = 30
+		fire_only_once = yes
+		modifier = {
+			political_power_factor = -0.25
+		}
+		complete_effect = {
+			log = "[GetDateText]: [Root.GetName]: Decision SRS_speedbump_3"
+			set_country_flag = SRS_communalist_decision_cooldown_in_progress
+			activate_mission = SRS_communalist_decision_cooldown
+			add_to_variable = { var = displeasure_towards_communards_var value = 1 }
+			set_variable = { total_sum_of_internationalist_and_communalist_displeasure = 0 }
+			add_to_variable = { total_sum_of_internationalist_and_communalist_displeasure = displeasure_towards_communards_var } 
+			add_to_variable = { total_sum_of_internationalist_and_communalist_displeasure = displeasure_towards_internationalists_var } 
+			set_temp_variable = { internationalist_displeasure_as_a_percentage_ersatz = displeasure_towards_internationalists_var }
+			divide_temp_variable = { internationalist_displeasure_as_a_percentage_ersatz = total_sum_of_internationalist_and_communalist_displeasure }
+			set_variable = { internationalist_displeasure_as_a_percentage = internationalist_displeasure_as_a_percentage_ersatz }
+			set_temp_variable = { communalist_displeasure_as_a_percentage_ersatz = displeasure_towards_communards_var }
+			divide_temp_variable = { communalist_displeasure_as_a_percentage_ersatz = total_sum_of_internationalist_and_communalist_displeasure }
+			set_variable = { communalist_displeasure_as_a_percentage = communalist_displeasure_as_a_percentage_ersatz }
+		}
+		remove_effect = {
+			log = "[GetDateText]: [Root.GetName]: Decision remove SRS_speedbump_3"
+			unlock_decision_tooltip = SRS_speedbump_4
+			set_country_flag = SRS_unlock_speedbump_4
+		}
+	}
+	SRS_speedbump_4 = {
+		allowed = {
+			tag = SRS
+		}
+		visible = {
+			is_subject = no
+			has_government = communism
+			542 = { is_demilitarized_zone = yes }
+			has_country_flag = SRS_completed_beginning_5a
+		}
+		available = { 
+			has_country_flag = SRS_general_congress_in_power
+			has_country_flag = SRS_unlock_speedbump_4 
+			NOT = { has_country_flag = SRS_communalist_decision_cooldown_in_progress }
+			custom_trigger_tooltip = {
+				tooltip = SRS_communard_delagates_tt_30
+				check_variable = { communards_support_var > 29 }
+			}
+		}
+		ai_will_do = {
+			factor = 20
+		}
+		cost = 40
+		days_remove = 50
+		fire_only_once = yes
+		modifier = {
+			political_power_factor = -0.25
+		}
+		complete_effect = {
+			log = "[GetDateText]: [Root.GetName]: Decision SRS_speedbump_4"
+			set_country_flag = SRS_communalist_decision_cooldown_in_progress
+			activate_mission = SRS_communalist_decision_cooldown
+			add_to_variable = { var = displeasure_towards_communards_var value = 1 }
+			set_variable = { total_sum_of_internationalist_and_communalist_displeasure = 0 }
+			add_to_variable = { total_sum_of_internationalist_and_communalist_displeasure = displeasure_towards_communards_var } 
+			add_to_variable = { total_sum_of_internationalist_and_communalist_displeasure = displeasure_towards_internationalists_var } 
+			set_temp_variable = { internationalist_displeasure_as_a_percentage_ersatz = displeasure_towards_internationalists_var }
+			divide_temp_variable = { internationalist_displeasure_as_a_percentage_ersatz = total_sum_of_internationalist_and_communalist_displeasure }
+			set_variable = { internationalist_displeasure_as_a_percentage = internationalist_displeasure_as_a_percentage_ersatz }
+			set_temp_variable = { communalist_displeasure_as_a_percentage_ersatz = displeasure_towards_communards_var }
+			divide_temp_variable = { communalist_displeasure_as_a_percentage_ersatz = total_sum_of_internationalist_and_communalist_displeasure }
+			set_variable = { communalist_displeasure_as_a_percentage = communalist_displeasure_as_a_percentage_ersatz }
+		}
+		remove_effect = {
+			log = "[GetDateText]: [Root.GetName]: Decision remove SRS_speedbump_4"
+			unlock_decision_tooltip = SRS_speedbump_5
+			set_country_flag = SRS_unlock_speedbump_5
+		}
+	}
+	SRS_speedbump_5 = {
+		allowed = {
+			tag = SRS
+		}
+		visible = {
+			is_subject = no
+			has_government = communism
+			NOT = { has_country_flag = SRS_hail_forest_communes_cooperation }
+			has_country_flag = SRS_completed_beginning_5a
+		}
+		available = { 
+			has_country_flag = SRS_general_congress_in_power
+			OR = { 
+				has_country_flag = SRS_unlock_speedbump_5 
+				542 = { is_demilitarized_zone = no }
+			}
+			NOT = { has_country_flag = SRS_communalist_decision_cooldown_in_progress }
+			custom_trigger_tooltip = {
+				tooltip = SRS_communard_delagates_tt_30
+				check_variable = { communards_support_var > 29 }
+			}
+		}
+		ai_will_do = {
+			factor = 20
+		}
+		cost = 40
+		days_remove = 50
+		fire_only_once = yes
+		modifier = {
+			political_power_factor = -0.25
+		}
+		complete_effect = {
+			log = "[GetDateText]: [Root.GetName]: Decision SRS_speedbump_5"
+			set_country_flag = SRS_communalist_decision_cooldown_in_progress
+			activate_mission = SRS_communalist_decision_cooldown
+			add_to_variable = { var = displeasure_towards_communards_var value = 1 }
+			set_variable = { total_sum_of_internationalist_and_communalist_displeasure = 0 }
+			add_to_variable = { total_sum_of_internationalist_and_communalist_displeasure = displeasure_towards_communards_var } 
+			add_to_variable = { total_sum_of_internationalist_and_communalist_displeasure = displeasure_towards_internationalists_var } 
+			set_temp_variable = { internationalist_displeasure_as_a_percentage_ersatz = displeasure_towards_internationalists_var }
+			divide_temp_variable = { internationalist_displeasure_as_a_percentage_ersatz = total_sum_of_internationalist_and_communalist_displeasure }
+			set_variable = { internationalist_displeasure_as_a_percentage = internationalist_displeasure_as_a_percentage_ersatz }
+			set_temp_variable = { communalist_displeasure_as_a_percentage_ersatz = displeasure_towards_communards_var }
+			divide_temp_variable = { communalist_displeasure_as_a_percentage_ersatz = total_sum_of_internationalist_and_communalist_displeasure }
+			set_variable = { communalist_displeasure_as_a_percentage = communalist_displeasure_as_a_percentage_ersatz }
+		}
+		remove_effect = {
+			log = "[GetDateText]: [Root.GetName]: Decision remove SRS_speedbump_5"
+			if = { 
+				limit = { 542 = { is_demilitarized_zone = yes } }
+				542 = { set_demilitarized_zone = no }
+			}
+			unlock_decision_tooltip = SRS_develop_the_bluffhead_harbour
+			unlock_decision_tooltip = SRS_approach_hail_forest_communes
+			set_country_flag = SRS_hail_forest_communes_cooperation
+		}
+	}
+}
