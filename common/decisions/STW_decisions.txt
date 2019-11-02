@@ -196,6 +196,57 @@ STW_duchess_support = { # for when gabriella is in GRI
 			create_wargoal = { type = annex_everything target = event_target:griffonian_empire }
 		}
 	}
+
+	STW_joint_training = {
+		icon = rifles
+		allowed = { 
+			always = yes # Controlled by category
+		}
+		visible = { 
+			always = yes # Making it visible
+		}
+		available = {
+			custom_trigger_tooltip = {
+				tooltip = STW_relations_with_duchess_more_than_30
+				check_variable = {
+					STW_support_for_duchess > 30
+				}
+			}
+			NOT = { has_war_with = GRI }
+		}
+		ai_will_do = {
+			factor = 10
+			modifier = {
+				factor = 0
+				has_army_experience > 10
+			}
+		}
+
+		cost = 100
+
+		days_remove = 45
+		#modifier = {}
+
+		#fire_only_once = no
+		days_re_enable = 100
+		
+		complete_effect = { # TODO: ask first
+			add_ideas = STW_joint_training_idea
+			GRI = {
+				add_ideas = STW_joint_training_idea
+			}
+		}
+
+		remove_effect = {
+			log = "[GetDateText]: [Root.GetName]: Decision remove STW_improve_relations"
+
+			STW_increase_relations_empire_small = yes
+			remove_ideas = STW_joint_training_idea
+			GRI = {
+				remove_ideas = STW_joint_training_idea
+			}
+		}
+	}
 }
 
 STW_archon_relations = { # for when Gabriella is in STW
@@ -388,79 +439,11 @@ STW_archon_relations = { # for when Gabriella is in STW
 			log = "[GetDateText]: [Root.GetName]: Decision remove STW_sabotage_imperial_factories"
 			random_list = {
 				25 = { # Successful with no detection
-					country_event = { id = strawberry.26 }
-					GRI = {
-						random_owned_state = {
-							limit = {
-								OR = {
-									industrial_complex > 0
-									arms_factory > 0
-								}
-							}
-							if = {
-								limit = {
-									industrial_complex < 1
-									arms_factory > 0
-								}
-								damage_building = { type = arms_factory damage = 0.8 }
-							}
-							else_if = {
-								limit = {
-									industrial_complex > 0
-									arms_factory < 1
-								}
-								damage_building = { type = industrial_complex damage = 0.8 }
-							}
-							else_if = {
-								limit = {
-									industrial_complex > 0
-									arms_factory > 0
-								}
-								random_list = { 
-									50 = { damage_building = { type = industrial_complex damage = 0.8 } }
-									50 = { damage_building = { type = arms_factory damage = 0.8 } }
-								}
-							}
-						}
-					}
+					country_event = { id = strawberry.26 }					
 				}
 				50 = { # Successful but we got detected
 					STW_lower_relations_empire_medium = yes
 					country_event = { id = strawberry.27 }
-					GRI = {
-						random_owned_state = {
-							limit = {
-								OR = {
-									industrial_complex > 0
-									arms_factory > 0
-								}
-							}
-							if = {
-								limit = {
-									industrial_complex < 1
-									arms_factory > 0
-								}
-								damage_building = { type = arms_factory damage = 0.8 }
-							}
-							else_if = {
-								limit = {
-									industrial_complex > 0
-									arms_factory < 1
-								}
-								damage_building = { type = industrial_complex damage = 0.8 }
-							}
-							else_if = {
-								limit = {
-									industrial_complex > 0
-									arms_factory > 0
-								}
-								random_list = { 
-									50 = { damage_building = { type = industrial_complex damage = 0.8 } }
-									50 = { damage_building = { type = arms_factory damage = 0.8 } }
-								}
-							}
-						}
-					}
 				}
 				25 = { # Unsuccessful
 					STW_lower_relations_empire_small = yes
@@ -511,56 +494,7 @@ STW_archon_relations = { # for when Gabriella is in STW
 		}
 	}
 
-	STW_joint_training = {
-		icon = rifles
-		allowed = { 
-			always = yes # Controlled by category
-		}
-		visible = { 
-			always = yes # Making it visible
-		}
-		available = {
-			custom_trigger_tooltip = {
-				tooltip = STW_relations_with_empire_more_than_30
-				check_variable = {
-					STW_relations_with_empire > 30
-				}
-			}
-			NOT = { has_war_with = GRI }
-		}
-		ai_will_do = {
-			factor = 10
-			modifier = {
-				factor = 0
-				has_army_experience > 10
-			}
-		}
-
-		cost = 100
-
-		days_remove = 45
-		#modifier = {}
-
-		#fire_only_once = no
-		days_re_enable = 100
-		
-		complete_effect = { # TODO: ask first
-			add_ideas = STW_joint_training_idea
-			GRI = {
-				add_ideas = STW_joint_training_idea
-			}
-		}
-
-		remove_effect = {
-			log = "[GetDateText]: [Root.GetName]: Decision remove STW_improve_relations"
-
-			STW_increase_relations_empire_small = yes
-			remove_ideas = STW_joint_training_idea
-			GRI = {
-				remove_ideas = STW_joint_training_idea
-			}
-		}
-	}
+	
 }
 
 STW_resource_excavation = {
@@ -1252,7 +1186,65 @@ STW_ties_with_other_nations_desc_cat = {
 			original_tag = STW
 		}
 		visible = {
-			always = yes
+			FROM = {
+				has_war = no
+			}
+			custom_trigger_tooltip = {
+				tooltip = diplomacy_limited_tooltip
+				OR = {
+					hidden_trigger = {
+						has_government = communism
+						NOT = {
+							has_country_flag = stw_emperor_ded
+						}
+						FROM = {
+							has_government = communism
+							has_country_flag = have_regular_puppets
+							NOT = {
+								has_country_flag = herzland_diplomacy_blocked
+							}
+						}
+					}
+					hidden_trigger = {
+						has_government = neutrality
+						NOT = {
+							has_country_flag = stw_emperor_ded
+						}
+						FROM = {
+							OR = {
+								has_government = neutrality
+								has_government = democratic
+							}
+							NOT = {
+								has_country_flag = have_regular_puppets
+								has_country_flag = herzland_diplomacy_blocked
+							}
+						}
+					}
+					hidden_trigger = {
+						has_government = fascism
+						NOT = {
+							has_country_flag = stw_emperor_ded
+						}
+						FROM = {
+							has_government = fascism
+							NOT = {
+								has_country_flag = herzland_diplomacy_blocked
+							}
+						}
+					}
+					hidden_trigger = {
+						has_country_flag = stw_emperor_ded
+						FROM = {
+							NOT = {
+								has_country_flag = have_regular_puppets
+								has_country_flag = herzland_diplomacy_blocked
+							}
+						}
+					}
+				}
+			}
+			has_war = no
 		}
 		available = {
 			FROM = {
@@ -1372,7 +1364,65 @@ STW_ties_with_other_nations_desc_cat = {
 			original_tag = STW
 		}
 		visible = {
-			always = yes
+			FROM = {
+				has_war = no
+			}
+			custom_trigger_tooltip = {
+				tooltip = diplomacy_limited_tooltip
+				OR = {
+					hidden_trigger = {
+						has_government = communism
+						NOT = {
+							has_country_flag = stw_emperor_ded
+						}
+						FROM = {
+							has_government = communism
+							has_country_flag = have_regular_puppets
+							NOT = {
+								has_country_flag = herzland_diplomacy_blocked
+							}
+						}
+					}
+					hidden_trigger = {
+						has_government = neutrality
+						NOT = {
+							has_country_flag = stw_emperor_ded
+						}
+						FROM = {
+							OR = {
+								has_government = neutrality
+								has_government = democratic
+							}
+							NOT = {
+								has_country_flag = have_regular_puppets
+								has_country_flag = herzland_diplomacy_blocked
+							}
+						}
+					}
+					hidden_trigger = {
+						has_government = fascism
+						NOT = {
+							has_country_flag = stw_emperor_ded
+						}
+						FROM = {
+							has_government = fascism
+							NOT = {
+								has_country_flag = herzland_diplomacy_blocked
+							}
+						}
+					}
+					hidden_trigger = {
+						has_country_flag = stw_emperor_ded
+						FROM = {
+							NOT = {
+								has_country_flag = have_regular_puppets
+								has_country_flag = herzland_diplomacy_blocked
+							}
+						}
+					}
+				}
+			}
+			has_war = no
 		}
 		available = {
 			FROM = {
@@ -1455,11 +1505,8 @@ STW_ties_with_other_nations_desc_cat = {
 		}
 		remove_effect = {
 			FROM = {
-				army_experience = 25
-				add_command_power = 15
+				country_event = strawberry.37
 			}
-			army_experience = 25
-			add_command_power = 15
 		}
 	}
 
@@ -1613,4 +1660,28 @@ STW_ties_with_other_nations_desc_cat = {
 
 STW_final_preparations_cat = {
 
+	STW_claim_Griffenheim = {
+		icon = griffon
+		cost = 50
+		fire_only_once = yes
+		ai_will_do = {
+			factor = 160
+		}
+		allowed = {
+			original_tag = STW
+		}
+		visible = {
+			always = yes
+		}
+		highlight_states = {
+			state = 382
+		}
+
+		days_remove = 75
+
+		remove_effect = {
+			add_state_claim = 382 
+		}
+
+	}
 }
