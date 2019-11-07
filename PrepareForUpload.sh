@@ -22,5 +22,5 @@ if [ -d $destinationName ] ; then
 fi
 
 mkdir $destinationName
-rsync --recursive -P  --exclude='*.7z' --exclude='MTG_notes.txt' --exclude='popularities_regex.txt' --exclude='.git*' --exclude='*.sh' --exclude='*.ps1' --exclude='*.psd' --exclude='*.py' --exclude='equestria_dev.mod' . $destinationName
+rsync -avhm --include='/changelog.txt' --include='/art_credits.txt' --include='/equestria.jpg' --include='/equestria.mod' --include='/README.md' --exclude='*.7z' --exclude='/*.*' --exclude='/.*' --exclude='*.sh' --exclude='*.ps1' --exclude='*.psd' --exclude='*.py' . $destinationName
 cp -f "$destinationName/equestria.mod" "$destinationName/.."
