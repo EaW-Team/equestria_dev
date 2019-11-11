@@ -110,6 +110,7 @@ scripted_gui = {
 			}
 		}
 	}
+	
 	ELF_state_action_category_gui = {
 		context_type = selected_state_context
 		parent_window_token = selected_state_view
@@ -120,6 +121,7 @@ scripted_gui = {
 		
 		window_name = "ELF_state_action_category_container"
 	}
+	
 	ELF_volunteers_button_clickable_gui = {
 		context_type = selected_state_context
 		parent_window_token = selected_state_view
@@ -146,6 +148,7 @@ scripted_gui = {
 			}
 		}
 	}
+	
 	ELF_reintegration_button_clickable_gui = {
 		context_type = selected_state_context
 		parent_window_token = selected_state_view
@@ -171,21 +174,49 @@ scripted_gui = {
 			}
 		}
 	}
+	
 	ELF_uprising_button_clickable_gui = {
 		context_type = selected_state_context
 		parent_window_token = selected_state_view
 		
 		visible = {
-			ROOT = { original_tag = ELF }
-			check_variable = {
-				var = ELF_uprising_button_action_prep_time_variable
-				value = 1
-				compare = greater_than_or_equals
+			ROOT = {
+				original_tag = ELF 
+				has_completed_focus = ELF_right_3_b
+				check_variable = {
+					var = ELF_uprising_action_charges_requirement_num
+					value = 1
+					compare = greater_than_or_equals
+				}
+				has_political_power > 149
+				command_power > 49
 			}
 			THIS = {
-				NOT = { has_state_flag = ELF_has_already_incited_uprising_in_this_state }
-				is_fully_controlled_by = CHN
-				is_owned_by = CHN
+				#NOT = { has_state_flag = ELF_has_already_incited_uprising_in_this_state }
+				OR = { ## please update this and other, similar list(s) of possible changeling puppet states in the wake of future development ##
+					is_owned_by = CHN
+					is_owned_by = MAN
+					if = { 
+						limit = { BAL = { is_subject_of = CHN } }
+						is_owned_by = BAL
+					}
+					if = { 
+						limit = { SCS = { is_subject_of = CHN } }
+						is_owned_by = SCS
+					}
+				}
+				OR = { 
+					is_fully_controlled_by = CHN
+					is_fully_controlled_by = MAN
+					if = { 
+						limit = { BAL = { is_subject_of = CHN } }
+						is_fully_controlled_by = BAL
+					}
+					if = { 
+						limit = { SCS = { is_subject_of = CHN } }
+						is_fully_controlled_by = SCS
+					}
+				}
 				is_core_of = ELF
 				NOT = { is_controlled_by = ELF }
 			}
@@ -195,8 +226,22 @@ scripted_gui = {
 		
 		effects = {
 			ELF_uprising_button_clickable_click = {
+				THIS = { 
+					save_global_event_target_as = ELF_uprising_state_id_EVENT_TARGET 
+					#set_state_flag = ELF_has_already_incited_uprising_in_this_state
+				}
+				ROOT = {
+					add_political_power = -150
+					add_command_power = -50
+					set_state_controller = event_target:ELF_uprising_state_id_EVENT_TARGET
+					if = { 
+						limit = { NOT = { has_country_flag = ELF_uprising_state_already_clicked_and_has_event } }
+						hidden_effect = { country_event = { id = MAN_ELF_new.8801 days = 1 } }
+						set_country_flag = ELF_uprising_state_already_clicked_and_has_event
+					}
+					subtract_from_variable = { var = ELF_uprising_action_charges_requirement_num value = 1 }
+				}
 			}
 		}
 	}
 }
-
