@@ -151,9 +151,6 @@ on_actions = {
 				add_opinion_modifier = { target = GRI modifier = CHN_GRI_Friendship }
 				reverse_add_opinion_modifier = { target = GRI modifier = CHN_GRI_Friendship }
 			}
-			FLO = {
-				country_event = { id = flowena.1 days = 1 }
-			}
 			EYR = {
 				add_opinion_modifier = { target = ERI modifier = mortal_enemies }
 			}
@@ -179,6 +176,11 @@ on_actions = {
 				country_event = { id = griffonRepublic.63 days = 12 random = 28800 }#days to hours applied
 				country_event = { id = griffonRepublic.64 days = 13 random = 22080 }#days to hours applied
 				country_event = { id = griffonRepublic.65 days = 14 random = 48000 }#days to hours applied
+			}
+			KAT = {
+				country_event = { id = katerin.1 days = 1 } #the Ball, was set this in history files
+				#country_event = { id = katerin.2 days = 9 } #Plague event starter - Dummied out for now.
+				country_event = { id = katerin.135 days = 15 } #THE NEW Plague event
 			}
 			BRF = {
 				country_event = { id = prywhen.6 days = 1 }
@@ -216,6 +218,9 @@ on_actions = {
 				}
 			}
 			LNS = { save_global_event_target_as = longsword }
+			FLO = {
+				country_event = { id = flowena.97 days = 14 }
+			}
 
 			every_country = {
 				if = {
@@ -422,7 +427,10 @@ on_actions = {
 
 				adjust_research_modifier = yes
 				update_global_arrays = yes
-				actually_fix_weapon_techs = yes
+				if = {
+					limit = { NOT = { has_country_flag = weapons_fixed_at_start } }
+					actually_fix_weapon_techs = yes
+				}
 			}
 
 			BUF = {
@@ -565,16 +573,8 @@ on_actions = {
 						}
 					}
 				}
-				if = {
-					limit = {
-						OR = {
-							tag = GRF
-							FROM = { tag = GRF }
-						}
-					}
-					clear_variable = GRF_delayed_merc_payment
-					FROM = { clear_variable = GRF_delayed_merc_payment }
-				}
+				clear_variable = delayed_merc_payment_@FROM
+				FROM = { clear_variable = delayed_merc_payment_@ROOT }
 				if = {
 					limit = {
 						OR = {
@@ -880,17 +880,6 @@ on_actions = {
 						BAL = { country_event = { id = civwar.15 days = 1 } }
 					}
 				}
-				if = {
-					limit = {
-						FROM = {
-							original_tag = TRD
-							has_completed_focus = TRD_full_recovery
-						}
-					}
-					FROM = {
-						country_event = { id = tradefed.31 days = 1 }
-					}
-				}
 				#Remove BNPL bills if New Mareland goes to war
 				if = {
 					limit = {
@@ -913,6 +902,36 @@ on_actions = {
 					FROM = {
 						EQC_remove_bnpl_bills = yes
 						set_country_flag = bnpl_bills_removed_through_war
+					}
+				}
+
+				#Bronzehill Funded Rebels Rise Up in the Empire
+				if = {
+					limit = {
+						FROM = {
+							tag = BRZ
+						}
+						ROOT = {
+							tag = GRI
+							has_country_flag = BRZ_freikorps
+						}
+					}
+					FROM = {
+						country_event = bronzehill_revenge.5
+					}
+				}
+				if = {
+					limit = {
+						ROOT = {
+							tag = BRZ
+						}
+						FROM = {
+							tag = GRI
+							has_country_flag = BRZ_freikorps
+						}
+					}
+					ROOT = {
+						country_event = bronzehill_revenge.5
 					}
 				}
 
@@ -1197,6 +1216,27 @@ on_actions = {
 				limit = { FROM = { is_river_fed_member = yes } }
 				custom_effect_tooltip = RivCol_capitulation_TT
 			}
+			if = {
+				limit = {
+					FROM = {
+						original_tag = BRZ
+						OR = {
+							has_idea = BRZ_pacifism1
+							has_idea = BRZ_pacifism2
+							has_idea = BRZ_pacifism3
+							has_idea = BRZ_pacifism4
+						}
+					}
+				}
+				FROM = {
+					hidden_effect = {
+						remove_ideas = BRZ_pacifism1
+						remove_ideas = BRZ_pacifism2
+						remove_ideas = BRZ_pacifism3
+						remove_ideas = BRZ_pacifism4
+					}
+				}
+			}
 
 			if = {
 				limit = {
@@ -1251,6 +1291,7 @@ on_actions = {
 			LUS_load_commie_focus = yes
 			BRF_load_mason_focus = yes
 			GRU_load_commie_tree = yes
+			FLO_load_ideology_focus = yes
 			if = {
 				limit = {
 					ROOT = {
@@ -1530,6 +1571,26 @@ on_actions = {
 			else_if = {
 				limit = {
 					AND = {
+						original_tag = YAL
+						is_subject_of = GRI
+					}
+				}
+				set_cosmetic_tag = YAL_GRI_puppet
+				load_focus_tree = generic_griffon_focus
+			}
+			if = {
+				limit = {
+					AND = {
+						original_tag = PYT
+						is_subject_of = GRI
+					}
+				}
+				set_cosmetic_tag = PYT_GRI_puppet
+				load_focus_tree = generic_griffon_focus
+			}
+			if = {
+				limit = {
+					AND = {
 						original_tag = HAU
 						is_subject_of = GRI
 					}
@@ -1678,6 +1739,8 @@ on_actions = {
 
 			BRF_load_mason_focus = yes
 
+			FLO_load_ideology_focus = yes
+      
 			if = {
 				limit = { original_tag = BRF }
 				BRF = {	country_event = brodfeld.27 }
@@ -1938,6 +2001,20 @@ on_actions = {
 
 			if = {
 				limit = {
+					OR = {
+						tag = FAW
+						original_tag = FAT
+					}
+					FROM = { tag = FAT }
+				}
+				set_global_flag = keremeskai_dead
+				hidden_effect = {
+					FAT = { kill_country_leader = yes }
+				}
+			}
+
+			if = {
+				limit = {
 					FROM = {
 						OR = {
 							tag = LNS
@@ -2051,7 +2128,18 @@ on_actions = {
 						}
 					}
 				}
+				FEZ = {
+					country_event = {
+						id = fezera.126
+						days = 5
+					}
+					country_event = {
+						id = fezera.127
+						days = 30
+					}
+				}
 				country_event = aquileia_news.2
+				country_event = fezera.131
 			}
 
 			if = {
@@ -2446,7 +2534,7 @@ on_actions = {
 				}
 				country_event = crysom.48
 			}
-
+			FLO_load_ideology_focus = yes
 			if = {
 				limit = {
 					original_tag = BRF
@@ -2769,13 +2857,6 @@ on_actions = {
 			}
 			if = {
 				limit = {
-					original_tag = ROU
-					has_country_flag = have_regular_puppets
-				}
-				clr_country_flag = have_regular_puppets
-			}
-			if = {
-				limit = {
 					original_tag = EQS
 					tag = event_target:solar_empire
 					NOT = { has_government = fascism }
@@ -2821,6 +2902,7 @@ on_actions = {
 
 				country_event = deadempire.36
 				FROM = { country_event = deadempire.36 }
+				FROM = { clr_country_flag = already_capitulated }
 
 				handle_op_paperclip = yes
 				if = {
@@ -3803,6 +3885,24 @@ on_actions = {
 					news_event = cityfall.36
 					break = yes
 				}
+				if = {#Bronzecross
+					limit = {
+						FROM.FROM = { state = 492 }
+						NOT = { has_global_flag = fall_of_bronzecross }
+					}
+					every_country = {
+						limit = {
+							OR = {
+								is_griffon_empire_country = yes
+								any_neighbor_country = {
+									is_griffon_empire_country = yes
+								}
+							}
+						}
+						news_event = cityfall.37
+					}
+					break = yes
+				}
 			}
 		}
 	}
@@ -3924,7 +4024,11 @@ on_actions = {
 			}
 			if = {
 				limit = { has_idea = GRF_got_mercs_delayed }
-				add_to_variable = { GRF_delayed_merc_payment = 1 }
+				add_to_variable = { delayed_merc_payment_GRF = 1 }
+			}
+			if = {
+				limit = { has_idea = TRD_got_mercs_delayed }
+				add_to_variable = { delayed_merc_payment_TRD = 1 }
 			}
 			if = {
 				limit = {
@@ -4049,6 +4153,10 @@ on_actions = {
 				country_event = { id = lakecity.9 }
 				country_event = { id = lakecity.901 }
 				country_event = { id = lakecity.902 }
+			}
+			if = {
+				limit = { tag = BRZ }
+				country_event = { id = bronzehill_election_event.3 }
 			}
 		}
 	}
