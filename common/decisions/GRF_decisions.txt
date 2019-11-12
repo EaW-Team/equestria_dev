@@ -57,6 +57,7 @@ operations = {
 		targets = { 241.owner_var }
 		target_trigger = {
 			FROM = {
+				NOT = { tag = ROOT }
 				OR = {
 					original_tag = EQS
 					original_tag = NLR
@@ -267,9 +268,18 @@ GRF_sending_mercs_cat = {
 			check_variable = { offsite_IC < 20 }
 			FROM = {
 				all_enemy_country = {
-					has_volunteers_amount_from = {
-						tag = GRF
-						count < 1
+					if = {
+						limit = { ROOT = { tag = GRF } }
+						has_volunteers_amount_from = {
+							tag = GRF
+							count < 1
+						}
+					}
+					else = {
+						has_volunteers_amount_from = {
+							tag = TRD
+							count < 1
+						}
 					}
 					ROOT = {
 						custom_trigger_tooltip = {
@@ -284,7 +294,13 @@ GRF_sending_mercs_cat = {
 			}
 		}
 		target_root_trigger = {
-			has_idea = GRF_send_mercs
+			if = {
+				limit = { tag = GRF }
+				has_idea = GRF_send_mercs
+			}
+			else = {
+				has_completed_focus = TRD_robber_baron
+			}
 		}
 		visible = {
 			NOT = { has_country_flag = agreed_to_mercs_@FROM }
@@ -292,11 +308,22 @@ GRF_sending_mercs_cat = {
 				exists = yes
 				has_war = yes
 				has_capitulated = no
-				NOT = { has_country_flag = refused_mercs_from_GRF }
-				NOT = {
-					has_volunteers_amount_from = {
-						tag = GRF
-						count > 0
+				NOT = { has_country_flag = refused_mercs_from_@ROOT }
+				if = {
+					limit = { ROOT = { tag = GRF } }
+					NOT = {
+						has_volunteers_amount_from = {
+							tag = GRF
+							count > 0
+						}
+					}
+				}
+				else = {
+					NOT = {
+						has_volunteers_amount_from = {
+							tag = TRD
+							count > 0
+						}
 					}
 				}
 			}
@@ -411,9 +438,18 @@ GRF_sending_mercs_cat = {
 
 		available = {
 			FROM = {
-				has_volunteers_amount_from = {
-					tag = GRF
-					count > 4
+				if = {
+					limit = { ROOT = { tag = GRF } }
+					has_volunteers_amount_from = {
+						tag = GRF
+						count > 4
+					}
+				}
+				else = {
+					has_volunteers_amount_from = {
+						tag = TRD
+						count > 4
+					}
 				}
 			}
 		}
@@ -437,11 +473,11 @@ GRF_sending_mercs_cat = {
 			add_war_support = -0.05
 			FROM = {
 				add_opinion_modifier = { target = ROOT modifier = GRF_failed_to_deliver_mercs }
-				set_country_flag = { flag = refused_mercs_from_GRF value = 1 days = 180 }
+				set_country_flag = { flag = refused_mercs_from_@ROOT value = 1 days = 180 }
 				country_event = griffons.63
 				add_ai_strategy = {
 					type = befriend
-					id = GRF
+					id = ROOT
 					value = -500
 				}
 			}
@@ -454,7 +490,7 @@ GRF_sending_mercs_cat = {
 			FROM = {
 				add_ai_strategy = {
 					type = befriend
-					id = GRF
+					id = ROOT
 					value = -500
 				}
 			}
@@ -470,19 +506,39 @@ GRF_sending_mercs_cat = {
 			}
 			if = {
 				limit = { NOT = { FROM = { has_country_flag = mercs_delayed_payment } } }
-				add_to_variable = { offsite_IC = 4 }
-				add_offsite_building = { type = industrial_complex level = 4 }
-				FROM = {
-					country_event = griffons.64
-					add_ideas = GRF_got_mercs
+				if = {
+					limit = { tag = GRF }
+					add_to_variable = { offsite_IC = 4 }
+					add_offsite_building = { type = industrial_complex level = 4 }
+					FROM = {
+						country_event = griffons.64
+						add_ideas = GRF_got_mercs
+					}
+					activate_targeted_decision = { target = FROM decision = GRF_send_mercs_reward }
+					else = {
+						FROM = {
+							country_event = griffons.64
+							add_ideas = TRD_got_mercs
+						}
+						activate_targeted_decision = { target = FROM decision = TRD_send_mercs_reward }
+					}
 				}
-				activate_targeted_decision = { target = FROM decision = GRF_send_mercs_reward }
 			}
 			else = {
-				FROM = {
-					country_event = griffons.64
-					add_ideas = GRF_got_mercs_delayed
-					clr_country_flag = mercs_delayed_payment
+				if = {
+					limit = { tag = GRF }
+						FROM = {
+							country_event = griffons.64
+							add_ideas = GRF_got_mercs_delayed
+							clr_country_flag = mercs_delayed_payment
+						}					
+					else = {
+						FROM = {
+							country_event = griffons.64
+							add_ideas = TRD_got_mercs_delayed
+							clr_country_flag = mercs_delayed_payment
+						}
+					}
 				}
 			}
 			clr_country_flag = agreed_to_mercs_@FROM
@@ -522,29 +578,72 @@ GRF_sending_mercs_cat = {
 			}
 		}
 	}
+	TRD_send_mercs_reward = {
+		icon = rifles
+		days_mission_timeout = 30
+		selectable_mission = no
+		days_remove = 0
+		allowed = { always = no }
+		activation = { always = no }
+		available = {
+			FROM = {
+				OR = {
+					has_capitulated = yes
+					exists = no
+					NOT = { has_idea = TRD_got_mercs }
+				}
+			}
+		}
+		complete_effect = {
+			log = "[GetDateText]: [Root.GetName]: Decision TRD_send_mercs_reward"
+			hidden_effect = { GRF_recalc_mercs = yes }
+			remove_targeted_decision = {
+				target = FROM
+				decision = TRD_send_mercs_reward
+			}
+		}
+		timeout_effect = {
+			log = "[GetDateText]: [Root.GetName]: Decision timeout TRD_send_mercs_reward"
+			custom_effect_tooltip = TRD_gain_money_05_tp
+			add_to_variable = {
+				var = bank
+				value = 0.5
+			}
+			hidden_effect = {
+				FROM = { save_event_target_as = merc_client }
+				country_event = { id = tradefed.1000 hours = 1 }
+			}
+		}
+	}
 	GRF_demand_delayed_payment = {
 		icon = rifles
 		target_root_trigger = {
-			has_idea = GRF_send_mercs
+			if = {
+				limit = { tag = GRF }
+				has_idea = GRF_send_mercs
+			}
+			else = {
+				has_idea = TRD_mercs_idea
+			}
 		}
 		visible = {
 			FROM = {
 				has_war = no
-				has_variable = GRF_delayed_merc_payment
-				NOT = { has_country_flag = considering_delaying_payment }
+				has_variable = delayed_merc_payment_@ROOT
+				NOT = { has_country_flag = considering_delaying_payment_@ROOT }
 			}
 		}
 		target_trigger = {
 			FROM = {
 				exists = yes
 				has_war = no
-				has_variable = GRF_delayed_merc_payment
+				has_variable = delayed_merc_payment_@ROOT
 			}
 		}
 		complete_effect = {
 			log = "[GetDateText]: [Root.GetName]: Decision GRF_demand_delayed_payment target: [From.GetName]"
 			FROM = {
-				set_country_flag = considering_delaying_payment
+				set_country_flag = considering_delaying_payment_@ROOT
 				country_event = { id = griffons.70 days = 4 }
 			}
 		}
@@ -580,6 +679,47 @@ GRF_sending_mercs_cat = {
 			remove_targeted_decision = {
 				target = FROM
 				decision = GRF_send_mercs_reward_delayed
+			}
+		}
+	}
+	TRD_send_mercs_reward_delayed = {
+		icon = rifles
+		days_mission_timeout = 30
+		selectable_mission = no
+		allowed = { always = no }
+		available = {
+			FROM = {
+				OR = {
+					has_capitulated = yes
+					exists = no
+					NOT = { has_idea = TRD_got_mercs_delayed_payment }
+				}
+			}
+		}
+		days_remove = 0
+		complete_effect = {
+			log = "[GetDateText]: [Root.GetName]: Decision TRD_send_mercs_reward_delayed"
+			remove_targeted_decision = {
+				target = FROM
+				decision = TRD_send_mercs_reward_delayed
+			}
+		}
+		timeout_effect = {
+			log = "[GetDateText]: [Root.GetName]: Decision timeout TRD_send_mercs_reward_delayed"
+			custom_effect_tooltip = TRD_gain_money_05_tp
+			add_to_variable = {
+				var = bank
+				value = 0.5
+			}
+			subtract_from_variable = {
+				TRD_send_mercs_reward_delayed_duration_@FROM = 30
+			}
+			if = {
+				limit = { check_variable = { TRD_send_mercs_reward_delayed_duration_@FROM > -15 } }
+				hidden_effect = {
+					FROM = { save_event_target_as = merc_client }
+					country_event = { id = tradefed.1001 hours = 1 }
+				}
 			}
 		}
 	}
