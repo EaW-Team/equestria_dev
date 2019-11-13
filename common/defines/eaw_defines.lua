@@ -31,11 +31,11 @@ NDefines.NCountry.SPECIAL_FORCES_CAP_BASE = 0.1					-- Max ammount of special fo
 NDefines.NCountry.SPECIAL_FORCES_CAP_MIN = 32					-- You can have a minimum of this many special forces battalions, regardless of the number of non-special forces battalions you have, this can also be modified by a country modifier
 NDefines.NCountry.MAJOR_MIN_FACTORIES = 25 --default 35		-- need at least these many factories to become a major
 
-NDefines.NDiplomacy.MAX_OPINION_VALUE = 100							-- Max opinion value cap.
-NDefines.NDiplomacy.MIN_OPINION_VALUE = -300						-- Min opinion value cap.
+NDefines.NDiplomacy.MAX_OPINION_VALUE = 200							-- Max opinion value cap.
+NDefines.NDiplomacy.MIN_OPINION_VALUE = -200						-- Min opinion value cap.
 
-NDefines.NAI.HOUR_BAD_COMBAT_REEVALUATE = 24 --default 100
-NDefines.NAI.PLAN_ACTIVATION_SUPERIORITY_AGGRO = 0.8 --default 1.0		-- How aggressive a country is in activating a plan based on how superiour their force is.
+NDefines.NAI.HOUR_BAD_COMBAT_REEVALUATE = 42 --default 100
+NDefines.NAI.PLAN_ACTIVATION_SUPERIORITY_AGGRO = 1.2 --default 1.0		-- How aggressive a country is in activating a plan based on how superiour their force is.
 
 NDefines.NAI.AI_FRONT_MOVEMENT_FACTOR_FOR_READY = 0.1 --default 0.25
 NDefines.NAI.PLAN_VALUE_TO_EXECUTE = -0.2 --default -0.5
@@ -71,8 +71,8 @@ NDefines.NAI.INVASION_DISTANCE_RANDOMNESS = 400
 
 NDefines.NAI.VARIANT_UPGRADE_MIN_XP = 1000
 
-NDefines.NMilitary.PLAN_EXECUTE_CAREFUL_MAX_FORT = 4
+NDefines.NMilitary.PLAN_EXECUTE_CAREFUL_MAX_FORT = 8
 
 NDefines.NAI.DIPLOMACY_ACCEPT_VOLUNTEERS_BASE = 100
 
-NDefines.NDiplomacy.VOLUNTEERS_DIVISIONS_REQUIRED = 10
+NDefines.NDiplomacy.VOLUNTEERS_DIVISIONS_REQUIRED = 100
