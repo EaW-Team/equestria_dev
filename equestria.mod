@@ -1,4 +1,4 @@
-﻿name="Equestria at War"
+name="Equestria at War"
 path="mod/equestria/"
 replace_path="common/ai_equipment"
 replace_path="common/ai_focuses"
