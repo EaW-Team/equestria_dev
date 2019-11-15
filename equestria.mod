@@ -35,4 +35,4 @@ tags={
 }
 picture="equestria.jpg"
 remote_file_id="1096009291"
-supported_version="1.7.*"
+supported_version="1.8.*"
