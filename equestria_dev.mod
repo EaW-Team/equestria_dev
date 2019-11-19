@@ -34,5 +34,5 @@ tags={
 	"Map"
 }
 picture="equestria.jpg"
-remote_file_id="1096009291"
+remote_file_id="1826643372"
 supported_version="1.8.*"
