@@ -1,5 +1,4 @@
 #!/bin/sh
-# ./PrepareForUpload.sh equestria_dev equestria equestria.jpg
 currentDir=$(pwd)
 currentDirName=$(basename "$currentDir")
 devDirName="$1"
@@ -25,5 +24,10 @@ if [ -d $destinationName ] ; then
 fi
 
 mkdir $destinationName
-rsync -ahm --include="/$3" --include='/descriptor.mod' --include='/README.md' --exclude='*.7z' --exclude='/*.*' --exclude='/.*' --exclude='/tutorial' --exclude='*.sh' --exclude='*.ps1' --exclude='*.psd' --exclude='*.py' . $destinationName
+if [ ! -f "thumbnail.png" ]; then
+    sudo apt-get update && sudo apt-get install imagemagick
+    convert $3 thumbnail.png
+fi
+sed -i "s/picture=.*//g" "descriptor.mod"
+rsync -ahm --include="/thumbnail.png" --include='/descriptor.mod' --include='/README.md' --exclude='*.7z' --exclude='/*.*' --exclude='/.*' --exclude='/tutorial' --exclude='*.sh' --exclude='*.ps1' --exclude='*.psd' --exclude='*.py' . $destinationName
 cp -f "$destinationName/descriptor.mod" "$destinationName/../$2.mod"
