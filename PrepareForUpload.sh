@@ -1,4 +1,5 @@
 #!/bin/sh
+# ./PrepareForUpload.sh equestria_dev equestria equestria.jpg
 currentDir=$(pwd)
 currentDirName=$(basename "$currentDir")
 devDirName="$1"
@@ -24,5 +25,5 @@ if [ -d $destinationName ] ; then
 fi
 
 mkdir $destinationName
-rsync -ahm --include='/thumbnail.jpg' --include='/descriptor.mod' --include='/README.md' --exclude='*.7z' --exclude='/*.*' --exclude='/.*' --exclude='/tutorial' --exclude='*.sh' --exclude='*.ps1' --exclude='*.psd' --exclude='*.py' . $destinationName
+rsync -ahm --include="/$3" --include='/descriptor.mod' --include='/README.md' --exclude='*.7z' --exclude='/*.*' --exclude='/.*' --exclude='/tutorial' --exclude='*.sh' --exclude='*.ps1' --exclude='*.psd' --exclude='*.py' . $destinationName
 cp -f "$destinationName/descriptor.mod" "$destinationName/../$2.mod"
