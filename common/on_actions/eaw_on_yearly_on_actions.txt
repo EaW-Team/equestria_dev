@@ -4,14 +4,17 @@ on_actions = {
 			add_to_variable = { global.next_month = 1 }
 			
 			log = "[GetYear]: on_YEARLY" # duplicated part
-			NTR = {
+			NTR = { # improve random #???
 				# Winter stuff
-				country_event = { id = Ntribes.905 days = 120 random = 360 } # May(beginning-middle)
+				country_event = { id = Ntribes.905 days = 120 random = 360 } # May (beginning-middle)
 				country_event = { id = Ntribes.904 days = 273 } # October
 				
 				# Famine stuff
 				if = {
-					limit = { has_country_flag = NTR_agricultural_support_was_provided_flag }
+					limit = {
+						has_country_flag = NTR_agricultural_support_was_provided_flag
+					}
+					
 					clr_country_flag = NTR_agricultural_support_was_provided_flag
 				}
 				
@@ -60,7 +63,10 @@ on_actions = {
 						
 						# Famine stuff
 						if = {
-							limit = { has_country_flag = NTR_agricultural_support_was_provided_flag }
+							limit = {
+								has_country_flag = NTR_agricultural_support_was_provided_flag
+							}
+							
 							clr_country_flag = NTR_agricultural_support_was_provided_flag
 						}
 						
@@ -68,8 +74,7 @@ on_actions = {
 						country_event = { id = Ntribes.996 days = 334 random = 1488 } # December-February
 					}
 				}
-				
-				if = {
+				else_if = {
 					limit = { check_variable = { global.next_month > 12 } }
 					set_variable = { global.next_month = 1 }
 					set_global_flag = { flag = on_monthly_done value = 1 days = 31 }
@@ -79,6 +84,29 @@ on_actions = {
 				# will also be done on startup
 				
 				# your code here
+				for_each_scope_loop = {
+					array = global.SM_states_with_static_bonus_monthly_population
+					
+					set_temp_variable = { SM_static_bonus_monthly_population_temp_var = 1 }
+					add_to_temp_variable = { SM_static_bonus_monthly_population_temp_var = OWNER.modifier@monthly_population }
+					multiply_temp_variable = { SM_static_bonus_monthly_population_temp_var = 0.12 }
+					multiply_temp_variable = { SM_static_bonus_monthly_population_temp_var = SM_static_state_monthly_population_var }
+					
+					if = {
+						limit = {
+							state_population < 0 # overflow
+						}
+						
+						multiply_temp_variable = { SM_static_bonus_monthly_population_temp_var = state_population_k }
+						multiply_temp_variable = { SM_static_bonus_monthly_population_temp_var = 1000 }
+					}
+					else = { # more accurate
+						multiply_temp_variable = { SM_static_bonus_monthly_population_temp_var = state_population }
+					}
+					
+					add_manpower = SM_static_bonus_monthly_population_temp_var
+				}
+				
 				if = {
 					limit = {
 						OR = {
@@ -94,18 +122,21 @@ on_actions = {
 								check_variable = { global.month = 10 }
 							}
 						}
+						
 						NTR = {
 							if = {
 								limit = {
 									has_country_flag = moderate_winter
 								}
+								
 								clr_country_flag = moderate_winter
 							}
+							
 							set_country_flag = soft_winter
-							adjust_northern_winter_modifier = yes
+							
+							adjust_northern_winter_dynamic_modifier = yes
 						}
 					}
-					
 					else_if = {
 						limit = {
 							OR = {
@@ -113,24 +144,28 @@ on_actions = {
 								check_variable = { global.month = 11 }
 							}
 						}
+						
 						NTR = {
 							if = {
 								limit = {
 									has_country_flag = soft_winter
 								}
+								
 								clr_country_flag = soft_winter
 							}
+							
 							set_country_flag = moderate_winter
-							adjust_northern_winter_modifier = yes
+							
+							adjust_northern_winter_dynamic_modifier = yes
 						}
 					}
-					
 					else = {
 						NTR = {
 							if = {
 								limit = {
 									has_country_flag = moderate_winter
 								}
+								
 								clr_country_flag = moderate_winter
 							}
 						}
