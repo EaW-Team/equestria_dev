@@ -4665,3 +4665,253 @@ BAR_reactor_research = {
 		}
 	}
 }
+BAR_leopold_smash = {
+	BAR_leopold_war_raid_prepare = {
+		icon = hol_draw_up_staff_plans
+
+		available = {
+			FROM = {
+				any_owned_state = {
+					is_controlled_by = FROM
+					any_neighbor_state = {
+						is_fully_controlled_by = ROOT
+						set_temp_variable = { var:attacker_state_temp = id }
+						has_ROOT_at_least_1_div_in_current_state_scope = yes
+					}
+					set_temp_variable = { var:defender_state_temp = id }
+				}
+			}
+			NOT = { 
+                has_non_aggression_pact_with = FROM
+				has_country_flag = raid_succeeded
+			    has_country_flag = raid_failed
+			    has_country_flag = raid_in_progress 		
+            }
+			has_country_flag = BAR_leololo_smash
+		}
+
+		visible = {
+			NOT = { 
+                has_country_flag = preparing_raid
+                has_war_with = FROM
+                is_subject_of = FROM 
+            }
+			FROM = {
+                exists = yes
+				NOT = { 
+                    is_subject_of = ROOT
+                    is_in_faction_with = ROOT
+                    has_idea = detached_country
+                }
+			}
+			OR = {
+				NOT = { has_border_war_with = FROM }
+				AND = {
+					FROM = {
+						any_owned_state = {
+							is_controlled_by = FROM
+							any_neighbor_state = {
+								is_fully_controlled_by = ROOT
+							}
+						}
+					}
+				}
+			}
+			has_country_flag = BAR_leololo_smash
+		}
+		cancel_trigger = {
+			NOT = {
+				has_country_flag = BAR_leololo_smash
+			}
+		}
+		target_array = neighbors
+		target_trigger = {
+			FROM = {
+				is_neighbor_of = ROOT
+			}
+		}
+
+		highlight_states = {
+			OR = {
+				state = FROM.defender_state_vs_@ROOT
+				AND = {
+					is_owned_and_controlled_by = FROM
+					any_neighbor_state = {
+						has_ROOT_at_least_1_div_in_current_state_scope = yes
+						is_fully_controlled_by = ROOT
+					}
+				}
+			}
+		}
+
+		ai_will_do = {
+			base = 100
+		}
+
+		cost = 25
+
+		fire_only_once = no
+
+		days_re_enable = 60
+		days_remove = 10
+
+		complete_effect = {
+			log = "[GetDateText]: [Root.GetName]: Decision BAR_leopold_war_raid_prepare target: [From.GetName]"
+			hidden_effect = {
+				random_state = {
+					limit = {
+						is_owned_and_controlled_by = FROM
+						any_neighbor_state = {
+							has_ROOT_at_least_1_div_in_current_state_scope = yes
+							is_fully_controlled_by = ROOT
+						}
+					}
+					save_event_target_as = defender_state
+					set_variable = { FROM.defender_state_vs_@ROOT = id }
+					set_temp_variable = { defender_state_temp = id }
+				}
+				random_state = {
+					limit = {
+						is_fully_controlled_by = ROOT
+						has_ROOT_at_least_1_div_in_current_state_scope = yes
+						any_neighbor_state = {
+							state = var:FROM.defender_state_vs_@ROOT
+						}
+					}
+					save_event_target_as = attacker_state
+					set_variable = { FROM.attacker_state_vs_@ROOT = id }
+					set_temp_variable = { attacker_state_temp = id }
+				}
+				set_country_flag = preparing_raid
+			}
+		}
+		remove_effect = {
+			log = "[GetDateText]: [Root.GetName]: Decision remove BAR_leopold_war_raid_prepare target: [From.GetName]"
+			activate_targeted_decision = { target = FROM decision = BAR_leopold_war_raid }
+		}
+	}
+
+	BAR_leopold_war_raid = {
+
+		icon = crossed_swords
+
+		allowed = { always = no } #Activated from effect
+
+		available = {
+			var:FROM.attacker_state_vs_@ROOT = {
+				is_fully_controlled_by = ROOT
+			}
+			divisions_in_border_state = {
+				state = var:FROM.attacker_state_vs_@ROOT
+				border_state = var:FROM.defender_state_vs_@ROOT
+				size > 0
+			}
+			has_country_flag = BAR_leololo_smash
+		}
+		highlight_states = {
+			state = var:FROM.attacker_state_vs_@ROOT
+		}
+
+		ai_will_do = {
+			base = 100
+		}
+
+		cancel_trigger = {
+			OR = {
+                is_subject_of = FROM
+                is_in_faction_with = FROM
+                has_war_with = FROM
+                FROM = {
+                    is_subject_of = ROOT
+                }
+            }
+			NOT = {
+				has_country_flag = BAR_leololo_smash
+			}
+		}
+
+		fire_only_once = yes #Reactivation handled in effect
+
+		selectable_mission = yes
+
+		days_mission_timeout = 30
+
+		timeout_effect = {
+			log = "[GetDateText]: [Root.GetName]: Decision timeout BAR_leopold_war_raid"
+			hidden_effect = {
+				FROM = {
+					clear_variable = attacker_state_vs_@ROOT
+					clear_variable = defender_state_vs_@ROOT
+				}
+				clr_country_flag = preparing_raid
+				remove_targeted_decision = { target = FROM decision = BAR_leopold_war_raid }
+				activate_targeted_decision = { target = FROM decision = BAR_leopold_war_raid_prepare }
+			}
+		}
+
+		complete_effect = {
+			log = "[GetDateText]: [Root.GetName]: Decision BAR_leopold_war_raid"
+			effect_tooltip = {
+				start_border_war = {
+					change_state_after_war = no
+					attacker = {
+						state = var:FROM.attacker_state_vs_@ROOT
+						num_provinces = 4
+						on_win = barrad_leopold_raid.1
+						on_lose = barrad_leopold_raid.3
+						on_cancel = barrad_leopold_raid.2
+					}
+
+					defender = {
+						state = var:FROM.defender_state_vs_@ROOT
+						num_provinces = 4
+						on_win = barrad_leopold_raid.6
+						on_lose = barrad_leopold_raid.7
+						on_cancel = barrad_leopold_raid.5
+					}
+				}
+			}
+			hidden_effect = {
+				if = {
+					limit = { 
+						FROM = { 
+							has_war = yes
+							divisions_in_border_state = {
+								border_state = var:FROM.attacker_state_vs_@ROOT
+								state = var:FROM.defender_state_vs_@ROOT
+								size < 1
+							}
+						} 
+					}
+					FROM = { country_event = barrad_leopold_raid.100 }
+				}
+				else = {
+					start_border_war = {
+						change_state_after_war = no
+						attacker = {
+							state = var:FROM.attacker_state_vs_@ROOT
+							num_provinces = 4
+							on_win = barrad_leopold_raid.1
+							on_lose = barrad_leopold_raid.3
+							on_cancel = barrad_leopold_raid.2
+						}
+
+						defender = {
+							state = var:FROM.defender_state_vs_@ROOT
+							num_provinces = 4
+							on_win = barrad_leopold_raid.6
+							on_lose = barrad_leopold_raid.7
+							on_cancel = barrad_leopold_raid.5
+						}
+					}
+				}
+			}
+			hidden_effect = {
+				set_country_flag = raid_in_progress
+				clr_country_flag = preparing_raid
+				remove_targeted_decision = { target = FROM decision = BAR_leopold_war_raid }
+				activate_targeted_decision = { target = FROM decision = BAR_leopold_war_raid_prepare }
+			}
+		}
+	}
+}
