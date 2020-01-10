@@ -1,0 +1,391 @@
+add_namespace = bat
+
+country_event = { #Raid Successful/Attacker
+	id = bat.1
+	immediate = {log = "[GetDateText]: [Root.GetName]: event bat.1"}
+	title = bat.1.t
+	desc = bat.1.d
+
+	picture = GFX_event_night_riders
+	is_triggered_only = yes
+
+	immediate = {
+		hidden_effect = {
+		    save_current_manpower = yes
+			if = {
+				limit = { 
+				    has_event_target = raided_state 
+				}
+				add_manpower = -10000
+			}
+			restore_previous_manpower = yes
+			add_to_variable = { 
+			   var = BAT_labourers 
+			   value = 10000 
+			}
+		}
+	}
+
+	option = {
+		name = bat.1.a
+		custom_effect_tooltip = BAT_labour_tp
+		custom_effect_tooltip = BAT_90_days_tp
+		hidden_effect = {
+			clr_country_flag = raid_in_progress
+			set_country_flag = { 
+			    flag = raid_succeeded 
+				days = 90 
+				value = 1 
+			}
+		}
+	}
+}
+
+country_event = { #Raid Canceled/Attacker
+	id = bat.2
+	immediate = {log = "[GetDateText]: [Root.GetName]: event bat.2"}
+	title = bat.2.t
+	desc = bat.2.d
+
+	picture = GFX_event_night_riders
+	is_triggered_only = yes
+
+	option = {
+		name = bat.2.a
+		custom_effect_tooltip = BAT_120_days_tp
+		hidden_effect = {
+			clr_country_flag = raid_in_progress
+			set_country_flag = { 
+			    flag = raid_failed 
+				days = 120 
+				value = 1 
+			}
+		}
+	}
+}
+
+country_event = { #Raid Failed/Attacker
+	id = bat.3
+	immediate = {log = "[GetDateText]: [Root.GetName]: event bat.3"}
+	title = bat.3.t
+	desc = bat.3.d
+
+	picture = GFX_event_night_riders
+	is_triggered_only = yes
+
+	option = {
+		name = bat.3.a
+		custom_effect_tooltip = BAT_150_days_tp
+		add_political_power = -25
+		add_stability = -0.02
+		hidden_effect = {
+			clr_country_flag = raid_in_progress
+			set_country_flag = { 
+			    flag = raid_failed 
+				days = 150 
+				value = 1 
+			}
+		}
+	}
+}
+
+country_event = { #Raid Successful/Defender
+	id = bat.4
+	immediate = {log = "[GetDateText]: [Root.GetName]: event bat.4"}
+	is_triggered_only = yes
+	
+    picture = GFX_event_night_riders
+	is_triggered_only = yes
+	
+	immediate = {
+		hidden_effect = {
+			if = {
+				limit = { NOT = { has_event_target = raided_state } }
+				FROM.FROM.FROM = { save_event_target_as = raided_state }
+			}
+		}
+	}
+
+	option = {
+		name = bat.4.a
+		add_political_power = -25
+		add_stability = -0.025
+		save_current_manpower = yes
+		if = {
+			limit = {
+				event_target:raided_state = {
+					state_population > 5000
+				}
+			}
+			event_target:raided_state = {
+				add_manpower = -5000
+			}
+		}
+		else_if = {
+			limit = {
+				event_target:raided_state = {
+					any_neighbor_state = {
+						state_population > 5000
+					}
+				}
+			}
+			random_owned_controlled_state = {
+				limit = { 
+					state_population > 5000
+					any_neighbor_state = {
+						state = event_target:raided_state
+					}
+				}
+				add_manpower = -5000
+			}
+		}
+		else = {
+			random_owned_controlled_state = {
+				limit = {
+					state_population > 5000
+				}
+				add_manpower = -5000
+			}
+		}
+		restore_previous_manpower = yes
+	}
+}
+
+country_event = { #Raid Canceled/Defender
+	id = bat.5
+	immediate = {log = "[GetDateText]: [Root.GetName]: event bat.5"}
+	title = bat.5.t
+	desc = bat.5.d
+
+	picture = GFX_event_night_riders
+	is_triggered_only = yes
+
+	option = {
+		name = bat.5.a
+		add_political_power = 20
+		add_stability = 0.02
+	}
+}
+
+country_event = { #Raid Failed/Defender
+	id = bat.6
+	immediate = {log = "[GetDateText]: [Root.GetName]: event bat.6"}
+	title = bat.6.t
+	desc = bat.6.d
+
+	picture = GFX_event_night_riders
+	is_triggered_only = yes
+
+	option = {
+		name = bat.6.a
+		add_political_power = 20
+		add_stability = 0.01
+	}
+}
+
+country_event = { #We are being raided!
+	id = bat.7
+	immediate = {log = "[GetDateText]: [Root.GetName]: event bat.7"}
+	title = bat.7.t
+	desc = bat.7.d
+
+	picture = GFX_event_night_riders
+	is_triggered_only = yes
+
+	option = { #fight!
+		name = bat.7.a
+		ai_chance = {
+			factor = 10
+			modifier = {
+				has_war = yes
+				divisions_in_state = {
+					state = var:defender_state_vs_@FROM
+					size < 1
+				}
+				any_owned_state = {
+					state = var:defender_state_vs_@FROM
+					any_neighbor_state = {
+						ROOT = {
+							divisions_in_state = {
+								state = PREV
+								size < 1
+							}
+						}
+						NOT = {
+							any_neighbor_state = {
+								controller = { has_war_with = ROOT }
+							}
+						}
+					}
+				}
+				factor = 0.3
+			}
+			modifier = {
+				has_war = yes
+				enemies_strength_ratio > 0.8
+				any_neighbor_country = {
+					has_war_with = ROOT
+				}
+				factor = 0.3
+			}
+			modifier = {
+				has_war = yes
+				enemies_strength_ratio > 0.9
+				any_neighbor_country = {
+					has_war_with = ROOT
+				}
+				factor = 0.3
+			}
+			modifier = {
+				has_war = yes
+				enemies_strength_ratio > 1
+				any_neighbor_country = {
+					has_war_with = ROOT
+				}
+				factor = 0
+			}
+		}
+		FROM = {
+			start_border_war = {
+                change_state_after_war = no
+                attacker = {
+                    state = var:ROOT.attacker_state_vs_@THIS
+                    num_provinces = 4
+                    on_win = bat.1
+                    on_lose = bat.3
+                    on_cancel = bat.2
+                }
+
+                defender = {
+                    state = var:ROOT.defender_state_vs_@THIS
+                    num_provinces = 4
+                    on_win = bat.6
+                    on_lose = bat.4
+                    on_cancel = bat.5
+                }
+            }
+		}
+	}
+	option = { #give up
+		name = bat.7.b
+		ai_chance = {
+			factor = 1
+		}
+		hidden_effect = {
+			random_owned_state = {
+				limit = { state = var:ROOT.defender_state_vs_@FROM }
+				save_event_target_as = raided_state
+			}
+		}
+		FROM = {
+			country_event = { 
+			    id = bat.1 
+			    hours = 1 
+			}
+		}
+		hidden_effect = { 
+		    country_event = { 
+		        id = bat.4 
+				hours = 1 
+			} 
+		}
+	}
+}
+
+country_event = { #Flavour Event Talking About How New Tzinacatlia Has Been Preparing For Nightmare Moon's Return And Have Had A Hand In It 
+	id = bat.8
+	immediate = {log = "[GetDateText]: [Root.GetName]: event bat.8"}
+	title = bat.8.t
+	desc = bat.8.d
+
+	picture = GFX_event_night_riders
+	is_triggered_only = yes
+
+	option = {
+		name = bat.8.a
+	}
+}
+
+country_event = { #Flavour Event About Eternal Eclipse Relocating Various Zebra/Pony Labourers To Better Organize Them/Should Be Really Inpersonal
+	id = bat.9
+	immediate = {log = "[GetDateText]: [Root.GetName]: event bat.9"}
+	title = bat.9.t
+	desc = bat.9.d
+
+	picture = GFX_event_night_riders
+	is_triggered_only = yes
+
+	option = {
+		name = bat.9.a
+	}
+}
+
+country_event = { #Flavour Event From The Perspective of a Native Labourer, should describe their life (Native Labourers are glorified slaves and taken from raids)
+	id = bat.10
+	immediate = {log = "[GetDateText]: [Root.GetName]: event bat.10"}
+	title = bat.10.t
+	desc = bat.10.d
+
+	picture = GFX_event_night_riders
+	is_triggered_only = yes
+
+	option = {
+		name = bat.10.a
+	}
+}
+
+country_event = { #Flavour Event Describing How New Tzinacatlia And Autumn Breeze in Particular have had a hand in worsening the tensions between the Bats in Equestria and the rest of Equestria
+	id = bat.11
+	immediate = {log = "[GetDateText]: [Root.GetName]: event bat.11"}
+	title = bat.11.t
+	desc = bat.11.d
+
+	picture = GFX_event_night_riders
+	is_triggered_only = yes
+
+	option = {
+		name = bat.11.a
+	}
+}
+
+country_event = { #Flavour Event Describing a Honeypot Operation to get close to some Equestrian Academic so they can be killed once the Civil War Starts
+	id = bat.12
+	immediate = {log = "[GetDateText]: [Root.GetName]: event bat.12"}
+	title = bat.12.t
+	desc = bat.12.d
+
+	picture = GFX_event_night_riders
+	is_triggered_only = yes
+
+	option = {
+		name = bat.12.a
+	}
+}
+
+country_event = { #Flavour Event Describing A Legionare Training Session Overseen by Lightning Charm
+	id = bat.13
+	immediate = {log = "[GetDateText]: [Root.GetName]: event bat.13"}
+	title = bat.13.t
+	desc = bat.13.d
+
+	picture = GFX_event_night_riders
+	is_triggered_only = yes
+
+	option = {
+		name = bat.13.a
+	}
+}
+
+country_event = { #Flavour Event Describing a Legion Auxiliary Soldier's life, and then witnessing a speech from Lunar Hail (Legion Auxiliaries are Units comprising of native Zebras and Ponies + Descendants of Native Zebras and Ponies that have converted to worshipping Nightmare Moon, they tend to do smaller scale military operations)
+	id = bat.14
+	immediate = {log = "[GetDateText]: [Root.GetName]: event bat.14"}
+	title = bat.14.t
+	desc = bat.14.d
+
+	picture = GFX_event_night_riders
+	is_triggered_only = yes
+
+	option = {
+		name = bat.14.a
+	}
+}
