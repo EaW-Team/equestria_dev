@@ -12,13 +12,13 @@ import re
 def check_triggered(line_number, lines):
     if line_number == len(lines) or line_number == len(lines)-1 or line_number == len(lines)-2 :
         return True
-    if '}' in lines[line_number+2] or 'days' in lines[line_number+2]:
+    if '}' in lines[line_number+2] or 'days' in lines[line_number+2] or "hours" in lines[line_number+2]:
         #print("1: Found Triggered Event at line: " + line_number.__str__())
         return True
-    if '}' in lines[line_number+1] or 'days' in lines[line_number+1]:
+    if '}' in lines[line_number+1] or 'days' in lines[line_number+1] or "hours" in lines[line_number+1]:
         #print("1: Found Triggered Event at line: " + line_number.__str__())
         return True
-    if '}' in lines[line_number] or 'days' in lines[line_number]:
+    if '}' in lines[line_number] or 'days' in lines[line_number] or "hours" in lines[line_number]:
         #print("1: Found Triggered Event at line: " + line_number.__str__())
         return True
     for i in range(line_number, len(lines)):
@@ -95,7 +95,8 @@ def focus(cpath):
                     if focus_id in ["{", "}"]:
                         focus_id = "Error, focus name not found"
                     if focus_id in shared_focuseseses:
-                        whitespace = whitespace[:len(whitespace)-1]
+                        if 'Mongolia' not in filename:
+                            whitespace = whitespace[:len(whitespace)-1]
                     if '}' in line:
                         temp = line.split("{")
                         replacement_text = temp[0] + "{\n" + whitespace + "\tlog = \"[GetDateText]: [Root.GetName]: Focus " + focus_id + "\"\n" + "{".join(temp)[len(temp[0])+1:] + "\n"
@@ -114,6 +115,7 @@ def focus(cpath):
 
 def event(cpath):
     ttime = 0
+    adding_keyword = "immediate"
     # immediate = {log = "[Root.GetName]: event "+ id + "\n"}  # autolog
     for filename in listdir(os.path.join(cpath, "events")):
         if ".txt" in filename:
@@ -131,11 +133,11 @@ def event(cpath):
             triggered = False
             ids = []
             idss = []
-
+            has_add_keyword = dict()
             timestart = time.time()
             for line in lines:
                 line_number += 1
-                if line.strip().startswith('#') or 'immediate = {log = ' in line:
+                if line.strip().startswith('#'):
                     continue
                 if '#' in line:
                     line = line.split('#')[0]
@@ -152,35 +154,59 @@ def event(cpath):
                     else:
                         triggered = True
                         new_event = False
-                if line.strip().startswith('id') and new_event is True and 'immediate = {log =' not in lines[line_number+1]:
-                    if 'log = ' not in lines[line_number+1] and 'hours' not in lines[line_number+1] and 'hours' not in lines[line_number] and 'days' not in lines[line_number+1] and 'days' not in lines[line_number]:
-                        if triggered is False:
-                            new_event = False
-                            event_id = line.split('=')[1].strip()
-                            idss.append(event_id)
-                            ids.append(line_number)
-                        else:
-                            triggered = False
+                if line.strip().startswith('id') and new_event is True :
+                    if triggered is False:
+                        new_event = False
+                        event_id = line.split('=')[1].strip()
+                        idss.append(event_id)
+                        ids.append(line_number)
+                    else:
+                        triggered = False
+                if adding_keyword in line:
+                    has_add_keyword[event_id] = line_number
+
+
             time1 = time.time() - timestart
             line_number = 0
             file.close()
             outputfile = open(os.path.join(cpath, "events", filename), 'w', 'utf-8-sig')
             outputfile.truncate()
+
+            event_id = "THIS SHOULD NEVER SHOW UP"
+            insert_in_trigger = -1
             for line in lines:
                 line_number += 1
+                replacement_text = line
+
                 if line_number in ids:
                     extra = ""
                     event_id = idss[ids.index(line_number)]
+                    if event_id not in has_add_keyword:
+                        if '#' in line:
+                            extra = " #" + line.split('#')[len(line.split('#'))-1].strip()
+                        if '.' not in event_id:
+                            outputfile.write(line)
+                            continue
+                        white_space = line[:-len(line.lstrip())]
+                        replacement_text = white_space + "id = " + event_id + extra + "\n" + white_space + "immediate = { log = \"[GetDateText]: [Root.GetName]: event " + event_id + "\" }\n"
+                    else:
+                        insert_in_trigger = has_add_keyword[event_id]
+
+                elif line_number is insert_in_trigger:
+                    white_space = line[:-len(line.lstrip())]
                     if '#' in line:
-                        extra = " #" + line.split('#')[len(line.split('#'))-1].strip()
-                    if '.' not in event_id:
-                        outputfile.write(line)
-                        continue
-                    replacement_text = "\tid = " + event_id + extra + "\n\timmediate = {log = \"[GetDateText]: [Root.GetName]: event " + event_id + "\"}\n"
-                    outputfile.write(replacement_text)
+                        extra = " #" + line.split('#')[len(line.split('#')) - 1].strip()
+
+                    if '}' in line:
+                        command = line.split("{")[1].split("}")[0].strip()
+                        replacement_text = white_space + adding_keyword + " = {" + "\n" + white_space + "\t" + "log = \"[GetDateText]: [Root.GetName]: event " + event_id + "\"\n" + white_space + "\t" + command + extra + "\n" + white_space + "}\n"
+                    else:
+                        replacement_text = white_space + adding_keyword + " = {" + extra + "\n" + white_space + "\t" + "log = \"[GetDateText]: [Root.GetName]: event " + event_id + "\"\n"
                     #print("Inserted loc at {0} in file {1}".format(line_number.__str__(), filename))
-                else:
-                    outputfile.write(line)
+
+                outputfile.write(replacement_text)
+
+
             time2 = time.time() - timestart - time1
 
             #print(filename + " 1: %.3f ms  2: %.3f ms" % (time1*1000, time2*1000))
@@ -191,6 +217,9 @@ def event(cpath):
 def idea(cpath):
     ttime = 0
     timestart = time.time()
+    adding_keyword = "on_add"
+    has_add_keyword = dict()
+
     #First bit
     # 			on_add = {log = "[GetDateText]: [Root.GetName]: add idea "}
     for filename in listdir(os.path.join(cpath, "common", "ideas")):
@@ -213,31 +242,51 @@ def idea(cpath):
                 re.sub(r'".+?"', '', line)
                 if '= {' in line:
                     if level == 2:
-                        if 'on_add = {log = ' not in lines[line_number]:
+                        if 'on_add = { log = ' not in lines[line_number]:
                             #print(line.split('=')[0].strip())
                             ids.append(line_number)
+
+                if adding_keyword in line:
+                    has_add_keyword[idea_id] = line_number
+
                 if '{' in line:
                     level += line.count('{')
                 if '}' in line:
                     level -= line.count('}')
+
             file.close()
             line_number = 0
             outputfile = open(os.path.join(cpath, "common", "ideas", filename), 'w', 'utf-8')
             outputfile.truncate()
+
+            idea_id = "THIS SHOULNT EVER BE SEEN"
+
             for line in lines:
                 line_number += 1
+                replacement_text = line
                 if line_number in ids:
                     extra = ""
                     if '#' in line:
                         line = line.strip()
-                        extra = "#" + line.split('#')[len(line.split('#'))-1].strip()
+                        extra = " #" + line.split('#')[len(line.split('#'))-1].strip()
                     idea_id = line.split('=')[0].strip()
-                    replacement_text = "\t\t" + idea_id + " = {" + extra + "\n\t\t\ton_add = {log = \"[GetDateText]: [Root.GetName]: add idea " + idea_id + "\"}\n"
-                    outputfile.write(replacement_text)
-                    #print("Inserted loc at {0} in file {1}".format(line_number.__str__(), filename))
-                else:
-                    outputfile.write(line)
+                    replacement_text = "\t\t" + idea_id + " = {" + extra + "\n\t\t\ton_add = { log = \"[GetDateText]: [Root.GetName]: add idea " + idea_id + "\"}\n"
 
+                    #print("Inserted loc at {0} in file {1}".format(line_number.__str__(), filename))
+
+
+                if line_number in list(has_add_keyword.values()):
+                    white_space = line[:-len(line.lstrip())]
+                    if '#' in line:
+                        extra = " #" + line.split('#')[len(line.split('#')) - 1].strip()
+
+                    if '}' in line:
+                        command = line.split("{")[1].split("}")[0].strip()
+                        replacement_text = white_space + adding_keyword + " = {" + "\n" + white_space + "\t" + "log = \"[GetDateText]: [Root.GetName]: add idea " + idea_id + "\"\n" + white_space + "\t" + command + extra + "\n" + white_space + "}\n"
+                    else:
+                        replacement_text = white_space + adding_keyword + " = {" + extra + "\n" + white_space + "\t" + "log = \"[GetDateText]: [Root.GetName]: add idea " + idea_id + "\"\n"
+
+                outputfile.write(replacement_text)
 
 
 
@@ -283,6 +332,9 @@ def decision_improved(cpath):
                 # The dictionary that will hold all our stuff
                 found_decisions = {}  # Numbers denote line numbers: decision_name: [complete_effect, remove_effect, timeout_effect, targeted_decision_bool]
 
+                #Initialise the latest found to an unreachable value
+                latest_found = -1
+
                 # Loop over all lines this file to detect where the decisions are
                 for line_number, line in enumerate(lines):
 
@@ -301,17 +353,19 @@ def decision_improved(cpath):
                         # Add an default reference to this decision
                         found_decisions[line_number] = [0, 0, 0, False]
 
-                    if 'complete_effect' in line:
-                        found_decisions[latest_found][0] = line_number
+                    if latest_found in found_decisions:
+                        if 'complete_effect' in line:
+                            found_decisions[latest_found][0] = line_number
 
-                    elif 'remove_effect' in line:
-                        found_decisions[latest_found][1] = line_number
+                        elif 'remove_effect' in line:
+                            found_decisions[latest_found][1] = line_number
 
-                    elif 'timeout_effect' in line:
-                        found_decisions[latest_found][2] = line_number
+                        elif 'timeout_effect' in line:
+                            found_decisions[latest_found][2] = line_number
 
-                    elif 'target_trigger' in line or 'targets' in line:
-                        found_decisions[latest_found][3] = True
+                        elif 'target_trigger' in line or 'targets' in line:
+                            found_decisions[latest_found][3] = True
+
 
                     if '{' in line:
                         level += line.count('{')
@@ -321,6 +375,14 @@ def decision_improved(cpath):
 
             if found_decisions == {}:
                 continue
+
+            found_decisions_filtered = {}
+            for key, value in found_decisions.items():
+                # Check if key is even then add pair to new dictionary
+                if value:
+                    found_decisions_filtered[key] = value
+
+            found_decisions = found_decisions_filtered
 
             id = ""
             index = [-1, -1, -1, False]
@@ -374,7 +436,7 @@ def decision_improved(cpath):
 
 def tech(cpath):
     ttime = time.time()
-
+    adding_keyword = "on_research_complete"
     # on_research_complete = {  log = "[GetDateText] [Root.GetName]: add tech advanced_light_spaa"}
     for filename in listdir(os.path.join(cpath, "common", "technologies")):
         if ".txt" in filename:
@@ -386,6 +448,9 @@ def tech(cpath):
             line_number = 0
             level = 0
             ids = []
+            has_add_keyword = dict()
+            idea_id = None
+
             for line in lines:
                 line_number += 1
                 if '#' in line:
@@ -396,9 +461,12 @@ def tech(cpath):
 
                 if '= {' in line:
                     if level == 1:
-                        if 'on_research_complete = {log = ' not in lines[line_number]:
-                            #print(line.split('=')[0].strip())
-                            ids.append(line_number)
+                        #print(line.split('=')[0].strip())
+                        ids.append(line_number)
+                        idea_id = line.split('=')[0].strip()
+
+                if adding_keyword in line:
+                    has_add_keyword[idea_id] = line_number
 
                 if '{' in line:
                     level += line.count('{')
@@ -409,18 +477,37 @@ def tech(cpath):
             line_number = 0
             outputfile = open(os.path.join(cpath, "common", "technologies", filename), 'w', 'utf-8')
             outputfile.truncate()
+
+            idea_id = "THIS SHOULNT EVER BE SEEN"
+
+
             for line in lines:
                 line_number += 1
+                replacement_text = line
+
                 if line_number in ids:
                     extra = ""
                     if '#' in line:
                         extra = "#" + line.split('#')[1].strip()
                     idea_id = line.split('=')[0].strip()
-                    replacement_text = "\t" + idea_id + " = {" + extra + "\n\t\ton_research_complete = {log = \"[GetDateText]: [Root.GetName]: add tech " + idea_id + "\"}\n"
-                    outputfile.write(replacement_text)
+
+                    if idea_id not in has_add_keyword:
+                        replacement_text = "\t" + idea_id + " = {" + extra + "\n\t\ton_research_complete = { log = \"[GetDateText]: [Root.GetName]: add tech " + idea_id + "\"}\n"
+
                     #print("Inserted loc at {0} in file {1}".format(line_number.__str__(), filename))
-                else:
-                    outputfile.write(line)
+
+                if line_number in list(has_add_keyword.values()):
+                    white_space = line[:-len(line.lstrip())]
+                    if '#' in line:
+                        extra = " #" + line.split('#')[len(line.split('#')) - 1].strip()
+
+                    if '}' in line:
+                        command = line.split("{")[1].split("}")[0].strip()
+                        replacement_text = white_space + adding_keyword + " = {" + "\n" + white_space + "\t" + "log = \"[GetDateText]: [Root.GetName]: add tech " + idea_id + "\"\n" + white_space + "\t" + command + extra + "\n" + white_space + "}\n"
+                    else:
+                        replacement_text = white_space + adding_keyword + " = {" + extra + "\n" + white_space + "\t" + "log = \"[GetDateText]: [Root.GetName]: add tech " + idea_id + "\"\n"
+
+                outputfile.write(replacement_text)
 
 
 
@@ -436,14 +523,16 @@ def main():
         else:
             cpath += ' ' + string
 
-
-    ttime = 0
-    ttime += event(cpath)
-    ttime += focus(cpath)
-    #ttime += idea(cpath)
-    ttime += decision_improved(cpath)
-    #ttime += tech(cpath)
-    print("Total Time: %.3f ms" % (ttime * 1000))
+    if cpath is "":
+        print("Expected a path to a mod folder.")
+    else:
+        ttime = 0
+        ttime += event(cpath)
+        ttime += focus(cpath)
+        #ttime += idea(cpath)
+        ttime += decision_improved(cpath)
+        #ttime += tech(cpath)
+        print("Total Time: %.3f ms" % (ttime * 1000))
 
 if __name__ == "__main__":
     main()
