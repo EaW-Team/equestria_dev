@@ -645,10 +645,8 @@ country_event =  { #Someone asks for a loan
 			factor = 100
 			modifier = {
 				factor = 0
-				check_variable  = {
-					var = bank
-					value = 3
-					compare = less_than
+				check_variable = {
+					bank < 3
 				}
 			}
 		}
@@ -662,10 +660,8 @@ country_event =  { #Someone asks for a loan
 			factor = 0
 			modifier = {
 				add = 10
-				check_variable  = {
-					var = bank
-					value = 3
-					compare = less_than
+				check_variable = {
+					bank < 3
 				}
 			}
 		}
@@ -706,7 +702,7 @@ country_event =  { #Loan refused
 	picture = GFX_event_bank_vault
 	is_triggered_only = yes
 	option = {
-		add_political_power = 75
+		add_political_power = 50
 		name = flowena.22.a
 	}
 }
@@ -715,11 +711,21 @@ country_event =  { #Repayment time
 	id = flowena.23
 	immediate = {log = "[GetDateText]: [Root.GetName]: event flowena.23"}
 	title = flowena.23.t
-	desc = flowena.23.d
+	desc = {
+        text = flowena.23.d_normal
+        trigger = { NOT = { has_country_flag = FLO_loans_blocked } }
+    }
+	desc = {
+        text = flowena.23.d_embargo
+        trigger = { has_country_flag = FLO_loans_blocked }
+    }
 	picture = GFX_event_bank_vault
 	is_triggered_only = yes
 	option = { #Pay back loan
 		trigger = {
+			NOT = {
+				has_government = communism
+			}
 			FLO = {
 				exists = yes
 				NOT = {
@@ -747,20 +753,27 @@ country_event =  { #Repayment time
 		FLO = {
 			country_event = { id = flowena.24 days = 1 }
 		}
+		ai_chance = {
+			factor = 10
+		}
 	}
 	
 	option = { #Extend loan
 		trigger = {
+			NOT = {
+				has_government = communism
+			}
 			FLO = {
 				exists = yes
 				NOT = {
 					has_government = communism
 					has_war_with = ROOT
+					has_country_flag = FLO_loans_blocked
 				}
 			}
 		}
 		name = flowena.23.b
-		add_political_power = -25
+		add_political_power = -50
 		if = {
 			limit = {
 				original_tag = TRD
@@ -773,18 +786,25 @@ country_event =  { #Repayment time
 		}
 		else = {
 			add_timed_idea = { idea = FLO_loan_idea  days = 365 }
+			add_timed_idea = { idea = FLO_loan_repayment  days = 180 }
 		}
 		FLO = {
 			country_event = { id = flowena.25 days = 1 }
 		}
+		ai_chance = {
+			factor = 10
+		}
 	}
 	option = {
 		trigger = {
-			FLO = {
-				OR = {
-					exists = no
-					has_government = communism
-					has_war_with = ROOT
+			OR = {
+				has_government = communism
+				FLO = {
+					OR = {
+						exists = no
+						has_government = communism
+						has_war_with = ROOT
+					}
 				}
 			}
 		}
@@ -843,7 +863,7 @@ country_event =  { #Flowena jews want to buy our geld
 	option = {
 		name = flowena.26.a #Yes plz gib cash you jews
 		set_country_flag = FLO_gold_sold
-		add_political_power = 50
+		add_political_power = -50
 		if = {
 			limit = {
 				original_tag = TRD
@@ -1014,11 +1034,17 @@ country_event =  { #A deal with Adelart
 		HEL = {
 			country_event = flowena.34
 		}
+		ai_chance = {
+			factor = 5
+		}
 	}
 	option = { #Mutual cooperation in oil production
 		name = flowena.33.b
 		HEL = {
 			country_event = flowena.37
+		}
+		ai_chance = {
+			factor = 15
 		}
 	}
 }
@@ -1027,18 +1053,24 @@ country_event =  { #Flowena offers a deal for guarantee
 	immediate = {log = "[GetDateText]: [Root.GetName]: event flowena.34"}
 	title = flowena.34.t
 	desc = flowena.34.d
-	picture = GFX_event_medieval_city
+	picture = GFX_event_griffon_diplomacy
 	is_triggered_only = yes
 	option = { #Sure
 		name = flowena.34.a
 		FROM = {
 			country_event = { id = flowena.35 days = 1 }
 		}
+		ai_chance = {
+			factor = 5
+		}
 	}
 	option = { #No thanks
 		name = flowena.34.b
 		FROM = {
 			country_event = { id = flowena.36 days = 1 }
+		}
+		ai_chance = {
+			factor = 0
 		}
 	}
 }
@@ -1081,7 +1113,7 @@ country_event =  { #Flowena offers a deal for cooperation
 	immediate = {log = "[GetDateText]: [Root.GetName]: event flowena.37"}
 	title = flowena.37.t
 	desc = flowena.37.d
-	picture = GFX_event_medieval_city
+	picture = GFX_event_griffon_diplomacy
 	is_triggered_only = yes
 	option = { #Sure
 		name = flowena.37.a
@@ -1090,11 +1122,17 @@ country_event =  { #Flowena offers a deal for cooperation
 		FROM = {
 			country_event = { id = flowena.38 days = 1 }
 		}
+		ai_chance = {
+			factor = 5
+		}
 	}
 	option = { #No thanks
 		name = flowena.37.b
 		FROM = {
 			country_event = { id = flowena.36 days = 1 }
+		}
+		ai_chance = {
+			factor = 0
 		}
 	}
 }
@@ -1546,6 +1584,13 @@ country_event =  { #Flowena asks for guarantee
 				factor = 4
 				has_opinion = {
 					target = FROM
+					value > 0
+				}
+			}
+			modifier = {
+				factor = 4
+				has_opinion = {
+					target = FROM
 					value > 30
 				}
 			}
@@ -1556,13 +1601,6 @@ country_event =  { #Flowena asks for guarantee
 					value > 60
 				}
 			}
-			modifier = {
-				factor = 4
-				has_opinion = {
-					target = FROM
-					value > 90
-				}
-			}
 		}
 	}
 	option = { #you're fucking irrelevant
@@ -1571,7 +1609,7 @@ country_event =  { #Flowena asks for guarantee
 			country_event = flowena.58
 		}
 		ai_chance = {
-			factor = 40
+			factor = 20
 		}
 	}
 }
@@ -1580,7 +1618,7 @@ country_event =  { #FROM guarantees our freedom
 	immediate = {log = "[GetDateText]: [Root.GetName]: event flowena.57"}
 	title = flowena.57.t
 	desc = flowena.57.d
-	picture = GFX_event_western_griffon_city
+	picture = GFX_event_griffon_diplomacy
 	is_triggered_only = yes
 	option = { #yay
 		name = flowena.57.a
@@ -1685,7 +1723,7 @@ country_event = { ## They say yes
 	immediate = {log = "[GetDateText]: [Root.GetName]: event flowena.61"}
 	title = flowena.61.t
 	desc = flowena.61.d
-	picture = GFX_event_western_griffon_city
+	picture = GFX_event_griffon_diplomacy
 	
 	is_triggered_only = yes
 	
@@ -1770,7 +1808,7 @@ country_event =  { #Flowena tries to broker peace
 	immediate = {log = "[GetDateText]: [Root.GetName]: event flowena.65"}
 	title = flowena.65.t
 	desc = flowena.65.d
-	picture = GFX_event_western_griffon_city
+	picture = GFX_event_griffon_diplomacy
 	is_triggered_only = yes
 	option = { #Sure
 		name = flowena.65.a
@@ -2427,14 +2465,9 @@ country_event =  { #Michel is elected
 			ideology = communism
 			popularity = 0.05
 		}
-		create_country_leader = {
-			name = "Michael Landreau"
-			picture = "Loter.tga"
-			desc = ""
-			expire = "1965.1.1"
-			ideology = liberalism
-			traits = {
-			}
+		set_politics = {
+			ruling_party = communism
+			elections_allowed = no
 		}
 		hidden_effect = {
 			country_event = { id = flowena.86 days = 1460 }
@@ -2465,8 +2498,12 @@ country_event =  { #Camille is elected
 			desc = ""
 			picture = "shitty_portrait.tga"
 			expire = "1965.1.1"
-			ideology = liberalism
+			ideology = centrism
 			traits = {}
+		}
+		set_politics = {
+			ruling_party = neutrality
+			elections_allowed = no
 		}
 	}
 }
