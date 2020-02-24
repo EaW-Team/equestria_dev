@@ -1,0 +1,171 @@
+# Operative mission scorer
+#
+# Only countries which have a strategy enabling the mission (score >0) will run
+# the scorer for the enabled missions.
+#
+# Before traget_trigger runs, any potential target is first checked for the
+# gameplay requirements (e.g. quiet_network mission requires a network over the
+# target).
+#
+# A scorer has to yield a target or the mission will be ignored
+#
+# operative_mission_no_mission_scorer act as a dummy/example
+
+operative_mission_no_mission_scorer = {
+	# Valid example of mission scorer:
+	targets = {
+		# describe the target to consider
+		#targets_dynamic = no
+		#target_non_existing = no
+		#target_array = global.majors
+		#target_array = global.countries
+		#target_array = neighbors
+		targets = { "GER" }
+
+		# the country initiating the mission has to pass this trigger
+		target_root_trigger = { always = no }
+
+		# each target among the selected ones has to pass this trigger
+		target_trigger = { always = no }
+
+		# MTTH like score description
+		# THIS is a target
+		# FROM is the initiator
+		score = {
+			base = 100
+			modifier = {
+				has_capitulated = yes
+				factor = 0 
+			}
+		}
+	}
+}
+
+operative_mission_build_intel_network_scorer = {
+	targets = {
+		target_array = potential_and_current_enemies
+		target_array = enemies_of_allies
+		target_array = neighbors
+		target_array = global.majors
+
+		score = {
+			base = 100
+			modifier = {
+				has_capitulated = yes
+				factor = 0 
+			}
+			modifier = {
+				has_wargoal_against = FROM
+				add = 100
+			}
+			modifier = {
+				OR = {
+					has_war_with = FROM
+					FROM = {
+						OR = {
+							has_wargoal_against = PREV
+							is_justifying_wargoal_against = PREV
+						}
+					}
+				}
+				add = 200
+			}
+		}
+	}
+}
+
+
+operative_mission_quiet_network_scorer = {
+	targets = {
+	}
+}
+
+operative_mission_counter_intelligence_scorer = {
+	# Valid example of mission scorer:
+	targets = {
+		target_array = faction_members
+		target_array = subjects
+		targets = { overlord, this }
+
+		score = {
+			base = 100
+			modifier = {
+				has_capitulated = yes
+				factor = 0
+			}
+			modifier = {
+				tag = FROM
+				factor = 1.5
+			}
+			modifier = {
+				set_temp_variable = {
+					army_weight = num_armies
+				}
+				divide_temp_variable = {
+					var = army_weight
+					value = 10
+				}
+				clamp_temp_variable = {
+					var = army_weight
+					max = 50
+				}
+				add = army_weight
+			}
+		}
+	}
+}
+
+operative_mission_root_out_resistance_scorer = {
+	targets = {
+		# NOTE: for now as we can only target oneself
+		targets = { this }
+		score = {
+			base = 0
+			# TODO increase score based on resistance
+		}
+	}
+}
+
+operative_mission_boost_ideology_scorer = {
+	targets = {
+		# TODO
+	}
+}
+
+
+operative_mission_control_trade_scorer = {
+	targets = {
+		# TODO
+	}
+}
+
+operative_mission_diplomatic_pressure_scorer = {
+	targets = {
+		# TODO
+	}
+}
+
+operative_mission_propaganda_scorer = {
+	targets = {
+		target_array = potential_and_current_enemies
+		target_array = enemies_of_allies
+		target_array = neighbors
+		target_array = global.majors
+
+		score = {
+			base = 0
+			modifier = {
+				has_war_with = FROM
+				add = 100
+			}
+			modifier = {
+				has_war_support < 1.0
+				add = 100
+			}
+			modifier = {
+				num_of_factories < 40
+				factor = 0.5
+			}
+		}
+	}
+}
