@@ -77,3 +77,13 @@ NDefines.NMilitary.PLAN_EXECUTE_CAREFUL_MAX_FORT = 4
 NDefines.NAI.DIPLOMACY_ACCEPT_VOLUNTEERS_BASE = 100
 
 NDefines.NDiplomacy.VOLUNTEERS_DIVISIONS_REQUIRED = 10
+
+-- modifiers female_random_operative_chance female_random_army_leader_chance female_random_admiral_chance
+NDefines.NCountry.FEMALE_UNIT_LEADER_BASE_CHANCE = { 
+    -- applies as a factor to female unit leader randomization
+    -- the values needs to be zero if you don't actually have random portraits
+    0.0, -- navy leaders
+    0.0, -- army leaders
+    1.0, -- operatives
+}
+NDefines.NCountry.COUNTRY_LEADER_FEMALE_CHANCE = 0.0 -- chance for new country leaders to be female. should be set > 0 only if there are portraits/names for that country
