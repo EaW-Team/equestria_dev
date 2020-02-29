@@ -82,8 +82,8 @@ NDefines.NDiplomacy.VOLUNTEERS_DIVISIONS_REQUIRED = 10
 NDefines.NCountry.FEMALE_UNIT_LEADER_BASE_CHANCE = { 
     -- applies as a factor to female unit leader randomization
     -- the values needs to be zero if you don't actually have random portraits
-    0.0, -- navy leaders
-    0.0, -- army leaders
+    1.0, -- navy leaders
+    1.0, -- army leaders
     1.0, -- operatives
 }
-NDefines.NCountry.COUNTRY_LEADER_FEMALE_CHANCE = 0.0 -- chance for new country leaders to be female. should be set > 0 only if there are portraits/names for that country
+NDefines.NCountry.COUNTRY_LEADER_FEMALE_CHANCE = 1.0 -- chance for new country leaders to be female. should be set > 0 only if there are portraits/names for that country
