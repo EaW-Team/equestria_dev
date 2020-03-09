@@ -87,3 +87,6 @@ NDefines.NCountry.FEMALE_UNIT_LEADER_BASE_CHANCE = {
     1.0, -- operatives
 }
 NDefines.NCountry.COUNTRY_LEADER_FEMALE_CHANCE = 1.0 -- chance for new country leaders to be female. should be set > 0 only if there are portraits/names for that country
+
+NDefines.NResistance.GARRISON_MANPOWER_LOST_BY_ATTACK = 0.015 	-- Ratio of manpower lost by garrison at each attack on garrison (this number will be reduced by the hardness of garrison template)
+NDefines.NResistance.GARRISON_EQUIPMENT_LOST_BY_ATTACK = 0.01 	-- Ratio of equipment lost by garrison at each attack on garrison (this number will be reduced by the hardness of garrison template)
