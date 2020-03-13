@@ -46,15 +46,15 @@ def get_clean_dct(fname):
     for key, value in dct.items():
         cat = ""
         gender = ""
-        entry = set()
+        entry = []
         for line in value:
             if cat and gender and re.search(r"}", line):
                 k = "%s_%s_%s" % (key, cat, gender)
                 clean_dct[k] = entry.copy()
-                entry = set()
+                entry = []
                 gender = ""
             if cat and gender and not re.search(r"{", line):
-                entry.add(line.strip())
+                entry.append(line.strip())
             match = re.match(r"\s*(army|navy|operative)", line)
             if match:
                 cat = match.group(1)

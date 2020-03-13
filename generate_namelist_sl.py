@@ -47,10 +47,19 @@ dct = {
         "MaleName": ["Dylan", "Osian", "Elis", "Jac", "Rhys", "Hari", "Gruffydd", "Aled", "Alan", "Bryn", "Cai", "Carwyn", "Derfel", "Gethin", "Gwydion", "Llywelyn", "Morgan", "Tristan"],
         "FemaleName": ["Ffion", "Seren", "Megan", "Mali", "Nia", "Cadi", "Eria", "Lowri", "Efa", "Elin"],
         "Surname": ["Griffiths", "Moss", "Driscoll", "Morgan", "Terfel", "Cothi", "Talog", "ap Hywel", "ap Rhys", "ap Alan", "ap Carwyn", "ap Tristan"]},
+    "DAN": {
+        "MaleName": ["Aage", "Adam", "Alber", "Anders", "Asmund", "Axel", "Carl", "Christian", "Edvard", "Edvin", "Erik", "Folke", "Frederik", "Georg", "Hannibal", "Hans", "Henrik", "Herman", "Hugo", "Ivar", "Jakob", "Jacob", "Johan", "Julius", "Knud", "Ludvig", "Magnus", "Michael", "Niels", "Olav", "Otto", "Peter", "Poul", "Sigurd", "Sven", "Tage", "Thomas", "Thorvald", "Ukrik", "Valdemar", "Vilhelm"],
+        "FemaleName": ["Karen", "Alma", "Elsa", "Else", "Monica", "Grete", "Gerda", "Helga", "Jytte", "Kaja", "Asta", "Astrid", "Signe"]
+    },
     "ERI": {
         "MaleName": ["Ezekiel", "Maximilian", "Felix", "Erich", "Gerhard", "Gunther", "Otto", "Walter", "Wilhelm", "Heinz", "Hermann", "Heinrich", "Theodor", "Hans", "Anton", "Joachim", "Max", "Emil", "Peter", "Fritz", "Otto", "Adolf", "Tobias", "Staffan", "Marco", "Karl"],
         "FemaleName": ["Sandra", "Maria", "Anna", "Anne", "Hannah", "Hildegard", "Sarah"],
         "Surname": ["Lugmair", "Neudinger", "Muller", "Schmidt", "Schneider", "Fischer", "Meyer", "Weber", "Schulz", "Wagner", "Hartmann", "Rall", "Barkhorn", "Becker", "Hoffmann", "Graf", "Erhler", "Hafner", "Lipfert", "Brendel", "Stotz", "Kirschner", "Lang", "Sturm", "Beisswenger", "Duttmann", "Wilbs", "Berglen", "Behrmann"]},
+    "FEA": {
+        "MaleName": ["Adriaan", "Albert", "Anthony", "Antonius", "Berend", "Bodo", "Carsten", "Christiaan", "Cornelis", "Dirk", "Ferdinand", "Freek", "Frits", "Gerard", "Godfried", "Govert", "Hendrik", "Henri", "Jacob", "Jacobus", "Jan", "Jan Willem", "Johan", "Johannes", "Laurens", "Mathias", "Matthijs", "Nicolaas", "Peter", "Petrus", "Philippus", "Pieter", "Quirinus", "Sijmen", "Theodorus", "Tjerk", "Willem"],
+        "FemaleName": ["Coba", "Corrie", "Frieda", "Hannie", "Helena", "Ina", "Jet", "Joke", "Miep", "Reina", "Truus"],
+        "Surname": ["Boers", "'t Mannetje", "Best", "Bischoff van Heemskerk", "de Visser", "den Feathisia", "den Ouden", "Jacometti", "van den Bent", "van den Briel", "van den Hof", "van der Bijl", "van Helsdingen", "van Liempd", "van Setten", "van Zinnicq Bergmann", "Wittert van Hoogland", "Bosch", "Bruggink", "Bruinier", "Buijs", "Buurman", "Carstens", "den Breejen", "Elias", "Folmer", "Giesen", "Ham", "Harberts", "Hilberdink", "Hoogewerff", "Hoving", "Jaapies", "Janssen", "Jolles", "Kaak", "Kraak", "Krouwel", "Kuiper", "Landzaat", "Leegstra", "Lukkien", "Maas", "Migchelbrink", "Reijnierse", "Rijnders", "Roelofsen", "Sandberg", "Scherpenhuijzen", "Schippers", "Steen", "Tebrunsvelt", "Varwijk", "Verhoef", "Visscher", "Vos", "Winkelman"]
+    },
     "GRW": {
         "MaleName": ["Gheorghe", "Ioan", "Vasile", "Constantin", "Ion", "Lexandru", "Nicolae", "Kihai", "Dumitru", "Andrei", "Denis", "Augustin", "Ionel", "Geza", "Dragomir", "Stefan", "Nic", "Varujan", "Simu"],
         "FemaleName": ["Maria", "Elena", "Ana", "Ioana", "Kihaela", "Andreea", "Cristina", "Mariana", "Lexandra"],
