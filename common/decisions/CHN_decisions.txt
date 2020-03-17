@@ -1836,18 +1836,31 @@ CHN_love_consumption_mechanic = {
 	}
 	
 	CHN_compliance_80_love_decision = {
-		icon = generic_form_nation
+		icon = eng_support_imperialist_coup
 		allowed = {
 			original_tag = CHN
 		}
 
 		available = {
+			custom_trigger_tooltip = {
+				tooltip = CHN_compliance_80_love_decision_resistance_threshold
+				check_variable = { core_resistance@FROM < 20 }
+			}
 		}
 
 		visible = {
+			NOT = { has_country_flag = CHN_compliance_80_love_decision_ongoing_flag }
+			has_core_occupation_modifier = {
+				occupied_country_tag = FROM
+				modifier = CHN_compliance_80_love
+			}
 		}
 		
-		target_array = global.countries
+		target_non_existing = yes
+		target_array = occupied_countries
+
+		target_trigger = {
+		}
 
 		ai_will_do = {
 			base = 100
@@ -1857,14 +1870,40 @@ CHN_love_consumption_mechanic = {
 
 		fire_only_once = no
 
-		days_re_enable = 180
+		days_re_enable = 70
 		days_remove = 30
+
+		modifier = {
+			political_power_gain = -0.25
+		}
 
 		complete_effect = {
 			log = "[GetDateText]: [Root.GetName]: Decision CHN_compliance_80_love_decision target: [From.GetName]"
+			set_country_flag = CHN_compliance_80_love_decision_ongoing_flag
+			set_variable = { CHN_compliance_80_love_decision_love_gain_var = 0 }
+			set_variable = { CHN_compliance_80_love_decision_states_var = 0 }
+			for_each_scope_loop = {
+				array = FROM.core_states
+				if = {
+					limit = {
+						is_controlled_by = ROOT
+					}
+					ROOT = { add_to_variable = { CHN_compliance_80_love_decision_states_var = 1 } }
+				}
+			}
+			set_variable = { CHN_compliance_80_love_decision_states_for_tt_var = CHN_compliance_80_love_decision_states_var }
+			divide_variable = { CHN_compliance_80_love_decision_states_var = 10000 }
+			add_to_variable = { CHN_compliance_80_love_decision_states_var = 0.001 }
+			set_variable = { CHN_compliance_80_love_decision_love_gain_var = CHN_compliance_80_love_decision_states_var }
 		}
 		remove_effect = {
 			log = "[GetDateText]: [Root.GetName]: Decision remove CHN_compliance_80_love_decision target: [From.GetName]"
+			if = {
+				limit = { has_country_flag = CHN_compliance_80_love_decision_ongoing_flag }
+				custom_effect_tooltip = CHN_compliance_80_love_decision_love_gain_tt
+			}
+			add_to_variable = { var = CHN_love_variable value = CHN_compliance_80_love_decision_love_gain_var }
+			clr_country_flag = CHN_compliance_80_love_decision_ongoing_flag
 		}
 	}
 }
