@@ -1708,3 +1708,77 @@ FAT_kill_kemerskai = {
 	}
 	set_global_flag = keremeskai_dead
 }
+
+# remove disband_fraction land units, keeping manpower and equipment
+# expects disband_fraction variable to be set
+disband_units_fraction = {
+	SOL = { 
+		set_temp_variable = {
+			old_manpower = manpower_k
+		}
+	}
+	random_state = {
+		limit = {
+			owner = {
+				PREV = {
+					is_fully_controlled_by = PREV
+				}
+			}
+		}
+		owner = { save_event_target_as = disband_state_owner }
+		save_event_target_as = disband_state
+		SOL = { set_state_owner = PREV }
+	}
+	transfer_units_fraction = {
+		target = SOL
+		size = 0
+		army_ratio = var:disband_fraction
+		keep_unit_leaders_trigger = {
+			always = yes
+		}
+	}
+	SOL = {
+		every_state = {
+			SOL = {
+				delete_unit = { 
+					state = PREV
+					disband = yes
+				}
+			}
+		}
+		set_temp_variable = {
+			manpower_diff = manpower_k
+		}
+		subtract_from_temp_variable = {
+			manpower_diff = old_manpower
+		}
+		while_loop_effect = { #avoid overflows
+			limit = { check_variable = { manpower_diff > 1 } }
+			subtract_from_temp_variable = { manpower_diff = 1 }
+			ROOT = { add_manpower = 1000 }
+			add_manpower = -1000
+		}
+		multiply_temp_variable = {
+			manpower_diff = 1000
+		}
+		ROOT = { add_manpower = PREV.manpower_diff }
+		multiply_temp_variable = {
+			manpower_diff = -1
+		}
+		add_manpower = manpower_diff
+		transfer_units_fraction = {
+			target = ROOT
+			size = 0
+			stockpile_ratio = 1
+			keep_unit_leaders_trigger = {
+				always = yes
+			}
+		}
+	}
+	event_target:disband_state = {
+		event_target:disband_state_owner = { set_state_owner = PREV }
+	}
+	annex_country = {
+		target = SOL
+	}
+}
