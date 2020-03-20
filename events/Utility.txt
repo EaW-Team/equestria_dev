@@ -284,3 +284,76 @@ country_event = { ### SOL
 		}
 	}
 }
+
+country_event = { ### Add compliance on diplo/event annex
+	id = utility.11
+	immediate = {log = "[GetDateText]: [Root.GetName]: event utility.11"}
+	hidden = yes
+	is_triggered_only = yes
+	option = {
+		every_owned_state = {
+			limit = {
+				NOT = { is_core_of = ROOT }
+				any_of = {
+					array = ROOT.annex_compliance
+					occupied_country_tag = var:v
+				}
+				NOT = { has_state_flag = annex_compliance_added }
+			}
+			set_temp_variable = {
+				ROOT.set_compliance = 0
+			}
+			for_each_loop = {
+				array = ROOT.annex_compliance
+				if = {
+					limit = {
+						occupied_country_tag = var:v
+						var:v = {
+							has_variable = specific_annex_compliance
+						}
+					}
+					var:v = {
+						set_temp_variable = {
+							ROOT.set_compliance = specific_annex_compliance
+						}
+					}
+					set_temp_variable = {
+						break = 1
+					}
+				}
+			}
+			if = {
+				limit = {
+					NOT = {
+						check_variable = {
+							ROOT.set_compliance = 0
+						}
+					}
+				}
+				add_compliance = ROOT.set_compliance
+			}
+			else_if = {
+				limit = {
+					any_of = {
+						array = ROOT.annex_compliance_subject
+						occupied_country_tag = var:v
+					}
+				}
+				add_compliance = 60
+			}
+			else = {
+				add_compliance = 40
+			}
+			set_state_flag = annex_compliance_added
+		}
+		for_each_loop = {
+			array = annex_compliance
+			var:v = { clear_variable = specific_annex_compliance }
+		}
+		clear_array = annex_compliance
+		clear_array = annex_compliance_subject
+		every_owned_state = {
+			clr_state_flag = annex_compliance_added
+		}
+	}
+}
