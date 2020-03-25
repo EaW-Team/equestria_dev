@@ -4743,6 +4743,97 @@ on_actions = {
 				subtract_from_variable = { var = MAN_lovetax_variable value = 0.005 }
 			}
 			
+			if = { ### Changeling Division Limiter-cum-Love Consumption Mechanic ###
+				limit = {
+					original_tag = CHN
+					has_completed_focus = CHN_post_war_5
+				}
+				### State Total (S) :  [ directly-controlled non-core states + (indirectly-controlled states / 2) ]
+				set_temp_variable = { CHN_weekly_love_gain_state_var_TEMP = CHN.num_of_controlled_states }
+				subtract_from_temp_variable = { CHN_weekly_love_gain_state_var_TEMP = CHN.num_core_states }
+				set_variable = { CHN_directly_controlled_noncorestates_var = CHN_weekly_love_gain_state_var_TEMP }
+				set_temp_variable = { CHN_weekly_love_gain_state_PUPPETS_var_TEMP = 0 }
+				for_each_scope_loop = { 
+					array = subjects 
+					add_to_temp_variable = { PREV.CHN_weekly_love_gain_state_PUPPETS_var_TEMP = num_controlled_states } 
+				}
+				set_variable = { CHN_weekly_love_gain_state_PUPPETS_var = CHN_weekly_love_gain_state_PUPPETS_var_TEMP }
+				divide_temp_variable = { CHN_weekly_love_gain_state_PUPPETS_var_TEMP = 2 }
+				add_to_temp_variable = { CHN_weekly_love_gain_state_var_TEMP = CHN_weekly_love_gain_state_PUPPETS_var_TEMP }
+				set_variable = { CHN_weekly_love_gain_state_var = CHN_weekly_love_gain_state_var_TEMP }
+				### The above gives us (S)
+				set_temp_variable = { CHN_amount_of_allowed_battalions_TEMP = CHN_weekly_love_gain_state_var }
+				add_to_temp_variable = { CHN_amount_of_allowed_battalions_TEMP = 20 } ### base of 20 states
+				multiply_temp_variable = { CHN_amount_of_allowed_battalions_TEMP = 20 } ### 20 Battalions for each State
+				multiply_temp_variable = { CHN_amount_of_allowed_battalions_TEMP = 0.80 } ### 80%
+				if = {
+					limit = {
+						has_idea = CHN_billeting_system
+					}
+					multiply_temp_variable = { CHN_amount_of_allowed_battalions_TEMP = 1.15 } ## +15% bonus from focus-unlocked idea ##
+				}
+				set_variable = { CHN_amount_of_allowed_battalions = CHN_amount_of_allowed_battalions_TEMP }
+				round_variable = CHN_amount_of_allowed_battalions
+				### ( ( 20 + (S) ) x 20 ) x 80% = Amount of Battalions allowed for Free ###
+				set_variable = { CHN_excess_battalions = 0 } 
+				set_variable = { CHN_excess_battalions_cost = 0 }
+				if = {
+					limit = {
+						check_variable = { CHN_amount_of_allowed_battalions < CHN.num_battalions } ### if battalions exceed carrying capacity
+					}
+					set_temp_variable = { CHN_excess_battalions_TEMP = CHN.num_battalions }
+					subtract_from_temp_variable = { CHN_excess_battalions_TEMP = CHN_amount_of_allowed_battalions }
+					add_to_variable = { CHN_excess_battalions = CHN_excess_battalions_TEMP } ### total amount of excess battalions
+					set_temp_variable = { CHN_excess_battalions_cost_TEMP = CHN_excess_battalions }
+					multiply_temp_variable = { CHN_excess_battalions_cost_TEMP = 0.001 } ### extra Love cost of 0.001 erots per battalion 
+					add_to_variable = { CHN_excess_battalions_cost = CHN_excess_battalions_cost_TEMP } ### total cost of excess battalions
+				} ### and then on_weekly to subtract Love cost from above, and a dynamic modifier that penalises having negative Love
+			}
+			if = {
+				limit = {
+					original_tag = CHN
+					check_variable = { CHN_love_variable < 0 }
+				}
+				set_temp_variable = { CHN_penalty_from_love_deficit_var_TEMP = CHN_love_variable }
+				divide_temp_variable = { CHN_penalty_from_love_deficit_var_TEMP = 2 }
+				set_variable = { CHN_penalty_from_love_deficit_var = CHN_penalty_from_love_deficit_var_TEMP }
+				add_dynamic_modifier = { modifier = CHN_love_deficit_dynamic_modifier }
+			}
+			if = {
+				limit = {
+					original_tag = CHN
+					has_country_flag = CHN_continuous_love_harvesting_flag
+				}
+				set_temp_variable = { CHN_continuous_love_harvesting_LOVE_var_TEMP = CHN_weekly_love_gain_state_var }
+				divide_temp_variable = { CHN_continuous_love_harvesting_LOVE_var_TEMP = 20000 } ## that is, multiply by 0.005% ##
+				### Average Resistance Level Calculations ###
+				set_variable = { CHN_number_of_states_under_occupation_var = 0 }
+				set_variable = { CHN_resistance_level_of_number_of_states_under_occupation_var = 0 }
+				for_each_scope_loop = {
+					array = controlled_states
+					add_to_variable = { PREV.CHN_number_of_states_under_occupation_var = 1 } 
+					add_to_variable = { PREV.CHN_resistance_level_of_number_of_states_under_occupation_var = THIS.resistance } 
+				}
+				subtract_from_variable = { CHN_number_of_states_under_occupation_var = CHN.num_core_states }
+				set_temp_variable = { CHN_number_of_states_under_occupation_var_TEMP = CHN_number_of_states_under_occupation_var }
+				set_temp_variable = { CHN_resistance_level_of_number_of_states_under_occupation_var_TEMP = CHN_resistance_level_of_number_of_states_under_occupation_var }
+				divide_temp_variable = { CHN_resistance_level_of_number_of_states_under_occupation_var_TEMP = CHN_number_of_states_under_occupation_var_TEMP }
+				set_variable = { CHN_average_resistance_level_of_states_under_occupation_var = CHN_resistance_level_of_number_of_states_under_occupation_var_TEMP }
+				set_variable = { CHN_average_resistance_level_100_TEMP = 100 }
+				subtract_from_variable = { CHN_average_resistance_level_100_TEMP = CHN_average_resistance_level_of_states_under_occupation_var }
+				divide_variable = { CHN_average_resistance_level_100_TEMP = 100 } ## change to percentage ##
+				set_variable = { CHN_average_resistance_level_of_states_under_occupation_var_TEMP = CHN_average_resistance_level_100_TEMP }
+				###
+				multiply_temp_variable = { CHN_continuous_love_harvesting_LOVE_var_TEMP = CHN_average_resistance_level_of_states_under_occupation_var_TEMP }
+				if = {
+					limit = {
+						has_idea = CHN_love_refineries
+					}
+					multiply_temp_variable = { CHN_continuous_love_harvesting_LOVE_var_TEMP = 1.25 } ## +25% bonus from focus-unlocked idea ##
+				}
+				set_variable = { CHN_continuous_love_harvesting_LOVE_var = CHN_continuous_love_harvesting_LOVE_var_TEMP }
+				add_to_variable = { var = CHN_love_variable value = CHN_continuous_love_harvesting_LOVE_var }
+			}
 			#if = {
 			#	limit = {
 			#		SRS = {

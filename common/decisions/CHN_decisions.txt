@@ -1314,3 +1314,831 @@ operations = {
 		}
 	}
 }
+
+CHN_love_consumption_mechanic = {
+	CHN_military_love_acquisition_decision = {
+		icon = changeling_icon
+		
+		allowed = {
+			#original_tag = CHN
+			always = no ## deprecated, retained for posterity ##
+		}
+		ai_will_do = {
+			factor = 10
+		}
+		
+		custom_cost_trigger = {
+			has_political_power > 49
+			command_power > 29
+		}
+		
+		custom_cost_text = decision_cost_pp_50_30_cp
+		
+		days_remove = 70
+		days_re_enable = 30
+		
+		modifier = {
+			command_power_gain_mult = -0.1
+			resistance_growth = 0.1
+		}
+		
+		remove_effect = {
+			log = "[GetDateText]: [Root.GetName]: Decision remove CHN_military_love_acquisition_decision"
+			add_to_variable = { var = CHN_love_variable value = CHN_military_love_acquisition_decision_erot_gain }
+			clr_country_flag = CHN_military_love_acquisition_decision_in_progress
+		}
+		complete_effect = {
+			log = "[GetDateText]: [Root.GetName]: Decision CHN_military_love_acquisition_decision"
+			hidden_effect = {
+					add_political_power = -50
+					add_command_power = -30
+			}
+			### Operation starts here ###
+			set_temp_variable = { CHN_weekly_love_gain_state_var_DECISION_TEMP = CHN_weekly_love_gain_state_var }
+			multiply_temp_variable = { CHN_weekly_love_gain_state_var_DECISION_TEMP = 10 }
+			if = {
+				limit = { 
+					check_variable = { CHN_amount_of_allowed_battalions < CHN.num_battalions }
+				}
+				set_temp_variable = { CHN_temporary_variable_amount_of_battalions = CHN_amount_of_allowed_battalions }
+				divide_temp_variable = { CHN_temporary_variable_amount_of_battalions = CHN_weekly_love_gain_state_var_DECISION_TEMP }
+			}
+			else = {
+				set_temp_variable = { CHN_temporary_variable_amount_of_battalions = num_battalions }
+				divide_temp_variable = { CHN_temporary_variable_amount_of_battalions = CHN_weekly_love_gain_state_var_DECISION_TEMP }
+			}
+			### Above: if exceeds cap limit, then the cap will be used. ###
+			set_variable = { CHN_number_of_states_under_occupation_var = 0 }
+			set_variable = { CHN_resistance_level_of_number_of_states_under_occupation_var = 0 }
+			for_each_scope_loop = {
+				array = controlled_states
+				add_to_variable = { PREV.CHN_number_of_states_under_occupation_var = 1 } 
+				add_to_variable = { PREV.CHN_resistance_level_of_number_of_states_under_occupation_var = THIS.resistance } 
+			}
+			subtract_from_variable = { CHN_number_of_states_under_occupation_var = CHN.num_core_states }
+			### Above: gained total number of all states under CHN occupation to be used in calculations below ###
+			set_temp_variable = { CHN_number_of_states_under_occupation_var_TEMP = CHN_number_of_states_under_occupation_var }
+			set_temp_variable = { CHN_resistance_level_of_number_of_states_under_occupation_var_TEMP = CHN_resistance_level_of_number_of_states_under_occupation_var }
+			divide_temp_variable = { CHN_resistance_level_of_number_of_states_under_occupation_var_TEMP = CHN_number_of_states_under_occupation_var_TEMP }
+			### Above: obtained averaged value of Resistance across all occupied states (out of 100) ###
+			set_variable = { CHN_average_resistance_level_of_states_under_occupation_var = CHN_resistance_level_of_number_of_states_under_occupation_var_TEMP }
+			set_variable = { CHN_average_resistance_level_100_TEMP = 100 }
+			subtract_from_variable = { CHN_average_resistance_level_100_TEMP = CHN_average_resistance_level_of_states_under_occupation_var }
+			divide_variable = { CHN_average_resistance_level_100_TEMP = 100 } ## change to percentage ##
+			set_variable = { CHN_average_resistance_level_of_states_under_occupation_var_TEMP = CHN_average_resistance_level_100_TEMP }
+			### the percentage modifier dependent on average resistance of occupied states for the formula ###
+			multiply_temp_variable = { CHN_temporary_variable_amount_of_battalions = CHN_average_resistance_level_of_states_under_occupation_var_TEMP } ## original gain times resistance factor ##
+			set_variable = { CHN_military_love_acquisition_decision_erot_gain = CHN_temporary_variable_amount_of_battalions }
+			set_country_flag = CHN_military_love_acquisition_decision_in_progress
+		}
+	}
+	CHN_gain_love_decision = {
+		icon = military_love_requisition
+		
+		allowed = {
+			original_tag = CHN
+		}
+		ai_will_do = {
+			factor = 105
+		}
+		
+		custom_cost_trigger = {
+			has_political_power > 49
+			command_power > 29
+		}
+		
+		custom_cost_text = decision_cost_pp_50_30_cp
+		
+		days_remove = 70
+		days_re_enable = 7
+		
+		modifier = {
+			command_power_gain_mult = -0.1
+			resistance_growth = 0.1
+		}
+		
+		remove_effect = {
+			log = "[GetDateText]: [Root.GetName]: Decision remove CHN_gain_love_decision"
+			if = {
+				limit = {
+					has_country_flag = CHN_military_love_acquisition_decision_in_progress
+				}
+				custom_effect_tooltip = CHN_erots_VARIABLE_TOOLTIP_FOR_MILITARY_LOVE_REQUISITIONS
+			}
+			add_to_variable = { var = CHN_love_variable value = CHN_military_love_acquisition_decision_erot_gain }
+			clr_country_flag = CHN_military_love_acquisition_decision_in_progress
+		}
+		complete_effect = {
+			log = "[GetDateText]: [Root.GetName]: Decision CHN_gain_love_decision"
+			set_country_flag = CHN_military_love_acquisition_decision_in_progress
+			hidden_effect = {
+					add_political_power = -50
+					add_command_power = -30
+			}
+			set_temp_variable = { CHN_gain_love_decision_var_S_TEMP = CHN_weekly_love_gain_state_var }
+			set_temp_variable = { CHN_gain_love_decision_var_B_TEMP = CHN.num_battalions }
+			set_temp_variable = { CHN_gain_love_decision_var_BR_TEMP = CHN_weekly_love_gain_state_var }
+			multiply_temp_variable = { CHN_gain_love_decision_var_BR_TEMP = 20 }
+			set_variable = { CHN_gain_love_decision_var_BD = 0 }
+			if = {
+				limit = {
+					check_variable = { CHN_gain_love_decision_var_BR_TEMP > CHN.num_battalions }
+				}
+				set_temp_variable = { CHN_gain_love_decision_var_BD_TEMP = 0 }
+				subtract_from_temp_variable = { CHN_gain_love_decision_var_BR_TEMP = CHN.num_battalions }
+				divide_temp_variable = { CHN_gain_love_decision_var_BR_TEMP = 20 }
+				set_variable = { CHN_gain_love_decision_var_BD = CHN_gain_love_decision_var_BR_TEMP }
+			}
+			subtract_from_temp_variable = { CHN_gain_love_decision_var_S_TEMP = CHN_gain_love_decision_var_BD }
+			multiply_temp_variable = { CHN_gain_love_decision_var_S_TEMP = 0.005 }
+			### Average Resistance Level Calculations ###
+			set_variable = { CHN_number_of_states_under_occupation_var = 0 }
+			set_variable = { CHN_resistance_level_of_number_of_states_under_occupation_var = 0 }
+			for_each_scope_loop = {
+				array = controlled_states
+				add_to_variable = { PREV.CHN_number_of_states_under_occupation_var = 1 } 
+				add_to_variable = { PREV.CHN_resistance_level_of_number_of_states_under_occupation_var = THIS.resistance } 
+			}
+			subtract_from_variable = { CHN_number_of_states_under_occupation_var = CHN.num_core_states }
+			set_temp_variable = { CHN_number_of_states_under_occupation_var_TEMP = CHN_number_of_states_under_occupation_var }
+			set_temp_variable = { CHN_resistance_level_of_number_of_states_under_occupation_var_TEMP = CHN_resistance_level_of_number_of_states_under_occupation_var }
+			divide_temp_variable = { CHN_resistance_level_of_number_of_states_under_occupation_var_TEMP = CHN_number_of_states_under_occupation_var_TEMP }
+			set_variable = { CHN_average_resistance_level_of_states_under_occupation_var = CHN_resistance_level_of_number_of_states_under_occupation_var_TEMP }
+			set_variable = { CHN_average_resistance_level_100_TEMP = 100 }
+			subtract_from_variable = { CHN_average_resistance_level_100_TEMP = CHN_average_resistance_level_of_states_under_occupation_var }
+			divide_variable = { CHN_average_resistance_level_100_TEMP = 100 } ## change to percentage ##
+			set_variable = { CHN_average_resistance_level_of_states_under_occupation_var_TEMP = CHN_average_resistance_level_100_TEMP }
+			###
+			multiply_temp_variable = { CHN_gain_love_decision_var_S_TEMP = CHN_average_resistance_level_of_states_under_occupation_var_TEMP } ## times resistance factor ###
+			if = {
+				limit = {
+					has_idea = CHN_collection_troops
+				}
+				multiply_temp_variable = { CHN_gain_love_decision_var_S_TEMP = 1.25 } ## +25% bonus from focus-unlocked idea ##
+			}
+			set_variable = { CHN_military_love_acquisition_decision_erot_gain = CHN_gain_love_decision_var_S_TEMP }
+		}
+	}
+	
+	CHN_rations_as_growth_incentive = {
+		icon = generic_research
+		allowed = {
+			original_tag = CHN
+		}
+		ai_will_do = {
+			factor = 10
+		}
+		
+		custom_cost_trigger = {
+			has_political_power > 29
+			check_variable = {
+				var = CHN_love_variable
+				value = 0.5
+				compare = greater_than_or_equals
+			}
+		}
+		custom_cost_text = decision_cost_pp_30_love_05
+		
+		days_remove = 90
+		days_re_enable = 14
+		
+		modifier = {
+			production_speed_buildings_factor = 0.1
+		}
+		remove_effect = {
+			log = "[GetDateText]: [Root.GetName]: Decision remove CHN_rations_as_growth_incentive"
+			random_owned_controlled_state = {
+				limit = { 
+					is_core_of = CHN 
+					free_building_slots = {
+						building = industrial_complex
+						size > 1
+						include_locked = yes
+					}
+				}
+				add_extra_state_shared_building_slots = 1
+			}
+		}
+		complete_effect = {
+			log = "[GetDateText]: [Root.GetName]: Decision CHN_rations_as_growth_incentive"
+			hidden_effect = {
+				add_political_power = -30
+				subtract_from_variable = { 
+					var = CHN_love_variable
+					value = 0.5
+				}
+			}
+		}
+	}
+	
+	CHN_rations_for_political_power = {
+		icon = generic_research
+		allowed = {
+			original_tag = CHN
+		}
+		ai_will_do = {
+			factor = 10
+		}
+		
+		custom_cost_trigger = {
+			has_political_power > 29
+			check_variable = {
+				var = CHN_love_variable
+				value = 0.5
+				compare = greater_than_or_equals
+			}
+		}
+		custom_cost_text = decision_cost_pp_30_love_05
+		
+		days_remove = 90
+		days_re_enable = 14
+		
+		modifier = {
+			political_power_gain = 0.5
+		}
+		complete_effect = {
+			log = "[GetDateText]: [Root.GetName]: Decision CHN_rations_for_political_power"
+			hidden_effect = {
+				add_political_power = -30
+				subtract_from_variable = { 
+					var = CHN_love_variable
+					value = 0.5
+				}
+			}
+		}
+	}
+	
+	CHN_rations_for_war_support = {
+		icon = generic_research
+		allowed = {
+			original_tag = CHN
+		}
+		ai_will_do = {
+			factor = 10
+		}
+		
+		custom_cost_trigger = {
+			has_political_power > 29
+			check_variable = {
+				var = CHN_love_variable
+				value = 0.5
+				compare = greater_than_or_equals
+			}
+		}
+		custom_cost_text = decision_cost_pp_30_love_05
+		
+		days_remove = 90
+		days_re_enable = 14
+		
+		modifier = {
+			war_support_factor = 0.10
+		}
+		complete_effect = {
+			log = "[GetDateText]: [Root.GetName]: Decision CHN_rations_for_war_support"
+			hidden_effect = {
+				add_political_power = -30
+				subtract_from_variable = { 
+					var = CHN_love_variable
+					value = 0.5
+				}
+			}
+		}
+	}
+	
+	CHN_rations_for_stability = {
+		icon = generic_research
+		allowed = {
+			original_tag = CHN
+		}
+		ai_will_do = {
+			factor = 10
+		}
+		
+		custom_cost_trigger = {
+			has_political_power > 29
+			check_variable = {
+				var = CHN_love_variable
+				value = 0.5
+				compare = greater_than_or_equals
+			}
+		}
+		custom_cost_text = decision_cost_pp_30_love_05
+		
+		days_remove = 90
+		days_re_enable = 14
+		
+		modifier = {
+			stability_factor = 0.10
+		}
+		complete_effect = {
+			log = "[GetDateText]: [Root.GetName]: Decision CHN_rations_for_stability"
+			hidden_effect = {
+				add_political_power = -30
+				subtract_from_variable = { 
+					var = CHN_love_variable
+					value = 0.5
+				}
+			}
+		}
+	}
+	
+	CHN_rations_for_recruits = {
+		icon = generic_research
+		allowed = {
+			original_tag = CHN
+		}
+		visible = { has_country_flag = CHN_unlocked_075_decisions_flag }
+		ai_will_do = {
+			factor = 10
+		}
+		
+		custom_cost_trigger = {
+			has_political_power > 29
+			check_variable = {
+				var = CHN_love_variable
+				value = 0.75
+				compare = greater_than_or_equals
+			}
+		}
+		custom_cost_text = decision_cost_pp_30_love_075
+		
+		days_remove = 180
+		days_re_enable = 7
+		
+		modifier = {
+			conscription_factor = 0.1
+		}
+		remove_effect = {
+			log = "[GetDateText]: [Root.GetName]: Decision remove CHN_rations_for_recruits"
+		}
+		complete_effect = {
+			log = "[GetDateText]: [Root.GetName]: Decision CHN_rations_for_recruits"
+			hidden_effect = {
+				add_political_power = -30
+				subtract_from_variable = { 
+					var = CHN_love_variable
+					value = 0.75
+				}
+			}
+		}
+	}
+	
+	CHN_rations_for_researchers = {
+		icon = generic_research
+		allowed = {
+			original_tag = CHN
+		}
+		visible = { has_country_flag = CHN_unlocked_075_decisions_flag }
+		ai_will_do = {
+			factor = 10
+		}
+		
+		custom_cost_trigger = {
+			has_political_power > 29
+			check_variable = {
+				var = CHN_love_variable
+				value = 0.75
+				compare = greater_than_or_equals
+			}
+		}
+		custom_cost_text = decision_cost_pp_30_love_075
+		
+		days_remove = 180
+		days_re_enable = 7
+		
+		modifier = {
+			research_speed_factor = 0.05
+		}
+		remove_effect = {
+			log = "[GetDateText]: [Root.GetName]: Decision remove CHN_rations_for_researchers"
+		}
+		complete_effect = {
+			log = "[GetDateText]: [Root.GetName]: Decision CHN_rations_for_researchers"
+			hidden_effect = {
+				add_political_power = -30
+				subtract_from_variable = { 
+					var = CHN_love_variable
+					value = 0.75
+				}
+			}
+		}
+	}
+	
+	CHN_rations_for_drones = {
+		icon = generic_research
+		allowed = {
+			original_tag = CHN
+		}
+		visible = { has_country_flag = CHN_unlocked_075_decisions_flag }
+		ai_will_do = {
+			factor = 10
+		}
+		
+		custom_cost_trigger = {
+			has_political_power > 29
+			check_variable = {
+				var = CHN_love_variable
+				value = 0.75
+				compare = greater_than_or_equals
+			}
+		}
+		custom_cost_text = decision_cost_pp_30_love_075
+		
+		days_remove = 180
+		days_re_enable = 7
+		
+		modifier = {
+			production_factory_max_efficiency_factor = 0.1
+			production_factory_efficiency_gain_factor = 0.1
+		}
+		remove_effect = {
+			log = "[GetDateText]: [Root.GetName]: Decision remove CHN_rations_for_drones"
+		}
+		complete_effect = {
+			log = "[GetDateText]: [Root.GetName]: Decision CHN_rations_for_drones"
+			hidden_effect = {
+				add_political_power = -30
+				subtract_from_variable = { 
+					var = CHN_love_variable
+					value = 0.75
+				}
+			}
+		}
+	}
+	
+	CHN_rations_for_settlers = {
+		icon = generic_research
+		allowed = {
+			original_tag = CHN
+		}
+		visible = { has_country_flag = CHN_unlocked_075_decisions_flag }
+		ai_will_do = {
+			factor = 10
+		}
+		
+		custom_cost_trigger = {
+			has_political_power > 29
+			check_variable = {
+				var = CHN_love_variable
+				value = 0.75
+				compare = greater_than_or_equals
+			}
+		}
+		custom_cost_text = decision_cost_pp_30_love_075
+		
+		days_remove = 180
+		days_re_enable = 7
+		
+		modifier = {
+			MONTHLY_POPULATION = 0.5
+		}
+		remove_effect = {
+			log = "[GetDateText]: [Root.GetName]: Decision remove CHN_rations_for_settlers"
+		}
+		complete_effect = {
+			log = "[GetDateText]: [Root.GetName]: Decision CHN_rations_for_settlers"
+			hidden_effect = {
+				add_political_power = -30
+				subtract_from_variable = { 
+					var = CHN_love_variable
+					value = 0.75
+				}
+			}
+		}
+	}
+	
+	CHN_compliance_80_love_decision = {
+		icon = generic_operation
+		allowed = {
+			original_tag = CHN
+		}
+
+		available = {
+			custom_trigger_tooltip = {
+				tooltip = CHN_compliance_80_love_decision_resistance_threshold
+				check_variable = { core_resistance@FROM < 20 }
+			}
+		}
+
+		visible = {
+			NOT = { has_country_flag = CHN_compliance_80_love_decision_ongoing_flag }
+			has_core_occupation_modifier = {
+				occupied_country_tag = FROM
+				modifier = CHN_compliance_80_love
+			}
+		}
+		
+		available = {
+			hidden_trigger = {
+				set_temp_variable = { CHN_compliance_80_love_decision_occupied_states_of_tag = 0 }
+				all_of = {
+					array = controlled_states
+					if = {
+						limit = { 
+							var:v = { occupied_country_tag = FROM }
+						}
+						add_to_temp_variable = { CHN_compliance_80_love_decision_occupied_states_of_tag = 1 }
+					}
+				}
+			}
+		}
+		
+		target_non_existing = yes
+		target_array = occupied_countries
+
+		target_trigger = {
+		}
+
+		ai_will_do = {
+			base = 100
+		}
+
+		cost = 25
+
+		fire_only_once = no
+
+		days_re_enable = 70
+		days_remove = 30
+
+		modifier = {
+			political_power_gain = -0.25
+		}
+
+		complete_effect = {
+			log = "[GetDateText]: [Root.GetName]: Decision CHN_compliance_80_love_decision target: [From.GetName]"
+			set_country_flag = CHN_compliance_80_love_decision_ongoing_flag
+			set_variable = { CHN_compliance_80_love_decision_love_gain_var = 0 }
+			set_variable = { CHN_compliance_80_love_decision_states_var = 0 }
+			for_each_scope_loop = {
+				array = controlled_states
+				if = {
+					limit = {
+						occupied_country_tag = FROM
+					}
+					ROOT = { add_to_variable = { CHN_compliance_80_love_decision_states_var = 1 } }
+				}
+			}
+			set_variable = { CHN_compliance_80_love_decision_states_for_tt_var = CHN_compliance_80_love_decision_states_var }
+			divide_variable = { CHN_compliance_80_love_decision_states_var = 2000 }
+			add_to_variable = { CHN_compliance_80_love_decision_states_var = 0.001 }
+			set_variable = { CHN_compliance_80_love_decision_love_gain_var = CHN_compliance_80_love_decision_states_var }
+		}
+		remove_effect = {
+			log = "[GetDateText]: [Root.GetName]: Decision remove CHN_compliance_80_love_decision target: [From.GetName]"
+			if = {
+				limit = { has_country_flag = CHN_compliance_80_love_decision_ongoing_flag }
+				custom_effect_tooltip = CHN_compliance_80_love_decision_love_gain_tt
+			}
+			add_to_variable = { var = CHN_love_variable value = CHN_compliance_80_love_decision_love_gain_var }
+			clr_country_flag = CHN_compliance_80_love_decision_ongoing_flag
+		}
+	}
+}
+
+CHN_superweapon = { 
+	CHN_railway_gun_plans = {
+		icon = hol_draw_up_staff_plans
+		ai_will_do = {
+			base = 10
+		}
+		allowed = {
+			original_tag = CHN
+		}
+		available = { 
+			has_tech = super_heavy_art 
+			has_completed_focus = CHN_post_war_A
+		}
+		fire_only_once = yes
+		days_remove = 30
+		modifier = {
+			consumer_goods_factor = 0.05
+		}
+		remove_effect = {
+			log = "[GetDateText]: [Root.GetName]: Decision remove CHN_railway_gun_plans"
+			custom_effect_tooltip = MAN_researched_plans_for_rail_gun
+			set_country_flag = CHN_plans_researched_for_rail_gun
+		}
+	}
+	
+	CHN_railway_gun_build = {
+		icon = ger_military_buildup
+		ai_will_do = {
+			base = 10
+		}
+		allowed = {
+			original_tag = CHN
+		}
+		available = { 
+			custom_trigger_tooltip = {
+				tooltip = MAN_plans_researched_for_rail_gun
+				has_country_flag = CHN_plans_researched_for_rail_gun
+			}
+		}
+		fire_only_once = yes
+		days_remove = 60 
+		modifier = {
+			consumer_goods_factor = 0.15
+		}
+		remove_effect = {
+			log = "[GetDateText]: [Root.GetName]: Decision remove CHN_railway_gun_build"
+			##### RAILWAY GUN BEEP BEEP #####
+			custom_effect_tooltip = MAN_field_a_division_with_rail_gun
+				hidden_effect = {
+				set_technology = { popup = yes CHN_manehattan_protectorate_railway_gun_tech = 1 }
+				add_equipment_to_stockpile = {
+					type = CHN_manehattan_protectorate_railway_gun
+					amount = 1
+					producer = CHN
+				}
+			}
+			###### RAILWAY GUN #####
+			set_country_flag = CHN_has_built_the_rail_gun
+			country_event = { id = changelings_paxchrysalia.27 hours = 3 }
+		}
+	}
+}
+
+CHN_equestrian_insurgency_category = {
+	CHN_debuff_changeling_category = {
+		icon = generic_intelligence_operation
+		allowed = {
+			original_tag = CHN
+		}
+		
+		visible = {
+			OR = {
+				has_idea = CHN_equestria_chaos3
+				has_idea = CHN_equestria_chaos2
+				has_idea = CHN_equestria_chaos1
+			}
+		}
+		available = {
+			custom_trigger_tooltip = {
+				tooltip = CHN_debuff_changeling_category_completed_tt
+				check_variable = { CHN_debuff_changeling_category_var > 4 }
+			}
+		}
+		
+		ai_will_do = {
+			factor = 50
+		}
+
+		cost = 25
+		
+		days_remove = 14
+		fire_only_once = yes
+		
+		modifier = {
+			political_power_factor = -0.25
+		}
+		remove_effect = {
+			log = "[GetDateText]: [Root.GetName]: Decision remove CHN_debuff_changeling_category"
+			if = {
+				limit = {
+					has_idea = CHN_equestria_chaos3
+				}
+				swap_ideas = { remove_idea = CHN_equestria_chaos3 add_idea = CHN_equestria_chaos2 }
+				country_event = { id = changelings_paxchrysalia.300 hours = 1 }
+			}
+			else_if = {
+				limit = {
+					has_idea = CHN_equestria_chaos2
+				}
+				swap_ideas = { remove_idea = CHN_equestria_chaos2 add_idea = CHN_equestria_chaos1 }
+				country_event = { id = changelings_paxchrysalia.301 hours = 1 }
+			}
+			else_if = {
+				limit = {
+					has_idea = CHN_equestria_chaos1
+				}
+				swap_ideas = { remove_idea = CHN_equestria_chaos1 add_idea = CHN_equestria_lockdown }
+				country_event = { id = changelings_paxchrysalia.302 hours = 1 }
+			}
+		}
+		complete_effect = {
+			log = "[GetDateText]: [Root.GetName]: Decision CHN_debuff_changeling_category"
+		}
+	}
+	
+	CHN_debuff_resistance_category = {
+		icon = generic_scorched_earth
+		allowed = {
+			original_tag = CHN
+		}
+		
+		visible = {
+			OR = {
+				has_idea = CHN_equestria_chaos3
+				has_idea = CHN_equestria_chaos2
+				has_idea = CHN_equestria_chaos1
+			}
+		}
+		available = {
+			custom_trigger_tooltip = {
+				tooltip = CHN_debuff_resistance_category_completed_tt
+				check_variable = { CHN_debuff_resistance_category_var > 4 }
+			}
+		}
+		
+		ai_will_do = {
+			factor = 50
+		}
+
+		cost = 25
+		
+		days_remove = 14
+		fire_only_once = yes
+		
+		modifier = {
+			political_power_factor = -0.25
+		}
+		remove_effect = {
+			log = "[GetDateText]: [Root.GetName]: Decision remove CHN_debuff_resistance_category"
+			if = {
+				limit = {
+					has_idea = CHN_equestria_chaos3
+				}
+				swap_ideas = { remove_idea = CHN_equestria_chaos3 add_idea = CHN_equestria_chaos2 }
+				country_event = { id = changelings_paxchrysalia.300 hours = 1 }
+			}
+			else_if = {
+				limit = {
+					has_idea = CHN_equestria_chaos2
+				}
+				swap_ideas = { remove_idea = CHN_equestria_chaos2 add_idea = CHN_equestria_chaos1 }
+				country_event = { id = changelings_paxchrysalia.301 hours = 1 }
+			}
+			else_if = {
+				limit = {
+					has_idea = CHN_equestria_chaos1
+				}
+				swap_ideas = { remove_idea = CHN_equestria_chaos1 add_idea = CHN_equestria_lockdown }
+				country_event = { id = changelings_paxchrysalia.302 hours = 1 }
+			}
+		}
+		complete_effect = {
+			log = "[GetDateText]: [Root.GetName]: Decision CHN_debuff_resistance_category"
+		}
+	}
+	
+	CHN_debuff_compliance_category = {
+		icon = hol_war_on_pacifism
+		allowed = {
+			original_tag = CHN
+		}
+		
+		visible = {
+			OR = {
+				has_idea = CHN_equestria_chaos3
+				has_idea = CHN_equestria_chaos2
+				has_idea = CHN_equestria_chaos1
+			}
+		}
+		available = {
+			custom_trigger_tooltip = {
+				tooltip = CHN_debuff_compliance_category_tt
+				check_variable = { CHN_debuff_compliance_category_var > 4 }
+			}
+		}
+		
+		ai_will_do = {
+			factor = 50
+		}
+
+		cost = 25
+		
+		days_remove = 14
+		fire_only_once = yes
+		
+		modifier = {
+			political_power_factor = -0.25
+		}
+		remove_effect = {
+			log = "[GetDateText]: [Root.GetName]: Decision remove CHN_debuff_compliance_category"
+			if = {
+				limit = {
+					has_idea = CHN_equestria_chaos3
+				}
+				swap_ideas = { remove_idea = CHN_equestria_chaos3 add_idea = CHN_equestria_chaos2 }
+				country_event = { id = changelings_paxchrysalia.300 hours = 1 }
+			}
+			else_if = {
+				limit = {
+					has_idea = CHN_equestria_chaos2
+				}
+				swap_ideas = { remove_idea = CHN_equestria_chaos2 add_idea = CHN_equestria_chaos1 }
+				country_event = { id = changelings_paxchrysalia.301 hours = 1 }
+			}
+			else_if = {
+				limit = {
+					has_idea = CHN_equestria_chaos1
+				}
+				swap_ideas = { remove_idea = CHN_equestria_chaos1 add_idea = CHN_equestria_lockdown }
+				country_event = { id = changelings_paxchrysalia.302 hours = 1 }
+			}
+		}
+		complete_effect = {
+			log = "[GetDateText]: [Root.GetName]: Decision CHN_debuff_compliance_category"
+		}
+	}
+}
