@@ -13,7 +13,6 @@ def convert_images(paths, updated_images=None):
                 if updated_images and not path in updated_images:
                     continue
                 fname = os.path.splitext(path)[0]
-                print(path)
                 with image.Image(filename=path) as img:
                     library.MagickSetCompressionQuality(img.wand, 95)
                     print("Saving %s..." % fname + '.png')
