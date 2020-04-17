@@ -16,7 +16,10 @@ def convert_images(paths, updated_images=None):
                 print(path)
                 with image.Image(filename=path) as img:
                     library.MagickSetCompressionQuality(img.wand, 95)
+                    print("Saving %s..." % fname + '.png')
                     img.save(filename=fname + '.png')
+            else:
+                print("%s does not exist!" % path)
 
 
 def read_gfx(gfx_paths):
@@ -91,6 +94,7 @@ def generate_html(goals, ideas, title, favicon):
 
 
 def main(args):
+    print("Starting hoi4_icon_search_gen...")
     goals, goals_files = read_gfx(args.goals)
     ideas, ideas_files = read_gfx(args.ideas)
     convert_images([goals_files.keys(), ideas_files.keys()],
