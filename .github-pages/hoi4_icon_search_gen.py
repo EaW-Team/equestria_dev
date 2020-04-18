@@ -95,7 +95,8 @@ def generate_html(goals, ideas, title, favicon):
 
 
 def get_files_changed_in_commit(event_json):
-    event = json.loads(event_json)
+    print(event_json)
+    event = json.load(event_json)
     before_commit = event["before"]
     diff_output = subprocess.Popen(['git', 'diff', '--name-only', before_commit, '$GITHUB_SHA'], stdout=subprocess.PIPE)
     diff_output, _ = diff_output.communicate()
@@ -105,13 +106,13 @@ def get_files_changed_in_commit(event_json):
         diff_output = [x.strip() for x in diff_output]
     else:
         diff_output = []
-    diff_output = set(diff_output)
     return diff_output
 
 
 def main(args):
     print("Starting hoi4_icon_search_gen...")
     if args.modified_images:
+        args.modified_images = set(args.modified_images)
         print(args.modified_images)
     goals, goals_files = read_gfx(args.goals)
     ideas, ideas_files = read_gfx(args.ideas)
