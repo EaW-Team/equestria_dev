@@ -1,5 +1,7 @@
 import os
 import re
+import json
+import subprocess
 import argparse
 from collections import defaultdict
 from wand import image  # also requires apt-get install libmagickwand-dev
@@ -92,6 +94,22 @@ def generate_html(goals, ideas, title, favicon):
         f.write(html)
 
 
+def get_files_changed_in_commit(event_json):
+    event = json.loads(event_json)
+    cw_sha = event["pull_request"]["head"]["sha"]
+    before_commit = event["before"]
+    diff_output = subprocess.Popen(
+        ['git', 'diff', '--name-only', before_commit, cw_sha], stdout=subprocess.PIPE)
+    diff_output, _ = diff_output.communicate()
+    if diff_output:
+        diff_output = diff_output.split("\n")
+        diff_output = [x.strip() for x in diff_output]
+    else:
+        diff_output = []
+    diff_output = set(diff_output)
+    return diff_output
+
+
 def main(args):
     print("Starting hoi4_icon_search_gen...")
     goals, goals_files = read_gfx(args.goals)
@@ -114,12 +132,18 @@ def setup_cli_arguments():
                         help='Path to webpage favicon', required=False)
     parser.add_argument('--modified-images', nargs='+',
                         help='Paths to modified image files (If not set, will convert all images)', dest="modified_images", required=False)
+    parser.add_argument('--event-json',
+                        help='GitHub Event JSON to get only newly modified files)', dest="event_json", required=False)
+
     args = parser.parse_args()
     args.goals = [os.path.normpath(x) for x in args.goals]
     args.ideas = [os.path.normpath(x) for x in args.ideas]
     if args.modified_images:
         args.modified_images = [os.path.normpath(
             x) for x in args.modified_images]
+    elif args.event_json:
+        args.modified_images = [os.path.normpath(
+            x) for x in get_files_changed_in_commit(args.event_json)]
     return args
 
 
