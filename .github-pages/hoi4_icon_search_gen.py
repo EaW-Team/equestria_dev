@@ -182,9 +182,9 @@ def setup_cli_arguments():
     args = parser.parse_args()
     args.goals = [os.path.normpath(x) for x in args.goals] if args.goals else []
     args.ideas = [os.path.normpath(x) for x in args.ideas] if args.ideas else []
-    args.texticons = [os.path.normpath(x) for x in args.goals] if args.texticons else []
-    args.events = [os.path.normpath(x) for x in args.ideas] if args.events else []
-    args.decisions = [os.path.normpath(x) for x in args.ideas] if args.decisions else []
+    args.texticons = [os.path.normpath(x) for x in args.texticons] if args.texticons else []
+    args.events = [os.path.normpath(x) for x in args.events] if args.events else []
+    args.decisions = [os.path.normpath(x) for x in args.decisions] if args.decisions else []
     if args.modified_images:
         args.modified_images = [os.path.normpath(
             x) for x in args.modified_images]
