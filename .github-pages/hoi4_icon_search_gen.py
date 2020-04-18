@@ -100,13 +100,16 @@ def get_files_changed_in_commit(event_json, workspace_path):
     event = ""
     with open(event_json, "r") as json_f:
         event = json.load(json_f)
+    print(event)
     if not event:
         return None
     before_commit = event["before"]
+    print(before_commit)
     diff_output = subprocess.Popen(['git', 'diff', '--name-only', before_commit, '$GITHUB_SHA'], stdout=subprocess.PIPE, cwd=workspace_path)
     diff_output, _ = diff_output.communicate()
-    diff_output = str(diff_output)[2:-1]
     if diff_output:
+        print(diff_output)
+        diff_output = str(diff_output)[2:-1]
         diff_output = diff_output.split("\\n")
         diff_output = [x.strip() for x in diff_output]
     else:
