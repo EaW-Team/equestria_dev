@@ -63,10 +63,10 @@ def generate_html(goals, ideas, texticons, events, decisions, title, favicon):
         if os.path.exists(img_src):
             goals_num += 1
             goal_entries.append('''
-          <div data-clipboard-text="%s" title="%s" class="icon">
+          <div data-clipboard-text="%s" data-search-text="%s" title="%s" class="icon">
             <img src="%s" alt="%s">
           </div>
-        ''' % (goal, goal, img_src, goal))
+        ''' % (goal, goal, goal, img_src, goal))
 
     html = html.replace('@GOALS_ICONS', ''.join(goal_entries))
     html = html.replace('@GOALS_NUM', str(goals_num))
@@ -79,10 +79,10 @@ def generate_html(goals, ideas, texticons, events, decisions, title, favicon):
         if os.path.exists(img_src):
             ideas_num += 1
             idea_entries.append('''
-          <div data-clipboard-text="%s" title="%s" class="icon">
+          <div data-clipboard-text="%s" data-search-text="%s" title="%s" class="icon">
             <img src="%s" alt="%s">
           </div>
-        ''' % (idea, idea, img_src, idea))
+        ''' % (idea, idea, idea, img_src, idea))
 
     html = html.replace('@IDEAS_ICONS', ''.join(idea_entries))
     html = html.replace('@IDEAS_NUM', str(ideas_num))
@@ -95,10 +95,10 @@ def generate_html(goals, ideas, texticons, events, decisions, title, favicon):
         if os.path.exists(img_src):
             texticons_num += 1
             texticons_entries.append('''
-          <div data-clipboard-text="%s" title="%s" class="icon">
+          <div data-clipboard-text="%s" data-search-text="%s" title="%s" class="icon">
             <img src="%s" alt="%s">
           </div>
-        ''' % (texticon, texticon, img_src, texticon))
+        ''' % (texticon, texticon, texticon, img_src, texticon))
 
     html = html.replace('@TEXTICONS_ICONS', ''.join(texticons_entries))
     html = html.replace('@TEXTICONS_NUM', str(texticons_num))
@@ -111,10 +111,10 @@ def generate_html(goals, ideas, texticons, events, decisions, title, favicon):
         if os.path.exists(img_src):
             events_num += 1
             events_entries.append('''
-          <div data-clipboard-text="%s" title="%s" class="icon">
+          <div data-clipboard-text="%s" data-search-text="%s" title="%s" class="icon">
             <img src="%s" alt="%s">
           </div>
-        ''' % (event, event, img_src, event))
+        ''' % (event, event, event, img_src, event))
 
     html = html.replace('@EVENTS_ICONS', ''.join(events_entries))
     html = html.replace('@EVENTS_NUM', str(events_num))
@@ -127,10 +127,10 @@ def generate_html(goals, ideas, texticons, events, decisions, title, favicon):
         if os.path.exists(img_src):
             decisions_num += 1
             decisions_entries.append('''
-          <div data-clipboard-text="%s" title="%s" class="icon">
+          <div data-clipboard-text="%s" data-search-text="%s" title="%s" class="icon">
             <img src="%s" alt="%s">
           </div>
-        ''' % (decision, decision, img_src, decision))
+        ''' % (decision, decision, decision, img_src, decision))
 
     html = html.replace('@DECISIONS_ICONS', ''.join(decisions_entries))
     html = html.replace('@DECISIONS_NUM', str(decisions_num))
