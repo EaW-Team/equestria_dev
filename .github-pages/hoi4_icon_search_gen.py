@@ -4,6 +4,7 @@ import sys
 import json
 import subprocess
 import argparse
+import datetime
 from collections import defaultdict
 from wand import image  # also requires apt-get install libmagickwand-dev
 from wand.api import library
@@ -138,6 +139,7 @@ def generate_html(goals, ideas, texticons, events, decisions, title, favicon):
     html = html.replace('@TITLE', title)
     favicon = favicon if favicon else ""
     html = html.replace('@FAVICON', favicon)
+    html = html.replace('@UPDATE_DATE', str(datetime.datetime.utcnow()))
 
     with open('index.html', 'w') as f:
         f.write(html)
