@@ -134,7 +134,7 @@ def setup_cli_arguments():
                         help='Webpage title', required=True)
     parser.add_argument('--favicon',
                         help='Path to webpage favicon', required=False)
-    parser.add_argument('--modified-images', nargs='+',
+    parser.add_argument('--modified-images', nargs='*',
                         help='Paths to modified image files (If not set, will convert all images)', dest="modified_images", required=False)
     parser.add_argument('--diff-output',
                         help='Path to git diff output', dest="diff_output", required=False)
