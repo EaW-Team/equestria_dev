@@ -1,5 +1,6 @@
 import os
 import re
+import sys
 import json
 import subprocess
 import argparse
@@ -94,7 +95,7 @@ def generate_html(goals, ideas, title, favicon):
         f.write(html)
 
 
-def get_files_changed_in_commit(event_json):
+def get_files_changed_in_commit(event_json, workspace_path):
     print(event_json)
     event = ""
     with open(event_json, "r") as json_f:
@@ -102,7 +103,7 @@ def get_files_changed_in_commit(event_json):
     if not event:
         return None
     before_commit = event["before"]
-    diff_output = subprocess.Popen(['git', 'diff', '--name-only', before_commit, '$GITHUB_SHA'], stdout=subprocess.PIPE, cwd='$GITHUB_WORKSPACE')
+    diff_output = subprocess.Popen(['git', 'diff', '--name-only', before_commit, '$GITHUB_SHA'], stdout=subprocess.PIPE, cwd=workspace_path)
     diff_output, _ = diff_output.communicate()
     diff_output = str(diff_output)[2:-1]
     if diff_output:
@@ -113,8 +114,9 @@ def get_files_changed_in_commit(event_json):
     return diff_output
 
 
-def main(args):
+def main():
     print("Starting hoi4_icon_search_gen...")
+    args = setup_cli_arguments()
     if args.modified_images:
         args.modified_images = set(args.modified_images)
         print(args.modified_images)
@@ -140,6 +142,8 @@ def setup_cli_arguments():
                         help='Paths to modified image files (If not set, will convert all images)', dest="modified_images", required=False)
     parser.add_argument('--event-json',
                         help='GitHub Event JSON to get only newly modified files)', dest="event_json", required=False)
+    parser.add_argument('--workspace',
+                        help='Path to master workspace)', required=False)
 
     args = parser.parse_args()
     args.goals = [os.path.normpath(x) for x in args.goals]
@@ -148,10 +152,13 @@ def setup_cli_arguments():
         args.modified_images = [os.path.normpath(
             x) for x in args.modified_images]
     elif args.event_json:
+        if not args.workspace:
+            print("workspace must be set!")
+            sys.exit(1)
         args.modified_images = [os.path.normpath(
-            x) for x in get_files_changed_in_commit(args.event_json)]
+            x) for x in get_files_changed_in_commit(args.event_json, args.workspace)]
     return args
 
 
 if __name__ == "__main__":
-    main(setup_cli_arguments())
+    main()
