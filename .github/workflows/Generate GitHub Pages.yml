@@ -42,7 +42,7 @@ jobs:
       run: |
         BEFORE=$(cat $GITHUB_EVENT_PATH | python -c "import sys, json; print(json.load(sys.stdin)['before'])")
         MODIFIED_FILES=""
-        MODIFIED_FILES=$(curl -s https://api.github.com/repos/$GITHUB_REPOSITORY/compare/$BEFORE...$GITHUB_SHA | python -c "import sys, json; files = json.load(sys.stdin)['files']; print(' '.join(["\"%s\"" % str(x['filename']) for x in files]))" 2>/dev/null)
+        MODIFIED_FILES=$(curl -s https://api.github.com/repos/$GITHUB_REPOSITORY/compare/$BEFORE...$GITHUB_SHA | python -c "import sys, json; files = json.load(sys.stdin)['files']; print(repr(' '.join(["\'%s\'" % str(x['filename']) for x in files])))" 2>/dev/null)
         export MODIFIED_FILES
         echo "::set-env name=MODIFIED_FILES::$MODIFIED_FILES"
         echo $MODIFIED_FILES
@@ -50,9 +50,9 @@ jobs:
       if: always()
       run: |
         mkdir -p $GITHUB_WORKSPACE/gh-pages/gfx/interface/
-        mv $GITHUB_WORKSPACE/gfx/interface/goals $GITHUB_WORKSPACE/gh-pages/gfx/interface/
-        mv $GITHUB_WORKSPACE/gfx/interface/ideas $GITHUB_WORKSPACE/gh-pages/gfx/interface/
-        mv $GITHUB_WORKSPACE/interface/ $GITHUB_WORKSPACE/gh-pages
+        mv -f $GITHUB_WORKSPACE/gfx/interface/goals/* $GITHUB_WORKSPACE/gh-pages/gfx/interface/
+        mv -f $GITHUB_WORKSPACE/gfx/interface/ideas/* $GITHUB_WORKSPACE/gh-pages/gfx/interface/
+        mv -f $GITHUB_WORKSPACE/interface/* $GITHUB_WORKSPACE/gh-pages/
         cd $GITHUB_WORKSPACE/gh-pages
         python .github-pages/hoi4_icon_search_gen.py --goals "./interface/eaw_goals.gfx" --ideas "./interface/eaw_ideas.gfx" --title "Equestria at War Icon Search" --favicon "./eaw_icon.png" --modified-images $MODIFIED_FILES
     - name: Commit and push files
