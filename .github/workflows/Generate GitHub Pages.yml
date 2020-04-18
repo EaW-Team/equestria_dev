@@ -26,6 +26,24 @@ jobs:
   build:
     runs-on: ubuntu-latest
     steps:
+    - uses: actions/checkout@v2
+      with:
+        token: ${{ secrets.GHPAGES_PUSH_TOKEN }}
+        ref: master
+    - name: Checkout gh-pages branch
+      uses: actions/checkout@v2
+      with:
+        token: ${{ secrets.GHPAGES_PUSH_TOKEN }}
+        ref: gh-pages
+        path: gh-pages
+    - name: Set up Python 3.8
+      uses: actions/setup-python@v1
+      with:
+        python-version: 3.8
+    - name: Install dependencies
+      run: |
+        python -m pip install --upgrade pip
+        pip install -r $GITHUB_WORKSPACE/gh-pages/.github-pages/requirements.txt
     - name: Get changed files
       run: |
         BEFORE=$(cat $GITHUB_EVENT_PATH | python -c "import sys, json; print(json.load(sys.stdin)['before'])")
@@ -34,31 +52,8 @@ jobs:
         export MODIFIED_FILES
         echo "::set-env name=MODIFIED_FILES::$MODIFIED_FILES"
         echo $MODIFIED_FILES
-    - name: Checkout master branch
-      if: failure() || env.MODIFIED_FILES == '' || contains( env.MODIFIED_FILES, '.dds' ) || contains( env.MODIFIED_FILES, '.tga' )
-      uses: actions/checkout@v2
-      with:
-        token: ${{ secrets.GHPAGES_PUSH_TOKEN }}
-        ref: master
-    - name: Checkout gh-pages branch
-      if: env.MODIFIED_FILES == '' || contains( env.MODIFIED_FILES, '.dds' ) || contains( env.MODIFIED_FILES, '.tga' )
-      uses: actions/checkout@v2
-      with:
-        token: ${{ secrets.GHPAGES_PUSH_TOKEN }}
-        ref: gh-pages
-        path: gh-pages
-    - name: Set up Python 3.8
-      if: env.MODIFIED_FILES == '' || contains( env.MODIFIED_FILES, '.dds' ) || contains( env.MODIFIED_FILES, '.tga' )
-      uses: actions/setup-python@v1
-      with:
-        python-version: 3.8
-    - name: Install dependencies
-      if: env.MODIFIED_FILES == '' || contains( env.MODIFIED_FILES, '.dds' ) || contains( env.MODIFIED_FILES, '.tga' )
-      run: |
-        python -m pip install --upgrade pip
-        pip install -r $GITHUB_WORKSPACE/gh-pages/.github-pages/requirements.txt
     - name: Generate webpage
-      if: env.MODIFIED_FILES == '' || contains( env.MODIFIED_FILES, '.dds' ) || contains( env.MODIFIED_FILES, '.tga' )
+      if: always()
       run: |
         mkdir -p $GITHUB_WORKSPACE/gh-pages/gfx/interface/
         cp -rf $GITHUB_WORKSPACE/gfx/texticons $GITHUB_WORKSPACE/gh-pages/gfx
@@ -70,7 +65,6 @@ jobs:
         cd $GITHUB_WORKSPACE/gh-pages
         python .github-pages/hoi4_icon_search_gen.py --goals "./interface/eaw_goals.gfx" "./interface/ee2_goals.gfx" "./interface/ee2_goals.gfx" "./interface/ncr_goals.gfx" --ideas "./interface/eaw_ideas.gfx" "./interface/ee2_ideas.gfx" --texticons "./interface/etat_texticons.gfx" "./interface/eaw_texticons.gfx" --events "./interface/eaw_eventpictures.gfx" --decisions "./interface/eaw_decisions.gfx" --title "Equestria at War Icon Search" --favicon "./eaw_icon.png" --modified-images $MODIFIED_FILES
     - name: Commit and push files
-      if: env.MODIFIED_FILES == '' || contains( env.MODIFIED_FILES, '.dds' ) || contains( env.MODIFIED_FILES, '.tga' )
       run: |
         cd $GITHUB_WORKSPACE/gh-pages
         if [ -z "$(git status --porcelain)" ]; then 
