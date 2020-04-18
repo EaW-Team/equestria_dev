@@ -105,6 +105,7 @@ def get_files_changed_in_commit(event_json, workspace_path):
         return None
     before_commit = event["before"]
     print(before_commit)
+    print(workspace_path)
     diff_output = subprocess.Popen(['git', 'diff', '--name-only', before_commit, '$GITHUB_SHA'], stdout=subprocess.PIPE, cwd=workspace_path)
     diff_output, _ = diff_output.communicate()
     if diff_output:
@@ -159,7 +160,7 @@ def setup_cli_arguments():
             print("workspace must be set!")
             sys.exit(1)
         args.modified_images = [os.path.normpath(
-            x) for x in get_files_changed_in_commit(args.event_json, args.workspace)]
+            x) for x in get_files_changed_in_commit(args.event_json, os.path.normpath(args.workspace))]
     return args
 
 
