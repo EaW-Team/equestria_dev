@@ -95,27 +95,19 @@ def generate_html(goals, ideas, title, favicon):
         f.write(html)
 
 
-def get_files_changed_in_commit(event_json, workspace_path):
-    print(event_json)
-    event = ""
-    with open(event_json, "r") as json_f:
-        event = json.load(json_f)
-    print(event)
-    if not event:
-        return None
-    before_commit = event["before"]
-    print(before_commit)
-    print(workspace_path)
-    diff_output = subprocess.Popen(['git', 'diff', '--name-only', before_commit, '$GITHUB_SHA'], stdout=subprocess.PIPE, cwd=workspace_path)
-    diff_output, _ = diff_output.communicate()
-    if diff_output:
-        print(diff_output)
-        diff_output = str(diff_output)[2:-1]
-        diff_output = diff_output.split("\\n")
-        diff_output = [x.strip() for x in diff_output]
+def get_files_changed_in_commit(diff_output):
+    diff_output_str = ""
+    with open(diff_output, "r") as f:
+        diff_output_str = f.read(diff_output)
+    print(diff_output_str)
+    if diff_output_str:
+        print(diff_output_str)
+        diff_output_str = str(diff_output_str)[2:-1]
+        diff_output_str = diff_output_str.split("\\n")
+        diff_output_str = [x.strip() for x in diff_output_str]
     else:
-        diff_output = []
-    return diff_output
+        diff_output_str = []
+    return diff_output_str
 
 
 def main():
@@ -144,10 +136,8 @@ def setup_cli_arguments():
                         help='Path to webpage favicon', required=False)
     parser.add_argument('--modified-images', nargs='+',
                         help='Paths to modified image files (If not set, will convert all images)', dest="modified_images", required=False)
-    parser.add_argument('--event-json',
-                        help='GitHub Event JSON to get only newly modified files)', dest="event_json", required=False)
-    parser.add_argument('--workspace',
-                        help='Path to master workspace)', required=False)
+    parser.add_argument('--diff-output',
+                        help='Path to git diff output', dest="diff_output", required=False)
 
     args = parser.parse_args()
     args.goals = [os.path.normpath(x) for x in args.goals]
@@ -155,12 +145,8 @@ def setup_cli_arguments():
     if args.modified_images:
         args.modified_images = [os.path.normpath(
             x) for x in args.modified_images]
-    elif args.event_json:
-        if not args.workspace:
-            print("workspace must be set!")
-            sys.exit(1)
-        args.modified_images = [os.path.normpath(
-            x) for x in get_files_changed_in_commit(args.event_json, os.path.normpath(args.workspace))]
+    elif args.diff_output:
+        get_files_changed_in_commit(args.diff_output)
     return args
 
 
