@@ -96,7 +96,11 @@ def generate_html(goals, ideas, title, favicon):
 
 def get_files_changed_in_commit(event_json):
     print(event_json)
-    event = json.load(event_json)
+    event = ""
+    with open("json_data.json", "r") as json_f:
+        event = json.load(json_f)
+    if not event:
+        return None
     before_commit = event["before"]
     diff_output = subprocess.Popen(['git', 'diff', '--name-only', before_commit, '$GITHUB_SHA'], stdout=subprocess.PIPE)
     diff_output, _ = diff_output.communicate()
