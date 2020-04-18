@@ -97,7 +97,7 @@ def generate_html(goals, ideas, title, favicon):
 def get_files_changed_in_commit(event_json):
     print(event_json)
     event = ""
-    with open("json_data.json", "r") as json_f:
+    with open(event_json, "r") as json_f:
         event = json.load(json_f)
     if not event:
         return None
