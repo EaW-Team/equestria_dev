@@ -102,7 +102,7 @@ def get_files_changed_in_commit(event_json):
     if not event:
         return None
     before_commit = event["before"]
-    diff_output = subprocess.Popen(['git', 'diff', '--name-only', before_commit, '$GITHUB_SHA'], stdout=subprocess.PIPE)
+    diff_output = subprocess.Popen(['git', 'diff', '--name-only', before_commit, '$GITHUB_SHA'], stdout=subprocess.PIPE, cwd='$GITHUB_WORKSPACE')
     diff_output, _ = diff_output.communicate()
     diff_output = str(diff_output)[2:-1]
     if diff_output:
