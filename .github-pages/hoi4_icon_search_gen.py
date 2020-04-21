@@ -5,24 +5,33 @@ import json
 import subprocess
 import argparse
 import datetime
+import traceback
 from collections import defaultdict
 from wand import image  # also requires apt-get install libmagickwand-dev
 from wand.api import library
 
 
 def convert_images(paths, updated_images=None):
+    bad_files = []
     for x in paths:
         for path in x:
             if os.path.exists(path):
                 if updated_images and not path in updated_images:
                     continue
                 fname = os.path.splitext(path)[0]
-                with image.Image(filename=path) as img:
-                    library.MagickSetCompressionQuality(img.wand, 95)
-                    print("Saving %s..." % (fname + '.png'))
-                    img.save(filename=fname + '.png')
+                try:
+                    with image.Image(filename=path) as img:
+                        library.MagickSetCompressionQuality(img.wand, 95)
+                        print("Saving %s..." % (fname + '.png'))
+                        img.save(filename=fname + '.png')
+                except:
+                    print("EXCEPTION with %s" % path)
+                    ex_message = traceback.format_exc()
+                    bad_files.append((path, ex_message))
+                    print(ex_message)
             else:
                 print("%s does not exist!" % path)
+    return bad_files
 
 
 def read_gfx(gfx_paths):
@@ -156,9 +165,14 @@ def main():
     texticons, texticons_files = read_gfx(args.texticons)
     events, events_files = read_gfx(args.events)
     decisions, decisions_files = read_gfx(args.decisions)
-    convert_images([goals_files.keys(), ideas_files.keys(), texticons_files.keys(), events_files.keys(), decisions_files.keys()],
+    bad_files = convert_images([goals_files.keys(), ideas_files.keys(), texticons_files.keys(), events_files.keys(), decisions_files.keys()],
                    args.modified_images)
     generate_html(goals, ideas, texticons, events, decisions, args.title, args.favicon)
+    print("The following files had exceptions:")
+    for f in bad_files:
+        print(f[0])
+        print(f[1])
+
 
 
 def setup_cli_arguments():
