@@ -51,7 +51,7 @@ def read_gfx(gfx_paths):
         noOfFrames = 1
         for line in lines:
             line = re.sub(r'#.*', '', line, re.IGNORECASE)
-            spriteType = re.match(r'\s*spriteType\s*=\s*"(.+?)"\s*$', line, re.IGNORECASE)
+            spriteType = re.search(r'\s*spriteType', line, re.IGNORECASE)
             if spriteType and name and texturefile:
                 gfx[name] = texturefile
                 gfx_files[os.path.normpath(texturefile)].append((name, noOfFrames))
