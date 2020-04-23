@@ -14,13 +14,17 @@ from wand.api import library
 def convert_images(paths, updated_images=None):
     bad_files = []
     for x in paths:
-        for path in x:
+        for path, value in x.items():
+            frames = value[0][1]
             if os.path.exists(path):
                 if updated_images and not path in updated_images:
                     continue
                 fname = os.path.splitext(path)[0]
                 try:
                     with image.Image(filename=path) as img:
+                        if frames > 1:
+                            print("%s has %d frames, cropping..." % (fname, frames))
+                            img.crop(0, 0, width=img.width // frames, height=img.height)
                         library.MagickSetCompressionQuality(img.wand, 00)
                         print("Saving %s..." % (fname + '.png'))
                         img.save(filename=fname + '.png')
@@ -41,23 +45,30 @@ def read_gfx(gfx_paths):
         path = os.path.join(path)
         with open(path, 'r') as f:
             lines = f.readlines()
+        spriteType = False
         name = ''
         texturefile = ''
+        noOfFrames = 1
         for line in lines:
             line = re.sub(r'#.*', '', line)
+            spriteType = re.match(r'\s*name\s*=\s*"(.+?)"\s*$', line)
+            if spriteType and name and texturefile:
+                gfx[name] = texturefile
+                gfx_files[os.path.normpath(texturefile)].append((name, noOfFrames))
+                spriteType = False
+                name = ''
+                texturefile = ''
+                noOfFrames = 1
             match = re.match(r'\s*name\s*=\s*"(.+?)"\s*$', line)
             if match:
                 name = match.group(1)
-                continue
-            if name:
-                match = re.match(r'\s*texturefile\s*=\s*"(.+?)"\s*$', line)
-                if match:
-                    texturefile = match.group(1)
-            if texturefile:
-                gfx[name] = texturefile
-                gfx_files[os.path.normpath(texturefile)].append(name)
-                name = ''
-                texturefile = ''
+            match = re.match(r'\s*texturefile\s*=\s*"(.+?)"\s*$', line)
+            if match:
+                texturefile = match.group(1)
+            match = re.match(r'\s*noOfFrames\s*=\s*([0-9]+?)\s*$', line)
+            if match:
+                noOfFrames = int(match.group(1))
+
     return (gfx, gfx_files)
 
 
@@ -165,7 +176,7 @@ def main():
     texticons, texticons_files = read_gfx(args.texticons)
     events, events_files = read_gfx(args.events)
     decisions, decisions_files = read_gfx(args.decisions)
-    bad_files = convert_images([goals_files.keys(), ideas_files.keys(), texticons_files.keys(), events_files.keys(), decisions_files.keys()],
+    bad_files = convert_images([goals_files, ideas_files, texticons_files, events_files, decisions_files],
                    args.modified_images)
     generate_html(goals, ideas, texticons, events, decisions, args.title, args.favicon)
     print("The following files had exceptions:")
