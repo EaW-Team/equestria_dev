@@ -50,8 +50,8 @@ def read_gfx(gfx_paths):
         texturefile = ''
         noOfFrames = 1
         for line in lines:
-            line = re.sub(r'#.*', '', line)
-            spriteType = re.match(r'\s*name\s*=\s*"(.+?)"\s*$', line)
+            line = re.sub(r'#.*', '', line, re.IGNORECASE)
+            spriteType = re.match(r'\s*spriteType\s*=\s*"(.+?)"\s*$', line, re.IGNORECASE)
             if spriteType and name and texturefile:
                 gfx[name] = texturefile
                 gfx_files[os.path.normpath(texturefile)].append((name, noOfFrames))
@@ -59,13 +59,13 @@ def read_gfx(gfx_paths):
                 name = ''
                 texturefile = ''
                 noOfFrames = 1
-            match = re.match(r'\s*name\s*=\s*"(.+?)"\s*$', line)
+            match = re.match(r'\s*name\s*=\s*"(.+?)"\s*$', line, re.IGNORECASE)
             if match:
                 name = match.group(1)
-            match = re.match(r'\s*texturefile\s*=\s*"(.+?)"\s*$', line)
+            match = re.match(r'\s*texturefile\s*=\s*"(.+?)"\s*$', line, re.IGNORECASE)
             if match:
                 texturefile = match.group(1)
-            match = re.match(r'\s*noOfFrames\s*=\s*([0-9]+?)\s*$', line)
+            match = re.match(r'\s*noOfFrames\s*=\s*([0-9]+?)\s*$', line, re.IGNORECASE)
             if match:
                 noOfFrames = int(match.group(1))
 
