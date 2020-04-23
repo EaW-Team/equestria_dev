@@ -21,7 +21,7 @@ def convert_images(paths, updated_images=None):
                 fname = os.path.splitext(path)[0]
                 try:
                     with image.Image(filename=path) as img:
-                        library.MagickSetCompressionQuality(img.wand, 95)
+                        library.MagickSetCompressionQuality(img.wand, 00)
                         print("Saving %s..." % (fname + '.png'))
                         img.save(filename=fname + '.png')
                 except:
