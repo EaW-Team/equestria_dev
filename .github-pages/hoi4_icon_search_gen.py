@@ -199,7 +199,7 @@ def setup_cli_arguments():
                         help='Path to webpage favicon', required=False)
     parser.add_argument('--modified-images', nargs='*',
                         help='Paths to modified image files (If not set, will convert all images)', dest="modified_images", required=False)
-    parser.add_argument('--modified-images-str',
+    parser.add_argument('--modified-images-str', nargs='?',
                         help='Paths to modified image files (If not set, will convert all images)', dest="modified_images_str", required=False)
 
     args = parser.parse_args()
