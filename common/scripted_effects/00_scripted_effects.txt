@@ -131,133 +131,62 @@ print_variable_log_effect = {
 	}
 }
 
-get_best_alliance_match_democratic_effect = { #arguably a trigger, but it does stuff so we keep it in here. If this is your first time seeing this, welcome to my personal hell.
-	set_temp_variable = { best_leader = 0 }
-	set_temp_variable = { best_leader_score = 0 }
-	if = {
-		limit = {
-			all_other_country = {
-				is_faction_leader = yes
-				is_major = yes
-				has_government = democratic
-				not = { has_war_with = ROOT }
-				set_temp_variable = { this.leader_score = num_of_factories }
-				add_to_temp_variable = { this.leader_score = num_battalions }
-				all_of_scopes = {
-					array = allies
-					add_to_temp_variable = { PREV.leader_score = num_of_factories }
-					add_to_temp_variable = { PREV.leader_score = num_battalions }
-				}
-				if = {
-					limit = {
-						capital_scope = {
-							is_on_continent = ROOT
-						}
-					}
-					multiply_temp_variable = { leader_score = 2 }
-				}
-				if = {
-					limit = {
-						any_neighbor_country = { tag = ROOT }
-					}
-					multiply_temp_variable = { leader_score = 1.25 }
-				}
-				if = {
-					limit = {
-						check_variable = { ROOT.best_leader_score < leader_score }
-						set_temp_variable = { ROOT.best_leader = this }
-						set_temp_variable = { ROOT.best_leader_score = leader_score }
-					}
-				}
-			}
-		}
-	}		
+get_best_alliance_match_democratic_effect = {
+	get_best_alliance_match_effect = yes
 }
 
-get_best_alliance_match_fascism_effect = { #arguably a trigger, but it does stuff so we keep it in here. If this is your first time seeing this, welcome to my personal hell.
-	set_temp_variable = { best_leader = 0 }
-	set_temp_variable = { best_leader_score = 0 }
-	if = {
-		limit = {
-			all_other_country = {
-				is_faction_leader = yes
-				is_major = yes
-				has_government = fascism
-				not = { has_war_with = ROOT }
-				set_temp_variable = { this.leader_score = num_of_factories }
-				add_to_temp_variable = { this.leader_score = num_battalions }
-				all_of_scopes = {
-					array = allies
-					add_to_temp_variable = { PREV.leader_score = num_of_factories }
-					add_to_temp_variable = { PREV.leader_score = num_battalions }
-				}
-				if = {
-					limit = {
-						capital_scope = {
-							is_on_continent = ROOT
-						}
-					}
-					multiply_temp_variable = { leader_score = 2 }
-				}
-				if = {
-					limit = {
-						any_neighbor_country = { tag = ROOT }
-					}
-					multiply_temp_variable = { leader_score = 1.25 }
-				}
-				if = {
-					limit = {
-						check_variable = { ROOT.best_leader_score < leader_score }
-						set_temp_variable = { ROOT.best_leader = this }
-						set_temp_variable = { ROOT.best_leader_score = leader_score }
-					}
-				}
-			}
-		}
-	}		
+get_best_alliance_match_fascism_effect = {
+	get_best_alliance_match_effect = yes
 }
 
-get_best_alliance_match_communism_effect = { #arguably a trigger, but it does stuff so we keep it in here. If this is your first time seeing this, welcome to my personal hell.
+get_best_alliance_match_communism_effect = {
+	get_best_alliance_match_effect = yes
+}
+
+# VPI Rewritten by Yard1
+# How about this?
+get_best_alliance_match_effect = {
 	set_temp_variable = { best_leader = 0 }
 	set_temp_variable = { best_leader_score = 0 }
-	if = {
-		limit = {
-			all_other_country = {
+	for_each_scope_loop = {
+		array = global.majors
+		if = {
+			limit = {
 				is_faction_leader = yes
 				is_major = yes
-				has_government = communism
+				has_government = ROOT
 				not = { has_war_with = ROOT }
-				set_temp_variable = { this.leader_score = num_of_factories }
-				add_to_temp_variable = { this.leader_score = num_battalions }
-				all_of_scopes = {
-					array = allies
-					add_to_temp_variable = { PREV.leader_score = num_of_factories }
-					add_to_temp_variable = { PREV.leader_score = num_battalions }
-				}
-				if = {
-					limit = {
-						capital_scope = {
-							is_on_continent = ROOT
-						}
-					}
-					multiply_temp_variable = { leader_score = 2 }
-				}
-				if = {
-					limit = {
-						any_neighbor_country = { tag = ROOT }
-					}
-					multiply_temp_variable = { leader_score = 1.25 }
-				}
-				if = {
-					limit = {
-						check_variable = { ROOT.best_leader_score < leader_score }
-						set_temp_variable = { ROOT.best_leader = this }
-						set_temp_variable = { ROOT.best_leader_score = leader_score }
+			}
+			set_temp_variable = { THIS.leader_score = num_of_factories }
+			add_to_temp_variable = { THIS.leader_score = num_battalions }
+			every_other_country = {
+				limit = { is_in_faction_with = PREV }
+				add_to_temp_variable = { PREV.leader_score = num_of_factories }
+				add_to_temp_variable = { PREV.leader_score = num_battalions }
+			}
+			if = {
+				limit = {
+					capital_scope = {
+						is_on_continent = ROOT
 					}
 				}
+				multiply_temp_variable = { leader_score = 2 }
+			}
+			if = {
+				limit = {
+					is_neighbor_of = ROOT
+				}
+				multiply_temp_variable = { leader_score = 1.25 }
+			}
+			if = {
+				limit = {
+					check_variable = { ROOT.best_leader_score < leader_score }
+				}
+				set_temp_variable = { ROOT.best_leader = THIS }
+				set_temp_variable = { ROOT.best_leader_score = leader_score }
 			}
 		}
-	}		
+	}
 }
 
 remove_naval_treaty_effect = {
@@ -287,3 +216,247 @@ remove_naval_treaty_effect = {
 	}
 	set_country_flag = MTG_naval_treaty_abandoned
 }
+
+civil_war_anti_exploiter_punitive_action = {
+	# Anti-exploiter punitive brigades! BET YA DIDN'T SEE THAT COMING DID YA?!
+	if = {
+		limit = {
+			has_army_size = {
+			    size < 1
+			}
+		}
+		division_template = {
+			name = "Anti-Exploit Punitive Brigade"
+			priority = 1
+			division_names_group = EQS_INF_01
+			is_locked = yes
+			regiments = {
+				infantry = { x = 0 y = 0 }
+				infantry = { x = 0 y = 1 }
+				infantry = { x = 0 y = 2 }
+	
+		   	   	infantry = { x = 1 y = 0 }
+				infantry = { x = 1 y = 1 }
+				infantry = { x = 1 y = 2 }
+	
+		   	   	infantry = { x = 2 y = 0 }
+				artillery_brigade = { x = 2 y = 1 }
+				artillery_brigade = { x = 2 y = 2 }
+			}
+			support = {
+				engineer = { x = 0 y = 0 }
+				recon = { x = 0 y = 1 }
+				artillery = { x = 0 y = 2 }
+			}
+		}
+		random_state = {
+			limit = {
+				is_capital = yes
+				is_fully_controlled_by = PREV
+			}
+			create_unit = {
+				division = "division_template = \"Anti-Exploit Punitive Brigade\" start_experience_factor = 1 start_equipment_factor = 1"
+				owner = PREV
+			}
+			create_unit = {
+				division = "division_template = \"Anti-Exploit Punitive Brigade\" start_experience_factor = 1 start_equipment_factor = 1"
+				owner = PREV
+			}
+			create_unit = {
+				division = "division_template = \"Anti-Exploit Punitive Brigade\" start_experience_factor = 1 start_equipment_factor = 1"
+				owner = PREV
+			}
+			create_unit = {
+				division = "division_template = \"Anti-Exploit Punitive Brigade\" start_experience_factor = 1 start_equipment_factor = 1"
+				owner = PREV
+			}
+		}
+		random_state = {
+			limit = {
+				is_in_home_area = yes
+				is_fully_controlled_by = PREV
+			}
+			create_unit = {
+				division = "division_template = \"Anti-Exploit Punitive Brigade\" start_experience_factor = 1 start_equipment_factor = 1"
+				owner = PREV
+			}
+			create_unit = {
+				division = "division_template = \"Anti-Exploit Punitive Brigade\" start_experience_factor = 1 start_equipment_factor = 1"
+				owner = PREV
+			}
+			create_unit = {
+				division = "division_template = \"Anti-Exploit Punitive Brigade\" start_experience_factor = 1 start_equipment_factor = 1"
+				owner = PREV
+			}
+			create_unit = {
+				division = "division_template = \"Anti-Exploit Punitive Brigade\" start_experience_factor = 1 start_equipment_factor = 1"
+				owner = PREV
+			}
+		}
+		random_state = {
+			limit = {
+				is_in_home_area = yes
+				is_fully_controlled_by = PREV
+			}
+			create_unit = {
+				division = "division_template = \"Anti-Exploit Punitive Brigade\" start_experience_factor = 1 start_equipment_factor = 1"
+				owner = PREV
+			}
+			create_unit = {
+				division = "division_template = \"Anti-Exploit Punitive Brigade\" start_experience_factor = 1 start_equipment_factor = 1"
+				owner = PREV
+			}
+			create_unit = {
+				division = "division_template = \"Anti-Exploit Punitive Brigade\" start_experience_factor = 1 start_equipment_factor = 1"
+				owner = PREV
+			}
+			create_unit = {
+				division = "division_template = \"Anti-Exploit Punitive Brigade\" start_experience_factor = 1 start_equipment_factor = 1"
+				owner = PREV
+			}
+		}
+		random_state = {
+			limit = {
+				is_in_home_area = yes
+				is_fully_controlled_by = PREV
+			}
+			create_unit = {
+				division = "division_template = \"Anti-Exploit Punitive Brigade\" start_experience_factor = 1 start_equipment_factor = 1"
+				owner = PREV
+			}
+			create_unit = {
+				division = "division_template = \"Anti-Exploit Punitive Brigade\" start_experience_factor = 1 start_equipment_factor = 1"
+				owner = PREV
+			}
+			create_unit = {
+				division = "division_template = \"Anti-Exploit Punitive Brigade\" start_experience_factor = 1 start_equipment_factor = 1"
+				owner = PREV
+			}
+			create_unit = {
+				division = "division_template = \"Anti-Exploit Punitive Brigade\" start_experience_factor = 1 start_equipment_factor = 1"
+				owner = PREV
+			}
+		}
+		random_state = {
+			limit = {
+				is_in_home_area = yes
+				is_fully_controlled_by = PREV
+			}
+			create_unit = {
+				division = "division_template = \"Anti-Exploit Punitive Brigade\" start_experience_factor = 1 start_equipment_factor = 1"
+				owner = PREV
+			}
+			create_unit = {
+				division = "division_template = \"Anti-Exploit Punitive Brigade\" start_experience_factor = 1 start_equipment_factor = 1"
+				owner = PREV
+			}
+			create_unit = {
+				division = "division_template = \"Anti-Exploit Punitive Brigade\" start_experience_factor = 1 start_equipment_factor = 1"
+				owner = PREV
+			}
+			create_unit = {
+				division = "division_template = \"Anti-Exploit Punitive Brigade\" start_experience_factor = 1 start_equipment_factor = 1"
+				owner = PREV
+			}
+		}
+	}
+}
+
+clear_sabotaged_resources_if_necesary = {
+	if = {
+		limit = {
+			not = {
+				has_dynamic_modifier = {
+					modifier = sabotaged_resources
+				}
+			}
+		}
+		
+		clear_variable = sabotaged_oil
+		clear_variable = sabotaged_aluminium
+		clear_variable = sabotaged_rubber
+		clear_variable = sabotaged_tungsten
+		clear_variable = sabotaged_steel
+		clear_variable = sabotaged_chromium
+		clear_variable = sabotaged_crystals
+	}
+}
+
+remove_from_allowed_party = {
+	if = {
+		limit = { has_government = democratic }
+		set_temp_variable = { allowed_party_democratic = 0 }
+	}
+	else_if = {
+		limit = { has_government = fascism }
+		set_temp_variable = { allowed_party_fascism = 0 }
+	}
+	else_if = {
+		limit = { has_government = communism }
+		set_temp_variable = { allowed_party_communism = 0 }
+	}
+	else_if = {
+		limit = { has_government = neutrality }
+		set_temp_variable = { allowed_party_neutrality = 0 }
+	}
+}
+
+#expectes a temp variable country_to_initiate which should contain original_tag to instantiate as a collabration government
+instantiate_collaboration_government = {
+	custom_effect_tooltip = compliance_80_effect_tooltip
+	hidden_effect = {
+		set_variable = { collaboration_formed@var:country_to_initiate = 1 }
+		
+		if = {
+			# if country_to_initiate does not exist, simply release it as a puppet
+			limit = { 
+				var:country_to_initiate = {
+					exists = no
+				}
+			}
+			var:country_to_initiate = { set_variable = { collaboration_formed_by = PREV } }
+			release_autonomy = {
+				target = country_to_initiate
+				autonomy_state = autonomy_collaboration_government
+				freedom_level = 0.5
+				release_non_owned_controlled = yes
+			}
+		}
+		else = {
+			# if country_to_initiate exists, create a dynamic country as our new puppet
+			
+			create_dynamic_country = {
+				original_tag = country_to_initiate
+			
+				set_variable = { collaboration_formed_by = PREV }
+				set_temp_variable = { new_country = this }
+				
+				PREV = {
+					every_controlled_state = {
+						limit = { occupied_country_tag = country_to_initiate }
+						
+						var:new_country = {
+							transfer_state = PREV
+						}
+					}
+					
+					puppet = new_country
+					
+					set_autonomy = {
+						target = new_country
+						autonomy_state = autonomy_collaboration_government
+						freedom_level = 0.5
+					}
+				}
+			}
+		}
+	}
+}
+
+on_daily = {
+
+}
+
+#on_daily_USA = {
+#	# you can specify an on daily action for a specific country
+#}
