@@ -10,33 +10,38 @@ from collections import defaultdict
 from wand import image  # also requires apt-get install libmagickwand-dev
 from wand.api import library
 
+BAD_FILES = []
 
 def convert_images(paths, updated_images=None):
-    bad_files = []
+    global BAD_FILES
     for x in paths:
         for path, value in x.items():
             frames = value[0][1]
-            if os.path.exists(path):
-                if updated_images and not path in updated_images:
-                    continue
-                fname = os.path.splitext(path)[0]
-                try:
-                    with image.Image(filename=path) as img:
-                        if frames > 1:
-                            print("%s has %d frames, cropping..." % (fname, frames))
-                            img.crop(0, 0, width=img.width // frames, height=img.height)
-                        library.MagickSetCompressionQuality(img.wand, 00)
-                        print("Saving %s..." % (fname + '.png'))
-                        img.save(filename=fname + '.png')
-                except:
-                    print("EXCEPTION with %s" % path)
-                    ex_message = traceback.format_exc()
-                    bad_files.append((path, ex_message))
-                    print(ex_message)
-            else:
-                print("%s does not exist!" % path)
-    return bad_files
+            if updated_images and not path in updated_images:
+                continue
+            try:
+                convert_image(path, frames)
+            except:
+                print("EXCEPTION with %s" % path)
+                ex_message = traceback.format_exc()
+                BAD_FILES.append((path, ex_message))
+                print(ex_message)
 
+def convert_image(path, frames):
+    if os.path.exists(path):
+        fname = os.path.splitext(path)[0]
+        with image.Image(filename=path) as img:
+            if frames > 1:
+                print("%s has %d frames, cropping..." % (fname, frames))
+                img.crop(0, 0, width=img.width // frames, height=img.height)
+            library.MagickSetCompressionQuality(img.wand, 00)
+            new_fname = fname + '.png'
+            print("Saving %s..." % (new_fname))
+            img.save(filename=new_fname)
+            return new_fname
+    else:
+        print("%s does not exist!" % path)
+        return None
 
 def read_gfx(gfx_paths):
     gfx = {}
@@ -71,88 +76,62 @@ def read_gfx(gfx_paths):
 
     return (gfx, gfx_files)
 
+def generate_icons_section(icons_dict, path_dicts, remove_str = None):
+    global BAD_FILES
+    icon_entries = []
+    icons_num = 0
 
-def generate_html(goals, ideas, texticons, events, decisions, title, favicon):
-    with open(os.path.join('.github-pages', 'index.template'), 'r') as f:
-        html = f.read()
-
-    goal_entries = []
-    goals_num = 0
-
-    for goal, path in goals.items():
+    for icon, path in icons_dict.items():
         img_src = os.path.splitext(path)[0] + '.png'
+        if not os.path.exists(img_src):
+            try:
+                frames = 1
+                for path_dict in path_dicts: #hacky solution for now
+                    if path in path_dict:
+                        frames = path_dict[path][0][1]
+                        break
+                convert_image(path, frames)
+            except:
+                print("EXCEPTION with %s" % path)
+                ex_message = traceback.format_exc()
+                BAD_FILES.append((path, ex_message))
+                print(ex_message)
         if os.path.exists(img_src):
-            goals_num += 1
-            goal_entries.append('''
+            if remove_str:
+                icon = icon.replace(remove_str, "")
+            icons_num += 1
+            icon_entries.append('''
           <div data-clipboard-text="%s" data-search-text="%s" title="%s" class="icon">
             <img src="%s" alt="%s">
           </div>
-        ''' % (goal, goal, goal, img_src, goal))
+        ''' % (icon, icon, icon, img_src, icon))
+    return (icon_entries, icons_num)
+
+def generate_html(goals, ideas, texticons, events, news_events, agencies, decisions, decisions_cat, decisions_pics, path_dicts, title, favicon):
+    with open(os.path.join('.github-pages', 'index.template'), 'r') as f:
+        html = f.read()
+
+    goal_entries, goals_num = generate_icons_section(goals, path_dicts)
 
     html = html.replace('@GOALS_ICONS', ''.join(goal_entries))
     html = html.replace('@GOALS_NUM', str(goals_num))
 
-    idea_entries = []
-    ideas_num = 0
-
-    for idea, path in ideas.items():
-        img_src = os.path.splitext(path)[0] + '.png'
-        if os.path.exists(img_src):
-            idea_cut = idea.replace("GFX_idea_", "")
-            ideas_num += 1
-            idea_entries.append('''
-          <div data-clipboard-text="%s" data-search-text="%s" title="%s" class="icon">
-            <img src="%s" alt="%s">
-          </div>
-        ''' % (idea_cut, idea_cut, idea_cut, img_src, idea_cut))
+    idea_entries, ideas_num = generate_icons_section(ideas, path_dicts, "GFX_idea_")
 
     html = html.replace('@IDEAS_ICONS', ''.join(idea_entries))
     html = html.replace('@IDEAS_NUM', str(ideas_num))
 
-    texticons_entries = []
-    texticons_num = 0
-
-    for texticon, path in texticons.items():
-        img_src = os.path.splitext(path)[0] + '.png'
-        if os.path.exists(img_src):
-            texticons_num += 1
-            texticons_entries.append('''
-          <div data-clipboard-text="%s" data-search-text="%s" title="%s" class="icon">
-            <img src="%s" alt="%s">
-          </div>
-        ''' % (texticon, texticon, texticon, img_src, texticon))
+    texticons_entries, texticons_num = generate_icons_section(texticons, path_dicts)
 
     html = html.replace('@TEXTICONS_ICONS', ''.join(texticons_entries))
     html = html.replace('@TEXTICONS_NUM', str(texticons_num))
 
-    events_entries = []
-    events_num = 0
-
-    for event, path in events.items():
-        img_src = os.path.splitext(path)[0] + '.png'
-        if os.path.exists(img_src):
-            events_num += 1
-            events_entries.append('''
-          <div data-clipboard-text="%s" data-search-text="%s" title="%s" class="icon">
-            <img src="%s" alt="%s">
-          </div>
-        ''' % (event, event, event, img_src, event))
+    events_entries, events_num = generate_icons_section(events, path_dicts)
 
     html = html.replace('@EVENTS_ICONS', ''.join(events_entries))
     html = html.replace('@EVENTS_NUM', str(events_num))
 
-    decisions_entries = []
-    decisions_num = 0
-
-    for decision, path in decisions.items():
-        img_src = os.path.splitext(path)[0] + '.png'
-        if os.path.exists(img_src):
-            decisions_num += 1
-            decisions_entries.append('''
-          <div data-clipboard-text="%s" data-search-text="%s" title="%s" class="icon">
-            <img src="%s" alt="%s">
-          </div>
-        ''' % (decision, decision, decision, img_src, decision))
+    decisions_entries, decisions_num = generate_icons_section(decisions, path_dicts)
 
     html = html.replace('@DECISIONS_ICONS', ''.join(decisions_entries))
     html = html.replace('@DECISIONS_NUM', str(decisions_num))
@@ -160,13 +139,14 @@ def generate_html(goals, ideas, texticons, events, decisions, title, favicon):
     html = html.replace('@TITLE', title)
     favicon = favicon if favicon else ""
     html = html.replace('@FAVICON', favicon)
-    #html = html.replace('@UPDATE_DATE', str(datetime.datetime.utcnow()))
+    #html = html.replace('@UPDATE_DATE', str(datetime.datetime.utcnow())) # moved to the action itself so it can only be updated on push
 
     with open('index.html', 'w') as f:
         f.write(html)
 
 
 def main():
+    global BAD_FILES
     print("Starting hoi4_icon_search_gen...")
     args = setup_cli_arguments()
     if args.modified_images:
@@ -176,12 +156,17 @@ def main():
     ideas, ideas_files = read_gfx(args.ideas)
     texticons, texticons_files = read_gfx(args.texticons)
     events, events_files = read_gfx(args.events)
+    news_events, news_events_files = read_gfx(args.news_events)
+    agencies, agencies_files = read_gfx(args.agencies)
     decisions, decisions_files = read_gfx(args.decisions)
-    bad_files = convert_images([goals_files, ideas_files, texticons_files, events_files, decisions_files],
+    decisions_cat, decisions_cat_files = read_gfx(args.decisions_cat)
+    decisions_pics, decisions_pics_files = read_gfx(args.decisions_pics)
+    path_dicts = [goals_files, ideas_files, texticons_files, events_files, news_events_files, agencies_files, decisions_files, decisions_cat_files, decisions_pics_files]
+    convert_images(path_dicts,
                    args.modified_images)
-    generate_html(goals, ideas, texticons, events, decisions, args.title, args.favicon)
+    generate_html(goals, ideas, texticons, events, news_events, agencies, decisions, decisions_cat, decisions_pics, path_dicts, args.title, args.favicon)
     print("The following files had exceptions:")
-    for f in bad_files:
+    for f in BAD_FILES:
         print(f[0])
         print(f[1])
 
@@ -191,15 +176,23 @@ def setup_cli_arguments():
     parser = argparse.ArgumentParser(
         description='')
     parser.add_argument('--goals', nargs='*',
-                        help='Paths to goals (national focus) interface gfx files', required=True)
+                        help='Paths to goals (national focus) interface gfx files', required=False)
     parser.add_argument('--ideas', nargs='*',
-                        help='Paths to ideas interface gfx files', required=True)
+                        help='Paths to ideas interface gfx files', required=False)
     parser.add_argument('--texticons', nargs='*',
-                        help='Paths to texticons interface gfx files', required=True)
+                        help='Paths to texticons interface gfx files', required=False)
     parser.add_argument('--events', nargs='*',
-                        help='Paths to events interface gfx files', required=True)
+                        help='Paths to events interface gfx files', required=False)
+    parser.add_argument('--news-events', nargs='*', dest="news_events",
+                        help='Paths to news events interface gfx files', required=False)
+    parser.add_argument('--agencies', nargs='*',
+                        help='Paths to agencies interface gfx files', required=False)
     parser.add_argument('--decisions', nargs='*',
-                        help='Paths to decisions interface gfx files', required=True)
+                        help='Paths to decisions interface gfx files', required=False)
+    parser.add_argument('--decisions-cat', nargs='*', dest="decisions_cat",
+                        help='Paths to decisions category interface gfx files', required=False)
+    parser.add_argument('--decisions-pics', nargs='*', dest="decisions_pics",
+                        help='Paths to decision category picture interface gfx files', required=False)
     parser.add_argument('--title',
                         help='Webpage title', required=True)
     parser.add_argument('--favicon',
@@ -212,7 +205,11 @@ def setup_cli_arguments():
     args.ideas = [os.path.normpath(x) for x in args.ideas] if args.ideas else []
     args.texticons = [os.path.normpath(x) for x in args.texticons] if args.texticons else []
     args.events = [os.path.normpath(x) for x in args.events] if args.events else []
+    args.news_events = [os.path.normpath(x) for x in args.news_events] if args.news_events else []
+    args.agencies = [os.path.normpath(x) for x in args.agencies] if args.agencies else []
     args.decisions = [os.path.normpath(x) for x in args.decisions] if args.decisions else []
+    args.decisions_cat = [os.path.normpath(x) for x in args.decisions_cat] if args.decisions_cat else []
+    args.decisions_pics = [os.path.normpath(x) for x in args.decisions_pics] if args.decisions_pics else []
     if args.modified_images:
         args.modified_images = [os.path.normpath(
             x) for x in args.modified_images]
