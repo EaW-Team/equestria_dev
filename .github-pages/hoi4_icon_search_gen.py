@@ -199,6 +199,8 @@ def setup_cli_arguments():
                         help='Path to webpage favicon', required=False)
     parser.add_argument('--modified-images', nargs='*',
                         help='Paths to modified image files (If not set, will convert all images)', dest="modified_images", required=False)
+    parser.add_argument('--modified-images-str',
+                        help='Paths to modified image files (If not set, will convert all images)', dest="modified_images_str", required=False)
 
     args = parser.parse_args()
     args.goals = [os.path.normpath(x) for x in args.goals] if args.goals else []
@@ -210,6 +212,9 @@ def setup_cli_arguments():
     args.decisions = [os.path.normpath(x) for x in args.decisions] if args.decisions else []
     args.decisions_cat = [os.path.normpath(x) for x in args.decisions_cat] if args.decisions_cat else []
     args.decisions_pics = [os.path.normpath(x) for x in args.decisions_pics] if args.decisions_pics else []
+    if args.modified_images_str:
+        args.modified_images_str = [x.replace("'", "") for x in re.findall(r"'[^']+'", args.modified_images_str)]
+        args.modified_images = args.modified_images_str
     if args.modified_images:
         args.modified_images = [os.path.normpath(
             x) for x in args.modified_images]
