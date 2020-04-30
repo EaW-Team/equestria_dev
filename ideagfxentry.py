@@ -6,7 +6,7 @@ import re
 
 #############################
 ###
-### HoI 4 Idea GFX entry generator by Yard1, originally for Equestria at War mod
+### HoI 4 idea GFX entry generator by Yard1, originally for Equestria at War mod
 ### Written in Python 2.7
 ###
 ### Copyright (c) 2017 Antoni Baum (Yard1)
