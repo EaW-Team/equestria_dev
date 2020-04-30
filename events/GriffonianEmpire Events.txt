@@ -24,6 +24,9 @@ country_event = { #A Train Trip
 	picture = GFX_event_medieval_city_2
 	fire_only_once = yes
 	is_triggered_only = yes
+	trigger = {
+		NOT = { has_global_flag = GRI_emperor_dead }
+	}
 	option = {
 		name = imperial.1.a
 		add_political_power = 100
@@ -66,6 +69,9 @@ country_event = { #A Normal Day
 	picture = GFX_event_medieval_castle_on_hill
 	fire_only_once = yes
 	is_triggered_only = yes
+	trigger = {
+		NOT = { has_global_flag = GRI_emperor_dead }
+	}
 	option = {
 		name = imperial.2.a
 		add_political_power = -150
@@ -75,14 +81,33 @@ country_event = { #A Normal Day
 		}
 	}
 }
+
+country_event = {
+	id = imperial.30
+	immediate = {log = "[GetDateText]: [Root.GetName]: event imperial.30"}
+	trigger = { # just in case
+		tag = GRI
+		date > 1007.3.15
+		NOT = { has_global_flag = GRI_emperor_dead }
+	}
+	mean_time_to_happen = {
+		days = 7
+	}
+	fire_only_once = yes
+	hidden = yes
+	option = {
+		country_event = imperial.3
+	}
+}
+
 country_event = { #Grover V is dead
 	id = imperial.3
 	immediate = {log = "[GetDateText]: [Root.GetName]: event imperial.3"}
 	title = imperial.3.t
 	desc = imperial.3.d
 	picture = GFX_event_gothic_interior
-	is_triggered_only = yes
 	fire_only_once = yes
+	is_triggered_only = yes
 	option = {
 		name = imperial.3.a
 		kill_country_leader = yes
@@ -267,10 +292,6 @@ country_event = {
 			leave_faction = yes
 		}
 		hidden_effect = {
-			every_state = {
-				limit = { is_core_of = ROOT }
-				add_core_of = FROM
-			}
 			FROM = {
 				add_ai_strategy = {
 					type = antagonize
@@ -359,10 +380,7 @@ country_event = {
 			}
 			leave_faction = yes
 		}
-		hidden_effect = { every_state = {
-				limit = { is_core_of = ROOT }
-				add_core_of = FROM
-			}
+		hidden_effect = { 
 			country_event = griffonian.2
 		}
 		FROM = {
@@ -408,6 +426,7 @@ country_event = {
 			has_completed_focus = YAL_new_council_member
 			NOT = { has_country_flag = YAL_refused_puppet }
 		}
+		custom_effect_tooltip = YAL_vassal_warning_tooltip
 		FROM = { country_event = { id = yale.50 days = 5 } }
 	}
 }
@@ -432,8 +451,17 @@ country_event = {
 				active = no
 			}
 		}
-		hidden_effect = { create_wargoal = { target = ROU type = annex_everything } }
-		declare_war_on = { target = ROU type = annex_everything }
+		if = {
+			limit = {
+				OR = {
+					is_neighbor_of = ROU
+					has_war_with = YAL
+					has_war_with = FEA
+				}
+			}
+			hidden_effect = { create_wargoal = { target = ROU type = annex_everything } }
+			declare_war_on = { target = ROU type = annex_everything }
+		}
 		ai_chance = { factor = 100 }
 	}
 	option = {
@@ -525,8 +553,17 @@ country_event = {
 				active = no
 			}
 		}
-		hidden_effect = { create_wargoal = { target = ANG type = annex_everything } }
-		declare_war_on = { target = ANG type = annex_everything }
+		if = {
+			limit = {
+				OR = {
+					is_neighbor_of = ANG
+					has_war_with = KAT
+					has_war_with = YAL
+				}
+			}
+			hidden_effect = { create_wargoal = { target = ANG type = annex_everything } }
+			declare_war_on = { target = ANG type = annex_everything }
+		}
 		ai_chance = { factor = 100 }
 	}
 	option = {
@@ -626,6 +663,16 @@ country_event = {
 	is_triggered_only = yes
 	option = {# accept annexation
 		name = imperial.31.a
+		ai_chance = { 
+		    factor = 10 
+            modifier = {
+			    OR = {
+				    has_government = fascism
+				    has_country_flag = STW_its_going_down 
+				}
+				factor = 0
+			}
+		}
 		trigger = {
 			OR = {
 				AND = {
@@ -654,6 +701,7 @@ country_event = {
 	}
 	option = { #refuse annexation
 		name = imperial.31.b
+		ai_chance = { factor = 10 }
 		trigger = {
 			OR = {
 				AND = {
@@ -681,13 +729,8 @@ country_event = {
 			}
 			leave_faction = yes
 		}
-		retire_country_leader = yes
 		hidden_effect = { 
 			set_country_flag = STW_its_going_down #Just in case
-			every_state = {
-				limit = { is_core_of = ROOT }
-				add_core_of = FROM
-			}
 		}
 		if = {
 			limit = {
@@ -757,11 +800,6 @@ country_event = {
 				is_in_faction_with = FROM
 			}
 			leave_faction = yes
-		}
-		hidden_effect = { every_state = {
-				limit = { is_core_of = ROOT }
-				add_core_of = FROM
-			}
 		}
 		FROM = {
 			add_ai_strategy = {
@@ -940,7 +978,7 @@ country_event = {
 		add_political_power = 25
 		decrease_illiteracy = yes
 		hidden_effect = {
-			country_event = { id = imperial.41 days = 365 random = 3600 }#days to hours applied
+			country_event = { id = imperial.41 days = 365 random = 4600 }#days to hours applied
 		}
 	}
 }
@@ -1078,6 +1116,7 @@ country_event = {
 	immediate = {log = "[GetDateText]: [Root.GetName]: event imperial.54"}
 	hidden = yes
 	fire_only_once = yes
+	is_triggered_only = yes
 
 	mean_time_to_happen = { days = 1 }
 	trigger = {
@@ -1972,6 +2011,9 @@ country_event = { #The Army Storms the Palace
 			ideology = nazism
 			traits = {}
 		}
+		event_target:GRI_ferdinand = {
+		    promote_leader = yes
+		}
 		set_politics = {
 			ruling_party = fascism
 			elections_allowed = no
@@ -2502,7 +2544,7 @@ country_event = { #The Return of Our Slaves
 		name = imperial.93.a
 		add_political_power = 50
 		add_opinion_modifier = {
-			target = GRI modifier = trade_buddies
+			target = FROM modifier = trade_buddies
 		}
 		637 = {
 			add_manpower = 100000
@@ -2527,7 +2569,7 @@ country_event = { #Kemerskai's Death
 			popularity = -0.05
 		}
 		hidden_effect = {
-			FAT = { kill_country_leader = yes }
+			FAT = { FAT_kill_kemerskai = yes }
 		}
 	}
 }
@@ -2730,7 +2772,7 @@ country_event = { #Reichkomissariats
 			    ideology = fascism
 			    popularity = 0.15
 		    }
-			set_cosmetic_tag = DMT_reichskommissariat
+			set_cosmetic_tag = DMT_reichskommissariat_cosmetic
 			load_focus_tree = { tree = generic_griffon_focus keep_completed = no }
 		}
 		NIM = {
@@ -2815,7 +2857,7 @@ country_event = { #Reichkomissariats
 			set_cosmetic_tag = ZES_reichskommissariat
 			load_focus_tree = { tree = generic_griffon_focus keep_completed = no }
 		}
-		GRI = {
+		ROOT = {
 		    puppet = LCT
 			puppet = FBK
             puppet = DMT
@@ -3047,7 +3089,7 @@ country_event = { #The Execution of Kemerskai
 			popularity = -0.05
 		}
 		hidden_effect = {
-			FAT = { kill_country_leader = yes }
+			FAT = { FAT_kill_kemerskai = yes }
 		}
 	}
 }
@@ -3606,8 +3648,15 @@ country_event = { #Grover Begins His Reforms/Archon
 	id = imperial.129
 	immediate = {log = "[GetDateText]: [Root.GetName]: event imperial.129"}
 	title = imperial.129.t
-	desc = imperial.129.d
-
+	desc = {
+		trigger = { has_global_flag = GRI_eros_dead }
+		text = imperial.129.d
+	}
+	desc = {
+		trigger = { NOT = { has_global_flag = GRI_eros_dead } }
+		text = imperial.129.d_eros
+	}
+	
 	picture = GFX_event_feast
 	is_triggered_only = yes
 
@@ -3865,6 +3914,7 @@ country_event = { #Eros Dies
 	}
 	option = {
 		name = imperial.137.a
+		set_global_flag = GRI_eros_dead
 		if = {
 		    limit = {
 			    has_idea = archon_eros
@@ -4173,7 +4223,7 @@ country_event = { #Empire demands occupied frontier states
 		ai_chance = {
 			factor = 40
 			modifier = {
-				factor = 0.5
+				factor = 0.15
 				has_government = fascism
 			}
 		}
@@ -4236,9 +4286,9 @@ country_event = { #Our demand refused
 	option = { #REEEEEEEEEEEEEEEEE
 		name = imperial.151.a
 		add_political_power = -25
-		add_war_support = 0.1
+		add_war_support = 0.05
 		add_stability = -0.05
-		create_wargoal = { type = puppet_wargoal_focus target = FROM }
+		declare_war_on = { target = FROM type = annex_everything }
 	}
 }
 country_event = { #Empire offers peace
@@ -4266,7 +4316,7 @@ country_event = { #Empire offers peace
 		ai_chance = {
 			factor = 5
 			modifier = {
-				factor = 10
+				factor = 8
 				has_government = fascism
 			}
 		}
@@ -4282,7 +4332,7 @@ country_event = { #They're retarded
 	option = { #guess we'll kill them, then
 		name = imperial.153.a
 		add_stability = -0.1
-		add_war_support = 0.1
+		add_war_support = 0.05
 	}
 }
 country_event = { #They're not retarded

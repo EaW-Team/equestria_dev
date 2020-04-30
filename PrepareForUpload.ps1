@@ -19,5 +19,5 @@ if (Test-Path -Path $destinationName)
 Remove-Item -Recurse -Force $destinationName
 }
 New-Item -ItemType Directory -Force -Path $destinationName
-Get-ChildItem -Path $currentDir -Force -Exclude @(".*", "equestria_dev.mod") | Copy-item -Force -Exclude @("popularities_regex.txt", "MTG_notes.txt", "regexes.txt", "*.psd", "*.py", "*.ps1", "*.sh") -Container -Recurse -Verbose -Destination $destinationName
+Get-ChildItem -Path $currentDir -Force -Exclude @(".*", "tutorial", "equestria_dev.mod") | Copy-item -Force -Exclude @("popularities_regex.txt", "MTG_notes.txt", "regexes.txt", "*.psd", "*.py", "*.ps1", "*.sh", "*.7z") -Container -Recurse -Verbose -Destination $destinationName
 Copy-Item "$destinationName/equestria.mod" -Force -Destination "$destinationName/.."

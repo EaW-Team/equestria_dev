@@ -1217,6 +1217,19 @@ country_event = {
 		
 		hidden_effect = {
 			SRS = { country_event = socrep_grif.28 }
+			
+			if = {
+				limit = {
+					is_in_faction_with = SRS
+				}
+				if = {
+					limit = { SRS = { is_faction_leader = yes } }
+					SRS = { remove_from_faction = ROOT }
+				}
+				else = {
+					SRS = { leave_faction = yes }
+				}
+			}
 		}
 	}
 	
@@ -1254,16 +1267,19 @@ country_event = {
 	
 	option = {
 		name = socrep_grif.28.a
-		
-		trigger = {
-			tag = NTR
-		}
+		trigger = { tag = NTR }
 		
 		add_war_support = 0.05
 		
 		set_country_flag = SRS_has_instigated_the_rebellion
 		activate_mission = SRS_NTR_conquer_skynavia
 		
+		hidden_effect = {
+			create_wargoal = { 
+				type = annex_everything
+				target = SRS
+			}
+		}
 		declare_war_on = {
 			target = SRS
 			type = annex_everything
@@ -1281,7 +1297,6 @@ country_event = {
 	}
 	option = {
 		name = socrep_grif.28.b
-		
 		trigger = { tag = NTR }
 		
 		add_political_power = -25
@@ -1312,10 +1327,7 @@ country_event = {
 	
 	option = {
 		name = socrep_grif.28.c ## so it begins ##
-		
-		trigger = {
-			tag = SRS
-		}
+		trigger = { tag = SRS }
 		
 		add_political_power = -50
 		
@@ -1346,6 +1358,15 @@ country_event = {
 				target = NTR
 				autonomy_state = autonomy_demilitarized_puppet
 				freedom_level = 0.25
+			}
+			hidden_effect = {
+				NTR = {
+					add_manpower = -99999999
+					add_ideas = {
+						civilian_economy
+						disarmed_nation
+					}
+				}
 			}
 		}
 	}
@@ -1427,7 +1448,7 @@ country_event = {
 			ruling_party = neutrality
 			ideology = communism
 			size = 0.8
-			only_own_territory = yes 
+			# only_own_territory = yes #seems to have broken in LR 
 			states = { 542 585 }
 			keep_unit_leaders = { 9876 9875 }
 		}
@@ -1443,6 +1464,12 @@ country_event = {
 		add_popularity = {
 			ideology = neutrality
 			popularity = 0.5
+		}
+		hidden_effect = {
+			create_wargoal = { 
+				type = annex_everything
+				target = event_target:SRS_is_at_war_with_skynavia
+			}
 		}
 		declare_war_on = {
 			target = event_target:SRS_is_at_war_with_skynavia
@@ -1496,6 +1523,12 @@ country_event = {
 					}
 				}
 				set_nationality = event_target:SRS_socialist_loyalists_in_the_civil_war_against_asper
+			}
+			hidden_effect = {
+				create_wargoal = { 
+					type = annex_everything
+					target = event_target:SRS_is_at_war_with_skynavia
+				}
 			}
 			declare_war_on = {
 				target = event_target:SRS_is_at_war_with_skynavia
@@ -1571,8 +1604,35 @@ country_event = {
 
 	option = {
 		name = socrep_grif.35.a 
+		if = {
+			limit = {
+				OR = {
+					is_in_faction_with = FAT
+					is_in_faction_with = FAW
+				}
+			}
+			leave_faction = yes
+		}
 		country_event = { days = 15 id = socrep_grif.38 }
-		FAT = { country_event = { days = 15 id = socrep_grif.38 } }
+		if = {
+			limit = { country_exists = FAT }
+			FAT = { country_event = { days = 15 id = socrep_grif.38 } }
+			hidden_effect = {
+				every_state = {
+					limit = { is_core_of = SRS }
+					add_core_of = FAT
+				}
+			}
+		}
+		else = {
+			FAW = { country_event = { days = 15 id = socrep_grif.38 } }
+			hidden_effect = {
+				every_state = {
+					limit = { is_core_of = SRS }
+					add_core_of = FAW
+				}
+			}
+	    }
 	}
 }
 
@@ -1587,7 +1647,13 @@ country_event = {
 
 	option = {
 		name = socrep_grif.36.a 
-		create_wargoal = { type = puppet_wargoal_focus target = FAT }
+		if = {
+			limit = { country_exists = FAW }
+			create_wargoal = { type = puppet_wargoal_focus target = FAW }
+		}
+		else = {
+		    create_wargoal = { type = puppet_wargoal_focus target = FAT }
+	    }
 	}
 }
 
@@ -1631,7 +1697,12 @@ country_event = {
 
 	option = {
 		name = socrep_grif.38.b 
-		trigger = { tag = FAT }
+		trigger = { 
+		    OR = {
+		        tag = FAT 
+                tag = FAW     
+            }   
+		}
 		country_event = { days = 15 id = socrep_grif.40 }
 		custom_effect_tooltip = SRS_civil_war_warning_to_players
 		add_opinion_modifier = { target = SRS modifier = hostility }
@@ -1678,7 +1749,12 @@ country_event = {
 
 	option = {
 		name = socrep_grif.40.b 
-		trigger = { tag = FAT }
+		trigger = { 
+		    OR = {
+		        tag = FAT 
+                tag = FAW     
+            }   
+		}
 		country_event = { days = 15 id = socrep_grif.42 }
 		custom_effect_tooltip = SRS_civil_war_warning_to_players
 	}
@@ -1693,6 +1769,21 @@ country_event = {
 	picture = GFX_event_eqs_communists
 	is_triggered_only = yes
 
+	immediate = {
+		if = {
+			limit = {
+				is_in_faction_with = SRS
+			}
+			if = {
+				limit = { SRS = { is_faction_leader = yes } }
+				SRS = { remove_from_faction = ROOT }
+			}
+			else = {
+				SRS = { leave_faction = yes }
+			}
+		}
+	}
+
 	option = {
 		name = socrep_grif.41.a ## declare war immediately! ##
 		trigger = { tag = VED }
@@ -1700,6 +1791,12 @@ country_event = {
 		ai_chance = { factor = 100 }
 		VED = { 
 			activate_mission = SRS_VED_conquer_skynavia 
+			hidden_effect = {
+				create_wargoal = { 
+					type = annex_everything
+					target = SRS
+				}
+			}
 			declare_war_on = { target = SRS type = annex_everything }
 		}
 		SRS = { activate_mission = SRS_survive_the_onslaught_until_rebellions_occur_VED }
@@ -1734,13 +1831,39 @@ country_event = {
 	picture = GFX_event_eqs_communists
 	is_triggered_only = yes
 
+	immediate = {
+		if = {
+			limit = {
+				is_in_faction_with = SRS
+			}
+			if = {
+				limit = { SRS = { is_faction_leader = yes } }
+				SRS = { remove_from_faction = ROOT }
+			}
+			else = {
+				SRS = { leave_faction = yes }
+			}
+		}
+	}
+
 	option = {
 		name = socrep_grif.42.a ## declare war immediately! ##
-		trigger = { tag = FAT }
+		trigger = { 
+		    OR = {
+		        tag = FAT 
+                tag = FAW     
+            }   
+		}
 		set_country_flag = SRS_has_instigated_the_rebellion
 		ai_chance = { factor = 100 }
-		FAT = { 
+		ROOT = { 
 			activate_mission = SRS_FAT_conquer_skynavia 
+			hidden_effect = {
+				create_wargoal = { 
+					type = annex_everything
+					target = SRS
+				}
+			}
 			declare_war_on = { target = SRS type = annex_everything }
 		}
 		SRS = { activate_mission = SRS_survive_the_onslaught_until_rebellions_occur_FAT }
@@ -1748,10 +1871,15 @@ country_event = {
 
 	option = {
 		name = socrep_grif.42.b ## let's prepare our invasion ##
-		trigger = { tag = FAT }
+		trigger = { 
+		    OR = {
+		        tag = FAT 
+                tag = FAW     
+            }   
+		}
 		set_country_flag = SRS_has_instigated_the_rebellion
 		ai_chance = { factor = 0 }
-		FAT = { 
+		ROOT = { 
 			activate_mission = SRS_FAT_conquer_skynavia 
 			create_wargoal = { type = annex_everything target = SRS }
 		}
@@ -1780,6 +1908,7 @@ country_event = {
 		OR = {
 			SRS = { is_ai = no }
 			FAT = { is_ai = no }
+			FAW = { is_ai = no }
 		}
 	}
 
@@ -1788,14 +1917,20 @@ country_event = {
 		start_civil_war = {
 			ideology = communism
 			size = party_popularity@communism
-			only_own_territory = yes 
+			# only_own_territory = yes #seems to have broken in LR 
 			##capital = 485##
 			##states = { 485 432 557 556 548 582 }##
 		}
 		random_other_country = {
-			limit = { original_tag = FAT }
+			limit = { 
+			    OR = {
+			        original_tag = FAT 
+			        original_tag = FAW
+			    }
+			  }
 			set_cosmetic_tag = SRS_FAT_republic_of_cloudsbury
 			SRS = { puppet = PREV }
+			load_focus_tree = fatass_skynavia_puppet_focus
 		}
 	}
 }
@@ -1814,7 +1949,7 @@ country_event = {
 		start_civil_war = {
 			ideology = communism
 			size = party_popularity@communism
-			only_own_territory = yes
+			# only_own_territory = yes #seems to have broken in LR
 			##capital = 429##
 			##states = { 429 431 576 584 403 404 }##
 		}
@@ -1897,7 +2032,7 @@ country_event = { ## emma goldman ##
 			name = "Emma Goldgriff"
 			desc = "GOLDGRIFF_NAME_DESC"
 			picture = "Emma.tga"
-			traits = { organizer skilled_staffer }
+			traits = { organizer skilled_staffer griffon_race_trait }
 			skill = 1
 			id = 9874
 			attack_skill = 1
@@ -1924,7 +2059,7 @@ country_event = {
 			name = "Pierre Ponehon"
 			desc = "PROUDPONE_NAME_DESC"
 			picture = "Proudpone.tga"
-			traits = { adaptable commando }
+			traits = { adaptable commando pony_race_trait }
 			skill = 2
 			id = 9873
 			attack_skill = 3
@@ -1950,7 +2085,7 @@ country_event = {
 			name = "Mikhail Beakunin"
 			desc = "BEAKUNIN_NAME_DESC"
 			picture = "Beakunin.tga"
-			traits = { trait_mountaineer trait_engineer }
+			traits = { trait_mountaineer trait_engineer griffon_race_trait }
 			skill = 2
 			id = 9872
 			attack_skill = 2
@@ -2444,19 +2579,17 @@ country_event = { ## socialist uprising in NTR ##
 	is_triggered_only = yes
 	
 	option = {
-		name = socrep_grif.63.a 
+		name = socrep_grif.63.a
 		
 		effect_tooltip = {
 			start_civil_war = { ideology = communism }
 			
 			random_other_country = {
-				limit = {
-					original_tag = NTR
-				}
-				
-				add_ideas = NTR_fight_for_our_homeland_idea
+				limit = { original_tag = NTR }
 				
 				SRS = { puppet = PREV }
+				
+				add_ideas = NTR_fight_for_our_homeland_idea
 			}
 		}
 	}
@@ -2859,8 +2992,15 @@ country_event = {
 			429 = { is_fully_controlled_by = SRS }
 		}
 		FAT = { NOT = { has_war_with = SRS } }
+		FAW = { NOT = { has_war_with = SRS } }
 		OR = { 
 			FAT = {
+				OR = {
+					is_subject_of = SRS 
+					has_government = communism
+				}
+			}
+			FAW = {
 				OR = {
 					is_subject_of = SRS 
 					has_government = communism
@@ -2890,7 +3030,7 @@ country_event = {
 		set_country_flag = SRS_event_82_has_been_fired
 		hidden_effect = { 
 			VED = { load_focus_tree = generic_griffon_focus }
-			FAT = { load_focus_tree = generic_griffon_focus }
+			#FAT = { load_focus_tree = generic_griffon_focus }
 		}
 	}
 }
@@ -3094,7 +3234,7 @@ country_event = {
 			ruling_party = communism
 			ideology = neutrality
 			size = 0.4
-			only_own_territory = yes 
+			# only_own_territory = yes #seems to have broken in LR 
 		}
 		hidden_effect = {
 			finalize_border_war = {
@@ -3186,7 +3326,7 @@ country_event = {
 			ruling_party = neutrality
 			ideology = communism
 			size = 0.8
-			only_own_territory = yes 
+			# only_own_territory = yes #seems to have broken in LR 
 			states = { 542 585 }
 			keep_unit_leaders = { 9876 9875 }
 		}
@@ -3719,10 +3859,10 @@ country_event = {  ## knights don't require fuel ##
 		name = socrep_grif.917.a 
 		hidden_effect = {
 			set_technology = { tech_knights = 1 }
-			set_technology = { infantry_weapons_knights = 1 }
 			set_technology = { tech_knights2 = 1 }
 			set_technology = { tech_engineers = 1 }
 			set_technology = { tech_recon = 1 }
+			fix_weapon_techs = yes
 			division_template = {
 				name = "Proletarian Paladins"
 				division_names_group = SRS_MILITIA_04
