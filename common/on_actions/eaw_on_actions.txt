@@ -4,6 +4,28 @@ on_actions = {
 	on_startup = {
 		effect = {
 			log = "[GetDateText] Equestria at War main on_startup begin"
+			every_state = {
+				if = {
+					limit = { in_dry_subarctic_climate_region = yes }
+					set_variable = { EaW_state_winter_grade_var = 5 }
+				}
+				else_if = {
+					limit = { in_moist_subarctic_climate_region = yes }
+					set_variable = { EaW_state_winter_grade_var = 4 }
+				}
+				else_if = {
+					limit = { in_dry_continental_climate_region = yes }
+					set_variable = { EaW_state_winter_grade_var = 3 }
+				}
+				else_if = {
+					limit = { in_moist_continental_climate_region = yes }
+					set_variable = { EaW_state_winter_grade_var = 2 }
+				}
+				else_if = {
+					limit = { in_oceanic_climate_region = yes }
+					set_variable = { EaW_state_winter_grade_var = 1 }
+				}
+			}
 			SRS = {
 				set_variable = { total_sum_of_internationalist_and_communalist_displeasure = 0 }
 				add_to_variable = { total_sum_of_internationalist_and_communalist_displeasure = displeasure_towards_communards_var }
@@ -14,7 +36,6 @@ on_actions = {
 				set_temp_variable = { communalist_displeasure_as_a_percentage_ersatz = displeasure_towards_communards_var }
 				divide_temp_variable = { communalist_displeasure_as_a_percentage_ersatz = total_sum_of_internationalist_and_communalist_displeasure }
 				set_variable = { communalist_displeasure_as_a_percentage = communalist_displeasure_as_a_percentage_ersatz }
-				country_event = { id = Ntribes.550 days = 175 random = 168 }#days to hours applied
 			}
 			#SOL is used here as a random country selector
 			#Thanks to Delincious from KR team for the idea <3
@@ -23,9 +44,16 @@ on_actions = {
 					limit = { is_ai = no }
 					random_other_country = {
 						limit = { is_ai = yes }
+						country_event = { id = Ntribes.949 hours = 1 } # on/off winter system
 						set_variable = { eaw_welcome_screen = 1 }
 						capital_scope = { SOL = { goto_state = PREV } }
 						change_tag_from = PREV
+					}
+				}
+				else = {
+					random_country = {
+						limit = { is_ai = no }
+						country_event = Ntribes.949 # on/off winter system
 					}
 				}
 			}
@@ -179,23 +207,22 @@ on_actions = {
 				country_event = { id = griffonRepublic.65 days = 14 random = 48000 }#days to hours applied
 			}
 			NTR = {
-				log = "[This.GetName]: self-triggering event Ntribes.599 started"
 				country_event = { id = Ntribes.599 days = 1 }
-				
-				log = "[This.GetName]: self-triggering event Ntribes.598 started"
+				log = "[This.GetName]: self-triggering event Ntribes.599 started"
+				add_dynamic_modifier = { modifier = NTR_traditionalism_influence_dynamic_modifier }
+
 				country_event = { id = Ntribes.598 days = 1 }
-				
-				log = "[This.GetName]: self-triggering event Ntribes.994 started"
-				country_event = { id = Ntribes.994 days = 7 }
-				
-				log = "[This.GetName]: self-triggering event Ntribes.993 started"
-				country_event = { id = Ntribes.993 days = 7 }
-				
+				log = "[This.GetName]: self-triggering event Ntribes.598 started"
+				add_dynamic_modifier = { modifier = NTR_communist_partisans_dynamic_modifier }
+
+				set_variable = { NTR_icebreakers_convoys_reversed_ratio_var = 1 }
+				add_EaW_frozen_seas_dynamic_effects = yes
+
 				country_event = { id = Ntribes.500 days = 7 random = 168 }#days to hours applied
-				country_event = { id = Ntribes.501 days = 35 random = 336 }#days to hours applied
-				country_event = { id = Ntribes.502 days = 63 random = 336 }#days to hours applied
-				country_event = { id = Ntribes.503 days = 105 random = 336 }#days to hours applied
-				country_event = { id = Ntribes.504 days = 133 random = 336 }#days to hours applied
+				country_event = { id = Ntribes.501 days = 28 random = 336 }#days to hours applied
+				country_event = { id = Ntribes.502 days = 56 random = 336 }#days to hours applied
+				country_event = { id = Ntribes.503 days = 91 random = 336 }#days to hours applied
+				country_event = { id = Ntribes.504 days = 119 random = 336 }#days to hours applied
 			}
 			KAT = {
 				country_event = { id = katerin.1 days = 1 } #the Ball, was set this in history files
@@ -453,6 +480,15 @@ on_actions = {
 				}
 			}
 
+			CRY = {
+				add_ideas = outdated_industry
+				every_owned_state = {
+					limit = { is_core_of = CRY }
+					add_to_array = { global.original_CRY_cores = THIS }
+				}
+				adjust_research_modifier = yes
+			}
+
 			BUF = {
 				add_ideas = poor_science_base
 				adjust_research_modifier = yes
@@ -465,14 +501,6 @@ on_actions = {
 				add_ideas = big_science_base
 				adjust_research_modifier = yes
 			}
-			CRY = {
-				add_ideas = outdated_industry
-				every_owned_state = {
-					limit = { is_core_of = CRY }
-					add_to_array = { global.original_CRY_cores = THIS }
-				}
-				adjust_research_modifier = yes
-			}
 			YAK = {
 				add_ideas = big_science_base
 				adjust_research_modifier = yes
@@ -481,9 +509,35 @@ on_actions = {
 				add_ideas = big_science_base
 				adjust_research_modifier = yes
 			}
-			every_country = {
-				adjust_EaW_society_development_vars = yes
+
+			every_country = { adjust_EaW_society_development_vars = yes }
+
+			NTR = {
+				for_each_scope_loop = {
+					array = controlled_states
+
+					if = {
+						limit = {
+							has_variable = EaW_state_winter_grade_var
+						}
+
+						add_to_variable = { PREV.NTR_average_country_agricultural_production_var = EaW_state_winter_grade_var }
+					}
+					else = {
+						subtract_from_variable = { PREV.NTR_average_country_agricultural_production_var = 5 }
+					}
+				}
+
+				divide_variable = { NTR_average_country_agricultural_production_var = -10 }
+				divide_variable = { NTR_average_country_agricultural_production_var = num_controlled_states }
+
+				set_temp_variable = { NTR_famine_dynamic_modifier_debuffer_temp_var = -0.283 }
+				calculate_NTR_famine_dynamic_modifier_debuffs = yes
+
+				country_event = { id = Ntribes.996 days = 7 }
+				log = "[This.GetName]: self-triggering event Ntribes.996 started"
 			}
+
 			log = "[GetDateText] Equestria at War main on_startup end"
 		}
 	}
@@ -1248,7 +1302,7 @@ on_actions = {
 			
 			if = {
 				limit = {
-					tag = SRS
+					original_tag = SRS
 				}
 				if = {
 					limit = {
@@ -1264,36 +1318,41 @@ on_actions = {
 								has_completed_focus = NTR_too_much_blood_already
 								NOT = { has_war_with = SRS }
 							}
-							SRS = {
-								NOT = { has_country_flag = NTR_SRS_reclaiming_the_west_beginning_idea_check_on }
-							}
+							NOT = { has_country_flag = NTR_SRS_reclaiming_the_west_beginning_idea_check_on }
 						}
-						SRS = {
-							log = "[GetDateText]: [Root.GetName]: self-triggering event Ntribes.197 started"
-							set_country_flag = NTR_SRS_reclaiming_the_west_beginning_idea_check_on
-							country_event = {
-								id = Ntribes.197
-								days = 7
-							}
+						log = "[GetDateText]: [Root.GetName]: self-triggering event Ntribes.198 started"
+						set_country_flag = NTR_SRS_reclaiming_the_west_beginning_idea_check_on
+						country_event = {
+							id = Ntribes.198
+							days = 7
 						}
 					}
 					else_if = {
 						limit = {
 							FROM = { tag = NTR }
 						}
+						FROM = {
+							set_country_flag = NTR_SRS_has_defensive_war_flag
+							if = {
+								limit = {
+									NOT = { has_country_flag = NTR_united_northern_front_flag }
+								}
+								add_ideas = NTR_fight_for_our_homeland_idea
+							}
+						}
 						if = {
 							limit = {
 								has_idea = SRS_northern_war
 							}
 							remove_ideas = SRS_northern_war
-							FROM = { remove_ideas = SRS_northern_war }
+							FROM = { remove_ideas = NTR_northern_war }
 						}
 						else_if = {
 							limit = {
 								has_idea = SRS_northern_clashes
 							}
 							remove_ideas = SRS_northern_clashes
-							FROM = { remove_ideas = SRS_northern_clashes }
+							FROM = { remove_ideas = NTR_northern_clashes }
 						}
 					}
 				}
@@ -1328,29 +1387,29 @@ on_actions = {
 				}
 				if = {
 					limit = {
-						FROM = { tag = SRS }
+						FROM = { original_tag = SRS }
 					}
 					if = {
 						limit = {
 							has_idea = SRS_northern_war
 						}
 						remove_ideas = SRS_northern_war
-						FROM = { remove_ideas = SRS_northern_war }
+						FROM = { remove_ideas = NTR_northern_war }
 					}
 					else_if = {
 						limit = {
 							has_idea = SRS_northern_clashes
 						}
 						remove_ideas = SRS_northern_clashes
-						FROM = { remove_ideas = SRS_northern_clashes }
+						FROM = { remove_ideas = NTR_northern_clashes }
 					}
 				}
 				else_if = {
 					limit = {
-						has_idea = NTR_anti_griffons
+						has_idea = NTR_anti_griffons_tactics_idea
 						FROM = { has_tech = griffon_race }
 					}
-					FROM = { add_ideas = Griffons_anti_griffon_idea }
+					FROM = { add_ideas = Griffons_war_with_the_northern_menace_idea_idea }
 				}
 			}
 			else_if = {
@@ -1378,9 +1437,9 @@ on_actions = {
 			if = {
 				limit = {
 					has_tech = griffon_race
-					FROM = { has_idea = NTR_anti_griffons }
+					FROM = { has_idea = NTR_anti_griffons_tactics_idea }
 				}
-				add_ideas = Griffons_anti_griffon_idea
+				add_ideas = Griffons_war_with_the_northern_menace_idea_idea
 			}
 			
 			if = {
@@ -1657,7 +1716,34 @@ on_actions = {
 	on_release_as_puppet = {
 		effect = {
 			log = "[GetDateText]: ROOT: [Root.GetName] FROM: [From.GetName] on_release_as_puppet"
+
+			#if = {
+			#	limit = {
+			#		FROM = { has_dynamic_modifier = { modifier = EaW_winter_dynamic_modifier } }
+			#		any_of_scopes = {
+			#			array = controlled_states
+			#			has_variable = EaW_state_winter_debuffer_var
+			#		}
+			#	}
+			#	adjust_EaW_winter_and_frozen_seas_dynamic_modifier_on_release = yes
+			#}
+			#else_if = {
+			#	limit = {
+			#		check_variable = { NTR_icebreakers_convoys_reversed_ratio_var > 0 }
+			#		OR = {
+			#			check_variable = { global.month < 5 }
+			#			check_variable = { global.month > 10 }
+			#		}
+			#		any_of_scopes = {
+			#			array = controlled_states
+			#			has_variable = EaW_state_winter_debuffer_var
+			#		}
+			#	}
+			#	add_EaW_frozen_seas_dynamic_effects_on_release = yes
+			#}
+
 			GRU_load_commie_tree = yes
+
 			if = {
 				limit = {
 					AND = {
@@ -2316,9 +2402,76 @@ on_actions = {
 
 			if = {
 				limit = {
-					tag = NTR
-					FROM = { tag = SRS }
-					has_government = democratic
+					FROM = { tag = VED }
+				}
+				if = {
+					limit = {
+						VED = { has_country_flag = NTR_agreed_to_cooperate_flag }
+						NTR = {
+							has_government = democratic
+							exists = yes
+							NOT = { has_completed_focus = NTR_open_our_doors_to_all }
+						}
+					}
+					NTR = {
+						complete_national_focus = NTR_open_our_doors_to_all
+						if = {
+							limit = {
+								has_completed_focus = NTR_vedinas_tutelage
+							}
+							complete_national_focus = NTR_our_own_future
+							if = {
+								limit = {
+									has_completed_focus = NTR_joint_development
+								}
+								complete_national_focus = NTR_foreign_standarts
+								if = {
+									limit = {
+										has_completed_focus = NTR_civil_investments
+									}
+									unlock_national_focus = NTR_domestic_development
+									if = {
+										limit = {
+											has_completed_focus = NTR_establish_vedinian_guild
+										}
+										unlock_national_focus = NTR_expand_guilds_rights
+										set_variable = { SM_trigger_cost_var = 19 }
+										set_variable = { SM_effect_cost_var = -20 }
+										if = {
+											limit = {
+												has_completed_focus = NTR_scientific_training
+											}
+											complete_national_focus = NTR_foreign_research_labs
+											if = {
+												limit = {
+													has_completed_focus = NTR_prepare_for_the_worst
+												}
+												complete_national_focus = NTR_refined_production_methods
+												if = {
+													limit = {
+														has_completed_focus = NTR_the_brother_kingdoms
+													}
+													unlock_national_focus = NTR_a_free_and_proud_north
+												}
+											}
+										}
+										if = {
+											limit = {
+												has_completed_focus = NTR_prepare_for_the_worst
+											}
+											complete_national_focus = NTR_refined_production_methods
+										}
+									}
+								}
+							}
+							else_if = {
+								limit = {
+									has_completed_focus = NTR_civil_investments
+								}
+								complete_national_focus = NTR_domestic_development
+							}
+						}
+					}
 				}
 			}
 		}
@@ -2518,15 +2671,15 @@ on_actions = {
 					}
 					if = {
 						limit = {
-							NOT = { has_country_flag = NTR_reintegration_half_completed_flag }
+							NOT = { has_country_flag = NTR_the_unification_process_is_half_completed_flag }
 						}
-						set_country_flag = NTR_reintegration_half_completed_flag
+						set_country_flag = NTR_the_unification_process_is_half_completed_flag
 					}
 					if = {
 						limit = {
-							NOT = { has_country_flag = NTR_reintegration_completed_flag }
+							NOT = { has_country_flag = NTR_the_unification_process_is_completed_flag }
 						}
-						set_country_flag = NTR_reintegration_completed_flag
+						set_country_flag = NTR_the_unification_process_is_completed_flag
 					}
 				}
 				else_if = {
@@ -2535,6 +2688,81 @@ on_actions = {
 						has_war = no
 					}
 					country_event = { id = Ntribes.533 days = 3 random = 24 }
+				}
+			}
+			else_if = {
+				limit = {
+					original_tag = SRS
+				}
+				if = {
+					limit = {
+						NOT = {
+							has_government = communism
+							NTR = {
+								has_government = communism
+								exists = yes
+							}
+						}
+					}
+					if = {
+						limit = {
+							NTR = { has_completed_focus = NTR_too_much_blood_already }
+						}
+						add_ideas = SRS_northern_clashes
+						NTR = { add_ideas = NTR_northern_clashes }
+					}
+					else = {
+						add_ideas = SRS_northern_war
+						NTR = { add_ideas = NTR_northern_war }
+					}
+				}
+			}
+			else_if = {
+				limit = {
+					original_tag = VED
+				}
+				if = {
+					limit = {
+						has_idea = VED_NTR_democratic_check_hidden_idea
+						NTR = { has_completed_focus = NTR_vedinas_tutelage }
+					}
+					add_ideas = VED_NTR_partnership_idea_full_idea
+					NTR = {
+						add_ideas = NTR_VED_partnership_idea_full_idea
+						if = {
+							limit = {
+								has_completed_focus = NTR_joint_development
+							}
+							ROOT = { add_ideas = VED_NTR_joint_development_idea_full_idea }
+							add_ideas = NTR_VED_joint_development_idea_full_idea
+							if = {
+								limit = {
+									has_completed_focus = NTR_scientific_training
+								}
+								if = {
+									limit = {
+										ROOT = { is_in_tech_sharing_group = Northern_griffonia_science_organisation_democratic }
+									}
+									remove_from_tech_sharing_group = Northern_griffonia_science_organisation_democratic
+									NTR = { remove_from_tech_sharing_group = Northern_griffonia_science_organisation_democratic }
+								}
+								ROOT = {
+									add_to_tech_sharing_group = Northern_griffonia_science_organisation_democratic_full
+									add_ideas = VED_NTR_maintaining_relations_high_hidden_idea
+								}
+								add_to_tech_sharing_group = Northern_griffonia_science_organisation_democratic_full
+								add_ideas = NTR_VED_maintaining_relations_high_hidden_idea
+							}
+							else = {
+								ROOT = { add_ideas = VED_NTR_maintaining_relations_medium_hidden_idea }
+								add_ideas = NTR_VED_maintaining_relations_medium_hidden_idea
+							}
+						}
+						else = {
+							ROOT = { add_ideas = VED_NTR_maintaining_relations_low_hidden_idea }
+							add_ideas = NTR_VED_maintaining_relations_low_hidden_idea
+						}
+					}
 				}
 			}
 		}
@@ -2684,14 +2912,89 @@ on_actions = {
 					}
 				}
 			}
+			if = {
+				limit = {
+					tag = SRS
+					FROM = {
+						tag = NTR
+						is_subject = no
+					}
+				}
+				NTR = { annex_country = { target = SRS } }
+			}
+			if = {
+				limit = {
+					tag = NTR
+					has_war = no
+				}
+				if = {
+					limit = { has_decision = NTR_call_up_commune_militias }
+					remove_decision = NTR_call_up_commune_militias
+					delete_unit_template_and_units = { division_template = "Commune Militia" }
+				}
+				else_if = {
+					limit = { has_decision = NTR_call_up_commune_militias_full }
+					remove_decision = NTR_call_up_commune_militias_full
+					delete_unit_template_and_units = { division_template = "Commune Militia" }
+				}
+			}
+			else_if = {
+				limit = {
+					FROM = {
+						tag = NTR
+						has_war = no
+					}
+				}
+				FROM = {
+					if = {
+						limit = { has_decision = NTR_call_up_commune_militias }
+						remove_decision = NTR_call_up_commune_militias
+						delete_unit_template_and_units = { division_template = "Commune Militia" }
+					}
+					else_if = {
+						limit = { has_decision = NTR_call_up_commune_militias_full }
+						remove_decision = NTR_call_up_commune_militias_full
+						delete_unit_template_and_units = { division_template = "Commune Militia" }
+					}
+				}
+			}
 			handle_twilight_escaping = yes
 		}
 	}
+
 	#ROOT is free nation FROM is releaser
 	on_release_as_free = {
 		effect = {
 			log = "[GetDateText]: ROOT: [Root.GetName] FROM: [From.GetName] on_release_as_free"
+
+			#if = {
+			#	limit = {
+			#		FROM = { has_dynamic_modifier = { modifier = EaW_winter_dynamic_modifier } }
+			#		any_of_scopes = {
+			#			array = controlled_states
+			#			has_variable = EaW_state_winter_debuffer_var
+			#		}
+			#	}
+			#	adjust_EaW_winter_and_frozen_seas_dynamic_modifier_on_release = yes
+			#}
+			#else_if = {
+			#	limit = {
+			#		check_variable = { NTR_icebreakers_convoys_reversed_ratio_var > 0 }
+			#		OR = {
+			#			check_variable = { global.month < 6 }
+			#			check_variable = { global.month > 10 }
+			#		}
+			#		any_of_scopes = {
+			#			array = controlled_states
+			#			has_variable = EaW_state_winter_debuffer_var
+			#		}
+			#	}
+			#	add_EaW_frozen_seas_dynamic_effects_on_release = yes
+			#}
+
 			GRU_load_commie_tree = yes
+			FLO_load_ideology_focus = yes
+
 			if = {
 				limit = { tag = DED }
 				FROM = {
@@ -2706,7 +3009,6 @@ on_actions = {
 				}
 				country_event = crysom.48
 			}
-			FLO_load_ideology_focus = yes
 			if = {
 				limit = {
 					original_tag = BRF
@@ -3396,16 +3698,25 @@ on_actions = {
 				}
 				
 				if = {
-					limit = { FROM = { tag = DED } }
-					annex_country = { target = FROM }
-					country_event = { id = deadempire.29 days = 1 }
-				}
-				if = {
 					limit = {
 						tag = HLR
 						FROM = { tag = EWI }
 					}
 					country_event = { id = arcturian.50 days = 1 }
+				}
+				else_if = {
+					limit = {
+						FROM = { tag = HLR }
+						tag = DED
+						563 = { is_owned_by = NTR }
+						573 = { is_owned_by = NTR }
+					}
+					NTR = { country_event = { id = Ntribes.906 days = 3 hours = 24 } }
+				}
+				else_if = {
+					limit = { FROM = { tag = DED } }
+					annex_country = { target = FROM }
+					country_event = { id = deadempire.29 days = 1 }
 				}
 
 				if = {
@@ -3619,21 +3930,46 @@ on_actions = {
 						}
 						if = {
 							limit = {
-								has_country_flag = NTR_united_northern_front_flag
-								has_civil_war = no
+								has_decision = NTR_call_up_commune_militias
 							}
-							country_event = { id = Ntribes.533 days = 3 random = 24 }
+							remove_decision = NTR_call_up_commune_militias
+							delete_unit_template_and_units = { division_template = "Commune Militia" }
 						}
 						else_if = {
 							limit = {
-								has_country_flag = NTR_owns_SRS_cores_flag
-								has_country_flag = NTR_SRS_reclaiming_the_west_beginning_idea_not_completed
+								has_decision = NTR_call_up_commune_militias_full
 							}
-							country_event = { id = Ntribes.992 days = 30 } #???
+							remove_decision = NTR_call_up_commune_militias_full
+							delete_unit_template_and_units = { division_template = "Commune Militia" }
 						}
 						if = {
 							limit = {
-								has_country_flag = NTR_up_to_pre_industrial_not_completed
+								all_of_scopes = {
+									array = SRS.core_states
+									is_owned_by = ROOT
+								}
+							}
+							if = {
+								limit = {
+									has_country_flag = NTR_SRS_reclaiming_the_west_beginning_idea_not_completed
+								}
+								country_event = { id = Ntribes.198 days = 80 random = 300 }
+							}
+							else_if = {
+								limit = {
+									NOT = {
+										any_of_scopes = {
+											array = SRS.core_states
+											is_core_of = ROOT
+										}
+									}
+								}
+								add_ideas = NTR_SRS_reclaiming_the_west_beginning_idea
+							}
+						}
+						if = {
+							limit = {
+								has_country_flag = NTR_up_to_pre_industrial_not_completed_flag
 								check_variable = { EaW_society_development_var < 4 }
 								check_variable = {
 									var = EaW_society_development_var
@@ -3661,10 +3997,10 @@ on_actions = {
 											}
 										}
 									}
-									country_event = { id = Ntribes.99 days = 30 random = 120 }
+									country_event = { id = Ntribes.99 days = 70 random = 336 }
 								}
 								else = {
-									country_event = { id = Ntribes.98 days = 40 random = 160 }
+									country_event = { id = Ntribes.98 days = 77 random = 336 }
 								}
 							}
 							else_if = {
@@ -3697,6 +4033,13 @@ on_actions = {
 								# stagnation - quite normal for tribes
 							}
 						}
+						if = {
+							limit = {
+								has_country_flag = NTR_united_northern_front_flag
+								has_civil_war = no
+							}
+							country_event = { id = Ntribes.533 days = 3 random = 24 }
+						}
 					}
 					if = {
 						limit = {
@@ -3710,15 +4053,15 @@ on_actions = {
 					else_if = {
 						limit = {
 							FROM = { tag = VED }
-							has_country_leader = { name = "Child of the Blizzard" ruling_only = yes }
+							has_country_leader = { name = "Libor White" ruling_only = yes }
 						}
 						add_stability = -0.2
 					}
 					if = {
 						limit = {
-							FROM = { has_idea = Griffons_anti_griffon_idea }
+							FROM = { has_idea = Griffons_war_with_the_northern_menace_idea_idea }
 						}
-						FROM = { remove_ideas = Griffons_anti_griffon_idea }
+						FROM = { remove_ideas = Griffons_war_with_the_northern_menace_idea_idea }
 					}
 				}
 				else_if = {
@@ -3820,7 +4163,7 @@ on_actions = {
 								OR = {
 									is_subject = yes
 									is_in_faction = yes
-									NOT = { has_country_leader = { name = "Child of the Blizzard" ruling_only = yes } }
+									NOT = { has_country_leader = { name = "Libor White" ruling_only = yes } }
 								}
 							}
 							every_other_country = {
@@ -3863,9 +4206,9 @@ on_actions = {
 					}
 					if = {
 						limit = {
-							has_idea = Griffons_anti_griffon_idea
+							has_idea = Griffons_war_with_the_northern_menace_idea_idea
 						}
-						remove_ideas = Griffons_anti_griffon_idea
+						remove_ideas = Griffons_war_with_the_northern_menace_idea_idea
 					}
 				}
 
@@ -3914,6 +4257,1847 @@ on_actions = {
 	#ROOT is new controller #FROM is old controller #FROM.FROM is state ID
 	on_state_control_changed = {
 		effect = {
+			log = "[GetDateText]: ROOT: [Root.GetName] FROM: [From.GetName] FROM.FROM: [From.From.GetName] on_state_control_changed"
+
+			if = {
+				limit = {
+					FROM = { has_country_flag = SM_GUI_unlocked_flag }
+				}
+
+				if = {
+					limit = {
+						FROM = { has_country_flag = RS_GUI_unlocked_flag }
+					}
+
+					if = {
+						limit = {
+							FROM.FROM = { check_variable = { SM_state_amount_of_complexes > 0 } }
+						}
+
+						FROM.FROM = {
+							remove_dynamic_modifier = { modifier = SM_state_complexes_modifier }
+
+							if = {
+								limit = {
+									check_variable = { SM_state_monthly_population_var = SM_dynamic_state_monthly_population_var }
+								}
+
+								clear_variable = SM_state_monthly_population_var
+							}
+							else = {
+								subtract_from_variable = { SM_state_monthly_population_var = SM_dynamic_state_monthly_population_var }
+							}
+
+							clear_variable = SM_dynamic_state_monthly_population_var
+							clear_variable = SM_local_resources_var
+						}
+
+						if = {
+							limit = {
+								check_variable = { FROM.FROM.SM_state_amount_of_complexes = FROM.SM_country_amount_of_complexes }
+							}
+
+							FROM = {
+								remove_dynamic_modifier = { modifier = SM_country_complexes_modifier }
+								clear_variable = SM_negative_industrial_factory_donations_var
+								set_variable = { SM_country_amount_of_complexes = 0 }
+								set_variable = { RS_daily_industrial_savings_var = 0 }
+							}
+						}
+						else = {
+							add_to_variable = { FROM.SM_negative_industrial_factory_donations_var = FROM.FROM.SM_state_amount_of_complexes }
+
+							divide_variable = { FROM.RS_daily_industrial_savings_var = FROM.SM_country_amount_of_complexes }
+							subtract_from_variable = { FROM.SM_country_amount_of_complexes = FROM.FROM.SM_state_amount_of_complexes }
+							multiply_variable = { FROM.RS_daily_industrial_savings_var = FROM.SM_country_amount_of_complexes }
+						}
+
+						clear_variable = FROM.FROM.SM_state_amount_of_complexes
+					}
+
+					if = {
+						limit = {
+							FROM.FROM = { check_variable = { SM_state_amount_of_factories > 0 } }
+						}
+
+						if = {
+							limit = {
+								check_variable = { FROM.FROM.SM_state_amount_of_factories = FROM.SM_country_amount_of_factories }
+							}
+
+							FROM = {
+								remove_dynamic_modifier = { modifier = SM_country_factories_modifier }
+								clear_variable = SM_negative_military_factory_donations_var
+								clear_variable = SM_experience_gain_army_var
+
+								if = {
+									limit = { has_variable = SM_experience_gain_air_var }
+									clear_variable = SM_experience_gain_air_var
+									clear_variable = RS_daily_air_savings_var
+								}
+								if = {
+									limit = { has_variable = SM_weekly_manpower_var }
+									clear_variable = SM_weekly_manpower_var
+								}
+
+								set_variable = { SM_country_amount_of_factories = 0 }
+								set_variable = { RS_daily_army_savings_var = 0 }
+							}
+						}
+						else = {
+							add_to_variable = { FROM.SM_negative_military_factory_donations_var = FROM.FROM.SM_state_amount_of_factories }
+
+							if = {
+								limit = {
+									FROM = { has_variable = SM_experience_gain_air_var }
+								}
+
+								if = {
+									limit = {
+										FROM = { has_variable = SM_weekly_manpower_var }
+									}
+
+									divide_variable = { FROM.SM_weekly_manpower_var = FROM.SM_country_amount_of_factories }
+									divide_variable = { FROM.SM_experience_gain_army_var = FROM.SM_country_amount_of_factories }
+									divide_variable = { FROM.SM_experience_gain_air_var = FROM.SM_country_amount_of_factories }
+									divide_variable = { FROM.RS_daily_army_savings_var = FROM.SM_country_amount_of_factories }
+									divide_variable = { FROM.RS_daily_air_savings_var = FROM.SM_country_amount_of_factories }
+									subtract_from_variable = { FROM.SM_country_amount_of_factories = FROM.FROM.SM_state_amount_of_factories }
+									multiply_variable = { FROM.SM_weekly_manpower_var = FROM.SM_country_amount_of_factories }
+									multiply_variable = { FROM.SM_experience_gain_army_var = FROM.SM_country_amount_of_factories }
+									multiply_variable = { FROM.SM_experience_gain_air_var = FROM.SM_country_amount_of_factories }
+									multiply_variable = { FROM.RS_daily_army_savings_var = FROM.SM_country_amount_of_factories }
+									multiply_variable = { FROM.RS_daily_air_savings_var = FROM.SM_country_amount_of_factories }
+								}
+								else = {
+									divide_variable = { FROM.SM_experience_gain_army_var = FROM.SM_country_amount_of_factories }
+									divide_variable = { FROM.SM_experience_gain_air_var = FROM.SM_country_amount_of_factories }
+									divide_variable = { FROM.RS_daily_army_savings_var = FROM.SM_country_amount_of_factories }
+									divide_variable = { FROM.RS_daily_air_savings_var = FROM.SM_country_amount_of_factories }
+									subtract_from_variable = { FROM.SM_country_amount_of_factories = FROM.FROM.SM_state_amount_of_factories }
+									multiply_variable = { FROM.SM_experience_gain_army_var = FROM.SM_country_amount_of_factories }
+									multiply_variable = { FROM.SM_experience_gain_air_var = FROM.SM_country_amount_of_factories }
+									multiply_variable = { FROM.RS_daily_army_savings_var = FROM.SM_country_amount_of_factories }
+									multiply_variable = { FROM.RS_daily_air_savings_var = FROM.SM_country_amount_of_factories }
+								}
+							}
+							else = {
+								if = {
+									limit = {
+										FROM = { has_variable = SM_weekly_manpower_var }
+									}
+
+									divide_variable = { FROM.SM_weekly_manpower_var = FROM.SM_country_amount_of_factories }
+									divide_variable = { FROM.SM_experience_gain_army_var = FROM.SM_country_amount_of_factories }
+									divide_variable = { FROM.RS_daily_army_savings_var = FROM.SM_country_amount_of_factories }
+									subtract_from_variable = { FROM.SM_country_amount_of_factories = FROM.FROM.SM_state_amount_of_factories }
+									multiply_variable = { FROM.SM_weekly_manpower_var = FROM.SM_country_amount_of_factories }
+									multiply_variable = { FROM.SM_experience_gain_army_var = FROM.SM_country_amount_of_factories }
+									multiply_variable = { FROM.RS_daily_army_savings_var = FROM.SM_country_amount_of_factories }
+								}
+								else = {
+									divide_variable = { FROM.SM_experience_gain_army_var = FROM.SM_country_amount_of_factories }
+									divide_variable = { FROM.RS_daily_army_savings_var = FROM.SM_country_amount_of_factories }
+									subtract_from_variable = { FROM.SM_country_amount_of_factories = FROM.FROM.SM_state_amount_of_factories }
+									multiply_variable = { FROM.SM_experience_gain_army_var = FROM.SM_country_amount_of_factories }
+									multiply_variable = { FROM.RS_daily_army_savings_var = FROM.SM_country_amount_of_factories }
+								}
+							}
+						}
+
+						clear_variable = FROM.FROM.SM_state_amount_of_factories
+					}
+
+					if = {
+						limit = {
+							FROM.FROM = { check_variable = { SM_state_amount_of_dockyards > 0 } }
+						}
+
+						if = {
+							limit = {
+								FROM = { has_completed_focus = NTR_northern_free_trade_area }
+							}
+
+							FROM = { SM_calculate_resources_objects_if_needed = yes }
+
+							if = {
+								limit = {
+									check_variable = {
+										var = FROM.FROM.modifier@local_resources
+										compare = not_equals
+										value = 0
+									}
+								}
+
+								FROM.FROM = {
+									SM_calculate_resources_updater_with_local_modifier = yes
+
+									for_each_loop = {
+										array = SM_state_bonus_resources
+
+										if = {
+											limit = { check_variable = { v = 0 } }
+											add_resource = { type = crystals amount = -2 }
+											add_to_variable = { FROM.SM_needed_resources^0 = SM_needed_resources_local_updater_temp_var }
+										}
+										else_if = {
+											limit = { check_variable = { v = 1 } }
+											add_resource = { type = chromium amount = -2 }
+											add_to_variable = { FROM.SM_needed_resources^1 = SM_needed_resources_local_updater_temp_var }
+										}
+										else_if = {
+											limit = { check_variable = { v = 2 } }
+											add_resource = { type = rubber amount = -2 }
+											add_to_variable = { FROM.SM_needed_resources^2 = SM_needed_resources_local_updater_temp_var }
+										}
+										else_if = {
+											limit = { check_variable = { v = 3 } }
+											add_resource = { type = aluminium amount = -2 }
+											add_to_variable = { FROM.SM_needed_resources^3 = SM_needed_resources_local_updater_temp_var }
+										}
+										else_if = {
+											limit = { check_variable = { v = 4 } }
+											add_resource = { type = tungsten amount = -2 }
+											add_to_variable = { FROM.SM_needed_resources^4 = SM_needed_resources_local_updater_temp_var }
+										}
+										else = {
+											add_resource = { type = steel amount = -2 }
+											add_to_variable = { FROM.SM_needed_resources^5 = SM_needed_resources_local_updater_temp_var }
+										}
+									}
+								}
+							}
+							else = {
+								for_each_loop = {
+									array = FROM.FROM.SM_state_bonus_resources
+
+									if = {
+										limit = { check_variable = { v = 0 } }
+										add_resource = { type = crystals amount = -2 }
+										add_to_variable = { FROM.SM_needed_resources^0 = FROM.SM_needed_resources_updater_var }
+									}
+									else_if = {
+										limit = { check_variable = { v = 1 } }
+										add_resource = { type = chromium amount = -2 }
+										add_to_variable = { FROM.SM_needed_resources^1 = FROM.SM_needed_resources_updater_var }
+									}
+									else_if = {
+										limit = { check_variable = { v = 2 } }
+										add_resource = { type = rubber amount = -2 }
+										add_to_variable = { FROM.SM_needed_resources^2 = FROM.SM_needed_resources_updater_var }
+									}
+									else_if = {
+										limit = { check_variable = { v = 3 } }
+										add_resource = { type = aluminium amount = -2 }
+										add_to_variable = { FROM.SM_needed_resources^3 = FROM.SM_needed_resources_updater_var }
+									}
+									else_if = {
+										limit = { check_variable = { v = 4 } }
+										add_resource = { type = tungsten amount = -2 }
+										add_to_variable = { FROM.SM_needed_resources^4 = FROM.SM_needed_resources_updater_var }
+									}
+									else = {
+										add_resource = { type = steel amount = -2 }
+										add_to_variable = { FROM.SM_needed_resources^5 = FROM.SM_needed_resources_updater_var }
+									}
+								}
+							}
+
+							clear_array = FROM.FROM.SM_state_bonus_resources
+						}
+
+						if = {
+							limit = {
+								check_variable = { FROM.FROM.SM_state_amount_of_dockyards = FROM.SM_country_amount_of_dockyards }
+							}
+
+							FROM = {
+								remove_dynamic_modifier = { modifier = SM_country_dockyards_modifier }
+								clear_variable = SM_negative_dockyard_donations_var
+								clear_variable = SM_experience_gain_navy_var
+								set_variable = { RS_daily_naval_savings_var = 0 }
+								set_variable = { SM_country_amount_of_dockyards = 0 }
+							}
+						}
+						else = {
+							add_to_variable = { FROM.SM_negative_dockyard_donations_var = FROM.FROM.SM_state_amount_of_dockyards }
+
+							divide_variable = { FROM.SM_experience_gain_navy_var = FROM.SM_country_amount_of_dockyards }
+							divide_variable = { FROM.RS_daily_naval_savings_var = FROM.SM_country_amount_of_dockyards }
+							subtract_from_variable = { FROM.SM_country_amount_of_dockyards = FROM.FROM.SM_state_amount_of_dockyards }
+							multiply_variable = { FROM.SM_experience_gain_navy_var = FROM.SM_country_amount_of_dockyards }
+							multiply_variable = { FROM.RS_daily_naval_savings_var = FROM.SM_country_amount_of_dockyards }
+						}
+
+						clear_variable = FROM.FROM.SM_state_amount_of_dockyards
+					}
+				}
+				else = {
+					if = {
+						limit = {
+							FROM.FROM = { check_variable = { SM_state_amount_of_complexes > 0 } }
+						}
+
+						FROM.FROM = {
+							remove_dynamic_modifier = { modifier = SM_state_complexes_modifier }
+
+							if = {
+								limit = {
+									check_variable = { SM_state_monthly_population_var = SM_dynamic_state_monthly_population_var }
+								}
+
+								clear_variable = SM_state_monthly_population_var
+							}
+							else = {
+								subtract_from_variable = { SM_state_monthly_population_var = SM_dynamic_state_monthly_population_var }
+							}
+
+							clear_variable = SM_dynamic_state_monthly_population_var
+							clear_variable = SM_local_resources_var
+						}
+
+						if = {
+							limit = {
+								check_variable = { FROM.FROM.SM_state_amount_of_complexes = FROM.SM_country_amount_of_complexes }
+							}
+
+							FROM = {
+								remove_dynamic_modifier = { modifier = SM_country_complexes_modifier }
+								clear_variable = SM_negative_industrial_factory_donations_var
+								set_variable = { SM_country_amount_of_complexes = 0 }
+							}
+						}
+						else = {
+							add_to_variable = { FROM.SM_negative_industrial_factory_donations_var = FROM.FROM.SM_state_amount_of_complexes }
+							subtract_from_variable = { FROM.SM_country_amount_of_complexes = FROM.FROM.SM_state_amount_of_complexes }
+						}
+
+						clear_variable = FROM.FROM.SM_state_amount_of_complexes
+					}
+
+					if = {
+						limit = {
+							FROM.FROM = { check_variable = { SM_state_amount_of_factories > 0 } }
+						}
+
+						if = {
+							limit = {
+								check_variable = { FROM.FROM.SM_state_amount_of_factories = FROM.SM_country_amount_of_factories }
+							}
+
+							FROM = {
+								remove_dynamic_modifier = { modifier = SM_country_factories_modifier }
+								clear_variable = SM_negative_military_factory_donations_var
+								clear_variable = SM_experience_gain_army_var
+
+								if = {
+									limit = { has_variable = SM_experience_gain_air_var }
+									clear_variable = SM_experience_gain_air_var
+								}
+								if = {
+									limit = { has_variable = SM_weekly_manpower_var }
+									clear_variable = SM_weekly_manpower_var
+								}
+
+								set_variable = { SM_country_amount_of_factories = 0 }
+							}
+						}
+						else = {
+							add_to_variable = { FROM.SM_negative_military_factory_donations_var = FROM.FROM.SM_state_amount_of_factories }
+
+							if = {
+								limit = {
+									FROM = { has_variable = SM_experience_gain_air_var }
+								}
+
+								if = {
+									limit = {
+										FROM = { has_variable = SM_weekly_manpower_var }
+									}
+									
+									divide_variable = { FROM.SM_weekly_manpower_var = FROM.SM_country_amount_of_factories }
+									divide_variable = { FROM.SM_experience_gain_army_var = FROM.SM_country_amount_of_factories }
+									divide_variable = { FROM.SM_experience_gain_air_var = FROM.SM_country_amount_of_factories }
+									subtract_from_variable = { FROM.SM_country_amount_of_factories = FROM.FROM.SM_state_amount_of_factories }
+									multiply_variable = { FROM.SM_weekly_manpower_var = FROM.SM_country_amount_of_factories }
+									multiply_variable = { FROM.SM_experience_gain_army_var = FROM.SM_country_amount_of_factories }
+									multiply_variable = { FROM.SM_experience_gain_air_var = FROM.SM_country_amount_of_factories }
+								}
+								else = {
+									divide_variable = { FROM.SM_experience_gain_army_var = FROM.SM_country_amount_of_factories }
+									divide_variable = { FROM.SM_experience_gain_air_var = FROM.SM_country_amount_of_factories }
+									subtract_from_variable = { FROM.SM_country_amount_of_factories = FROM.FROM.SM_state_amount_of_factories }
+									multiply_variable = { FROM.SM_experience_gain_army_var = FROM.SM_country_amount_of_factories }
+									multiply_variable = { FROM.SM_experience_gain_air_var = FROM.SM_country_amount_of_factories }
+								}
+							}
+							else = {
+								if = {
+									limit = {
+										FROM = { has_variable = SM_weekly_manpower_var }
+									}
+									
+									divide_variable = { FROM.SM_weekly_manpower_var = FROM.SM_country_amount_of_factories }
+									divide_variable = { FROM.SM_experience_gain_army_var = FROM.SM_country_amount_of_factories }
+									subtract_from_variable = { FROM.SM_country_amount_of_factories = FROM.FROM.SM_state_amount_of_factories }
+									multiply_variable = { FROM.SM_weekly_manpower_var = FROM.SM_country_amount_of_factories }
+									multiply_variable = { FROM.SM_experience_gain_army_var = FROM.SM_country_amount_of_factories }
+								}
+								else = {
+									divide_variable = { FROM.SM_experience_gain_army_var = FROM.SM_country_amount_of_factories }
+									subtract_from_variable = { FROM.SM_country_amount_of_factories = FROM.FROM.SM_state_amount_of_factories }
+									multiply_variable = { FROM.SM_experience_gain_army_var = FROM.SM_country_amount_of_factories }
+								}
+							}
+						}
+
+						clear_variable = FROM.FROM.SM_state_amount_of_factories
+					}
+
+					if = {
+						limit = {
+							FROM.FROM = { check_variable = { SM_state_amount_of_dockyards > 0 } }
+						}
+
+						if = {
+							limit = {
+								FROM = { has_completed_focus = NTR_northern_free_trade_area }
+							}
+
+							FROM = { SM_calculate_resources_objects_if_needed = yes }
+
+							if = {
+								limit = {
+									check_variable = {
+										var = FROM.FROM.modifier@local_resources
+										compare = not_equals
+										value = 0
+									}
+								}
+
+								FROM.FROM = {
+									SM_calculate_resources_updater_with_local_modifier = yes
+
+									for_each_loop = {
+										array = SM_state_bonus_resources
+
+										if = {
+											limit = { check_variable = { v = 0 } }
+											add_resource = { type = crystals amount = -2 }
+											add_to_variable = { FROM.SM_needed_resources^0 = SM_needed_resources_local_updater_temp_var }
+										}
+										else_if = {
+											limit = { check_variable = { v = 1 } }
+											add_resource = { type = chromium amount = -2 }
+											add_to_variable = { FROM.SM_needed_resources^1 = SM_needed_resources_local_updater_temp_var }
+										}
+										else_if = {
+											limit = { check_variable = { v = 2 } }
+											add_resource = { type = rubber amount = -2 }
+											add_to_variable = { FROM.SM_needed_resources^2 = SM_needed_resources_local_updater_temp_var }
+										}
+										else_if = {
+											limit = { check_variable = { v = 3 } }
+											add_resource = { type = aluminium amount = -2 }
+											add_to_variable = { FROM.SM_needed_resources^3 = SM_needed_resources_local_updater_temp_var }
+										}
+										else_if = {
+											limit = { check_variable = { v = 4 } }
+											add_resource = { type = tungsten amount = -2 }
+											add_to_variable = { FROM.SM_needed_resources^4 = SM_needed_resources_local_updater_temp_var }
+										}
+										else = {
+											add_resource = { type = steel amount = -2 }
+											add_to_variable = { FROM.SM_needed_resources^5 = SM_needed_resources_local_updater_temp_var }
+										}
+									}
+								}
+							}
+							else = {
+								for_each_loop = {
+									array = FROM.FROM.SM_state_bonus_resources
+
+									if = {
+										limit = { check_variable = { v = 0 } }
+										add_resource = { type = crystals amount = -2 }
+										add_to_variable = { FROM.SM_needed_resources^0 = FROM.SM_needed_resources_updater_var }
+									}
+									else_if = {
+										limit = { check_variable = { v = 1 } }
+										add_resource = { type = chromium amount = -2 }
+										add_to_variable = { FROM.SM_needed_resources^1 = FROM.SM_needed_resources_updater_var }
+									}
+									else_if = {
+										limit = { check_variable = { v = 2 } }
+										add_resource = { type = rubber amount = -2 }
+										add_to_variable = { FROM.SM_needed_resources^2 = FROM.SM_needed_resources_updater_var }
+									}
+									else_if = {
+										limit = { check_variable = { v = 3 } }
+										add_resource = { type = aluminium amount = -2 }
+										add_to_variable = { FROM.SM_needed_resources^3 = FROM.SM_needed_resources_updater_var }
+									}
+									else_if = {
+										limit = { check_variable = { v = 4 } }
+										add_resource = { type = tungsten amount = -2 }
+										add_to_variable = { FROM.SM_needed_resources^4 = FROM.SM_needed_resources_updater_var }
+									}
+									else = {
+										add_resource = { type = steel amount = -2 }
+										add_to_variable = { FROM.SM_needed_resources^5 = FROM.SM_needed_resources_updater_var }
+									}
+								}
+							}
+
+							clear_array = FROM.FROM.SM_state_bonus_resources
+						}
+
+						if = {
+							limit = {
+								check_variable = { FROM.FROM.SM_state_amount_of_dockyards = FROM.SM_country_amount_of_dockyards }
+							}
+
+							FROM = {
+								remove_dynamic_modifier = { modifier = SM_country_dockyards_modifier }
+								clear_variable = SM_negative_dockyard_donations_var
+								set_variable = { SM_country_amount_of_dockyards = 0 }
+								set_variable = { SM_experience_gain_navy_var = 0 }
+							}
+						}
+						else = {
+							add_to_variable = { FROM.SM_negative_dockyard_donations_var = FROM.FROM.SM_state_amount_of_dockyards }
+
+							divide_variable = { FROM.SM_experience_gain_navy_var = FROM.SM_country_amount_of_dockyards }
+							subtract_from_variable = { FROM.SM_country_amount_of_dockyards = FROM.FROM.SM_state_amount_of_dockyards }
+							multiply_variable = { FROM.SM_experience_gain_navy_var = FROM.SM_country_amount_of_dockyards }
+						}
+
+						clear_variable = FROM.FROM.SM_state_amount_of_dockyards
+					}
+				}
+			}
+
+			if = {
+				limit = {
+					has_global_flag = EaW_winter_system_on_global_flag
+				}
+
+				if = {
+					limit = {
+						FROM.FROM = { has_variable = EaW_state_winter_debuffer_var }
+					}
+
+					if = {
+						limit = {
+							check_variable = { global.month = 10 }
+						}
+
+						if = {
+							limit = {
+								FROM = { has_dynamic_modifier = { modifier = EaW_winter_dynamic_modifier } }
+							}
+
+							if = {
+								limit = {
+									FROM.FROM = { check_variable = { EaW_state_winter_grade_var > 3 } }
+								}
+
+								adjust_EaW_controlled_states_with_winter_arrays_on_state_control_changed = yes
+
+								if = {
+									limit = {
+										has_dynamic_modifier = { modifier = EaW_winter_dynamic_modifier }
+									}
+
+									prepare_EaW_winter_dynamic_modifier_data_for_recalculation = yes
+
+									for_each_scope_loop = {
+										array = EaW_controlled_states_with_winter
+
+										calculate_EaW_state_winter_debuffer_in_October = yes
+									}
+
+									calculate_EaW_winter_dynamic_modifier_effects = yes
+								}
+								else = {
+									FROM.FROM = { calculate_EaW_state_winter_debuffer_in_October = yes }
+
+									EaW_winter_dynamic_modifier_on = yes
+								}
+							}
+							else_if = {
+								limit = {
+									has_dynamic_modifier = { modifier = EaW_winter_dynamic_modifier }
+								}
+
+								adjust_EaW_winter_dynamic_modifier_on_state_control_changed = yes
+							}
+
+							FROM = {
+								remove_dynamic_modifier = { modifier = EaW_winter_dynamic_modifier }
+
+								if = {
+									limit = {
+										any_of_scopes = {
+											array = EaW_controlled_states_with_winter
+
+											check_variable = { EaW_state_winter_grade_var > 3 }
+										}
+									}
+
+									set_variable = { EaW_country_winter_dynamic_modifier_var = 0 }
+
+									for_each_scope_loop = {
+										array = EaW_controlled_states_with_winter
+
+										calculate_EaW_state_winter_debuffer_in_October = yes
+									}
+
+									calculate_EaW_winter_dynamic_modifier_effects = yes
+								}
+								else = {
+									clear_EaW_winter_dynamic_modifier_data = yes
+								}
+							}
+						}
+						else_if = {
+							limit = {
+								has_dynamic_modifier = { modifier = EaW_winter_dynamic_modifier }
+							}
+
+							adjust_EaW_winter_dynamic_modifier_on_state_control_changed = yes
+						}
+					}
+					else_if = {
+						limit = {
+							check_variable = { global.month = 11 }
+						}
+
+						if = {
+							limit = {
+								FROM = { has_dynamic_modifier = { modifier = EaW_winter_dynamic_modifier } }
+							}
+
+							if = {
+								limit = {
+									FROM.FROM = { check_variable = { EaW_state_winter_grade_var > 2 } }
+								}
+
+								adjust_EaW_controlled_states_with_winter_arrays_on_state_control_changed = yes
+
+								if = {
+									limit = {
+										has_dynamic_modifier = { modifier = EaW_winter_dynamic_modifier }
+									}
+
+									prepare_EaW_winter_dynamic_modifier_data_for_recalculation = yes
+
+									for_each_scope_loop = {
+										array = EaW_controlled_states_with_winter
+
+										calculate_EaW_state_winter_debuffer_in_November = yes
+									}
+
+									calculate_EaW_winter_dynamic_modifier_effects = yes
+								}
+								else = {
+									FROM.FROM = { calculate_EaW_state_winter_debuffer_in_November = yes }
+
+									EaW_winter_dynamic_modifier_on = yes
+								}
+
+								if = {
+									limit = {
+										FROM.FROM = { is_coastal = yes }
+									}
+
+									if = {
+										limit = {
+											has_dynamic_modifier = { modifier = EaW_frozen_seas_dynamic_modifier }
+										}
+
+										if = {
+											limit = {
+												FROM.FROM = {
+													is_in_home_area = yes
+
+													check_variable = { EaW_state_winter_grade_var = 3 }
+												}
+											}
+
+											remove_EaW_frozen_seas_effects = yes
+										}
+									}
+
+									if = {
+										limit = {
+											FROM = {
+												check_variable = { NTR_icebreakers_convoys_reversed_ratio_var > 0.75 }
+
+												NOT = {
+													has_dynamic_modifier = { modifier = EaW_frozen_seas_dynamic_modifier }
+
+													any_of_scopes = {
+														array = controlled_states
+
+														is_coastal = yes
+														is_in_home_area = yes
+
+														check_variable = { EaW_state_winter_grade_var < 4 }
+													}
+												}
+											}
+										}
+
+										FROM = { add_EaW_frozen_seas_dynamic_effects = yes }
+									}
+								}
+							}
+							else_if = {
+								limit = {
+									has_dynamic_modifier = { modifier = EaW_winter_dynamic_modifier }
+								}
+
+								adjust_EaW_winter_dynamic_modifier_on_state_control_changed = yes
+
+								if = {
+									limit = {
+										has_dynamic_modifier = { modifier = EaW_frozen_seas_dynamic_modifier }
+
+										FROM.FROM = {
+											is_coastal = yes
+											is_in_home_area = yes
+										}
+									}
+
+									remove_EaW_frozen_seas_effects = yes
+								}
+							}
+
+							FROM = {
+								remove_dynamic_modifier = { modifier = EaW_winter_dynamic_modifier }
+
+								if = {
+									limit = {
+										any_of_scopes = {
+											array = EaW_controlled_states_with_winter
+
+											check_variable = { EaW_state_winter_grade_var > 2 }
+										}
+									}
+
+									set_variable = { EaW_country_winter_dynamic_modifier_var = 0 }
+
+									for_each_scope_loop = {
+										array = EaW_controlled_states_with_winter
+
+										calculate_EaW_state_winter_debuffer_in_November = yes
+									}
+
+									calculate_EaW_winter_dynamic_modifier_effects = yes
+								}
+								else = {
+									clear_EaW_winter_dynamic_modifier_data = yes
+								}
+							}
+						}
+						else_if = {
+							limit = {
+								has_dynamic_modifier = { modifier = EaW_winter_dynamic_modifier }
+							}
+
+							adjust_EaW_winter_dynamic_modifier_on_state_control_changed = yes
+
+							if = {
+								limit = {
+									has_dynamic_modifier = { modifier = EaW_frozen_seas_dynamic_modifier }
+
+									FROM.FROM = {
+										is_coastal = yes
+										is_in_home_area = yes
+									}
+								}
+
+								remove_EaW_frozen_seas_effects = yes
+							}
+						}
+					}
+					else_if = {
+						limit = {
+							check_variable = { global.month = 12 }
+						}
+
+						if = {
+							limit = {
+								FROM = { has_dynamic_modifier = { modifier = EaW_winter_dynamic_modifier } }
+							}
+
+							if = {
+								limit = {
+									FROM.FROM = { check_variable = { EaW_state_winter_grade_var > 1 } }
+								}
+
+								adjust_EaW_controlled_states_with_winter_arrays_on_state_control_changed = yes
+
+								if = {
+									limit = {
+										has_dynamic_modifier = { modifier = EaW_winter_dynamic_modifier }
+									}
+
+									prepare_EaW_winter_dynamic_modifier_data_for_recalculation = yes
+
+									for_each_scope_loop = {
+										array = EaW_controlled_states_with_winter
+
+										calculate_EaW_state_winter_debuffer_in_December = yes
+									}
+
+									calculate_EaW_winter_dynamic_modifier_effects = yes
+								}
+								else = {
+									FROM.FROM = { calculate_EaW_state_winter_debuffer_in_December = yes }
+
+									EaW_winter_dynamic_modifier_on = yes
+								}
+
+								if = {
+									limit = {
+										FROM.FROM = { is_coastal = yes }
+									}
+
+									if = {
+										limit = {
+											has_dynamic_modifier = { modifier = EaW_frozen_seas_dynamic_modifier }
+
+											FROM.FROM = { is_in_home_area = yes }
+										}
+
+										if = {
+											limit = {
+												if = {
+													limit = {
+														check_variable = { FROM.FROM.EaW_state_winter_grade_var = 3 }
+													}
+
+													check_variable = {
+														var = NTR_icebreakers_convoys_reversed_ratio_var
+														compare = less_than_or_equals
+														value = 0.75
+													}
+												}
+												else = {
+													check_variable = { FROM.FROM.EaW_state_winter_grade_var = 2 }
+												}
+											}
+
+											remove_EaW_frozen_seas_effects = yes
+										}
+									}
+
+									if = {
+										limit = {
+											FROM = {
+												check_variable = { NTR_icebreakers_convoys_reversed_ratio_var > 0.5 }
+
+												NOT = { has_dynamic_modifier = { modifier = EaW_frozen_seas_dynamic_modifier } }
+
+												if = {
+													limit = {
+														check_variable = {
+															var = NTR_icebreakers_convoys_reversed_ratio_var
+															compare = less_than_or_equals
+															value = 0.75
+														}
+													}
+
+													NOT = {
+														any_of_scopes = {
+															array = controlled_states
+
+															is_coastal = yes
+															is_in_home_area = yes
+
+															check_variable = { EaW_state_winter_grade_var < 4 }
+														}
+													}
+												}
+											}
+										}
+
+										FROM = { add_EaW_frozen_seas_dynamic_effects = yes }
+									}
+								}
+							}
+							else_if = {
+								limit = {
+									has_dynamic_modifier = { modifier = EaW_winter_dynamic_modifier }
+								}
+
+								adjust_EaW_winter_dynamic_modifier_on_state_control_changed = yes
+
+								if = {
+									limit = {
+										has_dynamic_modifier = { modifier = EaW_frozen_seas_dynamic_modifier }
+
+										FROM.FROM = {
+											is_coastal = yes
+											is_in_home_area = yes
+										}
+									}
+
+									remove_EaW_frozen_seas_effects = yes
+								}
+							}
+
+							FROM = {
+								remove_dynamic_modifier = { modifier = EaW_winter_dynamic_modifier }
+
+								if = {
+									limit = {
+										any_of_scopes = {
+											array = EaW_controlled_states_with_winter
+
+											check_variable = { EaW_state_winter_grade_var > 2 }
+										}
+									}
+
+									set_variable = { EaW_country_winter_dynamic_modifier_var = 0 }
+
+									for_each_scope_loop = {
+										array = EaW_controlled_states_with_winter
+
+										calculate_EaW_state_winter_debuffer_in_December = yes
+									}
+
+									calculate_EaW_winter_dynamic_modifier_effects = yes
+								}
+								else = {
+									clear_EaW_winter_dynamic_modifier_data = yes
+								}
+							}
+						}
+						else_if = {
+							limit = {
+								has_dynamic_modifier = { modifier = EaW_winter_dynamic_modifier }
+							}
+
+							adjust_EaW_winter_dynamic_modifier_on_state_control_changed = yes
+
+							if = {
+								limit = {
+									has_dynamic_modifier = { modifier = EaW_frozen_seas_dynamic_modifier }
+
+									FROM.FROM = {
+										is_coastal = yes
+										is_in_home_area = yes
+									}
+								}
+
+								remove_EaW_frozen_seas_effects = yes
+							}
+						}
+					}
+					else_if = {
+						limit = {
+							check_variable = { global.month = 1 }
+						}
+
+						if = {
+							limit = {
+								FROM = { has_dynamic_modifier = { modifier = EaW_winter_dynamic_modifier } }
+							}
+
+							if = {
+								limit = {
+									FROM.FROM = { has_variable = EaW_state_winter_grade_var }
+								}
+
+								adjust_EaW_controlled_states_with_winter_arrays_on_state_control_changed = yes
+
+								if = {
+									limit = {
+										has_dynamic_modifier = { modifier = EaW_winter_dynamic_modifier }
+									}
+
+									prepare_EaW_winter_dynamic_modifier_data_for_recalculation = yes
+
+									for_each_scope_loop = {
+										array = EaW_controlled_states_with_winter
+
+										add_to_variable = { ROOT.EaW_country_winter_dynamic_modifier_var = EaW_state_winter_debuffer_var }
+									}
+
+									calculate_EaW_winter_dynamic_modifier_effects = yes
+								}
+								else = {
+									add_to_variable = { EaW_country_winter_dynamic_modifier_var = FROM.FROM.EaW_state_winter_debuffer_var }
+
+									EaW_winter_dynamic_modifier_on = yes
+								}
+
+								if = {
+									limit = {
+										FROM.FROM = { is_coastal = yes }
+									}
+
+									if = {
+										limit = {
+											has_dynamic_modifier = { modifier = EaW_frozen_seas_dynamic_modifier }
+										}
+
+										if = {
+											limit = {
+												if = {
+													limit = {
+														check_variable = { FROM.FROM.EaW_state_winter_grade_var = 3 }
+													}
+
+													check_variable = {
+														var = NTR_icebreakers_convoys_reversed_ratio_var
+														compare = less_than_or_equals
+														value = 0.5
+													}
+												}
+												else_if = {
+													limit = {
+														check_variable = { FROM.FROM.EaW_state_winter_grade_var = 2 }
+													}
+
+													check_variable = {
+														var = NTR_icebreakers_convoys_reversed_ratio_var
+														compare = less_than_or_equals
+														value = 0.75
+													}
+												}
+												else = {
+													check_variable = { FROM.FROM.EaW_state_winter_grade_var = 1 }
+												}
+											}
+
+											remove_EaW_frozen_seas_effects = yes
+										}
+									}
+
+									if = {
+										limit = {
+											FROM = {
+												check_variable = { NTR_icebreakers_convoys_reversed_ratio_var > 0.2 }
+
+												NOT = { has_dynamic_modifier = { modifier = EaW_frozen_seas_dynamic_modifier } }
+
+												if = {
+													limit = {
+														check_variable = {
+															var = NTR_icebreakers_convoys_reversed_ratio_var
+															compare = less_than_or_equals
+															value = 0.5
+														}
+													}
+
+													NOT = {
+														any_of_scopes = {
+															array = controlled_states
+
+															is_coastal = yes
+															is_in_home_area = yes
+
+															check_variable = { EaW_state_winter_grade_var < 4 }
+														}
+													}
+												}
+												else_if = {
+													limit = {
+														check_variable = {
+															var = NTR_icebreakers_convoys_reversed_ratio_var
+															compare = less_than_or_equals
+															value = 0.75
+														}
+													}
+
+													NOT = {
+														any_of_scopes = {
+															array = controlled_states
+
+															is_coastal = yes
+															is_in_home_area = yes
+
+															check_variable = { EaW_state_winter_grade_var < 3 }
+														}
+													}
+												}
+											}
+										}
+
+										FROM = { add_EaW_frozen_seas_dynamic_effects = yes }
+									}
+								}
+							}
+							else_if = {
+								limit = {
+									has_dynamic_modifier = { modifier = EaW_winter_dynamic_modifier }
+								}
+
+								adjust_EaW_winter_dynamic_modifier_on_state_control_changed = yes
+
+								if = {
+									limit = {
+										has_dynamic_modifier = { modifier = EaW_frozen_seas_dynamic_modifier }
+
+										FROM.FROM = {
+											is_coastal = yes
+											is_in_home_area = yes
+										}
+									}
+
+									remove_EaW_frozen_seas_effects = yes
+								}
+							}
+
+							FROM = {
+								remove_dynamic_modifier = { modifier = EaW_winter_dynamic_modifier }
+
+								if = {
+									limit = {
+										check_variable = { EaW_controlled_states_with_winter^num > 0 }
+									}
+
+									set_variable = { EaW_country_winter_dynamic_modifier_var = 0 }
+
+									for_each_scope_loop = {
+										array = EaW_controlled_states_with_winter
+
+										add_to_variable = { PREV.EaW_country_winter_dynamic_modifier_var = EaW_state_winter_debuffer_var }
+									}
+
+									calculate_EaW_winter_dynamic_modifier_effects = yes
+								}
+								else = {
+									clear_EaW_winter_dynamic_modifier_data = yes
+								}
+							}
+						}
+						else_if = {
+							limit = {
+								has_dynamic_modifier = { modifier = EaW_winter_dynamic_modifier }
+							}
+
+							adjust_EaW_winter_dynamic_modifier_on_state_control_changed = yes
+
+							if = {
+								limit = {
+									has_dynamic_modifier = { modifier = EaW_frozen_seas_dynamic_modifier }
+
+									FROM.FROM = {
+										is_coastal = yes
+										is_in_home_area = yes
+									}
+								}
+
+								remove_EaW_frozen_seas_effects = yes
+							}
+						}
+					}
+					else_if = {
+						limit = {
+							check_variable = { global.month = 2 }
+						}
+
+						if = {
+							limit = {
+								FROM = { has_dynamic_modifier = { modifier = EaW_winter_dynamic_modifier } }
+							}
+
+							if = {
+								limit = {
+									FROM.FROM = { check_variable = { EaW_state_winter_grade_var > 1 } }
+								}
+
+								adjust_EaW_controlled_states_with_winter_arrays_on_state_control_changed = yes
+
+								if = {
+									limit = {
+										has_dynamic_modifier = { modifier = EaW_winter_dynamic_modifier }
+									}
+
+									prepare_EaW_winter_dynamic_modifier_data_for_recalculation = yes
+
+									for_each_scope_loop = {
+										array = EaW_controlled_states_with_winter
+
+										calculate_EaW_state_winter_debuffer_in_February = yes
+									}
+
+									calculate_EaW_winter_dynamic_modifier_effects = yes
+								}
+								else = {
+									FROM.FROM = { calculate_EaW_state_winter_debuffer_in_February = yes }
+
+									EaW_winter_dynamic_modifier_on = yes
+								}
+
+								if = {
+									limit = {
+										FROM.FROM = { is_coastal = yes }
+									}
+
+									if = {
+										limit = {
+											has_dynamic_modifier = { modifier = EaW_frozen_seas_dynamic_modifier }
+
+											FROM.FROM = { is_in_home_area = yes }
+										}
+
+										if = {
+											limit = {
+												if = {
+													limit = {
+														check_variable = { FROM.FROM.EaW_state_winter_grade_var = 3 }
+													}
+
+													check_variable = {
+														var = NTR_icebreakers_convoys_reversed_ratio_var
+														compare = less_than_or_equals
+														value = 0.75
+													}
+												}
+												else = {
+													check_variable = { FROM.FROM.EaW_state_winter_grade_var = 2 }
+												}
+											}
+
+											remove_EaW_frozen_seas_effects = yes
+										}
+									}
+
+									if = {
+										limit = {
+											FROM = {
+												check_variable = { NTR_icebreakers_convoys_reversed_ratio_var > 0.4 }
+
+												NOT = { has_dynamic_modifier = { modifier = EaW_frozen_seas_dynamic_modifier } }
+
+												if = {
+													limit = {
+														check_variable = {
+															var = NTR_icebreakers_convoys_reversed_ratio_var
+															compare = less_than_or_equals
+															value = 0.75
+														}
+													}
+
+													NOT = {
+														any_of_scopes = {
+															array = controlled_states
+
+															is_coastal = yes
+															is_in_home_area = yes
+
+															check_variable = { EaW_state_winter_grade_var < 4 }
+														}
+													}
+												}
+											}
+										}
+
+										FROM = { add_EaW_frozen_seas_dynamic_effects = yes }
+									}
+								}
+							}
+							else_if = {
+								limit = {
+									has_dynamic_modifier = { modifier = EaW_winter_dynamic_modifier }
+								}
+
+								adjust_EaW_winter_dynamic_modifier_on_state_control_changed = yes
+
+								if = {
+									limit = {
+										has_dynamic_modifier = { modifier = EaW_frozen_seas_dynamic_modifier }
+
+										FROM.FROM = {
+											is_coastal = yes
+											is_in_home_area = yes
+										}
+									}
+
+									remove_EaW_frozen_seas_effects = yes
+								}
+							}
+
+							FROM = {
+								remove_dynamic_modifier = { modifier = EaW_winter_dynamic_modifier }
+
+								if = {
+									limit = {
+										any_of_scopes = {
+											array = EaW_controlled_states_with_winter
+
+											check_variable = { EaW_state_winter_grade_var > 2 }
+										}
+									}
+
+									set_variable = { EaW_country_winter_dynamic_modifier_var = 0 }
+
+									for_each_scope_loop = {
+										array = EaW_controlled_states_with_winter
+
+										calculate_EaW_state_winter_debuffer_in_February = yes
+									}
+
+									calculate_EaW_winter_dynamic_modifier_effects = yes
+								}
+								else = {
+									clear_EaW_winter_dynamic_modifier_data = yes
+								}
+							}
+						}
+						else_if = {
+							limit = {
+								has_dynamic_modifier = { modifier = EaW_winter_dynamic_modifier }
+							}
+
+							adjust_EaW_winter_dynamic_modifier_on_state_control_changed = yes
+
+							if = {
+								limit = {
+									has_dynamic_modifier = { modifier = EaW_frozen_seas_dynamic_modifier }
+
+									FROM.FROM = {
+										is_coastal = yes
+										is_in_home_area = yes
+									}
+								}
+
+								remove_EaW_frozen_seas_effects = yes
+							}
+						}
+					}
+					else_if = {
+						limit = {
+							check_variable = { global.month = 3 }
+						}
+
+						if = {
+							limit = {
+								FROM = { has_dynamic_modifier = { modifier = EaW_winter_dynamic_modifier } }
+							}
+
+							if = {
+								limit = {
+									FROM.FROM = { check_variable = { EaW_state_winter_grade_var > 2 } }
+								}
+
+								adjust_EaW_controlled_states_with_winter_arrays_on_state_control_changed = yes
+
+								if = {
+									limit = {
+										has_dynamic_modifier = { modifier = EaW_winter_dynamic_modifier }
+									}
+
+									prepare_EaW_winter_dynamic_modifier_data_for_recalculation = yes
+
+									for_each_scope_loop = {
+										array = EaW_controlled_states_with_winter
+
+										calculate_EaW_state_winter_debuffer_in_March = yes
+									}
+
+									calculate_EaW_winter_dynamic_modifier_effects = yes
+								}
+								else = {
+									FROM.FROM = { calculate_EaW_state_winter_debuffer_in_March = yes }
+
+									EaW_winter_dynamic_modifier_on = yes
+								}
+
+								if = {
+									limit = {
+										FROM.FROM = { is_coastal = yes }
+									}
+
+									if = {
+										limit = {
+											has_dynamic_modifier = { modifier = EaW_frozen_seas_dynamic_modifier }
+										}
+
+										if = {
+											limit = {
+												FROM.FROM = {
+													is_in_home_area = yes
+
+													check_variable = { EaW_state_winter_grade_var = 3 }
+												}
+											}
+
+											remove_EaW_frozen_seas_effects = yes
+										}
+									}
+
+									if = {
+										limit = {
+											FROM = {
+												check_variable = { NTR_icebreakers_convoys_reversed_ratio_var > 0.6 }
+
+												NOT = {
+													has_dynamic_modifier = { modifier = EaW_frozen_seas_dynamic_modifier }
+
+													any_of_scopes = {
+														array = controlled_states
+
+														is_coastal = yes
+														is_in_home_area = yes
+
+														check_variable = { EaW_state_winter_grade_var < 4 }
+													}
+												}
+											}
+										}
+
+										FROM = { add_EaW_frozen_seas_dynamic_effects = yes }
+									}
+								}
+							}
+							else_if = {
+								limit = {
+									has_dynamic_modifier = { modifier = EaW_winter_dynamic_modifier }
+								}
+
+								adjust_EaW_winter_dynamic_modifier_on_state_control_changed = yes
+
+								if = {
+									limit = {
+										has_dynamic_modifier = { modifier = EaW_frozen_seas_dynamic_modifier }
+
+										FROM.FROM = {
+											is_coastal = yes
+											is_in_home_area = yes
+										}
+									}
+
+									remove_EaW_frozen_seas_effects = yes
+								}
+							}
+
+							FROM = {
+								remove_dynamic_modifier = { modifier = EaW_winter_dynamic_modifier }
+
+								if = {
+									limit = {
+										any_of_scopes = {
+											array = EaW_controlled_states_with_winter
+
+											check_variable = { EaW_state_winter_grade_var > 2 }
+										}
+									}
+
+									set_variable = { EaW_country_winter_dynamic_modifier_var = 0 }
+
+									for_each_scope_loop = {
+										array = EaW_controlled_states_with_winter
+
+										calculate_EaW_state_winter_debuffer_in_March = yes
+									}
+
+									calculate_EaW_winter_dynamic_modifier_effects = yes
+								}
+								else = {
+									clear_EaW_winter_dynamic_modifier_data = yes
+								}
+							}
+						}
+						else_if = {
+							limit = {
+								has_dynamic_modifier = { modifier = EaW_winter_dynamic_modifier }
+							}
+
+							adjust_EaW_winter_dynamic_modifier_on_state_control_changed = yes
+
+							if = {
+								limit = {
+									has_dynamic_modifier = { modifier = EaW_frozen_seas_dynamic_modifier }
+
+									FROM.FROM = {
+										is_coastal = yes
+										is_in_home_area = yes
+									}
+								}
+
+								remove_EaW_frozen_seas_effects = yes
+							}
+						}
+					}
+					else_if = {
+						limit = {
+							check_variable = { global.month = 4 }
+						}
+
+						if = {
+							limit = {
+								FROM = { has_dynamic_modifier = { modifier = EaW_winter_dynamic_modifier } }
+							}
+
+							if = {
+								limit = {
+									FROM.FROM = { check_variable = { EaW_state_winter_grade_var > 3 } }
+								}
+
+								adjust_EaW_controlled_states_with_winter_arrays_on_state_control_changed = yes
+
+								if = {
+									limit = {
+										has_dynamic_modifier = { modifier = EaW_winter_dynamic_modifier }
+									}
+
+									prepare_EaW_winter_dynamic_modifier_data_for_recalculation = yes
+
+									for_each_scope_loop = {
+										array = EaW_controlled_states_with_winter
+
+										calculate_EaW_state_winter_debuffer_in_April = yes
+									}
+
+									calculate_EaW_winter_dynamic_modifier_effects = yes
+								}
+								else = {
+									FROM.FROM = { calculate_EaW_state_winter_debuffer_in_April = yes }
+
+									EaW_winter_dynamic_modifier_on = yes
+								}
+
+								if = {
+									limit = {
+										FROM.FROM = { is_coastal = yes }
+									}
+
+									if = {
+										limit = {
+											has_dynamic_modifier = { modifier = EaW_frozen_seas_dynamic_modifier }
+										}
+
+										if = {
+											limit = {
+												FROM.FROM = {
+													is_in_home_area = yes
+
+													check_variable = { EaW_state_winter_grade_var = 4 }
+												}
+											}
+
+											remove_EaW_frozen_seas_effects = yes
+										}
+									}
+
+									if = {
+										limit = {
+											FROM = {
+												check_variable = { NTR_icebreakers_convoys_reversed_ratio_var > 0.8 }
+
+												NOT = {
+													has_dynamic_modifier = { modifier = EaW_frozen_seas_dynamic_modifier }
+
+													any_of_scopes = {
+														array = controlled_states
+
+														is_coastal = yes
+														is_in_home_area = yes
+
+														check_variable = { EaW_state_winter_grade_var < 5 }
+													}
+												}
+											}
+										}
+
+										FROM = { add_EaW_frozen_seas_dynamic_effects = yes }
+									}
+								}
+							}
+							else_if = {
+								limit = {
+									has_dynamic_modifier = { modifier = EaW_winter_dynamic_modifier }
+								}
+
+								adjust_EaW_winter_dynamic_modifier_on_state_control_changed = yes
+
+								if = {
+									limit = {
+										has_dynamic_modifier = { modifier = EaW_frozen_seas_dynamic_modifier }
+
+										FROM.FROM = {
+											is_coastal = yes
+											is_in_home_area = yes
+										}
+									}
+
+									remove_EaW_frozen_seas_effects = yes
+								}
+							}
+
+							FROM = {
+								remove_dynamic_modifier = { modifier = EaW_winter_dynamic_modifier }
+
+								if = {
+									limit = {
+										any_of_scopes = {
+											array = EaW_controlled_states_with_winter
+
+											check_variable = { EaW_state_winter_grade_var > 3 }
+										}
+									}
+
+									set_variable = { EaW_country_winter_dynamic_modifier_var = 0 }
+
+									for_each_scope_loop = {
+										array = EaW_controlled_states_with_winter
+
+										calculate_EaW_state_winter_debuffer_in_April = yes
+									}
+
+									calculate_EaW_winter_dynamic_modifier_effects = yes
+								}
+								else = {
+									clear_EaW_winter_dynamic_modifier_data = yes
+								}
+							}
+						}
+						else_if = {
+							limit = {
+								has_dynamic_modifier = { modifier = EaW_winter_dynamic_modifier }
+							}
+
+							adjust_EaW_winter_dynamic_modifier_on_state_control_changed = yes
+
+							if = {
+								limit = {
+									has_dynamic_modifier = { modifier = EaW_frozen_seas_dynamic_modifier }
+
+									FROM.FROM = {
+										is_coastal = yes
+										is_in_home_area = yes
+									}
+								}
+
+								remove_EaW_frozen_seas_effects = yes
+							}
+						}
+					}
+					else_if = {
+						limit = {
+							check_variable = { global.month = 5 }
+						}
+						
+						if = {
+							limit = {
+								FROM = { has_dynamic_modifier = { modifier = EaW_winter_dynamic_modifier } }
+							}
+
+							if = {
+								limit = {
+									FROM.FROM = { check_variable = { EaW_state_winter_grade_var > 4 } }
+								}
+
+								adjust_EaW_controlled_states_with_winter_arrays_on_state_control_changed = yes
+
+								if = {
+									limit = {
+										has_dynamic_modifier = { modifier = EaW_winter_dynamic_modifier }
+									}
+
+									prepare_EaW_winter_dynamic_modifier_data_for_recalculation = yes
+
+									for_each_scope_loop = {
+										array = EaW_controlled_states_with_winter
+
+										calculate_EaW_state_winter_debuffer_in_May = yes
+									}
+
+									calculate_EaW_winter_dynamic_modifier_effects = yes
+								}
+								else = {
+									FROM.FROM = { calculate_EaW_state_winter_debuffer_in_May = yes }
+
+									EaW_winter_dynamic_modifier_on = yes
+								}
+							}
+							else_if = {
+								limit = {
+									has_dynamic_modifier = { modifier = EaW_winter_dynamic_modifier }
+								}
+
+								adjust_EaW_winter_dynamic_modifier_on_state_control_changed = yes
+							}
+
+							if = {
+								limit = {
+									has_dynamic_modifier = { modifier = EaW_frozen_seas_dynamic_modifier }
+
+									FROM.FROM = {
+										is_coastal = yes
+										is_in_home_area = yes
+									}
+								}
+
+								remove_EaW_frozen_seas_effects = yes
+							}
+
+							FROM = {
+								remove_dynamic_modifier = { modifier = EaW_winter_dynamic_modifier }
+
+								if = {
+									limit = {
+										any_of_scopes = {
+											array = EaW_controlled_states_with_winter
+
+											check_variable = { EaW_state_winter_grade_var > 5 }
+										}
+									}
+
+									set_variable = { EaW_country_winter_dynamic_modifier_var = 0 }
+
+									for_each_scope_loop = {
+										array = EaW_controlled_states_with_winter
+
+										calculate_EaW_state_winter_debuffer_in_May = yes
+									}
+
+									calculate_EaW_winter_dynamic_modifier_effects = yes
+								}
+								else = {
+									clear_EaW_winter_dynamic_modifier_data = yes
+								}
+							}
+						}
+						else_if = {
+							limit = {
+								has_dynamic_modifier = { modifier = EaW_winter_dynamic_modifier }
+							}
+
+							adjust_EaW_winter_dynamic_modifier_on_state_control_changed = yes
+
+							if = {
+								limit = {
+									has_dynamic_modifier = { modifier = EaW_frozen_seas_dynamic_modifier }
+
+									FROM.FROM = {
+										is_coastal = yes
+										is_in_home_area = yes
+									}
+								}
+
+								remove_EaW_frozen_seas_effects = yes
+							}
+						}
+					}
+				}
+			}
+
+			if = {
+				limit = {
+					FROM.FROM = { has_state_flag = NTR_state_control_lost_flag }
+				}
+
+				if = {
+					limit = {
+						FROM.FROM = { is_core_of = ROOT }
+
+						NOT = { has_country_flag = NTR_united_northern_front_flag }
+					}
+
+					set_demilitarized_zone = yes
+					add_state_modifier = {
+						modifier = {
+							local_building_slots_factor = -1
+							local_factories = -1
+							local_resources = -1
+						}
+					}
+				}
+				else = {
+					set_demilitarized_zone = no
+					add_state_modifier = {
+						modifier = {
+							local_building_slots_factor = 1
+							local_factories = 1
+							local_resources = 1
+						}
+					}
+				}
+			}
+
+			if = {
+				limit = {
+					FROM = { original_tag = NTR }
+				}
+
+				FROM = {
+					if = {
+						limit = {
+							has_war = no
+						}
+
+						country_event = { id = Ntribes.999 hours = 1 }
+					}
+
+					if = {
+						limit = {
+							NOT = {
+								has_decision = NTR_solve_famine_problem
+
+								has_country_flag = NTR_average_country_agricultural_production_recalculation_flag
+							}
+						}
+
+						set_country_flag = {
+							flag = NTR_average_country_agricultural_production_recalculation_flag
+							days = 1
+							value = 1
+						}
+
+						set_variable = { NTR_average_country_agricultural_production_var = 0 }
+
+						if = {
+							limit = {
+								has_global_flag = EaW_winter_system_on_global_flag
+							}
+							
+							for_each_scope_loop = {
+								array = controlled_states
+
+								if = {
+									limit = {
+										has_variable = EaW_state_winter_debuffer_var
+									}
+
+									add_to_variable = { ROOT.NTR_average_country_agricultural_production_var = EaW_state_winter_debuffer_var }
+								}
+								else = {
+									add_to_variable = { ROOT.NTR_average_country_agricultural_production_var = 0.5 }
+								}
+							}
+						}
+						else = {
+							for_each_scope_loop = {
+								array = controlled_states
+
+								if = {
+									limit = {
+										has_variable = EaW_state_winter_grade_var
+									}
+
+									add_to_variable = { ROOT.NTR_average_country_agricultural_production_var = EaW_state_winter_grade_var }
+								}
+								else = {
+									subtract_from_variable = { ROOT.NTR_average_country_agricultural_production_var = 5 }
+								}
+							}
+
+							divide_variable = { NTR_average_country_agricultural_production_var = -10 }
+						}
+
+						divide_variable = { NTR_average_country_agricultural_production_var = num_controlled_states }
+					}
+				}
+			}
+
 			if = {
 				limit = {
 					FROM.FROM = { state = 344 }
@@ -3934,22 +6118,12 @@ on_actions = {
 			}
 			if = {
 				limit = {
-					FROM.FROM = { state = 562 }
+					FROM.FROM = { has_state_flag = NTR_the_polar_star_state_flag }
 					has_government = democratic
 					NOT = { has_idea = NTR_the_polar_star_idea }
-					562 = { has_state_flag = polar_star }
 				}
 				add_ideas = NTR_the_polar_star_idea
 				break = yes
-			}
-			if = {
-				limit = {
-					FROM = {
-						tag = NTR
-						has_war = no
-					}
-				}
-				FROM = { country_event = { id = Ntribes.999 hours = 1 } }
 			}
 
 			#Liberation stuff
