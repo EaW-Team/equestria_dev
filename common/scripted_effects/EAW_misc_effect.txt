@@ -1783,3 +1783,130 @@ disband_units_fraction = {
 		target = SOL
 	}
 }
+
+# Hopefully paradox will bless us with just a variable for that
+count_inflicted_casualties_on_current_enemies = {
+	every_enemy_country = {
+		limit = {
+			casualties_inflicted_by = {
+				opponent = PREV
+				thousands > PREV.inflicted_casualties_on_@THIS
+			}
+		}
+		clear_array = PREV.digits
+		resize_array = {
+			array = PREV.digits
+			size = 9
+		}
+		for_each_loop = {
+			array = PREV.digits
+			index = i
+			value = v
+			break = b
+			for_loop_effect = {
+				start = 0
+				end = 10
+				value = j
+				set_variable = { PREV.digits^i = j }
+				meta_effect = {
+					text = {
+						set_temp_variable = {
+							inflicted_casualties_temp = [DIGIT0][DIGIT1][DIGIT2][DIGIT3][DIGIT4][DIGIT5].[DIGIT6][DIGIT7][DIGIT8]
+						}
+					}
+					DIGIT0 = "[?PREV.digits^0|0]"
+					DIGIT1 = "[?PREV.digits^1|0]"
+					DIGIT2 = "[?PREV.digits^2|0]"
+					DIGIT3 = "[?PREV.digits^3|0]"
+					DIGIT4 = "[?PREV.digits^4|0]"
+					DIGIT5 = "[?PREV.digits^5|0]"
+					DIGIT6 = "[?PREV.digits^6|0]"
+					DIGIT7 = "[?PREV.digits^7|0]"
+					DIGIT8 = "[?PREV.digits^8|0]"
+				}
+				if = {
+					limit = {
+						casualties_inflicted_by = {
+							opponent = PREV
+							thousands < inflicted_casualties_temp
+						}
+					}
+					subtract_from_variable = { PREV.digits^i = 1 }
+					set_temp_variable = { break = 1 }
+				}
+			}
+		}
+		subtract_from_temp_variable = { inflicted_casualties_temp = 0.001 }
+		set_temp_variable = { inflicted_casualties_diff = inflicted_casualties_temp }
+		subtract_from_temp_variable = { inflicted_casualties_diff = PREV.inflicted_casualties_on_@THIS }
+		add_to_variable = { PREV.inflicted_casualties = inflicted_casualties_diff }
+		set_variable = { PREV.inflicted_casualties_on_@THIS = inflicted_casualties_temp }
+	}
+	clear_array = digits
+}
+
+count_inflicted_casualties_on_all_countries = {
+	clear_variable = inflicted_casualties
+	for_each_scope_loop = {
+		array = global.countries
+		break = bb
+		set_temp_variable = {
+			inflicted_casualties_temp = 0
+		}
+		if = {
+			limit = {
+				casualties_inflicted_by = {
+					opponent = PREV
+					thousands > PREV.inflicted_casualties_on_@THIS
+				}
+			}
+			clear_array = PREV.digits
+			resize_array = {
+				array = PREV.digits
+				size = 9
+			}
+			for_each_loop = {
+				array = PREV.digits
+				index = i
+				value = v
+				break = b
+				for_loop_effect = {
+					start = 0
+					end = 10
+					value = j
+					set_variable = { PREV.digits^i = j }
+					meta_effect = {
+						text = {
+							set_temp_variable = {
+								inflicted_casualties_temp = [DIGIT0][DIGIT1][DIGIT2][DIGIT3][DIGIT4][DIGIT5].[DIGIT6][DIGIT7][DIGIT8]
+							}
+						}
+						DIGIT0 = "[?PREV.digits^0|0]"
+						DIGIT1 = "[?PREV.digits^1|0]"
+						DIGIT2 = "[?PREV.digits^2|0]"
+						DIGIT3 = "[?PREV.digits^3|0]"
+						DIGIT4 = "[?PREV.digits^4|0]"
+						DIGIT5 = "[?PREV.digits^5|0]"
+						DIGIT6 = "[?PREV.digits^6|0]"
+						DIGIT7 = "[?PREV.digits^7|0]"
+						DIGIT8 = "[?PREV.digits^8|0]"
+					}
+					if = {
+						limit = {
+							casualties_inflicted_by = {
+								opponent = PREV
+								thousands < inflicted_casualties_temp
+							}
+						}
+						subtract_from_variable = { PREV.digits^i = 1 }
+						set_temp_variable = { break = 1 }
+					}
+				}
+			}
+			subtract_from_temp_variable = { inflicted_casualties_temp = 0.001 }
+			set_variable = { PREV.inflicted_casualties_on_@THIS = inflicted_casualties_temp }
+		}
+		add_to_variable = { PREV.inflicted_casualties = PREV.inflicted_casualties_on_@THIS }
+	}
+	clear_array = digits
+}
