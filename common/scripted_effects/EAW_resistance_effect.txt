@@ -15,3 +15,55 @@ add_to_ROOT_potential_cores = {
 		}
 	}
 }
+
+# Expects occupied variable to be set
+core_occupied_through_compliance = {
+	if = {
+		limit = {
+			any_of_scopes = {
+				array = potential_cores
+				original_tag = var:occupied
+			}
+		}
+		every_owned_state = {
+			limit = { is_core_of = var:occupied }
+			add_core_of = ROOT
+		}
+	}
+	else = {
+		every_owned_state = {
+			limit = {
+				is_core_of = var:occupied
+				OR = {
+					any_of = {
+						array = state_original_cores
+						is_in_array = {
+							ROOT.potential_original_cores = var:v
+						}
+					}
+					any_of = {
+						array = ROOT.potential_cores
+						is_core_of = var:v
+					}
+				}
+			}
+			add_core_of = ROOT
+		}
+	}
+}
+
+core_all_occupied_through_compliance = {
+	for_each_loop = {
+		array = occupied_countries
+		value = occupied
+		if = {
+			limit = {
+				has_core_occupation_modifier = {
+					occupied_country_tag = var:occupied
+					modifier = compliance_40_core
+				}
+			}
+			core_occupied_through_compliance = yes
+		}
+	}
+}
