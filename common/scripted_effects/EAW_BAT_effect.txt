@@ -42,3 +42,130 @@ calculate_commission_speed_2 = {
 		}
 	}
 }
+
+BAT_get_predicted_opium = {
+	set_variable = {
+		predicted_opium = 0
+	}
+	for_each_scope_loop = {
+		array = opium_plantations
+		if = {
+			limit = {
+				has_dynamic_modifier = {
+					modifier = BAT_opium_plantation_mod
+				}
+			}
+			add_to_variable = {
+				PREV.predicted_opium = modifier@BAT_opium_production_bushels
+			}
+		}
+		else = {
+			add_to_temp_array = {
+				opium_plantations_to_remove = i
+			}
+		}
+	}
+	for_each_loop = {
+		array = opium_plantations_to_remove
+		remove_from_array = {
+			array = opium_plantations
+			index = v
+		}
+	}
+	add_to_variable = {
+		predicted_opium = modifier@BAT_opium_production_bushels
+	}
+	BAT_get_opium_factories = yes
+}
+
+BAT_get_opium_factories = {
+	set_temp_variable = {
+		old_opium_factories = opium_factories
+	}
+	set_variable = {
+		opium_factories = 0
+	}
+	for_each_scope_loop = {
+		array = opium_plantations
+		if = {
+			limit = {
+				is_controlled_by = PREV
+				has_dynamic_modifier = {
+					modifier = BAT_opium_plantation_mod
+				}
+			}
+			add_to_variable = {
+				PREV.opium_factories = 1
+			}
+		}
+	}
+	divide_variable = {
+		opium_factories = 3
+	}
+	subtract_from_variable = {
+		opium_factories = 0.5
+	}
+	round_variable = opium_factories
+	set_temp_variable = {
+		opium_factories_diff = opium_factories
+	}
+	subtract_from_temp_variable = {
+		opium_factories_diff = old_opium_factories
+	}
+	add_offsite_building = { type = industrial_complex level = opium_factories_diff }
+}
+
+BAT_get_opium = {
+	set_temp_variable = {
+		grown_opium = 0
+	}
+	for_each_scope_loop = {
+		array = opium_plantations
+		if = {
+			limit = {
+				has_dynamic_modifier = {
+					modifier = BAT_opium_plantation_mod
+				}
+			}
+			add_to_temp_variable = {
+				grown_opium = modifier@BAT_opium_production_bushels
+			}
+		}
+		else = {
+			add_to_temp_array = {
+				opium_plantations_to_remove = i
+			}
+		}
+	}
+	for_each_loop = {
+		array = opium_plantations_to_remove
+		remove_from_array = {
+			array = opium_plantations
+			index = v
+		}
+	}
+	add_to_temp_variable = {
+		grown_opium = modifier@BAT_opium_production_bushels
+	}
+	set_temp_variable = {
+		grown_opium_multiplier = 1
+	}
+	add_to_temp_variable = {
+		grown_opium_multiplier = modifier@BAT_opium_production_factor
+	}
+	multiply_temp_variable = {
+		grown_opium = grown_opium_multiplier
+	}
+	add_to_variable = {
+		opium = grown_opium
+	}
+	hidden_effect = {
+		if = {
+			limit = {
+				has_variable = opium_plantations^0
+			}
+			BAT_get_predicted_opium = yes
+			activate_mission = BAT_opium_harvest
+		}
+	}
+}
