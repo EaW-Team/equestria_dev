@@ -1905,3 +1905,69 @@ GRU_give_released_puppet_special_cosmetic_tags = {
 		}
 	}
 }
+
+# HoI4 State Land Connection Indexer by Yard1
+# Provides a simple way to check if two states share a land connection
+# Call the scripted effect below in on_startup from a country scope (any will do, I suggest random_country)
+# In order to check if two states have a land connection to each other, compare their state_land_connection_index variables. If they are the same, then they have a land connection.
+mark_land_connected_states = {
+	random_country = {
+		set_variable = { global.current_state_land_connection_index = 1 }
+		every_state = {
+			add_to_array = { global.unchecked_land_connection_states = THIS }
+		}
+		while_loop_effect = {
+			limit = {
+				check_variable = { global.unchecked_land_connection_states^num > 0 }
+			}
+			#log = "Run land connection loop with index [?global.current_state_land_connection_index|0], [?global.unchecked_land_connection_states^num|0] states left to index"
+			var:global.unchecked_land_connection_states^0 = {
+				#log = "Adding index [?global.current_state_land_connection_index|0] to [?this.GetName]"
+				set_variable = { state_land_connection_index = global.current_state_land_connection_index }
+				every_neighbor_state = {
+					#log = "Adding index [?global.current_state_land_connection_index|0] to [?this.GetName], neighbor of [?prev.GetName]"
+					set_variable = { state_land_connection_index = global.current_state_land_connection_index }
+					if = {
+						limit = { is_in_array = { global.unchecked_land_connection_states = THIS } }
+						remove_from_array = { global.unchecked_land_connection_states = THIS }
+					}
+				}
+				remove_from_array = { global.unchecked_land_connection_states = THIS }
+			}
+			set_temp_variable = { temp_lc_state = 0 }
+			while_loop_effect = {
+				limit = {
+					any_of = {
+						array = global.unchecked_land_connection_states
+						var:v = {
+							any_neighbor_state = { has_variable = state_land_connection_index }
+						}
+						set_temp_variable = { global.temp_lc_state = v }
+					}
+				}
+				if = {
+					limit = { NOT = { check_variable = { temp_lc_state = 0 } } }
+					#log = "Found [?temp_lc_state.GetName] as a neighbor of an indexed state"
+					var:temp_lc_state = {
+						#log = "Adding index [?global.current_state_land_connection_index|0] to [?this.GetName]"
+						set_variable = { state_land_connection_index = global.current_state_land_connection_index }
+						remove_from_array = { global.unchecked_land_connection_states = THIS }
+						every_neighbor_state = {
+							#log = "Adding index [?global.current_state_land_connection_index|0] to [?this.GetName], neighbor of [?prev.GetName]"
+							set_variable = { state_land_connection_index = global.current_state_land_connection_index }
+							if = {
+								limit = { is_in_array = { global.unchecked_land_connection_states = THIS } }
+								remove_from_array = { global.unchecked_land_connection_states = THIS }
+							}
+						}
+					}
+				}
+			}
+			#log = "Land connection loop done, [?global.unchecked_land_connection_states^num|0] states left to index"
+			#log = "----"
+			add_to_variable = { global.current_state_land_connection_index = 1 }
+		}
+		clear_variable = global.current_state_land_connection_index
+		clear_array = global.unchecked_land_connection_states
+	}
+}
