@@ -6,8 +6,16 @@ WNG_beakolinis_march = {
 		}
 
 		available = {
-			has_country_flag = WNG_march_stopped
-			has_government = fascism
+			OR = {
+				has_country_flag = WNG_march_stopped
+				has_government = fascism
+			}
+		}
+
+		activation = {
+			NOT = {
+				has_country_flag = WNG_march_stopped
+			}
 		}
 
 		fixed_random_seed = no
@@ -45,6 +53,7 @@ WNG_beakolinis_march = {
 
 		activation = {
 			has_stability < 0.1
+			has_government = fascism
 		}
 
 		fixed_random_seed = no
@@ -779,13 +788,33 @@ WNG_royal_support_decision_cat = {
 
 		activation = {
 			check_variable = { WNG_popular_support < 51 }
+			has_completed_focus = WNG_the_royal_intervention
+			has_government = neutrality
+			is_subject = no
+			NOT = {
+				has_country_flag = WNG_skip_revolt
+			}
 		}
 
 		available  = {
-			custom_trigger_tooltip = {
-				tooltip = WNG_popular_support_greater_than_50_tt
+			if = {
+				limit = {
+					is_ai = yes
+				}
+				OR = {
+					custom_trigger_tooltip = {
+						tooltip = WNG_popular_support_greater_than_50_tt
+					}
+					check_variable = { WNG_popular_support > 50 }
+					has_country_flag = WNG_skip_revolt
+				}
 			}
-			check_variable = { WNG_popular_support > 50 }
+			else = {
+				custom_trigger_tooltip = {
+					tooltip = WNG_popular_support_greater_than_50_tt
+				}
+				check_variable = { WNG_popular_support > 50 }
+			}
 		}
 
 		fixed_random_seed = no
@@ -797,7 +826,26 @@ WNG_royal_support_decision_cat = {
 		days_mission_timeout = 100
 
 		timeout_effect = {
-			add_stability = -0.15
+			set_temp_variable = { civil_war_size_var = 100 }
+			subtract_from_temp_variable = { civil_war_size_var = WNG_popular_support }
+			multiply_temp_variable = { civil_war_size_var = 0.01 }
+			if = {
+				limit = {
+					check_variable = {
+						var = civil_war_size_var
+						value = 0.2
+						compare = less_than
+					}
+				}
+				set_variable = {
+					var = civil_war_size_var
+					value = 0.2
+				}
+			}
+			start_civil_war = {
+				ideology = democratic
+				size = civil_war_size_var
+			}
 		}
 	}
 
@@ -811,14 +859,90 @@ WNG_royal_support_decision_cat = {
 				tooltip = WNG_less_than_100_popular_support_tt
 			}
 			check_variable = { WNG_popular_support < 100 }
+			has_completed_focus = WNG_reach_out_to_the_common_griffon
 		}
 
-		cost = 15
+		cost = 20
 
-		days_re_enable = 15
+		days_re_enable = 21
+
+		ai_will_do = {
+			base = 0
+			modifier = {
+				check_variable = {
+					var = WNG_popular_support
+					value = WNG_popular_support_max
+					compare = less_than
+				}
+				add = 100
+			}
+		}
 
 		complete_effect  = {
 			WNG_add_10_popular_support = yes
+			add_days_mission_timeout = {
+				mission = WNG_anti_monarchy_uprising
+				days = 14
+			}
+		}
+	}
+	WNG_newspaper_campaign = {
+		allowed = {
+			original_tag = WNG
+		}
+
+		available = {
+			custom_trigger_tooltip = {
+				tooltip = WNG_less_than_100_popular_support_tt
+			}
+			check_variable = { WNG_popular_support < 100 }
+			has_completed_focus = WNG_reach_out_to_the_common_griffon
+		}
+
+		cost = 40
+
+		days_re_enable = 21
+		days_remove = 35
+
+		ai_will_do = {
+			base = 0
+			modifier = {
+				add = 1
+				has_stability < 0.8
+			}
+			modifier = {
+				add = 1
+				has_stability < 0.6
+			}
+			modifier = {
+				add = 5
+				has_stability < 0.5
+			}
+			modifier = {
+				add = 10
+				has_stability < 0.3
+			}
+			modifier = {
+				check_variable = {
+					var = WNG_popular_support
+					value = WNG_popular_support_max
+					compare = less_than
+				}
+				add = 10
+			}
+		}
+
+		modifier = {
+			stability_weekly = 0.01
+			neutrality_drift = 0.05
+		}
+
+		complete_effect  = {
+			WNG_add_10_popular_support = yes
+			add_days_mission_timeout = {
+				mission = WNG_anti_monarchy_uprising
+				days = 21
+			}
 		}
 	}
 
@@ -832,15 +956,32 @@ WNG_royal_support_decision_cat = {
 				tooltip = WNG_less_than_100_popular_support_tt
 			}
 			check_variable = { WNG_popular_support < 100 }
+			has_completed_focus = WNG_reach_out_to_the_common_griffon
 		}
 
-		cost = 15
+		cost = 50
 
-		days_remove = 14
+		days_remove = 35
+
+		ai_will_do = {
+			base = 0
+			modifier = {
+				check_variable = {
+					var = WNG_popular_support
+					value = WNG_popular_support_max
+					compare = less_than
+				}
+				add = 1
+			}
+		}
 
 		remove_effect = {
-			WNG_add_5_popular_support = yes
+			WNG_add_15_popular_support = yes
 			clr_country_flag = WNG_blocking_socalist_news
+			add_days_mission_timeout = {
+				mission = WNG_anti_monarchy_uprising
+				days = 21
+			}
 		}
 
 		modifier = {
@@ -851,6 +992,7 @@ WNG_royal_support_decision_cat = {
 		complete_effect  = {
 			custom_effect_tooltip = WNG_clamp_down_on_socalist_newspapers_tt
 			set_country_flag = WNG_blocking_socalist_news
+			WNG_add_10_popular_support = yes
 		}
 	}
 	
@@ -864,19 +1006,97 @@ WNG_royal_support_decision_cat = {
 				tooltip = WNG_less_than_100_popular_support_tt
 			}
 			check_variable = { WNG_popular_support < 100 }
+			has_completed_focus = WNG_reach_out_to_the_common_griffon
 		}
 
-		cost = 15
+		cost = 40
 
-		days_remove = 14
+		days_remove = 35
+
+		ai_will_do = {
+			base = 0
+			modifier = {
+				check_variable = {
+					var = WNG_popular_support
+					value = WNG_popular_support_max
+					compare = less_than
+				}
+				add = 5
+			}
+		}
 
 		modifier = {
-			production_factory_efficiency_gain_factor = 0.15
+			production_factory_efficiency_gain_factor = 0.1
+		}
+
+		complete_effect = {
+			WNG_add_15_popular_support = yes
+			add_days_mission_timeout = {
+				mission = WNG_anti_monarchy_uprising
+				days = 21
+			}
+		}
+	}
+
+	WNG_crackdown_on_fascists = {
+		allowed = {
+			original_tag = WNG
+		}
+
+		available = {
+			custom_trigger_tooltip = {
+				tooltip = WNG_less_than_100_popular_support_tt
+			}
+			check_variable = { WNG_popular_support < 100 }
+			has_completed_focus = WNG_reach_out_to_the_common_griffon
+		}
+
+		cost = 50
+
+		days_remove = 35
+
+		ai_will_do = {
+			base = 0
+			modifier = {
+				check_variable = {
+					var = WNG_popular_support
+					value = WNG_popular_support_max
+					compare = less_than
+				}
+				add = 1
+			}
+		}
+
+		modifier = {
+			fascism_drift = -0.05
+			stability_weekly = -0.01
 		}
 
 		complete_effect = {
 			WNG_add_10_popular_support = yes
+			add_days_mission_timeout = {
+				mission = WNG_anti_monarchy_uprising
+				days = 21
+			}
 		}
 	}
-	
+
+	WNG_divert_resources_to_the_navy = {
+		allowed = {
+			original_tag = WNG
+		}
+
+		available = {
+			has_completed_focus = WNG_reach_out_to_the_common_griffon
+		}
+
+		cost = 25
+
+		days_remove = 70
+
+		modifier = {
+			industrial_capacity_factory = -0.1
+			industrial_capacity_dockyard = 0.15
+		}
+	}
 }
