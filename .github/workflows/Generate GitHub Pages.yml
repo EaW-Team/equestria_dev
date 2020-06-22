@@ -7,9 +7,6 @@ on:
     - gh-pages
     paths:
     - '.github/workflows/Generate GitHub Pages.yml'
-    - '.github-pages/**/*'
-    - '.gitignore'
-    - 'images/**/*'
     - 'gfx/interface/texticons/**/*.dds'
     - 'gfx/interface/texticons/**/*.tga'
     - 'gfx/interface/event_pictures/**/*.dds'
@@ -36,48 +33,29 @@ jobs:
         token: ${{ secrets.GHPAGES_PUSH_TOKEN }}
         ref: gh-pages
         path: gh-pages
-    - name: Set up Python 3.8
-      uses: actions/setup-python@v1
-      with:
-        python-version: 3.8
-    - name: Install dependencies
-      run: |
-        python -m pip install --upgrade pip
-        pip install -r $GITHUB_WORKSPACE/gh-pages/.github-pages/requirements.txt
-    - name: Get changed files
-      run: |
-        BEFORE=$(cat $GITHUB_EVENT_PATH | python -c "import sys, json; print(json.load(sys.stdin)['before'])")
-        MODIFIED_FILES=""
-        MODIFIED_FILES=$(curl -s https://api.github.com/repos/$GITHUB_REPOSITORY/compare/$BEFORE...$GITHUB_SHA | python -c "import sys, json, re; files = json.load(sys.stdin)['files']; print(repr(' '.join([repr(x['filename']) for x in files])))" 2>/dev/null)
-        export MODIFIED_FILES
-        echo "::set-env name=MODIFIED_FILES::$MODIFIED_FILES"
-        echo $MODIFIED_FILES
     - name: Generate webpage
-      if: always()
-      run: |
-        mkdir -p $GITHUB_WORKSPACE/gh-pages/gfx/interface/
-        cp -rf $GITHUB_WORKSPACE/gfx/texticons $GITHUB_WORKSPACE/gh-pages/gfx
-        cp -rf $GITHUB_WORKSPACE/gfx/event_pictures $GITHUB_WORKSPACE/gh-pages/gfx
-        cp -rf $GITHUB_WORKSPACE/gfx/interface/goals $GITHUB_WORKSPACE/gh-pages/gfx/interface
-        cp -rf $GITHUB_WORKSPACE/gfx/interface/ideas $GITHUB_WORKSPACE/gh-pages/gfx/interface
-        cp -rf $GITHUB_WORKSPACE/gfx/interface/decisions $GITHUB_WORKSPACE/gh-pages/gfx/interface
-        cp -rf $GITHUB_WORKSPACE/interface $GITHUB_WORKSPACE/gh-pages
-        cd $GITHUB_WORKSPACE/gh-pages
-        python .github-pages/hoi4_icon_search_gen.py --goals "./interface/eaw_goals.gfx" "./interface/ee2_goals.gfx" "./interface/ee2_goals.gfx" "./interface/ncr_goals.gfx" --ideas "./interface/eaw_ideas.gfx" "./interface/ee2_ideas.gfx" --texticons "./interface/etat_texticons.gfx" "./interface/eaw_texticons.gfx" --events "./interface/eaw_eventpictures.gfx" --decisions "./interface/eaw_decisions.gfx" --title "Equestria at War Icon Search" --favicon "./eaw_icon.png" --modified-images-str "$MODIFIED_FILES"
+      uses: Yard1/hoi4-icon-search-action@master
+      with:
+        goals: './interface/eaw_goals.gfx ./interface/ee2_goals.gfx ./interface/ee2_goals.gfx ./interface/ncr_goals.gfx'
+        ideas: './interface/eaw_ideas.gfx ./interface/ee2_ideas.gfx'
+        texticons: './interface/etat_texticons.gfx ./interface/eaw_texticons.gfx'
+        events: './interface/eaw_eventpictures.gfx'
+        decisions: './interface/eaw_decisions.gfx'
+        favicon: './eaw_icon.png'
+        title: 'Equestria at War GFX Search'
+        modPath: 'gh-pages'
     - name: Commit and push files
       run: |
         cd $GITHUB_WORKSPACE/gh-pages
         if [ -z "$(git status --porcelain)" ]; then 
-          echo "Nothing to commit, exiting with status 0"
           exit 0
         fi
         PYDATE=$(python -c "import datetime; print(datetime.datetime.utcnow())")
         sed -i "s/@UPDATE_DATE/${PYDATE}/g" index.html
         git config --global user.email "antoni.baum@protonmail.com"
         git config --global user.name "Yard1"
-        git pull
-        git pull
+        git pull --no-rebase
+        git pull --no-rebase
         git add -A
         git commit -m "Update webpage (automatic)"
         git push
-        
