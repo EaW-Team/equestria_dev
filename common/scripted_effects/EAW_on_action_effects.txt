@@ -887,11 +887,21 @@ JER_complete_focuses_based_on_overlord = {
 		if = {
 			limit = {
 				has_government = neutrality
-				NOT = {
-					has_completed_focus = JER_to_kill_an_idea
-				}
 			}
-			complete_national_focus = JER_to_kill_an_idea
+			if = {
+				limit = {
+					NOT = {
+						has_completed_focus = JER_to_kill_an_idea
+					}
+				}
+				complete_national_focus = JER_to_kill_an_idea
+			}
+			if = {
+				limit = {
+					has_country_flag = have_regular_puppets
+				}
+				kill_country_leader = yes
+			}
 		}
 	}
 }
@@ -970,22 +980,36 @@ AI_puppet_to_annex = {
 	}
 	else_if = {
 		limit = {
-			FROM = { tag = MIT }
-			ROOT = { tag = CYA }
+			FROM = { original_tag = MIT }
+			ROOT = { original_tag = CYA }
 		}
 		FROM = { annex_country = { target = ROOT } }
 	}
 	else_if = {
 		limit = {
-			FROM = { tag = GRW }
-			ROOT = { tag = BRF }
+			FROM = { original_tag = GRW }
+			ROOT = { original_tag = BRF }
 		}
 		FROM = { annex_country = { target = ROOT } }
 	}
 	else_if = {
 		limit = {
-			FROM = { tag = BRF }
-			ROOT = { tag = GRW }
+			FROM = { original_tag = BRF }
+			ROOT = { original_tag = GRW }
+		}
+		FROM = { annex_country = { target = ROOT } }
+	}
+	else_if = {
+		limit = {
+			FROM = { original_tag = CHN }
+			ROOT = { original_tag = CCN }
+		}
+		FROM = { annex_country = { target = ROOT } }
+	}
+	else_if = {
+		limit = {
+			FROM = { original_tag = CCN }
+			ROOT = { original_tag = CHN }
 		}
 		FROM = { annex_country = { target = ROOT } }
 	}
@@ -1175,6 +1199,26 @@ AI_puppet_to_annex = {
 					has_completed_focus = EQC_a_deal_with_the_duce
 					has_completed_focus = EQC_the_new_mareland_century
 				}
+			}
+		}
+		FROM = { annex_country = { target = ROOT transfer_troops = no } }
+	}
+	else_if = {
+		limit = {
+			original_tag = FAL
+			FROM = {
+				is_ai = yes
+				original_tag = WNG
+			}
+		}
+		FROM = { annex_country = { target = ROOT transfer_troops = no } }
+	}
+	else_if = {
+		limit = {
+			original_tag = WNG
+			FROM = {
+				is_ai = yes
+				original_tag = FAL
 			}
 		}
 		FROM = { annex_country = { target = ROOT transfer_troops = no } }
@@ -1444,28 +1488,31 @@ set_have_regular_puppets = {
 }
 
 adjust_research_modifier = {
-	#this could be done better, I guess?
 	if = {
 		limit = {
-			has_dynamic_modifier = {
-				modifier = research_pre_ironclad_modifier
+			NOT = {
+				has_dynamic_modifier = {
+					modifier = research_pre_ironclad_modifier
+				}
 			}
 		}
-		remove_dynamic_modifier = {
+		add_dynamic_modifier = {
 			modifier = research_pre_ironclad_modifier
 		}
 	}
+	set_temp_variable = { research_speed = modifier@research_speed_factor }
+	subtract_from_temp_variable = { research_speed = var_research_adjustment_pre_ironclad }
 	if = {
 		limit = {
-			check_variable = { modifier@research_speed_factor < -0.1 }
+			check_variable = { research_speed < -0.1 }
 		}
 		set_temp_variable = { var_research_adjustment_pre_ironclad_temp = 1 }
 		set_variable = { var_research_adjustment_pre_ironclad = 1 }
-		subtract_from_temp_variable = { var_research_adjustment_pre_ironclad_temp = modifier@research_speed_factor }
+		subtract_from_temp_variable = { var_research_adjustment_pre_ironclad_temp = research_speed }
 		if = {
 			limit = {
 				check_variable = {
-					var = modifier@research_speed_factor
+					var = research_speed
 					value = 1
 					compare = greater_than_or_equals
 				}
@@ -1474,10 +1521,10 @@ adjust_research_modifier = {
 		}
 		divide_variable = { var_research_adjustment_pre_ironclad = var_research_adjustment_pre_ironclad_temp }
 		subtract_from_variable = { var_research_adjustment_pre_ironclad = 1 }
-		subtract_from_variable = { var_research_adjustment_pre_ironclad = modifier@research_speed_factor }
-		add_dynamic_modifier = {
-			modifier = research_pre_ironclad_modifier
-		}
+		subtract_from_variable = { var_research_adjustment_pre_ironclad = research_speed }
+	}
+	else = {
+		set_variable = { var_research_adjustment_pre_ironclad = 0 }
 	}
 }
 
