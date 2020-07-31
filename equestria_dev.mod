@@ -1,4 +1,5 @@
-name="Equestria at War"
+name="Equestria at War Dev"
+path="mod/equestria_dev/"
 replace_path="common/ai_equipment"
 replace_path="common/ai_focuses"
 replace_path="common/ai_peace"
@@ -33,6 +34,5 @@ tags={
 	"Map"
 }
 picture="equestria.jpg"
-supported_version="1.9.*"
-path="C:/Users/bobse/Documents/Paradox Interactive/Hearts of Iron IV/mod/equestria_dev"
 remote_file_id="1826643372"
+supported_version="1.9.*"
