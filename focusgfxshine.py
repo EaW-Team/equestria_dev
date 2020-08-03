@@ -57,7 +57,7 @@ def get_shine_def(name, path):
 			animationtexturescale = { x = 1.0 y = 1.0 }
 		}
 		legacy_lazy_load = no
-	}\n""" % (
+	}""" % (
         name,
         path,
         path,
@@ -77,17 +77,23 @@ def main():
     args = parser.parse_args()
 
     goal_regex = re.compile(
-        r"name\s*=\s*\"([^\"]+)?\"\s*texturefile\s*=\s*\"([^\"]+)?\""
+        r"name\s*=\s*\"([^\"]+)?\"(?:[^\}]*?)texturefile\s*=\s*\"([^\"]+)?\"",  re.MULTILINE | re.DOTALL | re.IGNORECASE
+    )
+    goal_name_regex = re.compile(
+        r"name\s*=\s*\"([^\"]+)?\"",  re.MULTILINE | re.DOTALL | re.IGNORECASE
+    )
+    comments_regex = re.compile(
+        r"#*$"
     )
 
     print(f"Reading {args.goals_shine}...")
     with open(args.goals_shine, "r") as f:
         goals_shine = f.read()
 
-    goals_shine_matches = goal_regex.findall(
-        goals_shine, re.MULTILINE | re.DOTALL | re.IGNORECASE
+    goals_shine_matches = goal_name_regex.findall(
+        comments_regex.sub(goals_shine, '')
     )
-    goals_shine_matches = {k: v for k, v in goals_shine_matches}
+    goals_shine_matches = set(goals_shine_matches)
 
     last_bracket_idx = 0
 
@@ -103,7 +109,7 @@ def main():
         goals = f.read()
 
     goals_matches = goal_regex.findall(
-        goals, re.MULTILINE | re.DOTALL | re.IGNORECASE
+        comments_regex.sub(goals, '')
     )
     goals_matches = {
         k: v for k, v in goals_matches if not f"{k}_shine" in goals_shine_matches
