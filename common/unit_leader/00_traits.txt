@@ -1,3 +1,55 @@
+# leader_traits contain a list of UnitLeaderTrait with the following structure:
+# trait_key = {
+# 	type = all # or either of field_marshal, corps_commander, navy
+#	trait_type = basic_trait # or either of status_trait, personality_trait, assignable_trait, basic_terrain_trait, assignable_terrain_trait, exile
+#	attack_skill = 0 # integer
+#	defense_skill = 0 # integer
+#	logistics_skill = 0 # integer
+#	planning_skill = 0 # integer
+#	maneuvering_skill = 0 # integer
+#	coordination_skill = 0 # integer
+#	attack_skill_factor = 0.0 # decimal
+#	defense_skill_factor = 0.0 # decimal
+#	logistics_skill_factor = 0.0 # decimal
+#	planning_skill_factor = 0.0 # decimal
+#	maneuvering_skill_factor = 0.0 # decimal
+#	coordination_skill_factor = 0.0 # decimal
+#	show_in_combat = yes # boolean
+#	override_effect_tooltip = "" # loc key
+#	custom_effect_tooltip = "" # loc key
+#	custom_prerequisite_tooltip = "" # loc key
+#	custom_gain_xp_trigger_tooltip = "" # loc key
+#	mutually_exclusive = other_trait # trait key
+#	parent = other_trait # trait key
+#	num_parents_needed = -1 # integer, -1 means "all"
+#	gui_row = -1 # integer, starts at 0, -1 means auto
+#	gui_column = -1 # integer, starts at 0, -1 means auto
+#	allowed = trigger # scope is a unit leader
+#	prerequisites = trigger # scope is an unit leader
+#	gain_xp = trigger # scope is a combatant
+#	gain_xp_leader = trigger # scope is a unit leader. ROOT is country you are from and FROM is any target nationality for agents
+#	gain_xp_on_spotting = 0 # integer
+#	modifier = { } # list of modifiers
+#	non_shared_modifier = {} #
+#	corps_commander_modifier = {} #
+#	field_marshal_modifier = {} #
+#	sub_unit_modifiers = { # list of sub unit def
+#		# e.g.
+#		submarine {
+#			units = {} # list of adjusters
+#			# list of modifiers e.g.
+#			naval_visibility = -0.1
+#		}
+#	}
+#	trait_xp_factor = {} # list of trait_key/decimal
+#	on_add = effect # scope is an unit leader
+#	on_remove = effect # scope is an unit leader
+#	daily_effect = effect # scope is an unit leader
+#	cost = 1000 # integer
+#	ai_will_do = {} # weight
+#	new_commander_weight = {} # weight
+#	enable_ability = ability_key
+#}
 leader_traits = {
 
 
@@ -44,7 +96,7 @@ leader_traits = {
 	}
 
 	politically_connected = {
-		type = all
+		type = { land navy }
 		trait_type = personality_trait
 
 		non_shared_modifier = {
@@ -57,7 +109,7 @@ leader_traits = {
 	}
 
 	war_hero = {
-		type = all
+		type = { land navy }
 		trait_type = personality_trait
 
 		non_shared_modifier = {
@@ -99,6 +151,15 @@ leader_traits = {
 			wounded_chance_factor = -0.5
 		}
 
+		new_commander_weight = {
+			factor = 1
+			
+			modifier = {
+				has_trait = trait_reckless
+				factor = 0 
+			}
+		}
+
 		defense_skill_factor = 1
 		logistics_skill_factor = 1
 	}
@@ -110,6 +171,15 @@ leader_traits = {
 		modifier = {
 			planning_speed = 0.20
 			wounded_chance_factor = 0.5  # +50% chance to get wounded
+		}
+
+		new_commander_weight = {
+			factor = 1
+			
+			modifier = {
+				has_trait = trait_cautious
+				factor = 0 
+			}
 		}
 
 		attack_skill_factor = 1
@@ -331,7 +401,8 @@ leader_traits = {
 			has_trait = brilliant_strategist
 		}
 		cost = 1000
-		modifier = {
+		field_marshal_modifier = {
+			breakthrough_factor = 0.10
 		}
 		custom_effect_tooltip = INCREASED_ASSAULT_AND_SHOCK_CHANCE
 		ai_will_do = {
@@ -559,25 +630,23 @@ leader_traits = {
 
 	winter_expert = {
 		type = corps_commander
-
+		trait_type = assignable_terrain_trait
+		gui_row = 7
+		
+		parent = winter_specialist
+		
 		gain_xp = {
 			always = no # not gainable
 		}
-
+		
 		modifier = {
 			acclimatization_cold_climate_gain_factor = 0.40
 		}
-
+		
 		ai_will_do = {
 			factor = 1
 		}
-
-		parent = winter_specialist
-
-		trait_type = assignable_terrain_trait
-		gui_row = 7
 	}
-
 
 	trait_engineer = {
 		type = corps_commander
@@ -816,7 +885,7 @@ leader_traits = {
 	}
 
 	##################################
-	# Corps Commander assignabme traits.
+	# Corps Commander assignable traits.
 	##################################
 
 
@@ -852,8 +921,8 @@ leader_traits = {
 		}
 		cost = 500
 		modifier = {
-			motorized_defence_factor = 0.10
-			mechanized_defence_factor = 0.10
+			motorized_defence_factor = 0.15
+			mechanized_defence_factor = 0.15
 		}
 
 		custom_effect_tooltip = INCREASED_BLITZ_AND_ENCIRCLEMENT_CHANCE
@@ -1016,7 +1085,7 @@ leader_traits = {
 		}
 		cost = 500
 		modifier = {
-			shore_bombardment_bonus = 0.5
+			shore_bombardment_bonus = 0.25
 		}
 
 		ai_will_do = {
@@ -1282,9 +1351,11 @@ leader_traits = {
 	ironside = {
 		type = navy
 		gain_xp = {
-			capital_ship > 0.0
-			opponent = {
+			OR = {
 				capital_ship > 0.0
+				opponent = {
+					capital_ship > 0.0
+				}
 			}
 		}
 		custom_gain_xp_trigger_tooltip = IRONSIDE_TRIGGER_TT
@@ -1329,7 +1400,7 @@ leader_traits = {
 	silent_hunter = { 
 		type = navy
 		modifier = {
-			naval_torpedo_reveal_chance_factor = -0.20
+			naval_torpedo_reveal_chance_factor = -0.15
 		}
 
 		ai_will_do = {
@@ -2028,6 +2099,16 @@ leader_traits = {
 		}
 	}
 
+	reassigned = { 
+		type = all
+		trait_type = status_trait
+		
+		non_shared_modifier = {
+			skill_bonus_factor = -1
+			cannot_use_abilities = 1
+		}
+	}
+
 	disgruntled = {
 		type = all
 		trait_type = status_trait
@@ -2118,6 +2199,239 @@ leader_traits = {
 		}
 		new_commander_weight = {
 			factor = 0
+		}
+	}
+	
+	##################################
+# operative traits
+##################################
+
+	operative_commando = {
+		type = operative
+		trait_type = basic_trait
+
+		new_commander_weight = {
+			base = 1
+			modifier = {
+				set_temp_variable = {
+					trait_chance = FROM.modifier@commando_trait_chance_factor
+				}
+				add_to_temp_variable = {
+					var = trait_chance
+					value = 1
+				}
+				factor = trait_chance
+			}
+
+			modifier = {
+				factor = 0.2
+				FROM = {
+					NOT = { has_done_agency_upgrade = upgrade_commando_training }
+				}
+			}
+		}
+
+		cost = 600
+		gain_xp_leader = {
+			ROOT = {
+				has_done_agency_upgrade = upgrade_commando_training
+			}
+		}
+
+		modifier = {
+			own_operative_detection_chance_factor = -0.1
+			target_sabotage_factor = 0.25
+			target_sabotage_risk = -0.25
+			operation_capture_cipher_outcome = 0.25
+			operation_capture_cipher_risk = -0.25
+		}
+	}
+
+	operative_seducer = {
+		type = operative
+		trait_type = personality_trait
+
+		#new_commander_weight = {
+		#}
+
+		modifier = { 
+			operation_infiltrate_outcome = 0.25
+			operation_infiltrate_risk = -0.25
+			own_operative_detection_chance_factor = -0.2
+		}
+	}
+
+	operative_infiltrator = {
+		type = operative
+		trait_type = basic_trait
+
+		new_commander_weight = {
+			factor = 0.5
+		}
+
+		cost = 400
+		gain_xp_leader = {
+			OR = {
+				operative_leader_operation = operation_rescue_operative
+				operative_leader_operation = operation_infiltrate_civilian
+				operative_leader_operation = operation_infiltrate_armed_forces_army
+				operative_leader_operation = operation_infiltrate_armed_forces_navy
+				operative_leader_operation = operation_infiltrate_armed_forces_airforce
+				operative_leader_operation = operation_make_resistance_contacts
+			}
+		}
+
+		modifier = { 
+			operation_infiltrate_outcome = 0.25
+			operation_infiltrate_risk = -0.25
+		}
+	}
+
+	operative_master_interrogator = {
+		type = operative
+		trait_type = basic_trait
+
+		#new_commander_weight = {
+		#}
+
+		cost = 400
+		gain_xp_leader = {
+			OR = {
+				operative_leader_mission = root_out_resistance
+				operative_leader_mission = counter_intelligence
+			}
+		}
+
+		modifier = {
+			intelligence_agency_defense = 0.2
+		}
+	}
+
+	operative_linguist = {
+		type = operative
+		trait_type = basic_trait
+
+		#new_commander_weight = {
+		#}
+
+		cost = 400
+		gain_xp_leader = {
+			NOT = { operative_leader_mission = no_mission }
+			NOT = { has_nationality = FROM }
+		}
+
+		modifier = {
+			# something good
+		}
+	}
+
+	operative_double_agent = {
+		type = operative
+		trait_type = personality_trait
+
+		new_commander_weight = {
+			factor = 0 # only from events
+		}
+
+		modifier = {
+			# something good
+		}
+	}
+
+	operative_tough = {
+		type = operative
+		trait_type = personality_trait
+
+		#new_commander_weight = {
+		#}
+
+		modifier = {
+			enemy_operative_intel_extraction_rate = -0.5
+		}
+	}
+
+	operative_safe_cracker = {
+		type = operative
+		trait_type = personality_trait
+
+		new_commander_weight = {
+			factor = 0.5
+		}
+
+		modifier = {
+			operation_capture_cipher_outcome = 0.25
+			operation_steal_tech_risk = -0.25
+			operation_steal_tech_outcome = 0.25
+		}
+	}
+
+	operative_well_groomed = {
+		type = operative
+		trait_type = basic_trait
+
+		#new_commander_weight = {
+		#}
+
+		cost = 400
+		gain_xp_leader = {
+			OR = {
+				operative_leader_mission = diplomatic_pressure
+				operative_leader_mission = control_trade
+			}
+		}
+
+		modifier = {
+			control_trade_mission_factor = 0.2
+			diplomatic_pressure_mission_factor = 0.2
+		}
+	}
+
+	operative_natural_orator = {
+		type = operative
+		trait_type = basic_trait
+
+		gain_xp_leader = {
+			OR = {
+				operative_leader_mission = propaganda
+				operative_leader_mission = boost_ideology
+			}
+		}
+		
+		cost = 400
+		modifier = {
+			operation_coup_government_risk = -0.25
+			operation_coup_government_cost = -0.25
+			boost_ideology_mission_factor = 0.2
+		}
+	}
+
+	operative_escape_artist = {
+		type = operative
+		trait_type = basic_trait
+		#gained through script when successfully executing an escape operation
+		modifier = {
+			operation_rescue_operative_risk = -0.1
+			operation_rescue_operative_cost = -0.1
+		}
+	}
+
+	operative_demolition_expert = {
+		type = operative
+		trait_type = basic_trait
+
+		cost = 400
+		gain_xp_leader = {
+			OR = {
+				operative_leader_operation = operation_targeted_sabotage_industry
+				operative_leader_operation = operation_targeted_sabotage_infrastructure
+				operative_leader_operation = operation_targeted_sabotage_resources
+			}
+		}
+
+		modifier = {
+			target_sabotage_factor = 0.25
+			target_sabotage_cost = -0.25
+			boost_resistance_factor = 0.25
 		}
 	}
 

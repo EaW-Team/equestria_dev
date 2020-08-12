@@ -1,5 +1,6 @@
 NDefines.NGame.START_DATE = "1007.1.1.12"
 NDefines.NGame.END_DATE = "1030.1.1.1"
+NDefines.NGame.HANDS_OFF_START_TAG = "EQS"
 
 NDefines.NDiplomacy.TENSION_TIME_SCALE_START_DATE = "1007.1.1.12"
 NDefines.NTechnology.BASE_TECH_COST = 85
@@ -31,11 +32,11 @@ NDefines.NCountry.SPECIAL_FORCES_CAP_BASE = 0.1					-- Max ammount of special fo
 NDefines.NCountry.SPECIAL_FORCES_CAP_MIN = 32					-- You can have a minimum of this many special forces battalions, regardless of the number of non-special forces battalions you have, this can also be modified by a country modifier
 NDefines.NCountry.MAJOR_MIN_FACTORIES = 25 --default 35		-- need at least these many factories to become a major
 
-NDefines.NDiplomacy.MAX_OPINION_VALUE = 100							-- Max opinion value cap.
-NDefines.NDiplomacy.MIN_OPINION_VALUE = -300						-- Min opinion value cap.
+NDefines.NDiplomacy.MAX_OPINION_VALUE = 200							-- Max opinion value cap.
+NDefines.NDiplomacy.MIN_OPINION_VALUE = -200						-- Min opinion value cap.
 
-NDefines.NAI.HOUR_BAD_COMBAT_REEVALUATE = 24 --default 100
-NDefines.NAI.PLAN_ACTIVATION_SUPERIORITY_AGGRO = 0.8 --default 1.0		-- How aggressive a country is in activating a plan based on how superiour their force is.
+NDefines.NAI.HOUR_BAD_COMBAT_REEVALUATE = 42 --default 100
+NDefines.NAI.PLAN_ACTIVATION_SUPERIORITY_AGGRO = 1.2 --default 1.0		-- How aggressive a country is in activating a plan based on how superiour their force is.
 
 NDefines.NAI.AI_FRONT_MOVEMENT_FACTOR_FOR_READY = 0.1 --default 0.25
 NDefines.NAI.PLAN_VALUE_TO_EXECUTE = -0.2 --default -0.5
@@ -76,3 +77,19 @@ NDefines.NMilitary.PLAN_EXECUTE_CAREFUL_MAX_FORT = 4
 NDefines.NAI.DIPLOMACY_ACCEPT_VOLUNTEERS_BASE = 100
 
 NDefines.NDiplomacy.VOLUNTEERS_DIVISIONS_REQUIRED = 10
+
+-- modifiers female_random_operative_chance female_random_army_leader_chance female_random_admiral_chance
+NDefines.NCountry.FEMALE_UNIT_LEADER_BASE_CHANCE = { 
+    -- applies as a factor to female unit leader randomization
+    -- the values needs to be zero if you don't actually have random portraits
+    1.0, -- navy leaders
+    1.0, -- army leaders
+    1.0, -- operatives
+}
+NDefines.NCountry.COUNTRY_LEADER_FEMALE_CHANCE = 1.0 -- chance for new country leaders to be female. should be set > 0 only if there are portraits/names for that country
+
+NDefines.NResistance.GARRISON_MANPOWER_LOST_BY_ATTACK = 0.01 	-- Ratio of manpower lost by garrison at each attack on garrison (this number will be reduced by the hardness of garrison template)
+NDefines.NResistance.GARRISON_EQUIPMENT_LOST_BY_ATTACK = 0.02 	-- Ratio of equipment lost by garrison at each attack on garrison (this number will be reduced by the hardness of garrison template)
+
+NDefines.NOperatives.AGENCY_CREATION_FACTORIES = 3
+NDefines.NOperatives.AGENCY_UPGRADE_PER_OPERATIVE_SLOT = 4			-- Number of upgrade needed to unlock an additional operative slot

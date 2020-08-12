@@ -1,21 +1,8 @@
 ﻿add_namespace = lushi
 add_namespace = lushi_peasants
 add_namespace = lushi_news
-add_namespace = lushi_states
 add_namespace = lushi_prywhen
 add_namespace = lushi_brodfeld
-state_event = {
-	id = lushi_states.1
-	immediate = {log = "[GetDateText]: [Root.GetName]: event lushi_states.1"}
-
-	hidden = yes
-	is_triggered_only = yes
-
-	option = { # no
-		name = lushi_states.1.b
-		clr_state_flag = levy_raised
-	}
-}
 news_event = {
 	id = lushi_news.1
 	immediate = {log = "[GetDateText]: [Root.GetName]: event lushi_news.1"}
@@ -305,12 +292,35 @@ country_event = {
 
 	option = { ## side with monarchy
 		name = lushi.15.a
+		ai_chance = {
+			factor = 50
+			modifier = {
+				OR = {
+			        has_country_flag = LUS_AI_COMMUNIST
+			        has_game_rule = {
+				        rule = LUS_ai_behavior
+				        option = COMMUNIST
+			        }
+			        has_country_flag = LUS_AI_FASCIST_BANDITS
+			        has_game_rule = {
+				        rule = LUS_ai_behavior
+				        option = FASCIST_BANDITS
+			        }
+		        }
+				factor = 0
+			}
+		}
 		start_civil_war = {
 			ruling_party = neutrality ideology = communism size = 0.8
 		}
 		add_popularity = { ideology = neutrality popularity = 0.5 }
 		add_ideas = LUS_army_of_nobles
 		hidden_effect = {
+			if = {
+				limit = { NOT = { has_tech = tech_knights } }
+				set_technology = { tech_knights = 1 }
+			}
+			fix_weapon_techs = yes
 			load_oob = "LUS_knights"
 		}
 		random_other_country = {
@@ -328,6 +338,9 @@ country_event = {
 	}
 	option = { ## side with peasants
 		name = lushi.15.b
+		ai_chance = {
+			factor = 50
+		}
 		start_civil_war = {
 			ruling_party = communism ideology = neutrality size = 0.2
 		}
@@ -348,6 +361,11 @@ country_event = {
 				has_government = neutrality
 			}
 			hidden_effect = {
+				if = {
+					limit = { NOT = { has_tech = tech_knights } }
+					set_technology = { tech_knights = 1 }
+				}
+				fix_weapon_techs = yes
 				load_oob = "LUS_knights"
 			}
 			add_ideas = LUS_army_of_nobles
@@ -741,7 +759,8 @@ country_event = {
 	option = {
 		name = lushi.30.a
 		swap_ideas = {
-			add_idea = LUS_prywhen_communist_influence2 remove_idea = LUS_prywhen_communist_influence
+			add_idea = LUS_prywhen_communist_influence2
+			remove_idea = LUS_prywhen_communist_influence
 		}
 	}
 }
@@ -810,7 +829,6 @@ country_event = {
 	option = {
 		name = lushi.33.a
 		event_target:griffonian_empire = { country_event = lushi.34 }
-		set_country_flag = submission_offer_sent
 	}
 	option = {
 		name = lushi.33.b
@@ -829,12 +847,10 @@ country_event = {
 			puppet = FROM
 		}
 		FROM = { country_event = lushi.35 }
-		ai_chance = { factor = 1 }
 	}
 	option = {
-		name = lushi.34.a
+		name = lushi.34.b
 		FROM = { country_event = lushi.36 }
-		ai_chance = { factor = 0 }
 	}
 }
 country_event = {
@@ -846,7 +862,13 @@ country_event = {
 	is_triggered_only = yes
 	option = {
 		name = lushi.35.a
+		hidden_effect = {
+			get_current_government_type = yes
+		}
 		FROM = { puppet = ROOT }
+		hidden_effect = {
+			restore_previous_government_type = yes
+		}
 	}
 }
 country_event = {
@@ -1046,7 +1068,7 @@ country_event = {
 		create_corps_commander = {
 			name = "Destroyer of Every World Possible"
 			portrait_path = "gfx/leaders/MNC/Destroyeroftheworlds.tga"
-			traits = { trait_visitor }
+			traits = { trait_visitor unspecified_race_trait }
 			skill = 2
 			attack_skill = 3
 			defense_skill = 3
@@ -1197,6 +1219,12 @@ country_event = {
 		name = lushi_brodfeld.31.a
 		if = {
 			limit = { FROM = { has_war_with = GRW } }
+			hidden_effect = {
+				create_wargoal = { 
+					type = annex_everything
+					target = GRW
+				}
+			}
 			declare_war_on = { target = GRW type = annex_everything }
 		}
 	}
@@ -1309,6 +1337,12 @@ country_event = {
 	option = {
 		name = lushi_brodfeld.2.c
 		LUS = { country_event = { hours = 6 id = lushi_brodfeld.5 } }
+		hidden_effect = {
+			create_wargoal = { 
+				type = annex_everything
+				target = LUS
+			}
+		}
 		declare_war_on = { target = LUS type = annex_everything }
 	}
 }
@@ -1810,7 +1844,7 @@ country_event = {
 	immediate = {log = "[GetDateText]: [Root.GetName]: event lushi_peasants.1"}
 	title = lushi_peasants.1.t
 	desc = lushi_peasants.1.d
-	picture = GFX_event_griffon_with_flag
+	picture = GFX_event_griffon_with_gun
 
 	is_triggered_only = yes
 
@@ -1918,6 +1952,19 @@ country_event = {
 	fire_only_once = yes
 	option = { # yes
 		name = lushi_peasants.6.a
+		ai_chance = {
+			factor = 50
+			modifier = {
+				OR = {
+					has_country_flag = LUS_AI_FASCIST_BANDITS
+			        has_game_rule = {
+				        rule = LUS_ai_behavior
+				        option = FASCIST_BANDITS
+			        }
+				}
+				factor = 0
+			}
+		}
 		random_list = {
 			70 = {
 				country_event = { id = lushi_peasants.7 hours = 12 }
@@ -1929,6 +1976,9 @@ country_event = {
 	}
 	option = { # yes
 		name = lushi_peasants.6.b
+		ai_chance = {
+			factor = 50
+		}
 		country_event = { id = lushi_peasants.9 hours = 12 }
 	}
 }
@@ -1957,7 +2007,7 @@ country_event = {
 		set_temp_variable = { var = fash_pop value = party_popularity@communism }
 		add_popularity = { ideology = fascism popularity = fash_pop }
 		set_cosmetic_tag = LUS_bandit_state
-		set_cosmetic_tag = LUS_bandit_state
+		set_country_flag = LUS_bandit_state
 		hidden_effect = {
 			every_neighbor_country = {
 				create_wargoal = { target = ROOT type = annex_everything }
@@ -2008,6 +2058,7 @@ country_event = {
 		multiply_temp_variable = { var = fash_pop value = -1 }
 		add_popularity = { ideology = communism popularity = fash_pop }
 		set_cosmetic_tag = LUS_bandit_state
+		set_country_flag = LUS_bandit_state
 		hidden_effect = {
 			every_neighbor_country = {
 				create_wargoal = { target = ROOT type = annex_everything }

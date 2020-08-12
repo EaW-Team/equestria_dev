@@ -21,6 +21,15 @@ country_event = {
 	hidden = yes
 	trigger = {
 		is_subject_of = event_target:griffonian_empire
+		event_target:griffonian_empire = {
+			OR = {
+				original_tag = GRI
+				has_cosmetic_tag = GRIF_EMPIRE
+				has_cosmetic_tag = FBK_GRI
+				has_cosmetic_tag = YAL_grover_empire
+				has_cosmetic_tag = YAL_Grover_Lord_of_Yale
+			}
+		}
 		is_griffon_continent_griffon_country = yes
 		NOT = {
 			has_cosmetic_tag = GRI_SUBJECT
@@ -37,6 +46,8 @@ country_event = {
 			has_cosmetic_tag = HAU_GRI_puppet
 			has_cosmetic_tag = MIT_GRI_puppet
 			has_cosmetic_tag = MNC_GRI_puppet
+			has_cosmetic_tag = YAL_GRI_puppet
+			has_cosmetic_tag = PYT_GRI_puppet
 			has_cosmetic_tag = FEA_PvdA_old_flag_GRI_Puppet
 			has_cosmetic_tag = FBK_GRI
 		}
@@ -128,6 +139,18 @@ country_event = {
 			}
 			set_cosmetic_tag = MNC_GRI_puppet
 		}
+		if = {
+			limit = { 
+				original_tag = YAL
+			}
+			set_cosmetic_tag = YAL_GRI_puppet
+		}
+		if = {
+			limit = { 
+				original_tag = PYT
+			}
+			set_cosmetic_tag = PYT_GRI_puppet
+		}
 		else_if = {
 			limit = {
 				NOT = {
@@ -144,6 +167,8 @@ country_event = {
 					original_tag = SIC
 					original_tag = FAT
 					original_tag = SRS
+					original_tag = YAL
+					original_tag = PYT
 				}
 			}
 			set_cosmetic_tag = GRI_SUBJECT
@@ -155,7 +180,18 @@ country_event = {
 	immediate = {log = "[GetDateText]: [Root.GetName]: event griffonian.2"}
 	hidden = yes
 	trigger = {
-		NOT = { is_subject_of = event_target:griffonian_empire }
+		OR = {
+			NOT = { is_subject_of = event_target:griffonian_empire }
+			event_target:griffonian_empire = {
+				NOT = {
+					original_tag = GRI
+					has_cosmetic_tag = GRIF_EMPIRE
+					has_cosmetic_tag = FBK_GRI
+					has_cosmetic_tag = YAL_grover_empire
+					has_cosmetic_tag = YAL_Grover_Lord_of_Yale
+				}
+			}
+		}
 		OR = {
 			has_cosmetic_tag = GRI_SUBJECT
 			has_cosmetic_tag = FEA_PvdA_old_flag_GRI_Puppet
@@ -166,9 +202,11 @@ country_event = {
 		if = {
 			limit = { has_cosmetic_tag = FEA_PvdA_old_flag_GRI_Puppet }
 			set_cosmetic_tag = FEA_PvdA_old_flag
-			break = yes
 		}
-		drop_cosmetic_tag = yes
+		else = {
+			drop_cosmetic_tag = yes
+			reapply_secondary_cosmetic_tags = yes
+		}
 	}
 }
 
@@ -493,6 +531,66 @@ country_event = { ## fighting prywhen flag
 		set_country_flag = is_fighting_prywhen
 	}
 }
+
+country_event = { ## Herzland country proposes alliance
+	id = griffonian.10
+	immediate = {log = "[GetDateText]: [Root.GetName]: event griffonian.10"}
+	is_triggered_only = yes
+	title = griffonian.10.t
+	desc = griffonian.10.d
+	picture = GFX_event_griffon_diplomacy
+	option = {
+		name = griffonian.10.a
+		give_guarantee = FROM
+		give_military_access = FROM
+		FROM = {
+			country_event = {
+				id = griffonian.11
+				days = 1
+			}
+		}
+		ai_chance = {
+			factor = 1
+		}
+	}
+	option = {
+		name = griffonian.10.b
+		FROM = {
+			country_event = {
+				id = griffonian.12
+				days = 1
+			}
+		}
+		ai_chance = {
+			factor = 0
+		}
+	}
+}
+country_event = { ## Herzland country accepts alliance
+	id = griffonian.11
+	immediate = {log = "[GetDateText]: [Root.GetName]: event griffonian.11"}
+	is_triggered_only = yes
+	title = griffonian.11.t
+	desc = griffonian.11.d
+	picture = GFX_event_griffon_diplomacy
+	option = {
+		name = griffonian.11.a
+		give_guarantee = FROM
+		give_military_access = FROM
+	}
+}
+country_event = { ## Herzland country rejects alliance
+	id = griffonian.12
+	immediate = {log = "[GetDateText]: [Root.GetName]: event griffonian.12"}
+	is_triggered_only = yes
+	title = griffonian.12.t
+	desc = griffonian.12.d
+	picture = GFX_event_griffon_diplomacy
+	option = {
+		name = griffonian.12.a
+		add_political_power = -25
+	}
+}
 country_event = { ## Poverty Removal 1
 	id = griffonian.999
 	immediate = {log = "[GetDateText]: [Root.GetName]: event griffonian.999"}
@@ -639,11 +737,30 @@ country_event = { #Cosmetic tag removal
 		has_country_flag = holds_griffon_capital
 		NOT = { owns_state = 382 }
 	}
-	mean_time_to_happen = { days = 1 }
+	mean_time_to_happen = { days = 2 }
 	option = {
-		drop_cosmetic_tag = yes
-		reapply_secondary_cosmetic_tags = yes
+		if = {
+			limit = {
+				has_puppet_cosmetic_flag = no
+			}
+			drop_cosmetic_tag = yes
+			reapply_secondary_cosmetic_tags = yes
+		}
 		clr_country_flag = holds_griffon_capital
+		if = {
+			limit = {
+				OR = {
+					event_target:griffonian_empire = {
+						exists = no
+					}
+					tag = event_target:griffonian_empire
+				}
+			}
+			GRI = { 
+				save_global_event_target_as = griffonian_empire
+				set_variable = { global.griffonian_empire_var = THIS }
+			}
+		}
 	}
 }
 
@@ -653,15 +770,44 @@ country_event = { #Cosmetic tag change
 	hidden = yes
 
 	trigger = {
+		tag = event_target:griffonian_empire
+		NOT = {
+			original_tag = GRI
+			original_tag = FAT
+			original_tag = FEA
+			original_tag = ROU
+			original_tag = SRS
+			original_tag = ANG
+			original_tag = BRZ
+			original_tag = PYT
+			original_tag = KAT
+			original_tag = YAL
+			original_tag = STW
+			original_tag = FEZ
+		}
+		if = {
+			limit = {
+				original_tag = AET
+			}
+			NOT = {
+				has_government = fascism
+				has_government = communism
+			}
+		}
+		if = {
+			limit = {
+				original_tag = TRD
+			}
+			has_government = fascism
+		}
 		has_country_flag = { flag = holds_griffon_capital value > 1 }
 		NOT = { has_country_flag = have_regular_puppets }
+		NOT = { has_government = communism }
 	}
 	mean_time_to_happen = { days = 1 }
 	option = {
 		drop_cosmetic_tag = yes
 		set_cosmetic_tag = GRIF_EMPIRE
-		save_global_event_target_as = griffonian_empire
-		set_variable = { global.griffonian_empire_var = THIS }
 		set_country_flag = { flag = holds_griffon_capital value = 1 }
 	}
 }
@@ -672,16 +818,60 @@ country_event = { #Cosmetic tag change
 	hidden = yes
 
 	trigger = {
+		tag = event_target:griffonian_empire
+		NOT = {
+			original_tag = GRI
+			original_tag = FAT
+			original_tag = FEA
+			original_tag = ROU
+			original_tag = SRS
+			original_tag = ANG
+			original_tag = BRZ
+			original_tag = PYT
+			original_tag = KAT
+			original_tag = YAL
+			original_tag = STW
+			original_tag = FEZ
+		}
+		if = {
+			limit = {
+				original_tag = AET
+			}
+			NOT = {
+				has_government = fascism
+				has_government = communism
+			}
+		}
+		if = {
+			limit = {
+				original_tag = TRD
+			}
+			has_government = fascism
+		}
 		has_country_flag = { flag = holds_griffon_capital value < 2 }
-		has_country_flag = have_regular_puppets
+		OR = {
+			has_country_flag = have_regular_puppets
+			has_government = communism
+		}
+		NOT = {
+			has_cosmetic_tag = GRIF_REPUBLIC
+			has_cosmetic_tag = GRIF_AQUILIEA_REP
+			has_cosmetic_tag = TRADE_herzland
+			has_cosmetic_tag = CRIME_herzland
+		}
 	}
 	mean_time_to_happen = { days = 1 }
 	option = {
-		drop_cosmetic_tag = yes
-		set_cosmetic_tag = GRIF_REPUBLIC
-		GRI = { 
-			save_global_event_target_as = griffonian_empire
-			set_variable = { global.griffonian_empire_var = THIS }
+		if = {
+			limit = {
+				has_cosmetic_tag = GRIF_AQUILIEA_REP
+			}
+			drop_cosmetic_tag = yes
+			set_cosmetic_tag = GRIF_AQUILIEA_REP
+		}
+		else = {
+			drop_cosmetic_tag = yes
+			set_cosmetic_tag = GRIF_REPUBLIC
 		}
 		set_country_flag = { flag = holds_griffon_capital value = 2 }
 	}
@@ -713,7 +903,7 @@ country_event = {
 				LCT = {
 					is_available_fighter_ROOT = yes
 				}
-				EQS = {
+				event_target:equestria = {
 					is_available_fighter_ROOT = yes
 				}
 			}
@@ -753,7 +943,7 @@ country_event = {
 				LCT = {
 					is_available_heavy_fighter_ROOT = yes
 				}
-				EQS = {
+				event_target:equestria = {
 					is_available_heavy_fighter_ROOT = yes
 				}
 			}
@@ -1026,27 +1216,27 @@ country_event = {
 		ai_chance = {
 			factor = 30
 			modifier = {
-				is_in_faction_with = EQS
+				is_in_faction_with = event_target:equestria
 				factor = 10
 			}
 			modifier = {
-				EQS = { has_government = ROOT }
+				event_target:equestria = { has_government = ROOT }
 				factor = 2
 			}
 			modifier = {
-				EQS = {
+				event_target:equestria = {
 					has_tech = fighter1
 				}
 				add = 10
 			}
 			modifier = {
-				EQS = {
+				event_target:equestria = {
 					has_tech = fighter2
 				}
 				add = 10
 			}
 			modifier = {
-				EQS = {
+				event_target:equestria = {
 					has_tech = fighter3
 				}
 				add = 10
@@ -1055,19 +1245,19 @@ country_event = {
 		trigger = {
 			OR = {
 				AND = {
-					EQS = { has_tech = fighter1}
+					event_target:equestria = { has_tech = fighter1}
 					ROOT = { NOT = { has_tech = fighter1 } }
 				}
 				AND = {
-					EQS = { has_tech = fighter2}
+					event_target:equestria = { has_tech = fighter2}
 					ROOT = { NOT = { has_tech = fighter2 } }
 				}
 				AND = {
-					EQS = { has_tech = fighter3}
+					event_target:equestria = { has_tech = fighter3}
 					ROOT = { NOT = { has_tech = fighter3 } }
 				}
 			}
-			NOT = { has_war_with = EQS }
+			NOT = { has_war_with = event_target:equestria }
 			NOT = { has_country_flag = EQS_fighter_refused }
 			NOT = { #to prevent overflow issues
 				AND = {
@@ -1086,7 +1276,7 @@ country_event = {
 				}
 			}
 		}
-		EQS = { country_event = griffonian.153 }
+		event_target:equestria = { country_event = griffonian.153 }
 	}
 	option = {# failsafe
 		name = griffonian.151.f
@@ -1353,27 +1543,27 @@ country_event = {
 		ai_chance = {
 			factor = 30
 			modifier = {
-				is_in_faction_with = EQS
+				is_in_faction_with = event_target:equestria
 				factor = 10
 			}
 			modifier = {
-				EQS = { has_government = ROOT }
+				event_target:equestria = { has_government = ROOT }
 				factor = 2
 			}
 			modifier = {
-				EQS = {
+				event_target:equestria = {
 					has_tech = heavy_fighter1
 				}
 				add = 10
 			}
 			modifier = {
-				EQS = {
+				event_target:equestria = {
 					has_tech = heavy_fighter2
 				}
 				add = 10
 			}
 			modifier = {
-				EQS = {
+				event_target:equestria = {
 					has_tech = heavy_fighter3
 				}
 				add = 10
@@ -1382,19 +1572,19 @@ country_event = {
 		trigger = {
 			OR = {
 				AND = {
-					EQS = { has_tech = heavy_fighter1}
+					event_target:equestria = { has_tech = heavy_fighter1}
 					ROOT = { NOT = { has_tech = heavy_fighter1 } }
 				}
 				AND = {
-					EQS = { has_tech = heavy_fighter2}
+					event_target:equestria = { has_tech = heavy_fighter2}
 					ROOT = { NOT = { has_tech = heavy_fighter2 } }
 				}
 				AND = {
-					EQS = { has_tech = heavy_fighter3}
+					event_target:equestria = { has_tech = heavy_fighter3}
 					ROOT = { NOT = { has_tech = heavy_fighter3 } }
 				}
 			}
-			NOT = { has_war_with = EQS }
+			NOT = { has_war_with = event_target:equestria }
 			NOT = { has_country_flag = EQS_heavy_fighter_refused }
 			NOT = { #to prevent overflow issues
 				AND = {
@@ -1413,7 +1603,7 @@ country_event = {
 				}
 			}
 		}
-		EQS = { country_event = griffonian.154 }
+		event_target:equestria = { country_event = griffonian.154 }
 	}
 	option = {# failsafe
 		name = griffonian.151.f
@@ -1519,7 +1709,7 @@ country_event = {
 			FROM = { set_country_flag = RIV_fighter_refused }
 		}
 		if = {
-			limit = { tag = EQS }
+			limit = { tag = event_target:equestria }
 			FROM = { set_country_flag = EQS_fighter_refused }
 		}
 		FROM = { country_event = griffonian.151 }
@@ -1615,7 +1805,7 @@ country_event = {
 			FROM = { set_country_flag = RIV_heavy_fighter_refused }
 		}
 		if = {
-			limit = { tag = EQS }
+			limit = { tag = event_target:equestria }
 			FROM = { set_country_flag = EQS_heavy_fighter_refused }
 		}
 		FROM = { country_event = griffonian.152 }
@@ -1665,7 +1855,7 @@ country_event = {
 				LCT = {
 					is_available_cas_ROOT = yes
 				}
-				EQS = {
+				event_target:equestria = {
 					is_available_cas_ROOT = yes
 				}
 			}
@@ -1704,7 +1894,7 @@ country_event = {
 				LCT = {
 					is_available_tac_ROOT = yes
 				}
-				EQS = {
+				event_target:equestria = {
 					is_available_tac_ROOT = yes
 				}
 			}
@@ -1976,27 +2166,27 @@ country_event = {
 		ai_chance = {
 			factor = 30
 			modifier = {
-				is_in_faction_with = EQS
+				is_in_faction_with = event_target:equestria
 				factor = 10
 			}
 			modifier = {
-				EQS = { has_government = ROOT }
+				event_target:equestria = { has_government = ROOT }
 				factor = 2
 			}
 			modifier = {
-				EQS = {
+				event_target:equestria = {
 					has_tech = CAS1
 				}
 				add = 10
 			}
 			modifier = {
-				EQS = {
+				event_target:equestria = {
 					has_tech = CAS2
 				}
 				add = 10
 			}
 			modifier = {
-				EQS = {
+				event_target:equestria = {
 					has_tech = CAS3
 				}
 				add = 10
@@ -2005,19 +2195,19 @@ country_event = {
 		trigger = {
 			OR = {
 				AND = {
-					EQS = { has_tech = CAS1}
+					event_target:equestria = { has_tech = CAS1}
 					ROOT = { NOT = { has_tech = CAS1 } }
 				}
 				AND = {
-					EQS = { has_tech = CAS2}
+					event_target:equestria = { has_tech = CAS2}
 					ROOT = { NOT = { has_tech = CAS2 } }
 				}
 				AND = {
-					EQS = { has_tech = CAS3}
+					event_target:equestria = { has_tech = CAS3}
 					ROOT = { NOT = { has_tech = CAS3 } }
 				}
 			}
-			NOT = { has_war_with = EQS }
+			NOT = { has_war_with = event_target:equestria }
 			NOT = { has_country_flag = EQS_CAS_refused }
 			NOT = { #to prevent overflow issues
 				AND = {
@@ -2036,7 +2226,7 @@ country_event = {
 				}
 			}
 		}
-		EQS = { country_event = griffonian.163 }
+		event_target:equestria = { country_event = griffonian.163 }
 	}
 	option = {# failsafe
 		name = griffonian.151.f
@@ -2301,27 +2491,27 @@ country_event = {
 		ai_chance = {
 			factor = 30
 			modifier = {
-				is_in_faction_with = EQS
+				is_in_faction_with = event_target:equestria
 				factor = 10
 			}
 			modifier = {
-				EQS = { has_government = ROOT }
+				event_target:equestria = { has_government = ROOT }
 				factor = 2
 			}
 			modifier = {
-				EQS = {
+				event_target:equestria = {
 					has_tech = tactical_bomber1
 				}
 				add = 10
 			}
 			modifier = {
-				EQS = {
+				event_target:equestria = {
 					has_tech = tactical_bomber2
 				}
 				add = 10
 			}
 			modifier = {
-				EQS = {
+				event_target:equestria = {
 					has_tech = tactical_bomber3
 				}
 				add = 10
@@ -2330,19 +2520,19 @@ country_event = {
 		trigger = {
 			OR = {
 				AND = {
-					EQS = { has_tech = tactical_bomber1}
+					event_target:equestria = { has_tech = tactical_bomber1}
 					ROOT = { NOT = { has_tech = tactical_bomber1 } }
 				}
 				AND = {
-					EQS = { has_tech = tactical_bomber2}
+					event_target:equestria = { has_tech = tactical_bomber2}
 					ROOT = { NOT = { has_tech = tactical_bomber2 } }
 				}
 				AND = {
-					EQS = { has_tech = tactical_bomber3}
+					event_target:equestria = { has_tech = tactical_bomber3}
 					ROOT = { NOT = { has_tech = tactical_bomber3 } }
 				}
 			}
-			NOT = { has_war_with = EQS }
+			NOT = { has_war_with = event_target:equestria }
 			NOT = { has_country_flag = EQS_tactical_bomber_refused }
 			NOT = { #to prevent overflow issues
 				AND = {
@@ -2361,7 +2551,7 @@ country_event = {
 				}
 			}
 		}
-		EQS = { country_event = griffonian.164 }
+		event_target:equestria = { country_event = griffonian.164 }
 	}
 	option = {# failsafe
 		name = griffonian.151.f
@@ -2466,7 +2656,7 @@ country_event = {
 			FROM = { set_country_flag = RIV_CAS_refused }
 		}
 		if = {
-			limit = { tag = EQS }
+			limit = { tag = event_target:equestria }
 			FROM = { set_country_flag = EQS_CAS_refused }
 		}
 		FROM = { country_event = griffonian.161 }
@@ -2561,7 +2751,7 @@ country_event = {
 			FROM = { set_country_flag = RIV_tactical_bomber_refused }
 		}
 		if = {
-			limit = { tag = EQS }
+			limit = { tag = event_target:equestria }
 			FROM = { set_country_flag = EQS_tactical_bomber_refused }
 		}
 		FROM = { country_event = griffonian.162 }

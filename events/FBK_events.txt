@@ -18,11 +18,23 @@ country_event = {
 			set_country_flag = FBK_harmony
 		}
 		ai_chance = {
-			factor = 0.6
+			factor = 60
 			modifier = {
-				factor = 100
-				is_historical_focus_on = yes
+				OR = {
+					has_country_flag = FBK_AI_FASCIST
+					has_game_rule = {
+						rule = FBK_ai_behavior
+						option = FASCIST
+					}
+					has_country_flag = FBK_AI_COMMUNIST
+					has_game_rule = {
+						rule = FBK_ai_behavior
+						option = COMMUNIST
+					}
+				}
+				factor = 0
 			}
+			
 		}
 	}
 	option = {
@@ -31,10 +43,23 @@ country_event = {
 		add_stability = -0.20
 		set_country_flag = FBK_extremist
 		ai_chance = {
-			factor = 0.4
+			factor = 40
 			modifier = {
+				OR = {
+					AND = {
+						is_historical_focus_on = yes
+						has_game_rule = {
+							rule = FBK_ai_behavior
+							option = DEFAULT
+						}
+					}
+					has_country_flag = FBK_AI_HARMONIST_HISTORICAL
+					has_game_rule = {
+						rule = FBK_ai_behavior
+						option = HARMONIST_HISTORICAL
+					}
+				}
 				factor = 0
-				is_historical_focus_on = yes
 			}
 		}
 	}
@@ -56,10 +81,36 @@ country_event = {
 		hidden_effect = {
 			set_country_flag = FBK_communist
 		}
+		ai_chance = {
+			factor = 1
+			modifier = {
+				OR = {
+					has_country_flag = FBK_AI_FASCIST
+					has_game_rule = {
+						rule = FBK_ai_behavior
+						option = FASCIST
+					}
+				}
+				factor = 0
+			}
+		}
 	}
 	option = {
 		name = FBK.2.b
 		set_country_flag = FBK_fascist
+		ai_chance = {
+			factor = 1
+			modifier = {
+				OR = {
+					has_country_flag = FBK_AI_COMMUNIST
+					has_game_rule = {
+						rule = FBK_ai_behavior
+						option = COMMUNIST
+					}
+				}
+				factor = 0
+			}
+		}
 	}
 
 }
@@ -508,9 +559,6 @@ country_event = {##refusal to help
 
 	option = {
 		name = FBK.21.a
-		if = {
-
-		}
 		clr_country_flag = FBK_waiting
 	}
 }
@@ -527,8 +575,18 @@ country_event = {#Farbrook asks other Communist villages to join N.E.S.U
 	is_triggered_only = yes
 	option = {#Yes
 		name = FBK.33.a
+		add_ai_strategy = {
+		    type = alliance
+		    id = FROM
+		    value = 200
+		}
 		FROM = {
 			add_to_faction = ROOT
+			add_ai_strategy = {
+		        type = alliance
+		        id = ROOT
+		        value = 200
+		    }
 		}
 		ai_chance = {
 			base = 100
@@ -663,6 +721,7 @@ country_event = {#Gering decides what to do with the question of the South, as w
 	is_triggered_only = yes
 	option = {#Stick with the Co-Prosperity Sphere
 		name = FBK.39.a
+		ai_chance = { factor = 100 }
 		trigger = {
 			is_in_faction_with = LCT
 		}
@@ -670,6 +729,7 @@ country_event = {#Gering decides what to do with the question of the South, as w
 	}
 	option = {#Betray The Co-Prosperity Sphere
 		name = FBK.39.b
+		ai_chance = { factor = 10 }
 		trigger = {
 			is_in_faction_with = LCT
 			NOT = {
@@ -687,6 +747,7 @@ country_event = {#Gering decides what to do with the question of the South, as w
 	}
 	option = {#Betray the Empire
 		name = FBK.39.c
+		ai_chance = { factor = 10 }
 
 		trigger = {
 			NOT = {
@@ -701,6 +762,7 @@ country_event = {#Gering decides what to do with the question of the South, as w
 	}
 	option = {#Side With The Empire
 		name = FBK.39.f
+		ai_chance = { factor = 100 }
 		trigger = {
 			has_country_flag = empire_yes
 		}
@@ -708,6 +770,7 @@ country_event = {#Gering decides what to do with the question of the South, as w
 	}
 	option = {#Neutrality, if you took no sides
 		name = FBK.39.e
+		ai_chance = { factor = 25 }
 
 		trigger = {
 			NOT = {
@@ -753,12 +816,15 @@ country_event = {#Griffon Empire hears of Gering's betrayal
 
 	option = {
 		name = FBK.41.a
-
-		create_wargoal = {
-			type = puppet_wargoal_focus
-			target = FBK
+		if = {
+			limit = {
+				has_global_flag = GRI_empire_rising_flag 
+			}
+			create_wargoal = {
+				type = puppet_wargoal_focus
+				target = FBK
+			}
 		}
-
 	}
 }
 
@@ -774,7 +840,7 @@ country_event = {#Offer non aggression pacts to remaining Fed members if take ou
 
 	option = {
 		name = FBK.42.a
-
+        ai_chance = { factor = 100 }
 		give_guarantee = FROM
 		diplomatic_relation = { country = FROM relation = non_aggression_pact }
 		set_country_flag = force_guarantee_FBK
@@ -785,6 +851,7 @@ country_event = {#Offer non aggression pacts to remaining Fed members if take ou
 	}
 	option = {
 		name = FBK.42.b
+		ai_chance = { factor = 0 }
 	}
 }
 
@@ -902,6 +969,18 @@ country_event = {#Accept FBK's offer
 		name = FBK.46.a
 		FBK = {country_event = {days = 1 id = FBK.48 }}
 		set_country_flag = NCH_reconciled_with_FBK
+		add_to_variable = {
+			var = NCH_Crisis_Resolve_Points
+			value = 1
+		}
+		add_opinion_modifier = {
+			target = FBK
+			modifier = made_friends
+		}
+		reverse_add_opinion_modifier = {
+			target = FBK
+			modifier = made_friends
+		}
 	}
 }
 
@@ -930,6 +1009,16 @@ country_event = {#FBK informed of acceptance
 
 	option = {
 		name = FBK.48.a
+		effect_tooltip = {
+			add_opinion_modifier = {
+				target = FROM
+				modifier = made_friends
+			}
+			reverse_add_opinion_modifier = {
+				target = FROM
+				modifier = made_friends
+			}
+		}
 	}
 }
 
@@ -1068,6 +1157,18 @@ country_event = {#Event to invite the various members of the Hillfolk League
 	option = {#Agree to join faction
 		name = FBK.52.b
 		ai_chance = {factor = 100 }
+		add_ai_strategy = {
+		    type = alliance
+		    id = FROM
+		    value = 200
+		}
+		FROM = {
+		    add_ai_strategy = {
+		        type = alliance
+		        id = ROOT
+		        value = 200
+		    }
+		}
 
 		if = {
 			limit = {
@@ -1081,7 +1182,7 @@ country_event = {#Event to invite the various members of the Hillfolk League
 		}
 		else = {
 			FROM = {
-				create_faction = "Hillfolk League"
+				create_faction = "Hillfolk_League"
 				add_to_faction = ROOT
 			}
 		}
@@ -1121,19 +1222,40 @@ country_event = {#Flavor. After Gering's defeat, he either drinks himself to dea
 	is_triggered_only = yes
 	fire_only_once = yes
 
+	trigger = {
+		NOT = {
+			has_country_leader = {
+				name = "Hermane Gering"
+				ruling_only = yes
+			}
+			has_country_leader = {
+				name = "King Hermane I"
+				ruling_only = yes
+			}
+		}
+	}
+
 	option = {
 		name = FBK.55.a
 		if = {
 			limit = {
+				has_country_leader = {
+					name = "Hermane Gering"
+				}
+			}
+			kill_ideology_leader = fascism
+		}
+		if = {
+			limit = {
 				has_country_flag = FBK_gering_went_to_HLQ
 			}
-			HLR = {country_event = { id = FBK.56}}
+			HLR = { country_event = { id = FBK.56 } }
 		}
 		if = {
 			limit = {
 				has_country_flag = FBK_gering_to_haukland
 			}
-			HAU = {country_event = { id = FBK.57}}
+			HAU = { country_event = { id = FBK.57 } }
 		}
 	}
 }
@@ -1179,8 +1301,25 @@ country_event = {#Flavor. After Applethorn's defeat, she either flees to GRW (if
 	is_triggered_only = yes
 	fire_only_once = yes
 
+	trigger = {
+		NOT = {
+			has_country_leader = {
+				name = "Comrade Applethorn"
+				ruling_only = yes
+			}
+		}
+	}
+
 	option = {
 		name = FBK.58.a
+		if = {
+			limit = {
+				has_country_leader = {
+					name = "Comrade Applethorn"
+				}
+			}
+			kill_ideology_leader = communism
+		}
 		if = {
 			limit = {
 				has_country_flag = FBK_applethorn_leaves
@@ -1191,7 +1330,7 @@ country_event = {#Flavor. After Applethorn's defeat, she either flees to GRW (if
 					exists = no
 				}
 			}
-			GRW = { country_event = {id = FBK.59}}
+			GRW = { country_event = { id = FBK.59 } }
 		}
 		else_if = {
 			limit = {
@@ -1203,7 +1342,7 @@ country_event = {#Flavor. After Applethorn's defeat, she either flees to GRW (if
 					exists = yes
 				}
 			}
-			BRF = { country_event = {id = FBK.60}}
+			BRF = { country_event = { id = FBK.60 } }
 		}
 		else_if = {
 			limit = {
@@ -1215,7 +1354,7 @@ country_event = {#Flavor. After Applethorn's defeat, she either flees to GRW (if
 					exists = no
 				}
 			}
-			STG = { country_event = {id = FBK.61}}
+			STG = { country_event = { id = FBK.61 } }
 		}
 	}
 }
@@ -1265,4 +1404,150 @@ country_event = {#Flavor. Stalliongrad event for Applethorn
 		add_manpower = 1
 		army_experience = 1
 	}
+}
+country_event = {#The Empire receives request for more guns
+	id = FBK.62
+	immediate = {log = "[GetDateText]: [Root.GetName]: event FBK.62"}
+	title = FBK.62.t
+	desc = FBK.62.d
+	picture = GFX_event_griffon_royal_guard
+	fire_only_once = yes
+	is_triggered_only = yes
+
+	option = {#Sure
+		name = FBK.62.a
+		send_equipment = { type = infantry_equipment amount = 1000 target = FBK}
+		FROM = {
+			country_event = { id = FBK.65}
+		}	
+		ai_chance = {
+			factor = 1
+			modifier = {
+				factor = 0
+					has_equipment = {
+						infantry_equipment <1000
+					}
+			}
+		}
+	}
+	option = {#We need them ourselves
+		name = FBK.62.b
+		FROM = {
+			country_event = { id = FBK.66}
+		}
+		ai_chance = {
+			factor = 0
+			modifier = {
+				add = 100
+				has_equipment = {
+					infantry_equipment <1000
+				}
+			}
+		}
+	}
+}
+country_event = {#The Empire receives request for more artillery
+	id = FBK.63
+	immediate = {log = "[GetDateText]: [Root.GetName]: event FBK.63"}
+	title = FBK.63.t
+	desc = FBK.63.d
+	picture = GFX_event_griffon_royal_guard
+	fire_only_once = yes
+	is_triggered_only = yes
+
+	option = {#Sure
+		name = FBK.63.a
+		send_equipment = { type = artillery_equipment amount = 500 target = FBK}
+		FROM = {
+			country_event = { id = FBK.65}
+		}	
+		ai_chance = {
+			factor = 1
+			modifier = {
+				factor = 0
+					has_equipment = {
+						artillery_equipment < 500
+				}
+			}
+		}
+	}
+	option = {#We need them ourselves
+		name = FBK.63.b
+		FROM = {
+			country_event = { id = FBK.66}
+		}
+		ai_chance = {
+			factor = 0
+			modifier = {
+				add = 100
+				has_equipment = {
+					artillery_equipment < 500
+				}
+			}
+		}
+	}
+}
+country_event = {#The Empire receives request for more fighters
+	id = FBK.64
+	immediate = {log = "[GetDateText]: [Root.GetName]: event FBK.64"}
+	title = FBK.64.t
+	desc = FBK.64.d
+	picture = GFX_event_griffon_royal_guard
+	fire_only_once = yes
+	is_triggered_only = yes
+
+	option = {#Sure
+		name = FBK.64.a
+		send_equipment = { type = fighter_equipment amount = 100 target = FBK }
+		ai_chance = {
+			factor = 1
+			modifier = {
+				factor = 0
+				has_equipment = {
+					fighter_equipment < 100
+				}
+			}
+		}
+	}
+	option = {#We need them ourselves
+		name = FBK.64.b
+		ai_chance = {
+			factor = 0
+			modifier = {
+				add = 100
+				has_equipment = {
+					fighter_equipment <100
+				}
+			}
+		}
+	}
+}
+
+country_event = {#The Empire sent us more stuff
+	id = FBK.65
+	immediate = {log = "[GetDateText]: [Root.GetName]: event FBK.65"}
+	title = FBK.65.t
+	desc = FBK.65.d
+	picture = GFX_event_griffon_royal_guard
+	fire_only_once = yes
+	is_triggered_only = yes
+
+	option = {#Yay
+		name = FBK.65.a
+	}
+
+}
+country_event = {#The Empire didn't send anything
+	id = FBK.66
+	immediate = {log = "[GetDateText]: [Root.GetName]: event FBK.66"}
+	title = FBK.66.t
+	desc = FBK.66.d
+	picture = GFX_event_griffon_royal_guard
+	fire_only_once = yes
+	is_triggered_only = yes
+
+	option = {#Yay
+		name = FBK.66.a
+	}
+
 }

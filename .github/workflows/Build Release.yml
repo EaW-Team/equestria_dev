@@ -1,0 +1,57 @@
+name: Build Release
+
+on:
+  release:
+    types: [published]
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+    - name: Configure and reload Docker daemon to allow for bigger shm
+      run: |
+        echo '{ "cgroup-parent": "/actions_job", "default-shm-size": "512M" }' | sudo tee /etc/docker/daemon.json && sudo systemctl reload docker
+    - uses: actions/checkout@v2
+      with:
+        ref: master
+        fetch-depth: 1
+    - name: Build release through PrepareForUpload.sh
+      run: |
+        devDir="equestria_dev"
+        destDir="equestria"
+        chmod +x ./PrepareForUpload.sh
+        ./PrepareForUpload.sh $devDir $destDir equestria.jpg
+        mkdir build
+        mv ../$destDir build
+        mv ../"$destDir.mod" build
+        cd build
+        pwd
+        zip -rq "$destDir.zip" .
+        mv "$destDir.zip" ..
+    - name: Upload to release
+      uses: JasonEtco/upload-to-release@master
+      with:
+        args: equestria.zip application/zip
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+    - name: Upload to Steam Workshop
+      if: always()
+      uses: Yard1/PDX-Steam-Workshop-Publisher-Action@master
+      with:
+        steamLogin: Equestria_at_War
+        steamPassword: ${{ secrets.STEAMPASSWORD }}
+        PDXLogin: antoni.baum@protonmail.com
+        PDXPassword: ${{ secrets.PDXPASSWORD }}
+        googleAPICredentials: ${{ secrets.GOOGLEAPICREDENTIALS }}
+        googleClientSecret: ${{ secrets.GOOGLECLIENTSECRET }}
+        modPath: "build"
+        steamSentryFileName:  ${{ secrets.STEAMSENTRYFILENAME }}
+        steamSentryFileHex: ${{ secrets.STEAMSENTRYFILEHEX }}
+        debugImagePath: images
+        descriptionPath: tutorial/steam_description.txt
+    - name: Upload artifact
+      if: always()
+      uses: actions/upload-artifact@v1.0.0
+      with:
+        name: debug_images
+        path: images

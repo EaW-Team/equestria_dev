@@ -1,0 +1,214 @@
+#~~ Used in decision of activating/not activating a crypto
+
+# checked daily when a country cracks crypto of another country
+# game has some hard coded checks to decide if it should enable or not but it will also use these
+
+# scope is target country
+# from scope is the ai country that is checking if it should activate its bonuses or not
+
+# you will have access to following temp variables here. these will not be calculated if we are not enemy
+# activation_score: hard coded score calculated by ai
+# activation_threshold: hard coded activation threshold calculated by ai
+
+# is checked when ai decides not to activate its bonuses. you can override this decision and activate by returning true here
+should_activate_active_crypto_bonuses = {
+	always = no
+}
+
+
+# called if the ai decides activating bonuses. you can override that decision by returning true here.
+should_not_activate_active_crypto_bonuses = {
+	always = no
+}
+
+#--------------------------------------------------------
+
+
+#~~ Used for checking if resistance should be enabled in a certain state
+
+# this triggers are called when state controller/owner is changed
+# it is also called daily if there is an active resistance and used if we should disable it or not
+
+# should return true if a state should have resistance
+# scope = state
+# from = occupier
+# from from = occupied (always original tag)
+# can be specialized for states by using should_initiate_resistance_STATEID1_STATEID2 = { }
+# those will override default should_initiate_resistance
+should_initiate_resistance = {
+    #OR = {
+    #    check_variable = { core_countries^num > 0 } # have no cores
+    #    AND = {
+    #        has_state_flag = SPR_original_core
+    #        FROM = {
+    #        	original_tag = SPR
+    #        }
+    #        has_global_flag = scw_over
+    #    }
+    #}
+    NOT = { is_core_of = FROM } # never for our cores
+    state_population > 0
+    if = {
+        limit = {
+			FROM = {
+				original_tag = ELF
+            }
+        }
+        FROM.FROM = {
+            NOT = {
+                original_tag = CRY
+                original_tag = EQS
+            } 
+        }
+    }
+    else_if = {
+        limit = {
+			FROM = {
+                original_tag = EQC
+                has_completed_focus = EQC_government_in_exile
+            }
+            FROM.FROM = {
+                exists = no
+            }
+        }
+        FROM.FROM = {
+            NOT = {
+                original_tag = ELF
+                original_tag = EQS
+            } 
+        }
+    }
+    else_if = {
+        limit = {
+            FROM = {
+                has_war = yes
+                OR = {
+                    original_tag = EQS
+                    original_tag = NLR
+                }
+            }
+        }
+        FROM.FROM = {
+            NOT = {
+                original_tag = EQS
+                original_tag = NLR
+            }
+        }
+    }
+    else_if = {
+        limit = {
+            FROM = {
+                original_tag = CCN
+                has_government = democratic
+            }
+            FROM.FROM = {
+                original_tag = OLE
+            }
+        }
+		FROM = {
+			NOT = {
+				has_country_flag = ccn_ole_union_accepted
+			}
+		}
+	}
+}
+
+# Falcor
+should_initiate_resistance_530 = {
+	if = {
+		limit = {
+            FROM = { original_tag = WNG }
+            is_core_of = FROM
+            is_core_of = FAL
+            FAL = {
+                exists = yes
+                has_completed_focus = FAL_train_falcorian_resistance
+                NOT = {
+                    is_in_faction_with = FROM
+                    is_subject_of = FROM
+                }
+            }
+            FROM.FROM = {
+                original_tag = FAL
+            }
+		}
+        OR = {
+            has_dynamic_modifier = {
+                modifier = empowered_state_resistance
+            }
+            resistance > 1
+        }
+    }
+    else = {
+        should_initiate_resistance = yes
+    }
+}
+
+# Wohnsitz and Stone Highland
+should_initiate_resistance_384_679 = {
+	if = {
+		limit = {
+            is_core_of = FROM
+            is_core_of = LAK
+            FROM = {
+                NOT = { original_tag = LAK }
+            }
+            LAK = {
+                exists = yes
+                has_idea = LAK_FRA
+                NOT = {
+                    is_in_faction_with = FROM
+                    is_subject_of = FROM
+                }
+            }
+            FROM.FROM = {
+                original_tag = LAK
+            }
+        }
+        always = yes
+    }
+    else_if = {
+        limit = {
+            FROM = {
+                original_tag = LAK
+            }
+        }
+        ROOT = {
+            NOT = { is_claimed_by = FROM is_core_of = FROM }
+        }
+    }
+	else = {
+		should_initiate_resistance = yes
+	}
+}
+
+#should_initiate_resistance_5 = {
+#	# for Germany, this state always has resistance
+#	if = {
+#		limit = { FROM = { tag = GER } }
+#		always = yes
+#	}
+#	else_if = {
+#		should_initiate_resistance = yes
+#	}
+#}
+#
+#should_initiate_resistance_60_65_54 = {
+#	# for facsist Germany, these state always has resistance
+#	# since there are no other cores, the resistor will be Germany
+#	if = {
+#		limit = { 
+#			FROM = { 
+#				tag = GER 
+#				has_government = fascism
+#			}
+#		}
+#		always = yes
+#	}
+#	else_if = {
+#		should_initiate_resistance = yes
+#	}
+#}
+
+# ~~
+

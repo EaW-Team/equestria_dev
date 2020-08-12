@@ -137,10 +137,8 @@ country_event = {
 		ai_chance = {
 			base = 1
 		}
-		every_country = {
-			limit = {
-				original_tag = EQC
-			}
+		every_country_with_original_tag = {
+			original_tag_to_check = EQC
 			FROM = {
 				create_wargoal = {
 					target = PREV
@@ -324,6 +322,19 @@ country_event = {
 				add = 5
 				WNG = { has_army_size = { size > 34 } }
 			}
+			modifier = {
+				factor = 0
+				has_government = fascism
+			}
+			modifier = {
+				factor = 2
+				has_country_flag = FAL_is_alone
+			}
+			modifier = {
+				factor = 0
+				is_in_faction = yes
+				NOT = { is_in_faction_with = WNG }
+			}
 		}
 		WNG = {
 			country_event = { hours = 2 id = wingbardy.109 }
@@ -345,15 +356,10 @@ country_event = {
 				WNG = { has_army_size = { size > 34 } }
 			}
 			modifier = {
-				add = 15
-				is_in_faction = yes
-				NOT = { is_in_faction_with = WNG }
-			}
-			modifier = {
 				any_other_country = {
 					has_guaranteed = FAL
 				}
-				add = 10
+				add = 15
 			}
 		}
 		WNG = {
@@ -747,13 +753,13 @@ country_event = {
 			}
 		}
 		custom_effect_tooltip = wingbardy.133.a.tt
-		WNG = { country_event = wingbardy.134 }
+		FROM = { country_event = wingbardy.134 }
 		add_ai_strategy = {
 			type = alliance
-			id = "WNG"
+			id = FROM
 			value = 200
 		}
-		add_opinion_modifier = { target = WNG modifier = WNG_keep_our_friends_close }
+		add_opinion_modifier = { target = FROM modifier = WNG_keep_our_friends_close }
 	}
 
 	option = { #no
@@ -761,13 +767,13 @@ country_event = {
 		ai_chance = {
 			factor = 20
 			modifier = {
-				WNG = {
+				FROM = {
 					has_added_tension_amount > 0
 				}
 				factor = 1.5 #Wingbardy was naughty
 			}
 		}
-		WNG = { country_event = wingbardy.135 }
+		FROM = { country_event = wingbardy.135 }
 	}
 
 }
@@ -787,12 +793,16 @@ country_event = {
 
 		hidden_effect = {
 			every_country = {
-				limit = { is_in_faction_with = WNG NOT = { has_war_with = EQS } }
-				EQS = { add_to_faction = PREV }
-				add_ai_strategy = {
-					type = alliance
-					id = "EQS"
-					value = 200
+				limit = { is_in_faction_with = WNG NOT = { has_war_with = event_target:equestria } }
+				event_target:equestria = {
+					add_to_faction = PREV
+					ROOT = {
+						add_ai_strategy = {
+							type = alliance
+							id = PREV
+							value = 200
+						}
+					}
 				}
 			}
 			news_event = {
@@ -1044,7 +1054,7 @@ country_event = {
 		start_civil_war = {
 			ruling_party = communism
 			ideology = fascism
-			size = 0.5
+			size = 0.45
 			capital = 374
 			states = { 375 374 530 534 }
 		}
@@ -1069,7 +1079,7 @@ country_event = {
 				}
 				add_ideas = WNG_garibald_talonuel_iii
 				load_oob = "WNG_F_Civil_War"
-				set_country_flag = have_regular_puppets
+				#set_country_flag = have_regular_puppets
 				set_cosmetic_tag = WNG_other_side
 			}
 			news_event = { id = news_wingbardy.7 hours = 6 }
@@ -1095,23 +1105,23 @@ country_event = {
 				name = WNG_civil_war
 			}
 
-			random_country = {
+			random_country_with_original_tag = {
+				original_tag_to_check = TAL
 				limit = {
-					original_tag = TAL
 					is_in_faction_with = WNG
 				}
 				save_event_target_as = TAL_karthin_pact
 			}
-			random_country = {
+			random_country_with_original_tag = {
+				original_tag_to_check = ARA
 				limit = {
-					original_tag = ARA
 					is_in_faction_with = WNG
 				}
 				save_event_target_as = ARA_karthin_pact
 			}
-			random_country = {
+			random_country_with_original_tag = {
+				original_tag_to_check = FRN
 				limit = {
-					original_tag = FRN
 					is_in_faction_with = WNG
 				}
 				save_event_target_as = FRN_karthin_pact
@@ -1402,6 +1412,69 @@ country_event = {
 		}
 	}
 }
+country_event = {
+	id = wingbardy.7
+	immediate = {log = "[GetDateText]: [Root.GetName]: event wingbardy.7"}
+	title = wingbardy.7.t
+	desc = wingbardy.7.d
+	picture = GFX_event_equestria_fail
+	is_triggered_only = yes
+	option = {
+		ai_chance = {
+			factor = 10
+		}
+		name = wingbardy.7.a
+		add_political_power = -200
+		EQC = {
+			if = {
+				limit = { is_subject = yes }
+				end_puppet_this = yes
+			}
+			if = {
+				limit = { is_in_faction = yes }
+				leave_faction = yes
+			}
+		}
+		set_country_flag = { flag = bypass_on_peaceconference_ended days = 1 value = 1 }
+		white_peace = FROM
+		FROM = {
+			country_event = { hours = 2 id = wingbardy.105 }
+		}
+	}
+	option = {
+		name = wingbardy.7.b
+		ai_chance = {
+			factor = 10
+			modifier = {
+				factor = 0.25
+				OR = {
+					has_war_with = CHN
+					has_war_with = NLR
+					has_war_with = STG
+					has_war_with = CRY
+				}
+			}
+		}
+		FROM = {
+			country_event = { id = wingbardy.8 hours = 2 }
+		}
+	}
+}
+country_event = {
+	id = wingbardy.8
+	immediate = {log = "[GetDateText]: [Root.GetName]: event wingbardy.8"}
+	title = wingbardy.8.t
+	desc = wingbardy.8.d
+	
+	picture = GFX_news_griffonia_landscape
+
+	is_triggered_only = yes
+
+	option = {
+		name = wingbardy.8.a
+		add_war_support = 0.1
+	}
+}
 
 ####################################
 ######      NEWS EVENBTS      ######
@@ -1509,7 +1582,7 @@ news_event = {
 	immediate = {log = "[GetDateText]: [Root.GetName]: event news_wingbardy.5"}
 	title = news_wingbardy.5.t
 	desc = news_wingbardy.5.d
-	picture = GFX_news_event_beakolini
+	picture = GFX_news_griffon_diplomacy
 
 	major = yes
 
@@ -1534,7 +1607,7 @@ news_event = {
 	immediate = {log = "[GetDateText]: [Root.GetName]: event news_wingbardy.6"}
 	title = news_wingbardy.6.t
 	desc = news_wingbardy.6.d
-	picture = GFX_news_event_beakolini
+	picture = GFX_news_griffon_diplomacy
 
 	major = yes
 
@@ -1647,14 +1720,28 @@ news_event = {
 	option = {
 		name = news_wingbardy.10.a
 		trigger = {
-			NOT = { original_tag = WNG }
-			NOT = { original_tag = GRI }
+			NOT = {
+				original_tag = WNG
+				original_tag = SIC
+				original_tag = FRN
+				original_tag = TAL
+				original_tag = ARA
+				original_tag = FAL
+				original_tag = GRI
+			}
 		}
 	}
 	option = {
 		name = news_wingbardy.10.b
 		trigger = {
-			original_tag = WNG
+			OR = {
+				original_tag = WNG
+				original_tag = SIC
+				original_tag = FRN
+				original_tag = TAL
+				original_tag = ARA
+				original_tag = FAL
+			}
 		}
 	}
 	option = {
@@ -1685,13 +1772,7 @@ news_event = {
 	option = {
 		name = news_wingbardy.11.b
 		trigger = {
-			original_tag = WNG
-		}
-	}
-	option = {
-		name = news_wingbardy.11.b
-		trigger = {
-			has_government = communism
+			OR = { original_tag = WNG has_government = communism }
 		}
 	}
 }
@@ -1702,7 +1783,7 @@ news_event = {
 	immediate = {log = "[GetDateText]: [Root.GetName]: event news_wingbardy.12"}
 	title = news_wingbardy.12.t
 	desc = news_wingbardy.12.d
-	picture = GFX_news_griffonia_landscape
+	picture = GFX_news_griffon_diplomacy
 
 	major = yes
 
@@ -1737,7 +1818,7 @@ news_event = {
 	option = {
 		name = news_wingbardy.13.a
 		trigger = {
-			NOT = { original_tag = WNG original_tag = EQS }
+			NOT = { original_tag = WNG tag = event_target:equestria }
 		}
 	}
 	option = {
@@ -1749,7 +1830,7 @@ news_event = {
 	option = {
 		name = news_wingbardy.13.b
 		trigger = {
-			OR = { original_tag = EQS }
+			tag = event_target:equestria
 		}
 	}
 }
@@ -1760,7 +1841,7 @@ news_event = {
 	immediate = {log = "[GetDateText]: [Root.GetName]: event news_wingbardy.14"}
 	title = news_wingbardy.14.t
 	desc = news_wingbardy.14.d
-	picture = GFX_news_talononte
+	picture = GFX_news_griffon_diplomacy
 
 	major = yes
 

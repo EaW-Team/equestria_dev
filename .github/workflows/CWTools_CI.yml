@@ -1,0 +1,59 @@
+name: CWTools CI
+
+on:
+  push:
+    branches:    
+    - master
+    paths:
+    - '**/*.txt'
+    - '**/*.yml'
+    - '**/*.gfx'
+    - '**/*.gui'
+    - '!.**'
+    - '!tutorial/**'
+    - '!changelog.txt'
+    - '!interface/credits.txt'
+  pull_request:
+    branches:    
+    - master
+    paths:
+    - '**/*.txt'
+    - '**/*.yml'
+    - '**/*.gfx'
+    - '**/*.gui'
+    - '!.**'
+    - '!tutorial/**'
+    - '!changelog.txt'
+    - '!interface/credits.txt'
+
+jobs:
+  cwtools_job:
+    runs-on: ubuntu-latest
+    env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+    steps:
+    - name: Clone from last commit
+      if: github.event_name == 'push'
+      run: |
+        BEFORE=$(cat "$GITHUB_EVENT_PATH" | jq -r '.before')
+        BEFORE_PAYLOAD=$(curl -H "Authorization: token $GITHUB_TOKEN" "https://api.github.com/repos/$GITHUB_REPOSITORY/commits/$BEFORE")
+        BEFORE_DATE=$(jq -r '.commit.committer.date' <<< "$BEFORE_PAYLOAD")
+        echo "Date of before commit $BEFORE: $BEFORE_DATE"
+        git clone --progress --verbose --single-branch --shallow-since="$BEFORE_DATE" "https://github.com/$GITHUB_REPOSITORY.git" "$GITHUB_WORKSPACE"
+        cd $GITHUB_WORKSPACE
+    - name: Checkout whole repo
+      if: github.event_name == 'pull_request'
+      uses: actions/checkout@v1
+    - uses: cwtools/cwtools-action@v1.0.0
+      with:
+        game: hoi4
+        locLanguages: "english russian"
+        suppressedOffenceCategories: '{"failure":["CW226"], "warning":["CW242", "CW251"], "notice":[]}' # suppress CW226 localisation commands, CW242 empty field warnings, CW251 this X is unnecessary warnings
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+    - name: Upload output.json
+      if: always()
+      uses: actions/upload-artifact@v1.0.0
+      with:
+        name: cwtools_output
+        path: output.json
