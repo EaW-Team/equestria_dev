@@ -74,10 +74,46 @@ DED_occupation = {
 	
 	state_modifier = {		
 		resistance_target 				= -0.75
-		compliance_gain 				= -10
+		compliance_gain 				= -1
 		required_garrison_factor 		= 0.75
 		resistance_damage_to_garrison 	= 1.0
-		local_manpower 				= -10
+		local_manpower 				= -1
+		resistance_decay 				= 1.0
+	}
+	
+	ai_will_do = {
+		base = 5000
+	}
+}
+
+occupation_of_DED = {
+	icon = 10
+	sound_effect = "Martial_Law_Interface_Brutally_Oppressive_Occupation_Unique_FAS"
+	
+	visible = {
+		NOT = {
+			original_tag = DED
+			original_tag = EWI
+		}
+	}
+
+	available = {
+		FROM = {
+			OR = {
+				original_tag = DED
+				original_tag = EWI
+			}
+		}
+	}
+	
+	state_modifier = {		
+		resistance_target 				= -0.85
+		compliance_gain 				= -1
+		required_garrison_factor 		= 0.75
+		resistance_damage_to_garrison 	= -0.25	
+		local_manpower 				= -1
+		local_factories				= -1
+		local_resources 				= -0.75
 		resistance_decay 				= 1.0
 	}
 	
@@ -93,17 +129,17 @@ CHN_regional_commissariat = {
 	visible = {
 		original_tag = CHN
 		has_government = fascism
-		always = no ## disabled on LaResistance branch ##
+		has_completed_focus = CHN_post_war_B
 	}
 	
 	available = {
 		custom_trigger_tooltip = {
 			tooltip = CHN_regional_commissariat_resistance_threshold
-			check_variable = { core_resistance@FROM.FROM < 20 }
+			check_variable = { core_resistance@FROM.FROM < 30 }
 		}
-		NOT = {
-			original_tag = DED
-			hidden_trigger = { original_tag = EWI }
+		custom_trigger_tooltip = {
+			tooltip = CHN_regional_commissariat_compliance_threshold
+			check_variable = { core_compliance@FROM.FROM > 30 }
 		}
 		NOT = {
 			FROM = {
@@ -115,13 +151,16 @@ CHN_regional_commissariat = {
 		}
 	}
 	
+	fallback_law = local_police_force_garrison 
+	
 	state_modifier = {
-		resistance_target 				= -0.2
+		resistance_target 				= -0.25
 		compliance_gain 				= 0.005
 		required_garrison_factor 		= -0.5
 		resistance_damage_to_garrison	= -0.5
-		local_factories 				= 0.2
-		local_resources 				= 0.2
+		resistance_decay 				= 0.25
+		local_factories 				= 0.15
+		local_resources 				= 0.1
 	}
 	
 	ai_will_do = {
@@ -129,6 +168,81 @@ CHN_regional_commissariat = {
 		modifier = {
 			check_variable  = { resistance_target_without_law > 0.29} 						
 			add = 150
+		}
+	}
+}
+
+extractive_regime = {
+	icon = 13
+	sound_effect = "Martial_Law_Interface_Autonomous_Occupation_Unique_DEM"
+	
+	visible = {
+		has_country_flag = unlocked_extractive_regime_occupation_law
+	}
+	
+	available = {
+		custom_trigger_tooltip = {
+			tooltip = extractive_regime_resistance_threshold
+			check_variable = { core_resistance@FROM.FROM < 30 }
+		}
+		custom_trigger_tooltip = {
+			tooltip = extractive_regime_compliance_threshold
+			check_variable = { core_compliance@FROM.FROM > 30 }
+		}
+		NOT = {
+			FROM = {
+				OR = {
+					original_tag = DED
+					hidden_trigger = { original_tag = EWI }
+				}
+			}
+		}
+	}
+	
+	fallback_law = local_police_force_garrison 
+	
+	state_modifier = {
+		required_garrison_factor 		= 0.25
+		local_resources = 0.75
+		custom_modifier_tooltip = "resource_sabotage_decrease_tooltip"
+	}
+	
+	ai_will_do = {
+		base = 100
+		modifier = {
+			# if we are desiring a resource produced here
+			set_temp_variable = { releveant_resources = 0 }
+			
+			set_temp_variable = { t = resource@oil }
+			multiply_temp_variable = { t = ai_desire_oil }
+			add_to_temp_variable = { releveant_resources = t }
+			
+			set_temp_variable = { t = resource@aluminium }
+			multiply_temp_variable = { t = ai_desire_aluminium }
+			add_to_temp_variable = { releveant_resources = t }
+			
+			set_temp_variable = { t = resource@rubber }
+			multiply_temp_variable = { t = ai_desire_rubber }
+			add_to_temp_variable = { releveant_resources = t }
+			
+			set_temp_variable = { t = resource@tungsten }
+			multiply_temp_variable = { t = ai_desire_tungsten }
+			add_to_temp_variable = { releveant_resources = t }
+			
+			set_temp_variable = { t = resource@steel }
+			multiply_temp_variable = { t = ai_desire_steel }
+			add_to_temp_variable = { releveant_resources = t }
+			
+			set_temp_variable = { t = resource@chromium }
+			multiply_temp_variable = { t = ai_desire_chromium }
+			add_to_temp_variable = { releveant_resources = t }
+			
+			check_variable = { releveant_resources > 0 }
+			clamp_temp_variable = { var = releveant_resources max = 40 }
+			divide_temp_variable = { releveant_resources = 40 }
+			multiply_temp_variable = { releveant_resources = 200 }
+			add_to_temp_variable = { releveant_resources = 100 }
+			add = releveant_resources
 		}
 	}
 }
@@ -164,11 +278,6 @@ integration_occupation = {
 	}
 	
 	ai_will_do = {
-		base = 0
-		
-		modifier = {
-			can_core_nation_through_compliance_state = yes
-			add = 9000
-		}
+		base = 9000
 	}
 }

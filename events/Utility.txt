@@ -270,6 +270,9 @@ country_event = { ### SOL
 			is_island_state = no
 		}
 		check_variable = { neighbors^num = 1 }
+		overlord = {
+			is_ai = yes
+		}
 		any_neighbor_country = {
 			is_ai = yes
 			NOT = {
@@ -365,5 +368,66 @@ country_event = { ### Spawn NCR
 	is_triggered_only = yes
 	option = {
 		ncr_setup = yes
+	}
+}
+
+country_event = { ### Remove JER militia
+	id = utility.13
+	immediate = {log = "[GetDateText]: [Root.GetName]: event utility.13"}
+	hidden = yes
+	is_triggered_only = yes
+	trigger = {
+		OR = {
+			original_tag = JER
+			original_tag = JEB
+			original_tag = JFT
+			original_tag = JES
+			original_tag = JRR
+			original_tag = VIN
+		}
+		has_war = no
+		has_template = "Division de La Milice"
+	}
+	option = {
+		delete_unit_template_and_units = { division_template = "Division de La Milice" }
+	}
+}
+
+# Repeated check for whether an AI country should reduce its number of units
+# Thanks to Rylock and Kaiserreich team
+country_event = {
+	id = utility.14
+	immediate = { log = "[GetDateText]: [Root.GetName]: event utility.14" }
+	
+	hidden = yes
+	is_triggered_only = yes
+	
+	trigger = {
+		is_ai = yes
+		has_war = no
+		num_divisions > 10
+		OR = {
+			has_excessive_army_size = yes
+			needs_army_reduction_for_manpower = yes
+		}
+		NOT = {
+			any_other_country = {
+				OR = {
+					is_justifying_wargoal_against = ROOT
+					has_wargoal_against = ROOT
+					ROOT = { is_justifying_wargoal_against = PREV }
+					ROOT = { has_wargoal_against = PREV }
+				}
+			}
+		}
+	}
+	
+	immediate = {
+		set_temp_variable = {
+			disband_fraction = 0.1
+		}
+		log = "[GetDateText]: [Root.GetName]: is disbanding 10% of their forces"
+		disband_units_fraction = yes
+		country_event = { id = utility.14 days = 20 random = 480 }
 	}
 }
