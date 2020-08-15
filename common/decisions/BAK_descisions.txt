@@ -1,0 +1,3932 @@
+BAK_elections_category = {
+    BAK_election_mission = {
+		icon = generic_ignite_civil_war
+		available = {
+			always = no
+		}
+		visible = {
+			has_idea = BAK_elections
+		}
+		activation = {
+			has_idea = BAK_elections
+		}
+		is_good = no
+		days_mission_timeout = 330
+		fire_only_once = yes
+		timeout_effect = {
+			log = "[GetDateText]: [Root.GetName]: Decision timeout BAK_election_mission"
+			if = { #Fascists Win
+				limit = { 
+				    AND = {
+				        OR = {
+				            has_country_flag = BAK_AI_FASCIST
+				            has_game_rule = {
+				                rule = BAK_ai_behavior
+				                option = FASCIST
+			                }
+				        }
+				        is_ai = yes
+					}
+				}
+				country_event = { 
+				    id = bakara.1
+				}
+			}
+			else_if = { #Communists Win
+				limit = { 
+				    AND = {
+				        OR = {
+				            has_country_flag = BAK_AI_COMMUNIST
+				            has_game_rule = {
+				                rule = BAK_ai_behavior
+				                option = COMMUNIST
+			                }
+				        }
+				        is_ai = yes
+					}
+				}
+				country_event = { 
+				    id = bakara.2
+				}
+			}
+			else_if = { #Neutrality Win
+				limit = { 
+				    AND = {
+				        OR = {
+				            has_country_flag = BAK_AI_NEUTRALITY
+				            has_game_rule = {
+				                rule = BAK_ai_behavior
+				                option = NEUTRALITY
+			                }
+				        }
+				        is_ai = yes
+					}
+				}
+				country_event = { 
+				    id = bakara.3
+				}
+			}
+			else_if = { #Harmonists Win
+				limit = { 
+				    AND = {
+				        OR = {
+				            has_country_flag = BAK_AI_HISTORICAL
+				            has_game_rule = {
+				                rule = BAK_ai_behavior
+				                option = HARMONY_HISTORICAL
+			                }
+			                AND = {
+				                is_historical_focus_on = yes
+				                has_game_rule = {
+					                rule = BAK_ai_behavior
+					                option = DEFAULT
+				                }
+			                }
+				        }
+				        is_ai = yes
+					}
+				}
+				country_event = { 
+				    id = bakara.4
+				}
+			}
+			else_if = { #Fascists Win
+				limit = { 
+				    AND = {
+					    check_variable = { BAK_fascist_support_v > BAK_communist_support_v }
+						check_variable = { BAK_fascist_support_v > BAK_neutrality_support_v }
+						check_variable = { BAK_fascist_support_v > BAK_harmonist_support_v }
+					}
+				}
+				country_event = { 
+				    id = bakara.1
+				}
+			}
+			else_if = { #Communists Win
+				limit = { 
+				    AND = {
+					    check_variable = { BAK_communist_support_v > BAK_fascist_support_v }
+						check_variable = { BAK_communist_support_v > BAK_neutrality_support_v }
+						check_variable = { BAK_communist_support_v > BAK_harmonist_support_v }
+					}
+				}
+				country_event = { 
+				    id = bakara.2
+				}
+			}
+			else_if = { #Neutrality Win
+				limit = { 
+				    AND = {
+					    check_variable = { BAK_neutrality_support_v > BAK_fascist_support_v }
+						check_variable = { BAK_neutrality_support_v > BAK_communist_support_v }
+						check_variable = { BAK_neutrality_support_v > BAK_harmonist_support_v }
+					}
+				}
+				country_event = { 
+				    id = bakara.3
+				}
+			}
+			else = { #Harmonists Win
+			    country_event = { 
+				    id = bakara.4
+				}
+			}
+			hidden_effect = {
+				set_global_flag = JER_revolution_begun
+			}
+		}
+	}
+	
+	BAK_pick_fascism_decision = {
+		icon = ger_reichskommissariats
+		visible = {
+			has_idea = BAK_elections 
+			NOT = {
+			    OR = {
+				    has_country_flag = BAK_supporting_fascism
+					has_country_flag = BAK_supporting_communism
+					has_country_flag = BAK_supporting_neutrality
+					has_country_flag = BAK_supporting_harmony
+				}
+			}
+		}
+		available = {
+			is_subject = no
+		}
+		complete_effect = {
+			log = "[GetDateText]: [Root.GetName]: Decision BAK_pick_fascism_decision"
+			custom_effect_tooltip = BAK_supporting_fascism_tp
+			hidden_effect = {
+			    set_country_flag = BAK_supporting_fascism
+			}
+		}
+		ai_will_do = {
+			factor = 2500
+		}
+	}
+	
+	BAK_sway_workers = {
+		icon = ger_military_buildup
+		visible = {
+		    AND = {
+			    has_idea = BAK_elections
+			    has_country_flag = BAK_supporting_fascism
+			}
+		}
+		available = {
+		    NOT = {
+			    has_country_flag = BAK_doing_political_action
+			}
+		}
+		ai_will_do = {
+			factor =  10
+		}
+
+		cost = 35
+		days_remove = 40
+ 
+        modifier = {
+		    fascism_drift = 0.01
+			stability_factor = -0.05
+		}
+		remove_effect = {
+		    custom_effect_tooltip = BAK_electoral_unrest_1_tp
+			add_to_variable = {
+			    var = BAK_electoral_unrest
+			    value = 5
+		    }
+		    clamp_variable = {
+	            var = BAK_electoral_unrest
+	            min = 0
+	            max = 100
+            }
+			hidden_effect = {
+				clr_country_flag = BAK_doing_political_action
+			}
+		}
+		complete_effect = {
+			log = "[GetDateText]: [Root.GetName]: Decision BAK_sway_workers"
+			custom_effect_tooltip = BAK_increase_f_5_tp
+			add_to_variable = {
+			    var = BAK_fascist_support_v
+			    value = 2
+		    }
+		    clamp_variable = {
+	            var = BAK_fascist_support_v
+	            min = 0
+	            max = 100
+            }
+			subtract_from_variable = {
+			    var = BAK_communist_support_v
+			    value = 2
+		    }
+		    clamp_variable = {
+	            var = BAK_communist_support_v
+	            min = 0
+	            max = 100
+            }
+			hidden_effect = {
+				set_country_flag = BAK_doing_political_action
+			}
+		}
+	}
+	
+	BAK_hold_march = {
+		icon = generic_nationalism
+		visible = {
+		    AND = {
+			    has_idea = BAK_elections
+			    has_country_flag = BAK_supporting_fascism
+			}
+		}
+		available = {
+		    NOT = {
+			    has_country_flag = BAK_doing_political_action
+			}
+		}
+		ai_will_do = {
+			factor =  10
+		}
+
+		cost = 35
+		days_remove = 40
+ 
+        modifier = {
+		    fascism_drift = 0.01
+			stability_factor = -0.05
+		}
+		remove_effect = {
+		    custom_effect_tooltip = BAK_electoral_unrest_1_tp
+			add_to_variable = {
+			    var = BAK_electoral_unrest
+			    value = 5
+		    }
+		    clamp_variable = {
+	            var = BAK_electoral_unrest
+	            min = 0
+	            max = 100
+            }
+			hidden_effect = {
+				clr_country_flag = BAK_doing_political_action
+			}
+		}
+		complete_effect = {
+			log = "[GetDateText]: [Root.GetName]: Decision BAK_hold_march"
+			custom_effect_tooltip = BAK_increase_f_4_tp
+			add_to_variable = {
+			    var = BAK_fascist_support_v
+			    value = 2
+		    }
+		    clamp_variable = {
+	            var = BAK_fascist_support_v
+	            min = 0
+	            max = 100
+            }
+			subtract_from_variable = {
+			    var = BAK_neutrality_support_v
+			    value = 2
+		    }
+		    clamp_variable = {
+	            var = BAK_neutrality_support_v
+	            min = 0
+	            max = 100
+            }
+			hidden_effect = {
+				set_country_flag = BAK_doing_political_action
+			}
+		}
+	}
+	
+	BAK_organize_radio_broadcast = {
+		icon = generic_decision
+		visible = {
+		    AND = {
+			    has_idea = BAK_elections
+			    has_country_flag = BAK_supporting_fascism
+			}
+		}
+		available = {
+		    NOT = {
+			    has_country_flag = BAK_doing_political_action
+			}
+		}
+		ai_will_do = {
+			factor = 10
+		}
+
+		cost = 35
+		days_remove = 40
+ 
+        modifier = {
+		    fascism_drift = 0.01
+			stability_factor = -0.05
+		}
+		remove_effect = {
+		    custom_effect_tooltip = BAK_electoral_unrest_1_tp
+			add_to_variable = {
+			    var = BAK_electoral_unrest
+			    value = 5
+		    }
+		    clamp_variable = {
+	            var = BAK_electoral_unrest
+	            min = 0
+	            max = 100
+            }
+			hidden_effect = {
+				clr_country_flag = BAK_doing_political_action
+			}
+		}
+		complete_effect = {
+			log = "[GetDateText]: [Root.GetName]: Decision BAK_organize_radio_broadcast"
+			custom_effect_tooltip = BAK_increase_f_6_tp
+			add_to_variable = {
+			    var = BAK_fascist_support_v
+			    value = 2
+		    }
+		    clamp_variable = {
+	            var = BAK_fascist_support_v
+	            min = 0
+	            max = 100
+            }
+			subtract_from_variable = {
+			    var = BAK_harmonist_support_v
+			    value = 2
+		    }
+		    clamp_variable = {
+	            var = BAK_harmonist_support_v
+	            min = 0
+	            max = 100
+            }
+			hidden_effect = {
+				set_country_flag = BAK_doing_political_action
+			}
+		}
+	}
+	
+	BAK_organize_soup_kitchens = {
+		icon = generic_operation
+		visible = {
+			AND = {
+			    has_idea = BAK_elections
+			    has_country_flag = BAK_supporting_fascism
+			}
+		}
+		available = {
+		    NOT = {
+			    has_country_flag = BAK_doing_political_action
+			}
+		}
+		ai_will_do = {
+			factor = 100
+		}
+
+		cost = 35
+		days_remove = 40
+ 
+        modifier = {
+		    fascism_drift = 0.02
+			political_power_factor = 0.10
+		}
+		remove_effect = {
+		    custom_effect_tooltip = BAK_electoral_unrest_3_tp
+			subtract_from_variable = {
+			    var = BAK_electoral_unrest
+			    value = 10
+		    }
+		    clamp_variable = {
+	            var = BAK_electoral_unrest
+	            min = 0
+	            max = 100
+            }
+			hidden_effect = {
+				clr_country_flag = BAK_doing_political_action
+			}
+		}
+		complete_effect = {
+			log = "[GetDateText]: [Root.GetName]: Decision BAK_hold_march"
+			add_stability = 0.05
+			hidden_effect = {
+				set_country_flag = BAK_doing_political_action
+			}
+		}
+	}
+	
+	BAK_pick_communism_decision = {
+		icon = generic_army_support
+		visible = {
+			has_idea = BAK_elections
+			NOT = {
+			    OR = {
+				    has_country_flag = BAK_supporting_fascism
+					has_country_flag = BAK_supporting_communism
+					has_country_flag = BAK_supporting_neutrality
+					has_country_flag = BAK_supporting_harmony
+				}
+			}
+		}
+		available = {
+			is_subject = no
+		}
+		complete_effect = {
+			log = "[GetDateText]: [Root.GetName]: Decision BAK_pick_communism_decision"
+			custom_effect_tooltip = BAK_supporting_communism_tp
+			hidden_effect = {
+			    set_country_flag = BAK_supporting_communism
+			}
+		}
+		ai_will_do = {
+			factor = 2500
+		}
+	}
+	
+	BAK_fight_the_blackshirts = {
+		icon = generic_prepare_civil_war
+		visible = {
+		    AND = {
+			    has_idea = BAK_elections
+			    has_country_flag = BAK_supporting_communism
+			}
+		}
+		available = {
+		    NOT = {
+			    has_country_flag = BAK_doing_political_action
+			}
+		}
+		ai_will_do = {
+			factor =  10
+		}
+
+		cost = 35
+		days_remove = 40
+ 
+        modifier = {
+		    communism_drift = 0.01
+			stability_factor = -0.05
+		}
+		remove_effect = {
+		    custom_effect_tooltip = BAK_electoral_unrest_1_tp
+			add_to_variable = {
+			    var = BAK_electoral_unrest
+			    value = 5
+		    }
+		    clamp_variable = {
+	            var = BAK_electoral_unrest
+	            min = 0
+	            max = 100
+            }
+			hidden_effect = {
+				clr_country_flag = BAK_doing_political_action
+			}
+		}
+		complete_effect = {
+			log = "[GetDateText]: [Root.GetName]: Decision BAK_fight_the_blackshirts"
+			custom_effect_tooltip = BAK_increase_c_5_tp
+			add_to_variable = {
+			    var = BAK_communist_support_v
+			    value = 2
+		    }
+		    clamp_variable = {
+	            var = BAK_communist_support_v
+	            min = 0
+	            max = 100
+            }
+			subtract_from_variable = {
+			    var = BAK_fascist_support_v
+			    value = 2
+		    }
+		    clamp_variable = {
+	            var = BAK_fascist_support_v
+	            min = 0
+	            max = 100
+            }
+			hidden_effect = {
+				set_country_flag = BAK_doing_political_action
+			}
+		}
+	}
+	
+	BAK_decry_cowards = {
+		icon = generic_nationalism
+		visible = {
+		    AND = {
+			    has_idea = BAK_elections
+			    has_country_flag = BAK_supporting_communism
+			}
+		}
+		available = {
+		    NOT = {
+			    has_country_flag = BAK_doing_political_action
+			}
+		}
+		ai_will_do = {
+			factor = 10
+		}
+
+		cost = 35
+		days_remove = 40
+ 
+        modifier = {
+		    communism_drift = 0.01
+			stability_factor = -0.05
+		}
+		remove_effect = {
+		    custom_effect_tooltip = BAK_electoral_unrest_1_tp
+			add_to_variable = {
+			    var = BAK_electoral_unrest
+			    value = 5
+		    }
+		    clamp_variable = {
+	            var = BAK_electoral_unrest
+	            min = 0
+	            max = 100
+            }
+			hidden_effect = {
+				clr_country_flag = BAK_doing_political_action
+			}
+		}
+		complete_effect = {
+			log = "[GetDateText]: [Root.GetName]: Decision BAK_decry_cowards"
+			custom_effect_tooltip = BAK_increase_c_6_tp
+			add_to_variable = {
+			    var = BAK_communist_support_v
+			    value = 2
+		    }
+		    clamp_variable = {
+	            var = BAK_communist_support_v
+	            min = 0
+	            max = 100
+            }
+			subtract_from_variable = {
+			    var = BAK_neutrality_support_v
+			    value = 2
+		    }
+		    clamp_variable = {
+	            var = BAK_neutrality_support_v
+	            min = 0
+	            max = 100
+            }
+			hidden_effect = {
+				set_country_flag = BAK_doing_political_action
+			}
+		}
+	}
+	
+	BAK_sway_harmonists = {
+		icon = generic_political_discourse
+		visible = {
+		    AND = {
+			    has_idea = BAK_elections
+			    has_country_flag = BAK_supporting_communism
+			}
+		}
+		available = {
+		    NOT = {
+			    has_country_flag = BAK_doing_political_action
+			}
+		}
+		ai_will_do = {
+			factor =  10
+		}
+
+		cost = 35
+		days_remove = 40
+ 
+        modifier = {
+		    communism_drift = 0.01
+			stability_factor = -0.05
+		}
+		remove_effect = {
+		    custom_effect_tooltip = BAK_electoral_unrest_1_tp
+			add_to_variable = {
+			    var = BAK_electoral_unrest
+			    value = 5
+		    }
+		    clamp_variable = {
+	            var = BAK_electoral_unrest
+	            min = 0
+	            max = 100
+            }
+			hidden_effect = {
+				clr_country_flag = BAK_doing_political_action
+			}
+		}
+		complete_effect = {
+			log = "[GetDateText]: [Root.GetName]: Decision BAK_sway_harmonists"
+			custom_effect_tooltip = BAK_increase_c_7_tp
+			add_to_variable = {
+			    var = BAK_communist_support_v
+			    value = 2
+		    }
+		    clamp_variable = {
+	            var = BAK_communist_support_v
+	            min = 0
+	            max = 100
+            }
+			subtract_from_variable = {
+			    var = BAK_harmonist_support_v
+			    value = 2
+		    }
+		    clamp_variable = {
+	            var = BAK_harmonist_support_v
+	            min = 0
+	            max = 100
+            }
+			hidden_effect = {
+				set_country_flag = BAK_doing_political_action
+			}
+		}
+	}
+	
+	BAK_donate_to_workers = {
+		icon = generic_research
+		visible = {
+			AND = {
+			    has_idea = BAK_elections
+			    has_country_flag = BAK_supporting_communism
+			}
+		}
+		available = {
+		    NOT = {
+			    has_country_flag = BAK_doing_political_action
+			}
+		}
+		ai_will_do = {
+			factor = 100
+		}
+
+		cost = 35
+		days_remove = 40
+ 
+        modifier = {
+		    communism_drift = 0.02
+			political_power_factor = 0.10
+		}
+		remove_effect = {
+		    custom_effect_tooltip = BAK_electoral_unrest_3_tp
+			subtract_from_variable = {
+			    var = BAK_electoral_unrest
+			    value = 10
+		    }
+		    clamp_variable = {
+	            var = BAK_electoral_unrest
+	            min = 0
+	            max = 100
+            }
+			hidden_effect = {
+				clr_country_flag = BAK_doing_political_action
+			}
+		}
+		complete_effect = {
+			log = "[GetDateText]: [Root.GetName]: Decision BAK_donate_to_workers"
+			add_stability = 0.05
+			hidden_effect = {
+				set_country_flag = BAK_doing_political_action
+			}
+		}
+	}
+	
+	BAK_pick_neutrality_decision = {
+		icon = ger_mefo_bills
+		visible = {
+			has_idea = BAK_elections
+			NOT = {
+			    OR = {
+				    has_country_flag = BAK_supporting_fascism
+					has_country_flag = BAK_supporting_communism
+					has_country_flag = BAK_supporting_neutrality
+					has_country_flag = BAK_supporting_harmony
+				}
+			}
+		}
+		available = {
+			is_subject = no
+		}
+		complete_effect = {
+			log = "[GetDateText]: [Root.GetName]: Decision BAK_pick_neutrality_decision"
+			custom_effect_tooltip = BAK_supporting_neutrality_tp
+			hidden_effect = {
+			    set_country_flag = BAK_supporting_neutrality
+			}
+		}
+		ai_will_do = {
+			factor = 2500
+		}
+	}
+	
+	BAK_condemn_violence = {
+		icon = generic_prepare_civil_war
+		visible = {
+		    AND = {
+			    has_idea = BAK_elections
+			    has_country_flag = BAK_supporting_neutrality
+			}
+		}
+		available = {
+		    NOT = {
+			    has_country_flag = BAK_doing_political_action
+			}
+		}
+		ai_will_do = {
+			factor =  10
+		}
+
+		cost = 35
+		days_remove = 40
+ 
+        modifier = {
+		    neutrality_drift = 0.01
+			stability_factor = -0.05
+		}
+		remove_effect = {
+		    custom_effect_tooltip = BAK_electoral_unrest_1_tp
+			add_to_variable = {
+			    var = BAK_electoral_unrest
+			    value = 5
+		    }
+		    clamp_variable = {
+	            var = BAK_electoral_unrest
+	            min = 0
+	            max = 100
+            }
+			hidden_effect = {
+				clr_country_flag = BAK_doing_political_action
+			}
+		}
+		complete_effect = {
+			log = "[GetDateText]: [Root.GetName]: Decision BAK_condemn_violence"
+			custom_effect_tooltip = BAK_increase_n_3_tp
+			add_to_variable = {
+			    var = BAK_neutrality_support_v
+			    value = 2
+		    }
+		    clamp_variable = {
+	            var = BAK_neutrality_support_v
+	            min = 0
+	            max = 100
+            }
+			subtract_from_variable = {
+			    var = BAK_fascist_support_v
+			    value = 2
+		    }
+		    clamp_variable = {
+	            var = BAK_fascist_support_v
+	            min = 0
+	            max = 100
+            }
+			hidden_effect = {
+				set_country_flag = BAK_doing_political_action
+			}
+		}
+	}
+	
+	BAK_curtail_the_communists = {
+		icon = generic_break_treaty
+		visible = {
+		    AND = {
+			    has_idea = BAK_elections
+			    has_country_flag = BAK_supporting_neutrality
+			}
+		}
+		available = {
+		    NOT = {
+			    has_country_flag = BAK_doing_political_action
+			}
+		}
+		ai_will_do = {
+			factor = 10
+		}
+
+		cost = 35
+		days_remove = 40
+ 
+        modifier = {
+		    neutrality_drift = 0.01
+			stability_factor = -0.05
+		}
+		remove_effect = {
+		    custom_effect_tooltip = BAK_electoral_unrest_1_tp
+			add_to_variable = {
+			    var = BAK_electoral_unrest
+			    value = 5
+		    }
+		    clamp_variable = {
+	            var = BAK_electoral_unrest
+	            min = 0
+	            max = 100
+            }
+			hidden_effect = {
+				clr_country_flag = BAK_doing_political_action
+			}
+		}
+		complete_effect = {
+			log = "[GetDateText]: [Root.GetName]: Decision BAK_decry_cowards"
+			custom_effect_tooltip = BAK_increase_n_4_tp
+			add_to_variable = {
+			    var = BAK_neutrality_support_v
+			    value = 2
+		    }
+		    clamp_variable = {
+	            var = BAK_neutrality_support_v
+	            min = 0
+	            max = 100
+            }
+			subtract_from_variable = {
+			    var = BAK_communist_support_v
+			    value = 2
+		    }
+		    clamp_variable = {
+	            var = BAK_communist_support_v
+	            min = 0
+	            max = 100
+            }
+			hidden_effect = {
+				set_country_flag = BAK_doing_political_action
+			}
+		}
+	}
+	
+	BAK_ammends_with_harmonists = {
+		icon = generic_nationalism
+		visible = {
+		    AND = {
+			    has_idea = BAK_elections
+			    has_country_flag = BAK_supporting_neutrality
+			}
+		}
+		available = {
+		    NOT = {
+			    has_country_flag = BAK_doing_political_action
+			}
+		}
+		ai_will_do = {
+			factor = 10
+		}
+
+		cost = 35
+		days_remove = 40
+ 
+        modifier = {
+		    neutrality_drift = 0.01
+			stability_factor = -0.05
+		}
+		remove_effect = {
+		    custom_effect_tooltip = BAK_electoral_unrest_1_tp
+			add_to_variable = {
+			    var = BAK_electoral_unrest
+			    value = 5
+		    }
+		    clamp_variable = {
+	            var = BAK_electoral_unrest
+	            min = 0
+	            max = 100
+            }
+			hidden_effect = {
+				clr_country_flag = BAK_doing_political_action
+			}
+		}
+		complete_effect = {
+			log = "[GetDateText]: [Root.GetName]: Decision BAK_ammends_with_harmonists"
+			custom_effect_tooltip = BAK_increase_n_5_tp
+			add_to_variable = {
+			    var = BAK_neutrality_support_v
+			    value = 2
+		    }
+		    clamp_variable = {
+	            var = BAK_neutrality_support_v
+	            min = 0
+	            max = 100
+            }
+			subtract_from_variable = {
+			    var = BAK_harmonist_support_v
+			    value = 2
+		    }
+		    clamp_variable = {
+	            var = BAK_harmonist_support_v
+	            min = 0
+	            max = 100
+            }
+			hidden_effect = {
+				set_country_flag = BAK_doing_political_action
+			}
+		}
+	}
+	
+	BAK_calm_the_people = {
+		icon = generic_political_discourse
+		visible = {
+			AND = {
+			    has_idea = BAK_elections
+			    has_country_flag = BAK_supporting_neutrality
+			}
+		}
+		available = {
+		    NOT = {
+			    has_country_flag = BAK_doing_political_action
+			}
+		}
+		ai_will_do = {
+			factor = 100
+		}
+
+		cost = 35
+		days_remove = 40
+ 
+        modifier = {
+		    neutrality_drift = 0.02
+			political_power_factor = 0.10
+		}
+		remove_effect = {
+		    custom_effect_tooltip = BAK_electoral_unrest_3_tp
+			subtract_from_variable = {
+			    var = BAK_electoral_unrest
+			    value = 10
+		    }
+		    clamp_variable = {
+	            var = BAK_electoral_unrest
+	            min = 0
+	            max = 100
+            }
+			hidden_effect = {
+				clr_country_flag = BAK_doing_political_action
+			}
+		}
+		complete_effect = {
+			log = "[GetDateText]: [Root.GetName]: Decision BAK_calm_the_people"
+			add_stability = 0.05
+			hidden_effect = {
+				set_country_flag = BAK_doing_political_action
+			}
+		}
+	}
+	
+	BAK_pick_harmony_decision = {
+		icon = generic_nationalism
+		visible = {
+			has_idea = BAK_elections
+			NOT = {
+			    OR = {
+				    has_country_flag = BAK_supporting_fascism
+					has_country_flag = BAK_supporting_communism
+					has_country_flag = BAK_supporting_neutrality
+					has_country_flag = BAK_supporting_harmony
+				}
+			}
+		}
+		available = {
+			is_subject = no
+		}
+		complete_effect = {
+			log = "[GetDateText]: [Root.GetName]: Decision BAK_pick_neutrality_decision"
+			custom_effect_tooltip = BAK_supporting_harmony_tp
+			hidden_effect = {
+			    set_country_flag = BAK_supporting_harmony
+			}
+		}
+		ai_will_do = {
+			factor = 2500
+		}
+	}
+	
+	BAK_arrest_blackshirts = {
+		icon = generic_independence
+		visible = {
+		    AND = {
+			    has_idea = BAK_elections
+			    has_country_flag = BAK_supporting_harmony
+			}
+		}
+		available = {
+		    NOT = {
+			    has_country_flag = BAK_doing_political_action
+			}
+		}
+		ai_will_do = {
+			factor = 10
+		}
+
+		cost = 35
+		days_remove = 40
+ 
+        modifier = {
+		    democratic_drift = 0.01
+			stability_factor = -0.05
+		}
+		remove_effect = {
+		    custom_effect_tooltip = BAK_electoral_unrest_1_tp
+			add_to_variable = {
+			    var = BAK_electoral_unrest
+			    value = 5
+		    }
+		    clamp_variable = {
+	            var = BAK_electoral_unrest
+	            min = 0
+	            max = 100
+            }
+			hidden_effect = {
+				clr_country_flag = BAK_doing_political_action
+			}
+		}
+		complete_effect = {
+			log = "[GetDateText]: [Root.GetName]: Decision BAK_arrest_blackshirts"
+			custom_effect_tooltip = BAK_increase_d_5_tp
+			add_to_variable = {
+			    var = BAK_harmonist_support_v
+			    value = 2
+		    }
+		    clamp_variable = {
+	            var = BAK_harmonist_support_v
+	            min = 0
+	            max = 100
+            }
+			subtract_from_variable = {
+			    var = BAK_fascist_support_v
+			    value = 2
+		    }
+		    clamp_variable = {
+	            var = BAK_fascist_support_v
+	            min = 0
+	            max = 100
+            }
+			hidden_effect = {
+				set_country_flag = BAK_doing_political_action
+			}
+		}
+	}
+	
+	BAK_sway_the_working_class = {
+		icon = generic_political_discourse
+		visible = {
+		    AND = {
+			    has_idea = BAK_elections
+			    has_country_flag = BAK_supporting_harmony
+			}
+		}
+		available = {
+		    NOT = {
+			    has_country_flag = BAK_doing_political_action
+			}
+		}
+		ai_will_do = {
+			factor = 10
+		}
+
+		cost = 35
+		days_remove = 40
+ 
+        modifier = {
+		    democratic_drift = 0.01
+			stability_factor = -0.05
+		}
+		remove_effect = {
+		    custom_effect_tooltip = BAK_electoral_unrest_1_tp
+			add_to_variable = {
+			    var = BAK_electoral_unrest
+			    value = 5
+		    }
+		    clamp_variable = {
+	            var = BAK_electoral_unrest
+	            min = 0
+	            max = 100
+            }
+			hidden_effect = {
+				clr_country_flag = BAK_doing_political_action
+			}
+		}
+		complete_effect = {
+			log = "[GetDateText]: [Root.GetName]: Decision BAK_sway_the_working_class"
+			custom_effect_tooltip = BAK_increase_d_6_tp
+			add_to_variable = {
+			    var = BAK_harmonist_support_v
+			    value = 2
+		    }
+		    clamp_variable = {
+	            var = BAK_harmonist_support_v
+	            min = 0
+	            max = 100
+            }
+			subtract_from_variable = {
+			    var = BAK_communist_support_v
+			    value = 2
+		    }
+		    clamp_variable = {
+	            var = BAK_communist_support_v
+	            min = 0
+	            max = 100
+            }
+			hidden_effect = {
+				set_country_flag = BAK_doing_political_action
+			}
+		}
+	}
+	
+	BAK_poach_BSP = {
+		icon = generic_nationalism
+		visible = {
+		    AND = {
+			    has_idea = BAK_elections
+			    has_country_flag = BAK_supporting_harmony
+			}
+		}
+		available = {
+		    NOT = {
+			    has_country_flag = BAK_doing_political_action
+			}
+		}
+		ai_will_do = {
+			factor = 10
+		}
+
+		cost = 35
+		days_remove = 40
+ 
+        modifier = {
+		    democratic_drift = 0.01
+			stability_factor = -0.05
+		}
+		remove_effect = {
+		    custom_effect_tooltip = BAK_electoral_unrest_1_tp
+			add_to_variable = {
+			    var = BAK_electoral_unrest
+			    value = 5
+		    }
+		    clamp_variable = {
+	            var = BAK_electoral_unrest
+	            min = 0
+	            max = 100
+            }
+			hidden_effect = {
+				clr_country_flag = BAK_doing_political_action
+			}
+		}
+		complete_effect = {
+			log = "[GetDateText]: [Root.GetName]: Decision BAK_poach_BSP"
+			custom_effect_tooltip = BAK_increase_d_7_tp
+			add_to_variable = {
+			    var = BAK_harmonist_support_v
+			    value = 2
+		    }
+		    clamp_variable = {
+	            var = BAK_harmonist_support_v
+	            min = 0
+	            max = 100
+            }
+			subtract_from_variable = {
+			    var = BAK_neutrality_support_v
+			    value = 2
+		    }
+		    clamp_variable = {
+	            var = BAK_neutrality_support_v
+	            min = 0
+	            max = 100
+            }
+			hidden_effect = {
+				set_country_flag = BAK_doing_political_action
+			}
+		}
+	}
+	
+	BAK_talk_with_the_people = {
+		icon = generic_scorched_earth
+		visible = {
+			AND = {
+			    has_idea = BAK_elections
+			    has_country_flag = BAK_supporting_harmony
+			}
+		}
+		available = {
+		    NOT = {
+			    has_country_flag = BAK_doing_political_action
+			}
+		}
+		ai_will_do = {
+			factor = 100
+		}
+
+		cost = 30
+		days_remove = 50
+ 
+        modifier = {
+		    democratic_drift = 0.02
+			political_power_factor = 0.10
+		}
+		remove_effect = {
+		    custom_effect_tooltip = BAK_electoral_unrest_3_tp
+			subtract_from_variable = {
+			    var = BAK_electoral_unrest
+			    value = 10
+		    }
+		    clamp_variable = {
+	            var = BAK_electoral_unrest
+	            min = 0
+	            max = 100
+            }
+			hidden_effect = {
+				clr_country_flag = BAK_doing_political_action
+			}
+		}
+		complete_effect = {
+			log = "[GetDateText]: [Root.GetName]: Decision BAK_calm_the_people"
+			add_stability = 0.05
+			hidden_effect = {
+				set_country_flag = BAK_doing_political_action
+			}
+		}
+	}
+}
+
+military_training_category = {
+	BAK_torp_cruisers = {
+		icon = generic_naval
+		allowed = {
+			original_tag = BAK
+		}
+		available = {
+				if = {
+					limit = {
+						has_dlc = "Man the Guns"
+					}
+					has_tech = improved_ship_hull_cruiser
+					else = {
+						OR = {
+						has_tech = improved_light_cruiser
+						has_tech = improved_heavy_cruiser
+						}
+					}
+				}
+				has_completed_focus = BAK_better_cruisers	
+				hidden_trigger = { has_navy_experience > 150 has_political_power > 29 }
+		}
+		visible = {
+			OR = {
+				if = {
+					limit = {
+						has_dlc = "Man the Guns"
+					}
+					has_tech = improved_ship_hull_cruiser
+					else = {
+						OR = {
+						has_tech = improved_light_cruiser
+						has_tech = improved_heavy_cruiser
+						}
+					}
+				}
+				has_completed_focus = BAK_better_cruisers	
+			}
+		}
+		
+		custom_cost_trigger = {
+			has_navy_experience > 149
+			has_political_power > 29
+		}
+
+		custom_cost_text = decision_cost_navy_xp_150_pp_30
+
+		ai_will_do = {
+			factor = 10
+		}
+		days_remove = 90
+
+		fire_only_once = yes
+		remove_effect = {
+			log = "[GetDateText]: [Root.GetName]: Decision remove BAK_torp_cruisers"
+			if = {
+				limit = {
+					not = { has_dlc = "Man the Guns" }
+				}
+				set_technology = { torpedo_cruiser = 1 }
+			}
+			else = {
+				set_technology = { torpedo_cruiser_mtg = 1 }
+			}
+		}
+		complete_effect = {
+			log = "[GetDateText]: [Root.GetName]: Decision BAK_torp_cruisers"
+			hidden_effect = { navy_experience = -150 add_political_power = -30 }
+		}
+	}
+}
+
+
+prospect_for_resources = {
+    BAK_bakaran_oil = {
+		icon = oil
+		allowed = {
+            original_tag = BAK
+		}
+        available = {
+			num_of_civilian_factories_available_for_projects > 2
+			owns_state = 649
+			controls_state = 649
+		}
+		visible = {
+		    has_completed_focus = BAK_develop_natural_resources
+			owns_state = 649
+			controls_state = 649
+			649 = {
+				NOT = {
+					has_state_flag = BAK_resources_exploited
+				}
+			}
+		}
+		highlight_states = {
+			state = 649
+		}
+		fire_only_once = yes
+
+		cost = 25
+		days_remove = 60
+
+		modifier = {
+			civilian_factory_use = 3
+		}
+
+		ai_will_do = {
+			factor = 90
+		}
+		remove_effect = {
+			log = "[GetDateText]: [Root.GetName]: Decision remove BAK_bakaran_oil"
+			add_resource = {
+				type = oil
+				amount = 8
+				state = 649
+			}
+			hidden_effect = {
+			    649 = { 
+				    set_state_flag = BAK_resources_exploited 
+				}
+			}
+		}
+	}
+	
+	BAK_vetailje_chromium = {
+		icon = chromium
+		allowed = {
+            original_tag = BAK
+		}
+        available = {
+			num_of_civilian_factories_available_for_projects > 2
+			owns_state = 438
+			controls_state = 438
+		}
+		visible = {
+		    has_completed_focus = BAK_develop_natural_resources
+			owns_state = 438
+			controls_state = 438
+			438 = {
+				NOT = {
+					has_state_flag = BAK_resources_exploited
+				}
+			}
+		}
+		highlight_states = {
+			state = 438
+		}
+		fire_only_once = yes
+
+		cost = 25
+		days_remove = 60
+
+		modifier = {
+			civilian_factory_use = 3
+		}
+
+		ai_will_do = {
+			factor = 90
+		}
+		remove_effect = {
+			log = "[GetDateText]: [Root.GetName]: Decision remove BAK_vetailje_chromium"
+			add_resource = {
+				type = chromium
+				amount = 10
+				state = 438
+			}
+			hidden_effect = {
+			    438 = { 
+				    set_state_flag = BAK_resources_exploited 
+				}
+			}
+		}
+	}
+	
+	BAK_mareibor_steel = {
+		icon = steel
+		allowed = {
+            original_tag = BAK
+		}
+        available = {
+			num_of_civilian_factories_available_for_projects > 1
+			owns_state = 648
+			controls_state = 648
+		}
+		visible = {
+		    has_completed_focus = BAK_develop_natural_resources
+			owns_state = 648
+			controls_state = 648
+			648 = {
+				NOT = {
+					has_state_flag = BAK_resources_exploited
+				}
+			}
+		}
+		highlight_states = {
+			state = 648
+		}
+		fire_only_once = yes
+
+		cost = 25
+		days_remove = 60
+
+		modifier = {
+			civilian_factory_use = 2
+		}
+
+		ai_will_do = {
+			factor = 90
+		}
+		remove_effect = {
+			log = "[GetDateText]: [Root.GetName]: Decision remove BAK_vetailje_chromium"
+			add_resource = {
+				type = steel
+				amount = 8
+				state = 648
+			}
+			hidden_effect = {
+			    648 = { 
+				    set_state_flag = BAK_resources_exploited 
+				}
+			}
+		}
+	}
+	
+	BAK_kotailia_steel = {
+		icon = steel
+		allowed = {
+            original_tag = BAK
+		}
+        available = {
+			num_of_civilian_factories_available_for_projects > 1
+			owns_state = 461
+			controls_state = 461
+		}
+		visible = {
+		    has_completed_focus = BAK_develop_natural_resources
+			owns_state = 461
+			controls_state = 461
+			461 = {
+				NOT = {
+					has_state_flag = BAK_resources_exploited
+				}
+			}
+		}
+		highlight_states = {
+			state = 461
+		}
+		fire_only_once = yes
+
+		cost = 25
+		days_remove = 60
+
+		modifier = {
+			civilian_factory_use = 2
+		}
+
+		ai_will_do = {
+			factor = 90
+		}
+		remove_effect = {
+			log = "[GetDateText]: [Root.GetName]: Decision remove BAK_vetailje_chromium"
+			add_resource = {
+				type = steel
+				amount = 8
+				state = 461
+			}
+			hidden_effect = {
+			    461 = { 
+				    set_state_flag = BAK_resources_exploited 
+				}
+			}
+		}
+	}
+}
+
+RIV_political_decisions = {
+    BAK_dreams_of_a_federation = {
+		icon = ger_mefo_bills
+		allowed = {
+            original_tag = BAK
+		}
+		visible = {
+		    has_country_flag = BAK_pan_riverlandic_ethos_flag
+			NOT = {
+			    has_completed_focus = RIV_dreams_of_a_federation
+			}
+		}
+		fire_only_once = yes
+
+		cost = 0
+
+		ai_will_do = {
+			factor = 1000
+		}
+		complete_effect = {
+			log = "[GetDateText]: [Root.GetName]: Decision remove BAK_dreams_of_a_federation"
+			complete_national_focus = RIV_dreams_of_a_federation
+			hidden_effect = {
+			    clr_country_flag = BAK_pan_riverlandic_ethos_flag
+			}
+		}
+	}
+	
+	BAK_science_society = {
+		icon = ger_mefo_bills
+		allowed = {
+            original_tag = BAK
+		}
+		visible = {
+		    has_country_flag = BAK_pan_riverlandic_ethos_flag
+			has_completed_focus = RIV_dreams_of_a_federation
+			NOT = {
+			    has_completed_focus = RIV_science_society
+			}
+		}
+		fire_only_once = yes
+
+		cost = 0
+
+		ai_will_do = {
+			factor = 1000
+		}
+		complete_effect = {
+			log = "[GetDateText]: [Root.GetName]: Decision remove BAK_science_society"
+			complete_national_focus = RIV_science_society
+			hidden_effect = {
+			    clr_country_flag = BAK_pan_riverlandic_ethos_flag
+			}
+		}
+	}
+	
+	BAK_found_the_rcsc = {
+		icon = ger_mefo_bills
+		allowed = {
+            original_tag = BAK
+		}
+		visible = {
+		    has_country_flag = BAK_pan_riverlandic_ethos_flag
+			has_completed_focus = RIV_science_society
+			NOT = {
+			    has_completed_focus = RIV_found_the_rcsc
+			}
+		}
+		fire_only_once = yes
+
+		cost = 0
+
+		ai_will_do = {
+			factor = 1000
+		}
+		complete_effect = {
+			log = "[GetDateText]: [Root.GetName]: Decision remove BAK_found_the_rcsc"
+			complete_national_focus = RIV_found_the_rcsc
+			hidden_effect = {
+			    clr_country_flag = BAK_pan_riverlandic_ethos_flag
+			}
+		}
+	}
+	
+	BAK_develop_DEP = {
+		icon = ger_mefo_bills
+		allowed = {
+            original_tag = BAK
+		}
+		visible = {
+		    has_country_flag = BAK_pan_riverlandic_ethos_flag
+			has_completed_focus = RIV_dreams_of_a_federation
+			NOT = {
+			    has_completed_focus = RIV_develop_DEP
+			}
+		}
+		fire_only_once = yes
+
+		cost = 0
+
+		ai_will_do = {
+			factor = 1000
+		}
+		complete_effect = {
+			log = "[GetDateText]: [Root.GetName]: Decision remove BAK_science_society"
+			complete_national_focus = RIV_develop_DEP
+			hidden_effect = {
+			    clr_country_flag = BAK_pan_riverlandic_ethos_flag
+			}
+		}
+	}
+	
+	BAK_build_roads_in_DEP = {
+		icon = ger_mefo_bills
+		allowed = {
+            original_tag = BAK
+		}
+		visible = {
+		    has_country_flag = BAK_pan_riverlandic_ethos_flag
+			has_completed_focus = RIV_develop_DEP
+			NOT = {
+			    has_completed_focus = RIV_build_roads_in_DEP
+			}
+		}
+		fire_only_once = yes
+
+		cost = 0
+
+		ai_will_do = {
+			factor = 1000
+		}
+		complete_effect = {
+			log = "[GetDateText]: [Root.GetName]: Decision remove BAK_science_society"
+			complete_national_focus = RIV_build_roads_in_DEP
+			hidden_effect = {
+			    clr_country_flag = BAK_pan_riverlandic_ethos_flag
+			}
+		}
+	}
+	
+	BAK_development_grants_DEP = {
+		icon = ger_mefo_bills
+		allowed = {
+            original_tag = BAK
+		}
+		visible = {
+		    has_country_flag = BAK_pan_riverlandic_ethos_flag
+			has_completed_focus = RIV_build_roads_in_DEP
+			NOT = {
+			    has_completed_focus = RIV_development_grants_DEP
+			}
+		}
+		fire_only_once = yes
+
+		cost = 0
+
+		ai_will_do = {
+			factor = 1000
+		}
+		complete_effect = {
+			log = "[GetDateText]: [Root.GetName]: Decision remove BAK_development_grants_DEP"
+			complete_national_focus = RIV_development_grants_DEP
+			hidden_effect = {
+			    clr_country_flag = BAK_pan_riverlandic_ethos_flag
+			}
+		}
+	}
+	
+	BAK_develop_FRE = {
+		icon = ger_mefo_bills
+		allowed = {
+            original_tag = BAK
+		}
+		visible = {
+		    has_country_flag = BAK_pan_riverlandic_ethos_flag
+			has_completed_focus = RIV_dreams_of_a_federation
+			NOT = {
+			    has_completed_focus = RIV_develop_FRE
+			}
+		}
+		fire_only_once = yes
+
+		cost = 0
+
+		ai_will_do = {
+			factor = 1000
+		}
+		complete_effect = {
+			log = "[GetDateText]: [Root.GetName]: Decision remove BAK_develop_FRE"
+			complete_national_focus = RIV_develop_FRE
+			hidden_effect = {
+			    clr_country_flag = BAK_pan_riverlandic_ethos_flag
+			}
+		}
+	}
+	
+	BAK_build_roads_in_FRE = {
+		icon = ger_mefo_bills
+		allowed = {
+            original_tag = BAK
+		}
+		visible = {
+		    has_country_flag = BAK_pan_riverlandic_ethos_flag
+			has_completed_focus = RIV_develop_FRE
+			NOT = {
+			    has_completed_focus = RIV_build_roads_in_FRE
+			}
+		}
+		fire_only_once = yes
+
+		cost = 0
+
+		ai_will_do = {
+			factor = 1000
+		}
+		complete_effect = {
+			log = "[GetDateText]: [Root.GetName]: Decision remove BAK_science_society"
+			complete_national_focus = RIV_build_roads_in_FRE
+			hidden_effect = {
+			    clr_country_flag = BAK_pan_riverlandic_ethos_flag
+			}
+		}
+	}
+	
+	BAK_development_grants_FRE = {
+		icon = ger_mefo_bills
+		allowed = {
+            original_tag = BAK
+		}
+		visible = {
+		    has_country_flag = BAK_pan_riverlandic_ethos_flag
+			has_completed_focus = RIV_build_roads_in_FRE
+			NOT = {
+			    has_completed_focus = RIV_development_grants_FRE
+			}
+		}
+		fire_only_once = yes
+
+		cost = 0
+
+		ai_will_do = {
+			factor = 1000
+		}
+		complete_effect = {
+			log = "[GetDateText]: [Root.GetName]: Decision remove BAK_development_grants_FRE"
+			complete_national_focus = RIV_development_grants_FRE
+			hidden_effect = {
+			    clr_country_flag = BAK_pan_riverlandic_ethos_flag
+			}
+		}
+	}
+	
+	BAK_found_the_rdc = {
+		icon = ger_mefo_bills
+		allowed = {
+            original_tag = BAK
+		}
+		visible = {
+		    has_country_flag = BAK_pan_riverlandic_ethos_flag
+			has_completed_focus = RIV_development_grants_FRE
+			has_completed_focus = RIV_development_grants_DEP
+			NOT = {
+			    has_completed_focus = RIV_found_the_rdc
+			}
+		}
+		fire_only_once = yes
+
+		cost = 0
+
+		ai_will_do = {
+			factor = 1000
+		}
+		complete_effect = {
+			log = "[GetDateText]: [Root.GetName]: Decision remove BAK_found_the_rdc"
+			complete_national_focus = RIV_found_the_rdc
+			hidden_effect = {
+			    clr_country_flag = BAK_pan_riverlandic_ethos_flag
+			}
+		}
+	}
+	
+	BAK_found_the_rec = {
+		icon = ger_mefo_bills
+		allowed = {
+            original_tag = BAK
+		}
+		visible = {
+		    has_country_flag = BAK_pan_riverlandic_ethos_flag
+			has_completed_focus = RIV_found_the_rcsc
+			has_completed_focus = RIV_found_the_rdc
+			NOT = {
+			    has_completed_focus = RIV_found_the_rec
+			}
+		}
+		fire_only_once = yes
+
+		cost = 0
+
+		ai_will_do = {
+			factor = 1000
+		}
+		complete_effect = {
+			log = "[GetDateText]: [Root.GetName]: Decision remove BAK_found_the_rec"
+			complete_national_focus = RIV_found_the_rec
+			hidden_effect = {
+			    clr_country_flag = BAK_pan_riverlandic_ethos_flag
+			}
+		}
+	}
+	
+	BAK_social_fund = {
+		icon = ger_mefo_bills
+		allowed = {
+            original_tag = BAK
+		}
+		visible = {
+		    has_country_flag = BAK_pan_riverlandic_ethos_flag
+			has_completed_focus = RIV_found_the_rec
+			NOT = {
+			    has_completed_focus = RIV_social_fund
+			}
+		}
+		fire_only_once = yes
+
+		cost = 0
+
+		ai_will_do = {
+			factor = 1000
+		}
+		complete_effect = {
+			log = "[GetDateText]: [Root.GetName]: Decision remove BAK_social_fund"
+			complete_national_focus = RIV_social_fund
+			hidden_effect = {
+			    clr_country_flag = BAK_pan_riverlandic_ethos_flag
+			}
+		}
+	}
+	
+	BAK_rdc_rail_projects = {
+		icon = ger_mefo_bills
+		allowed = {
+            original_tag = BAK
+		}
+		visible = {
+		    has_country_flag = BAK_pan_riverlandic_ethos_flag
+			has_completed_focus = RIV_found_the_rdc
+			NOT = {
+			    has_completed_focus = RIV_rdc_rail_projects
+			}
+		}
+		fire_only_once = yes
+
+		cost = 0
+
+		ai_will_do = {
+			factor = 1000
+		}
+		complete_effect = {
+			log = "[GetDateText]: [Root.GetName]: Decision remove BAK_rdc_rail_projects"
+			complete_national_focus = RIV_rdc_rail_projects
+			hidden_effect = {
+			    clr_country_flag = BAK_pan_riverlandic_ethos_flag
+			}
+		}
+	}
+	
+	BAK_eastern_transport_fund = {
+		icon = ger_mefo_bills
+		allowed = {
+            original_tag = BAK
+		}
+		visible = {
+		    has_country_flag = BAK_pan_riverlandic_ethos_flag
+			has_completed_focus = RIV_rdc_rail_projects
+			has_completed_focus = RIV_found_the_rec
+			NOT = {
+			    has_completed_focus = RIV_eastern_transport_fund
+			}
+		}
+		fire_only_once = yes
+
+		cost = 0
+
+		ai_will_do = {
+			factor = 1000
+		}
+		complete_effect = {
+			log = "[GetDateText]: [Root.GetName]: Decision remove BAK_eastern_transport_fund"
+			complete_national_focus = RIV_eastern_transport_fund
+			hidden_effect = {
+			    clr_country_flag = BAK_pan_riverlandic_ethos_flag
+			}
+		}
+	}
+	
+	BAK_beings_rights = {
+		icon = ger_mefo_bills
+		allowed = {
+            original_tag = BAK
+		}
+		visible = {
+		    has_country_flag = BAK_pan_riverlandic_ethos_flag
+			has_completed_focus = RIV_social_fund
+			NOT = {
+			    has_completed_focus = RIV_beings_rights
+			}
+		}
+		fire_only_once = yes
+
+		cost = 0
+
+		ai_will_do = {
+			factor = 1000
+		}
+		complete_effect = {
+			log = "[GetDateText]: [Root.GetName]: Decision remove BAK_beings_rights"
+			complete_national_focus = RIV_beings_rights
+			hidden_effect = {
+			    clr_country_flag = BAK_pan_riverlandic_ethos_flag
+			}
+		}
+	}
+	
+	BAK_river_parliament = {
+		icon = ger_mefo_bills
+		allowed = {
+            original_tag = BAK
+		}
+		visible = {
+		    has_country_flag = BAK_pan_riverlandic_ethos_flag
+			has_completed_focus = RIV_social_fund
+			has_completed_focus = RIV_eastern_transport_fund
+			NOT = {
+			    has_completed_focus = RIV_river_parliament
+			}
+		}
+		fire_only_once = yes
+
+		cost = 0
+
+		ai_will_do = {
+			factor = 1000
+		}
+		complete_effect = {
+			log = "[GetDateText]: [Root.GetName]: Decision remove BAK_river_parliament"
+			complete_national_focus = RIV_river_parliament
+			hidden_effect = {
+			    clr_country_flag = BAK_pan_riverlandic_ethos_flag
+			}
+		}
+	}
+	
+	BAK_rdc_industry_projects = {
+		icon = ger_mefo_bills
+		allowed = {
+            original_tag = BAK
+		}
+		visible = {
+		    has_country_flag = BAK_pan_riverlandic_ethos_flag
+			has_completed_focus = RIV_found_the_rdc
+			NOT = {
+			    has_completed_focus = RIV_rdc_industry_projects
+			}
+		}
+		fire_only_once = yes
+
+		cost = 0
+
+		ai_will_do = {
+			factor = 1000
+		}
+		complete_effect = {
+			log = "[GetDateText]: [Root.GetName]: Decision remove BAK_rdc_industry_projects"
+			complete_national_focus = RIV_rdc_industry_projects
+			hidden_effect = {
+			    clr_country_flag = BAK_pan_riverlandic_ethos_flag
+			}
+		}
+	}
+	
+	BAK_rdc_local_investment_funds = {
+		icon = ger_mefo_bills
+		allowed = {
+            original_tag = BAK
+		}
+		visible = {
+		    has_country_flag = BAK_pan_riverlandic_ethos_flag
+			has_completed_focus = RIV_rdc_industry_projects
+			NOT = {
+			    has_completed_focus = RIV_rdc_local_investment_funds
+			}
+		}
+		fire_only_once = yes
+
+		cost = 0
+
+		ai_will_do = {
+			factor = 1000
+		}
+		complete_effect = {
+			log = "[GetDateText]: [Root.GetName]: Decision remove BAK_rdc_local_investment_funds"
+			complete_national_focus = RIV_rdc_local_investment_funds
+			hidden_effect = {
+			    clr_country_flag = BAK_pan_riverlandic_ethos_flag
+			}
+		}
+	}
+	
+	BAK_develop_friends = {
+		icon = ger_mefo_bills
+		allowed = {
+            original_tag = BAK
+		}
+		visible = {
+		    has_country_flag = BAK_pan_riverlandic_ethos_flag
+			has_completed_focus = RIV_dreams_of_a_federation
+			NOT = {
+			    has_completed_focus = RIV_develop_friends
+			}
+		}
+		fire_only_once = yes
+
+		cost = 0
+
+		ai_will_do = {
+			factor = 1000
+		}
+		complete_effect = {
+			log = "[GetDateText]: [Root.GetName]: Decision remove BAK_develop_friends"
+			complete_national_focus = RIV_develop_friends
+			hidden_effect = {
+			    clr_country_flag = BAK_pan_riverlandic_ethos_flag
+			}
+		}
+	}
+	
+	BAK_develop_firtree = {
+		icon = ger_mefo_bills
+		allowed = {
+            original_tag = BAK
+		}
+		visible = {
+		    has_country_flag = BAK_pan_riverlandic_ethos_flag
+			has_completed_focus = RIV_develop_friends
+			NOT = {
+			    has_completed_focus = RIV_develop_firtree
+			}
+		}
+		fire_only_once = yes
+
+		cost = 0
+
+		ai_will_do = {
+			factor = 1000
+		}
+		complete_effect = {
+			log = "[GetDateText]: [Root.GetName]: Decision remove BAK_develop_firtree"
+			complete_national_focus = RIV_develop_firtree
+			hidden_effect = {
+			    clr_country_flag = BAK_pan_riverlandic_ethos_flag
+			}
+		}
+	}
+	
+	BAK_develop_farbrook = {
+		icon = ger_mefo_bills
+		allowed = {
+            original_tag = BAK
+		}
+		visible = {
+		    has_country_flag = BAK_pan_riverlandic_ethos_flag
+			has_completed_focus = RIV_develop_friends
+			NOT = {
+			    has_completed_focus = RIV_develop_farbrook
+			}
+		}
+		fire_only_once = yes
+
+		cost = 0
+
+		ai_will_do = {
+			factor = 1000
+		}
+		complete_effect = {
+			log = "[GetDateText]: [Root.GetName]: Decision remove BAK_develop_farbrook"
+			complete_national_focus = RIV_develop_farbrook
+			hidden_effect = {
+			    clr_country_flag = BAK_pan_riverlandic_ethos_flag
+			}
+		}
+	}
+	
+	BAK_develop_watertowns = {
+		icon = ger_mefo_bills
+		allowed = {
+            original_tag = BAK
+		}
+		visible = {
+		    has_country_flag = BAK_pan_riverlandic_ethos_flag
+			has_completed_focus = RIV_develop_firtree
+			NOT = {
+			    has_completed_focus = RIV_develop_watertowns
+			}
+		}
+		fire_only_once = yes
+
+		cost = 0
+
+		ai_will_do = {
+			factor = 1000
+		}
+		complete_effect = {
+			log = "[GetDateText]: [Root.GetName]: Decision remove BAK_develop_watertowns"
+			complete_national_focus = RIV_develop_watertowns
+			hidden_effect = {
+			    clr_country_flag = BAK_pan_riverlandic_ethos_flag
+			}
+		}
+	}
+	
+	BAK_friends_with_greneclyf = {
+		icon = ger_mefo_bills
+		allowed = {
+            original_tag = BAK
+		}
+		visible = {
+		    has_country_flag = BAK_pan_riverlandic_ethos_flag
+			has_completed_focus = RIV_develop_farbrook
+			NOT = {
+			    has_completed_focus = RIV_friends_with_greneclyf
+			}
+		}
+		fire_only_once = yes
+
+		cost = 0
+
+		ai_will_do = {
+			factor = 1000
+		}
+		complete_effect = {
+			log = "[GetDateText]: [Root.GetName]: Decision remove BAK_friends_with_greneclyf"
+			complete_national_focus = RIV_friends_with_greneclyf
+			hidden_effect = {
+			    clr_country_flag = BAK_pan_riverlandic_ethos_flag
+			}
+		}
+	}
+	
+	BAK_expand_the_federation = {
+		icon = ger_mefo_bills
+		allowed = {
+            original_tag = BAK
+		}
+		visible = {
+		    has_country_flag = BAK_pan_riverlandic_ethos_flag
+			has_completed_focus = RIV_develop_watertowns 
+			has_completed_focus = RIV_friends_with_greneclyf
+			NOT = {
+			    has_completed_focus = RIV_expand_the_federation
+			}
+		}
+		fire_only_once = yes
+
+		cost = 0
+
+		ai_will_do = {
+			factor = 1000
+		}
+		complete_effect = {
+			log = "[GetDateText]: [Root.GetName]: Decision remove BAK_expand_the_federation"
+			complete_national_focus = RIV_expand_the_federation
+			hidden_effect = {
+			    clr_country_flag = BAK_pan_riverlandic_ethos_flag
+			}
+		}
+	}
+	
+	BAK_free_movement = {
+		icon = ger_mefo_bills
+		allowed = {
+            original_tag = BAK
+		}
+		visible = {
+		    has_country_flag = BAK_pan_riverlandic_ethos_flag
+			has_completed_focus = RIV_river_parliament
+			NOT = {
+			    has_completed_focus = RIV_free_movement
+			}
+		}
+		fire_only_once = yes
+
+		cost = 0
+
+		ai_will_do = {
+			factor = 1000
+		}
+		complete_effect = {
+			log = "[GetDateText]: [Root.GetName]: Decision remove BAK_free_movement"
+			complete_national_focus = RIV_free_movement
+			hidden_effect = {
+			    clr_country_flag = BAK_pan_riverlandic_ethos_flag
+			}
+		}
+	}
+	
+	BAK_centeral_bank = {
+		icon = ger_mefo_bills
+		allowed = {
+            original_tag = BAK
+		}
+		visible = {
+		    has_country_flag = BAK_pan_riverlandic_ethos_flag
+			has_completed_focus = RIV_river_parliament
+			NOT = {
+			    has_completed_focus = RIV_centeral_bank
+			}
+		}
+		fire_only_once = yes
+
+		cost = 0
+
+		ai_will_do = {
+			factor = 1000
+		}
+		complete_effect = {
+			log = "[GetDateText]: [Root.GetName]: Decision remove BAK_centeral_bank"
+			complete_national_focus = RIV_centeral_bank
+			hidden_effect = {
+			    clr_country_flag = BAK_pan_riverlandic_ethos_flag
+			}
+		}
+	}
+	
+	BAK_the_rivbit = {
+		icon = ger_mefo_bills
+		allowed = {
+            original_tag = BAK
+		}
+		visible = {
+		    has_country_flag = BAK_pan_riverlandic_ethos_flag
+			has_completed_focus = RIV_centeral_bank
+			NOT = {
+			    has_completed_focus = RIV_the_rivbit
+			}
+		}
+		fire_only_once = yes
+
+		cost = 0
+
+		ai_will_do = {
+			factor = 1000
+		}
+		complete_effect = {
+			log = "[GetDateText]: [Root.GetName]: Decision remove BAK_centeral_bank"
+			complete_national_focus = RIV_the_rivbit
+			hidden_effect = {
+			    clr_country_flag = BAK_pan_riverlandic_ethos_flag
+			}
+		}
+	}
+	
+	BAK_the_river_union = {
+		icon = ger_mefo_bills
+		allowed = {
+            original_tag = BAK
+		}
+		visible = {
+		    has_country_flag = BAK_pan_riverlandic_ethos_flag
+			has_completed_focus = RIV_free_movement
+			has_completed_focus = RIV_the_rivbit
+			NOT = {
+			    has_completed_focus = RIV_the_river_union
+			}
+		}
+		fire_only_once = yes
+
+		cost = 0
+
+		ai_will_do = {
+			factor = 1000
+		}
+		complete_effect = {
+			log = "[GetDateText]: [Root.GetName]: Decision remove BAK_the_river_union"
+			complete_national_focus = RIV_the_river_union
+			hidden_effect = {
+			    clr_country_flag = BAK_pan_riverlandic_ethos_flag
+			}
+		}
+	}
+	
+	BAK_river_army = {
+		icon = ger_mefo_bills
+		allowed = {
+            original_tag = BAK
+		}
+		visible = {
+		    has_country_flag = BAK_pan_riverlandic_ethos_flag
+			has_completed_focus = RIV_the_river_union
+			NOT = {
+			    has_completed_focus = RIV_river_army
+			}
+		}
+		fire_only_once = yes
+
+		cost = 0
+
+		ai_will_do = {
+			factor = 1000
+		}
+		complete_effect = {
+			log = "[GetDateText]: [Root.GetName]: Decision remove BAK_river_army"
+			complete_national_focus = RIV_river_army
+			hidden_effect = {
+			    clr_country_flag = BAK_pan_riverlandic_ethos_flag
+			}
+		}
+	}
+	
+	BAK_river_government = {
+		icon = ger_mefo_bills
+		allowed = {
+            original_tag = BAK
+		}
+		visible = {
+		    has_country_flag = BAK_pan_riverlandic_ethos_flag
+			has_completed_focus = RIV_the_river_union
+			NOT = {
+			    has_completed_focus = RIV_river_government
+			}
+		}
+		fire_only_once = yes
+
+		cost = 0
+
+		ai_will_do = {
+			factor = 1000
+		}
+		complete_effect = {
+			log = "[GetDateText]: [Root.GetName]: Decision remove BAK_river_government"
+			complete_national_focus = RIV_river_government
+			hidden_effect = {
+			    clr_country_flag = BAK_pan_riverlandic_ethos_flag
+			}
+		}
+	}
+	
+	BAK_the_federation = {
+		icon = ger_mefo_bills
+		allowed = {
+            original_tag = BAK
+		}
+		visible = {
+		    has_country_flag = BAK_pan_riverlandic_ethos_flag
+			has_completed_focus = RIV_river_government
+			has_completed_focus = RIV_river_army
+			NOT = {
+			    has_completed_focus = RIV_the_federation
+			}
+		}
+		fire_only_once = yes
+
+		cost = 0
+
+		ai_will_do = {
+			factor = 1000
+		}
+		complete_effect = {
+			log = "[GetDateText]: [Root.GetName]: Decision remove BAK_the_federation"
+			complete_national_focus = RIV_the_federation
+			hidden_effect = {
+			    clr_country_flag = BAK_pan_riverlandic_ethos_flag
+			}
+		}
+	}
+	
+	BAK_railroads_in_bakara = {
+		icon = railroad
+		allowed = {
+            original_tag = BAK
+		}
+		available = {
+		    NOT = {
+		        has_country_flag = BAK_building_a_railway
+			}
+		}
+		visible = {
+			has_completed_focus = BAK_national_railways
+			is_river_fed_member = yes
+		}
+		fire_only_once = yes
+
+		cost = 25
+		days_remove = 60
+
+		ai_will_do = {
+			factor = 100
+		}
+		
+        modifier = {
+		    civilian_factory_use = 3
+		}
+		
+		highlight_state_targets = {
+            state = 649
+            state = 648
+			state = 461
+			state = 438
+        }
+		complete_effect = {
+			log = "[GetDateText]: [Root.GetName]: Decision remove BAK_railroads_in_bakara"
+			hidden_effect = {
+			    set_country_flag = BAK_building_a_railway
+			}
+		}
+		remove_effect = {
+			log = "[GetDateText]: [Root.GetName]: Decision remove BAK_building_a_railway"
+			custom_effect_tooltip = BAK_railroads_in_bakara_tp
+			if = {
+                limit = {
+                    all_allied_country = { 
+                        OR = { 
+                            has_country_flag = BAK_railway_constructed
+                            is_original_riv_fed_country = no
+                            is_river_fed_member = no
+                        }
+                    }
+                }
+                RIV_add_to_fed_race = yes
+            } 
+			hidden_effect = {
+			    if = {
+			    	limit = {
+				    	649 = {
+							owner = {
+						   		is_river_fed_member = yes
+							}
+						}
+					}
+					649 = {
+						add_extra_state_shared_building_slots = 1
+						add_building_construction = {
+							type = infrastructure
+							level = 1
+							instant_build = yes
+						}
+						add_state_modifier = {
+                        	modifier = {
+				            	army_speed_factor_for_controller = 0.10
+								intel_network_gain_factor = 0.05
+                       	 	}
+                    	}
+					}
+				}
+				if = {
+			    	limit = {
+				    	648 = {
+							owner = {
+						   		is_river_fed_member = yes
+							}
+						}
+					}
+					648 = {
+						add_extra_state_shared_building_slots = 1
+						add_building_construction = {
+							type = infrastructure
+							level = 1
+							instant_build = yes
+						}
+						add_state_modifier = {
+                        	modifier = {
+				            	army_speed_factor_for_controller = 0.10
+								intel_network_gain_factor = 0.05
+                        	}
+                    	}
+					}
+				}
+				if = {
+			    	limit = {
+				    	438 = {
+							owner = {
+						   		is_river_fed_member = yes
+							}
+						}
+					}
+					438 = {
+						add_extra_state_shared_building_slots = 1
+						add_building_construction = {
+							type = infrastructure
+							level = 1
+							instant_build = yes
+						}
+						add_state_modifier = {
+                        	modifier = {
+				            	army_speed_factor_for_controller = 0.10
+								intel_network_gain_factor = 0.05
+                        	}
+                    	}
+					}
+				}
+				if = {
+			    	limit = {
+				    	461 = {
+							owner = {
+						   		is_river_fed_member = yes
+							}
+						}
+					}
+					461 = {
+						add_extra_state_shared_building_slots = 1
+						add_building_construction = {
+							type = infrastructure
+							level = 1
+							instant_build = yes
+						}
+						add_state_modifier = {
+                        	modifier = {
+				            	army_speed_factor_for_controller = 0.10
+								intel_network_gain_factor = 0.05
+                        	}
+                    	}
+					}
+				}
+			    clr_country_flag = BAK_building_a_railway
+			}
+		}
+	}
+	
+	BAK_railroads_in_diamond_mountain = {
+		icon = railroad
+		allowed = {
+            original_tag = BAK
+		}
+		available = {
+		    NOT = {
+		        has_country_flag = BAK_building_a_railway
+			}
+		}
+		visible = {
+			has_completed_focus = BAK_national_railways
+			is_river_fed_member = yes
+			DMT = {
+			    is_river_fed_member = yes
+				NOT = {
+				    has_country_flag = BAK_railway_constructed
+				}
+			}
+		}
+		fire_only_once = yes
+
+		cost = 25
+		days_remove = 60
+
+		ai_will_do = {
+			factor = 100
+		}
+		
+        modifier = {
+		    civilian_factory_use = 3
+		}
+		
+		highlight_state_targets = {
+            state = 647
+            state = 638
+			state = 637
+			state = 635
+        }
+		complete_effect = {
+			log = "[GetDateText]: [Root.GetName]: Decision remove BAK_railroads_in_diamond_mountain"
+			hidden_effect = {
+			    set_country_flag = BAK_building_a_railway
+				DMT = {
+				    set_country_flag = BAK_railway_constructed
+				}
+			}
+		}
+		remove_effect = {
+			log = "[GetDateText]: [Root.GetName]: Decision remove BAK_railroads_in_diamond_mountain"
+			custom_effect_tooltip = BAK_railroads_in_diamond_mountain_tp
+			if = {
+                limit = {
+                    all_allied_country = { 
+                        OR = { 
+                            has_country_flag = BAK_railway_constructed
+                            is_original_riv_fed_country = no
+                            is_river_fed_member = no
+                        }
+                    }
+                }
+                RIV_add_to_fed_race = yes
+            } 
+			hidden_effect = {
+			    if = {
+			    	limit = {
+				    	647 = {
+							owner = {
+						   		is_river_fed_member = yes
+							}
+						}
+					}
+					647 = {
+						add_extra_state_shared_building_slots = 1
+						add_building_construction = {
+							type = infrastructure
+							level = 1
+							instant_build = yes
+						}
+						add_state_modifier = {
+                        	modifier = {
+				            	army_speed_factor_for_controller = 0.10
+								intel_network_gain_factor = 0.05
+                       	 	}
+                    	}
+					}
+				}
+				if = {
+			    	limit = {
+				    	638 = {
+							owner = {
+						   		is_river_fed_member = yes
+							}
+						}
+					}
+					638 = {
+						add_extra_state_shared_building_slots = 1
+						add_building_construction = {
+							type = infrastructure
+							level = 1
+							instant_build = yes
+						}
+						add_state_modifier = {
+                        	modifier = {
+				            	army_speed_factor_for_controller = 0.10
+								intel_network_gain_factor = 0.05
+                        	}
+                    	}
+					}
+				}
+				if = {
+			    	limit = {
+				    	637 = {
+							owner = {
+						   		is_river_fed_member = yes
+							}
+						}
+					}
+					637 = {
+						add_extra_state_shared_building_slots = 1
+						add_building_construction = {
+							type = infrastructure
+							level = 1
+							instant_build = yes
+						}
+						add_state_modifier = {
+                        	modifier = {
+				            	army_speed_factor_for_controller = 0.10
+								intel_network_gain_factor = 0.05
+                        	}
+                    	}
+					}
+				}
+				if = {
+			    	limit = {
+				    	635 = {
+							owner = {
+						   		is_river_fed_member = yes
+							}
+						}
+					}
+					635 = {
+						add_extra_state_shared_building_slots = 1
+						add_building_construction = {
+							type = infrastructure
+							level = 1
+							instant_build = yes
+						}
+						add_state_modifier = {
+                        	modifier = {
+				            	army_speed_factor_for_controller = 0.10
+								intel_network_gain_factor = 0.05
+                        	}
+                    	}
+					}
+				}
+			    clr_country_flag = BAK_building_a_railway
+			}
+		}
+	}
+	
+	BAK_railroads_in_deponya = {
+		icon = railroad
+		allowed = {
+            original_tag = BAK
+		}
+		available = {
+		    NOT = {
+		        has_country_flag = BAK_building_a_railway
+			}
+		}
+		visible = {
+			has_completed_focus = BAK_national_railways
+			is_river_fed_member = yes
+			DEP = {
+			    is_river_fed_member = yes
+				NOT = {
+				    has_country_flag = BAK_railway_constructed
+				}
+			}
+		}
+		fire_only_once = yes
+
+		cost = 25
+		days_remove = 60
+
+		ai_will_do = {
+			factor = 100
+		}
+		
+        modifier = {
+		    civilian_factory_use = 3
+		}
+		
+		highlight_state_targets = {
+            state = 586
+            state = 544
+			state = 491
+			state = 543
+        }
+		complete_effect = {
+			log = "[GetDateText]: [Root.GetName]: Decision remove BAK_railroads_in_deponya"
+			hidden_effect = {
+			    set_country_flag = BAK_building_a_railway
+				DEP = {
+				    set_country_flag = BAK_railway_constructed
+				}
+			}
+		}
+		remove_effect = {
+			log = "[GetDateText]: [Root.GetName]: Decision remove BAK_railroads_in_deponya"
+			custom_effect_tooltip = BAK_railroads_in_deponya_tp
+			if = {
+                limit = {
+                    all_allied_country = { 
+                        OR = { 
+                            has_country_flag = BAK_railway_constructed
+                            is_original_riv_fed_country = no
+                            is_river_fed_member = no
+                        }
+                    }
+                }
+                RIV_add_to_fed_race = yes
+            } 
+			hidden_effect = {
+			    if = {
+			    	limit = {
+				    	586 = {
+							owner = {
+						   		is_river_fed_member = yes
+							}
+						}
+					}
+					586 = {
+						add_extra_state_shared_building_slots = 1
+						add_building_construction = {
+							type = infrastructure
+							level = 1
+							instant_build = yes
+						}
+						add_state_modifier = {
+                        	modifier = {
+				            	army_speed_factor_for_controller = 0.10
+								intel_network_gain_factor = 0.05
+                       	 	}
+                    	}
+					}
+				}
+				if = {
+			    	limit = {
+				    	544 = {
+							owner = {
+						   		is_river_fed_member = yes
+							}
+						}
+					}
+					544 = {
+						add_extra_state_shared_building_slots = 1
+						add_building_construction = {
+							type = infrastructure
+							level = 1
+							instant_build = yes
+						}
+						add_state_modifier = {
+                        	modifier = {
+				            	army_speed_factor_for_controller = 0.10
+								intel_network_gain_factor = 0.05
+                        	}
+                    	}
+					}
+				}
+				if = {
+			    	limit = {
+				    	491 = {
+							owner = {
+						   		is_river_fed_member = yes
+							}
+						}
+					}
+					491 = {
+						add_extra_state_shared_building_slots = 1
+						add_building_construction = {
+							type = infrastructure
+							level = 1
+							instant_build = yes
+						}
+						add_state_modifier = {
+                        	modifier = {
+				            	army_speed_factor_for_controller = 0.10
+								intel_network_gain_factor = 0.05
+                        	}
+                    	}
+					}
+				}
+				if = {
+			    	limit = {
+				    	543 = {
+							owner = {
+						   		is_river_fed_member = yes
+							}
+						}
+					}
+					543 = {
+						add_extra_state_shared_building_slots = 1
+						add_building_construction = {
+							type = infrastructure
+							level = 1
+							instant_build = yes
+						}
+						add_state_modifier = {
+                        	modifier = {
+				            	army_speed_factor_for_controller = 0.10
+								intel_network_gain_factor = 0.05
+                        	}
+                    	}
+					}
+				}
+			    clr_country_flag = BAK_building_a_railway
+			}
+		}
+	}
+	
+	BAK_railroads_in_lake_city = {
+		icon = railroad
+		allowed = {
+            original_tag = BAK
+		}
+		available = {
+		    NOT = {
+		        has_country_flag = BAK_building_a_railway
+			}
+		}
+		visible = {
+			has_completed_focus = BAK_national_railways
+			is_river_fed_member = yes
+			LCT = {
+			    is_river_fed_member = yes
+				NOT = {
+				    has_country_flag = BAK_railway_constructed
+				}
+			}
+		}
+		fire_only_once = yes
+
+		cost = 25
+		days_remove = 60
+
+		ai_will_do = {
+			factor = 100
+		}
+		
+        modifier = {
+		    civilian_factory_use = 3
+		}
+		
+		highlight_state_targets = {
+            state = 387
+            state = 560
+			state = 499
+			state = 541
+			state = 551
+			state = 550
+        }
+		complete_effect = {
+			log = "[GetDateText]: [Root.GetName]: Decision remove BAK_railroads_in_lake_city"
+			hidden_effect = {
+			    set_country_flag = BAK_building_a_railway
+				LCT = {
+				    set_country_flag = BAK_railway_constructed
+				}
+			}
+		}
+		remove_effect = {
+			log = "[GetDateText]: [Root.GetName]: Decision remove BAK_railroads_in_lake_city"
+			custom_effect_tooltip = BAK_railroads_in_lake_city_tp
+			if = {
+                limit = {
+                    all_allied_country = { 
+                        OR = { 
+                            has_country_flag = BAK_railway_constructed
+                            is_original_riv_fed_country = no
+                            is_river_fed_member = no
+                        }
+                    }
+                }
+                RIV_add_to_fed_race = yes
+            } 
+			hidden_effect = {
+			    if = {
+			    	limit = {
+				    	541 = {
+							owner = {
+						   		is_river_fed_member = yes
+							}
+						}
+					}
+					541 = {
+						add_extra_state_shared_building_slots = 1
+						add_building_construction = {
+							type = infrastructure
+							level = 1
+							instant_build = yes
+						}
+						add_state_modifier = {
+                        	modifier = {
+				            	army_speed_factor_for_controller = 0.10
+								intel_network_gain_factor = 0.05
+                       	 	}
+                    	}
+					}
+				}
+				if = {
+			    	limit = {
+				    	560 = {
+							owner = {
+						   		is_river_fed_member = yes
+							}
+						}
+					}
+					560 = {
+						add_extra_state_shared_building_slots = 1
+						add_building_construction = {
+							type = infrastructure
+							level = 1
+							instant_build = yes
+						}
+						add_state_modifier = {
+                        	modifier = {
+				            	army_speed_factor_for_controller = 0.10
+								intel_network_gain_factor = 0.05
+                        	}
+                    	}
+					}
+				}
+				if = {
+			    	limit = {
+				    	499 = {
+							owner = {
+						   		is_river_fed_member = yes
+							}
+						}
+					}
+					499 = {
+						add_extra_state_shared_building_slots = 1
+						add_building_construction = {
+							type = infrastructure
+							level = 1
+							instant_build = yes
+						}
+						add_state_modifier = {
+                        	modifier = {
+				            	army_speed_factor_for_controller = 0.10
+								intel_network_gain_factor = 0.05
+                        	}
+                    	}
+					}
+				}
+				if = {
+			    	limit = {
+				    	387 = {
+							owner = {
+						   		is_river_fed_member = yes
+							}
+						}
+					}
+					387 = {
+						add_extra_state_shared_building_slots = 1
+						add_building_construction = {
+							type = infrastructure
+							level = 1
+							instant_build = yes
+						}
+						add_state_modifier = {
+                        	modifier = {
+				            	army_speed_factor_for_controller = 0.10
+								intel_network_gain_factor = 0.05
+                        	}
+                    	}
+					}
+				}
+				if = {
+			    	limit = {
+				    	551 = {
+							owner = {
+						   		is_river_fed_member = yes
+							}
+						}
+					}
+					551 = {
+						add_extra_state_shared_building_slots = 1
+						add_building_construction = {
+							type = infrastructure
+							level = 1
+							instant_build = yes
+						}
+						add_state_modifier = {
+                        	modifier = {
+				            	army_speed_factor_for_controller = 0.10
+								intel_network_gain_factor = 0.05
+                        	}
+                    	}
+					}
+				}
+				if = {
+			    	limit = {
+				    	550 = {
+							owner = {
+						   		is_river_fed_member = yes
+							}
+						}
+					}
+					550 = {
+						add_extra_state_shared_building_slots = 1
+						add_building_construction = {
+							type = infrastructure
+							level = 1
+							instant_build = yes
+						}
+						add_state_modifier = {
+                        	modifier = {
+				            	army_speed_factor_for_controller = 0.10
+								intel_network_gain_factor = 0.05
+                        	}
+                    	}
+					}
+				}
+			    clr_country_flag = BAK_building_a_railway
+			}
+		}
+	}
+	
+	BAK_railroads_in_river_city = {
+		icon = railroad
+		allowed = {
+            original_tag = BAK
+		}
+		available = {
+		    NOT = {
+		        has_country_flag = BAK_building_a_railway
+			}
+		}
+		visible = {
+			has_completed_focus = BAK_national_railways
+			is_river_fed_member = yes
+			RCT = {
+			    is_river_fed_member = yes
+				NOT = {
+				    has_country_flag = BAK_railway_constructed
+				}
+			}
+		}
+		fire_only_once = yes
+
+		cost = 25
+		days_remove = 60
+
+		ai_will_do = {
+			factor = 100
+		}
+		
+        modifier = {
+		    civilian_factory_use = 3
+		}
+		
+		highlight_state_targets = {
+            state = 646
+            state = 577
+			state = 620
+			state = 619
+			state = 682
+        }
+		complete_effect = {
+			log = "[GetDateText]: [Root.GetName]: Decision remove BAK_railroads_in_river_city"
+			hidden_effect = {
+			    set_country_flag = BAK_building_a_railway
+				RCT = {
+				    set_country_flag = BAK_railway_constructed
+				}
+			}
+		}
+		remove_effect = {
+			log = "[GetDateText]: [Root.GetName]: Decision remove BAK_railroads_in_river_city"
+			custom_effect_tooltip = BAK_railroads_in_river_city_tp
+			if = {
+                limit = {
+                    all_allied_country = { 
+                        OR = { 
+                            has_country_flag = BAK_railway_constructed
+                            is_original_riv_fed_country = no
+                            is_river_fed_member = no
+                        }
+                    }
+                }
+                RIV_add_to_fed_race = yes
+            } 
+			hidden_effect = {
+			    if = {
+			    	limit = {
+				    	646 = {
+							owner = {
+						   		is_river_fed_member = yes
+							}
+						}
+					}
+					646 = {
+						add_extra_state_shared_building_slots = 1
+						add_building_construction = {
+							type = infrastructure
+							level = 1
+							instant_build = yes
+						}
+						add_state_modifier = {
+                        	modifier = {
+				            	army_speed_factor_for_controller = 0.10
+								intel_network_gain_factor = 0.05
+                       	 	}
+                    	}
+					}
+				}
+				if = {
+			    	limit = {
+				    	577 = {
+							owner = {
+						   		is_river_fed_member = yes
+							}
+						}
+					}
+					577 = {
+						add_extra_state_shared_building_slots = 1
+						add_building_construction = {
+							type = infrastructure
+							level = 1
+							instant_build = yes
+						}
+						add_state_modifier = {
+                        	modifier = {
+				            	army_speed_factor_for_controller = 0.10
+								intel_network_gain_factor = 0.05
+                        	}
+                    	}
+					}
+				}
+				if = {
+			    	limit = {
+				    	620 = {
+							owner = {
+						   		is_river_fed_member = yes
+							}
+						}
+					}
+					620 = {
+						add_extra_state_shared_building_slots = 1
+						add_building_construction = {
+							type = infrastructure
+							level = 1
+							instant_build = yes
+						}
+						add_state_modifier = {
+                        	modifier = {
+				            	army_speed_factor_for_controller = 0.10
+								intel_network_gain_factor = 0.05
+                        	}
+                    	}
+					}
+				}
+				if = {
+			    	limit = {
+				    	619 = {
+							owner = {
+						   		is_river_fed_member = yes
+							}
+						}
+					}
+					619 = {
+						add_extra_state_shared_building_slots = 1
+						add_building_construction = {
+							type = infrastructure
+							level = 1
+							instant_build = yes
+						}
+						add_state_modifier = {
+                        	modifier = {
+				            	army_speed_factor_for_controller = 0.10
+								intel_network_gain_factor = 0.05
+                        	}
+                    	}
+					}
+				}
+				if = {
+			    	limit = {
+				    	682 = {
+							owner = {
+						   		is_river_fed_member = yes
+							}
+						}
+					}
+					682 = {
+						add_extra_state_shared_building_slots = 1
+						add_building_construction = {
+							type = infrastructure
+							level = 1
+							instant_build = yes
+						}
+						add_state_modifier = {
+                        	modifier = {
+				            	army_speed_factor_for_controller = 0.10
+								intel_network_gain_factor = 0.05
+                        	}
+                    	}
+					}
+				}
+			    clr_country_flag = BAK_building_a_railway
+			}
+		}
+	}
+	
+	BAK_railroads_in_wittenland = {
+		icon = railroad
+		allowed = {
+            original_tag = BAK
+		}
+		available = {
+		    NOT = {
+		        has_country_flag = BAK_building_a_railway
+			}
+		}
+		visible = {
+			has_completed_focus = BAK_national_railways
+			is_river_fed_member = yes
+			WIT = {
+			    is_river_fed_member = yes
+				NOT = {
+				    has_country_flag = BAK_railway_constructed
+				}
+			}
+		}
+		fire_only_once = yes
+
+		cost = 25
+		days_remove = 60
+
+		ai_will_do = {
+			factor = 100
+		}
+		
+        modifier = {
+		    civilian_factory_use = 3
+		}
+		
+		highlight_state_targets = {
+            state = 615
+            state = 614
+			state = 616
+			state = 628
+			state = 617
+			state = 629
+			state = 627
+        }
+		complete_effect = {
+			log = "[GetDateText]: [Root.GetName]: Decision remove BAK_railroads_in_wittenland"
+			hidden_effect = {
+			    set_country_flag = BAK_building_a_railway
+				WIT = {
+				    set_country_flag = BAK_railway_constructed
+				}
+			}
+		}
+		remove_effect = {
+			log = "[GetDateText]: [Root.GetName]: Decision remove BAK_railroads_in_wittenland"
+			custom_effect_tooltip = BAK_railroads_in_wittenland_tp
+			if = {
+                limit = {
+                    all_allied_country = { 
+                        OR = { 
+                            has_country_flag = BAK_railway_constructed
+                            is_original_riv_fed_country = no
+                            is_river_fed_member = no
+                        }
+                    }
+                }
+                RIV_add_to_fed_race = yes
+            } 
+			hidden_effect = {
+			    if = {
+			    	limit = {
+				    	615 = {
+							owner = {
+						   		is_river_fed_member = yes
+							}
+						}
+					}
+					615 = {
+						add_extra_state_shared_building_slots = 1
+						add_building_construction = {
+							type = infrastructure
+							level = 1
+							instant_build = yes
+						}
+						add_state_modifier = {
+                        	modifier = {
+				            	army_speed_factor_for_controller = 0.10
+								intel_network_gain_factor = 0.05
+                       	 	}
+                    	}
+					}
+				}
+				if = {
+			    	limit = {
+				    	614 = {
+							owner = {
+						   		is_river_fed_member = yes
+							}
+						}
+					}
+					614 = {
+						add_extra_state_shared_building_slots = 1
+						add_building_construction = {
+							type = infrastructure
+							level = 1
+							instant_build = yes
+						}
+						add_state_modifier = {
+                        	modifier = {
+				            	army_speed_factor_for_controller = 0.10
+								intel_network_gain_factor = 0.05
+                        	}
+                    	}
+					}
+				}
+				if = {
+			    	limit = {
+				    	616 = {
+							owner = {
+						   		is_river_fed_member = yes
+							}
+						}
+					}
+					616 = {
+						add_extra_state_shared_building_slots = 1
+						add_building_construction = {
+							type = infrastructure
+							level = 1
+							instant_build = yes
+						}
+						add_state_modifier = {
+                        	modifier = {
+				            	army_speed_factor_for_controller = 0.10
+								intel_network_gain_factor = 0.05
+                        	}
+                    	}
+					}
+				}
+				if = {
+			    	limit = {
+				    	628 = {
+							owner = {
+						   		is_river_fed_member = yes
+							}
+						}
+					}
+					628 = {
+						add_extra_state_shared_building_slots = 1
+						add_building_construction = {
+							type = infrastructure
+							level = 1
+							instant_build = yes
+						}
+						add_state_modifier = {
+                        	modifier = {
+				            	army_speed_factor_for_controller = 0.10
+								intel_network_gain_factor = 0.05
+                        	}
+                    	}
+					}
+				}
+				if = {
+			    	limit = {
+				    	617 = {
+							owner = {
+						   		is_river_fed_member = yes
+							}
+						}
+					}
+					617 = {
+						add_extra_state_shared_building_slots = 1
+						add_building_construction = {
+							type = infrastructure
+							level = 1
+							instant_build = yes
+						}
+						add_state_modifier = {
+                        	modifier = {
+				            	army_speed_factor_for_controller = 0.10
+								intel_network_gain_factor = 0.05
+                        	}
+                    	}
+					}
+				}
+				if = {
+			    	limit = {
+				    	629 = {
+							owner = {
+						   		is_river_fed_member = yes
+							}
+						}
+					}
+					629 = {
+						add_extra_state_shared_building_slots = 1
+						add_building_construction = {
+							type = infrastructure
+							level = 1
+							instant_build = yes
+						}
+						add_state_modifier = {
+                        	modifier = {
+				            	army_speed_factor_for_controller = 0.10
+								intel_network_gain_factor = 0.05
+                        	}
+                    	}
+					}
+				}
+				if = {
+			    	limit = {
+				    	627 = {
+							owner = {
+						   		is_river_fed_member = yes
+							}
+						}
+					}
+					627 = {
+						add_extra_state_shared_building_slots = 1
+						add_building_construction = {
+							type = infrastructure
+							level = 1
+							instant_build = yes
+						}
+						add_state_modifier = {
+                        	modifier = {
+				            	army_speed_factor_for_controller = 0.10
+								intel_network_gain_factor = 0.05
+                        	}
+                    	}
+					}
+				}
+			    clr_country_flag = BAK_building_a_railway
+			}
+		}
+	}
+	
+	BAK_railroads_in_ponedhain = {
+		icon = railroad
+		allowed = {
+            original_tag = BAK
+		}
+		available = {
+		    NOT = {
+		        has_country_flag = BAK_building_a_railway
+			}
+		}
+		visible = {
+			has_completed_focus = BAK_national_railways
+			is_river_fed_member = yes
+			FRE = {
+			    is_river_fed_member = yes
+				NOT = {
+				    has_country_flag = BAK_railway_constructed
+				}
+			}
+		}
+		fire_only_once = yes
+
+		cost = 25
+		days_remove = 60
+
+		ai_will_do = {
+			factor = 100
+		}
+		
+        modifier = {
+		    civilian_factory_use = 3
+		}
+		
+		highlight_state_targets = {
+            state = 681
+            state = 580
+			state = 621
+			state = 618
+        }
+		complete_effect = {
+			log = "[GetDateText]: [Root.GetName]: Decision remove BAK_railroads_in_ponedhain"
+			hidden_effect = {
+			    set_country_flag = BAK_building_a_railway
+				FRE = {
+				    set_country_flag = BAK_railway_constructed
+				}
+			}
+		}
+		remove_effect = {
+			log = "[GetDateText]: [Root.GetName]: Decision remove BAK_railroads_in_ponedhain"
+			custom_effect_tooltip = BAK_railroads_in_ponedhain_tp
+			if = {
+                limit = {
+                    all_allied_country = { 
+                        OR = { 
+                            has_country_flag = BAK_railway_constructed
+                            is_original_riv_fed_country = no
+                            is_river_fed_member = no
+                        }
+                    }
+                }
+                RIV_add_to_fed_race = yes
+            } 
+			hidden_effect = {
+			    if = {
+			    	limit = {
+				    	681 = {
+							owner = {
+						   		is_river_fed_member = yes
+							}
+						}
+					}
+					681 = {
+						add_extra_state_shared_building_slots = 1
+						add_building_construction = {
+							type = infrastructure
+							level = 1
+							instant_build = yes
+						}
+						add_state_modifier = {
+                        	modifier = {
+				            	army_speed_factor_for_controller = 0.10
+								intel_network_gain_factor = 0.05
+                       	 	}
+                    	}
+					}
+				}
+				if = {
+			    	limit = {
+				    	580 = {
+							owner = {
+						   		is_river_fed_member = yes
+							}
+						}
+					}
+					580 = {
+						add_extra_state_shared_building_slots = 1
+						add_building_construction = {
+							type = infrastructure
+							level = 1
+							instant_build = yes
+						}
+						add_state_modifier = {
+                        	modifier = {
+				            	army_speed_factor_for_controller = 0.10
+								intel_network_gain_factor = 0.05
+                        	}
+                    	}
+					}
+				}
+				if = {
+			    	limit = {
+				    	621 = {
+							owner = {
+						   		is_river_fed_member = yes
+							}
+						}
+					}
+					621 = {
+						add_extra_state_shared_building_slots = 1
+						add_building_construction = {
+							type = infrastructure
+							level = 1
+							instant_build = yes
+						}
+						add_state_modifier = {
+                        	modifier = {
+				            	army_speed_factor_for_controller = 0.10
+								intel_network_gain_factor = 0.05
+                        	}
+                    	}
+					}
+				}
+				if = {
+			    	limit = {
+				    	618 = {
+							owner = {
+						   		is_river_fed_member = yes
+							}
+						}
+					}
+					618 = {
+						add_extra_state_shared_building_slots = 1
+						add_building_construction = {
+							type = infrastructure
+							level = 1
+							instant_build = yes
+						}
+						add_state_modifier = {
+                        	modifier = {
+				            	army_speed_factor_for_controller = 0.10
+								intel_network_gain_factor = 0.05
+                        	}
+                    	}
+					}
+				}
+			    clr_country_flag = BAK_building_a_railway
+			}
+		}
+	}
+	
+	BAK_railroads_in_nimbusia = {
+		icon = railroad
+		allowed = {
+            original_tag = BAK
+		}
+		available = {
+		    NOT = {
+		        has_country_flag = BAK_building_a_railway
+			}
+		}
+		visible = {
+			has_completed_focus = BAK_national_railways
+			is_river_fed_member = yes
+			NIM = {
+			    is_river_fed_member = yes
+				NOT = {
+				    has_country_flag = BAK_railway_constructed
+				}
+			}
+		}
+		fire_only_once = yes
+
+		cost = 25
+		days_remove = 60
+
+		ai_will_do = {
+			factor = 100
+		}
+		
+        modifier = {
+		    civilian_factory_use = 3
+		}
+		
+		highlight_state_targets = {
+            state = 452
+            state = 622
+			state = 645
+			state = 587
+        }
+		complete_effect = {
+			log = "[GetDateText]: [Root.GetName]: Decision remove BAK_railroads_in_nimbusia"
+			hidden_effect = {
+			    set_country_flag = BAK_building_a_railway
+				NIM = {
+				    set_country_flag = BAK_railway_constructed
+				}
+			}
+		}
+		remove_effect = {
+			log = "[GetDateText]: [Root.GetName]: Decision remove BAK_railroads_in_nimbusia"
+			custom_effect_tooltip = BAK_railroads_in_nimbusia_tp
+			if = {
+                limit = {
+                    all_allied_country = { 
+                        OR = { 
+                            has_country_flag = BAK_railway_constructed
+                            is_original_riv_fed_country = no
+                            is_river_fed_member = no
+                        }
+                    }
+                }
+                RIV_add_to_fed_race = yes
+            } 
+			hidden_effect = {
+			    if = {
+			    	limit = {
+				    	452 = {
+							owner = {
+						   		is_river_fed_member = yes
+							}
+						}
+					}
+					452 = {
+						add_extra_state_shared_building_slots = 1
+						add_building_construction = {
+							type = infrastructure
+							level = 1
+							instant_build = yes
+						}
+						add_state_modifier = {
+                        	modifier = {
+				            	army_speed_factor_for_controller = 0.10
+								intel_network_gain_factor = 0.05
+                       	 	}
+                    	}
+					}
+				}
+				if = {
+			    	limit = {
+				    	622 = {
+							owner = {
+						   		is_river_fed_member = yes
+							}
+						}
+					}
+					622 = {
+						add_extra_state_shared_building_slots = 1
+						add_building_construction = {
+							type = infrastructure
+							level = 1
+							instant_build = yes
+						}
+						add_state_modifier = {
+                        	modifier = {
+				            	army_speed_factor_for_controller = 0.10
+								intel_network_gain_factor = 0.05
+                        	}
+                    	}
+					}
+				}
+				if = {
+			    	limit = {
+				    	645 = {
+							owner = {
+						   		is_river_fed_member = yes
+							}
+						}
+					}
+					645 = {
+						add_extra_state_shared_building_slots = 1
+						add_building_construction = {
+							type = infrastructure
+							level = 1
+							instant_build = yes
+						}
+						add_state_modifier = {
+                        	modifier = {
+				            	army_speed_factor_for_controller = 0.10
+								intel_network_gain_factor = 0.05
+                        	}
+                    	}
+					}
+				}
+				if = {
+			    	limit = {
+				    	587 = {
+							owner = {
+						   		is_river_fed_member = yes
+							}
+						}
+					}
+					587 = {
+						add_extra_state_shared_building_slots = 1
+						add_building_construction = {
+							type = infrastructure
+							level = 1
+							instant_build = yes
+						}
+						add_state_modifier = {
+                        	modifier = {
+				            	army_speed_factor_for_controller = 0.10
+								intel_network_gain_factor = 0.05
+                        	}
+                    	}
+					}
+				}
+			    clr_country_flag = BAK_building_a_railway
+			}
+		}
+	}
+}
+
+foreign_politics = {
+	BAK_remove_guarantee_decision = {
+		icon = generic_prepare_civil_war
+		targets = { FBK WAT FRE }
+		targets_dynamic = yes
+		fire_only_once = yes
+		war_with_target_on_remove = yes
+		target_trigger = {
+			FROM = {
+				OR = {
+					original_tag = FBK
+					original_tag = WAT
+					original_tag = FRE
+				}
+			}
+		}
+		ai_will_do = {
+			factor = 0
+			modifier = {
+				add = 15
+				FROM = {
+					OR = {
+						is_in_array = { ROOT.potential_and_current_enemies = this }
+						is_in_array = { ROOT.enemies_of_allies = this }
+						ROOT = {
+							OR = {
+								is_justifying_wargoal_against = FROM
+								has_wargoal_against = FROM
+							}
+						}
+					}
+					any_of_scopes = {
+						array = global.river_coalition_members
+						has_guaranteed = PREV
+					}
+				}
+			}
+		}
+		allowed = {
+			tag = BAK
+			NOT = { has_dlc = "La Resistance" }
+		}
+		target_root_trigger = {
+			OR = {
+		    	has_completed_focus = BAK_farbrookian_infiltration
+				has_completed_focus = BAK_farbrookian_infiltration_2
+			}
+			is_subject = no
+		}
+		visible = {
+			OR = {
+		    	has_completed_focus = BAK_farbrookian_infiltration
+				has_completed_focus = BAK_farbrookian_infiltration_2
+			}
+			is_subject = no
+			FROM = {
+				NOT = {
+					is_subject_of = ROOT
+					is_in_faction_with = ROOT
+					has_war_with = ROOT
+					has_country_flag = BAK_block_guarantee_done
+				}
+			}
+		}
+		cancel_trigger = {
+			OR = {
+				is_subject = yes
+				FROM = {
+					OR = {
+						is_subject_of = ROOT
+						is_in_faction_with = ROOT
+						has_war_with = ROOT
+					}
+				}
+			}
+		}
+		modifier = {
+			civilian_factory_use = 5
+		}
+		cost = 100
+		days_remove = 90
+		remove_effect = {
+			log = "[GetDateText]: [Root.GetName]: Decision remove BAK_remove_guarantee_decision target: [From.GetName]"
+			every_other_country = {
+				limit = {
+					has_guaranteed = FROM
+					OR = {
+						is_river_fed_member = yes
+						is_original_riv_fed_country = yes
+					}
+				}
+				diplomatic_relation = {
+					country = FROM
+					relation = guarantee
+					active = no
+				}
+			}
+			FROM = {
+				custom_effect_tooltip = BAK_operation_remove_guarantee_effect_tt
+				hidden_effect = {
+					set_country_flag = { flag = BAK_block_guarantee days = 360 value = 1 }
+					set_country_flag = BAK_block_guarantee_done
+				}
+			}
+			if = {
+				limit = {
+					FROM = { original_tag = FBK }
+				}
+				create_wargoal = {
+					target = FROM
+					type = annex_everything
+				}
+			}
+			else = {
+				create_wargoal = {
+					target = FROM
+					type = puppet_wargoal_focus
+				}
+			}
+		}
+	}
+}
