@@ -243,61 +243,21 @@ RIV_decrease_socialist_indoctrination = {
 }
 
 RIV_remove_fed_member_ideas = {
-	if = {
-		limit = { has_idea = RIV_member_state }
-		remove_ideas = RIV_member_state
-	}
-	else_if = {
-		limit = { has_idea = RIV_rcsc_member }
-		remove_ideas = RIV_rcsc_member
-	}
-	else_if = {
-		limit = { has_idea = RIV_rec_member1 }
-		remove_ideas = RIV_rec_member1
-	}
-	else_if = {
-		limit = { has_idea = RIV_rec_member2 }
-		remove_ideas = RIV_rec_member2
-	}
-	else_if = {
-		limit = { has_idea = RIV_rec_member3 }
-		remove_ideas = RIV_rec_member3
-	}
-	else_if = {
-		limit = { has_idea = RIV_rec_member4 }
-		remove_ideas = RIV_rec_member4
-	}
-	else_if = {
-		limit = { has_idea = RIV_river_union_member1 }
-		remove_ideas = RIV_river_union_member1
-	}
-	else_if = {
-		limit = { has_idea = RIV_river_union_member2 }
-		remove_ideas = RIV_river_union_member2
-	}
-	if = {
-		limit = { has_idea = RIV_rdc }
-		remove_ideas = RIV_rdc
-	}
-	else_if = {
-		limit = { has_idea = RIV_rdc2 }
-		remove_ideas = RIV_rdc2
-	}
-	if = {
-		limit = { has_idea = RIV_centeral_bank_idea }
-		remove_ideas = RIV_centeral_bank_idea
-	}
-	else_if = {
-		limit = { has_idea = RIV_rivbit_idea }
-		remove_ideas = RIV_rivbit_idea
-	}
-	if = {
-		limit = { has_idea = RIV_river_army_idea }
-		remove_ideas = RIV_river_army_idea
-	}
-	if = {
-		limit = { has_idea = RIV_development_grants_idea }
-		remove_ideas = RIV_development_grants_idea
+	remove_ideas = {
+		RIV_member_state
+		RIV_rcsc_member
+		RIV_rec_member1
+		RIV_rec_member2
+		RIV_rec_member3
+		RIV_rec_member4
+		RIV_river_union_member1
+		RIV_river_union_member2
+		RIV_rdc
+		RIV_rdc2
+		RIV_centeral_bank_idea
+		RIV_rivbit_idea
+		RIV_river_army_idea
+		RIV_development_grants_idea
 	}
 }
 
@@ -316,15 +276,18 @@ RIV_leave_fed = {
 		RIV_remove_fed_member_ideas = yes
 		RIV_drop_cosmetic_tag = yes
 		leave_faction = yes
-
-		every_country = {
-			limit = {
-				is_subject_of = ROOT
-				is_river_fed_member = yes
+		for_each_scope_loop = {
+			array = subjects
+			if = {
+				limit = {
+					is_river_fed_member = yes
+				}
+				log = "[GetDateText] [This.GetName] RIV_leave_fed as Subject"
+				set_variable = { var = RIV_fed_race value = 0 }
+				RIV_remove_fed_member_ideas = yes
+				RIV_drop_cosmetic_tag = yes
+				update_river_fed_array = yes
 			}
-			log = "[GetDateText] [This.GetName] RIV_leave_fed as Subject"
-			RIV_remove_fed_member_ideas = yes
-			RIV_drop_cosmetic_tag = yes
 		}
 		if = {
 			limit = { has_global_flag = RIV_new_leader_needed }
@@ -342,9 +305,6 @@ RIV_leave_fed_no_ally = {
 	custom_effect_tooltip = RIV_leave_fed_tt
 	hidden_effect = {
 		log = "[GetDateText] [Root.GetName] RIV_leave_fed_no_ally"
-		set_variable = { var = RIV_fed_race value = 0 }
-		RIV_remove_fed_member_ideas = yes
-		RIV_drop_cosmetic_tag = yes
 		if = {
 			limit = { 
 				NOT = { has_global_flag = river_federation_founded }
@@ -352,14 +312,21 @@ RIV_leave_fed_no_ally = {
 			}
 			set_global_flag = RIV_new_leader_needed
 		}
-		every_country = {
-			limit = {
-				is_subject_of = ROOT
-				is_river_fed_member = yes
+		set_variable = { var = RIV_fed_race value = 0 }
+		RIV_remove_fed_member_ideas = yes
+		RIV_drop_cosmetic_tag = yes
+		for_each_scope_loop = {
+			array = subjects
+			if = {
+				limit = {
+					is_river_fed_member = yes
+				}
+				log = "[GetDateText] [This.GetName] RIV_leave_fed_no_ally as Subject"
+				set_variable = { var = RIV_fed_race value = 0 }
+				RIV_remove_fed_member_ideas = yes
+				RIV_drop_cosmetic_tag = yes
+				update_river_fed_array = yes
 			}
-			log = "[GetDateText] [This.GetName] RIV_leave_fed_no_ally as Subject"
-			RIV_remove_fed_member_ideas = yes
-			RIV_drop_cosmetic_tag = yes
 		}
 		if = {
 			limit = { has_global_flag = RIV_new_leader_needed }
@@ -602,15 +569,34 @@ RIV_add_to_fed_race = {
 RIV_find_new_leader = {
 	log = "[GetDateText] [Root.GetName] RIV_find_new_leader"
 	update_river_fed_array_all = yes
+	set_temp_variable = { potential_leader = 0 }
 	if = {
 		limit = {
 			has_variable = global.river_coalition_members^0
 			any_of_scopes = {
 				array = global.river_coalition_members
 				has_variable = RIV_fed_race
+				is_river_fed_member = yes
+				is_subject = no
 			}
 		}
-		var:global.river_coalition_members^0 = {
+		for_each_loop = {
+			array = global.river_coalition_members
+			if = {
+				limit = {
+					is_river_fed_member = yes
+					is_subject = no
+				}
+				set_temp_variable = { potential_leader = v }
+				set_temp_variable = { break = 1 }
+			}
+		}
+	}
+	if = {
+		limit = {
+			NOT = { check_variable = { potential_leader = 0 } }
+		}
+		var:potential_leader = {
 			save_global_event_target_as = RIV_fed_race_leader
 		}
 	}
@@ -619,6 +605,7 @@ RIV_find_new_leader = {
 			RCT = {
 				exists = yes
 				is_river_fed_member = yes
+				is_subject = no
 			}
 		}
 		RCT = { save_global_event_target_as = RIV_fed_race_leader }
@@ -628,6 +615,7 @@ RIV_find_new_leader = {
 			LCT = {
 				exists = yes
 				is_river_fed_member = yes
+				is_subject = no
 			}
 		}
 		LCT = { save_global_event_target_as = RIV_fed_race_leader }
@@ -637,6 +625,7 @@ RIV_find_new_leader = {
 			NIM = {
 				exists = yes
 				is_river_fed_member = yes
+				is_subject = no
 			}
 		}
 		NIM = { save_global_event_target_as = RIV_fed_race_leader }
@@ -646,6 +635,7 @@ RIV_find_new_leader = {
 			WIT = {
 				exists = yes
 				is_river_fed_member = yes
+				is_subject = no
 			}
 		}
 		WIT = { save_global_event_target_as = RIV_fed_race_leader }
@@ -655,6 +645,7 @@ RIV_find_new_leader = {
 			BAK = {
 				exists = yes
 				is_river_fed_member = yes
+				is_subject = no
 			}
 		}
 		BAK = { save_global_event_target_as = RIV_fed_race_leader }
@@ -664,6 +655,7 @@ RIV_find_new_leader = {
 			DEP = {
 				exists = yes
 				is_river_fed_member = yes
+				is_subject = no
 			}
 		}
 		DEP = { save_global_event_target_as = RIV_fed_race_leader }
@@ -673,6 +665,7 @@ RIV_find_new_leader = {
 			FRE = {
 				exists = yes
 				is_river_fed_member = yes
+				is_subject = no
 			}
 		}
 		FRE = { save_global_event_target_as = RIV_fed_race_leader }
@@ -682,6 +675,7 @@ RIV_find_new_leader = {
 			DMT = {
 				exists = yes
 				is_river_fed_member = yes
+				is_subject = no
 			}
 		}
 		DMT = { save_global_event_target_as = RIV_fed_race_leader }
@@ -691,6 +685,7 @@ RIV_find_new_leader = {
 			array = global.river_coalition_members
 			limit = {
 				exists = yes
+				is_subject = no
 			}
 			save_global_event_target_as = RIV_fed_race_leader
 		}
@@ -709,8 +704,8 @@ RIV_find_new_leader = {
 				var:faction_leader = {
 					every_other_country = {
 						limit = {
+							is_guaranteed_by = PREV
 							OR = {
-								is_guaranteed_by = PREV
 								AND = {
 									ROOT = { has_government = democratic }
 									OR = {
@@ -721,6 +716,10 @@ RIV_find_new_leader = {
 											original_tag = WAT
 										}
 									}
+								}
+								AND = {
+									ROOT = { has_government = communism }
+									has_government = communism
 								}
 							}
 							OR = {
@@ -820,6 +819,10 @@ RIV_set_cosmetic_tag = {
 	else_if = {
 		limit = { has_cosmetic_tag = LCT_prince_army }
 		set_cosmetic_tag = LCT_prince_army_ally
+	}
+	else_if = {
+		limit = { has_cosmetic_tag = WIT_republic_tag }
+		set_cosmetic_tag = WIT_republic_tag_RIV
 	}
 	else = {
 		set_cosmetic_tag = RIV_federation_mem
