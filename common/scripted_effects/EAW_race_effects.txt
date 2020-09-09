@@ -935,6 +935,16 @@ operative_add_secondary_nationalities = {
 		add_nationality = GRW
 		add_nationality = BRF
 	}
+	if = {
+		limit = {
+			OR = {
+				has_nationality = FAT
+				has_nationality = FAW
+			}
+		}
+		add_nationality = FAT
+		add_nationality = FAW
+	}
 }
 
 operative_handle_secondary_cultures_races = {
@@ -951,15 +961,73 @@ operative_handle_secondary_cultures_races = {
 			}
 			random_list = {
 				75 = {
+					modifier = {
+						add = -3
+						FROM = {
+							has_completed_focus = LSC_include_new_species
+							any_owned_state = {
+								any_of_scopes = {
+									array = state_original_cores
+									OR = {
+										original_tag = DMT
+										original_tag = BRF
+									}
+								}
+							}
+						}
+					}
 				}
 				25 = {
 					modifier = {
 						factor = 0
 						FROM = {
+							original_tag = LSC
 							has_government = fascism
 						}
 					}
+					modifier = {
+						add = -3
+						FROM = {
+							has_completed_focus = LSC_include_new_species
+							any_owned_state = {
+								any_of_scopes = {
+									array = state_original_cores
+									OR = {
+										original_tag = DMT
+										original_tag = BRF
+									}
+								}
+							}
+						}
+					}
 					set_operative_to_herzlander = yes
+				}
+				6 = {
+					modifier = {
+						factor = 0
+						FROM = {
+							original_tag = LSC
+							has_government = fascism
+						}
+					}
+					modifier = {
+						factor = 0
+						FROM = {
+							NOT = {
+								has_completed_focus = LSC_include_new_species
+								any_owned_state = {
+									any_of_scopes = {
+										array = state_original_cores
+										OR = {
+											original_tag = DMT
+											original_tag = BRF
+										}
+									}
+								}
+							}
+						}
+					}
+					set_operative_to_diamond_dog = yes
 				}
 			}
 		}
@@ -1323,6 +1391,7 @@ operative_add_starting_nationalities_and_race = {
 				is_operative_main_culture_equestrian = yes
 			}
 			add_unit_leader_trait = pony_race_trait
+			operative_bat_chance = yes
 			operative_add_nationalities_equestrian = yes
 		}
 		else_if = {
@@ -1408,6 +1477,12 @@ operative_add_starting_nationalities_and_race = {
 			}
 			add_unit_leader_trait = griffon_race_trait
 			operative_add_nationalities_northerner = yes
+			if = {
+				limit = {
+					has_nationality = MNC
+				}
+				operative_add_nationalities_herzlander = yes
+			}
 		}
 		else_if = {
 			limit = {
@@ -1575,7 +1650,7 @@ set_operative_to_pony = {
 			SURNAME = "[?surname_idx.GetPonySurname]"
 		}
 		set_temp_variable = {
-			name_idx = 4
+			name_idx = 5
 		}
 		get_random_name_idx = yes
 		meta_effect = {
@@ -1586,6 +1661,74 @@ set_operative_to_pony = {
 		}
 	}
 	add_unit_leader_trait = pony_race_trait
+}
+
+operative_bat_chance = {
+	random_list = {
+		50 = {
+
+		}
+		50 = {
+			modifier = {
+				factor = 0
+				NOT = {
+					has_nationality = EQS
+					has_nationality = NLR
+					has_nationality = EQC
+					has_nationality = TEM
+					has_nationality = JUN
+					has_nationality = NMS
+				}
+			}
+			modifier = {
+				factor = 0
+				has_nationality = EQS
+				EQS = {
+					OR = {
+						is_EQS_SOL = yes
+						NOT = { has_global_flag = celestia_and_luna_fused }
+					}
+				}
+			}
+			modifier = {
+				factor = 0
+				has_nationality = EQC
+				EQC = {
+					has_focus_tree = eqc_sol_focus
+				}
+			}
+			modifier = {
+				factor = 0.1
+				has_nationality = EQS
+				has_global_flag = celestia_and_luna_fused
+			}
+			modifier = {
+				factor = 0.1
+				has_nationality = EQC
+			}
+			set_operative_from_pony_to_bat = yes
+		}
+	}
+}
+
+set_operative_from_pony_to_bat = {
+	if = {
+		limit = {
+			is_female = no
+		}
+		remove_unit_leader_trait = pony_race_trait
+		set_temp_variable = {
+			name_idx = 2
+		}
+		get_random_name_idx = yes
+		meta_effect = {
+			text = {
+				set_leader_portrait = "[PORTRAIT]"
+			}
+			PORTRAIT = "[?name_idx.Get_bat_operative_male_portrait]"
+		}
+		add_unit_leader_trait = thestral_race_trait
+	}
 }
 
 set_operative_to_equestrian = {
@@ -1679,7 +1822,7 @@ set_operative_to_minotaur = {
 			text = {
 				set_leader_portrait = "[PORTRAIT]"
 			}
-			PORTRAIT = "[?name_idx.Get_MIT_navy_male_portrait]"
+			PORTRAIT = "[?name_idx.Get_MIT_operative_female_portrait]"
 		}
 	}
 	else = {
@@ -1699,14 +1842,14 @@ set_operative_to_minotaur = {
 			SURNAME = "[?surname_idx.GetMinotaurSurname]"
 		}
 		set_temp_variable = {
-			name_idx = 2
+			name_idx = 5
 		}
 		get_random_name_idx = yes
 		meta_effect = {
 			text = {
 				set_leader_portrait = "[PORTRAIT]"
 			}
-			PORTRAIT = "[?name_idx.Get_MIT_navy_male_portrait]"
+			PORTRAIT = "[?name_idx.Get_MIT_operative_male_portrait]"
 		}
 	}
 	add_unit_leader_trait = minotaur_race_trait
@@ -2643,8 +2786,16 @@ get_random_griffon_core_name = {
 		}
 		if = {
 			limit = {
-				is_in_array = {
-					state_original_cores = FAT
+				OR = {
+					is_in_array = {
+						state_original_cores = FAT
+					}
+					is_in_array = {
+						state_original_cores = FAW
+					}
+					is_in_array = {
+						state_original_cores = MNC
+					}
 				}
 			}
 			add_to_temp_variable = { PREV.FAT_core_pop = state_population_k }
@@ -2675,9 +2826,6 @@ get_random_griffon_core_name = {
 					}
 					is_in_array = {
 						state_original_cores = PYT
-					}
-					is_in_array = {
-						state_original_cores = MNC
 					}
 					is_in_array = {
 						state_original_cores = HLQ
@@ -2841,7 +2989,12 @@ get_random_griffon_core_name = {
 			modifier = {
 				factor = var:original_core_pop
 			}
+			modifier = {
+				factor = 0 # there's still a 20% chance this effect doesn't fire at all
+				has_completed_focus = FST_the_unthinkable_option
+			}
 			ROOT = {
+				set_unit_leader_flag = { flag = name_given value = 1 days = 1 }
 				if = {
 					limit = { is_operative = yes }
 					remove_unit_leader_trait = griffon_race_trait
@@ -2854,6 +3007,7 @@ get_random_griffon_core_name = {
 				factor = var:FEA_core_pop
 			}
 			ROOT = {
+				set_unit_leader_flag = { flag = name_given value = 1 days = 1 }
 				give_FEA_name = yes
 				if = {
 					limit = { is_operative = yes }
@@ -2867,19 +3021,17 @@ get_random_griffon_core_name = {
 			}
 			modifier = {
 				factor = 0
-				OR = {
-					original_tag = FAT
-					original_tag = FAW
-				}
 				NOT = {
 					has_completed_focus = FAT_require_government_bilingualism
-					has_focus_tree = fatass_rosewing_empire_focus
+					has_completed_focus = FST_the_unthinkable_option
 				}
 			}
 			ROOT = {
+				set_unit_leader_flag = { flag = name_given value = 1 days = 1 }
 				give_DAN_name = yes
 				if = {
 					limit = { is_operative = yes }
+					operative_add_nationalities_herzlander = yes
 					operative_add_nationalities_northerner = yes
 				}
 			}
@@ -2889,6 +3041,7 @@ get_random_griffon_core_name = {
 				factor = var:TRD_core_pop
 			}
 			ROOT = {
+				set_unit_leader_flag = { flag = name_given value = 1 days = 1 }
 				give_TRD_name = yes
 				if = {
 					limit = { is_operative = yes }
@@ -2901,6 +3054,7 @@ get_random_griffon_core_name = {
 				factor = var:LUS_core_pop
 			}
 			ROOT = {
+				set_unit_leader_flag = { flag = name_given value = 1 days = 1 }
 				give_LUS_name = yes
 				if = {
 					limit = { is_operative = yes }
@@ -2913,6 +3067,7 @@ get_random_griffon_core_name = {
 				factor = var:JER_core_pop
 			}
 			ROOT = {
+				set_unit_leader_flag = { flag = name_given value = 1 days = 1 }
 				give_JER_name = yes
 				if = {
 					limit = { is_operative = yes }
@@ -2925,6 +3080,7 @@ get_random_griffon_core_name = {
 				factor = var:LAK_core_pop
 			}
 			ROOT = {
+				set_unit_leader_flag = { flag = name_given value = 1 days = 1 }
 				give_LAK_name = yes
 				if = {
 					limit = { is_operative = yes }
@@ -2937,6 +3093,7 @@ get_random_griffon_core_name = {
 				factor = var:ERI_core_pop
 			}
 			ROOT = {
+				set_unit_leader_flag = { flag = name_given value = 1 days = 1 }
 				give_ERI_name = yes
 				if = {
 					limit = { is_operative = yes }
@@ -2949,6 +3106,7 @@ get_random_griffon_core_name = {
 				factor = var:WNG_core_pop
 			}
 			ROOT = {
+				set_unit_leader_flag = { flag = name_given value = 1 days = 1 }
 				give_WNG_name = yes
 				if = {
 					limit = { is_operative = yes }
@@ -2961,6 +3119,7 @@ get_random_griffon_core_name = {
 				factor = var:SIC_core_pop
 			}
 			ROOT = {
+				set_unit_leader_flag = { flag = name_given value = 1 days = 1 }
 				give_SIC_name = yes
 				if = {
 					limit = { is_operative = yes }
@@ -2973,6 +3132,7 @@ get_random_griffon_core_name = {
 				factor = var:GRU_core_pop
 			}
 			ROOT = {
+				set_unit_leader_flag = { flag = name_given value = 1 days = 1 }
 				give_GRU_name = yes
 				if = {
 					limit = { is_operative = yes }
@@ -2985,6 +3145,7 @@ get_random_griffon_core_name = {
 				factor = var:GRY_core_pop
 			}
 			ROOT = {
+				set_unit_leader_flag = { flag = name_given value = 1 days = 1 }
 				give_GRY_name = yes
 				if = {
 					limit = { is_operative = yes }
@@ -2997,6 +3158,7 @@ get_random_griffon_core_name = {
 				factor = var:GRW_core_pop
 			}
 			ROOT = {
+				set_unit_leader_flag = { flag = name_given value = 1 days = 1 }
 				give_GRW_name = yes
 				if = {
 					limit = { is_operative = yes }
@@ -3009,12 +3171,28 @@ get_random_griffon_core_name = {
 				factor = var:GRI_core_pop
 			}
 			ROOT = {
+				set_unit_leader_flag = { flag = name_given value = 1 days = 1 }
 				give_herzlander_name = yes
 				if = {
 					limit = { is_operative = yes }
 					operative_add_nationalities_herzlander = yes
 				}
 			}
+		}
+	}
+	ROOT = {
+		if = {
+			limit = {
+				NOT = { has_unit_leader_flag = name_given }
+			}
+			if = {
+				limit = { is_operative = yes }
+				remove_unit_leader_trait = griffon_race_trait
+				operative_add_starting_nationalities_and_race = yes
+			}
+		}
+		else = {
+			clr_unit_leader_flag = name_given
 		}
 	}
 }
