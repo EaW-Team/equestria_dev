@@ -29,6 +29,7 @@ EQS_celestia_evil_meter_category = {
 				has_war = yes
 				hidden_trigger = { has_country_flag = { flag = celestia_evil_meter value > 8 } }
 			}
+			NOT = { has_country_flag = supernova_fired }
 		}
 		cost = 0
 		ai_will_do = {
@@ -39,6 +40,7 @@ EQS_celestia_evil_meter_category = {
 			log = "[GetDateText]: [Root.GetName]: Decision EQS_become_daybreaker_decision"
 			if = {
 				limit = { hidden_trigger = { has_country_flag = { flag = celestia_evil_meter value > 46 } } }
+				set_country_flag = supernova_by_decision
 				country_event = equestria.154
 			}
 		}
@@ -56,6 +58,12 @@ EQS_celestia_evil_meter_category = {
 				hidden_trigger = {
 					AND = {
 						is_ai = yes
+						NOT = {
+							has_game_rule = {
+								rule = great_war_ai_buffs
+								option = BUFFS_REMOVED
+							}
+						}
 						OR = {
 							threat > 0.15
 							has_war_support > 0.15
@@ -103,6 +111,12 @@ EQS_celestia_evil_meter_category = {
 				hidden_trigger = {
 					AND = {
 						is_ai = yes
+						NOT = {
+							has_game_rule = {
+								rule = great_war_ai_buffs
+								option = BUFFS_REMOVED
+							}
+						}
 						OR = {
 							threat > 0.15
 							has_war_support > 0.15
@@ -448,6 +462,11 @@ SOL_dealing_with_resistance = {
 		}
 		available = {
 			has_country_flag = SOL_laws_done
+			hidden_trigger = {
+				NOT = {
+					has_country_flag = block_harmonic_resistance
+				}
+			}
 		}
 		cost = 140
 		days_remove = 70
@@ -471,6 +490,11 @@ SOL_dealing_with_resistance = {
 		}
 		available = {
 			has_country_flag = SOL_laws_done
+			hidden_trigger = {
+				NOT = {
+					has_country_flag = block_harmonic_resistance
+				}
+			}
 		}
 		cost = 70
 		days_remove = 70
@@ -501,6 +525,11 @@ SOL_dealing_with_resistance = {
 		}
 		available = {
 			has_country_flag = SOL_laws_done
+			hidden_trigger = {
+				NOT = {
+					has_country_flag = block_harmonic_resistance
+				}
+			}
 		}
 		fire_only_once = yes
 		cost = 100
@@ -765,6 +794,17 @@ EQS_bring_back_puppets = {
 				has_country_flag = former_EQS_puppet
 				is_former_subject = yes
 				has_war = no
+				if = {
+					limit = {
+						original_tag = CRY
+						NOT = {
+							has_government = fascism
+						}
+						ROOT = { tag = NLR }
+					}
+					has_completed_focus = NLR_subjugate_Crystal_empire
+					NOT = { has_country_flag = lunas_12_fired }
+				}
 			}
 		}
 		target_root_trigger = {
@@ -1143,7 +1183,7 @@ EQS_militias = {
 			political_power_gain = -0.05
 		}
 	}
-	EQS_militias_south_east = {
+	EQS_militias_south_west = {
 		icon = rifles_appleloosa
 		available = {
 			66 = { is_owned_and_controlled_by = EQS }
@@ -1179,7 +1219,7 @@ EQS_militias = {
 			political_power_gain = -0.05
 		}
 	}
-	EQS_militias_south_west = {
+	EQS_militias_south_east = {
 		icon = rifles_temple
 		available = {
 			13 = { is_owned_and_controlled_by = EQS }
@@ -1408,6 +1448,13 @@ EQS_foreign_affairs = {
 		complete_effect = {
 			log = "[GetDateText]: [Root.GetName]: Decision EQS_operation_sunrise_freedom target: [From.GetName]"
 			FROM = {
+                add_ai_strategy = {
+                    type = prepare_for_war
+                    id = ROOT
+                    value = 1000
+                }
+            }
+			FROM = {
 				activate_targeted_decision = { target = ROOT decision = EQC_equestria_anti_maresoc }
 			}
 		}
@@ -1415,6 +1462,13 @@ EQS_foreign_affairs = {
 		remove_effect = {
 			log = "[GetDateText]: [Root.GetName]: Decision remove EQS_operation_sunrise_freedom target: [From.GetName]"
 			log = "[GetDateText] [Root.GetName]: decision EQS_operation_sunrise_freedom"
+			FROM = {
+                add_ai_strategy = {
+                    type = prepare_for_war
+                    id = ROOT
+                    value = -1000
+                }
+            }
 			hidden_effect = {
 				create_wargoal = { 
 					type = puppet_wargoal_focus 
@@ -1656,100 +1710,6 @@ EQS_construction_projects = {
 					instant_build = yes
 				}
 			}
-		}
-	}
-}
-
-EQS_civil_war = {
-	EQS_end_truce = {
-
-		icon = decision_generic_ignite_civil_war
-
-		cost = 15
-
-		visible = {
-			eqs_has_civil_war = yes
-			FROM = { exists = yes }
-		}
-		target_root_trigger = {
-			eqs_has_civil_war = yes
-		}
-		target_trigger = {
-			FROM = { has_country_flag = eqs_kept_ceasefire }
-		}
-
-		ai_will_do = {
-			base = 20
-			modifier = {
-				strength_ratio = { tag = FROM ratio > 1.2 }
-				factor = 10
-			}
-			modifier = {
-				strength_ratio = { tag = FROM ratio < 0.8 }
-				factor = 0
-			}
-			modifier = {
-				has_manpower < 50000
-				factor = 0
-			}
-		}
-
-		fire_only_once = yes
-
-		complete_effect = {
-			log = "[GetDateText]: [Root.GetName]: Decision EQS_end_truce target: [From.GetName]"
-			set_truce = { target = FROM days = 7 }
-			hidden_effect = { FROM = { clr_country_flag = eqs_kept_ceasefire } }
-		}
-	}
-	EQS_end_truce_from = {
-
-		icon = decision_generic_ignite_civil_war
-
-		available = {
-			has_country_flag = eqs_kept_ceasefire
-		}
-
-		cost = 200
-
-		visible = {
-			eqs_has_civil_war = yes
-			NOT = { has_country_flag = eqs_kept_ceasefire_cooldown }
-			has_country_flag = eqs_kept_ceasefire
-			FROM = { exists = yes }
-		}
-		target_root_trigger = {
-			eqs_has_civil_war = yes
-		}
-		targets = { EQS }
-		target_trigger = {
-			FROM = {
-				tag = EQS
-			}
-		}
-
-		ai_will_do = {
-			base = 20
-			modifier = {
-				strength_ratio = { tag = EQS ratio > 1.2 }
-				factor = 10
-			}
-			modifier = {
-				strength_ratio = { tag = EQS ratio < 0.8 }
-				factor = 0
-			}
-			modifier = {
-				has_manpower < 50000
-				factor = 0
-			}
-		}
-
-		fire_only_once = yes
-
-		complete_effect = {
-			log = "[GetDateText]: [Root.GetName]: Decision EQS_end_truce_from target: [From.GetName]"
-			EQS = { set_truce = { target = FROM days = 7 } }
-			hidden_effect = { FROM = { clr_country_flag = eqs_kept_ceasefire } }
 		}
 	}
 }
