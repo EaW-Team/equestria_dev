@@ -1,0 +1,5234 @@
+﻿add_namespace = bat
+
+country_event = { #Raid Successful/Attacker
+	id = bat.1
+	immediate = {log = "[GetDateText]: [Root.GetName]: event bat.1"}
+	title = bat.1.t
+	desc = bat.1.d
+
+	picture = GFX_event_night_riders
+	is_triggered_only = yes
+
+	immediate = {
+		hidden_effect = {
+		    save_current_manpower = yes
+			if = {
+				limit = { 
+				    has_event_target = raided_state 
+				}
+				add_manpower = -10000
+			}
+			restore_previous_manpower = yes
+			if = {
+			    limit = {
+				    BAT = {
+				        has_completed_focus = BAT_intensify_raids
+					}
+				}
+				add_to_variable = { 
+			   		var = BAT_labourers 
+			   		value = 15000 
+				}
+			}
+			else = {
+			    add_to_variable = { 
+			   		var = BAT_labourers 
+			   		value = 10000 
+				}
+			}
+		}
+	}
+
+	option = {
+		name = bat.1.a
+		if = {
+			limit = {
+				BAT = {
+				    has_completed_focus = BAT_intensify_raids
+			    }
+			}
+			custom_effect_tooltip = BAT_labour_2_tp
+		}
+		else = {
+		    custom_effect_tooltip = BAT_labour_tp
+		}
+		custom_effect_tooltip = BAT_90_days_tp
+		army_experience = 5
+		hidden_effect = {
+			clr_country_flag = raid_in_progress
+			set_country_flag = { 
+			    flag = raid_succeeded 
+				days = 90 
+				value = 1 
+			}
+		}
+	}
+}
+
+country_event = { #Raid Canceled/Attacker
+	id = bat.2
+	immediate = {log = "[GetDateText]: [Root.GetName]: event bat.2"}
+	title = bat.2.t
+	desc = bat.2.d
+
+	picture = GFX_event_night_riders
+	is_triggered_only = yes
+
+	option = {
+		name = bat.2.a
+		custom_effect_tooltip = BAT_120_days_tp
+		hidden_effect = {
+			clr_country_flag = raid_in_progress
+			set_country_flag = { 
+			    flag = raid_failed 
+				days = 120 
+				value = 1 
+			}
+		}
+	}
+}
+
+country_event = { #Raid Failed/Attacker
+	id = bat.3
+	immediate = {log = "[GetDateText]: [Root.GetName]: event bat.3"}
+	title = bat.3.t
+	desc = bat.3.d
+
+	picture = GFX_event_night_riders
+	is_triggered_only = yes
+
+	option = {
+		name = bat.3.a
+		custom_effect_tooltip = BAT_150_days_tp
+		add_political_power = -25
+		add_stability = -0.02
+		hidden_effect = {
+			clr_country_flag = raid_in_progress
+			set_country_flag = { 
+			    flag = raid_failed 
+				days = 150 
+				value = 1 
+			}
+		}
+	}
+}
+
+country_event = { #Raid Successful/Defender
+	id = bat.4
+	immediate = {log = "[GetDateText]: [Root.GetName]: event bat.4"}
+	title = bat.4.t
+	desc = bat.4.d
+	
+    picture = GFX_event_night_riders
+	is_triggered_only = yes
+	
+	immediate = {
+		hidden_effect = {
+			if = {
+				limit = { NOT = { has_event_target = raided_state } }
+				FROM.FROM.FROM = { save_event_target_as = raided_state }
+			}
+		}
+	}
+
+	option = {
+		name = bat.4.a
+		add_political_power = -25
+		add_stability = -0.025
+		save_current_manpower = yes
+		if = {
+			limit = {
+				event_target:raided_state = {
+					state_population > 5000
+				}
+			}
+			event_target:raided_state = {
+				add_manpower = -5000
+			}
+		}
+		else_if = {
+			limit = {
+				event_target:raided_state = {
+					any_neighbor_state = {
+						state_population > 5000
+					}
+				}
+			}
+			random_owned_controlled_state = {
+				limit = { 
+					state_population > 5000
+					any_neighbor_state = {
+						state = event_target:raided_state
+					}
+				}
+				add_manpower = -5000
+			}
+		}
+		else = {
+			random_owned_controlled_state = {
+				limit = {
+					state_population > 5000
+				}
+				add_manpower = -5000
+			}
+		}
+		restore_previous_manpower = yes
+	}
+}
+
+country_event = { #Raid Canceled/Defender
+	id = bat.5
+	immediate = {log = "[GetDateText]: [Root.GetName]: event bat.5"}
+	title = bat.5.t
+	desc = bat.5.d
+
+	picture = GFX_event_night_riders
+	is_triggered_only = yes
+
+	option = {
+		name = bat.5.a
+		add_political_power = 20
+		add_stability = 0.02
+	}
+}
+
+country_event = { #Raid Failed/Defender
+	id = bat.6
+	immediate = {log = "[GetDateText]: [Root.GetName]: event bat.6"}
+	title = bat.6.t
+	desc = bat.6.d
+
+	picture = GFX_event_night_riders
+	is_triggered_only = yes
+
+	option = {
+		name = bat.6.a
+		add_political_power = 20
+		add_stability = 0.01
+	}
+}
+
+country_event = { #We are being raided!
+	id = bat.7
+	immediate = {log = "[GetDateText]: [Root.GetName]: event bat.7"}
+	title = bat.7.t
+	desc = bat.7.d
+
+	picture = GFX_event_night_riders
+	is_triggered_only = yes
+
+	option = { #fight!
+		name = bat.7.a
+		ai_chance = {
+			factor = 10
+			modifier = {
+				has_war = yes
+				divisions_in_state = {
+					state = var:defender_state_vs_@FROM
+					size < 1
+				}
+				any_owned_state = {
+					state = var:defender_state_vs_@FROM
+					any_neighbor_state = {
+						ROOT = {
+							divisions_in_state = {
+								state = PREV
+								size < 1
+							}
+						}
+						NOT = {
+							any_neighbor_state = {
+								controller = { has_war_with = ROOT }
+							}
+						}
+					}
+				}
+				factor = 0.3
+			}
+			modifier = {
+				has_war = yes
+				enemies_strength_ratio > 0.8
+				any_neighbor_country = {
+					has_war_with = ROOT
+				}
+				factor = 0.3
+			}
+			modifier = {
+				has_war = yes
+				enemies_strength_ratio > 0.9
+				any_neighbor_country = {
+					has_war_with = ROOT
+				}
+				factor = 0.3
+			}
+			modifier = {
+				has_war = yes
+				enemies_strength_ratio > 1
+				any_neighbor_country = {
+					has_war_with = ROOT
+				}
+				factor = 0
+			}
+		}
+		FROM = {
+			start_border_war = {
+                change_state_after_war = no
+                attacker = {
+                    state = var:ROOT.attacker_state_vs_@THIS
+                    num_provinces = 4
+                    on_win = bat.1
+                    on_lose = bat.3
+                    on_cancel = bat.2
+                }
+
+                defender = {
+                    state = var:ROOT.defender_state_vs_@THIS
+                    num_provinces = 4
+                    on_win = bat.6
+                    on_lose = bat.4
+                    on_cancel = bat.5
+                }
+            }
+		}
+	}
+	option = { #give up
+		name = bat.7.b
+		ai_chance = {
+			factor = 1
+		}
+		hidden_effect = {
+			random_owned_state = {
+				limit = { state = var:ROOT.defender_state_vs_@FROM }
+				save_event_target_as = raided_state
+			}
+		}
+		FROM = {
+			country_event = { 
+			    id = bat.1 
+			    hours = 1 
+			}
+		}
+		hidden_effect = { 
+		    country_event = { 
+		        id = bat.4 
+				hours = 1 
+			} 
+		}
+	}
+}
+
+country_event = { #Flavour Event Talking About How Chiropterra Has Been Preparing For Nightmare Moon's Return And Have Had A Hand In The Stuff Happening in Equestria 
+	id = bat.8
+	immediate = {log = "[GetDateText]: [Root.GetName]: event bat.8"}
+	title = bat.8.t
+	desc = bat.8.d
+
+	picture = GFX_event_luna_transform
+	is_triggered_only = yes
+
+	option = {
+		name = bat.8.a
+	}
+}
+
+country_event = { #Flavour Event About Eternal Eclipse Relocating Various Zebra/Pony Labourers To Better Organize Them/Should Be Really Inpersonal
+	id = bat.9
+	immediate = {log = "[GetDateText]: [Root.GetName]: event bat.9"}
+	title = bat.9.t
+	desc = bat.9.d
+
+	picture = GFX_event_night_riders
+	is_triggered_only = yes
+
+	option = {
+		name = bat.9.a
+	}
+}
+
+country_event = { #Flavour Event From The Perspective of a Native Labourer, should describe their life (Native Labourers are glorified slaves and taken from raids)
+	id = bat.10
+	immediate = {log = "[GetDateText]: [Root.GetName]: event bat.10"}
+	title = bat.10.t
+	desc = bat.10.d
+
+	picture = GFX_event_lunar_republic
+	is_triggered_only = yes
+
+	option = {
+		name = bat.10.a
+	}
+}
+
+country_event = { #Flavour Event Describing How Chiropterra And Autumn Breeze in Particular have had a hand in worsening the tensions between the Bats in Equestria and the rest of Equestria
+	id = bat.11
+	immediate = {log = "[GetDateText]: [Root.GetName]: event bat.11"}
+	title = bat.11.t
+	desc = bat.11.d
+
+	picture = GFX_event_bat_ponies
+	is_triggered_only = yes
+
+	option = {
+		name = bat.11.a
+	}
+}
+
+country_event = { #Flavour Event Describing a Honeypot Operation to get close to some Equestrian Academic so they can be killed once the Civil War Starts
+	id = bat.12
+	immediate = {log = "[GetDateText]: [Root.GetName]: event bat.12"}
+	title = bat.12.t
+	desc = bat.12.d
+
+	picture = GFX_event_bat_momma
+	is_triggered_only = yes
+
+	option = {
+		name = bat.12.a
+	}
+}
+
+country_event = { #Flavour Event Describing A Legionare Training Session Overseen by Lightning Charm
+	id = bat.13
+	immediate = {log = "[GetDateText]: [Root.GetName]: event bat.13"}
+	title = bat.13.t
+	desc = bat.13.d
+
+	picture = GFX_event_bat_soldier_flying
+	is_triggered_only = yes
+
+	option = {
+		name = bat.13.a
+	}
+}
+
+country_event = { #Flavour Event Describing a Legion Auxiliary Soldier's life, and then witnessing a speech from Lunar Hail (Legion Auxiliaries are Units comprising of converted native Zebras and Ponies + Descendants of Native Zebras and Ponies that have converted to worshipping Nightmare Moon, they tend to do smaller scale military operations)
+	id = bat.14
+	immediate = {log = "[GetDateText]: [Root.GetName]: event bat.14"}
+	title = bat.14.t
+	desc = bat.14.d
+
+	picture = GFX_event_bat_soldier2
+	is_triggered_only = yes
+
+	option = {
+		name = bat.14.a
+	}
+}
+
+country_event = { #The Lunar Civil War Has Started!
+    id = bat.15
+	immediate = {log = "[GetDateText]: [Root.GetName]: event bat.15"}
+	title = bat.15.t
+	desc = bat.15.d
+
+	picture = GFX_event_pony_soldiers_sunset
+	is_triggered_only = yes
+
+	option = {
+		name = bat.15.a
+		custom_effect_tooltip = BAT_new_focus_tree_tp
+		if = {
+		    limit = {
+			    BAT = {
+				    has_idea = BAT_intensify_efforts_idea
+			    }
+			}
+			BAT = {
+			    remove_ideas = BAT_intensify_efforts_idea
+			}
+		}
+		NLR = { 
+			add_to_faction = BAT 
+		}
+		declare_war_on = {
+            target = event_target:equestria
+            type = annex_everything
+        }
+		hidden_effect = { 
+		    load_focus_tree = tzintacalia_tree_4 
+			complete_national_focus = BAT_the_civil_war_has_come
+		}
+	}
+}
+
+country_event = { #The Lunar Civil War Has Been Avoided!
+    id = bat.16
+	immediate = {log = "[GetDateText]: [Root.GetName]: event bat.16"}
+	title = bat.16.t
+	desc = bat.16.d
+
+	picture = GFX_event_night_riders
+	is_triggered_only = yes
+
+	option = {
+		name = bat.16.a
+		custom_effect_tooltip = BAT_new_focus_tree_tp
+		if = {
+		    limit = {
+			    BAT = {
+				    has_idea = BAT_intensify_efforts_idea
+			    }
+			}
+			BAT = {
+			    remove_ideas = BAT_intensify_efforts_idea
+			}
+		}
+		if = {
+		    limit = {
+			    BAT = {
+				    has_idea = BAT_bitter_remnants
+			    }
+			}
+			swap_ideas = {
+				remove_idea = BAT_bitter_remnants
+			    add_idea = BAT_bitter_defeat
+			}
+		}
+		if = {
+		    limit = {
+			    BAT = {
+				    has_idea = BAT_the_hour_is_upon_us_idea
+			    }
+			}
+			swap_ideas = {
+				remove_idea = BAT_the_hour_is_upon_us_idea
+				add_idea = BAT_bitter_defeat
+			}
+		}
+		if = {
+		    limit = {
+			    BAT = {
+				    has_idea = BAT_the_hour_is_upon_us_idea_2
+			    }
+			}
+			swap_ideas = {
+				remove_idea = BAT_the_hour_is_upon_us_idea_2
+				add_idea = BAT_bitter_defeat
+			}
+		}
+		if = {
+		    limit = {
+			    BAT = {
+				    has_idea = BAT_intense_work_quotas_idea
+			    }
+			}
+			remove_ideas = BAT_intense_work_quotas_idea
+		}
+		if = {
+		    limit = {
+			    BAT = {
+				    has_idea = BAT_intense_work_quotas_idea
+			    }
+			}
+			remove_ideas = BAT_intense_work_quotas_idea
+		}
+		if = {
+		    limit = {
+			    BAT = {
+				    has_idea = BAT_tactical_superiority_idea
+			    }
+			}
+			remove_ideas = BAT_tactical_superiority_idea
+		}
+		add_political_power = -150
+		add_stability = -0.10
+		hidden_effect = { 
+		    load_focus_tree = tzintacalia_tree_2 
+			complete_national_focus = BAT_yet_another_failure
+			clr_country_flag = BAT_no_crisises
+		}
+	}
+}
+
+country_event = { #The Lunar Civil War Has Been Lost!
+    id = bat.17
+	immediate = {log = "[GetDateText]: [Root.GetName]: event bat.17"}
+	title = bat.17.t
+	desc = bat.17.d
+
+	picture = GFX_event_pony_soldiers_sunset
+	is_triggered_only = yes
+
+	option = {
+		name = bat.17.a
+		custom_effect_tooltip = BAT_new_focus_tree_tp
+		if = {
+		    limit = {
+			    BAT = {
+				    has_idea = BAT_bitter_remnants
+			    }
+			}
+			swap_ideas = {
+				remove_idea = BAT_bitter_remnants
+				add_idea = BAT_bitter_defeat
+			}
+		}
+		if = {
+		    limit = {
+			    BAT = {
+				    has_idea = BAT_the_hour_is_upon_us_idea
+			    }
+			}
+			swap_ideas = {
+				remove_idea = BAT_the_hour_is_upon_us_idea
+				add_idea = BAT_bitter_defeat
+			}
+		}
+		if = {
+		    limit = {
+			    BAT = {
+				    has_idea = BAT_the_hour_is_upon_us_idea_2
+			    }
+			}
+			swap_ideas = {
+				remove_idea = BAT_the_hour_is_upon_us_idea_2
+				add_idea = BAT_bitter_defeat
+			}
+		}
+		if = {
+		    limit = {
+			    BAT = {
+				    has_idea = BAT_intense_work_quotas_idea
+			    }
+			}
+			remove_ideas = BAT_intense_work_quotas_idea
+		}
+		if = {
+		    limit = {
+			    BAT = {
+				    has_idea = BAT_tactical_superiority_idea
+			    }
+			}
+			remove_ideas = BAT_tactical_superiority_idea
+		}
+		add_political_power = -150
+		add_stability = -0.15
+		hidden_effect = { 
+		    load_focus_tree = tzintacalia_tree_2
+			complete_national_focus = BAT_yet_another_failure
+			clr_country_flag = BAT_no_crisises
+		}
+	}
+}
+
+country_event = { #The Lunar Civil War Has Been Won!
+    id = bat.18
+	immediate = {log = "[GetDateText]: [Root.GetName]: event bat.18"}
+	title = bat.18.t
+	desc = bat.18.d
+
+	picture = GFX_event_luna_ready_for_war
+	is_triggered_only = yes
+
+	option = {
+		name = bat.18.a
+		custom_effect_tooltip = BAT_new_focus_tree_tp
+		if = {
+		    limit = {
+			    BAT = {
+				    has_idea = BAT_bitter_remnants
+			    }
+			}
+			swap_ideas = {
+				remove_idea = BAT_bitter_remnants
+				add_idea = BAT_lunar_dominion
+			}
+		}
+		if = {
+		    limit = {
+			    BAT = {
+				    has_idea = BAT_the_hour_is_upon_us_idea
+			    }
+			}
+			swap_ideas = {
+				remove_idea = BAT_the_hour_is_upon_us_idea
+				add_idea = BAT_lunar_dominion
+			}
+		}
+		if = {
+		    limit = {
+			    BAT = {
+				    has_idea = BAT_the_hour_is_upon_us_idea_2
+			    }
+			}
+			swap_ideas = {
+				remove_idea = BAT_the_hour_is_upon_us_idea_2
+				add_idea = BAT_lunar_dominion
+			}
+		}
+		if = {
+		    limit = {
+			    BAT = {
+				    has_idea = BAT_intense_work_quotas_idea
+			    }
+			}
+			remove_ideas = BAT_intense_work_quotas_idea
+		}
+		if = {
+		    limit = {
+			    BAT = {
+				    has_idea = BAT_tactical_superiority_idea
+			    }
+			}
+			remove_ideas = BAT_tactical_superiority_idea
+		}
+		every_owned_state = {
+		    limit = {
+			    OR = {
+			        is_core_of = NLR
+					is_core_of = CRY
+					is_core_of = STG
+					is_core_of = EQS
+				}
+			}
+			NLR = {
+				transfer_state = PREV
+			}
+		}
+		NLR = { 
+			add_opinion_modifier = { 
+				target = ROOT 
+				modifier = BAT_loyal_subject_1 
+			} 
+		}
+		BAT = { 
+			add_opinion_modifier = { 
+				target = NLR 
+				modifier = BAT_loyal_subject_2 
+			} 
+		}
+		hidden_effect = { 
+		    load_focus_tree = tzintacalia_tree_3 
+			set_global_flag = BAT_won_civil_war
+			complete_national_focus = BAT_victory_at_last 
+			clr_country_flag = BAT_no_crisises
+		}
+	}
+}
+
+country_event = { #Military Reform Discussion Plans presented to the Legionary Council
+    id = bat.19
+	immediate = {log = "[GetDateText]: [Root.GetName]: event bat.19"}
+	title = bat.19.t
+	desc = bat.19.d
+
+	picture = GFX_event_bat_soldier2
+	is_triggered_only = yes
+
+	option = {
+		name = bat.19.a
+		ai_chance = {
+		    factor = 20
+			modifier = {
+				factor = 0
+				OR = {
+					has_tech = superior_firepower
+					has_tech = mass_assault
+					has_tech = mobile_warfare
+					is_researching_technology = superior_firepower
+					is_researching_technology = mass_assault
+					is_researching_technology = mobile_warfare
+				}
+			}
+		}
+		add_popularity = { 
+			ideology = fascism 	
+			popularity = 0.03
+		}
+		complete_national_focus = BAT_extensive_planning 
+	}
+	
+	option = {
+		name = bat.19.b
+		ai_chance = {
+		    factor = 30
+			modifier = {
+				factor = 0
+				OR = {
+					has_tech = trench_warfare
+					has_tech = mass_assault
+					has_tech = mobile_warfare
+					is_researching_technology = trench_warfare
+					is_researching_technology = mass_assault
+					is_researching_technology = mobile_warfare
+				}
+			}
+		}
+		add_popularity = { 
+			ideology = neutrality 	
+			popularity = 0.03 
+		}
+		complete_national_focus = BAT_blow_them_out 
+	}
+	
+	option = {
+		name = bat.19.c
+		ai_chance = {
+		    factor = 30
+			modifier = {
+				factor = 0
+				OR = {
+					has_tech = trench_warfare
+					has_tech = mass_assault
+					has_tech = superior_firepower
+					is_researching_technology = trench_warfare
+					is_researching_technology = mass_assault
+					is_researching_technology = superior_firepower
+				}
+			}
+		}
+		add_popularity = { 
+			ideology = neutrality 	
+			popularity = 0.03 
+		}
+		complete_national_focus = BAT_mobile_warfare_conception 
+	}
+	
+	option = {
+		name = bat.19.e
+		ai_chance = {
+		    factor = 20
+			modifier = {
+				factor = 0
+				OR = {
+					has_tech = superior_firepower
+					has_tech = trench_warfare
+					has_tech = mobile_warfare
+					is_researching_technology = superior_firepower
+					is_researching_technology = trench_warfare
+					is_researching_technology = mobile_warfare
+				}
+			}
+		}
+		add_popularity = { 
+			ideology = fascism 	
+			popularity = 0.03 
+		}
+		complete_national_focus = BAT_the_power_of_massed_assaults 
+	}
+}
+
+country_event = { #Officers From Equestria Arrive 
+    id = bat.20
+	immediate = {log = "[GetDateText]: [Root.GetName]: event bat.20"}
+	title = bat.20.t
+	desc = bat.20.d
+
+	picture = GFX_event_bat_soldier2
+	is_triggered_only = yes
+
+	option = {
+		name = bat.20.a
+		army_experience = 15
+		add_manpower = 15000
+		add_popularity = { 
+			ideology = neutrality 	
+			popularity = 0.03 
+		}
+		if = {
+			limit = {
+				has_global_flag = EQS_Tempest_Wind_created
+			}
+			if = {
+				limit = { 
+				    has_global_flag = EQS_Tempest_Wind_created
+					NOT = { 
+						has_unit_leader = 202 
+					} 
+				}
+				event_target:EQS_Tempest_Wind = { 
+					set_nationality = BAT 
+				}
+			}
+		}
+		if = {
+		    limit = {
+				has_global_flag = EQS_Bipen_created
+			}
+			if = {
+				limit = { 
+					NOT = { 
+						has_unit_leader = 789 
+					} 
+				}
+				event_target:EQS_Bipen = { 
+					set_nationality = BAT 
+				}
+			}
+		}
+	}
+}
+
+country_event = { #Flavour Event about someone getting their ass singed by a magical rifle
+	id = bat.21
+	immediate = {log = "[GetDateText]: [Root.GetName]: event bat.21"}
+	title = bat.21.t
+	desc = bat.21.d
+
+	picture = GFX_event_bat_momma
+	is_triggered_only = yes
+
+	option = {
+		name = bat.21.a
+	}
+}
+
+country_event = { #Flavour Event about the Bloody Meridian being writen (You should be able to find what that is on Wikipedia)
+	id = bat.22
+	immediate = {log = "[GetDateText]: [Root.GetName]: event bat.22"}
+	title = bat.22.t
+	desc = bat.22.d
+
+	picture = GFX_event_bat_soldier2
+	is_triggered_only = yes
+
+	option = {
+		name = bat.22.a
+		add_political_power = 10
+		add_stability = 0.01
+		add_popularity = { 
+			ideology = neutrality 	
+			popularity = 0.01 
+		}
+	}
+}
+
+country_event = { #Flavour Event about two junior officers getting into a drunken race using military trucks and get reprimanded for it
+	id = bat.23
+	immediate = {log = "[GetDateText]: [Root.GetName]: event bat.23"}
+	title = bat.23.t
+	desc = bat.23.d
+
+	picture = GFX_event_eqc_mustang_car
+	is_triggered_only = yes
+
+	option = {
+		name = bat.23.a
+		add_political_power = -10
+		add_stability = -0.01
+		add_manpower = -2
+	}
+}
+
+country_event = { #Psychological Warfare
+	id = bat.24
+	immediate = {log = "[GetDateText]: [Root.GetName]: event greifwald.24"}
+	hidden = yes
+
+	trigger = {
+		BAT = { 
+		    OR = {
+				has_completed_focus = BAT_psychological_warfare 
+				has_completed_focus = BAT_psychological_warfare_f
+			}
+		}
+		ROOT = { 
+			has_offensive_war_with = BAT 
+		}
+		ROOT = {
+			NOT = { 
+				has_idea = BAT_psychological_warfare_idea 
+			}
+		}
+	}
+	mean_time_to_happen = {
+		days = 30
+	}
+
+	option = {
+		name = bat.24.a
+		add_ideas = BAT_psychological_warfare_idea
+	}
+}
+
+country_event = { #Economic Analasys
+	id = bat.25
+	immediate = {log = "[GetDateText]: [Root.GetName]: event bat.25"}
+	title = bat.25.t
+	desc = bat.25.d
+
+	picture = GFX_event_stg_pairlament2
+	is_triggered_only = yes
+
+	option = {
+		name = bat.25.a
+		add_political_power = 30
+		add_stability = 0.03
+	}
+}
+
+country_event = { #Flavour event about some Legionary Colonel being a dumbass and shooting an AT Rifle while flying and not braced, thus dislocating their shoulder (They can be whatever gender you want), the development team decides to take the piss out of them by renaming the rifle in their "honour"
+	id = bat.26
+	immediate = {log = "[GetDateText]: [Root.GetName]: event bat.26"}
+	title = bat.26.t
+	desc = bat.26.d
+
+	picture = GFX_event_unicorn_worker
+	is_triggered_only = yes
+
+	option = {
+		name = bat.26.a
+		add_manpower = -1
+	}
+}
+
+country_event = { #Flavour event about a LMRD researcher committing suicide due to being unable to live with themselves after contributing to the LMRD's various medical research projects (Should be a suicide note)
+	id = bat.27
+	immediate = {log = "[GetDateText]: [Root.GetName]: event bat.27"}
+	title = bat.27.t
+	desc = bat.27.d
+
+	picture = GFX_event_unicorn_worker
+	is_triggered_only = yes
+
+	option = {
+		name = bat.27.a
+	}
+}
+
+country_event = { #Flavour event about Stone Palisade literally putting his fellow Lord/Lady Commanders to Sleep during a Legionary Council meeting session with an extremely boring and exceptionally long speech/report
+	id = bat.28
+	immediate = {log = "[GetDateText]: [Root.GetName]: event bat.28"}
+	title = bat.28.t
+	desc = bat.28.d
+
+	picture = GFX_event_bat_soldier
+	is_triggered_only = yes
+
+	option = {
+		name = bat.28.a
+	}
+}
+
+country_event = { #Flavour event about Lieutenanat General Ecliptic Brine going temporarily deaf for a few days after standing a bit too close to a live howitzer (She has very sensitive ears)
+	id = bat.29
+	immediate = {log = "[GetDateText]: [Root.GetName]: event bat.29"}
+	title = bat.29.t
+	desc = bat.29.d
+
+	picture = GFX_event_bazooka_team
+	is_triggered_only = yes
+
+	option = {
+		name = bat.29.a
+	}
+}
+
+country_event = { #Flavour event about Batton and Lucent autistically arguing about wheter Stalliongradian Tanks or Changeling Tanks are better, Batton eventually wins after a 5 hour shouting match
+	id = bat.30
+	immediate = {log = "[GetDateText]: [Root.GetName]: event bat.30"}
+	title = bat.30.t
+	desc = bat.30.d
+
+	picture = GFX_event_unicorn_worker
+	is_triggered_only = yes
+
+	option = {
+		name = bat.30.a
+	}
+}
+
+country_event = { #Flavour event about Lunar Hail trying to convince Emerald Light that giving combat drugs to Labourer Penal Brigades is a good idea, Emerald Light tries to explain why it's a bad idea, but eventually relents after realising that Lunar Hail will just not drop the subject after days of pestering her
+	id = bat.31
+	immediate = {log = "[GetDateText]: [Root.GetName]: event bat.31"}
+	title = bat.31.t
+	desc = bat.31.d
+
+	picture = GFX_event_olenia_generic
+	is_triggered_only = yes
+
+	option = {
+		name = bat.31.a
+	}
+}
+
+### Every Event from .32 to .46 is meant to be in Emerald's Perspective, names and responses to all of the events should be changed ###
+
+country_event = { #Emerald Light getting frustrated at a lack of progress when it comes to figuring out how to transfer the regenerative properties of an Octopus onto a Pony
+	id = bat.32
+	immediate = {log = "[GetDateText]: [Root.GetName]: event bat.32"}
+	title = bat.32.t
+	desc = bat.32.d
+
+	picture = GFX_event_gothic_interior
+	is_triggered_only = yes
+
+	option = {
+		name = bat.32.a
+		custom_effect_tooltip = BAT_next_step_tp
+		add_tech_bonus = {
+			name = infantry_bonus
+			bonus = 1.0
+			uses = 1
+			technology = tech_field_hospital
+			technology = tech_field_hospital2
+			technology = tech_field_hospital3
+			technology = tech_field_hospital4
+		}
+	}
+}
+
+country_event = { #After months of testing the LMRD finally manages to find a volunteer that could potentially stand the chemical compounds they intend to pump into them/This if Comet Flash, who is essentially Frank Horrigan
+	id = bat.33
+	immediate = {log = "[GetDateText]: [Root.GetName]: event bat.33"}
+	title = bat.33.t
+	desc = bat.33.d
+
+	picture = GFX_event_gothic_interior
+	is_triggered_only = yes
+
+	option = {
+		name = bat.33.a
+		custom_effect_tooltip = BAT_next_step_tp
+		add_war_support = 0.03
+		add_popularity = { 
+			ideology = fascism 	
+			popularity = 0.01 
+		}
+	}
+}
+
+country_event = { #LMRD going through various potential methods of mind control and or hypnosis
+	id = bat.34
+	immediate = {log = "[GetDateText]: [Root.GetName]: event bat.34"}
+	title = bat.34.t
+	desc = bat.34.d
+
+	picture = GFX_event_gothic_interior
+	is_triggered_only = yes
+
+	option = {
+		name = bat.34.a
+		custom_effect_tooltip = BAT_next_step_tp
+	}
+}
+
+country_event = { #LMRD begins experimenting with using crystals and potions to make unicorn magic more powerful
+	id = bat.35
+	immediate = {log = "[GetDateText]: [Root.GetName]: event bat.35"}
+	title = bat.35.t
+	desc = bat.35.d
+
+	picture = GFX_event_gothic_interior
+	is_triggered_only = yes
+
+	option = {
+		name = bat.35.a
+		custom_effect_tooltip = BAT_next_step_tp
+		add_tech_bonus = {
+			name = race_tech_bonus
+			bonus = 3.0
+			uses = 1
+			category = race_tech
+		}
+	}
+}
+
+country_event = { #LMRD goes through various beasts that they could potentially use as shock troops and eventually settle for the Hydra, mostly because it's as dumb as a brick shithouse
+	id = bat.36
+	immediate = {log = "[GetDateText]: [Root.GetName]: event bat.36"}
+	title = bat.36.t
+	desc = bat.36.d
+
+	picture = GFX_event_gothic_interior
+	is_triggered_only = yes
+
+	option = {
+		name = bat.36.a
+		custom_effect_tooltip = BAT_next_step_tp
+		add_tech_bonus = {
+			name = infantry_bonus
+			bonus = 1.0
+			uses = 1
+			category = support_tech
+		}
+	}
+}
+
+country_event = { #Emerald Light starts making inroads into figuring out the chemical mixture that will eventually go into a Stimpak
+	id = bat.37
+	immediate = {log = "[GetDateText]: [Root.GetName]: event bat.37"}
+	title = bat.37.t
+	desc = bat.37.d
+
+	picture = GFX_event_gothic_interior
+	is_triggered_only = yes
+
+	option = {
+		name = bat.37.a
+	}
+}
+
+country_event = { #Physical conditioning for the eventual supersoldier tranformation project is progressing rapdily/Someone in the team raises concerns that the conditioning is lowering Flash's cognitive abilities but is dismissed
+	id = bat.38
+	immediate = {log = "[GetDateText]: [Root.GetName]: event bat.38"}
+	title = bat.38.t
+	desc = bat.38.d
+
+	picture = GFX_event_gothic_interior
+	is_triggered_only = yes
+
+	option = {
+		name = bat.38.a
+		custom_effect_tooltip = BAT_next_step_tp
+		add_war_support = 0.03
+		add_popularity = { 
+			ideology = fascism 	
+			popularity = 0.02 
+		}
+	}
+}
+
+country_event = { #Emerald Light ultimately decides that using LSD for an MKUltra like program would work the best
+	id = bat.39
+	immediate = {log = "[GetDateText]: [Root.GetName]: event bat.39"}
+	title = bat.39.t
+	desc = bat.39.d
+
+	picture = GFX_event_gothic_interior
+	is_triggered_only = yes
+
+	option = {
+		name = bat.39.a
+		custom_effect_tooltip = BAT_next_step_tp
+		add_tech_bonus = {
+			name = infantry_bonus
+			bonus = 1.0
+			uses = 1
+			technology = tech_field_hospital
+			technology = tech_field_hospital2
+			technology = tech_field_hospital3
+			technology = tech_field_hospital4
+		}
+	}
+}
+
+country_event = { #The basic principles behind a TF2 Ubercharge are discovered
+	id = bat.40
+	immediate = {log = "[GetDateText]: [Root.GetName]: event bat.40"}
+	title = bat.40.t
+	desc = bat.40.d
+
+	picture = GFX_event_gothic_interior
+	is_triggered_only = yes
+
+	option = {
+		name = bat.40.a
+		custom_effect_tooltip = BAT_next_step_tp
+		add_resource = {
+			type = crystals
+			amount = 12
+			state = 690
+		}
+	}
+}
+
+country_event = { #Hydra breeding program is going semy decently, but they figure out what is essentially a pacification device for Hydras
+	id = bat.41
+	immediate = {log = "[GetDateText]: [Root.GetName]: event bat.41"}
+	title = bat.41.t
+	desc = bat.41.d
+
+	picture = GFX_event_gothic_interior
+	is_triggered_only = yes
+
+	option = {
+		name = bat.41.a
+		custom_effect_tooltip = BAT_next_step_tp
+	}
+}
+
+country_event = { #The Stimpak after a lot of effort is created and implemented/The fact that overusing it makes the body's natural regenerative properties weaker is ignored
+	id = bat.42
+	immediate = {log = "[GetDateText]: [Root.GetName]: event bat.42"}
+	title = bat.42.t
+	desc = bat.42.d
+
+	picture = GFX_event_gothic_interior
+	is_triggered_only = yes
+
+	option = {
+		name = bat.42.a
+	}
+}
+
+country_event = { #Project Noctule is ultimately completed, but Comet Flash's cognitive abilities are reduced to the point that he's only really suited for being a glorified thug
+	id = bat.43
+	immediate = {log = "[GetDateText]: [Root.GetName]: event bat.43"}
+	title = bat.43.t
+	desc = bat.43.d
+
+	picture = GFX_event_gothic_interior
+	is_triggered_only = yes
+
+	option = {
+		name = bat.43.a
+	}
+}
+
+country_event = { #Sleeper Agents have actually successfully been created
+	id = bat.44
+	immediate = {log = "[GetDateText]: [Root.GetName]: event bat.44"}
+	title = bat.44.t
+	desc = bat.44.d
+
+	picture = GFX_event_gothic_interior
+	is_triggered_only = yes
+
+	option = {
+		name = bat.44.a
+	}
+}
+
+country_event = { #UBERCHARGE for Unicorn Magic, it's just temporary though
+	id = bat.45
+	immediate = {log = "[GetDateText]: [Root.GetName]: event bat.45"}
+	title = bat.45.t
+	desc = bat.45.d
+
+	picture = GFX_event_gothic_interior
+	is_triggered_only = yes
+
+	option = {
+		name = bat.45.a
+	}
+}
+
+country_event = { #Hydra brigades are a success, issue is that Hydras breed very slowly, so at most the Legions will be able to attach one or two to a brigade at most, they also require a veritable army of handlers
+	id = bat.46
+	immediate = {log = "[GetDateText]: [Root.GetName]: event bat.46"}
+	title = bat.46.t
+	desc = bat.46.d
+
+	picture = GFX_event_gothic_interior
+	is_triggered_only = yes
+
+	option = {
+		name = bat.46.a
+	}
+}
+
+country_event = { #Flavour event about disobedient Labourers being fitted with "Behavioural Correction Collars" (Essentially bomb collars from Fallout)
+	id = bat.47
+	immediate = {log = "[GetDateText]: [Root.GetName]: event bat.47"}
+	title = bat.47.t
+	desc = bat.47.d
+
+	picture = GFX_event_old_mine
+	is_triggered_only = yes
+
+	option = {
+		name = bat.47.a
+	}
+}
+
+country_event = { #Flavour event about Labourers being given actually good living quarters (They're the equivalent of Commie blocks, but they have electricity and basic luxruies so it's still an improvement)
+	id = bat.48
+	immediate = {log = "[GetDateText]: [Root.GetName]: event bat.48"}
+	title = bat.48.t
+	desc = bat.48.d
+
+	picture = GFX_event_our_town
+	is_triggered_only = yes
+
+	option = {
+		name = bat.48.a
+	}
+}
+
+country_event = { #Flavour event about Labourers and Citizens being given what amount to PSAs about drug use - It is as silly as it sounds
+	id = bat.49
+	immediate = {log = "[GetDateText]: [Root.GetName]: event bat.49"}
+	title = bat.49.t
+	desc = bat.49.d
+
+	picture = GFX_event_dont_clop
+	is_triggered_only = yes
+
+	option = {
+		name = bat.49.a
+		add_popularity = { 
+			ideology = fascism 	
+			popularity = 0.01 
+		}
+	}
+}
+
+country_event = { #Flavour event about Equestrian NMM supporter exiles arriving in Chiropterra
+	id = bat.50
+	immediate = {log = "[GetDateText]: [Root.GetName]: event bat.50"}
+	title = bat.50.t
+	desc = bat.50.d
+
+	picture = GFX_event_night_riders
+	is_triggered_only = yes
+
+	option = {
+		name = bat.50.a
+		every_owned_state = {
+			limit = {
+				is_core_of = ROOT
+			}
+			add_manpower = 5000
+		}
+		add_popularity = { 
+			ideology = neutrality 	
+			popularity = 0.01 
+		}
+	}
+}
+
+country_event = { #Flavour event about foals playing with their pet coconut crab
+	id = bat.51
+	immediate = {log = "[GetDateText]: [Root.GetName]: event bat.51"}
+	title = bat.51.t
+	desc = bat.51.d
+
+	picture = GFX_event_school
+	is_triggered_only = yes
+
+	option = {
+		name = bat.51.a
+	}
+}
+
+country_event = { #Flavour event about some Legionary being arrested for drug possession
+	id = bat.52
+	immediate = {log = "[GetDateText]: [Root.GetName]: event bat.52"}
+	title = bat.52.t
+	desc = bat.52.d
+
+	picture = GFX_event_bat_soldier2
+	is_triggered_only = yes
+
+	option = {
+		name = bat.52.a
+		add_political_power = 10
+		add_manpower = -1
+		add_popularity = { 
+			ideology = fascism 	
+			popularity = 0.01 
+		}
+	}
+}
+
+country_event = { #Flavour event describing life on a coconut crab ranch
+	id = bat.53
+	immediate = {log = "[GetDateText]: [Root.GetName]: event bat.53"}
+	title = bat.53.t
+	desc = bat.53.d
+
+	picture = GFX_farm_event
+	is_triggered_only = yes
+
+	option = {
+		name = bat.53.a
+		add_political_power = 10
+		one_random_industrial_complex = yes
+	}
+}
+
+country_event = { #Emergency Meeting of the Legionary Council in which Autumn convinces everyone they need to expand their influence in Zebrica and prepare for the next time NMM returns
+	id = bat.54
+	immediate = {log = "[GetDateText]: [Root.GetName]: event bat.54"}
+	title = bat.54.t
+	desc = bat.54.d
+
+	picture = GFX_event_stg_pairlament2
+	is_triggered_only = yes
+
+	option = {
+		name = bat.54.a
+		add_political_power = 75
+		add_stability = 0.05
+	}
+}
+
+country_event = { #Autumn Breeze Organizes a fancy gala for the Officer-Aristocracy of Chiropterra/Should be from his daughter's perspective
+	id = bat.55
+	immediate = {log = "[GetDateText]: [Root.GetName]: event bat.55"}
+	title = bat.55.t
+	desc = bat.55.d
+
+	picture = GFX_event_stg_pairlament2
+	is_triggered_only = yes
+
+	option = {
+		name = bat.55.a
+		add_political_power = 50
+		add_popularity = { 
+			ideology = fascism 	
+			popularity = 0.05
+		}
+	}
+}
+
+country_event = { #Lightning Charm gives an inspiring speech to the Six Legions about their duty to expand Chiropterra
+	id = bat.56
+	immediate = {log = "[GetDateText]: [Root.GetName]: event bat.56"}
+	title = bat.56.t
+	desc = bat.56.d
+
+	picture = GFX_event_stg_pairlament2
+	is_triggered_only = yes
+
+	option = {
+		name = bat.56.a
+		add_war_support = 0.05
+		add_political_power = 30
+		add_popularity = { 
+			ideology = fascism 	
+			popularity = 0.03
+		}
+	}
+}
+
+country_event = { #Wallnut Drive has been stewing in a cell for 2 days and is finally approached by a guard who informs him of his fate
+	id = bat.57
+	immediate = {log = "[GetDateText]: [Root.GetName]: event bat.57"}
+	title = bat.57.t
+	desc = bat.57.d
+
+	picture = GFX_event_olenia_generic
+	is_triggered_only = yes
+
+	option = { #Hanging
+	    ai_chance = {
+			factor = 30
+		}
+		name = bat.57.a
+		add_war_support = 0.03
+		add_popularity = { 
+			ideology = fascism 	
+			popularity = 0.03
+		}
+		hidden_effect = {
+		    country_event = { 
+			    id = bat.58			
+			}
+		}
+	}
+	
+	option = { #Firing Squad
+	    ai_chance = {
+			factor = 70
+		}
+		name = bat.57.b
+		add_political_power = 30
+		add_popularity = { 
+			ideology = neutrality 	
+			popularity = 0.03
+		}
+		hidden_effect = {
+		    country_event = { 
+			    id = bat.59			
+			}
+		}
+	}
+}
+
+country_event = { #Wallnut Drive Gets Hanged
+	id = bat.58
+	immediate = {log = "[GetDateText]: [Root.GetName]: event bat.58"}
+	title = bat.58.t
+	desc = bat.58.d
+
+	picture = GFX_event_apartment_club
+	is_triggered_only = yes
+
+	option = {
+		name = bat.58.a
+		hidden_effect = {
+		    if = {
+			    limit = {
+				    has_completed_focus = BAT_voe_to_the_vanquished
+				}
+				country_event = { 
+			    	id = bat.126	
+                	days = 8				
+				}
+			}
+		    else = {
+		    	country_event = { 
+			    	id = bat.60	
+                	days = 3				
+				}
+			}
+		}
+	}
+}
+
+country_event = { #Wallnut Drive Gets Executed Via Firing Squad
+	id = bat.59
+	immediate = {log = "[GetDateText]: [Root.GetName]: event bat.59"}
+	title = bat.59.t
+	desc = bat.59.d
+
+	picture = GFX_event_apartment_club
+	is_triggered_only = yes
+
+	option = {
+		name = bat.59.a
+		hidden_effect = {
+		    if = {
+			    limit = {
+				    has_completed_focus = BAT_voe_to_the_vanquished
+				}
+				country_event = { 
+			    	id = bat.126	
+                	days = 8				
+				}
+			}
+		    else = {
+		    	country_event = { 
+			    	id = bat.60	
+                	days = 3				
+				}
+			}
+		}
+	}
+}
+
+country_event = { #Baragzen is interviewed/interrogated by Auburn Leaves
+	id = bat.60
+	immediate = {log = "[GetDateText]: [Root.GetName]: event bat.60"}
+	title = bat.60.t
+	desc = bat.60.d
+
+	picture = GFX_event_olenia_generic
+	is_triggered_only = yes
+
+	option = {
+		name = bat.60.a
+		hidden_effect = {
+		    country_event = { 
+			    id = bat.61				
+			}
+		}
+	}
+}
+
+country_event = { #Auburn Leaves gives a report to her dad about the situation who then decides what to do with the Zeeb
+	id = bat.61
+	immediate = {log = "[GetDateText]: [Root.GetName]: event bat.61"}
+	title = bat.61.t
+	desc = bat.61.d
+
+	picture = GFX_event_minitrue
+	is_triggered_only = yes
+
+	option = { #He's useless, just execute him
+	    ai_chance = {
+			factor = 20
+		}
+		name = bat.61.a
+		add_war_support = 0.05
+		add_stability = 0.05
+		add_popularity = { 
+			ideology = fascism 	
+			popularity = 0.03
+		}
+		hidden_effect = {
+		    country_event = { 
+			    id = bat.62	
+                days = 5				
+			}
+		}
+	}
+	
+	option = { #Just Leave him in a cell somewhere
+	    ai_chance = {
+			factor = 20
+		}
+		name = bat.61.b
+		add_political_power = 50
+		hidden_effect = {
+		    country_event = { 
+			    id = bat.62	
+                days = 5				
+			}
+		}
+	}
+	
+	option = { #Use him to spearhead the creation of the WLA
+	    ai_chance = {
+			factor = 60
+		}
+		name = bat.61.c
+		custom_effect_tooltip = BAT_ROA_tp
+		if = {
+			limit = { 
+				NOT = { 
+					has_unit_leader = 441 
+				} 
+			}
+			event_target:TBK_baragzen = { 
+				set_nationality = BAT 
+			}
+		}
+		add_political_power = -30
+		add_popularity = { 
+			ideology = neutrality 	
+			popularity = 0.03
+		}
+		hidden_effect = {
+		    load_oob = "BAT_ROA"
+			set_country_flag = BAT_WLA_established
+		    country_event = { 
+			    id = bat.62	
+                days = 5				
+			}
+		}
+	}
+}
+
+country_event = { #Alesia Snezhnaya is interviewed/interrogated by Auburn Leaves
+	id = bat.62
+	immediate = {log = "[GetDateText]: [Root.GetName]: event bat.62"}
+	title = bat.62.t
+	desc = bat.62.d
+
+	picture = GFX_event_olenia_generic
+	is_triggered_only = yes
+
+	option = {
+		name = bat.62.a
+		hidden_effect = {
+		    country_event = { 
+			    id = bat.63				
+			}
+		}
+	}
+}
+
+country_event = { #Auburn Leaves gives a report to her dad about the situation who then decides what to do with the Ruskie
+	id = bat.63
+	immediate = {log = "[GetDateText]: [Root.GetName]: event bat.63"}
+	title = bat.63.t
+	desc = bat.63.d
+
+	picture = GFX_event_minitrue
+	is_triggered_only = yes
+
+	option = { #Send her off to reeducation
+	    ai_chance = {
+			factor = 25
+		}
+		name = bat.63.a
+		add_political_power = 30
+		add_popularity = { 
+			ideology = fascism 	
+			popularity = 0.03
+		}
+		hidden_effect = {
+		    country_event = { 
+			    id = bat.64	
+                days = 5				
+			}
+		}
+	}
+	
+	option = { #House Arrest and nothing more
+	    ai_chance = {
+			factor = 25
+		}
+		name = bat.63.b
+		add_stability = 0.03
+		add_war_support = 0.03
+		hidden_effect = {
+		    country_event = { 
+			    id = bat.64
+                days = 5				
+			}
+		}
+	}
+	
+	option = { #Integrate her as a commander
+	    ai_chance = {
+			factor = 50
+		}
+		name = bat.63.c
+		if = {
+			limit = { 
+				NOT = { 
+					has_unit_leader = 442 
+				} 
+			}
+			event_target:TBK_alesia = { 
+				set_nationality = BAT 
+			}
+		}
+		add_manpower = 10000
+		add_popularity = { 
+			ideology = neutrality 	
+			popularity = 0.03
+		}
+		hidden_effect = {
+		    country_event = { 
+			    id = bat.64	
+                days = 5				
+			}
+		}
+	}
+}
+
+country_event = { #Debate within the Legionary Council in regards to the status of the newly conquered Tobuckian people
+	id = bat.64
+	immediate = {log = "[GetDateText]: [Root.GetName]: event bat.64"}
+	title = bat.64.t
+	desc = bat.64.d
+
+	picture = GFX_event_sao_macaw
+	is_triggered_only = yes
+
+	option = { #No compromise
+	    ai_chance = {
+			factor = 35
+		}
+		name = bat.64.a
+		add_stability = -0.05
+		add_political_power = 100
+		add_popularity = { 
+			ideology = fascism 	
+			popularity = 0.05
+		}
+		every_controlled_state = {
+			limit = { 
+			    OR = {
+					is_core_of = TBK 
+					is_core_of = ZAR 
+				}
+			}
+			add_resistance = 20
+		}
+		hidden_effect = {
+		    country_event = { 
+			    id = bat.65	
+                days = 5				
+			}
+		}
+	}
+	
+	option = { #Give them limited legal protection
+	    ai_chance = {
+			factor = 65
+		}
+		name = bat.64.b
+		add_stability = 0.05
+		add_political_power = -50
+		add_popularity = { 
+			ideology = neutrality 	
+			popularity = 0.05
+		}
+		hidden_effect = {
+		    country_event = { 
+			    id = bat.65
+                days = 5				
+			}
+		}
+	}
+}
+
+country_event = { #The Status of the Tobuckian Arms Industry
+	id = bat.65
+	immediate = {log = "[GetDateText]: [Root.GetName]: event bat.65"}
+	title = bat.65.t
+	desc = bat.65.d
+
+	picture = GFX_event_sao_macaw
+	is_triggered_only = yes
+
+	option = { #Nothing special here, it just gets reorganized
+		name = bat.65.a
+		one_random_arms_factory = yes
+		one_random_arms_factory = yes
+		one_random_arms_factory = yes
+		hidden_effect = {
+		    if = {
+			    limit = {
+				    has_completed_focus = BAT_voe_to_the_vanquished
+				}
+				country_event = { 
+			    	id = bat.129	
+                	days = 5				
+				}
+			}
+		    else = {
+		        country_event = { 
+			        id = bat.66	
+                    days = 5				
+			    }
+			}
+		}
+	}
+}
+
+country_event = { #The Zarantian Puppet Monarchy
+	id = bat.66
+	immediate = {log = "[GetDateText]: [Root.GetName]: event bat.66"}
+	title = bat.66.t
+	desc = bat.66.d
+
+	picture = GFX_event_canyons
+	is_triggered_only = yes
+
+	option = { 
+		name = bat.66.a
+		custom_effect_tooltip = BAT_zarantian_puppet_tp
+		hidden_effect = {
+		    set_country_flag = BAT_finished_reoorganization
+			ZAR = {
+				set_country_flag = BAT_puppet_flag
+				transfer_state = 755
+				transfer_state = 756
+				transfer_state = 754
+				transfer_state = 878
+				set_capital = 755
+				set_cosmetic_tag = BAT_puppet
+				ROOT = {
+					puppet = ZAR
+				} 
+				add_manpower = 20000
+			}
+			BAT = { 
+				ZAR = { 
+					transfer_technology = yes 
+				} 
+			}
+			if = {
+				limit = {
+					ROOT = {
+						has_government = fascism
+					}
+				}
+				ZAR = {
+					load_focus_tree = generic_griffon_focus
+					set_politics = { 
+						ruling_party = fascism 
+					}
+					set_party_name = { 
+						ideology = fascism
+						name = BAT_ZAR_fascism_party
+						long_name = BAT_ZAR_fascism_party_long
+					}
+					set_party_name = { 
+						ideology = neutrality
+						name = BAT_ZAR_neutrality_party
+						long_name = BAT_ZAR_neutrality_party_long
+					}
+					create_country_leader = {
+						name = "Queen Mekiouzza"
+						picture = "Governor.tga"
+						expire = "1965.1.1"
+						ideology = despotism
+						traits = {
+						}
+					}
+					create_country_leader = {
+						name = "Queen Mekiouzza"
+						picture = "Governor.tga"
+						expire = "1965.1.1"
+						ideology = nazism
+						traits = {
+						}
+					}
+					set_popularities = {
+						democratic = 25
+						fascism = 50
+						communism = 0
+						neutrality = 25
+					}	
+					add_equipment_to_stockpile = {
+                        type = motorized_equipment
+                        amount = 1000
+                        producer = BAT
+                    }
+                    add_equipment_to_stockpile = {
+	                    producer = BAT
+	                    type = light_tank_equipment
+	                    amount = 100
+                    }
+				}
+			}
+			if = {
+				limit = {
+					ROOT = {
+						has_government = neutrality
+					}
+				}
+				ZAR = {
+					load_focus_tree = generic_griffon_focus
+					set_politics = { 
+						ruling_party = neutrality 
+					}
+					set_party_name = { 
+						ideology = fascism
+						name = BAT_ZAR_fascism_party
+						long_name = BAT_ZAR_fascism_party_long
+					}
+					set_party_name = { 
+						ideology = neutrality
+						name = BAT_ZAR_neutrality_party
+						long_name = BAT_ZAR_neutrality_party_long
+					}
+					create_country_leader = {
+						name = "Queen Mekiouzza"
+						picture = "Governor.tga"
+						expire = "1965.1.1"
+						ideology = despotism
+						traits = {
+						}
+					}
+					create_country_leader = {
+						name = "Queen Mekiouzza"
+						picture = "Governor.tga"
+						expire = "1965.1.1"
+						ideology = nazism
+						traits = {
+						}
+					}
+					set_popularities = {
+						democratic = 25
+						fascism = 25
+						communism = 0
+						neutrality = 50
+					}
+					add_equipment_to_stockpile = {
+                        type = motorized_equipment
+                        amount = 1000
+                        producer = BAT
+                    }
+                    add_equipment_to_stockpile = {
+	                    producer = BAT
+	                    type = light_tank_equipment
+	                    amount = 100
+                    }
+				}
+			}
+			if = {
+				limit = {  
+					has_unit_leader = 437 
+				}
+				event_target:BAT_lucent = { 
+					set_nationality = ZAR 
+			    }
+			}
+			ZAR = {
+			    load_oob = "BAT_ZAR_troops"
+			}
+		}
+	}
+	
+	option = { 
+	    trigger = {
+			is_ai = no
+		}
+		name = bat.66.b
+		custom_effect_tooltip = BAT_zarantian_puppet_2_tp
+		hidden_effect = {
+		    set_country_flag = BAT_finished_reoorganization
+			ZAR = {
+				set_country_flag = BAT_puppet_flag
+				transfer_state = 755
+				transfer_state = 756
+				transfer_state = 754
+				transfer_state = 878
+				set_capital = 755
+				set_cosmetic_tag = BAT_puppet
+				ROOT = {
+					puppet = ZAR
+				} 
+				add_manpower = 20000
+			}
+			BAT = { 
+				ZAR = { 
+					transfer_technology = yes 
+				} 
+			}
+			if = {
+				limit = {
+					ROOT = {
+						has_government = fascism
+					}
+				}
+				ZAR = {
+					load_focus_tree = generic_griffon_focus
+					set_politics = { 
+						ruling_party = fascism 
+					}
+					set_party_name = { 
+						ideology = fascism
+						name = BAT_ZAR_fascism_party
+						long_name = BAT_ZAR_fascism_party_long
+					}
+					set_party_name = { 
+						ideology = neutrality
+						name = BAT_ZAR_neutrality_party
+						long_name = BAT_ZAR_neutrality_party_long
+					}
+					create_country_leader = {
+						name = "Queen Mekiouzza"
+						picture = "Governor.tga"
+						expire = "1965.1.1"
+						ideology = despotism
+						traits = {
+						}
+					}
+					create_country_leader = {
+						name = "Queen Mekiouzza"
+						picture = "Governor.tga"
+						expire = "1965.1.1"
+						ideology = nazism
+						traits = {
+						}
+					}
+					set_popularities = {
+						democratic = 25
+						fascism = 50
+						communism = 0
+						neutrality = 25
+					}	
+					add_equipment_to_stockpile = {
+                        type = motorized_equipment
+                        amount = 1000
+                        producer = BAT
+                    }
+                    add_equipment_to_stockpile = {
+	                    producer = BAT
+	                    type = light_tank_equipment
+	                    amount = 100
+                    }
+				}
+			}
+			if = {
+				limit = {
+					ROOT = {
+						has_government = neutrality
+					}
+				}
+				ZAR = {
+					load_focus_tree = generic_griffon_focus
+					set_politics = { 
+						ruling_party = neutrality 
+					}
+					set_party_name = { 
+						ideology = fascism
+						name = BAT_ZAR_fascism_party
+						long_name = BAT_ZAR_fascism_party_long
+					}
+					set_party_name = { 
+						ideology = neutrality
+						name = BAT_ZAR_neutrality_party
+						long_name = BAT_ZAR_neutrality_party_long
+					}
+					create_country_leader = {
+						name = "Queen Mekiouzza"
+						picture = "Governor.tga"
+						expire = "1965.1.1"
+						ideology = despotism
+						traits = {
+						}
+					}
+					create_country_leader = {
+						name = "Queen Mekiouzza"
+						picture = "Governor.tga"
+						expire = "1965.1.1"
+						ideology = nazism
+						traits = {
+						}
+					}
+					set_popularities = {
+						democratic = 25
+						fascism = 25
+						communism = 0
+						neutrality = 50
+					}
+					add_equipment_to_stockpile = {
+                        type = motorized_equipment
+                        amount = 1000
+                        producer = BAT
+                    }
+                    add_equipment_to_stockpile = {
+	                    producer = BAT
+	                    type = light_tank_equipment
+	                    amount = 100
+                    }
+				}
+			}
+			if = {
+				limit = {  
+					has_unit_leader = 437 
+				}
+				event_target:BAT_lucent = { 
+					set_nationality = ZAR 
+			    }
+			}
+			ZAR = {
+			    load_oob = "BAT_ZAR_troops"
+			}
+			ZAR = {
+				change_tag_from = ROOT
+			}
+		}
+	}
+}
+
+country_event = { #An Alliance Offer is extended to Colthage
+	id = bat.67
+	immediate = {log = "[GetDateText]: [Root.GetName]: event bat.67"}
+	title = bat.67.t
+	desc = bat.67.d
+
+	picture = GFX_event_olenia_generic
+	is_triggered_only = yes
+
+	option = { #Sure why not!
+	    ai_chance = {
+			factor = 95
+		}
+		name = bat.67.a
+		add_political_power = -25
+		hidden_effect = {
+		    BAT = {
+		        country_event = { 
+			        id = bat.68			
+			    }
+			}
+		}
+	}
+	
+	option = { #Eh, they seem scary
+	    ai_chance = {
+			factor = 5
+		}
+		name = bat.67.b
+		add_political_power = 25
+		hidden_effect = {
+		    BAT = {
+		        country_event = { 
+			        id = bat.69			
+			    }
+			}
+		}
+	}
+}
+
+country_event = { #The Creation of the Aghzat Pact
+	id = bat.68
+	immediate = {log = "[GetDateText]: [Root.GetName]: event bat.68"}
+	title = bat.68.t
+	desc = bat.68.d
+
+	picture = GFX_event_sao_macaw
+	is_triggered_only = yes
+
+	option = {
+		name = bat.68.a
+		create_faction = BAT_aghzat_pact
+		BAT = { 
+			add_to_faction = CTH 
+		}
+		CTH = {
+		    set_state_owner = 748
+			set_state_controller = 748
+		}
+		add_popularity = { 
+			ideology = neutrality 	
+			popularity = 0.03
+		}
+	}
+}
+
+country_event = { #The Rejection of the Aghzat Pact
+	id = bat.69
+	immediate = {log = "[GetDateText]: [Root.GetName]: event bat.69"}
+	title = bat.69.t
+	desc = bat.69.d
+
+	picture = GFX_event_sao_macaw
+	is_triggered_only = yes
+
+	option = {
+		name = bat.69.a
+		custom_effect_tooltip = BAT_strategic_assesment_tp
+		create_faction = BAT_lunar_hegemony
+		add_popularity = { 
+			ideology = fascism 	
+			popularity = 0.03
+		}
+		hidden_effect = {
+		    set_country_flag = BAT_CTH_made_a_mistake
+		}
+	}
+}
+
+country_event = { #Chiropterran Advisors Arrive in Colthage
+	id = bat.70
+	immediate = {log = "[GetDateText]: [Root.GetName]: event bat.70"}
+	title = bat.70.t
+	desc = bat.70.d
+
+	picture = GFX_event_bat_soldier2
+	is_triggered_only = yes
+
+	option = {
+		name = bat.70.a
+		add_ideas = BAT_help_their_military_idea
+	}
+}
+
+country_event = { #Hippogriffian Event about the Chiropterran Invasion of Warzena
+	id = bat.71
+	immediate = {log = "[GetDateText]: [Root.GetName]: event bat.71"}
+	title = bat.71.t
+	desc = bat.71.d
+
+	picture = GFX_event_griffon_mountain_2
+	is_triggered_only = yes
+
+	option = {
+		name = bat.71.a
+		add_war_support = 0.05
+		declare_war_on = {
+			target = BAT
+			type = annex_everything
+		}
+	}
+}
+
+country_event = { #Chiropterran Advisors Arrive to Manehatten
+	id = bat.72
+	immediate = {log = "[GetDateText]: [Root.GetName]: event bat.72"}
+	title = bat.72.t
+	desc = bat.72.d
+
+	picture = GFX_event_bat_soldier2
+	is_triggered_only = yes
+
+	option = {
+		name = bat.72.a
+		add_timed_idea = { 
+			idea = BAT_NLR_instructors
+			days = 180 
+		}
+		add_popularity = { 
+			ideology = fascism 	
+			popularity = 0.02 
+		}
+	}
+}
+
+country_event = { #Chiropterran Operatives Wage Terror Campaign in the South-East
+	id = bat.73
+	immediate = {log = "[GetDateText]: [Root.GetName]: event bat.73"}
+	title = bat.73.t
+	desc = bat.73.d
+
+	picture = GFX_event_jungles
+	is_triggered_only = yes
+
+	option = {
+		name = bat.73.a
+		add_timed_idea = { 
+			idea = BAT_psychological_warfare_idea_2
+			days = 180 
+		}
+		save_current_manpower = yes
+		every_owned_state = {
+			limit = {
+				is_core_of = ROOT
+			}
+			add_manpower = -100
+		}
+		restore_previous_manpower = yes
+	}
+}
+
+country_event = { #Chiropterran Advisors Arrive to the South-Eastern Bats
+	id = bat.74
+	immediate = {log = "[GetDateText]: [Root.GetName]: event bat.74"}
+	title = bat.74.t
+	desc = bat.74.d
+
+	picture = GFX_event_jungles_2
+	is_triggered_only = yes
+
+	option = {
+		name = bat.74.a
+		add_timed_idea = { 
+			idea = BAT_NMS_instructors
+			days = 180 
+		}
+		add_popularity = { 
+			ideology = fascism 	
+			popularity = 0.02 
+		}
+	}
+}
+
+country_event = { #Chiropterran Jungle Corps arrives to Ayacachtli 
+	id = bat.75
+	immediate = {log = "[GetDateText]: [Root.GetName]: event bat.75"}
+	title = bat.75.t
+	desc = bat.75.d
+
+	picture = GFX_event_bat_soldier2
+	is_triggered_only = yes
+
+	option = {
+		name = bat.75.a
+		custom_effect_tooltip = BAT_jungle_corps_tp
+		hidden_effect = {
+		    load_oob = "BAT_jungle_corps"
+		}
+	}
+}
+
+country_event = { #Chiropterran Arms Shipments Arrive to the South-Eastern Bats
+	id = bat.76
+	immediate = {log = "[GetDateText]: [Root.GetName]: event bat.76"}
+	title = bat.76.t
+	desc = bat.76.d
+
+	picture = GFX_event_bat_soldier2
+	is_triggered_only = yes
+
+	option = {
+		name = bat.76.a
+		add_equipment_to_stockpile = { 
+			type = infantry_equipment 
+			amount = 1500 
+			producer = BAT 
+		}
+		add_equipment_to_stockpile = { 
+			type = support_equipment 
+			amount = 500 
+			producer = BAT 
+		}
+		add_popularity = { 
+			ideology = fascism 	
+			popularity = 0.03 
+		}
+	}
+}
+
+country_event = { #Hidden event to remove cosmetic tags, ignore this Jean
+	id = bat.77
+	immediate = {log = "[GetDateText]: [Root.GetName]: event bat.77"}
+	hidden = yes
+	trigger = {
+	    OR = {
+			has_cosmetic_tag = BAT_puppet
+			has_cosmetic_tag = CTH_BAT
+			has_cosmetic_tag = HIP_BAT
+			has_cosmetic_tag = CGI_BAT
+		}
+		is_subject = no
+	}
+	mean_time_to_happen = {
+		days = 1
+	}
+	option = {
+		name = bat.77.a
+		drop_cosmetic_tag = yes
+		reapply_secondary_cosmetic_tags = yes
+	}
+}
+
+country_event = { #A Guide For the Player on how the Resistance Screen works
+	id = bat.78
+	immediate = {log = "[GetDateText]: [Root.GetName]: event bat.78"}
+	title = bat.78.t
+	desc = bat.78.d
+
+	picture = GFX_event_generic_pony_diplomacy
+	is_triggered_only = yes
+
+	option = {
+		name = bat.78.a
+		add_command_power = 25
+	}
+}
+
+country_event = { #Chiropterran Event About it Being Time to Beat Up Colthage
+	id = bat.80
+	immediate = {log = "[GetDateText]: [Root.GetName]: event bat.80"}
+	title = bat.80.t
+	desc = bat.80.d
+
+	picture = GFX_event_generic_pony_soldier
+	is_triggered_only = yes
+
+	option = {
+		name = bat.80.a
+		declare_war_on = {
+			target = CTH
+			type = annex_everything
+        }
+	}
+}
+
+country_event = { #Chiropterran Commonwealth Proclaimed
+	id = bat.81
+	immediate = {log = "[GetDateText]: [Root.GetName]: event bat.81"}
+	title = bat.81.t
+	desc = bat.81.d
+
+	picture = GFX_event_bat_soldier_flying
+	is_triggered_only = yes
+
+	option = {
+		name = bat.81.a
+		custom_effect_tooltip = BAT_new_focus_tree_2_tp
+		add_ideas = BAT_territorial_resistance_1
+		add_ideas = BAT_integration_issues
+		every_owned_state = {
+		    limit = {
+			    has_state_flag = BAT_cored_once
+			}
+			remove_core_of = BAT
+			start_resistance = yes
+		}
+		add_political_power = 100
+		hidden_effect = {
+		    set_cosmetic_tag = BAT_commonwealth
+			load_focus_tree = {
+			    tree = tzintacalia_tree_5 
+				keep_completed = yes
+			}
+			every_owned_state = {
+		        limit = {
+			        NOT = {
+				        is_core_of = BAT
+				    }
+			    }
+			    add_resistance = 20
+		    }
+			set_country_flag = BAT_commonwealth_established
+		}
+	}
+}
+
+country_event = { #Eternal Eclipse Dies
+	id = bat.82
+	immediate = {log = "[GetDateText]: [Root.GetName]: event bat.82"}
+	title = bat.82.t
+	desc = bat.82.d
+
+	picture = GFX_event_lunar_republic
+	is_triggered_only = yes
+
+	option = {
+		name = bat.82.a
+		add_stability = -0.05
+		if = {
+		    limit = {
+		        has_country_leader = {
+					ruling_only = yes
+					name = "Eternal Eclipse"
+				}
+			}
+			kill_country_leader = yes
+			create_country_leader = {
+				name = "Lucent Eclipse"
+				desc = BAT_LUCENT_ECLIPSE_DESC
+				expire = "1965.1.1"
+				picture = "BAT_Lucent_Eclipse.tga"
+				ideology = militant_theocrat
+				traits = {
+					BAT_bleeding_heart
+				}
+			}
+			create_country_leader = {
+				name = "Lucent Eclipse"
+				desc = BAT_LUCENT_ECLIPSE_DESC
+				expire = "1965.1.1"
+				picture = "BAT_Lucent_Eclipse.tga"
+				ideology = militant_theocrat_2
+				traits = {
+					BAT_bleeding_heart
+				}
+			}
+			swap_ideas = {
+				remove_idea = BAT_advisor_4
+				add_idea = BAT_advisor_43
+			}
+			swap_ideas = {
+				remove_idea = BAT_advisor_5
+				add_idea = BAT_advisor_44
+			}
+			swap_ideas = {
+				remove_idea = BAT_advisor_6
+				add_idea = BAT_advisor_45
+			}
+		}
+		if = {
+			limit = {  
+			    NOT = {
+					has_unit_leader = 437 
+				}
+			}
+			event_target:BAT_lucent = { 
+				set_nationality = BAT 
+			}
+		}
+		hidden_effect = {
+		    set_country_flag = BAT_eternal_died
+			country_event = { 
+			    id = bat.83
+                days = 3
+			}
+		}
+	}
+}
+
+country_event = { #Auburn and Lucent Talk During Eternal's Funeral
+	id = bat.83
+	immediate = {log = "[GetDateText]: [Root.GetName]: event bat.83"}
+	title = bat.83.t
+	desc = bat.83.d
+
+	picture = GFX_event_lunar_republic
+	is_triggered_only = yes
+
+	option = {
+		name = bat.83.a
+		add_political_power = 10
+		hidden_effect = {
+			country_event = { 
+			    id = bat.84
+                days = 5
+			}
+		}
+	}
+}
+
+country_event = { #Autumn Retires, has a talk with Auburn, she is now Lady Commander, woo!
+	id = bat.84
+	immediate = {log = "[GetDateText]: [Root.GetName]: event bat.84"}
+	title = bat.84.t
+	desc = bat.84.d
+
+	picture = GFX_event_lunar_republic
+	is_triggered_only = yes
+
+	option = {
+		name = bat.84.a
+        if = {
+		    limit = {
+		        has_country_leader = {
+					ruling_only = yes
+					name = "Autumn Breeze"
+				}
+			}
+            retire_country_leader = yes
+			create_country_leader = {
+				name = "Auburn Leaf"
+				desc = BAT_AUBURN_LEAF_DESC
+				expire = "1965.1.1"
+				picture = "BAT_Auburn_Leaf.tga"
+				ideology = militant_theocrat
+				traits = {
+					BAT_master_of_psychology
+				}
+			}
+			create_country_leader = {
+				name = "Auburn Leaf"
+				desc = BAT_AUBURN_LEAF_DESC
+				expire = "1965.1.1"
+				picture = "BAT_Auburn_Leaf.tga"
+				ideology = militant_theocrat_2
+				traits = {
+					BAT_master_of_psychology
+				}
+			}
+			swap_ideas = {
+				remove_idea = BAT_advisor_1
+				add_idea = BAT_advisor_46
+			}
+			swap_ideas = {
+				remove_idea = BAT_advisor_2
+				add_idea = BAT_advisor_47
+			}
+			swap_ideas = {
+				remove_idea = BAT_advisor_3
+				add_idea = BAT_advisor_48
+			}
+		}
+		hidden_effect = {
+			set_country_flag = BAT_autumn_retired
+		}
+	}
+}
+
+country_event = { #The First Setting Of The New Legionary Council Consisting of Emerald, Hail, Lightning, Palisade, Auburn and Lucent
+	id = bat.85
+	immediate = {log = "[GetDateText]: [Root.GetName]: event bat.85"}
+	title = bat.85.t
+	desc = bat.85.d
+
+	picture = GFX_event_generic_pony_diplomacy
+	is_triggered_only = yes
+
+	option = {
+		name = bat.85.a
+		custom_effect_tooltip = BAT_resistance_tp
+		add_stability = -0.30
+		add_war_support = -0.30
+		hidden_effect = {
+		    set_variable = { 
+                var = BAT_tobuck_intel 
+                value = 1
+            }
+            set_variable = { 
+                var = BAT_zarantia_intel 
+                value = 1
+            }	
+            set_variable = { 
+                var = BAT_slave_intel 
+                value = 1
+            }			
+			clamp_variable = {
+				var = BAT_tobuck_intel
+				min = 0
+				max = 100
+			}
+			clamp_variable = {
+				var = BAT_zarantia_intel
+				min = 0
+				max = 100
+			}
+			clamp_variable = {
+				var = BAT_slave_intel
+				min = 0
+				max = 100
+			}
+			set_country_flag = BAT_resistance_enabled
+			set_country_flag = BAT_tobuck_alive
+			set_country_flag = BAT_zarantia_alive
+			set_country_flag = BAT_slave_alive
+			calculate_intel_levels = yes
+			country_event = { 
+			    id = bat.78
+			}
+		}
+	}
+}
+
+country_event = { #The Reformers/Moderates under Lucent are given the Mandate to solve the Integration Issue
+	id = bat.86
+	immediate = {log = "[GetDateText]: [Root.GetName]: event bat.86"}
+	title = bat.86.t
+	desc = bat.86.d
+
+	picture = GFX_event_generic_pony_diplomacy
+	is_triggered_only = yes
+
+	option = {
+		name = bat.86.a
+		custom_effect_tooltip = BAT_no_changing_allowed_tp
+		if = {
+		    limit = {
+			    NOT = {
+					has_country_leader = {
+						ruling_only = yes
+						name = "Lucent Eclipse"
+					}
+				}
+			}
+			create_country_leader = {
+				name = "Lucent Eclipse"
+				desc = BAT_LUCENT_ECLIPSE_DESC
+				expire = "1965.1.1"
+				picture = "BAT_Lucent_Eclipse.tga"
+				ideology = militant_theocrat
+				traits = {
+					BAT_bleeding_heart
+				}
+			}
+			create_country_leader = {
+				name = "Lucent Eclipse"
+				desc = BAT_LUCENT_ECLIPSE_DESC
+				expire = "1965.1.1"
+				picture = "BAT_Lucent_Eclipse.tga"
+				ideology = militant_theocrat_2
+				traits = {
+					BAT_bleeding_heart
+				}
+			}
+			if = {
+			    limit = {
+				    has_idea = BAT_advisor_46
+					has_idea = BAT_advisor_47
+					has_idea = BAT_advisor_48
+				}
+				swap_ideas = {
+				    remove_idea = BAT_advisor_46
+					add_idea = BAT_advisor_43
+				}
+				swap_ideas = {
+				    remove_idea = BAT_advisor_47
+					add_idea = BAT_advisor_44
+				}
+				swap_ideas = {
+				    remove_idea = BAT_advisor_48
+					add_idea = BAT_advisor_45
+				}
+			}
+			else_if = {
+			    limit = {
+				    has_idea = BAT_advisor_4
+					has_idea = BAT_advisor_5
+					has_idea = BAT_advisor_6
+				}
+				swap_ideas = {
+				    remove_idea = BAT_advisor_4
+					add_idea = BAT_advisor_43
+				}
+				swap_ideas = {
+				    remove_idea = BAT_advisor_5
+					add_idea = BAT_advisor_44
+				}
+				swap_ideas = {
+				    remove_idea = BAT_advisor_6
+					add_idea = BAT_advisor_45
+				}
+			}
+			else_if = {
+			    limit = {
+				    has_idea = BAT_advisor_10
+					has_idea = BAT_advisor_11
+					has_idea = BAT_advisor_12
+				}
+				swap_ideas = {
+				    remove_idea = BAT_advisor_10
+					add_idea = BAT_advisor_43
+				}
+				swap_ideas = {
+				    remove_idea = BAT_advisor_11
+					add_idea = BAT_advisor_44
+				}
+				swap_ideas = {
+				    remove_idea = BAT_advisor_12
+					add_idea = BAT_advisor_45
+				}
+			}
+			else_if = {
+			    limit = {
+				    has_idea = BAT_advisor_13
+					has_idea = BAT_advisor_14
+					has_idea = BAT_advisor_15
+				}
+				swap_ideas = {
+				    remove_idea = BAT_advisor_13
+					add_idea = BAT_advisor_43
+				}
+				swap_ideas = {
+				    remove_idea = BAT_advisor_14
+					add_idea = BAT_advisor_44
+				}
+				swap_ideas = {
+				    remove_idea = BAT_advisor_15
+					add_idea = BAT_advisor_45
+				}
+			}
+			else_if = {
+			    limit = {
+				    has_idea = BAT_advisor_16
+					has_idea = BAT_advisor_17
+					has_idea = BAT_advisor_18
+				}
+				swap_ideas = {
+				    remove_idea = BAT_advisor_16
+					add_idea = BAT_advisor_43
+				}
+				swap_ideas = {
+				    remove_idea = BAT_advisor_17
+					add_idea = BAT_advisor_44
+				}
+				swap_ideas = {
+				    remove_idea = BAT_advisor_18
+					add_idea = BAT_advisor_45
+				}
+			}
+			else = {
+			    add_ideas = BAT_advisor_43
+				add_ideas = BAT_advisor_44
+				add_ideas = BAT_advisor_45
+			}
+		}
+		set_politics = {
+			ruling_party = neutrality
+		}
+		complete_national_focus = BAT_a_time_for_change
+		hidden_effect = {
+		    set_country_flag = BAT_no_changing_flag
+			if = {
+			    limit = {
+				    has_country_flag = BAT_changed_leader_flag
+				}
+				clr_country_flag = BAT_changed_leader_flag
+			}
+		}
+	}
+}
+
+country_event = { #The Hardliners/Purists under Auburn are given the Mandate to solve the Integration Issue
+	id = bat.87
+	immediate = {log = "[GetDateText]: [Root.GetName]: event bat.87"}
+	title = bat.87.t
+	desc = bat.87.d
+
+	picture = GFX_event_generic_pony_diplomacy
+	is_triggered_only = yes
+
+	option = {
+		name = bat.87.a
+		custom_effect_tooltip = BAT_no_changing_allowed_tp
+		if = {
+		    limit = {
+			    NOT = {
+					has_country_leader = {
+						ruling_only = yes
+						name = "Auburn Leaf"
+					}
+				}
+			}
+			create_country_leader = {
+				name = "Auburn Leaf"
+				desc = BAT_AUBURN_LEAF_DESC
+				expire = "1965.1.1"
+				picture = "BAT_Auburn_Leaf.tga"
+				ideology = militant_theocrat
+				traits = {
+					BAT_master_of_psychology
+				}
+			}
+			create_country_leader = {
+				name = "Auburn Leaf"
+				desc = BAT_AUBURN_LEAF_DESC
+				expire = "1965.1.1"
+				picture = "BAT_Auburn_Leaf.tga"
+				ideology = militant_theocrat_2
+				traits = {
+					BAT_master_of_psychology
+				}
+			}
+			if = {
+			    limit = {
+				    has_idea = BAT_advisor_43
+					has_idea = BAT_advisor_44
+					has_idea = BAT_advisor_45
+				}
+				swap_ideas = {
+				    remove_idea = BAT_advisor_43
+					add_idea = BAT_advisor_46
+				}
+				swap_ideas = {
+				    remove_idea = BAT_advisor_44
+					add_idea = BAT_advisor_47
+				}
+				swap_ideas = {
+				    remove_idea = BAT_advisor_45
+					add_idea = BAT_advisor_48
+				}
+			}
+			else_if = {
+			    limit = {
+				    has_idea = BAT_advisor_4
+					has_idea = BAT_advisor_5
+					has_idea = BAT_advisor_6
+				}
+				swap_ideas = {
+				    remove_idea = BAT_advisor_4
+					add_idea = BAT_advisor_46
+				}
+				swap_ideas = {
+				    remove_idea = BAT_advisor_5
+					add_idea = BAT_advisor_47
+				}
+				swap_ideas = {
+				    remove_idea = BAT_advisor_6
+					add_idea = BAT_advisor_48
+				}
+			}
+			else_if = {
+			    limit = {
+				    has_idea = BAT_advisor_10
+					has_idea = BAT_advisor_11
+					has_idea = BAT_advisor_12
+				}
+				swap_ideas = {
+				    remove_idea = BAT_advisor_10
+					add_idea = BAT_advisor_46
+				}
+				swap_ideas = {
+				    remove_idea = BAT_advisor_11
+					add_idea = BAT_advisor_47
+				}
+				swap_ideas = {
+				    remove_idea = BAT_advisor_12
+					add_idea = BAT_advisor_48
+				}
+			}
+			else_if = {
+			    limit = {
+				    has_idea = BAT_advisor_13
+					has_idea = BAT_advisor_14
+					has_idea = BAT_advisor_15
+				}
+				swap_ideas = {
+				    remove_idea = BAT_advisor_13
+					add_idea = BAT_advisor_46
+				}
+				swap_ideas = {
+				    remove_idea = BAT_advisor_14
+					add_idea = BAT_advisor_47
+				}
+				swap_ideas = {
+				    remove_idea = BAT_advisor_15
+					add_idea = BAT_advisor_48
+				}
+			}
+			else_if = {
+			    limit = {
+				    has_idea = BAT_advisor_16
+					has_idea = BAT_advisor_17
+					has_idea = BAT_advisor_18
+				}
+				swap_ideas = {
+				    remove_idea = BAT_advisor_16
+					add_idea = BAT_advisor_46
+				}
+				swap_ideas = {
+				    remove_idea = BAT_advisor_17
+					add_idea = BAT_advisor_47
+				}
+				swap_ideas = {
+				    remove_idea = BAT_advisor_18
+					add_idea = BAT_advisor_48
+				}
+			}
+			else = {
+			    add_ideas = BAT_advisor_46
+				add_ideas = BAT_advisor_47
+				add_ideas = BAT_advisor_48
+			}
+		}
+		set_politics = {
+			ruling_party = fascism
+		}
+		complete_national_focus = BAT_they_will_know_their_place
+		hidden_effect = {
+		    set_country_flag = BAT_no_changing_flag
+			if = {
+			    limit = {
+				    has_country_flag = BAT_changed_leader_flag
+				}
+				clr_country_flag = BAT_changed_leader_flag
+			}
+		}
+	}
+}
+
+country_event = { #Wallnut Drive has been stewing in a cell for 2 days and is finally approached by a guard who informs him of his fate
+	id = bat.88
+	immediate = {log = "[GetDateText]: [Root.GetName]: event bat.88"}
+	title = bat.88.t
+	desc = bat.88.d
+
+	picture = GFX_farm_event
+	is_triggered_only = yes
+
+	option = { #Zarantian Border Regions
+	    ai_chance = {
+			factor = 34
+		}
+		name = bat.88.a
+		729 = {
+		    add_extra_state_shared_building_slots = 1
+			add_manpower = 15000
+			add_resistance = -7.5
+		}
+		730 = {
+		    add_extra_state_shared_building_slots = 1
+			add_manpower = 15000
+			add_resistance = -7.5
+		}
+		746 = {
+		    add_extra_state_shared_building_slots = 1
+			add_manpower = 15000
+			add_resistance = -7.5
+		}
+		747 = {
+		    add_extra_state_shared_building_slots = 1
+			add_manpower = 15000
+			add_resistance = -7.5
+		}
+		if = {
+		    limit = {
+			    747 = {
+				    is_owned_and_controlled_by = ROOT
+				}
+			}
+			747 = {
+		    	add_extra_state_shared_building_slots = 1
+				add_manpower = 15000
+				add_resistance = -7.5
+			}
+		}
+	}
+	
+	option = { #Tobuckian Coastline 
+	    ai_chance = {
+			factor = 33
+		}
+		name = bat.88.b
+		692 = {
+		    add_extra_state_shared_building_slots = 1
+			add_manpower = 15000
+			add_resistance = -7.5
+		}
+		728 = {
+		    add_extra_state_shared_building_slots = 1
+			add_manpower = 15000
+			add_resistance = -7.5
+		}
+		1205 = {
+		    add_extra_state_shared_building_slots = 1
+			add_manpower = 15000
+			add_resistance = -7.5
+		}
+		745 = {
+		    add_extra_state_shared_building_slots = 1
+			add_manpower = 15000
+			add_resistance = -7.5
+		}
+	}
+	
+	option = { #The Warzenan Territories
+	    ai_chance = {
+			factor = 33
+		}
+		name = bat.88.c
+		744 = {
+		    add_extra_state_shared_building_slots = 1
+			add_manpower = 15000
+			add_resistance = -7.5
+		}
+		743 = {
+		    add_extra_state_shared_building_slots = 1
+			add_manpower = 15000
+			add_resistance = -7.5
+		}
+		1206 = {
+		    add_extra_state_shared_building_slots = 1
+			add_manpower = 15000
+			add_resistance = -7.5
+		}
+		688 = {
+		    add_extra_state_shared_building_slots = 1
+			add_manpower = 15000
+			add_resistance = -7.5
+		}
+	}
+	
+	option = { #The Zumidian Territories Territories
+	    trigger = {
+            710 = {
+				is_owned_and_controlled_by = ROOT
+			}
+			711 = {
+				is_owned_and_controlled_by = ROOT
+			}
+			697 = {
+				is_owned_and_controlled_by = ROOT
+			}
+			698 = {
+				is_owned_and_controlled_by = ROOT
+			}
+		}
+	    ai_chance = {
+			factor = 33
+		}
+		name = bat.88.e
+		710 = {
+		    add_extra_state_shared_building_slots = 1
+			add_manpower = 15000
+			add_resistance = -7.5
+		}
+		711 = {
+		    add_extra_state_shared_building_slots = 1
+			add_manpower = 15000
+			add_resistance = -7.5
+		}
+		697 = {
+		    add_extra_state_shared_building_slots = 1
+			add_manpower = 15000
+			add_resistance = -7.5
+		}
+		698 = {
+		    add_extra_state_shared_building_slots = 1
+			add_manpower = 15000
+			add_resistance = -7.5
+		}
+	}
+}
+
+country_event = { #Flavour Event about a veteran teaching their kid to shoot a gun
+	id = bat.89
+	immediate = {log = "[GetDateText]: [Root.GetName]: event bat.89"}
+	title = bat.89.t
+	desc = bat.89.d
+
+	picture = GFX_event_bat_momma
+	is_triggered_only = yes
+
+	option = {
+		name = bat.89.a
+	}
+}
+
+country_event = { #Flavour Event about the newly promoted Generals going out for a drink and discussing the future
+	id = bat.90
+	immediate = {log = "[GetDateText]: [Root.GetName]: event bat.90"}
+	title = bat.90.t
+	desc = bat.90.d
+
+	picture = GFX_event_generic_pony_soldier
+	is_triggered_only = yes
+
+	option = {
+		name = bat.90.a
+	}
+}
+
+country_event = { #The Issue of the WLA
+	id = bat.91
+	immediate = {log = "[GetDateText]: [Root.GetName]: event bat.91"}
+	title = bat.91.t
+	desc = bat.91.d
+
+	picture = GFX_event_generic_pony_soldier
+	is_triggered_only = yes
+
+	option = { #Sack Baragzen and reform the WLA into a police force
+	    trigger = {
+            has_government = neutrality
+		}
+	    ai_chance = {
+			factor = 25
+		}
+		name = bat.91.a
+		if = {
+			limit = {
+				has_unit_leader = 441
+			}
+			remove_unit_leader = 441
+		}
+		if = {
+			limit = { 
+				has_template = "Warzenan Liberation Army Division" 
+			}
+			delete_unit_template_and_units = { 
+				division_template = "Warzenan Liberation Army Division" 
+			}
+		}
+		add_stability = 0.05
+		every_owned_state = {
+		    limit = {
+			    is_core_of = WAR
+			}
+			add_compliance = 5.0
+		}
+	}
+	
+	option = { #Sack Baragzen and incorporate the WLA into the Reserves
+	    ai_chance = {
+			factor = 50
+		}
+		name = bat.91.b
+		if = {
+			limit = {
+				has_unit_leader = 441
+			}
+			remove_unit_leader = 441
+		}
+		if = {
+			limit = { 
+				has_template = "Warzenan Liberation Army Division" 
+			}
+			delete_unit_template_and_units = { 
+				division_template = "Warzenan Liberation Army Division" 
+			}
+		}
+		add_manpower = 20000
+		add_political_power = 50
+		every_owned_state = {
+		    limit = {
+			    is_core_of = WAR
+			}
+			add_resistance = -2.5
+		}
+	}
+	
+	option = { #Forcefully disolve the WLA and put them to work as Labourers
+	    trigger = {
+            has_government = fascism
+			OR = {
+				has_idea = BAT_slavery
+				has_idea = BAT_slavery_2
+				has_idea = BAT_slavery_3
+			}
+		}
+	    ai_chance = {
+			factor = 25
+		}
+		name = bat.91.c
+		if = {
+			limit = {
+				has_unit_leader = 441
+			}
+			remove_unit_leader = 441
+		}
+		if = {
+			limit = { 
+				has_template = "Warzenan Liberation Army Division" 
+			}
+			delete_unit_template_and_units = { 
+				division_template = "Warzenan Liberation Army Division" 
+			}
+		}
+		custom_effect_tooltip = BAT_extra_workers_3_tp
+		add_to_variable = { 
+			var = BAT_labourers 
+			value = 20000 
+		}
+		add_stability = -0.05
+		hidden_effect = {
+		    country_event = {
+			    id = bat.92
+			}
+		}
+	}
+}
+
+country_event = { #Ex-WLA members flock to the NZLF
+	id = bat.92
+	immediate = {log = "[GetDateText]: [Root.GetName]: event bat.92"}
+	title = bat.92.t
+	desc = bat.92.d
+
+	picture = GFX_event_pony_protest
+	is_triggered_only = yes
+
+	option = {
+		name = bat.92.a
+		every_owned_state = {
+		    limit = {
+			    is_core_of = WAR
+			}
+			add_resistance = 5.0
+			add_compliance = -5.0
+		}
+	}
+}
+
+country_event = { #Dihya Death Event
+	id = bat.93
+	immediate = {log = "[GetDateText]: [Root.GetName]: event bat.93"}
+	title = bat.93.t
+	desc = bat.93.d
+
+	picture = GFX_event_pony_riot
+	is_triggered_only = yes
+
+	option = {
+		name = bat.93.a
+		if = {
+		    limit = {
+			    has_idea = BAT_territorial_resistance_1
+			}
+			swap_ideas = {
+			    remove_idea = BAT_territorial_resistance_1
+				add_idea = BAT_territorial_resistance_2
+			}
+		}
+		else_if = {
+		    limit = {
+			    has_idea = BAT_territorial_resistance_2
+			}
+			swap_ideas = {
+			    remove_idea = BAT_territorial_resistance_2
+				add_idea = BAT_territorial_resistance_3
+			}
+		}
+		else = {
+		    remove_ideas = BAT_territorial_resistance_3
+		}
+		hidden_effect = {
+		    clr_country_flag = BAT_tobuck_alive
+			set_country_flag = BAT_tobuck_dead
+			calculate_intel_levels = yes
+			if = {
+			    limit = {
+				    has_country_flag = BAT_zarantia_dead
+				    has_country_flag = BAT_slave_dead
+				}
+				country_event = {
+			    	id = bat.96
+					days = 1
+				}
+			}
+		}
+	}
+}
+
+country_event = { #Izem Death Event
+	id = bat.94
+	immediate = {log = "[GetDateText]: [Root.GetName]: event bat.94"}
+	title = bat.94.t
+	desc = bat.94.d
+
+	picture = GFX_event_pony_riot
+	is_triggered_only = yes
+
+	option = {
+		name = bat.94.a
+		if = {
+		    limit = {
+			    has_idea = BAT_territorial_resistance_1
+			}
+			swap_ideas = {
+			    remove_idea = BAT_territorial_resistance_1
+				add_idea = BAT_territorial_resistance_2
+			}
+		}
+		else_if = {
+		    limit = {
+			    has_idea = BAT_territorial_resistance_2
+			}
+			swap_ideas = {
+			    remove_idea = BAT_territorial_resistance_2
+				add_idea = BAT_territorial_resistance_3
+			}
+		}
+		else = {
+		    remove_ideas = BAT_territorial_resistance_3
+		}
+		hidden_effect = {
+		    clr_country_flag = BAT_zarantia_alive
+			set_country_flag = BAT_zarantia_dead
+			calculate_intel_levels = yes
+			if = {
+			    limit = {
+				    has_country_flag = BAT_tobuck_dead
+				    has_country_flag = BAT_slave_dead
+				}
+				country_event = {
+			    	id = bat.96
+					days = 1
+				}
+			}
+		}
+	}
+}
+
+country_event = { #Jackal Death Event
+	id = bat.95
+	immediate = {log = "[GetDateText]: [Root.GetName]: event bat.95"}
+	title = bat.95.t
+	desc = bat.95.d
+
+	picture = GFX_event_pony_riot
+	is_triggered_only = yes
+
+	option = {
+		name = bat.95.a
+		if = {
+		    limit = {
+			    has_idea = BAT_territorial_resistance_1
+			}
+			swap_ideas = {
+			    remove_idea = BAT_territorial_resistance_1
+				add_idea = BAT_territorial_resistance_2
+			}
+		}
+		else_if = {
+		    limit = {
+			    has_idea = BAT_territorial_resistance_2
+			}
+			swap_ideas = {
+			    remove_idea = BAT_territorial_resistance_2
+				add_idea = BAT_territorial_resistance_3
+			}
+		}
+		else = {
+		    remove_ideas = BAT_territorial_resistance_3
+		}
+		hidden_effect = {
+		    clr_country_flag = BAT_slave_alive
+			set_country_flag = BAT_slave_dead
+			calculate_intel_levels = yes
+			if = {
+			    limit = {
+				    has_country_flag = BAT_tobuck_dead
+				    has_country_flag = BAT_zarantia_dead
+				}
+				country_event = {
+			    	id = bat.96
+					days = 1
+				}
+			}
+		}
+	}
+}
+
+country_event = { #The End Of The Bush War
+	id = bat.96
+	immediate = {log = "[GetDateText]: [Root.GetName]: event bat.96"}
+	title = bat.96.t
+	desc = bat.96.d
+
+	picture = GFX_event_BAT_in_the_desert
+	is_triggered_only = yes
+
+	option = {
+		name = bat.96.a
+		custom_effect_tooltip = BAT_the_resistance_ends_tp
+		add_stability = 0.10
+		add_war_support = 0.10
+		add_political_power = 100
+		hidden_effect = {
+			clr_country_flag = BAT_resistance_enabled
+			refresh_partisan_gui = yes
+		}
+	}
+}
+
+country_event = { #Legionary Veteran just playing hoofball with some kids, it's nice
+	id = bat.97
+	immediate = {log = "[GetDateText]: [Root.GetName]: event bat.97"}
+	title = bat.97.t
+	desc = bat.97.d
+
+	picture = GFX_event_BAT_in_the_desert
+	is_triggered_only = yes
+
+	option = {
+		name = bat.97.a
+	}
+}
+
+country_event = { #Event About Zarantians being able to worship their Gods Publically - Consult Bierbond
+	id = bat.98
+	immediate = {log = "[GetDateText]: [Root.GetName]: event bat.98"}
+	title = bat.98.t
+	desc = bat.98.d
+
+	picture = GFX_event_night_and_fog
+	is_triggered_only = yes
+
+	option = {
+		name = bat.98.a
+	}
+}
+
+country_event = { #Event About Some Shithole Village Getting Electricity and Modern Goods
+	id = bat.99
+	immediate = {log = "[GetDateText]: [Root.GetName]: event bat.99"}
+	title = bat.99.t
+	desc = bat.99.d
+
+	picture = GFX_event_minitrue
+	is_triggered_only = yes
+
+	option = {
+		name = bat.99.a
+		add_popularity = {
+			ideology = neutrality
+			popularity = 0.05
+		}
+	}
+}
+
+country_event = { #Flavour Event About Foals From Segregated Communities going to the same school and becoming friends, meant to impyl things will become better in the future
+	id = bat.100
+	immediate = {log = "[GetDateText]: [Root.GetName]: event bat.100"}
+	title = bat.100.t
+	desc = bat.100.d
+
+	picture = GFX_event_pioneers
+	is_triggered_only = yes
+
+	option = {
+		name = bat.100.a
+	}
+}
+
+country_event = { #Flavour Event About A Veterans Meet Up
+	id = bat.101
+	immediate = {log = "[GetDateText]: [Root.GetName]: event bat.101"}
+	title = bat.101.t
+	desc = bat.101.d
+
+	picture = GFX_event_generic_pony_soldier
+	is_triggered_only = yes
+
+	option = {
+		name = bat.101.a
+	}
+}
+
+country_event = { #A Light At The End Of The Tunnel
+	id = bat.102
+	immediate = {log = "[GetDateText]: [Root.GetName]: event bat.102"}
+	title = bat.102.t
+	desc = bat.102.d
+
+	picture = GFX_event_BAT_in_the_desert
+	is_triggered_only = yes
+
+	option = {
+		name = bat.102.a
+		custom_effect_tooltip = BAT_integration_allowed_again_tp
+		remove_ideas = BAT_integration_issues
+		every_owned_state = {
+		    limit = {
+			    NOT = {
+				    is_core_of = BAT
+				}
+			    has_state_flag = BAT_cored_once
+			}
+			add_core_of = BAT
+		}
+		hidden_effect = {
+		    clr_country_flag = BAT_no_changing_flag
+			country_event = {
+			    id = bat.103
+				days = 7
+			}
+		}
+	}
+}
+
+country_event = { #The Integration League Rises, meant to be a hopeful ending event about Chiropterra eventually becoming a nice place
+	id = bat.103
+	immediate = {log = "[GetDateText]: [Root.GetName]: event bat.103"}
+	title = bat.103.t
+	desc = bat.103.d
+
+	picture = GFX_event_river_city_3
+	is_triggered_only = yes
+
+	option = {
+		name = bat.103.a
+		custom_effect_tooltip = BAT_congrats_tp
+		create_country_leader = {
+			name = "Carrot Stick"
+			picture = "Governor.tga"
+			expire = "1965.1.1"
+			ideology = liberalism
+			traits = {
+			    BAT_civil_politician
+				BAT_actual_reformer
+			}
+		}
+		add_timed_idea = { 
+			idea = BAT_rise_of_the_league
+			days = 150
+		}
+		set_party_name = { 
+			ideology = democratic
+			name = BAT_integration_league
+			long_name = BAT_integration_league_long
+		}
+		hidden_effect = {
+		    set_country_flag = BAT_carrot_stick_not_advisor
+			swap_ideas = {
+			    remove_idea = BAT_advisor_45
+				add_idea = BAT_advisor_49
+			}
+			country_event = {
+			    id = bat.104
+			}
+		}
+	}
+}
+
+country_event = { #Ending Event Where Lucent and Auburn Meet Up and confirm they're still friends in spite of their political stances
+	id = bat.104
+	immediate = {log = "[GetDateText]: [Root.GetName]: event bat.104"}
+	title = bat.104.t
+	desc = bat.104.d
+
+	picture = GFX_event_bat_ponies
+	is_triggered_only = yes
+
+	option = {
+		name = bat.104.a
+		custom_effect_tooltip = BAT_auburn_wont_serve_tp
+		hidden_effect = {		
+		    set_country_flag = BAT_auburn_has_no_balls
+		}
+	}
+}
+
+country_event = { #Flavour Event About A Loyalist Chiropterran Settlement Being Established
+	id = bat.105
+	immediate = {log = "[GetDateText]: [Root.GetName]: event bat.105"}
+	title = bat.105.t
+	desc = bat.105.d
+
+	picture = GFX_event_medieval_village_2
+	is_triggered_only = yes
+
+	option = {
+		name = bat.105.a
+	}
+}
+
+country_event = { #Flavour Event About Some Labourers Working In A Factory
+	id = bat.106
+	immediate = {log = "[GetDateText]: [Root.GetName]: event bat.106"}
+	title = bat.106.t
+	desc = bat.106.d
+
+	picture = GFX_event_old_mine
+	is_triggered_only = yes
+
+	option = {
+		name = bat.106.a
+	}
+}
+
+country_event = { #Flavour Event About Native Children returning from school, and having a conversation with parents, distubring questions are raised and the parents consider the fact that their children are being indoctrinated
+	id = bat.107
+	immediate = {log = "[GetDateText]: [Root.GetName]: event bat.107"}
+	title = bat.107.t
+	desc = bat.107.d
+
+	picture = GFX_event_school
+	is_triggered_only = yes
+
+	option = {
+		name = bat.107.a
+		add_popularity = {
+			ideology = fascism
+			popularity = 0.05
+		}
+	}
+}
+
+country_event = { #The Bad End/tl:dr Lucent Values his friendship with Auburn more than political nonsense
+	id = bat.108
+	immediate = {log = "[GetDateText]: [Root.GetName]: event bat.108"}
+	title = bat.108.t
+	desc = bat.108.d
+
+	picture = GFX_event_bat_soldier_flying
+	is_triggered_only = yes
+
+	option = {
+		name = bat.108.a
+		custom_effect_tooltip = BAT_integration_allowed_again_2_tp
+		swap_ideas = {
+		    remove_idea = BAT_integration_issues
+			add_idea = BAT_integration_issues_2
+		}
+		hidden_effect = {
+		    clr_country_flag = BAT_no_changing_flag
+			country_event = {
+			    id = bat.109
+			}
+		}
+	}
+}
+
+
+country_event = { #Flavour Event About Auburn And Lucent Having a Falling Out because the latter thinks the former is a monster for all of the policies she's implemented
+	id = bat.109
+	immediate = {log = "[GetDateText]: [Root.GetName]: event bat.109"}
+	title = bat.109.t
+	desc = bat.109.d
+
+	picture = GFX_event_olenia_generic
+	is_triggered_only = yes
+
+	option = {
+		name = bat.109.a
+		custom_effect_tooltip = BAT_lucent_wont_serve_tp
+		hidden_effect = {		
+		    set_country_flag = BAT_lucent_has_no_balls
+		}
+	}
+}
+
+country_event = { #The Promotion of Lieutenant Colonel Stirling Silver
+	id = bat.110
+	immediate = {log = "[GetDateText]: [Root.GetName]: event bat.110"}
+	title = bat.110.t
+	desc = bat.110.d
+
+	picture = GFX_event_generic_pony_soldier
+	is_triggered_only = yes
+
+	option = {
+		name = bat.110.a
+		create_corps_commander = {
+			name = "Stirling Silver"
+			picture = "BAT_Stirling_Silver.tga"
+			traits = { 
+	    		pony_race_trait 
+				night_guard_2 
+				commando
+				paratrooper
+			}
+			desc = BAT_stirling_silver
+			id = 447
+			skill = 3
+			attack_skill = 3
+			defense_skill = 1
+			planning_skill = 3
+			logistics_skill = 3
+		}
+		custom_effect_tooltip = BAT_stirling_silver_stats_tp
+		every_army_leader = {
+			limit = { 
+				has_id = 447 
+			}
+			add_timed_unit_leader_trait = {
+				trait = recently_promoted
+				days = 60
+			}
+		}
+	}
+}
+
+country_event = { #Hurricane! We get lightly hit and then redirect it to Hippogriffia
+	id = bat.111
+	immediate = {log = "[GetDateText]: [Root.GetName]: event bat.111"}
+	title = bat.111.t
+	desc = bat.111.d
+		
+	trigger = {
+		tag = BAT
+		date > 1009.5.1
+	}
+	mean_time_to_happen = {
+		days = 90
+	}
+	fire_only_once = yes
+	picture = GFX_event_olenia_generic
+		
+	option = {	
+	    name = bat.111.a
+		add_manpower = -250
+		save_current_manpower = yes
+		713 = {
+			add_manpower = -500
+			damage_building = {
+				type = infrastructure
+				damage = 0.75
+			}
+		}
+		690 = {
+			add_manpower = -350
+			damage_building = {
+				type = infrastructure
+				damage = 0.5
+			}
+		}
+		712 = {
+			add_manpower = -250
+			damage_building = {
+				type = infrastructure
+				damage = 0.5
+			}
+		}
+		restore_previous_manpower = yes
+		if = {
+			limit = { 
+				688 = {
+					is_controlled_by = WAR
+				}	
+			}
+			WAR = {
+				country_event = { 
+					id = warzena.1 
+					days = 1
+				}
+			}
+		}
+		else_if = {
+			limit = { 
+				688 = {
+					is_controlled_by = ROOT
+				}	
+			}
+			688 = {
+				add_manpower = -500
+				damage_building = {
+					type = infrastructure
+					damage = 0.75
+				}
+			}
+		}
+		else = {
+			var:710.owner = {
+				country_event = {  
+					id = warzena.1 
+					days = 1
+				}
+			}
+		}
+		HIP = {
+			country_event = { 
+				id = hippogriff.1 
+				days = 5
+			}
+		}
+	}
+}
+
+country_event = { #Flavour Event About A Chiropterran Military Parade Following a victory in the Lunar Civil War
+	id = bat.112
+	immediate = {log = "[GetDateText]: [Root.GetName]: event bat.112"}
+	title = bat.112.t
+	desc = bat.112.d
+
+	picture = GFX_event_bat_soldier_flying
+	is_triggered_only = yes
+
+	option = {
+		name = bat.112.a
+		add_popularity = { 
+			ideology = fascism 	
+			popularity = 0.03 
+		}
+	}
+}
+
+country_event = { #Eternal Eclipse Retires
+	id = bat.113
+	immediate = {log = "[GetDateText]: [Root.GetName]: event bat.113"}
+	title = bat.113.t
+	desc = bat.113.d
+
+	picture = GFX_event_lunar_republic
+	is_triggered_only = yes
+
+	option = {
+		name = bat.113.a
+		add_popularity = { 
+			ideology = neutrality 	
+			popularity = 0.03 
+		}
+		if = {
+		    limit = {
+		        has_country_leader = {
+					ruling_only = yes
+					name = "Eternal Eclipse"
+				}
+			}
+			kill_country_leader = yes
+			create_country_leader = {
+				name = "Lucent Eclipse"
+				desc = BAT_LUCENT_ECLIPSE_DESC
+				expire = "1965.1.1"
+				picture = "BAT_Lucent_Eclipse.tga"
+				ideology = militant_theocrat
+				traits = {
+					BAT_bleeding_heart
+				}
+			}
+			create_country_leader = {
+				name = "Lucent Eclipse"
+				desc = BAT_LUCENT_ECLIPSE_DESC
+				expire = "1965.1.1"
+				picture = "BAT_Lucent_Eclipse.tga"
+				ideology = militant_theocrat_2
+				traits = {
+					BAT_bleeding_heart
+				}
+			}
+			swap_ideas = {
+				remove_idea = BAT_advisor_4
+				add_idea = BAT_advisor_43
+			}
+			swap_ideas = {
+				remove_idea = BAT_advisor_5
+				add_idea = BAT_advisor_44
+			}
+			swap_ideas = {
+				remove_idea = BAT_advisor_6
+				add_idea = BAT_advisor_49
+			}
+		}
+		if = {
+			limit = {  
+			    NOT = {
+					has_unit_leader = 437 
+				}
+			}
+			event_target:BAT_lucent = { 
+				set_nationality = BAT 
+			}
+		}
+		hidden_effect = {
+		    set_country_flag = BAT_eternal_retired
+			set_country_flag = BAT_carrot_stick_not_advisor
+			country_event = { 
+				id = bat.122
+                days = 1825				
+			}
+		}
+	}
+}
+
+country_event = { #Flavour Event About Emerald Discussing importing Prisoners and Dissidents From the Hegemony for Experiments with Nightmare Moon
+	id = bat.114
+	immediate = {log = "[GetDateText]: [Root.GetName]: event bat.114"}
+	title = bat.114.t
+	desc = bat.114.d
+
+	picture = GFX_event_night_and_fog
+	is_triggered_only = yes
+
+	option = {
+		name = bat.114.a
+		add_popularity = { 
+			ideology = fascism 	
+			popularity = 0.03 
+		}
+	}
+}
+
+country_event = { #Flavour Event About Colonists From the New Lunar Empire settling in Chiropterra
+	id = bat.115
+	immediate = {log = "[GetDateText]: [Root.GetName]: event bat.115"}
+	title = bat.115.t
+	desc = bat.115.d
+
+	picture = GFX_event_billabong
+	is_triggered_only = yes
+
+	option = {
+		name = bat.115.a
+		add_stability = 0.03
+		add_political_power = 30
+		add_popularity = { 
+			ideology = neutrality 	
+			popularity = 0.03 
+		}
+	}
+}
+
+country_event = { #Flavour Event About A Newly Formed Chain Gang Comprising Mostly Of Ex-Labourers Working In New Maredian
+	id = bat.116
+	immediate = {log = "[GetDateText]: [Root.GetName]: event bat.116"}
+	title = bat.116.t
+	desc = bat.116.d
+
+	picture = GFX_event_forest_depression
+	is_triggered_only = yes
+
+	option = {
+		name = bat.116.a
+		691 = {
+			add_extra_state_shared_building_slots = 1
+			add_building_construction = {
+				type = infrastructure
+				level = 1
+				instant_build = yes
+			}
+		}
+	}
+}
+
+country_event = { #Flavour Event About Lunar Empire Industrial Experts Coming to Chiropterra
+	id = bat.117
+	immediate = {log = "[GetDateText]: [Root.GetName]: event bat.117"}
+	title = bat.117.t
+	desc = bat.117.d
+
+	picture = GFX_event_western_griffon_city
+	is_triggered_only = yes
+
+	option = {
+		name = bat.117.a
+		every_owned_state = {
+			limit = { 
+			    is_core_of = ROOT 
+			}
+			add_manpower = 5000
+		}
+	}
+}
+
+country_event = { #Flavour Event About Celestia Loyalists Ending Up In Chiropterra As LMRD Test Subjects
+	id = bat.118
+	immediate = {log = "[GetDateText]: [Root.GetName]: event bat.118"}
+	title = bat.118.t
+	desc = bat.118.d
+
+	picture = GFX_event_old_mine
+	is_triggered_only = yes
+
+	option = {
+		name = bat.118.a
+		custom_effect_tooltip = BAT_import_test_subjects_tp
+		add_to_variable = { 
+			var = BAT_test_subjects 
+			value = 3000 
+		}
+	}
+}
+
+country_event = { #With Moonshine successful Autumn chooses to retire and Auburn becomes the Lady Commander of the Nightmare Legion
+	id = bat.119
+	immediate = {log = "[GetDateText]: [Root.GetName]: event bat.119"}
+	title = bat.119.t
+	desc = bat.119.d
+
+	picture = GFX_event_gothic_interior
+	is_triggered_only = yes
+
+	option = {
+		name = bat.119.a
+        if = {
+		    limit = {
+		        has_country_leader = {
+					ruling_only = yes
+					name = "Autumn Breeze"
+				}
+			}
+            retire_country_leader = yes
+			create_country_leader = {
+				name = "Auburn Leaf"
+				desc = BAT_AUBURN_LEAF_DESC
+				expire = "1965.1.1"
+				picture = "BAT_Auburn_Leaf.tga"
+				ideology = militant_theocrat
+				traits = {
+					BAT_master_of_psychology
+				}
+			}
+			create_country_leader = {
+				name = "Auburn Leaf"
+				desc = BAT_AUBURN_LEAF_DESC
+				expire = "1965.1.1"
+				picture = "BAT_Auburn_Leaf.tga"
+				ideology = militant_theocrat_2
+				traits = {
+					BAT_master_of_psychology
+				}
+			}
+			swap_ideas = {
+				remove_idea = BAT_advisor_1
+				add_idea = BAT_advisor_46
+			}
+			swap_ideas = {
+				remove_idea = BAT_advisor_2
+				add_idea = BAT_advisor_47
+			}
+			swap_ideas = {
+				remove_idea = BAT_advisor_3
+				add_idea = BAT_advisor_48
+			}
+		}
+		hidden_effect = {
+			set_country_flag = BAT_autumn_retired
+		}
+	}
+}
+
+country_event = { #Flavour Event About NMM sending a letter to the Chiropterran governemnt ordering them to Moderate their policies/Among other things this includes empowering the Civilian Government, making the position of Chief Moonspeaker a Civilian Position, completely retiring the LMRD as an institution, and implementing the One Generation Rule for Non-Believers
+	id = bat.120
+	immediate = {log = "[GetDateText]: [Root.GetName]: event bat.120"}
+	title = bat.120.t
+	desc = bat.120.d
+
+	picture = GFX_event_luna_work_sad
+	is_triggered_only = yes
+
+	option = {
+		name = bat.120.a
+		add_stability = 0.03
+		add_political_power = 30
+		add_popularity = { 
+			ideology = neutrality 	
+			popularity = 0.03
+		}
+	}
+}
+
+country_event = { #Event About the Fate of the Church
+	id = bat.121
+	immediate = {log = "[GetDateText]: [Root.GetName]: event bat.121"}
+	title = bat.121.t
+	desc = bat.121.d
+
+	picture = GFX_event_gothic_interior
+	is_triggered_only = yes
+
+	option = { #The Position goes to a civvie by the name of Falling Star
+	    ai_chance = {
+			factor = 5
+		}
+		name = bat.121.a
+		add_political_power = 100
+		add_popularity = { 
+			ideology = neutrality 	
+			popularity = 0.10
+		}
+	}
+	
+	option = { #Lunar Hail Chooses to retire as Lady Commander
+	    ai_chance = {
+			factor = 95
+		}
+		name = bat.121.b
+		add_stability = 0.10
+		add_war_support = 0.10
+		add_popularity = { 
+			ideology = fascism 	
+			popularity = 0.10
+		}
+		if = {
+		    limit = {
+		        has_country_leader = {
+					ruling_only = yes
+					name = "Lunar Hail"
+				}
+			}
+            retire_country_leader = yes
+			create_country_leader = {
+				name = "Leaf LeHay"
+				desc = BAT_LEAF_LEHAY_DESC
+				expire = "1965.1.1"
+				picture = "BAT_Leaf_LeHay.tga"
+				ideology = militant_theocrat
+				traits = {
+					BAT_bombs_away_lehay
+				}
+			}
+			create_country_leader = {
+				name = "Leaf LeHay"
+				desc = BAT_LEAF_LEHAY_DESC
+				expire = "1965.1.1"
+				picture = "BAT_Leaf_LeHay.tga"
+				ideology = militant_theocrat_2
+				traits = {
+					BAT_bombs_away_lehay
+				}
+			}
+		}
+		if = {
+			limit = { 
+				has_unit_leader = 433 
+			}
+			remove_unit_leader = 433
+		}
+		hidden_effect = {
+		    set_country_flag = BAT_lunar_hail_retired
+			country_event = { 
+				id = bat.124
+                days = 7				
+			}
+		}
+	}
+}
+
+country_event = { #Flavour Event About Eternal Passing Away peacefully five years after his retirement, body found in his manor
+	id = bat.122
+	immediate = {log = "[GetDateText]: [Root.GetName]: event bat.122"}
+	title = bat.122.t
+	desc = bat.122.d
+
+	picture = GFX_event_gothic_interior
+	is_triggered_only = yes
+
+	option = {
+		name = bat.122.a
+		hidden_effect = {
+		    clr_country_flag = BAT_eternal_retired
+		    set_country_flag = BAT_eternal_died
+			country_event = { 
+				id = bat.123
+                days = 7				
+			}
+		}
+	}
+}
+
+country_event = { #Flavour Event About Eternal's Funeral/Attended by NMM
+	id = bat.123
+	immediate = {log = "[GetDateText]: [Root.GetName]: event bat.123"}
+	title = bat.123.t
+	desc = bat.123.d
+
+	picture = GFX_event_foggy_forest
+	is_triggered_only = yes
+
+	option = {
+		name = bat.123.a
+		add_political_power = 10
+		add_popularity = { 
+			ideology = fascism 	
+			popularity = 0.01
+		}
+	}
+}
+
+country_event = { #Flavour Event About Emerald visiting Hail a week after her retirement to confirm that they're still friends
+	id = bat.124
+	immediate = {log = "[GetDateText]: [Root.GetName]: event bat.124"}
+	title = bat.124.t
+	desc = bat.124.d
+
+	picture = GFX_event_gothic_interior
+	is_triggered_only = yes
+
+	option = {
+		name = bat.124.a
+	}
+}
+
+
+country_event = { #Chiropterran Military Advisors Debug Event
+	id = bat.125
+	immediate = {log = "[GetDateText]: [Root.GetName]: event greifwald.24"}
+	hidden = yes
+
+	trigger = {
+	    NOT = {
+		    tag = BAT
+		}
+		BAT = { 
+			has_completed_focus = BAT_the_empires_barracks 
+		}
+		ROOT = { 
+			is_in_faction_with = BAT
+			NOT = { 
+				has_idea = BAT_chirropteran_advisors 
+			}
+		}
+	}
+	mean_time_to_happen = {
+		days = 30
+	}
+
+	option = {
+		name = bat.125.a
+		add_ideas = BAT_chirropteran_advisors
+	}
+}
+
+country_event = { #The Council Debates What to do with Baragzen
+	id = bat.126
+	immediate = {log = "[GetDateText]: [Root.GetName]: event bat.126"}
+	title = bat.126.t
+	desc = bat.126.d
+
+	picture = GFX_event_minitrue
+	is_triggered_only = yes
+
+	option = { #He's useless, just execute him
+	    ai_chance = {
+			factor = 20
+		}
+		name = bat.126.a
+		add_war_support = 0.03
+		add_stability = 0.03
+		add_popularity = { 
+			ideology = fascism 	
+			popularity = 0.03
+		}
+		hidden_effect = {
+		    country_event = { 
+			    id = bat.127	
+                days = 5				
+			}
+		}
+	}
+	
+	option = { #Just Leave him in a cell somewhere
+	    ai_chance = {
+			factor = 20
+		}
+		name = bat.126.b
+		add_political_power = 50
+		hidden_effect = {
+		    country_event = { 
+			    id = bat.127	
+                days = 5				
+			}
+		}
+	}
+	
+	option = { #Use him to spearhead the creation of the WLA
+	    ai_chance = {
+			factor = 60
+		}
+		name = bat.126.c
+		custom_effect_tooltip = BAT_ROA_tp
+		if = {
+			limit = { 
+				NOT = { 
+					has_unit_leader = 441 
+				} 
+			}
+			event_target:TBK_baragzen = { 
+				set_nationality = BAT 
+			}
+		}
+		add_political_power = -30
+		add_popularity = { 
+			ideology = neutrality 	
+			popularity = 0.03
+		}
+		hidden_effect = {
+		    country_event = { 
+			    id = bat.127	
+                days = 5				
+			}
+			set_country_flag = BAT_WLA_established
+		}
+	}
+}
+
+country_event = { #The Council decides what to do with the Ruskie
+	id = bat.127
+	immediate = {log = "[GetDateText]: [Root.GetName]: event bat.127"}
+	title = bat.127.t
+	desc = bat.127.d
+
+	picture = GFX_event_minitrue
+	is_triggered_only = yes
+
+	option = { #Send her off to reeducation
+	    ai_chance = {
+			factor = 20
+		}
+		name = bat.127.a
+		add_political_power = 30
+		add_popularity = { 
+			ideology = fascism 	
+			popularity = 0.03
+		}
+		hidden_effect = {
+		    country_event = { 
+			    id = bat.128	
+                days = 5				
+			}
+		}
+	}
+	
+	option = { #House Arrest and nothing more
+	    ai_chance = {
+			factor = 20
+		}
+		name = bat.127.b
+		add_stability = 0.03
+		add_war_support = 0.03
+		hidden_effect = {
+		    country_event = { 
+			    id = bat.128
+                days = 5				
+			}
+		}
+	}
+	
+	option = { #Integrate her as a commander
+	    ai_chance = {
+			factor = 60
+		}
+		name = bat.127.c
+		if = {
+			limit = { 
+				NOT = { 
+					has_unit_leader = 442 
+				} 
+			}
+			event_target:TBK_alesia = { 
+				set_nationality = BAT 
+			}
+		}
+		add_manpower = 10000
+		add_popularity = { 
+			ideology = neutrality 	
+			popularity = 0.03
+		}
+		hidden_effect = {
+		    country_event = { 
+			    id = bat.128	
+                days = 5				
+			}
+		}
+	}
+}
+
+country_event = { #The Council Debates with the Civvie Governors what sort of administration to set up in Tobuck and the pieces of Zarantia they intend to keep
+	id = bat.128
+	immediate = {log = "[GetDateText]: [Root.GetName]: event bat.128"}
+	title = bat.128.t
+	desc = bat.128.d
+
+	picture = GFX_event_sao_macaw
+	is_triggered_only = yes
+
+	option = { #Set up a military administration
+	    ai_chance = {
+			factor = 50
+		}
+		name = bat.128.a
+		add_war_support = 0.05
+		add_political_power = 50
+		add_popularity = { 
+			ideology = fascism 	
+			popularity = 0.05
+		}
+		every_controlled_state = {
+			limit = { 
+			    OR = {
+					is_core_of = TBK 
+					is_core_of = ZAR 
+				}
+			}
+			add_resistance = -10
+		}
+		hidden_effect = {
+		    country_event = { 
+			    id = bat.129	
+                days = 5				
+			}
+		}
+	}
+	
+	option = { #Set up a civilian administration
+	    ai_chance = {
+			factor = 50
+		}
+		name = bat.128.b
+		add_stability = 0.05
+		add_political_power = 50
+		add_popularity = { 
+			ideology = neutrality 	
+			popularity = 0.05
+		}
+		every_controlled_state = {
+			limit = { 
+			    OR = {
+					is_core_of = TBK 
+					is_core_of = ZAR 
+				}
+			}
+			add_compliance = 10
+		}
+		hidden_effect = {
+		    country_event = { 
+			    id = bat.129
+                days = 5				
+			}
+		}
+	}
+}
+
+country_event = { #The Zarantian Puppet Monarchy
+	id = bat.129
+	immediate = {log = "[GetDateText]: [Root.GetName]: event bat.129"}
+	title = bat.129.t
+	desc = bat.129.d
+
+	picture = GFX_event_canyons
+	is_triggered_only = yes
+
+	option = { 
+		name = bat.129.a
+		custom_effect_tooltip = BAT_zarantian_puppet_3_tp
+		hidden_effect = {
+		    set_country_flag = BAT_finished_reoorganization
+			ZAR = {
+				set_country_flag = BAT_puppet_flag
+				transfer_state = 755
+				transfer_state = 756
+				transfer_state = 754
+				transfer_state = 878
+				set_capital = 755
+				set_cosmetic_tag = BAT_puppet
+				ROOT = {
+					puppet = ZAR
+				} 
+				add_manpower = 20000
+			}
+			BAT = { 
+				ZAR = { 
+					transfer_technology = yes 
+				} 
+			}
+			if = {
+				limit = {
+					ROOT = {
+						has_government = fascism
+					}
+				}
+				ZAR = {
+					load_focus_tree = generic_griffon_focus
+					set_politics = { 
+						ruling_party = fascism 
+					}
+					set_party_name = { 
+						ideology = fascism
+						name = BAT_ZAR_fascism_party
+						long_name = BAT_ZAR_fascism_party_long
+					}
+					set_party_name = { 
+						ideology = neutrality
+						name = BAT_ZAR_neutrality_party
+						long_name = BAT_ZAR_neutrality_party_long
+					}
+					create_country_leader = {
+						name = "Queen Mekiouzza"
+						picture = "Governor.tga"
+						expire = "1965.1.1"
+						ideology = despotism
+						traits = {
+						}
+					}
+					create_country_leader = {
+						name = "Queen Mekiouzza"
+						picture = "Governor.tga"
+						expire = "1965.1.1"
+						ideology = nazism
+						traits = {
+						}
+					}
+					set_popularities = {
+						democratic = 25
+						fascism = 50
+						communism = 0
+						neutrality = 25
+					}	
+					add_equipment_to_stockpile = {
+                        type = motorized_equipment
+                        amount = 1000
+                        producer = BAT
+                    }
+                    add_equipment_to_stockpile = {
+	                    producer = BAT
+	                    type = light_tank_equipment
+	                    amount = 100
+                    }
+				}
+			}
+			if = {
+				limit = {
+					ROOT = {
+						has_government = neutrality
+					}
+				}
+				ZAR = {
+					load_focus_tree = generic_griffon_focus
+					set_politics = { 
+						ruling_party = neutrality 
+					}
+					set_party_name = { 
+						ideology = fascism
+						name = BAT_ZAR_fascism_party
+						long_name = BAT_ZAR_fascism_party_long
+					}
+					set_party_name = { 
+						ideology = neutrality
+						name = BAT_ZAR_neutrality_party
+						long_name = BAT_ZAR_neutrality_party_long
+					}
+					create_country_leader = {
+						name = "Queen Mekiouzza"
+						picture = "Governor.tga"
+						expire = "1965.1.1"
+						ideology = despotism
+						traits = {
+						}
+					}
+					create_country_leader = {
+						name = "Queen Mekiouzza"
+						picture = "Governor.tga"
+						expire = "1965.1.1"
+						ideology = nazism
+						traits = {
+						}
+					}
+					set_popularities = {
+						democratic = 25
+						fascism = 25
+						communism = 0
+						neutrality = 50
+					}
+					add_equipment_to_stockpile = {
+                        type = motorized_equipment
+                        amount = 1000
+                        producer = BAT
+                    }
+                    add_equipment_to_stockpile = {
+	                    producer = BAT
+	                    type = light_tank_equipment
+	                    amount = 100
+                    }
+				}
+			}
+			ZAR = {
+			    load_oob = "BAT_ZAR_troops"
+			}
+		}
+	}
+	
+	option = { 
+	    trigger = {
+			is_ai = no
+		}
+		name = bat.129.b
+		custom_effect_tooltip = BAT_zarantian_puppet_4_tp
+		hidden_effect = {
+		    set_country_flag = BAT_finished_reoorganization
+			ZAR = {
+				set_country_flag = BAT_puppet_flag
+				transfer_state = 755
+				transfer_state = 756
+				transfer_state = 754
+				transfer_state = 878
+				set_capital = 755
+				set_cosmetic_tag = BAT_puppet
+				ROOT = {
+					puppet = ZAR
+				} 
+				add_manpower = 20000
+			}
+			BAT = { 
+				ZAR = { 
+					transfer_technology = yes 
+				} 
+			}
+			if = {
+				limit = {
+					ROOT = {
+						has_government = fascism
+					}
+				}
+				ZAR = {
+					load_focus_tree = generic_griffon_focus
+					set_politics = { 
+						ruling_party = fascism 
+					}
+					set_party_name = { 
+						ideology = fascism
+						name = BAT_ZAR_fascism_party
+						long_name = BAT_ZAR_fascism_party_long
+					}
+					set_party_name = { 
+						ideology = neutrality
+						name = BAT_ZAR_neutrality_party
+						long_name = BAT_ZAR_neutrality_party_long
+					}
+					create_country_leader = {
+						name = "Queen Mekiouzza"
+						picture = "Governor.tga"
+						expire = "1965.1.1"
+						ideology = despotism
+						traits = {
+						}
+					}
+					create_country_leader = {
+						name = "Queen Mekiouzza"
+						picture = "Governor.tga"
+						expire = "1965.1.1"
+						ideology = nazism
+						traits = {
+						}
+					}
+					set_popularities = {
+						democratic = 25
+						fascism = 50
+						communism = 0
+						neutrality = 25
+					}	
+					add_equipment_to_stockpile = {
+                        type = motorized_equipment
+                        amount = 1000
+                        producer = BAT
+                    }
+                    add_equipment_to_stockpile = {
+	                    producer = BAT
+	                    type = light_tank_equipment
+	                    amount = 100
+                    }
+				}
+			}
+			if = {
+				limit = {
+					ROOT = {
+						has_government = neutrality
+					}
+				}
+				ZAR = {
+					load_focus_tree = generic_griffon_focus
+					set_politics = { 
+						ruling_party = neutrality 
+					}
+					set_party_name = { 
+						ideology = fascism
+						name = BAT_ZAR_fascism_party
+						long_name = BAT_ZAR_fascism_party_long
+					}
+					set_party_name = { 
+						ideology = neutrality
+						name = BAT_ZAR_neutrality_party
+						long_name = BAT_ZAR_neutrality_party_long
+					}
+					create_country_leader = {
+						name = "Queen Mekiouzza"
+						picture = "Governor.tga"
+						expire = "1965.1.1"
+						ideology = despotism
+						traits = {
+						}
+					}
+					create_country_leader = {
+						name = "Queen Mekiouzza"
+						picture = "Governor.tga"
+						expire = "1965.1.1"
+						ideology = nazism
+						traits = {
+						}
+					}
+					set_popularities = {
+						democratic = 25
+						fascism = 25
+						communism = 0
+						neutrality = 50
+					}
+					add_equipment_to_stockpile = {
+                        type = motorized_equipment
+                        amount = 1000
+                        producer = BAT
+                    }
+                    add_equipment_to_stockpile = {
+	                    producer = BAT
+	                    type = light_tank_equipment
+	                    amount = 100
+                    }
+				}
+			}
+			ZAR = {
+			    load_oob = "BAT_ZAR_troops"
+			}
+			ZAR = {
+				change_tag_from = ROOT
+			}
+		}
+	}
+}
+
+country_event = { #Chiropterran Commonwealth Proclaimed - Lunar Victory Scenario
+	id = bat.130
+	immediate = {log = "[GetDateText]: [Root.GetName]: event bat.130"}
+	title = bat.130.t
+	desc = bat.130.d
+
+	picture = GFX_event_luna_red_moon
+	is_triggered_only = yes
+
+	option = {
+		name = bat.130.a
+		custom_effect_tooltip = BAT_180_days_to_get_shit_together_tp
+		hidden_effect = {
+		    country_event = {
+				id = bat.131
+				days = 30
+			}
+        }		
+	}
+}
+
+country_event = { #Intro Event For Carrot Stick - Guy who takes over the civilian government of Chiropterra if the Moderates win out, in a better world he'd more or less be a Social Liberal - In this case he's the "leader" of the "Governors' Pact" which wants to implement a proper Civilian Government in Chiropterra
+	id = bat.131
+	immediate = {log = "[GetDateText]: [Root.GetName]: event bat.131"}
+	title = bat.131.t
+	desc = bat.131.d
+
+	picture = GFX_event_gothic_interior
+	is_triggered_only = yes
+
+	option = {
+		name = bat.131.a
+		add_political_power = 30
+		hidden_effect = {
+		    country_event = {
+				id = bat.132
+				days = 30
+			}
+        }		
+	}
+}
+
+country_event = { #Intro Event For Autumn Meadow - Civilian Governoress of New Maredian/Can be best described as a Market Liberal and the chief economist behind the "Governors' Pact"
+	id = bat.132
+	immediate = {log = "[GetDateText]: [Root.GetName]: event bat.132"}
+	title = bat.132.t
+	desc = bat.132.d
+
+	picture = GFX_event_medieval_city
+	is_triggered_only = yes
+
+	option = {
+		name = bat.132.a
+		691 = {
+		    add_extra_state_shared_building_slots = 1
+			add_building_construction = {
+				type = industrial_complex
+				level = 1
+				instant_build = yes
+			}
+		}
+		hidden_effect = {
+		    country_event = {
+				id = bat.133
+				days = 30
+			}
+        }		
+	}
+}
+
+country_event = { #Intro Event For Ember Crescent - Civilian Governor of Exile's Landing/Ex-Naval Officer generally tired with Chiropterra's military first nation tendencies, mostly in the "Governors' Pact" to improve the lives of Chiropterra's civilians but otherwise uninterested in much social reforms in regards to non-citizens
+	id = bat.133
+	immediate = {log = "[GetDateText]: [Root.GetName]: event bat.133"}
+	title = bat.133.t
+	desc = bat.133.d
+
+	picture = GFX_event_sao_macaw
+	is_triggered_only = yes
+
+	option = {
+		name = bat.133.a
+		navy_experience = 30
+		hidden_effect = {
+		    country_event = {
+				id = bat.134
+				days = 30
+			}
+        }		
+	}
+}
+
+country_event = { #The Governors' Pact Officially Founded
+	id = bat.134
+	immediate = {log = "[GetDateText]: [Root.GetName]: event bat.134"}
+	title = bat.134.t
+	desc = bat.134.d
+
+	picture = GFX_event_generic_pony_diplomacy
+	is_triggered_only = yes
+
+	option = {
+		name = bat.134.a
+		add_popularity = { 
+			ideology = neutrality 	
+			popularity = 0.03
+		}
+		hidden_effect = {
+		    country_event = {
+				id = bat.135
+				days = 30
+			}
+        }		
+	}
+}
+
+country_event = { #The Empress' Letter
+	id = bat.135
+	immediate = {log = "[GetDateText]: [Root.GetName]: event bat.135"}
+	title = bat.135.t
+	desc = bat.135.d
+
+	picture = GFX_event_nmm_red_moon
+	is_triggered_only = yes
+
+	option = { #She would prefer a primarily Civilian Government
+	    ai_chance = {
+			factor = 40
+		}
+		name = bat.135.a
+		add_popularity = { 
+			ideology = neutrality 	
+			popularity = 0.05
+		}
+		hidden_effect = {
+		    country_event = {
+				id = bat.136
+				days = 30
+			}
+        }		
+	}
+	
+	option = { #She would prefer a primarily Military Government
+	    ai_chance = {
+			factor = 60
+		}
+		name = bat.135.b
+		add_popularity = { 
+			ideology = fascism 	
+			popularity = 0.05
+		}
+		hidden_effect = {
+		    country_event = {
+				id = bat.136
+				days = 30
+			}
+        }		
+	}
+}
+
+country_event = { #The New Official Commonwealth Government
+	id = bat.136
+	immediate = {log = "[GetDateText]: [Root.GetName]: event bat.136"}
+	title = bat.136.t
+	desc = { 
+		text = bat.136.d_1
+		trigger = { 
+			neutrality > 0.49
+		}
+	}
+	desc = { 
+		text = bat.136.d_2
+		trigger = { 
+			fascism > 0.49
+		}
+	}
+
+	picture = GFX_event_bat_soldier_flying
+	is_triggered_only = yes
+
+	option = {
+	    trigger = { 
+			neutrality > 0.49
+		}
+		name = bat.136.a
+		custom_effect_tooltip = BAT_new_focus_tree_2_tp
+		add_ideas = BAT_territorial_resistance_1
+		add_ideas = BAT_integration_issues
+		every_owned_state = {
+		    limit = {
+			    has_state_flag = BAT_cored_once
+			}
+			remove_core_of = BAT
+			start_resistance = yes
+		}
+		add_political_power = 100
+		hidden_effect = {
+		    set_cosmetic_tag = BAT_commonwealth
+			set_country_flag = BAT_civilian_government
+			load_focus_tree = {
+			    tree = tzintacalia_tree_6 
+				keep_completed = yes
+			}
+			every_owned_state = {
+		        limit = {
+			        NOT = {
+				        is_core_of = BAT
+				    }
+			    }
+			    add_resistance = 20
+		    }
+			set_country_flag = BAT_commonwealth_established
+			country_event = {
+				id = bat.137
+				days = 1
+			}
+		}
+	}
+	
+	option = {
+	    trigger = { 
+			fascism > 0.49
+		}
+		name = bat.136.b
+		custom_effect_tooltip = BAT_new_focus_tree_2_tp
+		add_ideas = BAT_territorial_resistance_1
+		add_ideas = BAT_integration_issues
+		every_owned_state = {
+		    limit = {
+			    has_state_flag = BAT_cored_once
+			}
+			remove_core_of = BAT
+			start_resistance = yes
+		}
+		add_political_power = 100
+		hidden_effect = {
+		    set_cosmetic_tag = BAT_commonwealth
+			set_country_flag = BAT_military_government
+			load_focus_tree = {
+			    tree = tzintacalia_tree_6 
+				keep_completed = yes
+			}
+			every_owned_state = {
+		        limit = {
+			        NOT = {
+				        is_core_of = BAT
+				    }
+			    }
+			    add_resistance = 20
+		    }
+			set_country_flag = BAT_commonwealth_established
+			country_event = {
+				id = bat.138
+				days = 1
+			}
+		}
+	}
+}
+
+country_event = { #The Civilian Government is allowed to take power and now has to deal with bringing order to the Commonwealth
+	id = bat.137
+	immediate = {log = "[GetDateText]: [Root.GetName]: event bat.137"}
+	title = bat.137.t
+	desc = bat.137.d
+
+	picture = GFX_event_generic_pony_diplomacy
+	is_triggered_only = yes
+
+	option = {
+		name = bat.137.a
+		custom_effect_tooltip = BAT_resistance_tp
+		create_country_leader = {
+			name = "Carrot Stick"
+			desc = BAT_CARROT_STICK_DESC
+			expire = "1965.1.1"
+			picture = "Governor.tga"
+			ideology = commonwealth_ideology
+			traits = {
+				BAT_civil_politician
+			}
+		}
+		create_country_leader = {
+			name = "Imperial Legionary Council"
+			desc = BAT_LEGIONARY_COUNCIL_DESC
+			expire = "1965.1.1"
+			picture = "Governor.tga"
+			ideology = militant_theocrat
+			traits = {
+			}
+		}
+		set_politics = { 
+			ruling_party = neutrality 
+		}
+		set_party_name = { 
+			ideology = neutrality
+			name = BAT_NUC
+			long_name = BAT_NUC_long
+		}
+		set_party_name = { 
+			ideology = fascism
+			name = BAT_legionary_council
+			long_name = BAT_legionary_council_long
+		}
+		add_stability = -0.30
+		add_war_support = -0.30
+		hidden_effect = {
+		    complete_national_focus = BAT_the_commonwealth_2
+		    set_variable = { 
+                var = BAT_tobuck_intel 
+                value = 1
+            }
+            set_variable = { 
+                var = BAT_zarantia_intel 
+                value = 1
+            }	
+            set_variable = { 
+                var = BAT_slave_intel 
+                value = 1
+            }			
+			clamp_variable = {
+				var = BAT_tobuck_intel
+				min = 0
+				max = 100
+			}
+			clamp_variable = {
+				var = BAT_zarantia_intel
+				min = 0
+				max = 100
+			}
+			clamp_variable = {
+				var = BAT_slave_intel
+				min = 0
+				max = 100
+			}
+			set_country_flag = BAT_resistance_enabled
+			set_country_flag = BAT_tobuck_alive
+			set_country_flag = BAT_zarantia_alive
+			set_country_flag = BAT_slave_alive
+			calculate_intel_levels = yes
+			set_country_flag = BAT_warmasters_not_leaders
+			country_event = { 
+			    id = bat.78
+			}
+			BAT_clear_all_political_advisors = yes
+		}
+		add_ideas = BAT_advisor_50
+		add_ideas = BAT_advisor_51
+	}
+}
+
+country_event = { #The Military Government holds on
+	id = bat.138
+	immediate = {log = "[GetDateText]: [Root.GetName]: event bat.138"}
+	title = bat.138.t
+	desc = bat.138.d
+
+	picture = GFX_event_generic_pony_diplomacy
+	is_triggered_only = yes
+
+	option = {
+		name = bat.138.a
+		custom_effect_tooltip = BAT_resistance_tp
+		add_stability = -0.30
+		add_war_support = -0.30
+		hidden_effect = {
+		    complete_national_focus = BAT_the_commonwealth_2
+		    set_variable = { 
+                var = BAT_tobuck_intel 
+                value = 1
+            }
+            set_variable = { 
+                var = BAT_zarantia_intel 
+                value = 1
+            }	
+            set_variable = { 
+                var = BAT_slave_intel 
+                value = 1
+            }			
+			clamp_variable = {
+				var = BAT_tobuck_intel
+				min = 0
+				max = 100
+			}
+			clamp_variable = {
+				var = BAT_zarantia_intel
+				min = 0
+				max = 100
+			}
+			clamp_variable = {
+				var = BAT_slave_intel
+				min = 0
+				max = 100
+			}
+			set_country_flag = BAT_resistance_enabled
+			set_country_flag = BAT_tobuck_alive
+			set_country_flag = BAT_zarantia_alive
+			set_country_flag = BAT_slave_alive
+			calculate_intel_levels = yes
+			country_event = { 
+			    id = bat.78
+			}
+		}
+	}
+}
