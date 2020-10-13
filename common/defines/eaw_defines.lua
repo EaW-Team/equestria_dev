@@ -1,6 +1,6 @@
 NDefines.NGame.START_DATE = "1007.1.1.12"
 NDefines.NGame.END_DATE = "1030.1.1.1"
-NDefines.NGame.HANDS_OFF_START_TAG = "EQS"
+NDefines.NGame.HANDS_OFF_START_TAG = "DRG"
 
 NDefines.NDiplomacy.TENSION_TIME_SCALE_START_DATE = "1007.1.1.12"
 NDefines.NTechnology.BASE_TECH_COST = 85
@@ -73,6 +73,26 @@ NDefines.NAI.INVASION_DISTANCE_RANDOMNESS = 400
 NDefines.NAI.VARIANT_UPGRADE_MIN_XP = 1000
 
 NDefines.NMilitary.PLAN_EXECUTE_CAREFUL_MAX_FORT = 4
+NDefines.NMilitary.UNIT_LEADER_INITIAL_TRAIT_SLOT = { -- INCREASED BY 1 AS WORKAROUND FOR RACIAL TRAITS                 -- trait slot for 0 level leader 
+    2.0, -- field marshal
+    1.0, -- corps commander
+    2.0, -- navy general
+    1.0, -- operative
+}
+NDefines.NMilitary.NEW_COMMANDER_RANDOM_PERSONALITY_TRAIT_CHANCES = {  -- chances to gain a personality trait for new generals
+    0.5, -- WORKAROUND FOR RACIAL TRAIT
+    0.5, -- 50% for first trait
+    0.15  -- 15% for second trait after that
+}
+NDefines.NMilitary.NEW_OPERATIVE_RANDOM_PERSONALITY_TRAIT_CHANCES = {  -- chances to gain a personality trait for new operatives
+    0.5, -- WORKAROUND FOR RACIAL TRAIT
+    0.5, -- 50% for first trait
+    0.1  -- 10% for second trait after that
+}
+NDefines.NMilitary.NEW_OPERATIVE_RANDOM_BASIC_TRAIT_CHANCES = {  -- chances to gain a basic trait for new operatives
+    0.25, -- 25% for first trait
+    0.05  -- 5% for second trait after that
+}
 
 NDefines.NAI.DIPLOMACY_ACCEPT_VOLUNTEERS_BASE = 100
 
