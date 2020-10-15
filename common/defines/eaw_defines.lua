@@ -75,16 +75,6 @@ NDefines.NAI.VARIANT_UPGRADE_MIN_XP = 1000
 NDefines.NMilitary.PLAN_EXECUTE_CAREFUL_MAX_FORT = 4
 NDefines.NNavy.SHORE_BOMBARDMENT_CAP = 0.3 -- Vanilla is 0.25
 NDefines.NProduction.BASE_FACTORY_SPEED_NAV = 3 -- vanilla is 2.5
-NDefines.NMilitary.NEW_COMMANDER_RANDOM_PERSONALITY_TRAIT_CHANCES = {  -- chances to gain a personality trait for new generals
-    0.5, -- WORKAROUND FOR RACIAL TRAIT
-    0.5, -- 50% for first trait
-    0.15  -- 15% for second trait after that
-}
-NDefines.NMilitary.NEW_OPERATIVE_RANDOM_PERSONALITY_TRAIT_CHANCES = {  -- chances to gain a personality trait for new operatives
-    0.5, -- WORKAROUND FOR RACIAL TRAIT
-    0.5, -- 50% for first trait
-    0.1  -- 10% for second trait after that
-}
 
 NDefines.NAI.DIPLOMACY_ACCEPT_VOLUNTEERS_BASE = 100
 
