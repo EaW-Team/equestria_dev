@@ -1,4 +1,4 @@
-name="Equestria at War"
+name="Equestria at War Dev"
 path="mod/equestria_dev/"
 replace_path="common/ai_equipment"
 replace_path="common/ai_focuses"
@@ -35,4 +35,4 @@ tags={
 }
 picture="equestria.jpg"
 remote_file_id="1826643372"
-supported_version="1.8.*"
+supported_version="1.10.*"

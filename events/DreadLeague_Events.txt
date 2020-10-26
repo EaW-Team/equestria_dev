@@ -68,14 +68,14 @@ country_event = {
 
 		add_stability = 0.10
 		add_research_slot = 1
-		add_ideas = DED_Blood_Queen_Idea
+		add_ideas = DED_Blood_Queen_idea
 
 		create_country_leader = {
 			name = "Rosa Maledicta The Queen of Blood"
 			desc = "POLITICS_ROSAVAMPIRE_DESC"
 			picture = "Rosa_vampire.tga"
 			expire = "1965.1.1"
-			ideology = falangism
+			ideology = undead_horde
 			traits = {
 				queen_of_dead
 			}
@@ -196,7 +196,7 @@ country_event = {
 		name = deadempire.202.a
 
 		add_stability = 0.10
-		add_ideas = DED_Queen_Bone_Idea
+		add_ideas = DED_Queen_Bone_idea
 		add_research_slot = 1
 		hidden_effect = {
 			kill_country_leader = yes
@@ -208,7 +208,7 @@ country_event = {
 			desc = "POLITICS_ROSALICH_DESC"
 			picture = "Rosa_lich.tga"
 			expire = "1965.1.1"
-			ideology = falangism
+			ideology = undead_horde
 			traits = {
 				queen_of_dead
 			}
@@ -351,13 +351,13 @@ country_event = {
 		create_corps_commander = {
 			name = "Mister Doodets"
 			picture = "Doodets.tga"
-			traits = { media_personality }
+			traits = { media_personality undead_race_trait }
 			skill = 1
 			attack_skill = 1
 			defense_skill = 2
 			planning_skill = 1
 			logistics_skill = 3
-		}
+		} custom_effect_tooltip = mister_doodets_stats_tp
 	}
 
 }
@@ -1090,11 +1090,16 @@ country_event = {
 			limit = {
 				NOT = {
 					has_war_with = ROOT
+					tag = ZRS
 					AND = {
+						original_tag = FIR
 						has_country_flag = FIR_is_necromancer
 						has_completed_focus = FIR_mistress_of_the_dark_arts
 						has_country_leader = { ruling_only = yes name = "Shinespark" }
-						is_subject = no
+						OR = {
+							is_subject = no
+							is_subject_of = ROOT
+						}
 					}
 				}
 			}
@@ -1171,46 +1176,35 @@ country_event = {
 	}
 
 	trigger = {
+		tag = DED
 		OR = {
-			tag = DED
-			NOT = { country_exists = DED }
-		}
-		any_owned_state = {
-			check_variable = { DED_used_crystals > 0 }
+			check_variable = {
+				DED_temp_used_crystals_limit > 0
+			}
+			NOT = { has_dynamic_modifier = { modifier = DED_crystal_cost } }
 		}
 	}
 
 	option = {
 		if = {
 			limit = {
-				tag = DED
-				415 = {
-					is_owned_by = ROOT
-					check_variable = { DED_used_crystals > 0 }
-				}
+				NOT = { has_dynamic_modifier = { modifier = DED_crystal_cost } }
 			}
-			415 = {
-				log = "deadempire.34: Add 1 crystal to [This.GetName]"
-				subtract_from_variable = { DED_used_crystals = 1 }
-				clamp_variable = {
-					var = DED_used_crystals
-					min = 0
-					max = 10000
-				}
-				add_resource = { type = crystals amount = 1 }
+			add_dynamic_modifier = {
+				modifier = DED_crystal_cost
 			}
 		}
-		else = {
-			random_owned_state = {
-				limit = { check_variable = { DED_used_crystals > 0 } }
-				log = "deadempire.34: Add 1 crystal to [This.GetName]"
-				subtract_from_variable = { DED_used_crystals = 1 }
-				clamp_variable = {
-					var = DED_used_crystals
-					min = 0
-					max = 10000
+		subtract_from_variable = {
+			DED_temp_used_crystals_limit = 1
+		}
+		if = {
+			limit = {
+				check_variable = {
+					DED_temp_used_crystals_limit < 0
 				}
-				add_resource = { type = crystals amount = 1 }
+			}
+			set_variable = {
+				DED_temp_used_crystals_limit = 0
 			}
 		}
 	}
@@ -1258,9 +1252,13 @@ country_event = {
 	hidden = yes
 
 	trigger = {
-		has_opinion = { target = DED value > -100 }
+		OR = {
+			has_opinion = { target = DED value > -100 }
+			has_opinion = { target = EWI value > -100 }
+		}
 		NOT = {
 			original_tag = DED
+			original_tag = EWI
 			has_country_flag = FIR_is_necromancer
 		}
 	}
@@ -1276,39 +1274,12 @@ country_event = {
 		reverse_add_opinion_modifier = { target = DED modifier = mortal_enemies }
 		reverse_add_opinion_modifier = { target = DED modifier = embargo }
 		reverse_add_opinion_modifier = { target = DED modifier = CHN_Embargo }
-	}
-}
-
-country_event = {
-	id = deadempire.37
-	immediate = {log = "[GetDateText]: [Root.GetName]: event deadempire.37"}
-	hidden = yes
-
-	is_triggered_only = yes
-
-	option = {
-		while_loop_effect = {
-			limit = { check_variable = { DED_temp_used_crystals < DED_temp_used_crystals_limit } }
-			every_state = {
-				limit = {
-					is_controlled_by = ROOT
-					has_resources_amount = { resource = crystals amount > 0 }
-				}
-				if = {
-					limit = { check_variable = { PREV.DED_temp_used_crystals < PREV.DED_temp_used_crystals_limit } }
-					add_to_variable = { var = DED_used_crystals value = 1 }
-					log = "deadempire.34: Remove 1 crystal from [This.GetName]"
-					add_resource = { type = crystals amount = -1 }
-					add_to_variable = { var = PREV.DED_temp_used_crystals value = 1 }
-				}
-				else = {
-					set_temp_variable = { break = 1 }
-					set_temp_variable = { PREV.break = 1 }
-				}
-			}
-		}
-		clear_variable = DED_temp_used_crystals
-		clear_variable = DED_temp_used_crystals_limit
+		add_opinion_modifier = { target = EWI modifier = mortal_enemies }
+		add_opinion_modifier = { target = EWI modifier = embargo }
+		add_opinion_modifier = { target = EWI modifier = CHN_Embargo }
+		reverse_add_opinion_modifier = { target = EWI modifier = mortal_enemies }
+		reverse_add_opinion_modifier = { target = EWI modifier = embargo }
+		reverse_add_opinion_modifier = { target = EWI modifier = CHN_Embargo }
 	}
 }
 
@@ -1332,7 +1303,7 @@ country_event = {
 #				PREV = { add_to_variable = { var = DED_temp_used_crystals value = 1 } }
 #			}
 #			else = {
-#				break = yes
+#				# break = yes # not working in LR
 #			}
 #		}
 #		if = {
@@ -1367,8 +1338,13 @@ country_event = {
 	}
 	option = {
 		name = deadempire.56.b
-		effect_tooltip = {
-			FROM = { declare_war_on = { target = ROOT type = annex_everything } }
+		if = {
+			limit = {
+				NOT = { has_war_with = FROM }
+			}
+			effect_tooltip = {
+				FROM = { declare_war_on = { target = ROOT type = annex_everything } }
+			}
 		}
 		hidden_effect = {
 			FROM = { country_event = deadempire.58 }
@@ -1387,6 +1363,11 @@ country_event = {
 
 	option = {
 		name = deadempire.57.a
+		if = {
+			limit = { has_war_with = FROM }
+			set_country_flag = { flag = bypass_on_peaceconference_ended days = 1 value = 1 }
+			white_peace = FROM
+		}
 		puppet = FROM
 	}
 }
@@ -1402,13 +1383,18 @@ country_event = {
 
 	option = {
 		name = deadempire.58.a
-		hidden_effect = {
-			create_wargoal = { 
-				type = annex_everything
-				target = FROM
+		if = {
+			limit = {
+				NOT = { has_war_with = FROM }
 			}
+			hidden_effect = {
+				create_wargoal = { 
+					type = annex_everything
+					target = FROM
+				}
+			}
+			declare_war_on = { target = FROM type = annex_everything }
 		}
-		declare_war_on = { target = FROM type = annex_everything }
 	}
 }
 
@@ -1556,6 +1542,7 @@ country_event = { #Rosa wins event, there's nobody left
 		tag = DED
 		all_other_country = {
 			OR = {
+				tag = ZRS
 				exists = no
 				is_subject_of = ROOT
 			}

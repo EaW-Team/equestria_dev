@@ -1,0 +1,283 @@
+##id is used for localization
+#example_law = {
+#	#tooltip description for the law
+#	tooltip = "loc_key"
+#	
+#	#gfx entry & frame for law entry icon
+#	#gfx entry can be omitted, in that case it will default to GFX_occupation_policy_icon_strip
+#	icon = "GFX_icon:5"
+#	
+#	#plays when the law is selected
+#	sound_effect = "sound_effect" 
+#	
+#	#if a law is not visible, it won't show up in gui at all
+#	#scope is occupier country, occupied country is not set (this is only check at country level, not target level)
+#	visible = {
+#		always = yes
+#	}
+#
+#	#if a law is not available, it will show up in disable state ingui and won't be selectable
+#	#scope is occupier country and from scope is occupied country
+#	available = {
+#		always = yes
+#	}
+#
+#	#if a current modifier is no longer active (visible/available is false) it will fallback to this law
+#	fallback_law = law_id
+#	
+#	#main fallback modifier will be used when previous modifier is no longer active and there is no fallback_law, there must be exactly one fallback modifier
+#	#if you are lacking manpower/equipments for your current laws, fallback modifier bonuses will apply instead (will lerp to fallback and at 0 manpower you will be forced to switch)
+#	main_fallback_law = yes
+#	
+#	#applies to states if the law is selected
+#	state_modifier = {
+#	
+#	}
+#	
+#	#states with resistance supressed (at 0) will get this modifier instead (if defined)
+#	suppressed_state_modifier = {
+#		
+#	}
+#	
+#	#by default laws are sorted by load order, gui_order can be used to reorder them in gui. by default it is 0
+#	gui_order = 1
+#
+#	# score used for selecting a law for state
+#	# scope is state
+#	# from is occupier
+#	# from from is occupied
+#	# ai_desire_resource temp variables will be available for the triggers, 
+#	# which is a value in between 0-1 to show desire for a certain resource 
+#	# uncapped_resistance_target temp variable can be used for getting resistance that that is not capped to 0-100
+#	# resistance_target_without_law temp variable can be used for accessing resistance target value that is not modifier by law
+#	# garrison_min_support_ratio garrison_equipment_support_ratio garrison_manpower_support_ratio gives what ratio of the garrison factor we can support for current template and buffers
+#	ai_will_do = {
+#		base = 100
+#		
+#		modifier = {
+#			steel > 10
+#			add = 100
+#		}
+#	}
+#}
+
+DED_occupation = {
+	icon = 10
+	sound_effect = "Martial_Law_Interface_Brutally_Oppressive_Occupation_Unique_FAS"
+	
+	visible = {
+		OR = {
+			original_tag = DED
+			original_tag = EWI
+		}
+	}
+	
+	state_modifier = {		
+		resistance_target 				= -0.75
+		compliance_gain 				= -1
+		required_garrison_factor 		= 0.75
+		resistance_damage_to_garrison 	= 1.0
+		local_manpower 				= -1
+		resistance_decay 				= 1.0
+	}
+	
+	ai_will_do = {
+		base = 5000
+	}
+}
+
+occupation_of_DED = {
+	icon = 10
+	sound_effect = "Martial_Law_Interface_Brutally_Oppressive_Occupation_Unique_FAS"
+	
+	visible = {
+		NOT = {
+			original_tag = DED
+			original_tag = EWI
+		}
+	}
+
+	available = {
+		FROM = {
+			OR = {
+				original_tag = DED
+				original_tag = EWI
+			}
+		}
+	}
+	
+	state_modifier = {		
+		resistance_target 				= -0.85
+		compliance_gain 				= -1
+		required_garrison_factor 		= 0.75
+		resistance_damage_to_garrison 	= -0.25	
+		local_manpower 				= -1
+		local_factories				= -1
+		local_resources 				= -0.75
+		resistance_decay 				= 1.0
+	}
+	
+	ai_will_do = {
+		base = 5000
+	}
+}
+
+CHN_regional_commissariat = {
+	icon = 12
+	sound_effect = "Martial_Law_Interface_Autonomous_Occupation_Unique_DEM"
+	
+	visible = {
+		original_tag = CHN
+		has_government = fascism
+		has_completed_focus = CHN_post_war_B
+	}
+	
+	available = {
+		custom_trigger_tooltip = {
+			tooltip = CHN_regional_commissariat_resistance_threshold
+			check_variable = { core_resistance@FROM.FROM < 30 }
+		}
+		custom_trigger_tooltip = {
+			tooltip = CHN_regional_commissariat_compliance_threshold
+			check_variable = { core_compliance@FROM.FROM > 30 }
+		}
+		NOT = {
+			FROM = {
+				OR = {
+					original_tag = DED
+					hidden_trigger = { original_tag = EWI }
+				}
+			}
+		}
+	}
+	
+	fallback_law = local_police_force_garrison 
+	
+	state_modifier = {
+		resistance_target 				= -0.25
+		compliance_gain 				= 0.005
+		required_garrison_factor 		= -0.5
+		resistance_damage_to_garrison	= -0.5
+		resistance_decay 				= 0.25
+		local_factories 				= 0.15
+		local_resources 				= 0.1
+	}
+	
+	ai_will_do = {
+		base = 150
+		modifier = {
+			check_variable  = { resistance_target_without_law > 0.29} 						
+			add = 150
+		}
+	}
+}
+
+extractive_regime = {
+	icon = 13
+	sound_effect = "Martial_Law_Interface_Autonomous_Occupation_Unique_DEM"
+	
+	visible = {
+		has_country_flag = unlocked_extractive_regime_occupation_law
+	}
+	
+	available = {
+		custom_trigger_tooltip = {
+			tooltip = extractive_regime_resistance_threshold
+			check_variable = { core_resistance@FROM.FROM < 30 }
+		}
+		custom_trigger_tooltip = {
+			tooltip = extractive_regime_compliance_threshold
+			check_variable = { core_compliance@FROM.FROM > 30 }
+		}
+		NOT = {
+			FROM = {
+				OR = {
+					original_tag = DED
+					hidden_trigger = { original_tag = EWI }
+				}
+			}
+		}
+	}
+	
+	fallback_law = local_police_force_garrison 
+	
+	state_modifier = {
+		required_garrison_factor 		= 0.25
+		local_resources = 0.75
+		custom_modifier_tooltip = "resource_sabotage_decrease_tooltip"
+	}
+	
+	ai_will_do = {
+		base = 100
+		modifier = {
+			# if we are desiring a resource produced here
+			set_temp_variable = { releveant_resources = 0 }
+			
+			set_temp_variable = { t = resource@oil }
+			multiply_temp_variable = { t = ai_desire_oil }
+			add_to_temp_variable = { releveant_resources = t }
+			
+			set_temp_variable = { t = resource@aluminium }
+			multiply_temp_variable = { t = ai_desire_aluminium }
+			add_to_temp_variable = { releveant_resources = t }
+			
+			set_temp_variable = { t = resource@rubber }
+			multiply_temp_variable = { t = ai_desire_rubber }
+			add_to_temp_variable = { releveant_resources = t }
+			
+			set_temp_variable = { t = resource@tungsten }
+			multiply_temp_variable = { t = ai_desire_tungsten }
+			add_to_temp_variable = { releveant_resources = t }
+			
+			set_temp_variable = { t = resource@steel }
+			multiply_temp_variable = { t = ai_desire_steel }
+			add_to_temp_variable = { releveant_resources = t }
+			
+			set_temp_variable = { t = resource@chromium }
+			multiply_temp_variable = { t = ai_desire_chromium }
+			add_to_temp_variable = { releveant_resources = t }
+			
+			check_variable = { releveant_resources > 0 }
+			clamp_temp_variable = { var = releveant_resources max = 40 }
+			divide_temp_variable = { releveant_resources = 40 }
+			multiply_temp_variable = { releveant_resources = 200 }
+			add_to_temp_variable = { releveant_resources = 100 }
+			add = releveant_resources
+		}
+	}
+}
+
+integration_occupation = {
+	icon = 14
+	sound_effect = "Martial_Law_Interface_Autonomous_Occupation_Unique_DEM"
+	
+	visible = {
+		OR = {
+			check_variable = { potential_cores^num > 0 }
+			check_variable = { potential_original_cores^num > 0 }
+		}
+		NOT = {
+			original_tag = DED
+			hidden_trigger = { original_tag = EWI }
+		}
+	}
+
+	available = {
+		can_core_nation_through_compliance = yes
+	}
+
+	fallback_law = foreign_civilian_oversight
+	
+	state_modifier = {
+		resistance_target 				= -0.20
+		required_garrison_factor 		= -0.60	
+		resistance_damage_to_garrison 	= -0.25	
+		compliance_gain 				= 0.03
+		local_factories 				= 0.00
+		local_resources 				= 0.00
+	}
+	
+	ai_will_do = {
+		base = 9000
+	}
+}

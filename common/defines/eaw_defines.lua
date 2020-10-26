@@ -1,5 +1,6 @@
 NDefines.NGame.START_DATE = "1007.1.1.12"
 NDefines.NGame.END_DATE = "1030.1.1.1"
+NDefines.NGame.HANDS_OFF_START_TAG = "EQS"
 
 NDefines.NDiplomacy.TENSION_TIME_SCALE_START_DATE = "1007.1.1.12"
 NDefines.NTechnology.BASE_TECH_COST = 85
@@ -76,3 +77,19 @@ NDefines.NMilitary.PLAN_EXECUTE_CAREFUL_MAX_FORT = 4
 NDefines.NAI.DIPLOMACY_ACCEPT_VOLUNTEERS_BASE = 100
 
 NDefines.NDiplomacy.VOLUNTEERS_DIVISIONS_REQUIRED = 10
+
+-- modifiers female_random_operative_chance female_random_army_leader_chance female_random_admiral_chance
+NDefines.NCountry.FEMALE_UNIT_LEADER_BASE_CHANCE = { 
+    -- applies as a factor to female unit leader randomization
+    -- the values needs to be zero if you don't actually have random portraits
+    1.0, -- navy leaders
+    1.0, -- army leaders
+    1.0, -- operatives
+}
+NDefines.NCountry.COUNTRY_LEADER_FEMALE_CHANCE = 1.0 -- chance for new country leaders to be female. should be set > 0 only if there are portraits/names for that country
+
+NDefines.NResistance.GARRISON_MANPOWER_LOST_BY_ATTACK = 0.01 	-- Ratio of manpower lost by garrison at each attack on garrison (this number will be reduced by the hardness of garrison template)
+NDefines.NResistance.GARRISON_EQUIPMENT_LOST_BY_ATTACK = 0.02 	-- Ratio of equipment lost by garrison at each attack on garrison (this number will be reduced by the hardness of garrison template)
+
+NDefines.NOperatives.AGENCY_CREATION_FACTORIES = 3
+NDefines.NOperatives.AGENCY_UPGRADE_PER_OPERATIVE_SLOT = 4			-- Number of upgrade needed to unlock an additional operative slot

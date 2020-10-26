@@ -218,9 +218,6 @@ country_event = {
 				id = ROOT
 				value = 200
 			}
-			hidden_effect = {
-				clr_country_flag = FAL_ask_for_falcor_bypass_wait
-			}
 		}
 	}
 
@@ -231,9 +228,6 @@ country_event = {
 		}
 		FROM = {
 			country_event = { id = generic.4 hours = 6 }
-			hidden_effect = {
-				clr_country_flag = FAL_ask_for_falcor_bypass_wait
-			}
 		}
 	}
 }
@@ -1416,5 +1410,351 @@ unit_leader_event = {
 				}
 			}
 		}
+	}
+}
+
+# Notification event that FROM has sent industrial support
+country_event = {
+	id = generic.19
+	title = generic.19.t
+	desc = generic.19.d
+	
+	picture = GFX_report_event_generic_factory
+
+	is_triggered_only = yes
+
+	option = {
+		name = excellent
+		effect_tooltip = {
+			add_offsite_building = { type = arms_factory level = 2 }
+		}
+	}	
+}
+
+#Become a puppet
+country_event = {
+	id = generic.20
+	title = generic.20.t
+	desc = {
+		text = generic.20.d_friends
+		trigger = {
+			has_opinion = {
+				target = FROM
+				value = 150
+			}
+		}
+	}
+	desc = {
+		text = generic.20.d_enemies
+		trigger = {
+			NOT = { 
+				has_opinion = {
+					target = FROM
+					value = 150
+				}
+			}
+		}
+	}
+	picture = GFX_report_event_generic_read_write
+	
+	is_triggered_only = yes
+
+	option = {
+		name = generic.20.a
+		trigger = {
+			NOT = { 
+				has_opinion = {
+					target = FROM
+					value = 150
+				}
+			}
+		}
+		ai_chance = {
+			factor = 20
+			modifier = {
+				threat > 20
+				factor = 2
+			}
+			modifier = {
+				is_in_faction = no
+				factor = 2
+			}
+			modifier = {
+				is_in_faction_with = FROM
+				factor = 2
+			}
+			modifier = {
+				is_in_faction = yes
+				NOT = { is_in_faction_with = FROM }
+				factor = 0.5
+			}
+		}
+		effect_tooltip = { 
+			FROM = { puppet = ROOT }
+			if = {
+				limit = {
+					FROM = { is_in_faction = yes }
+				}
+				FROM = {
+					var:faction_leader = {
+						add_to_faction = ROOT
+					}
+				}
+			}
+		}
+		hidden_effect = {
+			FROM = { country_event = { id = generic.21 hours = 6 } }
+		}
+	}
+
+	option = {
+		name = generic.20.b
+		trigger = {
+			has_opinion = {
+				target = FROM
+				value = 150
+			}
+		}
+		ai_chance = {
+			factor = 25
+			modifier = {
+				threat > 20
+				factor = 2
+			}
+			modifier = {
+				is_in_faction = no
+				factor = 2
+			}
+			modifier = {
+				is_in_faction_with = FROM
+				factor = 2
+			}
+			modifier = {
+				is_in_faction = yes
+				NOT = { is_in_faction_with = FROM }
+				factor = 0.5
+			}
+		}
+		effect_tooltip = { 
+			FROM = { puppet = ROOT }
+			if = {
+				limit = {
+					FROM = { is_in_faction = yes }
+				}
+				FROM = {
+					var:faction_leader = {
+						add_to_faction = ROOT
+					}
+				}
+			}
+		}
+		hidden_effect = {
+			FROM = { country_event = { id = generic.21 hours = 6 } }
+		}
+	}
+
+	option = {
+		name = generic.20.c
+		ai_chance = {
+			factor = 30
+			modifier = {
+				is_in_faction = yes
+				NOT = { is_in_faction_with = FROM }
+				factor = 2
+			}
+			modifier = {
+				threat < 20
+				factor = 2
+			}
+		}
+		effect_tooltip = { 
+			FROM = { 
+				create_wargoal = {
+					type = puppet_wargoal_focus
+					target = ROOT
+				}
+			}
+		}
+		hidden_effect = {
+			FROM = { country_event = { id = generic.22 hours = 6 } }
+		}
+	}
+
+}
+
+#Became puppet
+country_event = {
+	id = generic.21
+	title = generic.21.t
+	desc = generic.21.d
+	picture = GFX_report_event_generic_read_write
+	
+	is_triggered_only = yes
+
+	option = {
+		name = generic.21.a
+		ai_chance = {
+			factor = 1
+		}
+		ROOT = { puppet = FROM }
+		if = {
+			limit = {
+				ROOT = { is_in_faction = yes }
+			}
+			var:faction_leader = {
+				add_to_faction = FROM
+			}
+		}
+	}
+
+}
+
+#Denied puppet
+country_event = {
+	id = generic.22
+	title = generic.22.t
+	desc = generic.22.d
+	picture = GFX_report_event_generic_read_write
+	
+	is_triggered_only = yes
+
+	option = {
+		name = generic.22.a
+		ai_chance = {
+			factor = 1
+		}
+		ROOT = { 
+			create_wargoal = {
+				type = puppet_wargoal_focus
+				target = FROM
+			}
+		}
+	}
+
+}
+
+# generic event for demanding territory
+country_event = {
+	id = generic.23
+	title = generic.23.t
+	desc = generic.23.d
+	
+	picture = GFX_report_event_czech_soldiers_01
+
+	is_triggered_only = yes
+
+	option = {
+		name = generic.23.a
+		ai_chance = {
+			factor = 90
+			modifier = { # If they stand a chance they will fight
+				factor = 0
+				strength_ratio = {
+					tag = FROM
+					ratio > 0.75
+				}
+				NOT = {
+					any_neighbor_country = {
+						NOT = { tag = FROM }
+						is_in_faction_with = FROM
+					}
+				}
+			}
+			modifier = {
+				factor = 0 #if you lead a faction, fight
+				is_faction_leader = yes
+			}
+			modifier = {
+				factor = 0.5 #if you are in a faction, maybe fight
+				is_faction_leader = no
+				is_in_faction = yes
+			}
+			modifier = { # Increase it again if other bordering nations are in the enemy faction
+				any_neighbor_country = {
+					NOT = { tag = FROM }
+					is_in_faction_with = FROM
+				}
+				factor = 2.0
+			}
+		}
+		effect_tooltip = {
+			FROM = { transfer_state = event_target:demanded_prov_target }
+			if = {
+				limit = {
+					event_target:demanded_prov_target = { has_state_flag = give_core_to_state_flag }
+				}
+			event_target:demanded_prov_target = { add_core_of = FROM }
+			}
+		}
+		hidden_effect = {
+			FROM = { country_event = generic.24 }
+		}
+	}
+
+	option = {
+		name = generic.23.b
+		ai_chance = { 
+			factor = 10 
+			modifier = {
+				factor = 0.5
+				strength_ratio = {
+					tag = FROM
+					ratio < 0.5
+				}
+			}
+		}
+		custom_effect_tooltip = maybe_war_tt
+		hidden_effect = {
+			FROM = { country_event = generic.25 }
+		}
+	}
+}
+
+# accepted demands
+country_event = {
+	id = generic.24
+	title = generic.24.t
+	desc = generic.24.d
+	
+	picture = GFX_report_event_czech_soldiers_01
+
+	is_triggered_only = yes
+
+	option = {
+		name = excellent
+		THIS = { transfer_state = event_target:demanded_prov_target }
+		if = {
+			limit = {
+				event_target:demanded_prov_target = { has_state_flag = give_core_to_state_flag }
+			}
+			event_target:demanded_prov_target = { 
+				add_core_of = THIS
+				clr_state_flag = give_core_to_state_flag
+			}
+		}
+		hidden_effect = { clear_global_event_target = demanded_prov_target }
+	}
+}
+
+# accepted demands
+country_event = {
+	id = generic.25
+	title = generic.25.t
+	desc = generic.25.d
+	
+	picture = GFX_report_event_czech_soldiers_01
+
+	is_triggered_only = yes
+
+	option = {
+		name = generic.25.a
+		ai_chance = {
+			factor = 90
+		}
+		create_wargoal = {
+			type = annex_everything 
+			target = FROM
+		}
+		hidden_effect = { clear_global_event_target = demanded_prov_target }
 	}
 }
