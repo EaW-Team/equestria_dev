@@ -1,6 +1,6 @@
 NDefines.NGame.START_DATE = "1007.1.1.12"
 NDefines.NGame.END_DATE = "1030.1.1.1"
-NDefines.NGame.HANDS_OFF_START_TAG = "EQS"
+NDefines.NGame.HANDS_OFF_START_TAG = "DRG"
 
 NDefines.NDiplomacy.TENSION_TIME_SCALE_START_DATE = "1007.1.1.12"
 NDefines.NTechnology.BASE_TECH_COST = 85
