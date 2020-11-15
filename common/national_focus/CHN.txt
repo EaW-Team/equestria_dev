@@ -9,6 +9,7 @@ focus_tree = {
 	}
 	default = no
 	continuous_focus_position = { x = 2700 y = 1350 }
+	
 	focus = {
 		id = destroy_thoraxian_opposition
 		icon = GFX_goal_chn_swords
@@ -56,7 +57,11 @@ focus_tree = {
 			log = "[GetDateText]: [Root.GetName]: Focus thoraxian_betrayal"
 			custom_effect_tooltip = thoraxian_betrayal_tt
 			remove_ideas = political_divisions
-			set_country_flag = thoraxianheresy
+			hidden_effect = {
+			    country_event = { 
+					id = thoraxian.1
+				}
+			}
 		}
 	}
 	focus = {
@@ -1184,8 +1189,8 @@ focus_tree = {
 				target = OLE
 			}
 			hidden_effect = {
-				every_country = {
-					limit = { original_tag = OLE }
+				every_country_with_original_tag = {
+					original_tag_to_check = OLE
 					ROOT = {
 						create_wargoal = {
 							type = annex_everything
@@ -1224,6 +1229,8 @@ focus_tree = {
 					is_subject_of = ROOT
 					is_in_faction_with = ROOT
 					has_capitulated = yes
+					is_in_faction_with = EQS
+					is_subject_of = EQS
 				}
 			}
 		}
@@ -1260,6 +1267,12 @@ focus_tree = {
 			log = "[GetDateText]: [Root.GetName]: Focus CHN_great_war_beginning"
 			add_political_power = 10
 			add_timed_idea = { idea = CHN_plan_east_prep days = 600 }
+			if = {
+				limit = {
+				has_dlc = "La Resistance"
+				}
+				custom_effect_tooltip = CHN_infiltrate_operations_tooltip
+			}
 		}
 		search_filters = { FOCUS_FILTER_POLITICAL }
 	}
@@ -1585,26 +1598,31 @@ focus_tree = {
 				}
 				if = {
 					limit = {
-						OR = {
-							is_ai = no
-							AND = {
-								any_country_with_original_tag = {
-									original_tag_to_check = CRY
-									exists = yes
-									NOT = {
-										has_government = fascism
-										has_completed_focus = CRY_chgconquest
-									}
-								}
-							}
+						NOT = {
+							has_global_flag = CHN_for_gray_pact
 						}
+						CRY = { has_government = fascism }
+					}
+					if = {
+						limit = { is_ai = no }
+						create_wargoal = { type = annex_everything target = CRY }
+					}
+				}
+				else_if = {
+					limit = {
+						CRY = { 
+							exists = yes
+							NOT = {
+								has_completed_focus = CRY_chgconquest
+							}
+						} 
 					}
 					create_wargoal = { type = annex_everything target = CRY }
 				}
 				if = {
 					limit = {
 						country_exists = NLR
-						NOT = {
+						NOT = { 
 							AND = {
 								has_global_flag = CHN_for_gray_pact
 								has_global_flag = NLR_for_gray_pact
@@ -1616,48 +1634,6 @@ focus_tree = {
 			}
 			country_event = {
 				id = changelings.20 days = 1
-			}
-			if = {
-				limit = { country_exists = SCS NOT = { has_war_with = SCS } NOT = { has_country_flag = agreed_not_to_attack_SCS }}
-				create_wargoal = {
-					target = SCS type = annex_everything
-				}
-			}
-			if = {
-				limit = { country_exists = BAL NOT = { has_war_with = BAL } }
-				create_wargoal = {
-					target = BAL type = annex_everything
-				}
-			}
-			if = {
-				limit = { country_exists = CES NOT = { has_war_with = CES } }
-				create_wargoal = {
-					target = CES type = annex_everything
-				}
-			}
-			if = {
-				limit = { country_exists = NMS NOT = { has_war_with = NMS } }
-				create_wargoal = {
-					target = NMS type = annex_everything
-				}
-			}
-			if = {
-				limit = { country_exists = JUN NOT = { has_war_with = JUN } }
-				create_wargoal = {
-					target = JUN type = annex_everything
-				}
-			}
-			if = {
-				limit = { country_exists = LSP NOT = { has_war_with = LSP } NOT = { LSP ={ is_subject_of = CHN } } }
-				create_wargoal = {
-					target = LSP type = annex_everything
-				}
-			}
-			if = {
-				limit = { country_exists = BUF NOT = { has_war_with = BUF } NOT = { BUF ={ is_subject_of = CHN } } }
-				create_wargoal = {
-					target = BUF type = annex_everything
-				}
 			}
 		}
 		search_filters = { FOCUS_FILTER_ANNEXATION }
@@ -1802,6 +1778,10 @@ focus_tree = {
 			create_wargoal = {
 				type = annex_everything
 				target = STG
+			}
+			create_wargoal = {
+				type = annex_everything
+				target = STL
 			}
 		}
 		search_filters = { FOCUS_FILTER_WAR_SUPPORT FOCUS_FILTER_ANNEXATION }
@@ -1966,6 +1946,9 @@ focus_tree = {
 			focus = demand_equestria
 		}
 		available = {
+			NOT = {
+				has_completed_focus = CHN_post_war_1_a
+			}
 			has_government = fascism
 			OR = {
 				has_war_with = EQS
@@ -2046,6 +2029,9 @@ focus_tree = {
 		x = 2
 		y = 2
 		available = {
+			NOT = {
+				has_completed_focus = CHN_post_war_1_a
+			}
 			OR = {
 				EQS = { any_cores_controlled_by_ROOT = yes }
 				CRY = { any_cores_controlled_by_ROOT = yes }
@@ -2151,7 +2137,7 @@ focus_tree = {
 		}
 		available = {
 			has_government = fascism
-			3 = { is_owned_and_controlled_by = ROOT }
+			3 = { owner = { controls_state = PREV OR = { tag = ROOT is_subject_of = ROOT } } }
 		}
 		continue_if_invalid = no
 		cancel_if_invalid = yes
@@ -2177,9 +2163,9 @@ focus_tree = {
 		}
 		available = {
 			has_government = fascism
-			53 = { is_owned_and_controlled_by = ROOT }
-			344 = { is_owned_and_controlled_by = ROOT }
-			345 = { is_owned_and_controlled_by = ROOT }
+			53 = { owner = { controls_state = PREV OR = { tag = ROOT is_subject_of = ROOT } } }
+			344 = { owner = { controls_state = PREV OR = { tag = ROOT is_subject_of = ROOT } } }
+			345 = { owner = { controls_state = PREV OR = { tag = ROOT is_subject_of = ROOT } } }
 		}
 		continue_if_invalid = no
 		cancel_if_invalid = yes
@@ -2264,16 +2250,19 @@ focus_tree = {
 		completion_reward = {
 			log = "[GetDateText]: [Root.GetName]: Focus war_academy"
 			add_tech_bonus = {
+				name = land_doc_bonus
 				bonus = 0.25
 				uses = 1
 				category = land_doctrine
 			}
 			add_tech_bonus = {
+				name = air_doc_bonus
 				bonus = 0.25
 				uses = 1
 				category = air_doctrine
 			}
 			add_tech_bonus = {
+				name = navdoctrine_bonus
 				bonus = 0.25
 				uses = 1
 				category = naval_doctrine
@@ -2467,6 +2456,7 @@ focus_tree = {
 		completion_reward = {
 			log = "[GetDateText]: [Root.GetName]: Focus CHN_Paratroopers"
 			add_tech_bonus = {
+				name = special_forces_bonus
 				bonus = 1.0
 				uses = 1
 				ahead_reduction = 2
@@ -2738,6 +2728,7 @@ focus_tree = {
 		completion_reward = {
 			log = "[GetDateText]: [Root.GetName]: Focus CHN_Rocketry"
 			add_tech_bonus = {
+				name = secret_bonus
 				bonus = 1.0
 				uses = 1
 				ahead_reduction = 2
@@ -2762,6 +2753,7 @@ focus_tree = {
 		completion_reward = {
 			log = "[GetDateText]: [Root.GetName]: Focus CHN_Rocketry_Phase_Two"
 			add_tech_bonus = {
+				name = secret_bonus
 				bonus = 1.0
 				uses = 1
 				category = rocketry
@@ -2786,6 +2778,7 @@ focus_tree = {
 		completion_reward = {
 			log = "[GetDateText]: [Root.GetName]: Focus CHN_Wunderwaffe"
 			add_tech_bonus = {
+				name = secret_bonus
 				bonus = 1.0
 				uses = 1
 				technology = atomic_research
@@ -2814,6 +2807,7 @@ focus_tree = {
 		completion_reward = {
 			log = "[GetDateText]: [Root.GetName]: Focus CHN_Jets"
 			add_tech_bonus = {
+				name = jet_bonus
 				bonus = 1.0
 				uses = 1
 				technology = jet_engines
@@ -2838,6 +2832,7 @@ focus_tree = {
 		completion_reward = {
 			log = "[GetDateText]: [Root.GetName]: Focus CHN_Jet_Fighter"
 			add_tech_bonus = {
+				name = jet_bonus
 				bonus = 1.0
 				uses = 1
 				technology = jet_fighter1
@@ -2861,6 +2856,7 @@ focus_tree = {
 		completion_reward = {
 			log = "[GetDateText]: [Root.GetName]: Focus CHN_Jet_Tactical_Bomber"
 			add_tech_bonus = {
+				name = jet_bonus
 				bonus = 1.0
 				uses = 1
 				technology = jet_tactical_bomber1
@@ -2884,6 +2880,7 @@ focus_tree = {
 		completion_reward = {
 			log = "[GetDateText]: [Root.GetName]: Focus CHN_Jet_Strategic_Bomber"
 			add_tech_bonus = {
+				name = jet_bonus
 				bonus = 1.0
 				uses = 1
 				technology = jet_strategic_bomber1
@@ -2975,6 +2972,7 @@ focus_tree = {
 		completion_reward = {
 			log = "[GetDateText]: [Root.GetName]: Focus CHN_Jager_1"
 			add_tech_bonus = {
+				name = special_forces_bonus
 				bonus = 1.0
 				uses = 1
 				category = jager_tech
@@ -3025,6 +3023,7 @@ focus_tree = {
 		completion_reward = {
 			log = "[GetDateText]: [Root.GetName]: Focus CHN_Infiltrators"
 			add_tech_bonus = {
+				name = special_forces_bonus
 				bonus = 1.0
 				uses = 2
 				category = infiltrator_tech
@@ -3104,6 +3103,7 @@ focus_tree = {
 			log = "[GetDateText]: [Root.GetName]: Focus CHN_Support_Companies_1"
 			army_experience = 5
 			add_tech_bonus = {
+				name = support_bonus
 				bonus = 1.0
 				uses = 2
 				category = support_tech
@@ -3151,7 +3151,7 @@ focus_tree = {
 	}
 	focus = {
 		id = CHN_Blitzkrieg_2
-		icon = GFX_goal_chn_man_panzervor
+		icon = GFX_goal_Continued_Panzer_Modernization
 		prerequisite = { focus = CHN_Blitzkrieg_1 }
 		relative_position_id = CHN_Army
 		x = -1
@@ -3321,6 +3321,35 @@ focus_tree = {
 			navy_experience = 25
 			add_ideas = lysander
 			remove_unit_leader = 609
+			custom_effect_tooltip = CHN_lysander_palpus
+			custom_effect_tooltip = CHN_lysander_maxilla
+			hidden_effect = {
+				create_navy_leader = {
+					name = "Palpus"
+					portrait_path = "gfx/leaders/CHN/Portrait_Changelings_Generic_navy_13.tga"
+					desc = CHN_DESC_PALPUS
+					traits = { ironside battleship_adherent navy_career_officer }
+					skill = 2
+					id = 3951
+					attack_skill = 2
+					defense_skill = 2
+					coordination_skill = 1
+					maneuvering_skill = 2
+				}
+				create_navy_leader = {
+					name = "Maxilla"
+					portrait_path = "gfx/leaders/CHN/Portrait_Changelings_Generic_navy_5.tga"
+					desc = CHN_DESC_MAXILLA
+					traits = { fleet_protector naval_lineage navy_career_officer }
+					skill = 2
+					id = 3952
+					attack_skill = 1
+					defense_skill = 2
+					coordination_skill = 1
+					maneuvering_skill = 3
+					female = yes
+				}
+			}
 		}
 		search_filters = { FOCUS_FILTER_NAVY_BONUS }
 	}
@@ -3345,6 +3374,36 @@ focus_tree = {
 			navy_experience = 25
 			add_ideas = mimic
 			remove_unit_leader = 610
+			custom_effect_tooltip = CHN_mimic_clypeus
+			custom_effect_tooltip = CHN_mimic_labrum
+			hidden_effect = {
+				create_navy_leader = {
+					name = "Clypeus"
+					portrait_path = "gfx/leaders/CHN/Portrait_Changelings_Generic_navy_8.tga"
+					desc = CHN_DESC_CLYPEUS
+					traits = { fly_swatter gentlemanly navy_career_officer}
+					skill = 2
+					id = 3953
+					attack_skill = 3
+					defense_skill = 2
+					coordination_skill = 1
+					maneuvering_skill = 1
+					female = yes
+				}
+
+				create_navy_leader = {
+					name = "Labrum"
+					portrait_path = "gfx/leaders/CHN/Portrait_Changelings_Generic_navy_4.tga"
+					desc = CHN_DESC_LABRUM
+					traits = { air_controller craven navy_career_officer }
+					skill = 2
+					id = 3954
+					attack_skill = 2
+					defense_skill = 1
+					coordination_skill = 2
+					maneuvering_skill = 2
+				}
+			}
 		}
 		search_filters = { FOCUS_FILTER_NAVY_BONUS }
 	}
@@ -3368,11 +3427,13 @@ focus_tree = {
 			log = "[GetDateText]: [Root.GetName]: Focus CHN_carrier_navy"
 			navy_experience = 10
 			add_tech_bonus = {
+				name = navdoctrine_bonus
 				bonus = 0.5
 				uses = 2
 				category = cat_base_strike
 			}
 			add_tech_bonus = {
+				name = carrier_research
 				bonus = 3
 				uses = 1
 				category = cv_tech
@@ -3452,11 +3513,13 @@ focus_tree = {
 			log = "[GetDateText]: [Root.GetName]: Focus CHN_Marine_Operations"
 			navy_experience = 10
 			add_tech_bonus = {
+				name = marine_bonus
 				bonus = 1.0
 				uses = 2
 				category = tp_tech
 			}
 			add_tech_bonus = {
+				name = marine_bonus
 				bonus = 0.5
 				uses = 1
 				category = marine_tech
@@ -3482,7 +3545,7 @@ focus_tree = {
 		completion_reward = {
 			log = "[GetDateText]: [Root.GetName]: Focus CHN_Navy_Doctrine"
 			add_tech_bonus = {
-				name = naval_doctrine_bonus
+				name = navdoctrine_bonus
 				bonus = 1.0
 				uses = 2
 				category = naval_doctrine
@@ -3510,11 +3573,13 @@ focus_tree = {
 			log = "[GetDateText]: [Root.GetName]: Focus CHN_battleship_navy"
 			navy_experience = 10
 			add_tech_bonus = {
+				name = navdoctrine_bonus
 				bonus = 0.5
 				uses = 2
 				category = cat_fleet_in_being
 			}
 			add_tech_bonus = {
+				name = battleship_tech
 				bonus = 3
 				uses = 1
 				category = bb_tech
@@ -3541,7 +3606,7 @@ focus_tree = {
 		completion_reward = {
 			log = "[GetDateText]: [Root.GetName]: Focus CHN_Destroyers"
 			add_tech_bonus = {
-				name = naval_doctrine_bonus
+				name = navdoctrine_bonus
 				bonus = 1.0
 				uses = 2
 				category = dd_tech
@@ -3568,7 +3633,7 @@ focus_tree = {
 		completion_reward = {
 			log = "[GetDateText]: [Root.GetName]: Focus CHN_Light_Cruisers"
 			add_tech_bonus = {
-				name = naval_doctrine_bonus
+				name = navdoctrine_bonus
 				bonus = 1.0
 				uses = 2
 				category = cl_tech
@@ -3594,7 +3659,7 @@ focus_tree = {
 		completion_reward = {
 			log = "[GetDateText]: [Root.GetName]: Focus CHN_Heavy_Cruisers"
 			add_tech_bonus = {
-				name = naval_doctrine_bonus
+				name = navdoctrine_bonus
 				bonus = 1.0
 				uses = 2
 				category = ca_tech
@@ -3620,7 +3685,7 @@ focus_tree = {
 		completion_reward = {
 			log = "[GetDateText]: [Root.GetName]: Focus CHN_Battlecruisers"
 			add_tech_bonus = {
-				name = naval_doctrine_bonus
+				name = navdoctrine_bonus
 				bonus = 1.0
 				uses = 2
 				category = bc_tech
@@ -3646,7 +3711,7 @@ focus_tree = {
 		completion_reward = {
 			log = "[GetDateText]: [Root.GetName]: Focus CHN_Battleships"
 			add_tech_bonus = {
-				name = naval_doctrine_bonus
+				name = navdoctrine_bonus
 				bonus = 1.0
 				uses = 2
 				category = bb_tech
@@ -3713,13 +3778,14 @@ focus_tree = {
 	focus = {
 		id = CHN_polar_bear_envoy
 		icon = GFX_goal_chn_plb
-		cost = 5
+		cost = 4
 		prerequisite = {
 			focus = unite_the_people
 		}
 		available = {
 			is_subject = no
 			has_government = fascism
+			PLB = { is_subject = no }
 		}
 		bypass = {
 			PLB = {
@@ -3768,7 +3834,7 @@ focus_tree = {
 		available = {
 			is_subject = no
 			has_government = fascism
-			PLB = { has_country_flag = PLB_no_deal }
+			PLB = { is_subject = no has_country_flag = PLB_no_deal }
 			has_country_flag = flag_CHN_negociations_ended
 			if = {
 				limit = { is_ai = no }
@@ -3810,7 +3876,7 @@ focus_tree = {
 		available = {
 			is_subject = no
 			has_government = fascism
-			PLB = { has_country_flag = PLB_no_deal }
+			PLB = { is_subject = no has_country_flag = PLB_no_deal }
 			has_country_flag = flag_CHN_negociations_ended
 			if = {
 				limit = { is_ai = no }
@@ -3934,14 +4000,9 @@ focus_tree = {
 			focus = CHN_resources_of_PLB
 		}
 		available = {
-			OR = {
-				PLB = { is_subject_of = ROOT }
-				AND = {
-					289 = { is_owned_and_controlled_by = ROOT }
-					263 = { is_owned_and_controlled_by = ROOT }
-					290 = { is_owned_and_controlled_by = ROOT }
-				}
-			}
+			289 = { owner = { controls_state = PREV OR = { tag = ROOT is_subject_of = ROOT } } }
+			263 = { owner = { controls_state = PREV OR = { tag = ROOT is_subject_of = ROOT } } }
+			290 = { owner = { controls_state = PREV OR = { tag = ROOT is_subject_of = ROOT } } }
 		}
 		ai_will_do = {
 			factor = 1
@@ -3963,5 +4024,3589 @@ focus_tree = {
 			}
 		}
 		search_filters = { FOCUS_FILTER_RESEARCH }
+	}
+	
+	##################################################
+	### Canterlot and Post-War Content Begins Here ###
+	##################################################
+	
+	focus = {
+		id = CHN_post_war_1
+		icon = GFX_goal_chn_equus
+		cost = 4.3
+		available = {
+			custom_trigger_tooltip = {
+				tooltip = CHN_post_war_1_req_tt
+				has_country_flag = CHN_pax_chrysalia_begun
+				is_subject = no
+				has_country_leader = { ruling_only = yes name = "Queen Chrysalis" }
+				EQS = {
+					OR = {
+						is_subject_of = ROOT
+						exists = no
+					}
+				}
+				NLR = {
+					OR = {
+						is_subject_of = ROOT
+						exists = no
+					}
+				}
+				3 = { is_owned_and_controlled_by = ROOT }
+			}
+		}
+		ai_will_do = {
+			factor = 300
+		}
+		x = 13
+		y = 13
+		
+		select_effect = {
+			hidden_effect = {
+				country_event = { id = changelings_paxchrysalia.1 days = 10 }
+				country_event = { id = changelings_paxchrysalia.702 days = 540 }
+			}
+		}
+		
+		completion_reward = {
+			log = "[GetDateText]: [Root.GetName]: Focus CHN_post_war_1"
+			add_political_power = 150
+			effect_tooltip = {
+				country_event = { id = changelings_paxchrysalia.2 }
+			}
+			hidden_effect = {
+				if = {
+					limit = { 
+						has_country_flag = CHN_event_1_option_a
+					}
+					country_event = { id = changelings_paxchrysalia.2 hours = 1 }
+				}
+				if = {
+					limit = { 
+						has_country_flag = CHN_event_1_option_b
+					}
+					country_event = { id = changelings_paxchrysalia.3 hours = 1 }
+				}
+			}
+		}
+		search_filters = { FOCUS_FILTER_PAX_CHRYSALIA }
+	}
+	
+	focus = {
+		id = CHN_post_war_1_a
+		icon = GFX_goal_chn_man_devolution
+		cost = 3
+		available = {
+			has_completed_focus = unite_the_people
+			has_government = fascism
+			NOT = { has_war_with = EQS }
+			EQS = {
+				OR = {
+					is_subject_of = ROOT
+					has_capitulated = yes
+					exists = no
+				}
+			}
+		}
+		prerequisite = {
+			focus = CHN_post_war_1
+		}
+		ai_will_do = {
+			factor = 200
+		}
+		
+		relative_position_id = CHN_post_war_1
+		x = -8
+		y = 1
+		
+		completion_reward = {
+			log = "[GetDateText]: [Root.GetName]: Focus CHN_post_war_1_a"
+			add_stability = 0.05
+			custom_effect_tooltip = CHN_post_war_1_a_effect
+			news_event = { id = changelings_paxchrysalia.1001 hours = 1 }
+			custom_effect_tooltip = MAN_line_break
+			if = {
+				limit = { has_idea = scraping_the_barrel }
+				swap_ideas = { remove_idea = scraping_the_barrel add_idea = extensive_conscription }
+			}
+			else_if = {
+				limit = { has_idea = all_adults_serve }
+				swap_ideas = { remove_idea = all_adults_serve add_idea = extensive_conscription }
+			}
+			else_if = {
+				limit = { has_idea = service_by_requirement }
+				swap_ideas = { remove_idea = service_by_requirement add_idea = extensive_conscription }
+			}
+			else_if = {
+				limit = { has_idea = extensive_conscription }
+				swap_ideas = { remove_idea = extensive_conscription add_idea = limited_conscription }
+			}
+			if = {
+				limit = { has_idea = tot_economic_mobilisation }
+				swap_ideas = { remove_idea = tot_economic_mobilisation add_idea = partial_economic_mobilisation }
+			}
+			else_if = {
+				limit = { has_idea = war_economy }
+				swap_ideas = { remove_idea = war_economy add_idea = partial_economic_mobilisation }
+			}
+			else_if = {
+				limit = { has_idea = partial_economic_mobilisation }
+				swap_ideas = { remove_idea = partial_economic_mobilisation add_idea = low_economic_mobilisation }
+			}
+			hidden_effect = {
+				add_threat = -10
+				if = {
+					limit = {
+						has_idea = continous_war_plan_CHN
+					}
+					remove_ideas = continous_war_plan_CHN
+				}
+				if = {
+					limit = {
+						has_idea = CHN_ponies_work
+					}
+					remove_ideas = CHN_ponies_work
+				}
+				remove_ideas = CHN_unity
+			}
+		}
+		search_filters = { FOCUS_FILTER_PAX_CHRYSALIA }
+	}
+	
+	focus = {
+		id = CHN_post_war_1_b
+		icon = GFX_goal_chn_man_olive
+		cost = 2.9
+		available = {
+			if = {
+				limit = {
+					ZRS = { exists = no }
+				}
+				custom_trigger_tooltip = {
+					tooltip = CHN_post_war_1_b_req_tt
+					1 = { is_owned_and_controlled_by = ROOT }
+					2 = { is_owned_and_controlled_by = ROOT }
+					3 = { is_owned_and_controlled_by = ROOT }
+					68 = { is_owned_and_controlled_by = ROOT }
+					5 = { is_owned_and_controlled_by = ROOT }
+				}
+			}
+			has_government = fascism
+			NOT = { has_war_with = EQS }
+			EQS = {
+				OR = {
+					is_subject_of = ROOT
+					has_capitulated = yes
+					exists = no
+				}
+			}
+		}
+		prerequisite = {
+			focus = CHN_post_war_1
+		}
+		bypass = {
+			custom_trigger_tooltip = {
+				tooltip = CHN_ZRS_uprising_IN_PROGRESS_tt
+				has_global_flag = CHN_ZRS_everfree_not_tamed
+				has_global_flag = ZRS_uprising_has_happened
+			}
+		}
+		ai_will_do = {
+			factor = 200
+		}
+		
+		relative_position_id = CHN_post_war_1
+		x = 8
+		y = 1
+		
+		offset = {
+			x = 1
+			y = 0
+			trigger = {
+				ROOT = {
+					has_country_flag = CHN_country_flag_secret_tree_unlocked
+				}
+			}
+		}
+		
+		completion_reward = {
+			log = "[GetDateText]: [Root.GetName]: Focus CHN_post_war_1_b"
+			country_event = { id = changelings_paxchrysalia.56 hours = 1 }
+			every_controlled_state = {
+				limit = { is_core_of = EQS }
+				add_compliance = 1
+			}
+		}
+		search_filters = { FOCUS_FILTER_PAX_CHRYSALIA }
+	}
+	
+	focus = {
+		id = CHN_post_war_2 ## compliance ##
+		icon = GFX_goal_chn_man_torch
+		cost = 4.3
+		available = {
+			has_government = fascism
+			EQS = {
+				OR = {
+					is_subject_of = ROOT
+					has_capitulated = yes
+					exists = no
+				}
+			}
+		}
+		prerequisite = {
+			focus = CHN_post_war_1_a
+		}
+		ai_will_do = {
+			factor = 200
+		}
+		relative_position_id = CHN_post_war_1_a
+		x = 2
+		y = 1
+		completion_reward = {
+			log = "[GetDateText]: [Root.GetName]: Focus CHN_post_war_2"
+			add_political_power = 70
+			country_event = { id = changelings_paxchrysalia.21 hours = 1 }
+			custom_effect_tooltip = MAN_line_break
+			add_ideas = CHN_queens_equestrian_advisory_cabinet
+		}
+		search_filters = { FOCUS_FILTER_PAX_CHRYSALIA }
+	}
+	
+	focus = {
+		id = CHN_post_war_2_a
+		icon = GFX_goal_chn_man_business
+		cost = 2.9
+		available = {
+			if = {
+				limit = {
+					has_global_flag = ZRS_uprising_has_happened
+				}
+				custom_trigger_tooltip = {
+					tooltip = CHN_ZRS_uprising_NOT_tt
+					NOT = { has_global_flag = CHN_ZRS_everfree_not_tamed }
+					ZRS = {
+						OR = {
+							is_subject_of = ROOT
+							has_capitulated = yes
+							exists = no
+						}
+					}
+				}
+			}
+			EQS = {
+				OR = {
+					is_subject_of = ROOT
+					has_capitulated = yes
+					exists = no
+				}
+			}
+		}
+		prerequisite = {
+			focus = CHN_post_war_2
+		}
+		ai_will_do = {
+			factor = 200
+		}
+		relative_position_id = CHN_post_war_2
+		x = -1
+		y = 1
+		completion_reward = {
+			log = "[GetDateText]: [Root.GetName]: Focus CHN_post_war_2_a"
+			country_event = { id = changelings_paxchrysalia.22 hours = 1 }
+			custom_effect_tooltip = extractive_regime_unlock_tt
+		}
+		search_filters = { FOCUS_FILTER_PAX_CHRYSALIA }
+	}
+	
+	focus = {
+		id = CHN_post_war_2_b
+		icon = GFX_goal_chn_man_conflict
+		cost = 2.9
+		available = {
+			if = {
+				limit = {
+					has_global_flag = ZRS_uprising_has_happened
+				}
+				custom_trigger_tooltip = {
+					tooltip = CHN_ZRS_uprising_NOT_tt
+					NOT = { has_global_flag = CHN_ZRS_everfree_not_tamed }
+					ZRS = {
+						OR = {
+							is_subject_of = ROOT
+							has_capitulated = yes
+							exists = no
+						}
+					}
+				}
+			}
+			EQS = {
+				OR = {
+					is_subject_of = ROOT
+					has_capitulated = yes
+					exists = no
+				}
+			}
+		}
+		prerequisite = {
+			focus = CHN_post_war_2
+		}
+		ai_will_do = {
+			factor = 200
+		}
+		relative_position_id = CHN_post_war_2
+		x = 1
+		y = 1
+		completion_reward = {
+			log = "[GetDateText]: [Root.GetName]: Focus CHN_post_war_2_b"
+			country_event = { id = changelings_paxchrysalia.30 hours = 1 }
+			every_controlled_state = {
+				limit = { is_core_of = EQS }
+				add_resistance = -1
+			}
+		}
+		search_filters = { FOCUS_FILTER_PAX_CHRYSALIA }
+	}
+	
+	focus = {
+		id = CHN_post_war_2_c
+		icon = GFX_goal_chn_man_spyeye
+		cost = 2.9
+		available = {
+			if = {
+				limit = {
+					has_global_flag = ZRS_uprising_has_happened
+				}
+				custom_trigger_tooltip = {
+					tooltip = CHN_ZRS_uprising_NOT_tt
+					NOT = { has_global_flag = CHN_ZRS_everfree_not_tamed }
+					ZRS = {
+						OR = {
+							is_subject_of = ROOT
+							has_capitulated = yes
+							exists = no
+						}
+					}
+				}
+			}
+			EQS = {
+				OR = {
+					is_subject_of = ROOT
+					has_capitulated = yes
+					exists = no
+				}
+			}
+		}
+		prerequisite = {
+			focus = CHN_post_war_2_b
+			focus = CHN_post_war_3_b
+		}
+		ai_will_do = {
+			factor = 200
+		}
+		relative_position_id = CHN_post_war_2
+		x = 2
+		y = 2
+		completion_reward = {
+			log = "[GetDateText]: [Root.GetName]: Focus CHN_post_war_2_c"
+			country_event = { id = changelings_paxchrysalia.32 hours = 1 }
+			custom_effect_tooltip = MAN_line_break
+			add_ideas = CHN_equestrian_penal_service_corps
+		}
+		search_filters = { FOCUS_FILTER_PAX_CHRYSALIA }
+	}
+	
+	focus = {
+		id = CHN_post_war_2_d
+		icon = GFX_goal_chn_man_eclipse
+		cost = 4.3
+		available = {
+			if = {
+				limit = {
+					has_global_flag = ZRS_uprising_has_happened
+				}
+				custom_trigger_tooltip = {
+					tooltip = CHN_ZRS_uprising_NOT_tt
+					NOT = { has_global_flag = CHN_ZRS_everfree_not_tamed }
+					ZRS = {
+						OR = {
+							is_subject_of = ROOT
+							has_capitulated = yes
+							exists = no
+						}
+					}
+				}
+			}
+			EQS = {
+				OR = {
+					is_subject_of = ROOT
+					has_capitulated = yes
+					exists = no
+				}
+			}
+		}
+		prerequisite = {
+			focus = CHN_post_war_2_b
+			focus = CHN_post_war_2_e
+		}
+		ai_will_do = {
+			factor = 200
+		}
+		relative_position_id = CHN_post_war_2
+		x = 1
+		y = 3
+		completion_reward = {
+			log = "[GetDateText]: [Root.GetName]: Focus CHN_post_war_2_d"
+			country_event = { id = changelings_paxchrysalia.31 hours = 1 }
+		}
+		search_filters = { FOCUS_FILTER_PAX_CHRYSALIA }
+	}
+	
+	focus = {
+		id = CHN_post_war_2_e
+		icon = GFX_goal_chn_man_muzzle
+		cost = 2.9
+		available = {
+			if = {
+				limit = {
+					has_global_flag = ZRS_uprising_has_happened
+				}
+				custom_trigger_tooltip = {
+					tooltip = CHN_ZRS_uprising_NOT_tt
+					NOT = { has_global_flag = CHN_ZRS_everfree_not_tamed }
+					ZRS = {
+						OR = {
+							is_subject_of = ROOT
+							has_capitulated = yes
+							exists = no
+						}
+					}
+				}
+			}
+			EQS = {
+				OR = {
+					is_subject_of = ROOT
+					has_capitulated = yes
+					exists = no
+				}
+			}
+		}
+		prerequisite = {
+			focus = CHN_post_war_2_a
+		}
+		ai_will_do = {
+			factor = 200
+		}
+		relative_position_id = CHN_post_war_2
+		x = 0
+		y = 2
+		completion_reward = {
+			log = "[GetDateText]: [Root.GetName]: Focus CHN_post_war_2_e"
+			country_event = { id = changelings_paxchrysalia.20 hours = 1 }
+			every_controlled_state = {
+				limit = { is_core_of = EQS }
+				add_resistance = -1
+			}
+		}
+		search_filters = { FOCUS_FILTER_PAX_CHRYSALIA }
+	}
+	
+	focus = {
+		id = CHN_post_war_2_f
+		icon = GFX_goal_chn_man_tools
+		cost = 4.3
+		available = {
+			if = {
+				limit = {
+					has_global_flag = ZRS_uprising_has_happened
+				}
+				custom_trigger_tooltip = {
+					tooltip = CHN_ZRS_uprising_NOT_tt
+					NOT = { has_global_flag = CHN_ZRS_everfree_not_tamed }
+					ZRS = {
+						OR = {
+							is_subject_of = ROOT
+							has_capitulated = yes
+							exists = no
+						}
+					}
+				}
+			}
+			EQS = {
+				OR = {
+					is_subject_of = ROOT
+					has_capitulated = yes
+					exists = no
+				}
+			}
+		}
+		prerequisite = {
+			focus = CHN_post_war_2_e
+		}
+		prerequisite = {
+			focus = CHN_post_war_2_i
+		}
+		ai_will_do = {
+			factor = 200
+		}
+		relative_position_id = CHN_post_war_2
+		x = -1
+		y = 3
+		completion_reward = {
+			log = "[GetDateText]: [Root.GetName]: Focus CHN_post_war_2_f"
+			country_event = { id = changelings_paxchrysalia.36 hours = 1 }
+			custom_effect_tooltip = MAN_line_break
+			every_owned_state = {
+				limit = {
+					NOT = { 
+						is_core_of = CHN 
+						state = 1
+						state = 5
+					}
+					is_controlled_by = ROOT
+					is_core_of = EQS
+				}
+				custom_effect_tooltip = CHN_reconstruction_authority_modifier_effect_tt
+				hidden_effect = {
+					add_dynamic_modifier = { modifier = CHN_reconstruction_authority_modifier }
+				}
+			}
+		}
+		search_filters = { FOCUS_FILTER_PAX_CHRYSALIA }
+	}
+	
+	focus = {
+		id = CHN_post_war_2_g
+		icon = GFX_goal_chn_man_bullets
+		cost = 4.3
+		available = {
+			if = {
+				limit = {
+					has_global_flag = ZRS_uprising_has_happened
+				}
+				custom_trigger_tooltip = {
+					tooltip = CHN_ZRS_uprising_NOT_tt
+					NOT = { has_global_flag = CHN_ZRS_everfree_not_tamed }
+					ZRS = {
+						OR = {
+							is_subject_of = ROOT
+							has_capitulated = yes
+							exists = no
+						}
+					}
+				}
+			}
+			EQS = {
+				OR = {
+					is_subject_of = ROOT
+					has_capitulated = yes
+					exists = no
+				}
+			}
+		}
+		prerequisite = {
+			focus = CHN_post_war_2_f
+		}
+		ai_will_do = {
+			factor = 0
+		}
+		
+		relative_position_id = CHN_post_war_2
+		x = 0
+		y = 4
+		
+		offset = {
+			x = -1
+			y = 1
+			trigger = {
+				ROOT = {
+					has_country_flag = CHN_has_unlocked_vraks_looting_concern_focus_flag
+				}
+			}
+		}
+		
+		completion_reward = {
+			log = "[GetDateText]: [Root.GetName]: Focus CHN_post_war_2_g"
+			add_timed_idea = { idea = CHN_milcomplex_stimulus days = 420 }
+		}
+		search_filters = { FOCUS_FILTER_PAX_CHRYSALIA }
+	}
+	
+	focus = {
+		id = CHN_vraks_looting_concern
+		icon = GFX_goal_chn_man_gears
+		cost = 2.9
+		available = {
+			if = {
+				limit = {
+					has_global_flag = ZRS_uprising_has_happened
+				}
+				custom_trigger_tooltip = {
+					tooltip = CHN_ZRS_uprising_NOT_tt
+					NOT = { has_global_flag = CHN_ZRS_everfree_not_tamed }
+					ZRS = {
+						OR = {
+							is_subject_of = ROOT
+							has_capitulated = yes
+							exists = no
+						}
+					}
+				}
+			}
+			EQS = {
+				OR = {
+					is_subject_of = ROOT
+					has_capitulated = yes
+					exists = no
+				}
+			}
+		}
+		allow_branch = {
+			has_country_flag = CHN_has_unlocked_vraks_looting_concern_focus_flag
+		}
+		prerequisite = {
+			focus = CHN_post_war_2_g
+		}
+		prerequisite = {
+			focus = CHN_post_war_5_f
+		}
+		ai_will_do = {
+			factor = 200
+		}
+		relative_position_id = CHN_post_war_2_g
+		x = -1
+		y = 1
+		
+		completion_reward = {
+			log = "[GetDateText]: [Root.GetName]: Focus CHN_vraks_looting_concern"
+			add_political_power = 150
+			custom_effect_tooltip = CHN_vraks_looting_concern_explainer_tt
+		}
+		search_filters = { FOCUS_FILTER_PAX_CHRYSALIA }
+	}
+	
+	focus = {
+		id = CHN_post_war_2_h
+		icon = GFX_goal_chn_man_stocks
+		cost = 4.3
+		available = {
+			if = {
+				limit = {
+					has_global_flag = ZRS_uprising_has_happened
+				}
+				custom_trigger_tooltip = {
+					tooltip = CHN_ZRS_uprising_NOT_tt
+					NOT = { has_global_flag = CHN_ZRS_everfree_not_tamed }
+					ZRS = {
+						OR = {
+							is_subject_of = ROOT
+							has_capitulated = yes
+							exists = no
+						}
+					}
+				}
+			}
+			EQS = {
+				OR = {
+					is_subject_of = ROOT
+					has_capitulated = yes
+					exists = no
+				}
+			}
+		}
+		prerequisite = {
+			focus = CHN_post_war_2_f
+		}
+		ai_will_do = {
+			factor = 200
+		}
+		relative_position_id = CHN_post_war_2
+		x = -2
+		y = 4
+		completion_reward = {
+			log = "[GetDateText]: [Root.GetName]: Focus CHN_post_war_2_h"
+			country_event = { id = changelings_paxchrysalia.37 hours = 1 }
+			custom_effect_tooltip = MAN_line_break
+			custom_effect_tooltip = available_designer
+			show_ideas_tooltip = CHN_tank_sirius_mustang
+			custom_effect_tooltip = available_industrial_concern
+			show_ideas_tooltip = chn_oil_concern
+		}
+		search_filters = { FOCUS_FILTER_PAX_CHRYSALIA }
+	}
+	
+	focus = {
+		id = CHN_post_war_2_i
+		icon = GFX_goal_chn_man_toaster
+		cost = 4.3
+		available = {
+			if = {
+				limit = {
+					has_global_flag = ZRS_uprising_has_happened
+				}
+				custom_trigger_tooltip = {
+					tooltip = CHN_ZRS_uprising_NOT_tt
+					NOT = { has_global_flag = CHN_ZRS_everfree_not_tamed }
+					ZRS = {
+						OR = {
+							is_subject_of = ROOT
+							has_capitulated = yes
+							exists = no
+						}
+					}
+				}
+			}
+			EQS = {
+				OR = {
+					is_subject_of = ROOT
+					has_capitulated = yes
+					exists = no
+				}
+			}
+			70 = { is_owned_and_controlled_by = CHN }
+		}
+		prerequisite = {
+			focus = CHN_post_war_2_a
+		}
+		ai_will_do = {
+			factor = 200
+		}
+		select_effect = {
+			set_variable = { CHN_post_war_2_i_whinnyapolis_factories_var = 70.industrial_complex_level }
+		}
+		relative_position_id = CHN_post_war_2
+		x = -2
+		y = 2
+		completion_reward = {
+			log = "[GetDateText]: [Root.GetName]: Focus CHN_post_war_2_i"
+			country_event = { id = changelings_paxchrysalia.19 hours = 1 }
+			custom_effect_tooltip = CHN_post_war_2_i_effect_factories_tt
+			hidden_effect = {
+				add_offsite_building = { type = industrial_complex level = 3 }
+				country_event = { id = changelings_paxchrysalia.700 days = 300 }
+			}
+			if = {
+				limit = {
+					focus_progress = {
+						focus = CHN_post_war_2_i
+						progress > 0
+					}
+				}
+				70 = {
+					remove_building = {
+						type = industrial_complex 
+						level = CHN.CHN_post_war_2_i_whinnyapolis_factories_var
+					}
+				}
+				random_owned_controlled_state = {
+					limit = {
+						free_building_slots = {
+							building = arms_factory
+							size > 0
+							include_locked = yes
+						}
+						is_core_of = CHN
+					}
+					add_extra_state_shared_building_slots = CHN.CHN_post_war_2_i_whinnyapolis_factories_var
+					add_building_construction = {
+						type = industrial_complex
+						level = CHN.CHN_post_war_2_i_whinnyapolis_factories_var
+						instant_build = yes
+					}
+				}
+			}
+			else = {
+				custom_effect_tooltip = CHN_post_war_2_i_effect_tt
+			}
+		}
+		search_filters = { FOCUS_FILTER_PAX_CHRYSALIA }
+	}
+	
+	focus = {
+		id = CHN_post_war_2_j
+		icon = GFX_goal_chn_man_jager
+		cost = 8.7
+		available = {
+			custom_trigger_tooltip = {
+				tooltip = CHN_post_war_2_j_jachs_convinced_tt
+				OR = {
+					has_country_flag = CHN_event_31_overtures_to_friendship_flag
+					has_country_flag = CHN_event_32_lets_be_kind_flag
+				}
+			}
+			if = {
+				limit = {
+					has_global_flag = ZRS_uprising_has_happened
+				}
+				custom_trigger_tooltip = {
+					tooltip = CHN_ZRS_uprising_NOT_tt
+					NOT = { has_global_flag = CHN_ZRS_everfree_not_tamed }
+					ZRS = {
+						OR = {
+							is_subject_of = ROOT
+							has_capitulated = yes
+							exists = no
+						}
+					}
+				}
+			}
+			EQS = {
+				OR = {
+					is_subject_of = ROOT
+					has_capitulated = yes
+					exists = no
+				}
+			}
+		}
+		prerequisite = {
+			focus = CHN_post_war_2_c
+			focus = CHN_post_war_2_d
+		}
+		ai_will_do = {
+			factor = 200
+		}
+		relative_position_id = CHN_post_war_2
+		x = 2
+		y = 4
+		completion_reward = {
+			log = "[GetDateText]: [Root.GetName]: Focus CHN_post_war_2_j"
+			country_event = { id = changelings_paxchrysalia.33 hours = 1 }
+			custom_effect_tooltip = MAN_line_break
+			add_ideas = CHN_pony_volunteer_corps_idea
+			custom_effect_tooltip = CHN_form_pony_volunteer_divisions_tt
+			hidden_effect = {
+				division_template = {
+					name = "Equestrian Volunteers"
+					division_names_group = CHN_ALTINF_01
+					template_counter = 5
+					regiments = {
+						infantry = { x = 0 y = 0 }
+						infantry = { x = 0 y = 1 }
+						infantry = { x = 1 y = 0 }
+						infantry = { x = 1 y = 1 }
+						infantry = { x = 2 y = 0 }
+						infantry = { x = 2 y = 1 }
+						infantry = { x = 3 y = 0 }
+						infantry = { x = 3 y = 1 }
+					}
+					support = {
+						artillery = { x = 0 y = 0 }
+						anti_tank = { x = 0 y = 1 }
+						recon = { x = 0 y = 2 }
+						engineer = { x = 0 y = 3 }
+					}
+				}
+				251 = {
+					create_unit = { division = "name = \"301. Freiwilligen-Infanterie-Division 'Zügel'\" division_template = \"Equestrian Volunteers\" start_experience_factor = 0.05" owner = CHN }
+					create_unit = { division = "name = \"302. Freiwilligen-Infanterie-Division 'Zäumen'\" division_template = \"Equestrian Volunteers\" start_experience_factor = 0.05" owner = CHN }
+					create_unit = { division = "name = \"303. Freiwilligen-Infanterie-Division 'Halfter'\" division_template = \"Equestrian Volunteers\" start_experience_factor = 0.05" owner = CHN }
+					create_unit = { division = "name = \"304. Freiwilligen-Infanterie-Division\" division_template = \"Equestrian Volunteers\" start_experience_factor = 0.05" owner = CHN }
+				}
+			}
+		}
+		search_filters = { FOCUS_FILTER_PAX_CHRYSALIA }
+	}
+	
+	focus = {
+		id = CHN_post_war_2_k
+		icon = GFX_goal_chn_man_propaganda
+		cost = 2.9
+		available = {
+			if = {
+				limit = {
+					has_completed_focus = CHN_post_war_5_b
+				}
+				OR = {
+					custom_trigger_tooltip = {
+						tooltip = CHN_event_19_research_seized_country_flag_tt
+						has_country_flag = CHN_event_19_research_seized_country_flag
+					}
+					custom_trigger_tooltip = {
+						tooltip = CHN_event_20_intellectuals_arrested_country_flag_tt
+						has_country_flag = CHN_event_20_intellectuals_arrested_country_flag
+					}
+				}
+			}
+			if = {
+				limit = {
+					has_global_flag = ZRS_uprising_has_happened
+				}
+				custom_trigger_tooltip = {
+					tooltip = CHN_ZRS_uprising_NOT_tt
+					NOT = { has_global_flag = CHN_ZRS_everfree_not_tamed }
+					ZRS = {
+						OR = {
+							is_subject_of = ROOT
+							has_capitulated = yes
+							exists = no
+						}
+					}
+				}
+			}
+			EQS = {
+				OR = {
+					is_subject_of = ROOT
+					has_capitulated = yes
+					exists = no
+				}
+			}
+		}
+		prerequisite = {
+			focus = CHN_post_war_2_i
+			focus = CHN_post_war_2_m
+		}
+		ai_will_do = {
+			factor = 200
+		}
+		relative_position_id = CHN_post_war_2
+		x = -3
+		y = 3
+		completion_reward = {
+			log = "[GetDateText]: [Root.GetName]: Focus CHN_post_war_2_k"
+			country_event = { id = changelings_paxchrysalia.23 hours = 1 }
+			custom_effect_tooltip = CHN_post_war_2_create_faction_research_tt
+			every_country = {
+				limit = {
+					OR = {
+						original_tag = CHN
+						is_in_faction_with = CHN
+						is_subject_of = CHN
+					}
+				}
+				custom_effect_tooltip = CHN_post_war_2_faction_research_tt
+				hidden_effect = { add_to_tech_sharing_group = CHN_hegemony_compact_science_tech }
+			}
+		}
+		search_filters = { FOCUS_FILTER_PAX_CHRYSALIA }
+	}
+	
+	focus = {
+		id = CHN_post_war_2_l
+		icon = GFX_goal_chn_thestral
+		cost = 10
+		available = {
+			if = {
+				limit = {
+					has_global_flag = ZRS_uprising_has_happened
+				}
+				custom_trigger_tooltip = {
+					tooltip = CHN_ZRS_uprising_NOT_tt
+					NOT = { has_global_flag = CHN_ZRS_everfree_not_tamed }
+					ZRS = {
+						OR = {
+							is_subject_of = ROOT
+							has_capitulated = yes
+							exists = no
+						}
+					}
+				}
+			}
+			EQS = {
+				OR = {
+					is_subject_of = ROOT
+					has_capitulated = yes
+					exists = no
+				}
+			}
+		}
+		allow_branch = {
+			has_country_flag = CHN_allowed_flag_post_war_2_l
+		}
+		prerequisite = {
+			focus = CHN_post_war_2_j
+		}
+		ai_will_do = {
+			factor = 150
+		}
+		relative_position_id = CHN_post_war_2
+		x = 2
+		y = 6
+		completion_reward = {
+			log = "[GetDateText]: [Root.GetName]: Focus CHN_post_war_2_l"
+			country_event = { id = changelings_paxchrysalia.34 hours = 1 }
+		}
+		search_filters = { FOCUS_FILTER_PAX_CHRYSALIA }
+	}
+	
+	focus = {
+		id = CHN_post_war_2_m
+		icon = GFX_goal_chn_scroll
+		cost = 2
+		available = {
+			if = {
+				limit = {
+					has_global_flag = ZRS_uprising_has_happened
+				}
+				custom_trigger_tooltip = {
+					tooltip = CHN_ZRS_uprising_NOT_tt
+					NOT = { has_global_flag = CHN_ZRS_everfree_not_tamed }
+					ZRS = {
+						OR = {
+							is_subject_of = ROOT
+							has_capitulated = yes
+							exists = no
+						}
+					}
+				}
+			}
+			EQS = {
+				OR = {
+					is_subject_of = ROOT
+					has_capitulated = yes
+					exists = no
+				}
+			}
+		}
+		mutually_exclusive = {
+			focus = CHN_post_war_5_b
+		}
+		prerequisite = {
+			focus = CHN_post_war_5
+		}
+		ai_will_do = {
+			factor = 200
+		}
+		relative_position_id = CHN_post_war_2
+		x = -3
+		y = 1
+		completion_reward = {
+			log = "[GetDateText]: [Root.GetName]: Focus CHN_post_war_2_m"
+			country_event = { id = changelings_paxchrysalia.8 hours = 1 }
+			custom_effect_tooltip = CHN_post_war_5_a_effect_tt
+			add_timed_idea = { idea = CHN_seaddle_reforms days = 140 }
+		}
+		search_filters = { FOCUS_FILTER_PAX_CHRYSALIA }
+	}
+	
+	focus = {
+		id = CHN_post_war_3
+		icon = GFX_goal_chn_queens_tower
+		cost = 3
+		available = {
+			has_idea = CHN_queens_tower_idea
+			has_government = fascism
+			EQS = {
+				OR = {
+					is_subject_of = ROOT
+					has_capitulated = yes
+					exists = no
+				}
+			}
+			251 = { is_owned_and_controlled_by = ROOT }
+		}
+		prerequisite = {
+			focus = CHN_post_war_1
+		}
+		ai_will_do = {
+			factor = 200
+		}
+		relative_position_id = CHN_post_war_1
+		x = -3
+		y = 1
+		completion_reward = {
+			log = "[GetDateText]: [Root.GetName]: Focus CHN_post_war_3"
+			country_event = { id = changelings_paxchrysalia.16 hours = 1 }
+			custom_effect_tooltip = CHN_queens_tower_custom_tt
+			hidden_effect = {
+				251 = {
+					add_dynamic_modifier = { modifier = CHN_great_queens_tower }
+				}
+			}
+		}
+		search_filters = { FOCUS_FILTER_PAX_CHRYSALIA }
+	}
+	
+	focus = {
+		id = CHN_post_war_3_a
+		icon = GFX_goal_chn_man_detective
+		cost = 3
+		available = {
+			if = {
+				limit = {
+					has_global_flag = ZRS_uprising_has_happened
+				}
+				custom_trigger_tooltip = {
+					tooltip = CHN_ZRS_uprising_NOT_tt
+					NOT = { has_global_flag = CHN_ZRS_everfree_not_tamed }
+					ZRS = {
+						OR = {
+							is_subject_of = ROOT
+							has_capitulated = yes
+							exists = no
+						}
+					}
+				}
+			}
+			EQS = {
+				OR = {
+					is_subject_of = ROOT
+					has_capitulated = yes
+					exists = no
+				}
+			}
+		}
+		prerequisite = {
+			focus = CHN_post_war_3
+		}
+		ai_will_do = {
+			factor = 200
+		}
+		relative_position_id = CHN_post_war_3
+		x = 1
+		y = 1
+		completion_reward = {
+			log = "[GetDateText]: [Root.GetName]: Focus CHN_post_war_3_a"
+			add_stability = 0.05
+			country_event = { id = changelings_paxchrysalia.38 hours = 1 }
+			every_controlled_state = {
+				limit = { is_core_of = EQS }
+				add_resistance = -1
+			}
+			hidden_effect = {
+				country_event = { id = changelings_paxchrysalia.419 days = 14 }
+			}
+		}
+		search_filters = { FOCUS_FILTER_PAX_CHRYSALIA }
+	}
+	
+	focus = {
+		id = CHN_post_war_3_b
+		icon = GFX_goal_chn_man_gavel
+		cost = 3
+		available = {
+			if = {
+				limit = {
+					has_global_flag = ZRS_uprising_has_happened
+				}
+				custom_trigger_tooltip = {
+					tooltip = CHN_ZRS_uprising_NOT_tt
+					NOT = { has_global_flag = CHN_ZRS_everfree_not_tamed }
+					ZRS = {
+						OR = {
+							is_subject_of = ROOT
+							has_capitulated = yes
+							exists = no
+						}
+					}
+				}
+			}
+			EQS = {
+				OR = {
+					is_subject_of = ROOT
+					has_capitulated = yes
+					exists = no
+				}
+			}
+		}
+		prerequisite = {
+			focus = CHN_post_war_3
+		}
+		ai_will_do = {
+			factor = 200
+		}
+		relative_position_id = CHN_post_war_3
+		x = -1
+		y = 1
+		completion_reward = {
+			log = "[GetDateText]: [Root.GetName]: Focus CHN_post_war_3_b"
+			add_war_support = 0.05
+			news_event = { id = changelings_paxchrysalia.40 hours = 1 }
+		}
+		search_filters = { FOCUS_FILTER_PAX_CHRYSALIA }
+	}
+	
+	focus = {
+		id = CHN_post_war_3_c
+		icon = GFX_goal_chn_lulamoon
+		cost = 4.3
+		available = {
+			if = {
+				limit = {
+					has_global_flag = ZRS_uprising_has_happened
+				}
+				custom_trigger_tooltip = {
+					tooltip = CHN_ZRS_uprising_NOT_tt
+					NOT = { has_global_flag = CHN_ZRS_everfree_not_tamed }
+					ZRS = {
+						OR = {
+							is_subject_of = ROOT
+							has_capitulated = yes
+							exists = no
+						}
+					}
+				}
+			}
+			NOT = { has_war_with = ELF }
+			EQS = {
+				OR = {
+					is_subject_of = ROOT
+					has_capitulated = yes
+					exists = no
+				}
+			}
+		}
+		select_effect = {
+			hidden_effect = {
+				country_event = { id = changelings_paxchrysalia.43 days = 14 }
+			}
+		}
+		prerequisite = {
+			focus = CHN_post_war_3_a
+			focus = CHN_post_war_3_b
+		}
+		ai_will_do = {
+			factor = 200
+		}
+		relative_position_id = CHN_post_war_3
+		x = 0
+		y = 2
+		completion_reward = {
+			log = "[GetDateText]: [Root.GetName]: Focus CHN_post_war_3_c"
+			if = {
+				limit = {
+					has_country_flag = CHN_event_43_cautious_flag
+				}
+				country_event = { id = changelings_paxchrysalia.45 hours = 1 }
+			}
+			else = {
+				country_event = { id = changelings_paxchrysalia.44 hours = 1 }
+			}
+		}
+		search_filters = { FOCUS_FILTER_PAX_CHRYSALIA }
+	}
+	
+	focus = {
+		id = CHN_post_war_3_d
+		icon = GFX_goal_chn_glimmer
+		cost = 4.3
+		available = {
+			if = {
+				limit = {
+					has_global_flag = ZRS_uprising_has_happened
+				}
+				custom_trigger_tooltip = {
+					tooltip = CHN_ZRS_uprising_NOT_tt
+					NOT = { has_global_flag = CHN_ZRS_everfree_not_tamed }
+					ZRS = {
+						OR = {
+							is_subject_of = ROOT
+							has_capitulated = yes
+							exists = no
+						}
+					}
+				}
+			}
+			NOT = { has_war_with = ELF }
+			EQS = {
+				OR = {
+					is_subject_of = ROOT
+					has_capitulated = yes
+					exists = no
+				}
+			}
+		}
+		select_effect = {
+			hidden_effect = {
+				country_event = { id = changelings_paxchrysalia.47 days = 14 }
+			}
+		}
+		prerequisite = {
+			focus = CHN_post_war_3_c
+		}
+		ai_will_do = {
+			factor = 200
+		}
+		relative_position_id = CHN_post_war_3
+		x = 0
+		y = 4
+		completion_reward = {
+			log = "[GetDateText]: [Root.GetName]: Focus CHN_post_war_3_d"
+			if = {
+				limit = {
+					has_country_flag = CHN_event_47_cautious_flag
+				}
+				if = {
+					limit = {
+						has_country_flag = CHN_event_45_chose_general_flag
+					}
+					country_event = { id = changelings_paxchrysalia.49 }
+				}
+				else = {
+					country_event = { id = changelings_paxchrysalia.50 }
+				}
+			}
+			else = {
+				country_event = { id = changelings_paxchrysalia.48 hours = 1 }
+			}
+		}
+		search_filters = { FOCUS_FILTER_PAX_CHRYSALIA }
+	}
+	
+	focus = {
+		id = CHN_post_war_3_e
+		icon = GFX_goal_chn_man_police
+		cost = 3
+		available = {
+			if = {
+				limit = {
+					has_global_flag = ZRS_uprising_has_happened
+				}
+				custom_trigger_tooltip = {
+					tooltip = CHN_ZRS_uprising_NOT_tt
+					NOT = { has_global_flag = CHN_ZRS_everfree_not_tamed }
+					ZRS = {
+						OR = {
+							is_subject_of = ROOT
+							has_capitulated = yes
+							exists = no
+						}
+					}
+				}
+			}
+			EQS = {
+				OR = {
+					is_subject_of = ROOT
+					has_capitulated = yes
+					exists = no
+				}
+			}
+		}
+		prerequisite = {
+			focus = CHN_post_war_3_a
+		}
+		ai_will_do = {
+			factor = 200
+		}
+		relative_position_id = CHN_post_war_3
+		x = 1
+		y = 3
+		completion_reward = {
+			log = "[GetDateText]: [Root.GetName]: Focus CHN_post_war_3_e"
+			add_command_power = 20
+			country_event = { id = changelings_paxchrysalia.53 hours = 1 }
+			custom_effect_tooltip = CHN_glossus_sicarus_tt
+			hidden_effect = {
+				create_corps_commander = {
+					name = "Glossus Sicarus"
+					desc = CHN_DESC_GLOSSUS
+					portrait_path = "gfx/leaders/CHN/Glossus.tga"
+					traits = { infiltrator supply_raider trait_reckless }
+					skill = 1
+					id = 3758
+					attack_skill = 3
+					defense_skill = 1
+					planning_skill = 1
+					logistics_skill = 1
+				}
+				every_army_leader = {
+					limit = { has_id = 3758 }
+					add_timed_unit_leader_trait = {
+						trait = recently_promoted
+						days = 90
+					}
+				}
+			}
+		}
+		search_filters = { FOCUS_FILTER_PAX_CHRYSALIA }
+	}
+	
+	focus = {
+		id = CHN_post_war_3_f
+		icon = GFX_goal_chn_man_specops
+		cost = 4.3
+		available = {
+			has_tech = tech_infiltrators
+			EQS = {
+				OR = {
+					is_subject_of = ROOT
+					has_capitulated = yes
+					exists = no
+				}
+			}
+		}
+		prerequisite = {
+			focus = CHN_post_war_A
+			focus = CHN_post_war_B
+		}
+		ai_will_do = {
+			factor = 200
+		}
+		relative_position_id = CHN_post_war_3
+		x = 3
+		y = 3
+		completion_reward = {
+			log = "[GetDateText]: [Root.GetName]: Focus CHN_post_war_3_f"
+			country_event = { id = changelings_paxchrysalia.55 hours = 1 }
+			custom_effect_tooltip = MAN_line_break
+			add_ideas = CHN_sword_and_shield
+			custom_effect_tooltip = CHN_form_jagdkommandos_tt
+			#custom_effect_tooltip = CHN_form_jagdkommandos_tt_extra
+			set_country_flag = CHN_unlocked_dispatch_mtf_ability_flag
+			set_variable = { CHN_mobile_task_force_deployed_var = 0 }
+			set_variable = { CHN_mobile_task_force_in_reserve_var = 10 }
+			hidden_effect = {
+				division_template = {
+					name = "Jagdkommando Einsatzgruppe"
+					division_names_group = CHN_LTINF_01
+					template_counter = 65
+					is_locked = yes
+					regiments = {
+						jager = { x = 0 y = 0 }
+						jager = { x = 0 y = 1 }
+						jager = { x = 0 y = 2 }
+						jager = { x = 1 y = 0 }
+						jager = { x = 1 y = 1 }
+						jager = { x = 1 y = 2 }
+						jager = { x = 2 y = 0 }
+						jager = { x = 2 y = 1 }
+					}
+					support = {
+						infiltrator_company = { x = 0 y = 0 }
+						recon = { x = 0 y = 1 }
+						engineer = { x = 0 y = 2 }
+					}
+					priority = 2
+				}
+			}
+		}
+		search_filters = { FOCUS_FILTER_PAX_CHRYSALIA }
+	}
+	
+	focus = {
+		id = CHN_post_war_3_g
+		icon = GFX_goal_chn_man_headshot
+		cost = 4.3
+		available = {
+			has_completed_focus = CHN_post_war_3_a
+			if = {
+				limit = {
+					has_global_flag = ZRS_uprising_has_happened
+				}
+				custom_trigger_tooltip = {
+					tooltip = CHN_ZRS_uprising_NOT_tt
+					NOT = { has_global_flag = CHN_ZRS_everfree_not_tamed }
+					ZRS = {
+						OR = {
+							is_subject_of = ROOT
+							has_capitulated = yes
+							exists = no
+						}
+					}
+				}
+			}
+			EQS = {
+				OR = {
+					is_subject_of = ROOT
+					has_capitulated = yes
+					exists = no
+				}
+			}
+		}
+		prerequisite = {
+			focus = CHN_post_war_3_d
+		}
+		prerequisite = {
+			focus = CHN_post_war_3_i
+		}
+		ai_will_do = {
+			factor = 200
+		}
+		relative_position_id = CHN_post_war_3
+		x = 1
+		y = 5
+		completion_reward = {
+			log = "[GetDateText]: [Root.GetName]: Focus CHN_post_war_3_g"
+			country_event = { id = changelings_paxchrysalia.51 hours = 1 }
+		}
+		search_filters = { FOCUS_FILTER_PAX_CHRYSALIA }
+	}
+	
+	focus = {
+		id = CHN_post_war_3_h ## we need a counter to the asymmetric guerilla warfare of the Harmonic Resistance ##
+		icon = GFX_goal_chn_man_gasmask
+		cost = 4.3
+		available = {
+			has_tech = tech_infiltrators
+			if = {
+				limit = {
+					has_global_flag = ZRS_uprising_has_happened
+				}
+				custom_trigger_tooltip = {
+					tooltip = CHN_ZRS_uprising_NOT_tt
+					NOT = { has_global_flag = CHN_ZRS_everfree_not_tamed }
+					ZRS = {
+						OR = {
+							is_subject_of = ROOT
+							has_capitulated = yes
+							exists = no
+						}
+					}
+				}
+			}
+			EQS = {
+				OR = {
+					is_subject_of = ROOT
+					has_capitulated = yes
+					exists = no
+				}
+			}
+		}
+		prerequisite = {
+			focus = CHN_post_war_3_f
+		}
+		ai_will_do = {
+			factor = 200
+		}
+		relative_position_id = CHN_post_war_3
+		x = 3
+		y = 5
+		completion_reward = {
+			log = "[GetDateText]: [Root.GetName]: Focus CHN_post_war_3_h"
+			country_event = { id = changelings_paxchrysalia.65 hours = 1 }
+			custom_effect_tooltip = MAN_line_break
+			set_technology = { CHN_antipartisan_warfare = 1 popup = yes }
+			custom_effect_tooltip = CHN_antipartisan_warfare_buff
+		}
+		search_filters = { FOCUS_FILTER_PAX_CHRYSALIA }
+	}
+	
+	focus = {
+		id = CHN_post_war_3_i ## the Queen's loyalists are fanatical but not very clever. the military promotes its best and brightest ##
+		icon = GFX_goal_chn_man_garrison
+		cost = 2
+		available = {
+			if = {
+				limit = {
+					has_global_flag = ZRS_uprising_has_happened
+				}
+				custom_trigger_tooltip = {
+					tooltip = CHN_ZRS_uprising_NOT_tt
+					NOT = { has_global_flag = CHN_ZRS_everfree_not_tamed }
+					ZRS = {
+						OR = {
+							is_subject_of = ROOT
+							has_capitulated = yes
+							exists = no
+						}
+					}
+				}
+			}
+			EQS = {
+				OR = {
+					is_subject_of = ROOT
+					has_capitulated = yes
+					exists = no
+				}
+			}
+		}
+		prerequisite = {
+			focus = CHN_post_war_3_e
+			focus = CHN_post_war_3_f
+		}
+		ai_will_do = {
+			factor = 200
+		}
+		relative_position_id = CHN_post_war_3
+		x = 2
+		y = 4
+		completion_reward = {
+			log = "[GetDateText]: [Root.GetName]: Focus CHN_post_war_3_i"
+			army_experience = 25
+			country_event = { id = changelings_paxchrysalia.64 hours = 1 }
+			custom_effect_tooltip = CHN_arcus_venn_tt
+			hidden_effect = {
+				create_corps_commander = {
+					name = "Arcus Venn"
+					desc = CHN_DESC_ARCUS
+					portrait_path = "gfx/leaders/CHN/Arcus.tga"
+					traits = { career_officer skilled_staffer adaptable }
+					skill = 1
+					id = 3759
+					attack_skill = 2
+					defense_skill = 2
+					planning_skill = 1
+					logistics_skill = 1
+				}
+				every_army_leader = {
+					limit = { has_id = 3759 }
+					add_timed_unit_leader_trait = {
+						trait = recently_promoted
+						days = 90
+					}
+				}
+			}
+		}
+		search_filters = { FOCUS_FILTER_PAX_CHRYSALIA }
+	}
+	
+	focus = {
+		id = CHN_post_war_3_j
+		icon = GFX_goal_chn_man_best_pony
+		cost = 2
+		available = {
+			NOT = { has_idea = CHN_increased_garrisons }
+			if = {
+				limit = {
+					has_global_flag = ZRS_uprising_has_happened
+				}
+				custom_trigger_tooltip = {
+					tooltip = CHN_ZRS_uprising_NOT_tt
+					NOT = { has_global_flag = CHN_ZRS_everfree_not_tamed }
+					ZRS = {
+						OR = {
+							is_subject_of = ROOT
+							has_capitulated = yes
+							exists = no
+						}
+					}
+				}
+			}
+			EQS = {
+				OR = {
+					is_subject_of = ROOT
+					has_capitulated = yes
+					exists = no
+				}
+			}
+		}
+		prerequisite = {
+			focus = CHN_post_war_3_g
+		}
+		prerequisite = {
+			focus = CHN_post_war_3_h
+		}
+		allow_branch = {
+			has_country_flag = CHN_allowed_flag_post_war_3_j
+		}
+		ai_will_do = {
+			factor = 200
+		}
+		relative_position_id = CHN_post_war_3_i
+		x = 0
+		y = 2
+		completion_reward = {
+			log = "[GetDateText]: [Root.GetName]: Focus CHN_post_war_3_j"
+			country_event = { id = changelings_paxchrysalia.66 hours = 1 }
+		}
+		search_filters = { FOCUS_FILTER_PAX_CHRYSALIA }
+	}
+	
+	focus = {
+		id = CHN_post_war_A ## shared - fortified rail lines, allows for use of strategic redeployment in states with uprisings ##
+		icon = GFX_goal_chn_man_locomotive
+		cost = 4.3
+		available = {
+			has_government = fascism
+			EQS = {
+				OR = {
+					is_subject_of = ROOT
+					has_capitulated = yes
+					exists = no
+				}
+			}
+		}
+		prerequisite = {
+			focus = CHN_post_war_3
+			focus = CHN_post_war_4
+		}
+		ai_will_do = {
+			factor = 200
+		}
+		relative_position_id = CHN_post_war_3
+		x = 2
+		y = 2
+		completion_reward = {
+			log = "[GetDateText]: [Root.GetName]: Focus CHN_post_war_A"
+			country_event = { id = changelings_paxchrysalia.11 hours = 1 }
+			custom_effect_tooltip = MAN_line_break
+			set_technology = { CHN_armoured_trains = 1 popup = yes }
+			custom_effect_tooltip = CHN_armoured_trains_buff
+		}
+		search_filters = { FOCUS_FILTER_PAX_CHRYSALIA }
+	}
+	
+	focus = {
+		id = CHN_post_war_B ## a unique occupation law for CHN ##
+		icon = GFX_goal_chn_man_office
+		cost = 4.3
+		available = {
+			if = {
+				limit = {
+					has_global_flag = ZRS_uprising_has_happened
+				}
+				custom_trigger_tooltip = {
+					tooltip = CHN_ZRS_uprising_NOT_tt
+					NOT = { has_global_flag = CHN_ZRS_everfree_not_tamed }
+					ZRS = {
+						OR = {
+							is_subject_of = ROOT
+							has_capitulated = yes
+							exists = no
+						}
+					}
+				}
+			}
+			EQS = {
+				OR = {
+					is_subject_of = ROOT
+					has_capitulated = yes
+					exists = no
+				}
+			}
+		}
+		prerequisite = {
+			focus = CHN_post_war_3
+			focus = CHN_post_war_4
+		}
+		ai_will_do = {
+			factor = 200
+		}
+		relative_position_id = CHN_post_war_1
+		x = 1
+		y = 3
+		completion_reward = {
+			log = "[GetDateText]: [Root.GetName]: Focus CHN_post_war_B"
+			country_event = { id = changelings_paxchrysalia.12 hours = 1 }
+			custom_effect_tooltip = CHN_regional_commissariat_unlock_tt
+		}
+		search_filters = { FOCUS_FILTER_PAX_CHRYSALIA }
+	}
+	
+	focus = {
+		id = CHN_post_war_4 ## region-specific ##
+		icon = GFX_goal_chn_man_globe
+		cost = 4.3
+		available = {
+			has_completed_focus = CHN_canterlot_appropriation
+			has_government = fascism
+			EQS = {
+				OR = {
+					is_subject_of = ROOT
+					has_capitulated = yes
+					exists = no
+				}
+			}
+		}
+		prerequisite = {
+			focus = CHN_post_war_1
+		}
+		ai_will_do = {
+			factor = 200
+		}
+		relative_position_id = CHN_post_war_1
+		x = 3
+		y = 1
+		completion_reward = {
+			log = "[GetDateText]: [Root.GetName]: Focus CHN_post_war_4"
+			add_popularity = { ideology = fascism popularity = 0.05 }
+			news_event = { id = changelings_paxchrysalia.1002 hours = 1 }
+			custom_effect_tooltip = MAN_line_break
+			add_timed_idea = { idea = CHN_postwar_euphoria days = 360 }
+			hidden_effect = {
+				remove_ideas = canterlot_victory
+			}
+		}
+		search_filters = { FOCUS_FILTER_PAX_CHRYSALIA }
+	}
+	
+	focus = {
+		id = CHN_post_war_4_a 
+		icon = GFX_goal_chn_man_milice
+		cost = 4.3
+		available = {
+			has_government = fascism
+			EQS = {
+				OR = {
+					is_subject_of = ROOT
+					has_capitulated = yes
+					exists = no
+				}
+			}
+		}
+		prerequisite = {
+			focus = CHN_post_war_4_l
+		}
+		prerequisite = {
+			focus = CHN_post_war_4_m
+		}
+		ai_will_do = {
+			factor = 200
+		}
+		relative_position_id = CHN_post_war_4
+		x = 0
+		y = 2
+		completion_reward = {
+			log = "[GetDateText]: [Root.GetName]: Focus CHN_post_war_4_a"
+			army_experience = 30
+			custom_effect_tooltip = MAN_line_break
+			add_tech_bonus = {
+				name = land_doc_bonus
+				bonus = 1
+				uses = 1
+				category = land_doctrine
+			}
+			add_tech_bonus = {
+				name = infantry_weapons_bonus
+				bonus = 1
+				uses = 1
+				category = infantry_weapons
+			}
+			add_tech_bonus = {
+				name = armor_bonus
+				bonus = 1
+				uses = 1
+				category = armor
+			}
+			add_tech_bonus = {
+				name = support_bonus
+				bonus = 1
+				uses = 1
+				category = support_tech
+			}
+			add_tech_bonus = {
+				name = race_tech_bonus
+				bonus = 1
+				uses = 1
+				category = race_tech
+			}
+		}
+		search_filters = { FOCUS_FILTER_PAX_CHRYSALIA }
+	}
+	
+	focus = {
+		id = CHN_post_war_4_b 
+		icon = GFX_goal_chn_man_state
+		cost = 10
+		available = {
+			2 = { is_owned_and_controlled_by = ROOT }
+			if = {
+				limit = {
+					has_global_flag = ZRS_uprising_has_happened
+				}
+				custom_trigger_tooltip = {
+					tooltip = CHN_ZRS_uprising_NOT_tt
+					NOT = { has_global_flag = CHN_ZRS_everfree_not_tamed }
+					ZRS = {
+						OR = {
+							is_subject_of = ROOT
+							has_capitulated = yes
+							exists = no
+						}
+					}
+				}
+			}
+			if = {
+				limit = {
+					focus_progress = {
+						focus = CHN_post_war_4_b
+						progress < 0
+					}
+				}
+				custom_trigger_tooltip = {
+					tooltip = CHN_post_war_5_f_love_req_tt
+					check_variable = {
+						var = CHN_love_variable
+						value = 0.5
+						compare = greater_than_or_equals
+					}
+				}
+			}
+			EQS = {
+				OR = {
+					is_subject_of = ROOT
+					has_capitulated = yes
+					exists = no
+				}
+			}
+		}
+		prerequisite = {
+			focus = CHN_canterlot_2_d
+		}
+		ai_will_do = {
+			factor = 150
+		}
+		select_effect = {
+			hidden_effect = {
+				country_event = { id = changelings_paxchrysalia.200 days = 7 }
+				country_event = { id = changelings_paxchrysalia.201 days = 14 }
+				country_event = { id = changelings_paxchrysalia.202 days = 21 }
+				country_event = { id = changelings_paxchrysalia.203 days = 28 }
+				country_event = { id = changelings_paxchrysalia.204 days = 35 }
+				country_event = { id = changelings_paxchrysalia.205 days = 42 }
+				country_event = { id = changelings_paxchrysalia.206 days = 49 }
+				country_event = { id = changelings_paxchrysalia.207 days = 56 }
+			}
+		}
+		relative_position_id = CHN_post_war_1_b
+		x = 0
+		y = 3
+		completion_reward = {
+			log = "[GetDateText]: [Root.GetName]: Focus CHN_post_war_4_b"
+			country_event = { id = changelings_paxchrysalia.208 hours = 1 }
+			custom_effect_tooltip = CHN_post_war_4_c_tt
+		}
+		search_filters = { FOCUS_FILTER_PAX_CHRYSALIA }
+	}
+	
+	focus = {
+		id = CHN_post_war_4_c
+		icon = GFX_goal_chn_infiltrate_eqs
+		cost = 4.3
+		available = {
+			if = {
+				limit = {
+					has_global_flag = ZRS_uprising_has_happened
+				}
+				custom_trigger_tooltip = {
+					tooltip = CHN_ZRS_uprising_NOT_tt
+					NOT = { has_global_flag = CHN_ZRS_everfree_not_tamed }
+					ZRS = {
+						OR = {
+							is_subject_of = ROOT
+							has_capitulated = yes
+							exists = no
+						}
+					}
+				}
+			}
+			EQS = {
+				OR = {
+					is_subject_of = ROOT
+					has_capitulated = yes
+					exists = no
+				}
+			}
+		}
+		prerequisite = {
+			focus = CHN_post_war_B
+		}
+		ai_will_do = {
+			factor = 200
+		}
+		relative_position_id = CHN_post_war_4
+		x = -1
+		y = 3
+		
+		offset = {
+			x = -1
+			y = 1
+			trigger = {
+				ROOT = {
+					has_country_flag = CHN_country_flag_secret_tree_unlocked
+				}
+			}
+		}
+		
+		completion_reward = {
+			log = "[GetDateText]: [Root.GetName]: Focus CHN_post_war_4_c"
+			add_political_power = 70
+			country_event = { id = changelings_paxchrysalia.63 hours = 1 }
+			custom_effect_tooltip = CHN_post_war_4_g_unlocks_decisions_tt
+		}
+		search_filters = { FOCUS_FILTER_PAX_CHRYSALIA }
+	}
+	
+	focus = {
+		id = CHN_post_war_4_d 
+		icon = GFX_goal_chn_man_colony
+		cost = 7.2
+		available = {
+			14 = { is_owned_and_controlled_by = ROOT }
+			136 = { is_owned_and_controlled_by = ROOT }
+			if = {
+				limit = {
+					has_global_flag = ZRS_uprising_has_happened
+				}
+				custom_trigger_tooltip = {
+					tooltip = CHN_ZRS_uprising_NOT_tt
+					NOT = { has_global_flag = CHN_ZRS_everfree_not_tamed }
+					ZRS = {
+						OR = {
+							is_subject_of = ROOT
+							has_capitulated = yes
+							exists = no
+						}
+					}
+				}
+			}
+			EQS = {
+				OR = {
+					is_subject_of = ROOT
+					has_capitulated = yes
+					exists = no
+				}
+			}
+		}
+		prerequisite = {
+			focus = CHN_post_war_4_c
+		}
+		prerequisite = {
+			focus = CHN_post_war_4_n
+		}
+		ai_will_do = {
+			factor = 200
+		}
+		relative_position_id = CHN_post_war_4
+		x = -1
+		y = 5
+		select_effect = {
+			hidden_effect = {
+				country_event = { id = changelings_paxchrysalia.57 days = 14 }
+			}
+		}
+		completion_reward = {
+			log = "[GetDateText]: [Root.GetName]: Focus CHN_post_war_4_d"
+			if = {
+				limit = { 
+					has_country_flag = CHN_event_57_chose_vanhoover_flag
+				}
+				country_event = { id = changelings_paxchrysalia.58 hours = 1 }
+			}
+			else = {
+				country_event = { id = changelings_paxchrysalia.59 hours = 1 }
+			}
+			hidden_effect = {
+				mark_focus_tree_layout_dirty = yes
+			}
+		}
+		search_filters = { FOCUS_FILTER_PAX_CHRYSALIA }
+	}
+	
+	focus = {
+		id = CHN_post_war_4_f 
+		icon = GFX_goal_chn_forest_fire
+		cost = 4.3
+		available = {
+			custom_trigger_tooltip = {
+				tooltip = CHN_everfree_forest_broken_free_tt
+				has_country_flag = CHN_ZRS_has_spawned_not_uprising
+			}
+		}
+		prerequisite = {
+			focus = CHN_post_war_1_b
+		}
+		bypass = {
+			custom_trigger_tooltip = {
+				tooltip = CHN_ZRS_uprising_IN_PROGRESS_tt
+				has_global_flag = CHN_ZRS_everfree_not_tamed
+				has_global_flag = ZRS_uprising_has_happened
+				focus_progress = {
+					focus = CHN_post_war_4_f
+					progress < 0
+				}
+			}
+		}
+		ai_will_do = {
+			factor = 200
+		}
+		relative_position_id = CHN_post_war_1_b
+		x = 2
+		y = 1
+		select_effect = {
+			hidden_effect = {
+				country_event = { id = changelings_paxchrysalia.400 days = 15 }
+			}
+		}
+		completion_reward = {
+			log = "[GetDateText]: [Root.GetName]: Focus CHN_post_war_4_f"
+			country_event = { id = changelings_paxchrysalia.405 hours = 8 }
+			effect_tooltip = {
+				declare_war_on = { target = ZRS }
+			}
+		}
+		search_filters = { FOCUS_FILTER_PAX_CHRYSALIA }
+	}
+	
+	focus = {
+		id = CHN_post_war_4_g
+		icon = GFX_goal_chn_bomb_biohazard
+		cost = 1.5
+		available = {
+			OR = {
+				has_tech = tech_changeling_c3 
+				is_researching_technology = tech_changeling_c3
+			}
+			custom_trigger_tooltip = {
+				tooltip = CHN_ZRS_uprising_IN_PROGRESS_tt
+				has_global_flag = CHN_ZRS_everfree_not_tamed
+				has_global_flag = ZRS_uprising_has_happened
+			}
+		}
+		select_effect = {
+			hidden_effect = {
+				country_event = { id = changelings_paxchrysalia.406 hours = 12 }
+			}
+		}
+		prerequisite = {
+			focus = CHN_post_war_4_f
+		}
+		ai_will_do = {
+			factor = 200
+		}
+		relative_position_id = CHN_post_war_4_f
+		x = 1
+		y = 1
+		completion_reward = {
+			log = "[GetDateText]: [Root.GetName]: Focus CHN_post_war_4_g"
+			country_event = { id = changelings_paxchrysalia.407 hours = 36 }
+		}
+		search_filters = { FOCUS_FILTER_PAX_CHRYSALIA }
+	}
+	
+	focus = {
+		id = CHN_post_war_4_h
+		icon = GFX_goal_chn_bomb_radioactive
+		cost = 1.5
+		available = {
+			OR = {
+				has_tech = atomic_research 
+				is_researching_technology = atomic_research
+			}
+			custom_trigger_tooltip = {
+				tooltip = CHN_ZRS_uprising_IN_PROGRESS_tt
+				has_global_flag = CHN_ZRS_everfree_not_tamed
+				has_global_flag = ZRS_uprising_has_happened
+			}
+		}
+		select_effect = {
+			#just a dummy thing to make it uncancellable
+			set_temp_variable = { cutie = 3.14 }
+		}
+		prerequisite = {
+			focus = CHN_post_war_4_f
+		}
+		ai_will_do = {
+			factor = 200
+		}
+		relative_position_id = CHN_post_war_4_f
+		x = -1
+		y = 1
+		completion_reward = {
+			log = "[GetDateText]: [Root.GetName]: Focus CHN_post_war_4_h"
+			country_event = { id = changelings_paxchrysalia.408 hours = 1 }
+		}
+		search_filters = { FOCUS_FILTER_PAX_CHRYSALIA }
+	}
+	
+	focus = {
+		id = CHN_post_war_4_i
+		icon = GFX_goal_chn_bomb_napalm
+		cost = 1.5
+		available = {
+			has_deployed_air_force_size = {
+				size > 799
+				type = tactical_bomber
+			}
+			has_deployed_air_force_size = {
+				size > 399
+				type = strategic_bomber
+			}
+			has_deployed_air_force_size = {
+				size > 399
+				type = fighter
+			}
+			custom_trigger_tooltip = {
+				tooltip = CHN_ZRS_uprising_IN_PROGRESS_tt
+				has_global_flag = CHN_ZRS_everfree_not_tamed
+				has_global_flag = ZRS_uprising_has_happened
+			}
+		}
+		select_effect = {
+			hidden_effect = {
+				country_event = { id = changelings_paxchrysalia.410 hours = 12 }
+			}
+		}
+		prerequisite = {
+			focus = CHN_post_war_4_g
+		}
+		prerequisite = {
+			focus = CHN_post_war_4_h
+		}
+		ai_will_do = {
+			factor = 200
+		}
+		relative_position_id = CHN_post_war_4_f
+		x = 0
+		y = 2
+		completion_reward = {
+			log = "[GetDateText]: [Root.GetName]: Focus CHN_post_war_4_i"
+			country_event = { id = changelings_paxchrysalia.411 hours = 36 }
+		}
+		search_filters = { FOCUS_FILTER_PAX_CHRYSALIA }
+	}
+	
+	focus = {
+		id = CHN_post_war_4_j
+		icon = GFX_goal_chn_zecora
+		cost = 4.3
+		available = {
+			custom_trigger_tooltip = {
+				tooltip = CHN_ZRS_uprising_NOT_tt
+				has_country_flag = CHN_ZRS_uprising_has_happened
+				has_country_flag = CHN_everfree_thoroughly_defeated_flag
+				has_country_flag = CHN_everfree_thoroughly_defeated_decision_check_flag
+				has_global_flag = ZRS_uprising_has_happened
+				NOT = { has_global_flag = CHN_ZRS_everfree_not_tamed }
+				ZRS = {
+					OR = {
+						is_subject_of = ROOT
+						has_capitulated = yes
+						exists = no
+					}
+				}
+			}
+		}
+		prerequisite = {
+			focus = CHN_post_war_4_b
+		}
+		prerequisite = {
+			focus = CHN_post_war_4_i
+		}
+		ai_will_do = {
+			factor = 200
+		}
+		relative_position_id = CHN_post_war_4_f
+		x = -1
+		y = 3
+		completion_reward = {
+			log = "[GetDateText]: [Root.GetName]: Focus CHN_post_war_4_j"
+			country_event = { id = changelings_paxchrysalia.414 hours = 1 }
+		}
+		search_filters = { FOCUS_FILTER_PAX_CHRYSALIA }
+	}
+	
+	focus = {
+		id = CHN_post_war_4_k
+		icon = GFX_goal_chn_man_deep_cover ## it's a reference ##
+		cost = 4.3
+		available = {
+			NOT = { has_idea = CHN_increased_garrisons }
+			if = {
+				limit = {
+					has_global_flag = ZRS_uprising_has_happened
+				}
+				custom_trigger_tooltip = {
+					tooltip = CHN_ZRS_uprising_NOT_tt
+					NOT = { has_global_flag = CHN_ZRS_everfree_not_tamed }
+					ZRS = {
+						OR = {
+							is_subject_of = ROOT
+							has_capitulated = yes
+							exists = no
+						}
+					}
+				}
+			}
+			has_tech = tech_infiltrators
+			EQS = {
+				OR = {
+					is_subject_of = ROOT
+					has_capitulated = yes
+					exists = no
+				}
+			}
+		}
+		prerequisite = {
+			focus = CHN_post_war_3_g
+		}
+		prerequisite = {
+			focus = CHN_post_war_3_h
+		}
+		allow_branch = {
+			NOT = { has_country_flag = CHN_allowed_flag_post_war_3_j }
+		}
+		ai_will_do = {
+			factor = 200
+		}
+		relative_position_id = CHN_post_war_3_i
+		x = 0
+		y = 2
+		completion_reward = {
+			log = "[GetDateText]: [Root.GetName]: Focus CHN_post_war_4_k"
+			country_event = { id = changelings_paxchrysalia.67 hours = 1 }
+			custom_effect_tooltip = MAN_line_break
+			set_technology = { CHN_indefinite_undercover_ops = 1 popup = yes }
+			custom_effect_tooltip = CHN_indefinite_undercover_ops_buff
+			hidden_effect = {
+				mark_focus_tree_layout_dirty = yes
+			}
+		}
+		search_filters = { FOCUS_FILTER_PAX_CHRYSALIA }
+	}
+	
+	focus = {
+		id = CHN_post_war_4_l
+		icon = GFX_goal_chn_man_robopony
+		cost = 4.3
+		available = {
+			has_government = fascism
+			EQS = {
+				OR = {
+					is_subject_of = ROOT
+					has_capitulated = yes
+					exists = no
+				}
+			}
+		}
+		prerequisite = {
+			focus = CHN_post_war_4
+		}
+		ai_will_do = {
+			factor = 200
+		}
+		relative_position_id = CHN_post_war_4
+		x = -1
+		y = 1
+		completion_reward = {
+			log = "[GetDateText]: [Root.GetName]: Focus CHN_post_war_4_l"
+			country_event = { id = changelings_paxchrysalia.68 hours = 1 }
+			custom_effect_tooltip = MAN_line_break
+			custom_effect_tooltip = CHN_pony_slaves_dynamic_modifier_tt
+			hidden_effect = {
+				set_country_flag = CHN_acquired_pony_slave_dynamic_modifier
+				add_dynamic_modifier = { modifier = CHN_veterans_slaves_dynamic_modifier }
+				set_temp_variable = { CHN_acquired_pony_slave_dynamic_modifier_var_TEMP = CHN.core_compliance@EQS }
+				divide_temp_variable = { CHN_acquired_pony_slave_dynamic_modifier_var_TEMP = 1000 }
+				set_variable = { CHN_acquired_pony_slave_dynamic_modifier_var = CHN_acquired_pony_slave_dynamic_modifier_var_TEMP }
+			}
+		}
+		search_filters = { FOCUS_FILTER_PAX_CHRYSALIA }
+	}
+	
+	focus = {
+		id = CHN_post_war_4_m
+		icon = GFX_goal_chn_man_homecoming
+		cost = 2
+		available = {
+			has_government = fascism
+			EQS = {
+				OR = {
+					is_subject_of = ROOT
+					has_capitulated = yes
+					exists = no
+				}
+			}
+		}
+		prerequisite = {
+			focus = CHN_post_war_4
+		}
+		ai_will_do = {
+			factor = 200
+		}
+		relative_position_id = CHN_post_war_4
+		x = 1
+		y = 1
+		completion_reward = {
+			log = "[GetDateText]: [Root.GetName]: Focus CHN_post_war_4_m"
+			country_event = { id = changelings_paxchrysalia.69 hours = 1 }
+		}
+		search_filters = { FOCUS_FILTER_PAX_CHRYSALIA }
+	}
+	
+	focus = {
+		id = CHN_post_war_4_n
+		icon = GFX_goal_chn_man_tower
+		cost = 4.3
+		available = {
+			has_government = fascism
+			EQS = {
+				OR = {
+					is_subject_of = ROOT
+					has_capitulated = yes
+					exists = no
+				}
+			}
+		}
+		prerequisite = {
+			focus = CHN_post_war_4_a
+		}
+		ai_will_do = {
+			factor = 200
+		}
+		relative_position_id = CHN_post_war_4
+		x = 0
+		y = 4
+		
+		offset = {
+			x = -1
+			y = -1
+			trigger = {
+				ROOT = {
+					has_country_flag = CHN_country_flag_secret_tree_unlocked
+				}
+			}
+		}
+		
+		completion_reward = {
+			log = "[GetDateText]: [Root.GetName]: Focus CHN_post_war_4_n"
+			add_ideas = CHN_fob_idea
+			custom_effect_tooltip = CHN_post_war_4_n_effect_tt
+		}
+		search_filters = { FOCUS_FILTER_PAX_CHRYSALIA }
+	}
+	
+	focus = {
+		id = CHN_post_war_4_o
+		icon = GFX_goal_chn_man_stratocracy
+		cost = 4.3
+		available = {
+			has_completed_focus = CHN_post_war_2_j
+			if = {
+				limit = {
+					has_global_flag = ZRS_uprising_has_happened
+				}
+				custom_trigger_tooltip = {
+					tooltip = CHN_ZRS_uprising_NOT_tt
+					NOT = { has_global_flag = CHN_ZRS_everfree_not_tamed }
+					ZRS = {
+						OR = {
+							is_subject_of = ROOT
+							has_capitulated = yes
+							exists = no
+						}
+					}
+				}
+			}
+			EQS = {
+				OR = {
+					is_subject_of = ROOT
+					has_capitulated = yes
+					exists = no
+				}
+			}
+		}
+		prerequisite = {
+			focus = CHN_post_war_4_d
+		}
+		prerequisite = {
+			focus = CHN_post_war_4_k
+		}
+		allow_branch = {
+			OR = {
+				has_completed_focus = CHN_post_war_4_k
+				has_completed_focus = CHN_post_war_4_d
+			}
+			NOT = { 
+				has_country_flag = CHN_allowed_flag_post_war_3_j 
+				has_country_flag = CHN_chose_vanhoover_delayed_flag
+			}
+		}
+		ai_will_do = {
+			factor = 200
+		}
+		relative_position_id = CHN_post_war_4_k
+		x = 2
+		y = 1
+		completion_reward = {
+			log = "[GetDateText]: [Root.GetName]: Focus CHN_post_war_4_o"
+			country_event = { id = changelings_paxchrysalia.70 hours = 1 }
+		}
+		search_filters = { FOCUS_FILTER_PAX_CHRYSALIA }
+	}
+	
+	focus = {
+		id = CHN_post_war_4_p_var_1
+		icon = GFX_goal_chn_man_stratocracy
+		cost = 4.3
+		prerequisite = {
+			focus = CHN_post_war_4_d
+		}
+		prerequisite = {
+			focus = CHN_post_war_3_j
+		}
+		allow_branch = {
+			has_country_flag = CHN_allowed_flag_post_war_3_j
+		}
+		ai_will_do = {
+			factor = 200
+		}
+		relative_position_id = CHN_post_war_4_d
+		x = -1
+		y = 2
+		completion_reward = {
+			log = "[GetDateText]: [Root.GetName]: Focus CHN_post_war_4_p_var_1"
+			country_event = { id = changelings_paxchrysalia.71 hours = 1 }
+		}
+		search_filters = { FOCUS_FILTER_PAX_CHRYSALIA }
+	}
+	
+	focus = {
+		id = CHN_post_war_4_p_var_2
+		icon = GFX_goal_chn_man_stratocracy
+		cost = 4.3
+		prerequisite = {
+			focus = CHN_post_war_4_d
+		}
+		prerequisite = {
+			focus = CHN_post_war_4_k
+		}
+		allow_branch = {
+			has_country_flag = CHN_chose_vanhoover_delayed_flag
+			NOT = { has_country_flag = CHN_allowed_flag_post_war_3_j }
+		}
+		ai_will_do = {
+			factor = 200
+		}
+		relative_position_id = CHN_post_war_4_d
+		x = -1
+		y = 2
+		completion_reward = {
+			log = "[GetDateText]: [Root.GetName]: Focus CHN_post_war_4_p_var_2"
+			country_event = { id = changelings_paxchrysalia.71 hours = 1 }
+		}
+		search_filters = { FOCUS_FILTER_PAX_CHRYSALIA }
+	}
+	
+	focus = {
+		id = CHN_post_war_5
+		icon = GFX_goal_chn_man_lovetax
+		cost = 4.3
+		available = {
+			has_government = fascism
+			EQS = {
+				OR = {
+					is_subject_of = ROOT
+					has_capitulated = yes
+					exists = no
+				}
+			}
+		}
+		select_effect = {
+			hidden_effect = {
+				country_event = { id = changelings_paxchrysalia.5 days = 14 }
+			}
+		}
+		prerequisite = {
+			focus = CHN_post_war_1_a
+		}
+		ai_will_do = {
+			factor = 0.5 ## intentionally low until I figure out a way to make the AI not be crippled by the mechanic ##
+		}
+		relative_position_id = CHN_post_war_1_a
+		x = -2
+		y = 1
+		completion_reward = {
+			log = "[GetDateText]: [Root.GetName]: Focus CHN_post_war_5"
+			set_variable = { CHN_love_variable = 0 }
+			set_variable = { CHN_synthetic_love_decision_pp_cost_var = 200 }
+			country_event = { id = changelings_paxchrysalia.6 hours = 1 }
+			hidden_effect = { country_event = { id = changelings_paxchrysalia.9 days = 90 } }
+			custom_effect_tooltip = CHN_post_war_5_unlocks_love_mechanic_tt
+		}
+		search_filters = { FOCUS_FILTER_PAX_CHRYSALIA }
+	}
+	
+	focus = {
+		id = CHN_post_war_5_b
+		icon = GFX_goal_chn_man_feeding
+		cost = 2
+		available = {
+			if = {
+				limit = {
+					has_global_flag = ZRS_uprising_has_happened
+				}
+				custom_trigger_tooltip = {
+					tooltip = CHN_ZRS_uprising_NOT_tt
+					NOT = { has_global_flag = CHN_ZRS_everfree_not_tamed }
+					ZRS = {
+						OR = {
+							is_subject_of = ROOT
+							has_capitulated = yes
+							exists = no
+						}
+					}
+				}
+			}
+			EQS = {
+				OR = {
+					is_subject_of = ROOT
+					has_capitulated = yes
+					exists = no
+				}
+			}
+		}
+		mutually_exclusive = {
+			focus = CHN_post_war_2_m
+		}
+		prerequisite = {
+			focus = CHN_post_war_5
+		}
+		ai_will_do = {
+			factor = 200
+		}
+		relative_position_id = CHN_post_war_5
+		x = -1
+		y = 1
+		completion_reward = {
+			log = "[GetDateText]: [Root.GetName]: Focus CHN_post_war_5_b"
+			custom_effect_tooltip = CHN_erots_3_00_tt
+			add_to_variable = { var = CHN_love_variable value = 3 }
+			country_event = { id = changelings_paxchrysalia.18 hours = 1 }
+			custom_effect_tooltip = CHN_post_war_5_b_consequence_tt
+		}
+		search_filters = { FOCUS_FILTER_PAX_CHRYSALIA }
+	}
+	
+	focus = {
+		id = CHN_post_war_5_c
+		icon = GFX_goal_chn_man_love_yum
+		cost = 4.3
+		available = {
+			if = {
+				limit = {
+					has_global_flag = ZRS_uprising_has_happened
+				}
+				custom_trigger_tooltip = {
+					tooltip = CHN_ZRS_uprising_NOT_tt
+					NOT = { has_global_flag = CHN_ZRS_everfree_not_tamed }
+					ZRS = {
+						OR = {
+							is_subject_of = ROOT
+							has_capitulated = yes
+							exists = no
+						}
+					}
+				}
+			}
+			EQS = {
+				OR = {
+					is_subject_of = ROOT
+					has_capitulated = yes
+					exists = no
+				}
+			}
+		}
+		prerequisite = {
+			focus = CHN_post_war_2_m
+			focus = CHN_post_war_5_b
+		}
+		ai_will_do = {
+			factor = 200
+		}
+		relative_position_id = CHN_post_war_5
+		x = 0
+		y = 2
+		completion_reward = {
+			log = "[GetDateText]: [Root.GetName]: Focus CHN_post_war_5_c"
+			custom_effect_tooltip = CHN_debuff_changeling_category_var_add_one_tt
+			add_to_variable = { var = CHN_debuff_changeling_category_var value = 1 }
+			country_event = { id = changelings_paxchrysalia.13 hours = 1 }
+			set_country_flag = CHN_unlocked_075_decisions_flag
+			custom_effect_tooltip = CHN_post_war_5_c_unlocks_love_decisions_tt
+		}
+		search_filters = { FOCUS_FILTER_PAX_CHRYSALIA }
+	}
+	
+	focus = {
+		id = CHN_post_war_5_d
+		icon = GFX_goal_chn_man_dance
+		cost = 4.3
+		available = {
+			if = {
+				limit = {
+					has_global_flag = ZRS_uprising_has_happened
+				}
+				custom_trigger_tooltip = {
+					tooltip = CHN_ZRS_uprising_NOT_tt
+					NOT = { has_global_flag = CHN_ZRS_everfree_not_tamed }
+					ZRS = {
+						OR = {
+							is_subject_of = ROOT
+							has_capitulated = yes
+							exists = no
+						}
+					}
+				}
+			}
+			custom_trigger_tooltip = {
+				tooltip = CHN_post_war_5_d_resistance_threshold
+				check_variable = { core_resistance@EQS < 30 }
+			}
+			EQS = {
+				OR = {
+					is_subject_of = ROOT
+					has_capitulated = yes
+					exists = no
+				}
+			}
+		}
+		prerequisite = {
+			focus = CHN_post_war_5_c
+		}
+		ai_will_do = {
+			factor = 200
+		}
+		relative_position_id = CHN_post_war_5_c
+		x = -1
+		y = 1
+		completion_reward = {
+			log = "[GetDateText]: [Root.GetName]: Focus CHN_post_war_5_d"
+			country_event = { id = changelings_paxchrysalia.15 hours = 1 }
+			custom_effect_tooltip = MAN_line_break
+			add_ideas = CHN_billeting_system
+		}
+		search_filters = { FOCUS_FILTER_PAX_CHRYSALIA }
+	}
+	
+	focus = {
+		id = CHN_post_war_5_e
+		icon = GFX_goal_chn_man_lovesucc
+		cost = 4.3
+		available = {
+			if = {
+				limit = {
+					has_global_flag = ZRS_uprising_has_happened
+				}
+				custom_trigger_tooltip = {
+					tooltip = CHN_ZRS_uprising_NOT_tt
+					NOT = { has_global_flag = CHN_ZRS_everfree_not_tamed }
+					ZRS = {
+						OR = {
+							is_subject_of = ROOT
+							has_capitulated = yes
+							exists = no
+						}
+					}
+				}
+			}
+			has_tech = tech_changeling_b
+			EQS = {
+				OR = {
+					is_subject_of = ROOT
+					has_capitulated = yes
+					exists = no
+				}
+			}
+		}
+		prerequisite = {
+			focus = CHN_post_war_5_c
+		}
+		ai_will_do = {
+			factor = 200
+		}
+		relative_position_id = CHN_post_war_5_c
+		x = 0
+		y = 2
+		completion_reward = {
+			log = "[GetDateText]: [Root.GetName]: Focus CHN_post_war_5_e"
+			country_event = { id = changelings_paxchrysalia.14 hours = 1 }
+			custom_effect_tooltip = MAN_line_break
+			add_ideas = CHN_collection_troops
+		}
+		search_filters = { FOCUS_FILTER_PAX_CHRYSALIA }
+	}
+	
+	focus = {
+		id = CHN_post_war_5_f
+		icon = GFX_goal_chn_man_lovesucc_shrunken
+		cost = 4.3
+		available = {
+			if = {
+				limit = {
+					has_global_flag = ZRS_uprising_has_happened
+				}
+				custom_trigger_tooltip = {
+					tooltip = CHN_ZRS_uprising_NOT_tt
+					NOT = { has_global_flag = CHN_ZRS_everfree_not_tamed }
+					ZRS = {
+						OR = {
+							is_subject_of = ROOT
+							has_capitulated = yes
+							exists = no
+						}
+					}
+				}
+			}
+			has_tech = tech_changeling_b2
+			custom_trigger_tooltip = {
+				tooltip = CHN_post_war_5_f_love_req_tt
+				check_variable = {
+					var = CHN_love_variable
+					value = 0.5
+					compare = greater_than_or_equals
+				}
+			}
+			EQS = {
+				OR = {
+					is_subject_of = ROOT
+					has_capitulated = yes
+					exists = no
+				}
+			}
+		}
+		prerequisite = {
+			focus = CHN_post_war_2_h
+		}
+		prerequisite = {
+			focus = CHN_post_war_2_k
+		}
+		prerequisite = {
+			focus = CHN_post_war_5_e
+		}
+		ai_will_do = {
+			factor = 200
+		}
+		relative_position_id = CHN_post_war_5_c
+		x = 1
+		y = 3
+		completion_reward = {
+			log = "[GetDateText]: [Root.GetName]: Focus CHN_post_war_5_f"
+			country_event = { id = changelings_paxchrysalia.17 hours = 1 }
+			custom_effect_tooltip = MAN_line_break
+			add_ideas = CHN_love_refineries
+			custom_effect_tooltip = CHN_compliance_80_love_focus_explainer_tt
+		}
+		search_filters = { FOCUS_FILTER_PAX_CHRYSALIA }
+	}
+	
+	focus = {
+		id = CHN_post_war_5_g
+		icon = GFX_goal_chn_man_friend
+		cost = 4.3
+		prerequisite = {
+			focus = CHN_post_war_5_d
+			focus = CHN_post_war_5_e
+		}
+		
+		ai_will_do = {
+			factor = 50
+		}
+		allow_branch = {
+			has_country_flag = CHN_allowed_flag_post_war_5_g
+		}
+		relative_position_id = CHN_post_war_5_c
+		x = -1
+		y = 3
+		completion_reward = {
+			log = "[GetDateText]: [Root.GetName]: Focus CHN_post_war_5_g"
+			country_event = { id = changelings_paxchrysalia.28 hours = 1 }
+		}
+		search_filters = { FOCUS_FILTER_PAX_CHRYSALIA }
+	}
+	
+	focus = {
+		id = CHN_canterlot_1
+		icon = GFX_goal_chn_man_midlands
+		cost = 2.9
+		available = {
+			has_government = fascism
+			3 = { 
+				is_owned_and_controlled_by = ROOT 
+				custom_trigger_tooltip = {
+					tooltip = CHN_canterlot_1_occupation_law_req
+					occupation_law = CHN_regional_commissariat  
+				}
+			}
+			if = {
+				limit = {
+					has_global_flag = ZRS_uprising_has_happened
+				}
+				custom_trigger_tooltip = {
+					tooltip = CHN_ZRS_uprising_NOT_tt
+					NOT = { has_global_flag = CHN_ZRS_everfree_not_tamed }
+					ZRS = {
+						OR = {
+							is_subject_of = ROOT
+							has_capitulated = yes
+							exists = no
+						}
+					}
+				}
+			}
+			EQS = {
+				OR = {
+					is_subject_of = ROOT
+					has_capitulated = yes
+					exists = no
+				}
+			}
+		}
+		ai_will_do = {
+			factor = 50
+		}
+		prerequisite = {
+			focus = CHN_post_war_1_b
+		}
+		select_effect = {
+			hidden_effect = {
+				country_event = { id = changelings_paxchrysalia.500 days = 7 }
+			}
+		}
+		relative_position_id = CHN_post_war_1_b
+		x = -2
+		y = 1
+		completion_reward = {
+			log = "[GetDateText]: [Root.GetName]: Focus CHN_canterlot_1"
+			country_event = { id = changelings_paxchrysalia.8500 hours = 1 }
+			custom_effect_tooltip = CHN_canterlot_palace_focus_effect_tt
+			hidden_effect = {
+				3 = {
+					add_dynamic_modifier = { modifier = CHN_canterlot_commissariat_modifier }
+					add_dynamic_modifier = { modifier = CHN_canterlot_commissariat_modifier_alcippe }
+					add_dynamic_modifier = { modifier = CHN_canterlot_commissariat_modifier_finicus }
+				}
+				CHN = {
+					add_dynamic_modifier = { modifier = CHN_canterlot_commissariat_modifier_marsilio }
+				}
+				set_variable = { CHN_canterlot_commissariat_GetFormDate = global.year }
+				set_country_flag = CHN_unlocked_Jachs
+				set_country_flag = CHN_unlocked_Marsilio
+				set_country_flag = CHN_unlocked_Alcippe
+				set_country_flag = CHN_unlocked_Finicus
+			}
+		}
+		search_filters = { FOCUS_FILTER_PAX_CHRYSALIA }
+	}
+	
+	focus = {
+		id = CHN_canterlot_2_a
+		icon = GFX_goal_chn_unicornia
+		cost = 2.9
+		available = {
+			3 = { is_owned_and_controlled_by = ROOT }
+		}
+		ai_will_do = {
+			factor = 50
+		}
+		prerequisite = {
+			focus = CHN_canterlot_1
+		}
+		relative_position_id = CHN_canterlot_1
+		x = -1
+		y = 1
+		completion_reward = {
+			log = "[GetDateText]: [Root.GetName]: Focus CHN_canterlot_2_a"
+			country_event = { id = changelings_paxchrysalia.504 hours = 1 }
+		}
+		search_filters = { FOCUS_FILTER_PAX_CHRYSALIA }
+	}
+	
+	focus = {
+		id = CHN_canterlot_2_b
+		icon = GFX_goal_CHN_EQS
+		cost = 1.5
+		available = {
+			3 = { is_owned_and_controlled_by = ROOT }
+		}
+		mutually_exclusive = {
+			focus = CHN_canterlot_2_c
+		}
+		ai_will_do = {
+			factor = 50
+		}
+		prerequisite = {
+			focus = CHN_canterlot_2_a
+		}
+		relative_position_id = CHN_canterlot_2_a
+		x = 1
+		y = 1
+		completion_reward = {
+			log = "[GetDateText]: [Root.GetName]: Focus CHN_canterlot_2_b"
+			country_event = { id = changelings_paxchrysalia.505 hours = 1 }
+			set_country_flag = CHN_gloriosa_offer_refused_flag
+		}
+		search_filters = { FOCUS_FILTER_PAX_CHRYSALIA }
+	}
+	
+	focus = {
+		id = CHN_canterlot_2_c
+		icon = GFX_goal_chn_man_nightwatch
+		cost = 1.5
+		available = {
+			3 = { is_owned_and_controlled_by = ROOT }
+		}
+		mutually_exclusive = {
+			focus = CHN_canterlot_2_b
+		}
+		ai_will_do = {
+			factor = 50
+		}
+		prerequisite = {
+			focus = CHN_canterlot_2_a
+		}
+		relative_position_id = CHN_canterlot_2_a
+		x = -1
+		y = 1
+		completion_reward = {
+			log = "[GetDateText]: [Root.GetName]: Focus CHN_canterlot_2_c"
+			country_event = { id = changelings_paxchrysalia.506 hours = 1 }
+		}
+		search_filters = { FOCUS_FILTER_PAX_CHRYSALIA }
+	}
+	
+	focus = {
+		id = CHN_canterlot_2_d
+		icon = GFX_goal_chn_96th
+		cost = 4.3
+		available = {
+			3 = { is_owned_and_controlled_by = ROOT }
+		}
+		ai_will_do = {
+			factor = 50
+		}
+		prerequisite = {
+			focus = CHN_canterlot_1
+		}
+		select_effect = {
+			hidden_effect = {
+				country_event = { id = changelings_paxchrysalia.501 days = 7 }
+				country_event = { id = changelings_paxchrysalia.8501 days = 14 }
+			}
+		}
+		relative_position_id = CHN_canterlot_1
+		x = 1
+		y = 1
+		completion_reward = {
+			log = "[GetDateText]: [Root.GetName]: Focus CHN_canterlot_2_d"
+			country_event = { id = changelings_paxchrysalia.9501 hours = 1 }
+			custom_effect_tooltip = CHN_96th_canterlonian_modifier_effect_tt
+			hidden_effect = {
+				3 = {
+					add_dynamic_modifier = { modifier = CHN_96th_canterlonian_modifier }
+				}
+			}
+		}
+		search_filters = { FOCUS_FILTER_PAX_CHRYSALIA }
+	}
+	
+	focus = {
+		id = CHN_canterlot_2_e
+		icon = GFX_goal_chn_archives
+		cost = 2
+		available = {
+			has_completed_focus = CHN_post_war_2_k
+			3 = { is_owned_and_controlled_by = ROOT }
+		}
+		ai_will_do = {
+			factor = 50
+		}
+		prerequisite = {
+			focus = CHN_canterlot_2_b
+			focus = CHN_canterlot_2_c
+		}
+		relative_position_id = CHN_canterlot_2_a
+		x = 0
+		y = 2
+		completion_reward = {
+			log = "[GetDateText]: [Root.GetName]: Focus CHN_canterlot_2_e"
+			country_event = { id = changelings_paxchrysalia.503 hours = 1 }
+			custom_effect_tooltip = CHN_canterlot_2_e_upgrade_faction_research_tt
+			hidden_effect = {
+				every_country = {
+					limit = {
+						OR = {
+							original_tag = CHN
+							is_in_faction_with = CHN
+							is_subject_of = CHN
+						}
+					}
+					remove_from_tech_sharing_group = CHN_hegemony_compact_science_tech
+					add_to_tech_sharing_group = CHN_hegemony_compact_science_tech_updated 
+				}
+			}
+		}
+		search_filters = { FOCUS_FILTER_PAX_CHRYSALIA }
+	}
+	
+	focus = {
+		id = CHN_canterlot_2_f
+		icon = GFX_goal_chn_man_guard
+		cost = 2.9
+		available = {
+			3 = { is_owned_and_controlled_by = ROOT }
+		}
+		ai_will_do = {
+			factor = 50
+		}
+		prerequisite = {
+			focus = CHN_canterlot_2_d
+		}
+		relative_position_id = CHN_canterlot_2_d
+		x = 0
+		y = 2
+		completion_reward = {
+			log = "[GetDateText]: [Root.GetName]: Focus CHN_canterlot_2_f"
+			country_event = { id = changelings_paxchrysalia.502 hours = 1 }
+			custom_effect_tooltip = CHN_second_wind_focus_effect_tt
+			hidden_effect = {
+				3 = {
+					add_dynamic_modifier = { modifier = CHN_canterlot_commissariat_modifier_second_wind }
+				}
+				set_country_flag = CHN_unlocked_Second_Wind
+			}
+		}
+		search_filters = { FOCUS_FILTER_PAX_CHRYSALIA }
+	}
+	
+	focus = {
+		id = CHN_canterlot_2_g
+		icon = GFX_goal_chn_man_horn
+		cost = 4.3
+		available = {
+			3 = { is_owned_and_controlled_by = ROOT }
+		}
+		ai_will_do = {
+			factor = 50
+		}
+		prerequisite = {
+			focus = CHN_canterlot_2_b
+			focus = CHN_canterlot_2_c
+		}
+		prerequisite = {
+			focus = CHN_canterlot_2_f
+		}
+		relative_position_id = CHN_canterlot_1
+		x = 0
+		y = 4
+		select_effect = {
+			hidden_effect = {
+				country_event = { id = changelings_paxchrysalia.509 days = 7 }
+				if = {
+					limit = {
+						has_country_flag = CHN_gloriosa_offer_refused_flag
+					}
+					country_event = { id = changelings_paxchrysalia.8510 days = 14 }
+				}
+				else_if = {
+					limit = {
+						NOT = { has_country_flag = CHN_gloriosa_offer_refused_flag }
+					}
+					country_event = { id = changelings_paxchrysalia.510 days = 14 }
+				}
+			}
+		}
+		completion_reward = {
+			log = "[GetDateText]: [Root.GetName]: Focus CHN_canterlot_2_g"
+			country_event = { id = changelings_paxchrysalia.511 hours = 1 }
+		}
+		search_filters = { FOCUS_FILTER_PAX_CHRYSALIA }
+	}
+	
+	focus = {
+		id = CHN_canterlot_2_h
+		icon = GFX_goal_chn_cellist
+		cost = 2
+		available = {
+			3 = { is_owned_and_controlled_by = ROOT }
+		}
+		ai_will_do = {
+			factor = 50
+		}
+		prerequisite = {
+			focus = CHN_canterlot_2_e
+		}
+		relative_position_id = CHN_canterlot_2_a
+		x = 0
+		y = 4
+		completion_reward = {
+			log = "[GetDateText]: [Root.GetName]: Focus CHN_canterlot_2_h"
+			country_event = { id = changelings_paxchrysalia.507 hours = 1 }
+		}
+		search_filters = { FOCUS_FILTER_PAX_CHRYSALIA }
+	}
+	
+	focus = {
+		id = CHN_canterlot_2_i
+		icon = GFX_goal_chn_applejack
+		cost = 2
+		available = {
+			2 = { is_owned_and_controlled_by = ROOT }
+			if = {
+				limit = {
+					has_global_flag = ZRS_uprising_has_happened
+				}
+				custom_trigger_tooltip = {
+					tooltip = CHN_ZRS_uprising_NOT_tt
+					NOT = { has_global_flag = CHN_ZRS_everfree_not_tamed }
+					ZRS = {
+						OR = {
+							is_subject_of = ROOT
+							has_capitulated = yes
+							exists = no
+						}
+					}
+				}
+			}
+		}
+		ai_will_do = {
+			factor = 50
+		}
+		prerequisite = {
+			focus = CHN_post_war_4_b
+		}
+		relative_position_id = CHN_canterlot_1
+		x = 2
+		y = 4
+		completion_reward = {
+			log = "[GetDateText]: [Root.GetName]: Focus CHN_canterlot_2_i"
+			country_event = { id = changelings_paxchrysalia.72 hours = 1 }
+		}
+		search_filters = { FOCUS_FILTER_PAX_CHRYSALIA }
+	}
+	
+	focus = {
+		id = CHN_canterlot_3
+		icon = GFX_goal_chn_man_crown
+		cost = 7.2
+		available = {
+			has_government = fascism
+			EQS = {
+				OR = {
+					is_subject_of = ROOT
+					has_capitulated = yes
+					exists = no
+				}
+			}
+			3 = { is_owned_and_controlled_by = ROOT }
+			NOT = { has_idea = CHN_equestria_chaos3 }
+			NOT = { has_war_with = ELF }
+			if = {
+				limit = {
+					has_global_flag = ZRS_uprising_has_happened
+				}
+				custom_trigger_tooltip = {
+					tooltip = CHN_ZRS_uprising_NOT_tt
+					NOT = { has_global_flag = CHN_ZRS_everfree_not_tamed }
+					ZRS = {
+						OR = {
+							is_subject_of = ROOT
+							has_capitulated = yes
+							exists = no
+						}
+					}
+				}
+			}
+		}
+		ai_will_do = {
+			factor = 150
+		}
+		prerequisite = {
+			focus = CHN_canterlot_2_g
+		}
+		prerequisite = {
+			focus = CHN_canterlot_2_h
+		}
+		relative_position_id = CHN_canterlot_1
+		x = 0
+		y = 6
+		select_effect = {
+			hidden_effect = {
+				country_event = { id = changelings_paxchrysalia.512 days = 14 }
+				country_event = { id = changelings_paxchrysalia.513 days = 28 }
+			}
+		}
+		completion_reward = {
+			log = "[GetDateText]: [Root.GetName]: Focus CHN_canterlot_3"
+			effect_tooltip = {
+				country_event = { id = changelings_paxchrysalia.518 }
+			}
+			custom_effect_tooltip = CHN_canterlot_3_tt
+			hidden_effect = {
+				if = {
+					limit = {
+						has_country_flag = CHN_event_8507_NOT_allowed_performance
+					}
+					country_event = { id = changelings_paxchrysalia.514 }
+				}
+				else_if = {
+					limit = {
+						has_country_flag = CHN_event_8507_allowed_performance
+					}
+					country_event = { id = changelings_paxchrysalia.515 }
+				}
+			}
+		}
+		search_filters = { FOCUS_FILTER_PAX_CHRYSALIA }
+	}
+	
+	focus = {
+		id = CHN_whats_in_a_mark
+		icon = GFX_goal_chn_man_star
+		cost = 2
+		available = {
+		}
+		ai_will_do = {
+			factor = 1
+		}
+		prerequisite = {
+			focus = CHN_canterlot_2_c
+		}
+		allow_branch = {
+			has_country_flag = CHN_country_flag_secret_tree_unlocked
+		}
+		relative_position_id = CHN_post_war_1
+		x = 4
+		y = 5
+		completion_reward = {
+			log = "[GetDateText]: [Root.GetName]: Focus CHN_whats_in_a_mark"
+			country_event = { id = changelings_paxchrysalia.601 hours = 1 }
+		}
+		search_filters = { FOCUS_FILTER_PAX_CHRYSALIA }
+	}
+	
+	focus = {
+		id = CHN_picture_perfect_pony_focus
+		icon = GFX_goal_chn_pony
+		cost = 2
+		available = {
+		}
+		ai_will_do = {
+			factor = 1
+		}
+		prerequisite = {
+			focus = CHN_whats_in_a_mark
+		}
+		relative_position_id = CHN_whats_in_a_mark
+		x = 0
+		y = 1
+		completion_reward = {
+			log = "[GetDateText]: [Root.GetName]: Focus CHN_picture_perfect_pony_focus"
+			country_event = { id = changelings_paxchrysalia.602 hours = 1 }
+		}
+		search_filters = { FOCUS_FILTER_PAX_CHRYSALIA }
+	}
+	
+	focus = {
+		id = CHN_hearts_desire_focus
+		icon = GFX_goal_chn_heartsdesire
+		cost = 6
+		available = {
+			custom_trigger_tooltip = {
+				tooltip = CHN_event_29_science_cooperation_country_flag_tt
+				has_country_flag = CHN_event_29_science_cooperation_country_flag
+			}
+		}
+		ai_will_do = {
+			factor = 1
+		}
+		prerequisite = {
+			focus = CHN_picture_perfect_pony_focus
+		}
+		select_effect = {
+			hidden_effect = {
+				country_event = { id = changelings_paxchrysalia.1603 days = 7 }
+				country_event = { id = changelings_paxchrysalia.2603 days = 25 }
+			}
+		}
+		relative_position_id = CHN_whats_in_a_mark
+		x = 0
+		y = 2
+		completion_reward = {
+			log = "[GetDateText]: [Root.GetName]: Focus CHN_hearts_desire_focus"
+			country_event = { id = changelings_paxchrysalia.4603 hours = 1 }
+		}
+		search_filters = { FOCUS_FILTER_PAX_CHRYSALIA }
+	}
+	
+	focus = {
+		id = CHN_poison_joke_focus
+		icon = GFX_goal_chn_man_poisonjoke
+		cost = 10
+		available = {
+			custom_trigger_tooltip = {
+				tooltip = CHN_has_chose_poison_joke_tt
+				has_country_flag = CHN_chose_poison_joke_path_flag
+			}
+		}
+		ai_will_do = {
+			factor = 1
+		}
+		mutually_exclusive = {
+			focus = CHN_truth_seeds_focus
+		}
+		prerequisite = {
+			focus = CHN_hearts_desire_focus
+		}
+		relative_position_id = CHN_whats_in_a_mark
+		x = -1
+		y = 3
+		select_effect = {
+			hidden_effect = {
+				country_event = { id = changelings_paxchrysalia.605 days = 5 }
+				if = { ## defeated Everfree
+					limit = {
+						has_country_flag = CHN_everfree_thoroughly_defeated_flag
+						has_country_flag = CHN_everfree_thoroughly_defeated_decision_check_flag
+					}
+					country_event = { id = changelings_paxchrysalia.3606 days = 14 }
+				}
+				else = { ## NOT defeated Everfree
+					country_event = { id = changelings_paxchrysalia.4606 days = 14 }
+				}
+			}
+		}
+		completion_reward = {
+			log = "[GetDateText]: [Root.GetName]: Focus CHN_poison_joke_focus"
+			custom_effect_tooltip = CHN_poison_joke_focus_tt
+		}
+		search_filters = { FOCUS_FILTER_PAX_CHRYSALIA }
+	}
+	
+	focus = {
+		id = CHN_truth_seeds_focus
+		icon = GFX_goal_chn_truth
+		cost = 10
+		available = {
+			custom_trigger_tooltip = {
+				tooltip = CHN_has_chose_seeds_of_truth_tt
+				has_country_flag = CHN_chose_seeds_of_truth_path_flag
+			}
+			hidden_trigger = {
+				NOT = { has_country_flag = CHN_cancel_seeds_of_truth_just_in_case_flag }
+			}
+		}
+		ai_will_do = {
+			factor = 1
+		}
+		mutually_exclusive = {
+			focus = CHN_poison_joke_focus
+		}
+		prerequisite = {
+			focus = CHN_hearts_desire_focus
+		}
+		relative_position_id = CHN_whats_in_a_mark
+		x = 1
+		y = 3
+		select_effect = {
+			hidden_effect = {
+				country_event = { id = changelings_paxchrysalia.1605 days = 5 }
+				if = {
+					limit = { ## defeated Everfree
+						has_country_flag = CHN_everfree_thoroughly_defeated_flag
+						has_country_flag = CHN_everfree_thoroughly_defeated_decision_check_flag
+					}
+					country_event = { id = changelings_paxchrysalia.606 days = 14 }
+				}
+				else = { ## NOT defeated Everfree
+					country_event = { id = changelings_paxchrysalia.1606 days = 14 }
+				}
+			}
+		}
+		completion_reward = {
+			log = "[GetDateText]: [Root.GetName]: Focus CHN_truth_seeds_focus"
+			custom_effect_tooltip = CHN_truth_seeds_focus_tt
+		}
+		search_filters = { FOCUS_FILTER_PAX_CHRYSALIA }
+	}
+	
+	focus = {
+		id = CHN_to_change_a_ling_focus
+		icon = GFX_goal_chn_man_ostkommando
+		cost = 8
+		available = {
+			custom_trigger_tooltip = {
+				tooltip = CHN_change_a_ling_tt
+				has_country_flag = CHN_success_2606_flag
+			}
+		}
+		ai_will_do = {
+			factor = 1
+		}
+		mutually_exclusive = {
+			focus = CHN_synthesis_syringes_focus
+		}
+		prerequisite = {
+			focus = CHN_poison_joke_focus
+			focus = CHN_truth_seeds_focus
+		}
+		relative_position_id = CHN_whats_in_a_mark
+		x = 1
+		y = 4
+		select_effect = {
+			hidden_effect = {
+				country_event = { id = changelings_paxchrysalia.616 days = 7 }
+				country_event = { id = changelings_paxchrysalia.617 days = 14 }
+				country_event = { id = changelings_paxchrysalia.618 days = 35 }
+				country_event = { id = changelings_paxchrysalia.619 days = 36 }
+				country_event = { id = changelings_paxchrysalia.620 days = 37 }
+				country_event = { id = changelings_paxchrysalia.621 days = 38 }
+				country_event = { id = changelings_paxchrysalia.622 days = 39 }
+				country_event = { id = changelings_paxchrysalia.623 days = 42 }
+			}
+		}
+		completion_reward = {
+			log = "[GetDateText]: [Root.GetName]: Focus CHN_to_change_a_ling_focus"
+			if = {
+				limit = {
+					NOT = {
+						has_country_flag = CHN_success_2606_flag
+					}
+				}
+				custom_effect_tooltip = CHN_to_change_a_ling_focus_focus_completion_tt
+			}
+			if = {
+				limit = {
+					has_country_flag = CHN_success_2606_flag
+				}
+				country_event = { id = changelings_paxchrysalia.624 hours = 1 }
+			}
+		}
+		search_filters = { FOCUS_FILTER_PAX_CHRYSALIA }
+	}
+	
+	focus = {
+		id = CHN_the_future_is_ours
+		icon = GFX_goal_chn_book
+		cost = 2
+		available = {
+		}
+		ai_will_do = {
+			factor = 1
+		}
+		prerequisite = {
+			focus = CHN_to_change_a_ling_focus
+		}
+		allow_branch = {
+			has_country_flag = CHN_unlocked_the_last_focus
+		}
+		relative_position_id = CHN_to_change_a_ling_focus
+		x = 0
+		y = 1
+		completion_reward = {
+			log = "[GetDateText]: [Root.GetName]: Focus CHN_the_future_is_ours"
+			country_event = { id = changelings_paxchrysalia.529 hours = 1 }
+		}
+		search_filters = { FOCUS_FILTER_PAX_CHRYSALIA }
+	}
+	
+	focus = {
+		id = CHN_synthesis_syringes_focus
+		icon = GFX_goal_chn_man_tranquilizers
+		cost = 8
+		available = {
+			custom_trigger_tooltip = {
+				tooltip = CHN_synthesis_focus_req_tt
+				has_country_flag = CHN_cancel_seeds_of_truth_just_in_case_flag
+			}
+		}
+		ai_will_do = {
+			factor = 1
+		}
+		mutually_exclusive = {
+			focus = CHN_to_change_a_ling_focus
+		}
+		prerequisite = {
+			focus = CHN_poison_joke_focus
+			focus = CHN_truth_seeds_focus
+		}
+		relative_position_id = CHN_whats_in_a_mark
+		x = -1
+		y = 4
+		select_effect = {
+			hidden_effect = {
+				country_event = { id = changelings_paxchrysalia.609 days = 10 }
+				country_event = { id = changelings_paxchrysalia.1609 days = 20 }
+				country_event = { id = changelings_paxchrysalia.2609 days = 30 }
+				country_event = { id = changelings_paxchrysalia.3609 days = 40 }
+			}
+		}
+		completion_reward = {
+			log = "[GetDateText]: [Root.GetName]: Focus CHN_synthesis_syringes_focus"
+			custom_effect_tooltip = CHN_synthesis_syringes_focus_completion_tt
+			hidden_effect = {
+				country_event = { id = changelings_paxchrysalia.610 hours = 1 }
+			}
+		}
+		search_filters = { FOCUS_FILTER_PAX_CHRYSALIA }
 	}
 }
