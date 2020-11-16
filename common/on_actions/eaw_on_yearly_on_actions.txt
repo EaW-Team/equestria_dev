@@ -1,26 +1,46 @@
 on_actions = {
-
-	on_startup = { # on_daily is executed before on_startup
+	# Months counter initialization
+	on_startup = {
 		effect = {
-			add_to_variable = { global.next_month = 1 }
+			set_variable = { global.month = 1 }
 		}
 	}
-
+	
+	# Months counter
+	on_monthly = {
+		effect = {
+			if = {
+				limit = {
+					NOT = { has_global_flag = on_monthly_done }
+				}
+				log = "[GetDateText]: global on_monthly"
+				add_to_variable = { global.month = 1 }
+				if = {
+					limit = {
+						check_variable = { global.month > 12 }
+					}
+					set_variable = { global.month = 1 }
+				}
+				set_global_flag = { flag = on_monthly_done value = 1 days = 1 }
+			}
+		}
+	}
+	
 	# ROOT is country, this is ran for every country
-	on_daily = {
+	on_monthly = {
 		effect = {
 			# ON YEARLY
 			if = {
 				#don't touch!
-				limit = { 
-					NOT = { 
+				limit = {
+					NOT = {
 						check_variable = { global.last_year = global.year }
 						has_global_flag = on_yearly_done
 					}
 				}
 				#this is done only ONCE per year, even though on_daily fires for every country
 				#will also be done on startup
-				log = "[GetDateText] on_yearly"
+				log = "[GetDateText]: global on_yearly"
 
 				#your code here
 				SRS = { country_event = socrep_grif.76 }
@@ -30,53 +50,532 @@ on_actions = {
 				set_global_flag = { flag = on_yearly_done value = 1 days = 1 }
 			}
 
-			# ON MONTHLY
-			if = {
-				# don't touch!
-				limit = {
-					NOT = { 
-						has_global_flag = on_monthly_done
-					}
-					meta_trigger = {
-						text = {
-							date > [YEAR].[MONTH].1
-						}
-						YEAR = "[?global.year]"
-						MONTH = "[?global.next_month]"
-					}
-				}
-				add_to_variable = { global.month = 1 }
-				add_to_variable = { global.next_month = 1 }
-				set_global_flag = { flag = on_monthly_done value = 1 days = 27 }
-				if = {
-					limit = { check_variable = { global.month > 12 } }
-					set_variable = { global.month = 1 }
-				}
-				if = {
-					limit = { check_variable = { global.next_month > 12 } }
-					set_variable = { global.next_month = 1 }
-					set_global_flag = { flag = on_monthly_done value = 1 days = 31 }
-				}
-				# this is done only ONCE per month, even though on_daily fires for every country
-				# will also be done on startup
+			core_all_occupied_through_compliance = yes
+		}
+	}
 
-				# your code here
-				if = {
-					limit = {
-						NOT = { has_global_flag = christmas_truce_fired }
-						check_variable = { global.month = 12 }
-						event_target:equestria = {
-							exists = yes
-							has_government = democratic
-							has_war_with = CHN
-							CHN = { has_government = fascism }
-							fascism < 0.1
-						}
+	on_monthly_CHN = {
+		effect = {
+			log = "[GetDateText]: ROOT: [Root.GetName] on_monthly_CHN"
+			if = {
+				limit = {
+					NOT = { has_global_flag = christmas_truce_fired }
+					check_variable = { global.month = 12 }
+					event_target:equestria = {
+						exists = yes
+						has_government = democratic
+						has_war_with = CHN
+						CHN = { has_government = fascism }
+						fascism < 0.1
 					}
-					event_target:equestria = { country_event = { id = equestria.181 days = 24 random = 48 } }#days to hours applied
 				}
+				event_target:equestria = { country_event = { id = equestria.181 days = 24 random = 48 } }#days to hours applied
 			}
 		}
 	}
 
+	on_weekly_CHN = {
+		effect = {
+			log = "[GetDateText]: ROOT: [Root.GetName] on_weekly_CHN"
+			if = {
+				limit = {
+					has_active_mission = CHN_acornage_colonisation_decision
+				}
+				CHN = {
+					save_current_manpower = yes
+				}
+				136 = {
+					add_manpower = -5000
+				}
+				137 = {
+					add_manpower = 1250
+				}
+				138 = {
+					add_manpower = 1250
+				}
+				172 = {
+					add_manpower = 1250
+				}
+				175 = {
+					add_manpower = 1250
+				}
+				CHN = {
+					restore_previous_manpower = yes
+				}
+			}
+			if = {
+				limit = {
+					has_active_mission = CHN_vanhoover_colonisation_decision
+					NOT = { 
+						has_country_flag = CHN_vanhoover_colonisation_decision_updated_flag
+					}
+				}
+				CHN = {
+					save_current_manpower = yes
+				}
+				14 = {
+					add_manpower = -5000
+				}
+				45 = {
+					add_manpower = 1250
+				}
+				72 = {
+					add_manpower = 1250
+				}
+				73 = {
+					add_manpower = 1250
+				}
+				172 = {
+					add_manpower = 1250
+				}
+				CHN = {
+					restore_previous_manpower = yes
+				}
+			}
+			if = {
+				limit = {
+					has_active_mission = CHN_vanhoover_colonisation_decision
+					has_country_flag = CHN_vanhoover_colonisation_decision_updated_flag
+				}
+				CHN = {
+					save_current_manpower = yes
+				}
+				14 = {
+					add_manpower = -100
+				}
+				45 = {
+					add_manpower = 25
+				}
+				72 = {
+					add_manpower = 25
+				}
+				73 = {
+					add_manpower = 25
+				}
+				172 = {
+					add_manpower = 25
+				}
+				CHN = {
+					restore_previous_manpower = yes
+				}
+			}
+			if = {
+				limit = {
+					has_idea = CHN_equestria_chaos3
+				}
+				every_controlled_state = {
+					limit = {
+						is_core_of = EQS
+						compliance > 40
+					}
+					set_compliance = 40
+				}
+			}
+			if = {
+				limit = {
+					has_idea = CHN_equestria_chaos2
+				}
+				every_controlled_state = {
+					limit = {
+						is_core_of = EQS
+						compliance > 60
+					}
+					set_compliance = 60
+				}
+			}
+			if = {
+				limit = {
+					has_idea = CHN_equestria_chaos1
+				}
+				every_controlled_state = {
+					limit = {
+						is_core_of = EQS
+						compliance > 80
+					}
+					set_compliance = 80
+				}
+			}
+			if = {
+				limit = {
+					has_completed_focus = CHN_post_war_5
+					is_ai = yes
+					check_variable = { CHN_amount_of_allowed_battalions < num_battalions }
+				}
+				set_temp_variable = { disband_fraction = num_battalions }
+				subtract_from_temp_variable = { disband_fraction = CHN_amount_of_allowed_battalions }
+				divide_temp_variable = { disband_fraction = num_battalions }
+				clamp_temp_variable = {
+					var = divide_temp_variable
+					min = 0
+					max = 0.1
+				}
+				disband_units_fraction = yes
+			}
+			if = {
+				limit = {
+					has_completed_focus = CHN_post_war_5
+					check_variable = { CHN_amount_of_allowed_battalions < CHN.num_battalions }
+				}
+				subtract_from_variable = { CHN_love_variable = CHN_excess_battalions_cost }
+			}
+		}
+	}
+
+	on_weekly_MAN = {
+		effect = {
+			log = "[GetDateText]: ROOT: [Root.GetName] on_weekly_MAN"
+			if = {
+				limit = {
+					has_country_flag = MAN_continuous_love_distribution_country_flag
+				}
+				add_political_power = var:MAN_continuous_love_distribution_pp_var
+				add_stability = var:MAN_continuous_love_distribution_stab_var
+				set_temp_variable = { MAN_continuous_love_distribution_pp_var_TEMP = MAN_lovetax_variable }
+				multiply_temp_variable = { MAN_continuous_love_distribution_pp_var_TEMP = 20 }
+				set_variable = { MAN_continuous_love_distribution_pp_var = MAN_continuous_love_distribution_pp_var_TEMP }
+				round_variable = MAN_continuous_love_distribution_pp_var
+				set_temp_variable = { MAN_continuous_love_distribution_stab_var_TEMP = MAN_lovetax_variable }
+				divide_temp_variable = { MAN_continuous_love_distribution_stab_var_TEMP = 200 }
+				set_variable = { MAN_continuous_love_distribution_stab_var = MAN_continuous_love_distribution_stab_var_TEMP }
+			}
+			if = {
+				limit = {
+					has_country_flag = MAN_continuous_love_tax_sucking_country_flag
+				}
+				add_to_variable = { var = MAN_lovetax_variable value = 0.005 }
+				add_to_variable = { MAN_continuous_love_tax_sucking_how_many_weeks_elasped_variable = 1 }
+				add_to_variable = { var = MAN_lovetax_variable value = MAN_continuous_love_tax_sucking_bonus_variable }
+				### calculations for the next weekly love harvest ###
+				clear_variable = MAN_continuous_love_tax_sucking_bonus_variable
+				clear_variable = MAN_continuous_love_tax_sucking_bonus_civ_factories_display_variable
+				set_variable = { MAN_continuous_love_tax_sucking_bonus_civ_factories_display_variable = num_of_available_civilian_factories }
+				set_temp_variable = { MAN_continuous_love_tax_sucking_bonus_variable_TEMP = MAN_continuous_love_tax_sucking_bonus_civ_factories_display_variable }
+				multiply_temp_variable = { MAN_continuous_love_tax_sucking_bonus_variable_TEMP = 0.015 }
+				set_temp_variable = { MAN_continuous_love_tax_sucking_how_many_weeks_elasped_variable_TEMP = MAN_continuous_love_tax_sucking_how_many_weeks_elasped_variable } ## base value should always be one (1) ##
+				multiply_temp_variable = { MAN_continuous_love_tax_sucking_bonus_variable_TEMP = MAN_continuous_love_tax_sucking_how_many_weeks_elasped_variable_TEMP }
+				set_variable = { MAN_continuous_love_tax_sucking_bonus_variable = MAN_continuous_love_tax_sucking_bonus_variable_TEMP }
+			}
+			if = {
+				limit = {
+					has_idea = MAN_internal_migration
+				}
+				save_current_manpower = yes
+				every_owned_state = {
+					limit = { has_state_category = megalopolis }
+					add_manpower = 2500
+				}
+				every_owned_state = {
+					limit = { has_state_category = metropolis }
+					add_manpower = 2000
+				}
+				every_owned_state = {
+					limit = { has_state_category = large_city }
+					add_manpower = 1500
+				}
+				every_owned_state = {
+					limit = { has_state_category = city }
+					add_manpower = 1000
+				}
+				restore_previous_manpower = yes
+			}
+		}
+	}
+
+	on_weekly_ELF = {
+		effect = {
+			log = "[GetDateText]: ROOT: [Root.GetName] on_weekly_ELF"
+			if = {
+				limit = {
+					has_country_flag = ELF_bits_gun_weekly_shipments
+					has_idea = ELF_bits_gun_idea
+				}
+				add_equipment_to_stockpile = {
+					type = infantry_equipment_2
+					amount = 200
+					producer = ELF
+				}
+			}
+		}
+	}
+	on_monthly_BAR = {
+		effect = {
+			log = "[GetDateText]: ROOT: [Root.GetName] on_monthly_BAR"
+			if = {
+				limit = {
+					original_tag = BAR
+				}
+				if = {
+					limit = { 
+						country_exists = BAR
+						BAR = {
+							has_country_flag = { flag = barrad_endgame value = 0 }
+							has_country_flag = barrad_silver_star_alive
+							OR = {
+								AND = {
+									has_country_flag = barrad_asinti_alive
+									check_variable = { BAR_relations_asinti_silver < 70 }
+								}
+								AND = {
+									has_country_flag = barrad_leopold_alive
+									check_variable = { BAR_relations_silver_leopold < 70 }
+								}
+								AND = {
+									has_country_flag = barrad_viira_alive
+									check_variable = { BAR_relations_silver_viira < 70 }
+								}
+							}
+						}
+					}
+					BAR = {
+						if = {
+							limit = {
+								has_country_flag = BAR_silver_sad
+							}
+							country_event = { days = 1 random_days = 14 id = barrad_silver_star.11 }
+						}
+						else = {
+							country_event = { days = 1 random_days = 14 id = barrad_silver_star.1 }
+						}
+					}
+				}
+				if = {
+					limit = {
+						country_exists = BAR
+						BAR = {
+							OR = {
+								has_variable = BAR_viira_pup
+								has_variable = BAR_viira_control
+							}	
+							check_variable = { viira_mana_overload > 9 }
+						}
+					}
+					BAR = {
+						subtract_from_variable = { viira_mana_overload = 10 }
+					}
+					
+				}
+				if = {
+					limit = {
+						has_country_flag = { flag = barrad_endgame value = 0 }
+						OR = {
+							AND = {
+								has_country_flag = barrad_leopold_alive
+								has_country_flag = barrad_asinti_alive
+							}
+							AND = {
+								has_country_flag = barrad_silver_star_alive
+								has_country_flag = barrad_asinti_alive
+							}
+							AND = {
+								has_country_flag = barrad_viira_alive
+								has_country_flag = barrad_asinti_alive
+							}
+							AND = {
+								has_country_flag = barrad_viira_alive
+								has_country_flag = barrad_silver_star_alive
+							}
+							AND = {
+								has_country_flag = barrad_leopold_alive
+								has_country_flag = barrad_viira_alive
+							}
+							AND = {
+								has_country_flag = barrad_leopold_alive
+								has_country_flag = barrad_silver_star_alive
+							}
+						}
+					}
+					random_list = {
+						30 = {
+							if = {
+								limit = {
+									has_country_flag = barrad_silver_star_alive
+									has_country_flag = barrad_asinti_alive
+									has_country_flag = barrad_viira_alive
+									has_country_flag = barrad_leopold_alive	
+								}
+								random_list = {
+									16 = {
+										country_event = { id = barrad_monthy_relation_hit_event.1 days = 8 }
+									}
+									16 = {
+										country_event = { id = barrad_monthy_relation_hit_event.2 days = 8 }
+									}
+									17 = {
+										country_event = { id = barrad_monthy_relation_hit_event.3 days = 8 }
+									}
+									17 = {
+										country_event = { id = barrad_monthy_relation_hit_event.4 days = 8 }
+									}
+									17 = {
+										country_event = { id = barrad_monthy_relation_hit_event.5 days = 8 }
+									}
+									17 = {
+										country_event = { id = barrad_monthy_relation_hit_event.6 days = 8 }
+									}
+								}
+							}
+							else_if = {
+								limit = {
+									has_country_flag = barrad_silver_star_alive
+									has_country_flag = barrad_asinti_alive
+									has_country_flag = barrad_viira_alive
+									NOT = { has_country_flag = barrad_leopold_alive }
+								}
+								random_list = {
+									34 = {
+										country_event = { id = barrad_monthy_relation_hit_event.2 days = 8 }
+									}
+									33 = {
+										country_event = { id = barrad_monthy_relation_hit_event.3 days = 8 }
+									}
+									33 = {
+										country_event = { id = barrad_monthy_relation_hit_event.5 days = 8 }
+									}
+								}
+							}
+							else_if = {
+								limit = {
+									has_country_flag = barrad_silver_star_alive
+									has_country_flag = barrad_asinti_alive
+									NOT = { has_country_flag = barrad_viira_alive }
+									has_country_flag = barrad_leopold_alive
+								}
+								random_list = {
+									34 = {
+										country_event = { id = barrad_monthy_relation_hit_event.1 days = 8 }
+									}
+									33 = {
+										country_event = { id = barrad_monthy_relation_hit_event.2 days = 8 }
+									}
+									33 = {
+										country_event = { id = barrad_monthy_relation_hit_event.6 days = 8 }
+									}
+								}
+							}
+							else_if = {
+								limit = {
+									has_country_flag = barrad_silver_star_alive
+									has_country_flag = barrad_asinti_alive
+									NOT = { has_country_flag = barrad_viira_alive }
+									NOT = { has_country_flag = barrad_leopold_alive }
+								}
+								country_event = { id = barrad_monthy_relation_hit_event.2 days = 8 }
+							}
+							else_if = {
+								limit = {
+									has_country_flag = barrad_silver_star_alive
+									NOT = { has_country_flag = barrad_asinti_alive }
+									has_country_flag = barrad_viira_alive
+									has_country_flag = barrad_leopold_alive
+								}
+								random_list = {
+									34 = {
+										country_event = { id = barrad_monthy_relation_hit_event.4 days = 8 }
+									}
+									33 = {
+										country_event = { id = barrad_monthy_relation_hit_event.5 days = 8 }
+									}
+									33 = {
+										country_event = { id = barrad_monthy_relation_hit_event.6 days = 8 }
+									}
+								}
+							}
+							else_if = {
+								limit = {
+									has_country_flag = barrad_silver_star_alive
+									NOT = { has_country_flag = barrad_asinti_alive }
+									has_country_flag = barrad_viira_alive
+									NOT = { has_country_flag = barrad_leopold_alive }
+								}
+								country_event = { id = barrad_monthy_relation_hit_event.5 days = 8 }
+							}
+							else_if = {
+								limit = {
+									has_country_flag = barrad_silver_star_alive
+									NOT = { has_country_flag = barrad_asinti_alive }
+									NOT = { has_country_flag = barrad_viira_alive }
+									has_country_flag = barrad_leopold_alive
+								}
+								country_event = { id = barrad_monthy_relation_hit_event.6 days = 8 }
+							}
+							else_if = {
+								limit = {
+									NOT = { has_country_flag = barrad_silver_star_alive }
+									has_country_flag = barrad_asinti_alive
+									has_country_flag = barrad_viira_alive
+									has_country_flag = barrad_leopold_alive
+								}
+								random_list = {
+									34 = {
+										country_event = { id = barrad_monthy_relation_hit_event.1 days = 8 }
+									}
+									33 = {
+										country_event = { id = barrad_monthy_relation_hit_event.3 days = 8 }
+									}
+									33 = {
+										country_event = { id = barrad_monthy_relation_hit_event.4 days = 8 }
+									}
+								}
+							}
+							else_if = {
+								limit = {
+									NOT = { has_country_flag = barrad_silver_star_alive }
+									has_country_flag = barrad_asinti_alive
+									has_country_flag = barrad_viira_alive
+									NOT = { has_country_flag = barrad_leopold_alive }
+								}
+								country_event = { id = barrad_monthy_relation_hit_event.3 days = 8 }
+							}
+							else_if = {
+								limit = {
+									NOT = { has_country_flag = barrad_silver_star_alive }
+									has_country_flag = barrad_asinti_alive
+									NOT = { has_country_flag = barrad_viira_alive }
+									has_country_flag = barrad_leopold_alive
+								}
+								country_event = { id = barrad_monthy_relation_hit_event.1 days = 8 }
+							}
+							else_if = {
+								limit = {
+									NOT = { has_country_flag = barrad_silver_star_alive }
+									NOT = { has_country_flag = barrad_asinti_alive }
+									has_country_flag = barrad_viira_alive
+									has_country_flag = barrad_leopold_alive
+								}
+								country_event = { id = barrad_monthy_relation_hit_event.4 days = 8 }
+							}
+						}
+						70 = {
+
+						}
+					}
+				}
+				if = {
+					limit = {
+						BAR = {
+							has_war = yes
+							has_country_flag = BAR_asinti_ded_count
+						}
+					}
+					BAR = {
+						divide_variable = { BAR_asinti_blood_resource = 2 }
+						round_variable = BAR_asinti_blood_resource
+						set_variable = { inflicted_casualties_last_month = inflicted_casualties }
+						count_inflicted_casualties_on_current_enemies = yes
+						subtract_from_variable = { inflicted_casualties_last_month = inflicted_casualties }
+						multiply_variable = { inflicted_casualties_last_month = -1 }
+						if = {
+							limit = {
+								check_variable = { BAR_asinti_blood_resource < 2100000 }
+							}
+							add_to_variable = { BAR_asinti_blood_resource = inflicted_casualties_last_month }
+						}
+						else = {
+							set_variable = { BAR_asinti_blood_resource = 2100000 }
+						}
+					}	
+				}
+			}	
+		}
+	}
 }

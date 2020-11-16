@@ -131,7 +131,16 @@ country_event = { #Grover V is dead
 			YAL = { country_event = { id = yale.25 days = 3 } }
 			KAT = { country_event = { id = katerin.76 days = 30 } }
 			STW = { country_event = { id = strawberry.1 days = 3 } }
-			TRD = { country_event = { id = tradefed.141 days = 4 } }
+			if = {
+				limit = {
+					TRD = {
+						NOT = {
+							has_completed_focus = TRD_combating_inequality
+						}
+					}
+				}
+				TRD = { country_event = { id = tradefed.141 days = 4 } }
+			}
 		    complete_national_focus = GRI_emperor_passed
 		}
 	}
@@ -292,10 +301,6 @@ country_event = {
 			leave_faction = yes
 		}
 		hidden_effect = {
-			every_state = {
-				limit = { is_core_of = ROOT }
-				add_core_of = FROM
-			}
 			FROM = {
 				add_ai_strategy = {
 					type = antagonize
@@ -384,10 +389,7 @@ country_event = {
 			}
 			leave_faction = yes
 		}
-		hidden_effect = { every_state = {
-				limit = { is_core_of = ROOT }
-				add_core_of = FROM
-			}
+		hidden_effect = { 
 			country_event = griffonian.2
 		}
 		FROM = {
@@ -458,8 +460,17 @@ country_event = {
 				active = no
 			}
 		}
-		hidden_effect = { create_wargoal = { target = ROU type = annex_everything } }
-		declare_war_on = { target = ROU type = annex_everything }
+		if = {
+			limit = {
+				OR = {
+					is_neighbor_of = ROU
+					has_war_with = YAL
+					has_war_with = FEA
+				}
+			}
+			hidden_effect = { create_wargoal = { target = ROU type = annex_everything } }
+			declare_war_on = { target = ROU type = annex_everything }
+		}
 		ai_chance = { factor = 100 }
 	}
 	option = {
@@ -551,8 +562,23 @@ country_event = {
 				active = no
 			}
 		}
-		hidden_effect = { create_wargoal = { target = ANG type = annex_everything } }
-		declare_war_on = { target = ANG type = annex_everything }
+		if = {
+			limit = {
+				OR = {
+					is_neighbor_of = ANG
+					has_war_with = KAT
+					has_war_with = YAL
+					YAL = {
+						is_subject_of = ROOT
+					}
+					KAT = {
+						is_subject_of = ROOT
+					}
+				}
+			}
+			hidden_effect = { create_wargoal = { target = ANG type = annex_everything } }
+			declare_war_on = { target = ANG type = annex_everything }
+		}
 		ai_chance = { factor = 100 }
 	}
 	option = {
@@ -720,10 +746,6 @@ country_event = {
 		}
 		hidden_effect = { 
 			set_country_flag = STW_its_going_down #Just in case
-			every_state = {
-				limit = { is_core_of = ROOT }
-				add_core_of = FROM
-			}
 		}
 		if = {
 			limit = {
@@ -793,11 +815,6 @@ country_event = {
 				is_in_faction_with = FROM
 			}
 			leave_faction = yes
-		}
-		hidden_effect = { every_state = {
-				limit = { is_core_of = ROOT }
-				add_core_of = FROM
-			}
 		}
 		FROM = {
 			add_ai_strategy = {
@@ -976,7 +993,7 @@ country_event = {
 		add_political_power = 25
 		decrease_illiteracy = yes
 		hidden_effect = {
-			country_event = { id = imperial.41 days = 365 random = 3600 }#days to hours applied
+			country_event = { id = imperial.41 days = 365 random = 4600 }#days to hours applied
 		}
 	}
 }
@@ -2006,8 +2023,11 @@ country_event = { #The Army Storms the Palace
 			name = "Ferdinand Dawnclaw"
 			picture = "Ferdinand.tga"
 			expire = "1965.1.1"
-			ideology = nazism
-			traits = {}
+			ideology = stratocracy
+			traits = {
+				dictator
+				warmonger
+			}
 		}
 		event_target:GRI_ferdinand = {
 		    promote_leader = yes
@@ -2557,6 +2577,11 @@ country_event = { #Kemerskai's Death
 	desc = imperial.94.d
 	picture = GFX_event_medieval_city_2
 	is_triggered_only = yes
+	fire_only_once = yes
+
+	trigger = {
+		NOT = { has_global_flag = keremeskai_dead }
+	}
 
 	option = {
 		name = imperial.94.a
@@ -2567,7 +2592,7 @@ country_event = { #Kemerskai's Death
 			popularity = -0.05
 		}
 		hidden_effect = {
-			FAT = { kill_country_leader = yes }
+			FAT = { FAT_kill_kemerskai = yes }
 		}
 	}
 }
@@ -2770,7 +2795,7 @@ country_event = { #Reichkomissariats
 			    ideology = fascism
 			    popularity = 0.15
 		    }
-			set_cosmetic_tag = DMT_reichskommissariat
+			set_cosmetic_tag = DMT_reichskommissariat_cosmetic
 			load_focus_tree = { tree = generic_griffon_focus keep_completed = no }
 		}
 		NIM = {
@@ -3077,6 +3102,11 @@ country_event = { #The Execution of Kemerskai
 
 	picture = GFX_event_gothic_interior
 	is_triggered_only = yes
+	fire_only_once = yes
+
+	trigger = {
+		NOT = { has_global_flag = keremeskai_dead }
+	}
 
 	option = {
 	    name = imperial.108.a
@@ -3087,7 +3117,7 @@ country_event = { #The Execution of Kemerskai
 			popularity = -0.05
 		}
 		hidden_effect = {
-			FAT = { kill_country_leader = yes }
+			FAT = { FAT_kill_kemerskai = yes }
 		}
 	}
 }
@@ -3514,12 +3544,6 @@ country_event = { #Griffenheim Square
 		        keep_completed = yes 
 		    }
 			complete_national_focus = GRI_griffenheim_square
-		}
-		set_country_flag = { flag = bypass_on_peaceconference_ended days = 1 }
-		every_enemy_country = {
-			ROOT = {
-				white_peace = PREV
-			}
 		}
 	}
 }

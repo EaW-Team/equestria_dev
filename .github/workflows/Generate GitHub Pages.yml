@@ -1,0 +1,61 @@
+name: Generate GitHub Pages
+
+on:
+  push:
+    branches:
+    - master
+    - gh-pages
+    paths:
+    - '.github/workflows/Generate GitHub Pages.yml'
+    - 'gfx/interface/texticons/**/*.dds'
+    - 'gfx/interface/texticons/**/*.tga'
+    - 'gfx/interface/event_pictures/**/*.dds'
+    - 'gfx/interface/event_pictures/**/*.tga'
+    - 'gfx/interface/decisions/**/*.dds'
+    - 'gfx/interface/decisions/**/*.tga'
+    - 'gfx/interface/goals/**/*.dds'
+    - 'gfx/interface/ideas/**/*.dds'
+    - 'gfx/interface/goals/**/*.tga'
+    - 'gfx/interface/ideas/**/*.tga'
+    - 'interface/**/*.gfx'
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v2
+      with:
+        token: ${{ secrets.GHPAGES_PUSH_TOKEN }}
+        ref: master
+    - name: Checkout gh-pages branch
+      uses: actions/checkout@v2
+      with:
+        token: ${{ secrets.GHPAGES_PUSH_TOKEN }}
+        ref: gh-pages
+        path: gh-pages
+    - name: Generate webpage
+      uses: Yard1/hoi4-icon-search-action@master
+      with:
+        goals: './interface/eaw_goals.gfx ./interface/ee2_goals.gfx ./interface/ee2_goals.gfx ./interface/ncr_goals.gfx'
+        ideas: './interface/eaw_ideas.gfx ./interface/ee2_ideas.gfx'
+        texticons: './interface/etat_texticons.gfx ./interface/eaw_texticons.gfx'
+        events: './interface/eaw_eventpictures.gfx'
+        decisions: './interface/eaw_decisions.gfx'
+        favicon: './eaw_icon.png'
+        title: 'Equestria at War GFX Search'
+        modPath: 'gh-pages'
+    - name: Commit and push files
+      run: |
+        cd $GITHUB_WORKSPACE/gh-pages
+        if [ -z "$(git status --porcelain)" ]; then 
+          exit 0
+        fi
+        PYDATE=$(python -c "import datetime; print(datetime.datetime.utcnow())")
+        sed -i "s/@UPDATE_DATE/${PYDATE}/g" index.html
+        git config --global user.email "antoni.baum@protonmail.com"
+        git config --global user.name "Yard1"
+        git pull --no-rebase
+        git pull --no-rebase
+        git add -A
+        git commit -m "Update webpage (automatic)"
+        git push

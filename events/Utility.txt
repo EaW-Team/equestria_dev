@@ -56,8 +56,8 @@ country_event = { ### Nuke handling
 			}
 			add_state_modifier = {
 				modifier = {
-					local_supplies = -0.35
-					local_factories = -0.15
+					local_supplies = 0.35
+					local_factories = 0.15
 				}
 			}
 			clr_state_flag = nuke_modifier
@@ -270,6 +270,9 @@ country_event = { ### SOL
 			is_island_state = no
 		}
 		check_variable = { neighbors^num = 1 }
+		overlord = {
+			is_ai = yes
+		}
 		any_neighbor_country = {
 			is_ai = yes
 			NOT = {
@@ -282,5 +285,149 @@ country_event = { ### SOL
 			limit = { is_ai = yes }
 			annex_country = { target = ROOT }
 		}
+	}
+}
+
+country_event = { ### Add compliance on diplo/event annex
+	id = utility.11
+	immediate = {log = "[GetDateText]: [Root.GetName]: event utility.11"}
+	hidden = yes
+	is_triggered_only = yes
+	option = {
+		every_owned_state = {
+			limit = {
+				NOT = { is_core_of = ROOT }
+				any_of = {
+					array = ROOT.annex_compliance
+					occupied_country_tag = var:v
+				}
+				NOT = { has_state_flag = annex_compliance_added }
+			}
+			set_temp_variable = {
+				ROOT.set_compliance = 0
+			}
+			for_each_loop = {
+				array = ROOT.annex_compliance
+				if = {
+					limit = {
+						occupied_country_tag = var:v
+						var:v = {
+							has_variable = specific_annex_compliance
+						}
+					}
+					var:v = {
+						set_temp_variable = {
+							ROOT.set_compliance = specific_annex_compliance
+						}
+					}
+					set_temp_variable = {
+						break = 1
+					}
+				}
+			}
+			if = {
+				limit = {
+					NOT = {
+						check_variable = {
+							ROOT.set_compliance = 0
+						}
+					}
+				}
+				add_compliance = ROOT.set_compliance
+			}
+			else_if = {
+				limit = {
+					any_of = {
+						array = ROOT.annex_compliance_subject
+						occupied_country_tag = var:v
+					}
+				}
+				add_compliance = 60
+			}
+			else = {
+				add_compliance = 40
+			}
+			set_state_flag = annex_compliance_added
+		}
+		for_each_loop = {
+			array = annex_compliance
+			var:v = { clear_variable = specific_annex_compliance }
+		}
+		clear_array = annex_compliance
+		clear_array = annex_compliance_subject
+		every_owned_state = {
+			clr_state_flag = annex_compliance_added
+		}
+	}
+}
+
+country_event = { ### Spawn NCR
+	id = utility.12
+	immediate = {log = "[GetDateText]: [Root.GetName]: event utility.12"}
+	hidden = yes
+	is_triggered_only = yes
+	option = {
+		ncr_setup = yes
+	}
+}
+
+country_event = { ### Remove JER militia
+	id = utility.13
+	immediate = {log = "[GetDateText]: [Root.GetName]: event utility.13"}
+	hidden = yes
+	is_triggered_only = yes
+	trigger = {
+		OR = {
+			original_tag = JER
+			original_tag = JEB
+			original_tag = JFT
+			original_tag = JES
+			original_tag = JRR
+			original_tag = VIN
+		}
+		has_war = no
+		has_template = "Division de La Milice"
+	}
+	option = {
+		delete_unit_template_and_units = { division_template = "Division de La Milice" }
+	}
+}
+
+# Repeated check for whether an AI country should reduce its number of units
+# Thanks to Rylock and Kaiserreich team
+country_event = {
+	id = utility.14
+	immediate = { log = "[GetDateText]: [Root.GetName]: event utility.14" }
+	
+	hidden = yes
+	is_triggered_only = yes
+	
+	trigger = {
+		is_ai = yes
+		has_war = no
+		num_divisions > 10
+		OR = {
+			has_excessive_army_size = yes
+			needs_army_reduction_for_manpower = yes
+		}
+		NOT = {
+			any_other_country = {
+				OR = {
+					is_justifying_wargoal_against = ROOT
+					has_wargoal_against = ROOT
+					ROOT = { is_justifying_wargoal_against = PREV }
+					ROOT = { has_wargoal_against = PREV }
+				}
+			}
+		}
+	}
+	
+	immediate = {
+		set_temp_variable = {
+			disband_fraction = 0.1
+		}
+		log = "[GetDateText]: [Root.GetName]: is disbanding 10% of their forces"
+		disband_units_fraction = yes
+		country_event = { id = utility.14 days = 20 random = 480 }
 	}
 }
