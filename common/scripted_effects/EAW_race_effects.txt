@@ -298,6 +298,21 @@ operative_add_nationalities_zebra = {
 	}
 }
 
+operative_add_nationalities_oleno_hindian = {
+	for_each_loop = {
+		array = global.countries
+		if = {
+			limit = {
+				var:v = { is_country_main_culture_oleno_hindian = yes }
+			}
+			add_nationality = var:v
+		}
+	}
+	add_to_array = {
+		cultures = 20
+	}
+}
+
 
 operative_add_main_nationalities_from_PREV = {
 	if = {
@@ -495,6 +510,17 @@ operative_add_main_nationalities_from_PREV = {
 				}
 			}
 			operative_add_nationalities_old_olenian = yes
+		}
+		if = {
+			limit = {
+				PREV = {
+					OR = {
+						is_country_main_culture_oleno_hindian = yes
+
+					}
+				}
+			}
+			operative_add_nationalities_oleno_hindian = yes
 		}
 	}
 	else_if = {
@@ -776,6 +802,17 @@ operative_add_secondary_nationalities_from_PREV = {
 			}
 			operative_add_nationalities_old_olenian = yes
 		}
+		if = {
+			limit = {
+				PREV = {
+					OR = {
+						is_country_secondary_culture_oleno_hindian = yes
+
+					}
+				}
+			}
+			operative_add_nationalities_oleno_hindian = yes
+		}
 	}
 	else_if = {
 		limit = {
@@ -961,15 +998,73 @@ operative_handle_secondary_cultures_races = {
 			}
 			random_list = {
 				75 = {
+					modifier = {
+						add = -3
+						FROM = {
+							has_completed_focus = LSC_include_new_species
+							any_owned_state = {
+								any_of_scopes = {
+									array = state_original_cores
+									OR = {
+										original_tag = DMT
+										original_tag = BRF
+									}
+								}
+							}
+						}
+					}
 				}
 				25 = {
 					modifier = {
 						factor = 0
 						FROM = {
+							original_tag = LSC
 							has_government = fascism
 						}
 					}
+					modifier = {
+						add = -3
+						FROM = {
+							has_completed_focus = LSC_include_new_species
+							any_owned_state = {
+								any_of_scopes = {
+									array = state_original_cores
+									OR = {
+										original_tag = DMT
+										original_tag = BRF
+									}
+								}
+							}
+						}
+					}
 					set_operative_to_herzlander = yes
+				}
+				6 = {
+					modifier = {
+						factor = 0
+						FROM = {
+							original_tag = LSC
+							has_government = fascism
+						}
+					}
+					modifier = {
+						factor = 0
+						FROM = {
+							NOT = {
+								has_completed_focus = LSC_include_new_species
+								any_owned_state = {
+									any_of_scopes = {
+										array = state_original_cores
+										OR = {
+											original_tag = DMT
+											original_tag = BRF
+										}
+									}
+								}
+							}
+						}
+					}
+					set_operative_to_diamond_dog = yes
 				}
 			}
 		}
@@ -1333,6 +1428,7 @@ operative_add_starting_nationalities_and_race = {
 				is_operative_main_culture_equestrian = yes
 			}
 			add_unit_leader_trait = pony_race_trait
+			operative_bat_chance = yes
 			operative_add_nationalities_equestrian = yes
 		}
 		else_if = {
@@ -1355,6 +1451,13 @@ operative_add_starting_nationalities_and_race = {
 			}
 			add_unit_leader_trait = deer_race_trait
 			operative_add_nationalities_old_olenian = yes
+		}
+		else_if = {
+			limit = {
+				is_operative_main_culture_oleno_hindian = yes
+			}
+			add_unit_leader_trait = deer_race_trait
+			operative_add_nationalities_oleno_hindian = yes
 		}
 		else_if = {
 			limit = {
@@ -1591,7 +1694,7 @@ set_operative_to_pony = {
 			SURNAME = "[?surname_idx.GetPonySurname]"
 		}
 		set_temp_variable = {
-			name_idx = 4
+			name_idx = 5
 		}
 		get_random_name_idx = yes
 		meta_effect = {
@@ -1602,6 +1705,74 @@ set_operative_to_pony = {
 		}
 	}
 	add_unit_leader_trait = pony_race_trait
+}
+
+operative_bat_chance = {
+	random_list = {
+		50 = {
+
+		}
+		50 = {
+			modifier = {
+				factor = 0
+				NOT = {
+					has_nationality = EQS
+					has_nationality = NLR
+					has_nationality = EQC
+					has_nationality = TEM
+					has_nationality = JUN
+					has_nationality = NMS
+				}
+			}
+			modifier = {
+				factor = 0
+				has_nationality = EQS
+				EQS = {
+					OR = {
+						is_EQS_SOL = yes
+						NOT = { has_global_flag = celestia_and_luna_fused }
+					}
+				}
+			}
+			modifier = {
+				factor = 0
+				has_nationality = EQC
+				EQC = {
+					has_focus_tree = eqc_sol_focus
+				}
+			}
+			modifier = {
+				factor = 0.1
+				has_nationality = EQS
+				has_global_flag = celestia_and_luna_fused
+			}
+			modifier = {
+				factor = 0.1
+				has_nationality = EQC
+			}
+			set_operative_from_pony_to_bat = yes
+		}
+	}
+}
+
+set_operative_from_pony_to_bat = {
+	if = {
+		limit = {
+			is_female = no
+		}
+		remove_unit_leader_trait = pony_race_trait
+		set_temp_variable = {
+			name_idx = 2
+		}
+		get_random_name_idx = yes
+		meta_effect = {
+			text = {
+				set_leader_portrait = "[PORTRAIT]"
+			}
+			PORTRAIT = "[?name_idx.Get_bat_operative_male_portrait]"
+		}
+		add_unit_leader_trait = thestral_race_trait
+	}
 }
 
 set_operative_to_equestrian = {
@@ -1715,7 +1886,7 @@ set_operative_to_minotaur = {
 			SURNAME = "[?surname_idx.GetMinotaurSurname]"
 		}
 		set_temp_variable = {
-			name_idx = 2
+			name_idx = 5
 		}
 		get_random_name_idx = yes
 		meta_effect = {
