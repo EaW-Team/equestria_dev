@@ -3,15 +3,10 @@ on_actions = {
 	on_startup = {
 		effect = {
 			set_variable = { global.month = 1 }
-			
-			NTR = {
-				# Famine stuff
-				country_event = { id = Ntribes.998 days = 274 random = 709 } # October-November
-			}
 		}
 	}
 	
-	# ROOT is country, this is ran for every country
+	# Months counter
 	on_monthly = {
 		effect = {
 			if = {
@@ -28,7 +23,12 @@ on_actions = {
 				}
 				set_global_flag = { flag = on_monthly_done value = 1 days = 1 }
 			}
-			
+		}
+	}
+	
+	# ROOT is country, this is ran for every country
+	on_monthly = {
+		effect = {
 			# ON YEARLY
 			if = {
 				#don't touch!
@@ -45,1369 +45,15 @@ on_actions = {
 				#your code here
 				SRS = { country_event = socrep_grif.76 }
 				
-				NTR = {
-					# Famine stuff
-					set_variable = { NTR_next_year_agricultural_support_var = 1 }
-					country_event = { id = Ntribes.998 days = 274 random = 720 } # October-November
-				}
-				
-				# Dynamic monthly population
-				every_country = {
-					limit = {
-						any_of_scopes = {
-							array = controlled_states
-							
-							has_variable = SM_state_monthly_population_var
-						}
-					}
-					
-					set_temp_variable = { SM_state_monthly_population_multiplier_temp_var = 0.012 }
-					add_to_temp_variable = { SM_state_monthly_population_multiplier_temp_var = modifier@monthly_population }
-					
-					for_each_scope_loop = {
-						array = controlled_states
-						
-						set_temp_variable = { SM_state_monthly_population_temp_var = CONTROLLER.SM_state_monthly_population_multiplier_temp_var }
-						multiply_temp_variable = { SM_state_monthly_population_temp_var = state_population_k }
-						multiply_temp_variable = { SM_state_monthly_population_temp_var = SM_state_monthly_population_var }
-						multiply_temp_variable = { SM_state_monthly_population_temp_var = 1000 }
-						
-						add_manpower = SM_state_monthly_population_temp_var
-					}
-				}
-				
-				# Winter & Frozen Seas System
-				if = {
-					limit = {
-						OR = {
-							has_global_flag = EaW_winter_system_on_global_flag
-							
-							country_exists = NTR # frosen_seas_dynamic_modifier
-						}
-						
-						OR = {
-							check_variable = { global.month < 7 }
-							check_variable = { global.month > 9 }
-						}
-					}
-					
-					if = {
-						limit = {
-							check_variable = { global.month = 10 }
-							
-							has_global_flag = EaW_winter_system_on_global_flag
-						}
-						
-						every_country = {
-							limit = {
-								any_of_scopes = {
-									array = controlled_states
-									
-									check_variable = { EaW_state_winter_grade_var > 3 }
-								}
-							}
-							
-							for_each_scope_loop = {
-								array = controlled_states
-								
-								if = {
-									limit = {
-										check_variable = { EaW_state_winter_grade_var > 3 }
-									}
-									
-									add_to_array = { PREV.EaW_controlled_states_with_winter = THIS }
-									
-									calculate_EaW_state_winter_debuffer_in_October = yes
-								}
-							}
-							
-							country_event = Ntribes.902
-						}
-					}
-					else_if = {
-						limit = {
-							check_variable = { global.month = 11 }
-						}
-						
-						if = {
-							limit = {
-								has_global_flag = EaW_winter_system_on_global_flag
-							}
-							
-							every_country = {
-								limit = {
-									exists = yes
-								}
-								
-								if = {
-									limit = {
-										has_dynamic_modifier = { modifier = EaW_winter_dynamic_modifier }
-									}
-									
-									prepare_EaW_winter_dynamic_modifier_data_for_recalculation = yes
-									
-									if = {
-										limit = {
-											any_of_scopes = {
-												array = controlled_states
-												
-												check_variable = { EaW_state_winter_grade_var = 3 }
-											}
-										}
-										
-										for_each_scope_loop = {
-											array = controlled_states
-											
-											if = {
-												limit = {
-													check_variable = { EaW_state_winter_grade_var = 3 }
-												}
-												
-												add_to_array = { PREV.EaW_controlled_states_with_winter = THIS }
-											}
-										}
-										
-										for_each_scope_loop = {
-											array = EaW_controlled_states_with_winter
-											
-											calculate_EaW_state_winter_debuffer_in_November = yes
-										}
-									}
-									else = {
-										for_each_scope_loop = {
-											array = EaW_controlled_states_with_winter
-											
-											set_temp_variable = { EaW_state_winter_modifier_temp_var = EaW_state_winter_debuffer_var }
-											divide_temp_variable = { EaW_state_winter_modifier_temp_var = 2 } # 0.5/0.4 -> 0.25/0.2
-											add_to_variable = { PREV.EaW_country_winter_dynamic_modifier_var = EaW_state_winter_modifier_temp_var }
-										}
-										
-										if = {
-											limit = {
-												check_variable = { NTR_icebreakers_convoys_reversed_ratio_var > 0.75 }
-												check_variable = { EaW_controlled_states_with_winter^num = num_controlled_states } # all 4+
-											}
-											
-											add_EaW_frozen_seas_dynamic_effects = yes
-										}
-									}
-									
-									calculate_EaW_winter_dynamic_modifier_effects = yes
-								}
-								else_if = {
-									limit = {
-										any_of_scopes = {
-											array = controlled_states
-											
-											check_variable = { EaW_state_winter_grade_var = 3 }
-										}
-									}
-									
-									for_each_scope_loop = {
-										array = controlled_states
-										
-										if = {
-											limit = {
-												check_variable = { EaW_state_winter_grade_var = 3 }
-											}
-											
-											add_to_array = { PREV.EaW_controlled_states_with_winter = THIS }
-											
-											set_temp_variable = { EaW_state_winter_modifier_temp_var = EaW_state_winter_debuffer_var }
-											divide_temp_variable = { EaW_state_winter_modifier_temp_var = 3 } # 0.3 -> 0.1
-											add_to_variable = { PREV.EaW_country_winter_dynamic_modifier_var = EaW_state_winter_modifier_temp_var }
-										}
-									}
-									
-									country_event = Ntribes.902
-								}
-							}
-						}
-						else_if = {
-							limit = {
-								country_exists = NTR
-							}
-							
-							if = {
-								limit = {
-									NTR = {
-										check_variable = { NTR_icebreakers_convoys_reversed_ratio_var > 0.75 }
-										
-										NOT = {
-											any_of_scopes = {
-												array = controlled_states
-												
-												is_coastal = yes
-												is_in_home_area = yes
-												
-												check_variable = { EaW_state_winter_grade_var < 4 }
-											}
-										}
-									}
-								}
-								
-								NTR = { add_EaW_frozen_seas_dynamic_effects = yes }
-							}
-							
-							if = {
-								limit = {
-									NTR = { has_civil_war = yes }
-								}
-								
-								random_scope_in_array = {
-									array = NTR.enemies
-									
-									limit = {
-										check_variable = { NTR_icebreakers_convoys_reversed_ratio_var > 0.75 }
-										
-										NOT = {
-											any_of_scopes = {
-												array = controlled_states
-												
-												is_coastal = yes
-												is_in_home_area = yes
-												
-												check_variable = { EaW_state_winter_grade_var < 4 }
-											}
-										}
-									}
-									
-									add_EaW_frozen_seas_dynamic_effects = yes
-								}
-							}
-						}
-					}
-					else_if = {
-						limit = {
-							check_variable = { global.month = 12 }
-						}
-						
-						if = {
-							limit = {
-								has_global_flag = EaW_winter_system_on_global_flag
-							}
-							
-							every_country = {
-								limit = {
-									exists = yes
-								}
-								
-								if = {
-									limit = {
-										has_dynamic_modifier = { modifier = EaW_winter_dynamic_modifier }
-									}
-									
-									prepare_EaW_winter_dynamic_modifier_data_for_recalculation = yes
-									
-									if = {
-										limit = {
-											any_of_scopes = {
-												array = controlled_states
-												
-												check_variable = { EaW_state_winter_grade_var = 2 }
-											}
-										}
-										
-										for_each_scope_loop = {
-											array = controlled_states
-											
-											if = {
-												limit = {
-													check_variable = { EaW_state_winter_grade_var = 2 }
-												}
-												
-												add_to_array = { PREV.EaW_controlled_states_with_winter = THIS }
-											}
-										}
-										
-										for_each_scope_loop = {
-											array = EaW_controlled_states_with_winter
-											
-											calculate_EaW_state_winter_debuffer_in_December = yes
-										}
-									}
-									else = {
-										for_each_scope_loop = {
-											array = EaW_controlled_states_with_winter
-											
-											if = {
-												limit = {
-													check_variable = { EaW_state_winter_grade_var = 3 }
-												}
-												
-												set_temp_variable = { EaW_state_winter_modifier_temp_var = EaW_state_winter_debuffer_var }
-												divide_temp_variable = { EaW_state_winter_modifier_temp_var = 1.5 } # 0.3 -> 0.2
-												add_to_variable = { PREV.EaW_country_winter_dynamic_modifier_var = EaW_state_winter_modifier_temp_var }
-											}
-											else = {
-												set_temp_variable = { EaW_state_winter_modifier_temp_var = EaW_state_winter_debuffer_var }
-												multiply_temp_variable = { EaW_state_winter_modifier_temp_var = 0.75 } # 0.5/0.4 -> 0.375/0.3
-												add_to_variable = { PREV.EaW_country_winter_dynamic_modifier_var = EaW_state_winter_modifier_temp_var }
-											}
-										}
-										
-										if = {
-											limit = {
-												check_variable = { NTR_icebreakers_convoys_reversed_ratio_var > 0.5 }
-												NOT = { has_dynamic_modifier = { modifier = EaW_frozen_seas_dynamic_modifier } }
-												check_variable = { EaW_controlled_states_with_winter^num = num_controlled_states }
-												
-												if = {
-													limit = {
-														check_variable = {
-															var = NTR_icebreakers_convoys_reversed_ratio_var
-															compare = less_than_or_equals
-															value = 0.75
-														}
-													}
-													
-													NOT = {
-														any_of_scopes = {
-															array = controlled_states
-															
-															is_coastal = yes
-															is_in_home_area = yes
-															
-															check_variable = { EaW_state_winter_grade_var = 3 }
-														}
-													}
-												}
-											}
-											
-											add_EaW_frozen_seas_dynamic_effects = yes
-										}
-									}
-									
-									calculate_EaW_winter_dynamic_modifier_effects = yes
-								}
-								else_if = {
-									limit = {
-										any_of_scopes = {
-											array = controlled_states
-											
-											check_variable = { EaW_state_winter_grade_var = 2 }
-										}
-									}
-									
-									for_each_scope_loop = {
-										array = controlled_states
-										
-										if = {
-											limit = {
-												check_variable = { EaW_state_winter_grade_var = 2 }
-											}
-											
-											add_to_array = { PREV.EaW_controlled_states_with_winter = THIS }
-											
-											set_temp_variable = { EaW_state_winter_modifier_temp_var = EaW_state_winter_debuffer_var }
-											divide_temp_variable = { EaW_state_winter_modifier_temp_var = 2 } # 0.2 -> 0.1
-											add_to_variable = { PREV.EaW_country_winter_dynamic_modifier_var = EaW_state_winter_modifier_temp_var }
-										}
-									}
-									
-									country_event = Ntribes.902
-								}
-							}
-						}
-						else_if = {
-							limit = {
-								country_exists = NTR
-							}
-							
-							if = {
-								limit = {
-									NTR = {
-										NOT = { has_dynamic_modifier = { modifier = EaW_frozen_seas_dynamic_modifier } }
-										check_variable = { NTR_icebreakers_convoys_reversed_ratio_var > 0.5 }
-										
-										if = {
-											limit = {
-												check_variable = {
-													var = NTR_icebreakers_convoys_reversed_ratio_var
-													compare = less_than_or_equals
-													value = 0.75
-												}
-											}
-											
-											NOT = {
-												any_of_scopes = {
-													array = controlled_states
-													
-													is_coastal = yes
-													is_in_home_area = yes
-													
-													check_variable = { EaW_state_winter_grade_var < 4 }
-												}
-											}
-										}
-										else = {
-											NOT = {
-												any_of_scopes = {
-													array = controlled_states
-													
-													is_coastal = yes
-													is_in_home_area = yes
-													
-													check_variable = { EaW_state_winter_grade_var < 3 }
-												}
-											}
-										}
-									}
-								}
-								
-								NTR = { add_EaW_frozen_seas_dynamic_effects = yes }
-							}
-							
-							if = {
-								limit = {
-									NTR = { has_civil_war = yes }
-								}
-								
-								random_scope_in_array = {
-									array = NTR.enemies
-									
-									limit = {
-										check_variable = { NTR_icebreakers_convoys_reversed_ratio_var > 0.5 }
-										NOT = { has_dynamic_modifier = { modifier = EaW_frozen_seas_dynamic_modifier } }
-										
-										if = {
-											limit = {
-												check_variable = {
-													var = NTR_icebreakers_convoys_reversed_ratio_var
-													compare = less_than_or_equals
-													value = 0.75
-												}
-											}
-											
-											NOT = {
-												any_of_scopes = {
-													array = controlled_states
-													
-													is_coastal = yes
-													is_in_home_area = yes
-													
-													check_variable = { EaW_state_winter_grade_var < 4 }
-												}
-											}
-										}
-										else = {
-											NOT = {
-												any_of_scopes = {
-													array = controlled_states
-													
-													is_coastal = yes
-													is_in_home_area = yes
-													
-													check_variable = { EaW_state_winter_grade_var < 3 }
-												}
-											}
-										}
-									}
-									
-									add_EaW_frozen_seas_dynamic_effects = yes
-								}
-							}
-						}
-					}
-					else_if = {
-						limit = {
-							check_variable = { global.month = 1 }
-						}
-						
-						if = {
-							limit = {
-								has_global_flag = EaW_winter_system_on_global_flag
-							}
-							
-							every_country = {
-								limit = {
-									exists = yes
-								}
-								
-								if = {
-									limit = {
-										has_dynamic_modifier = { modifier = EaW_winter_dynamic_modifier }
-									}
-									
-									prepare_EaW_winter_dynamic_modifier_data_for_recalculation = yes
-									
-									for_each_scope_loop = {
-										array = controlled_states
-										
-										if = {
-											limit = {
-												check_variable = { EaW_state_winter_grade_var = 1 }
-											}
-											
-											add_to_array = { PREV.EaW_controlled_states_with_winter = THIS }
-										}
-									}
-									
-									for_each_scope_loop = {
-										array = EaW_controlled_states_with_winter
-										
-										add_to_variable = { PREV.EaW_country_winter_dynamic_modifier_var = EaW_state_winter_debuffer_var }
-									}
-									
-									if = {
-										limit = {
-											check_variable = { NTR_icebreakers_convoys_reversed_ratio_var > 0.2 }
-											NOT = { has_dynamic_modifier = { modifier = EaW_frozen_seas_dynamic_modifier } }
-											check_variable = { EaW_controlled_states_with_winter^num = num_controlled_states }
-											
-											if = {
-												limit = {
-													check_variable = {
-														var = NTR_icebreakers_convoys_reversed_ratio_var
-														compare = less_than_or_equals
-														value = 0.5
-													}
-												}
-												
-												NOT = {
-													any_of_scopes = {
-														array = controlled_states
-														
-														is_coastal = yes
-														is_in_home_area = yes
-														
-														check_variable = { EaW_state_winter_grade_var < 4 }
-													}
-												}
-											}
-											else_if = {
-												limit = {
-													check_variable = {
-														var = NTR_icebreakers_convoys_reversed_ratio_var
-														compare = less_than_or_equals
-														value = 0.75
-													}
-												}
-												
-												NOT = {
-													any_of_scopes = {
-														array = controlled_states
-														
-														is_coastal = yes
-														is_in_home_area = yes
-														
-														check_variable = { EaW_state_winter_grade_var < 3 }
-													}
-												}
-											}
-										}
-										
-										add_EaW_frozen_seas_dynamic_effects = yes
-									}
-									
-									calculate_EaW_winter_dynamic_modifier_effects = yes
-								}
-								else_if = {
-									limit = {
-										any_of_scopes = {
-											array = controlled_states
-											
-											check_variable = { EaW_state_winter_grade_var = 1 }
-										}
-									}
-									
-									for_each_scope_loop = {
-										array = controlled_states
-										
-										if = {
-											limit = {
-												has_variable = EaW_state_winter_debuffer_var
-											}
-											
-											add_to_array = { PREV.EaW_controlled_states_with_winter = THIS }
-											add_to_variable = { PREV.EaW_country_winter_dynamic_modifier_var = EaW_state_winter_debuffer_var }
-										}
-									}
-									
-									country_event = Ntribes.902
-								}
-							}
-						}
-						else_if = {
-							limit = {
-								country_exists = NTR
-							}
-							
-							if = {
-								limit = {
-									NTR = {
-										NOT = { has_dynamic_modifier = { modifier = EaW_frozen_seas_dynamic_modifier } }
-										check_variable = { NTR_icebreakers_convoys_reversed_ratio_var > 0.2 }
-										
-										if = {
-											limit = {
-												check_variable = {
-													var = NTR_icebreakers_convoys_reversed_ratio_var
-													compare = less_than_or_equals
-													value = 0.5
-												}
-											}
-											
-											NOT = {
-												any_of_scopes = {
-													array = controlled_states
-													
-													is_coastal = yes
-													is_in_home_area = yes
-													
-													check_variable = { EaW_state_winter_grade_var < 4 }
-												}
-											}
-										}
-										else_if = {
-											limit = {
-												check_variable = {
-													var = NTR_icebreakers_convoys_reversed_ratio_var
-													compare = less_than_or_equals
-													value = 0.75
-												}
-											}
-											
-											NOT = {
-												any_of_scopes = {
-													array = controlled_states
-													
-													is_coastal = yes
-													is_in_home_area = yes
-													
-													check_variable = { EaW_state_winter_grade_var < 3 }
-												}
-											}
-										}
-									}
-								}
-								
-								NTR = { add_EaW_frozen_seas_dynamic_effects = yes }
-							}
-							
-							if = {
-								limit = {
-									NTR = { has_civil_war = yes }
-								}
-								
-								random_scope_in_array = {
-									array = NTR.enemies
-									
-									limit = {
-										check_variable = { NTR_icebreakers_convoys_reversed_ratio_var > 0.2 }
-										NOT = { has_dynamic_modifier = { modifier = EaW_frozen_seas_dynamic_modifier } }
-										
-										if = {
-											limit = {
-												check_variable = {
-													var = NTR_icebreakers_convoys_reversed_ratio_var
-													compare = less_than_or_equals
-													value = 0.5
-												}
-											}
-											
-											NOT = {
-												any_of_scopes = {
-													array = controlled_states
-													
-													is_coastal = yes
-													is_in_home_area = yes
-													
-													check_variable = { EaW_state_winter_grade_var < 4 }
-												}
-											}
-										}
-										else_if = {
-											limit = {
-												check_variable = {
-													var = NTR_icebreakers_convoys_reversed_ratio_var
-													compare = less_than_or_equals
-													value = 0.75
-												}
-											}
-											
-											NOT = {
-												any_of_scopes = {
-													array = controlled_states
-													
-													is_coastal = yes
-													is_in_home_area = yes
-													
-													check_variable = { EaW_state_winter_grade_var < 3 }
-												}
-											}
-										}
-									}
-									
-									add_EaW_frozen_seas_dynamic_effects = yes
-								}
-							}
-						}
-					}
-					else_if = {
-						limit = {
-							check_variable = { global.month = 2 }
-						}
-						
-						if = {
-							limit = {
-								has_global_flag = EaW_winter_system_on_global_flag
-							}
-							
-							every_country = {
-								limit = {
-									has_dynamic_modifier = { modifier = EaW_winter_dynamic_modifier }
-								}
-								
-								if = {
-									limit = {
-										any_of_scopes = {
-											array = EaW_controlled_states_with_winter
-											
-											check_variable = { EaW_state_winter_grade_var > 1 }
-										}
-									}
-									
-									prepare_EaW_winter_dynamic_modifier_data_for_recalculation = yes
-									
-									if = {
-										limit = {
-											any_of_scopes = {
-												array = EaW_controlled_states_with_winter
-												
-												check_variable = { EaW_state_winter_grade_var = 2 }
-											}
-										}
-										
-										for_each_scope_loop = {
-											array = EaW_controlled_states_with_winter
-											
-											if = {
-												limit = {
-													check_variable = { EaW_state_winter_grade_var > 1 }
-												}
-												
-												calculate_EaW_state_winter_debuffer_in_February = yes
-											}
-											else = {
-												remove_from_array = {
-													array = PREV.EaW_controlled_states_with_winter
-													value = THIS
-												}
-											}
-										}
-										
-										if = {
-											limit = {
-												has_dynamic_modifier = { modifier = EaW_frozen_seas_dynamic_modifier }
-											}
-											
-											remove_EaW_frozen_seas_effects = yes
-										}
-									}
-									else = {
-										for_each_scope_loop = {
-											array = EaW_controlled_states_with_winter
-											
-											if = {
-												limit = {
-													check_variable = { EaW_state_winter_grade_var > 2 }
-												}
-												
-												if = {
-													limit = {
-														check_variable = { EaW_state_winter_grade_var = 3 }
-													}
-													
-													set_temp_variable = { EaW_state_winter_modifier_temp_var = EaW_state_winter_debuffer_var }
-													divide_temp_variable = { EaW_state_winter_modifier_temp_var = 1.5 } # 0.3 -> 0.2
-													add_to_variable = { PREV.EaW_country_winter_dynamic_modifier_var = EaW_state_winter_modifier_temp_var }
-												}
-												else_if = {
-													limit = {
-														check_variable = { EaW_state_winter_grade_var = 4 }
-													}
-													
-													set_temp_variable = { EaW_state_winter_modifier_temp_var = EaW_state_winter_debuffer_var }
-													multiply_temp_variable = { EaW_state_winter_modifier_temp_var = 0.75 } # 0.4 -> 0.3
-													add_to_variable = { PREV.EaW_country_winter_dynamic_modifier_var = EaW_state_winter_modifier_temp_var }
-												}
-												else = {
-													set_temp_variable = { EaW_state_winter_modifier_temp_var = EaW_state_winter_debuffer_var }
-													multiply_temp_variable = { EaW_state_winter_modifier_temp_var = 0.8 } # 0.5 -> 0.4
-													add_to_variable = { PREV.EaW_country_winter_dynamic_modifier_var = EaW_state_winter_modifier_temp_var }
-												}
-											}
-											else = {
-												remove_from_array = {
-													array = PREV.EaW_controlled_states_with_winter
-													value = THIS
-												}
-											}
-										}
-										
-										if = {
-											limit = {
-												has_dynamic_modifier = { modifier = EaW_frozen_seas_dynamic_modifier }
-												
-												OR = {
-													check_variable = { EaW_controlled_states_with_winter^num < num_controlled_states }
-													
-													check_variable = {
-														var = NTR_icebreakers_convoys_reversed_ratio_var
-														compare = less_than_or_equals
-														value = 0.4
-													}
-													
-													if = {
-														check_variable = {
-															var = NTR_icebreakers_convoys_reversed_ratio_var
-															compare = less_than_or_equals
-															value = 0.75
-														}
-														
-														any_of_scopes = {
-															array = EaW_controlled_states_with_winter
-															
-															is_coastal = yes
-															is_in_home_area = yes
-															
-															check_variable = { EaW_state_winter_grade_var = 3 }
-														}
-													}
-												}
-											}
-											
-											remove_EaW_frozen_seas_effects = yes
-										}
-									}
-									
-									calculate_EaW_winter_dynamic_modifier_effects = yes
-								}
-								else = {
-									if = {
-										limit = {
-											has_dynamic_modifier = { modifier = EaW_frozen_seas_dynamic_modifier }
-										}
-										
-										remove_EaW_frozen_seas_effects = yes
-									}
-									
-									country_event = Ntribes.903
-								}
-							}
-						}
-						else_if = {
-							limit = {
-								country_exists = NTR
-							}
-							
-							if = {
-								limit = {
-									NTR = {
-										has_dynamic_modifier = { modifier = EaW_frozen_seas_dynamic_modifier }
-										
-										OR = {
-											check_variable = {
-												var = NTR_icebreakers_convoys_reversed_ratio_var
-												compare = less_than_or_equals
-												value = 0.4
-											}
-											
-											if = {
-												check_variable = {
-													var = NTR_icebreakers_convoys_reversed_ratio_var
-													compare = less_than_or_equals
-													value = 0.75
-												}
-												
-												any_of_scopes = {
-													array = controlled_states
-													
-													is_coastal = yes
-													is_in_home_area = yes
-													
-													check_variable = { EaW_state_winter_grade_var = 3 }
-												}
-											}
-										}
-									}
-								}
-								
-								NTR = { remove_EaW_frozen_seas_effects = yes }
-							}
-							
-							if = {
-								limit = {
-									NTR = { has_civil_war = yes }
-								}
-								
-								random_scope_in_array = {
-									array = NTR.enemies
-									
-									limit = {
-										has_dynamic_modifier = { modifier = EaW_frozen_seas_dynamic_modifier }
-										
-										OR = {
-											check_variable = {
-												var = NTR_icebreakers_convoys_reversed_ratio_var
-												compare = less_than_or_equals
-												value = 0.4
-											}
-											
-											if = {
-												check_variable = {
-													var = NTR_icebreakers_convoys_reversed_ratio_var
-													compare = less_than_or_equals
-													value = 0.8
-												}
-												
-												any_of_scopes = {
-													array = controlled_states
-													
-													is_coastal = yes
-													is_in_home_area = yes
-													
-													check_variable = { EaW_state_winter_grade_var = 3 }
-												}
-											}
-										}
-									}
-									
-									remove_EaW_frozen_seas_effects = yes
-								}
-							}
-						}
-					}
-					else_if = {
-						limit = {
-							check_variable = { global.month = 3 }
-						}
-						
-						if = {
-							limit = {
-								has_global_flag = EaW_winter_system_on_global_flag
-							}
-							
-							every_country = {
-								limit = {
-									has_dynamic_modifier = { modifier = EaW_winter_dynamic_modifier }
-								}
-								
-								if = {
-									limit = {
-										any_of_scopes = {
-											array = EaW_controlled_states_with_winter
-											
-											check_variable = { EaW_state_winter_grade_var > 2 }
-										}
-									}
-									
-									prepare_EaW_winter_dynamic_modifier_data_for_recalculation = yes
-									
-									if = {
-										limit = {
-											any_of_scopes = {
-												array = EaW_controlled_states_with_winter
-												
-												check_variable = { EaW_state_winter_grade_var = 3 }
-											}
-										}
-										
-										for_each_scope_loop = {
-											array = EaW_controlled_states_with_winter
-											
-											if = {
-												limit = {
-													check_variable = { EaW_state_winter_grade_var > 2 }
-												}
-												
-												calculate_EaW_state_winter_debuffer_in_March = yes
-											}
-											else = {
-												remove_from_array = {
-													array = PREV.EaW_controlled_states_with_winter
-													value = THIS
-												}
-											}
-										}
-										
-										if = {
-											limit = {
-												has_dynamic_modifier = { modifier = EaW_frozen_seas_dynamic_modifier }
-											}
-											
-											remove_EaW_frozen_seas_effects = yes
-										}
-									}
-									else = {
-										for_each_scope_loop = {
-											array = EaW_controlled_states_with_winter
-											
-											if = {
-												limit = {
-													check_variable = { EaW_state_winter_grade_var > 3 }
-												}
-												
-												if = {
-													limit = {
-														check_variable = { EaW_state_winter_grade_var = 4 }
-													}
-													
-													set_temp_variable = { EaW_state_winter_modifier_temp_var = EaW_state_winter_debuffer_var }
-													divide_temp_variable = { EaW_state_winter_modifier_temp_var = 2 } # 0.4 -> 0.2
-													add_to_variable = { PREV.EaW_country_winter_dynamic_modifier_var = EaW_state_winter_modifier_temp_var }
-												}
-												else = {
-													set_temp_variable = { EaW_state_winter_modifier_temp_var = EaW_state_winter_debuffer_var }
-													multiply_temp_variable = { EaW_state_winter_modifier_temp_var = 0.6 } # 0.5 -> 0.3
-													add_to_variable = { PREV.EaW_country_winter_dynamic_modifier_var = EaW_state_winter_modifier_temp_var }
-												}
-											}
-											else = {
-												remove_from_array = {
-													array = PREV.EaW_controlled_states_with_winter
-													value = THIS
-												}
-											}
-										}
-										
-										if = {
-											limit = {
-												has_dynamic_modifier = { modifier = EaW_frozen_seas_dynamic_modifier }
-												
-												OR = {
-													check_variable = { EaW_controlled_states_with_winter^num < num_controlled_states }
-													
-													check_variable = {
-														var = NTR_icebreakers_convoys_reversed_ratio_var
-														compare = less_than_or_equals
-														value = 0.6
-													}
-												}
-											}
-											
-											remove_EaW_frozen_seas_effects = yes
-										}
-									}
-									
-									calculate_EaW_winter_dynamic_modifier_effects = yes
-								}
-								else = {
-									if = {
-										limit = {
-											has_dynamic_modifier = { modifier = EaW_frozen_seas_dynamic_modifier }
-										}
-										
-										remove_EaW_frozen_seas_effects = yes
-									}
-									
-									country_event = Ntribes.903
-								}
-							}
-						}
-						else_if = {
-							limit = {
-								country_exists = NTR
-							}
-							
-							if = {
-								limit = {
-									NTR = {
-										has_dynamic_modifier = { modifier = EaW_frozen_seas_dynamic_modifier }
-										
-										OR = {
-											check_variable = {
-												var = NTR_icebreakers_convoys_reversed_ratio_var
-												compare = less_than_or_equals
-												value = 0.6
-											}
-										}
-									}
-								}
-								
-								NTR = { remove_EaW_frozen_seas_effects = yes }
-							}
-							
-							if = {
-								limit = {
-									NTR = { has_civil_war = yes }
-								}
-								
-								random_scope_in_array = {
-									array = NTR.enemies
-									
-									limit = {
-										has_dynamic_modifier = { modifier = EaW_frozen_seas_dynamic_modifier }
-										
-										OR = {
-											check_variable = {
-												var = NTR_icebreakers_convoys_reversed_ratio_var
-												compare = less_than_or_equals
-												value = 0.6
-											}
-										}
-									}
-									
-									remove_EaW_frozen_seas_effects = yes
-								}
-							}
-						}
-					}
-					else_if = {
-						limit = {
-							check_variable = { global.month = 4 }
-						}
-						
-						if = {
-							limit = {
-								has_global_flag = EaW_winter_system_on_global_flag
-							}
-							
-							every_country = {
-								limit = {
-									has_dynamic_modifier = { modifier = EaW_winter_dynamic_modifier }
-								}
-								
-								if = {
-									limit = {
-										any_of_scopes = {
-											array = EaW_controlled_states_with_winter
-											
-											check_variable = { EaW_state_winter_grade_var > 3 }
-										}
-									}
-									
-									prepare_EaW_winter_dynamic_modifier_data_for_recalculation = yes
-									
-									if = {
-										limit = {
-											any_of_scopes = {
-												array = EaW_controlled_states_with_winter
-												
-												check_variable = { EaW_state_winter_grade_var = 4 }
-											}
-										}
-										
-										for_each_scope_loop = {
-											array = EaW_controlled_states_with_winter
-											
-											if = {
-												limit = {
-													check_variable = { EaW_state_winter_grade_var > 3 }
-												}
-												
-												calculate_EaW_state_winter_debuffer_in_April = yes
-											}
-											else = {
-												remove_from_array = {
-													array = PREV.EaW_controlled_states_with_winter
-													value = THIS
-												}
-											}
-										}
-										
-										if = {
-											limit = {
-												has_dynamic_modifier = { modifier = EaW_frozen_seas_dynamic_modifier }
-											}
-											
-											remove_EaW_frozen_seas_effects = yes
-										}
-									}
-									else = {
-										for_each_scope_loop = {
-											array = EaW_controlled_states_with_winter
-											
-											set_temp_variable = { EaW_state_winter_modifier_temp_var = EaW_state_winter_debuffer_var }
-											multiply_temp_variable = { EaW_state_winter_modifier_temp_var = 0.4 } # 0.5 -> 0.2
-											add_to_variable = { PREV.EaW_country_winter_dynamic_modifier_var = EaW_state_winter_modifier_temp_var }
-										}
-										
-										if = {
-											limit = {
-												has_dynamic_modifier = { modifier = EaW_frozen_seas_dynamic_modifier }
-												
-												OR = {
-													check_variable = { EaW_controlled_states_with_winter^num < num_controlled_states }
-													
-													check_variable = {
-														var = NTR_icebreakers_convoys_reversed_ratio_var
-														compare = less_than_or_equals
-														value = 0.8
-													}
-												}
-											}
-											
-											remove_EaW_frozen_seas_effects = yes
-										}
-									}
-									
-									calculate_EaW_winter_dynamic_modifier_effects = yes
-								}
-								else = {
-									if = {
-										limit = {
-											has_dynamic_modifier = { modifier = EaW_frozen_seas_dynamic_modifier }
-										}
-										
-										remove_EaW_frozen_seas_effects = yes
-									}
-									
-									country_event = Ntribes.903
-								}
-							}
-						}
-						else_if = {
-							limit = {
-								country_exists = NTR
-							}
-							
-							if = {
-								limit = {
-									NTR = {
-										has_dynamic_modifier = { modifier = EaW_frozen_seas_dynamic_modifier }
-										
-										check_variable = {
-											var = NTR_icebreakers_convoys_reversed_ratio_var
-											compare = less_than_or_equals
-											value = 0.8
-										}
-									}
-								}
-								
-								NTR = { remove_EaW_frozen_seas_effects = yes }
-							}
-							
-							if = {
-								limit = {
-									NTR = { has_civil_war = yes }
-								}
-								
-								random_scope_in_array = {
-									array = NTR.enemies
-									
-									limit = {
-										has_dynamic_modifier = { modifier = EaW_frozen_seas_dynamic_modifier }
-										
-										check_variable = {
-											var = NTR_icebreakers_convoys_reversed_ratio_var
-											compare = less_than_or_equals
-											value = 0.8
-										}
-									}
-									
-									remove_EaW_frozen_seas_effects = yes
-								}
-							}
-						}
-					}
-					else_if = {
-						limit = {
-							check_variable = { global.month = 5 }
-						}
-						
-						if = {
-							limit = {
-								has_global_flag = EaW_winter_system_on_global_flag
-							}
-							
-							every_country = {
-								limit = {
-									has_dynamic_modifier = { modifier = EaW_winter_dynamic_modifier }
-								}
-								
-								if = {
-									limit = {
-										any_of_scopes = {
-											array = EaW_controlled_states_with_winter
-											
-											check_variable = { EaW_state_winter_grade_var = 5 }
-										}
-									}
-									
-									prepare_EaW_winter_dynamic_modifier_data_for_recalculation = yes
-									
-									for_each_scope_loop = {
-										array = EaW_controlled_states_with_winter
-										
-										if = {
-											limit = {
-												check_variable = { EaW_state_winter_grade_var = 5 }
-											}
-											
-											calculate_EaW_state_winter_debuffer_in_May = yes
-										}
-										else = {
-											remove_from_array = {
-												array = PREV.EaW_controlled_states_with_winter
-												value = THIS
-											}
-										}
-									}
-									
-									calculate_EaW_winter_dynamic_modifier_effects = yes
-								}
-								else = {
-									country_event = Ntribes.903
-								}
-							}
-						}
-						
-						if = {
-							limit = {
-								country_exists = NTR
-							}
-							
-							if = {
-								limit = {
-									NTR = { has_dynamic_modifier = { modifier = EaW_frozen_seas_dynamic_modifier } }
-								}
-								
-								NTR = { remove_EaW_frozen_seas_effects = yes }
-							}
-							
-							if = {
-								limit = {
-									NTR = { has_civil_war = yes }
-								}
-								
-								random_scope_in_array = {
-									array = NTR.enemies
-									
-									limit = {
-										has_dynamic_modifier = { modifier = EaW_frozen_seas_dynamic_modifier }
-									}
-									
-									remove_EaW_frozen_seas_effects = yes
-								}
-							}
-						}
-					}
-					else = {
-						if = {
-							limit = {
-								has_global_flag = EaW_winter_system_on_global_flag
-							}
-							
-							every_country = {
-								limit = {
-									has_dynamic_modifier = { modifier = EaW_winter_dynamic_modifier }
-								}
-								
-								country_event = Ntribes.903
-							}
-						}
-					}
-				}
-				
 				#don't touch!
 				set_variable = { global.last_year = global.year }
 				set_global_flag = { flag = on_yearly_done value = 1 days = 1 }
 			}
+
+			core_all_occupied_through_compliance = yes
 		}
 	}
-	
+
 	on_monthly_CHN = {
 		effect = {
 			log = "[GetDateText]: ROOT: [Root.GetName] on_monthly_CHN"
@@ -1427,7 +73,154 @@ on_actions = {
 			}
 		}
 	}
-	
+
+	on_weekly_CHN = {
+		effect = {
+			log = "[GetDateText]: ROOT: [Root.GetName] on_weekly_CHN"
+			if = {
+				limit = {
+					has_active_mission = CHN_acornage_colonisation_decision
+				}
+				CHN = {
+					save_current_manpower = yes
+				}
+				136 = {
+					add_manpower = -5000
+				}
+				137 = {
+					add_manpower = 1250
+				}
+				138 = {
+					add_manpower = 1250
+				}
+				172 = {
+					add_manpower = 1250
+				}
+				175 = {
+					add_manpower = 1250
+				}
+				CHN = {
+					restore_previous_manpower = yes
+				}
+			}
+			if = {
+				limit = {
+					has_active_mission = CHN_vanhoover_colonisation_decision
+					NOT = { 
+						has_country_flag = CHN_vanhoover_colonisation_decision_updated_flag
+					}
+				}
+				CHN = {
+					save_current_manpower = yes
+				}
+				14 = {
+					add_manpower = -5000
+				}
+				45 = {
+					add_manpower = 1250
+				}
+				72 = {
+					add_manpower = 1250
+				}
+				73 = {
+					add_manpower = 1250
+				}
+				172 = {
+					add_manpower = 1250
+				}
+				CHN = {
+					restore_previous_manpower = yes
+				}
+			}
+			if = {
+				limit = {
+					has_active_mission = CHN_vanhoover_colonisation_decision
+					has_country_flag = CHN_vanhoover_colonisation_decision_updated_flag
+				}
+				CHN = {
+					save_current_manpower = yes
+				}
+				14 = {
+					add_manpower = -100
+				}
+				45 = {
+					add_manpower = 25
+				}
+				72 = {
+					add_manpower = 25
+				}
+				73 = {
+					add_manpower = 25
+				}
+				172 = {
+					add_manpower = 25
+				}
+				CHN = {
+					restore_previous_manpower = yes
+				}
+			}
+			if = {
+				limit = {
+					has_idea = CHN_equestria_chaos3
+				}
+				every_controlled_state = {
+					limit = {
+						is_core_of = EQS
+						compliance > 40
+					}
+					set_compliance = 40
+				}
+			}
+			if = {
+				limit = {
+					has_idea = CHN_equestria_chaos2
+				}
+				every_controlled_state = {
+					limit = {
+						is_core_of = EQS
+						compliance > 60
+					}
+					set_compliance = 60
+				}
+			}
+			if = {
+				limit = {
+					has_idea = CHN_equestria_chaos1
+				}
+				every_controlled_state = {
+					limit = {
+						is_core_of = EQS
+						compliance > 80
+					}
+					set_compliance = 80
+				}
+			}
+			if = {
+				limit = {
+					has_completed_focus = CHN_post_war_5
+					is_ai = yes
+					check_variable = { CHN_amount_of_allowed_battalions < num_battalions }
+				}
+				set_temp_variable = { disband_fraction = num_battalions }
+				subtract_from_temp_variable = { disband_fraction = CHN_amount_of_allowed_battalions }
+				divide_temp_variable = { disband_fraction = num_battalions }
+				clamp_temp_variable = {
+					var = divide_temp_variable
+					min = 0
+					max = 0.1
+				}
+				disband_units_fraction = yes
+			}
+			if = {
+				limit = {
+					has_completed_focus = CHN_post_war_5
+					check_variable = { CHN_amount_of_allowed_battalions < CHN.num_battalions }
+				}
+				subtract_from_variable = { CHN_love_variable = CHN_excess_battalions_cost }
+			}
+		}
+	}
+
 	on_weekly_MAN = {
 		effect = {
 			log = "[GetDateText]: ROOT: [Root.GetName] on_weekly_MAN"
@@ -1502,6 +295,287 @@ on_actions = {
 					producer = ELF
 				}
 			}
+		}
+	}
+	on_monthly_BAR = {
+		effect = {
+			log = "[GetDateText]: ROOT: [Root.GetName] on_monthly_BAR"
+			if = {
+				limit = {
+					original_tag = BAR
+				}
+				if = {
+					limit = { 
+						country_exists = BAR
+						BAR = {
+							has_country_flag = { flag = barrad_endgame value = 0 }
+							has_country_flag = barrad_silver_star_alive
+							OR = {
+								AND = {
+									has_country_flag = barrad_asinti_alive
+									check_variable = { BAR_relations_asinti_silver < 70 }
+								}
+								AND = {
+									has_country_flag = barrad_leopold_alive
+									check_variable = { BAR_relations_silver_leopold < 70 }
+								}
+								AND = {
+									has_country_flag = barrad_viira_alive
+									check_variable = { BAR_relations_silver_viira < 70 }
+								}
+							}
+						}
+					}
+					BAR = {
+						if = {
+							limit = {
+								has_country_flag = BAR_silver_sad
+							}
+							country_event = { days = 1 random_days = 14 id = barrad_silver_star.11 }
+						}
+						else = {
+							country_event = { days = 1 random_days = 14 id = barrad_silver_star.1 }
+						}
+					}
+				}
+				if = {
+					limit = {
+						country_exists = BAR
+						BAR = {
+							OR = {
+								has_variable = BAR_viira_pup
+								has_variable = BAR_viira_control
+							}	
+							check_variable = { viira_mana_overload > 9 }
+						}
+					}
+					BAR = {
+						subtract_from_variable = { viira_mana_overload = 10 }
+					}
+					
+				}
+				if = {
+					limit = {
+						has_country_flag = { flag = barrad_endgame value = 0 }
+						OR = {
+							AND = {
+								has_country_flag = barrad_leopold_alive
+								has_country_flag = barrad_asinti_alive
+							}
+							AND = {
+								has_country_flag = barrad_silver_star_alive
+								has_country_flag = barrad_asinti_alive
+							}
+							AND = {
+								has_country_flag = barrad_viira_alive
+								has_country_flag = barrad_asinti_alive
+							}
+							AND = {
+								has_country_flag = barrad_viira_alive
+								has_country_flag = barrad_silver_star_alive
+							}
+							AND = {
+								has_country_flag = barrad_leopold_alive
+								has_country_flag = barrad_viira_alive
+							}
+							AND = {
+								has_country_flag = barrad_leopold_alive
+								has_country_flag = barrad_silver_star_alive
+							}
+						}
+					}
+					random_list = {
+						30 = {
+							if = {
+								limit = {
+									has_country_flag = barrad_silver_star_alive
+									has_country_flag = barrad_asinti_alive
+									has_country_flag = barrad_viira_alive
+									has_country_flag = barrad_leopold_alive	
+								}
+								random_list = {
+									16 = {
+										country_event = { id = barrad_monthy_relation_hit_event.1 days = 8 }
+									}
+									16 = {
+										country_event = { id = barrad_monthy_relation_hit_event.2 days = 8 }
+									}
+									17 = {
+										country_event = { id = barrad_monthy_relation_hit_event.3 days = 8 }
+									}
+									17 = {
+										country_event = { id = barrad_monthy_relation_hit_event.4 days = 8 }
+									}
+									17 = {
+										country_event = { id = barrad_monthy_relation_hit_event.5 days = 8 }
+									}
+									17 = {
+										country_event = { id = barrad_monthy_relation_hit_event.6 days = 8 }
+									}
+								}
+							}
+							else_if = {
+								limit = {
+									has_country_flag = barrad_silver_star_alive
+									has_country_flag = barrad_asinti_alive
+									has_country_flag = barrad_viira_alive
+									NOT = { has_country_flag = barrad_leopold_alive }
+								}
+								random_list = {
+									34 = {
+										country_event = { id = barrad_monthy_relation_hit_event.2 days = 8 }
+									}
+									33 = {
+										country_event = { id = barrad_monthy_relation_hit_event.3 days = 8 }
+									}
+									33 = {
+										country_event = { id = barrad_monthy_relation_hit_event.5 days = 8 }
+									}
+								}
+							}
+							else_if = {
+								limit = {
+									has_country_flag = barrad_silver_star_alive
+									has_country_flag = barrad_asinti_alive
+									NOT = { has_country_flag = barrad_viira_alive }
+									has_country_flag = barrad_leopold_alive
+								}
+								random_list = {
+									34 = {
+										country_event = { id = barrad_monthy_relation_hit_event.1 days = 8 }
+									}
+									33 = {
+										country_event = { id = barrad_monthy_relation_hit_event.2 days = 8 }
+									}
+									33 = {
+										country_event = { id = barrad_monthy_relation_hit_event.6 days = 8 }
+									}
+								}
+							}
+							else_if = {
+								limit = {
+									has_country_flag = barrad_silver_star_alive
+									has_country_flag = barrad_asinti_alive
+									NOT = { has_country_flag = barrad_viira_alive }
+									NOT = { has_country_flag = barrad_leopold_alive }
+								}
+								country_event = { id = barrad_monthy_relation_hit_event.2 days = 8 }
+							}
+							else_if = {
+								limit = {
+									has_country_flag = barrad_silver_star_alive
+									NOT = { has_country_flag = barrad_asinti_alive }
+									has_country_flag = barrad_viira_alive
+									has_country_flag = barrad_leopold_alive
+								}
+								random_list = {
+									34 = {
+										country_event = { id = barrad_monthy_relation_hit_event.4 days = 8 }
+									}
+									33 = {
+										country_event = { id = barrad_monthy_relation_hit_event.5 days = 8 }
+									}
+									33 = {
+										country_event = { id = barrad_monthy_relation_hit_event.6 days = 8 }
+									}
+								}
+							}
+							else_if = {
+								limit = {
+									has_country_flag = barrad_silver_star_alive
+									NOT = { has_country_flag = barrad_asinti_alive }
+									has_country_flag = barrad_viira_alive
+									NOT = { has_country_flag = barrad_leopold_alive }
+								}
+								country_event = { id = barrad_monthy_relation_hit_event.5 days = 8 }
+							}
+							else_if = {
+								limit = {
+									has_country_flag = barrad_silver_star_alive
+									NOT = { has_country_flag = barrad_asinti_alive }
+									NOT = { has_country_flag = barrad_viira_alive }
+									has_country_flag = barrad_leopold_alive
+								}
+								country_event = { id = barrad_monthy_relation_hit_event.6 days = 8 }
+							}
+							else_if = {
+								limit = {
+									NOT = { has_country_flag = barrad_silver_star_alive }
+									has_country_flag = barrad_asinti_alive
+									has_country_flag = barrad_viira_alive
+									has_country_flag = barrad_leopold_alive
+								}
+								random_list = {
+									34 = {
+										country_event = { id = barrad_monthy_relation_hit_event.1 days = 8 }
+									}
+									33 = {
+										country_event = { id = barrad_monthy_relation_hit_event.3 days = 8 }
+									}
+									33 = {
+										country_event = { id = barrad_monthy_relation_hit_event.4 days = 8 }
+									}
+								}
+							}
+							else_if = {
+								limit = {
+									NOT = { has_country_flag = barrad_silver_star_alive }
+									has_country_flag = barrad_asinti_alive
+									has_country_flag = barrad_viira_alive
+									NOT = { has_country_flag = barrad_leopold_alive }
+								}
+								country_event = { id = barrad_monthy_relation_hit_event.3 days = 8 }
+							}
+							else_if = {
+								limit = {
+									NOT = { has_country_flag = barrad_silver_star_alive }
+									has_country_flag = barrad_asinti_alive
+									NOT = { has_country_flag = barrad_viira_alive }
+									has_country_flag = barrad_leopold_alive
+								}
+								country_event = { id = barrad_monthy_relation_hit_event.1 days = 8 }
+							}
+							else_if = {
+								limit = {
+									NOT = { has_country_flag = barrad_silver_star_alive }
+									NOT = { has_country_flag = barrad_asinti_alive }
+									has_country_flag = barrad_viira_alive
+									has_country_flag = barrad_leopold_alive
+								}
+								country_event = { id = barrad_monthy_relation_hit_event.4 days = 8 }
+							}
+						}
+						70 = {
+
+						}
+					}
+				}
+				if = {
+					limit = {
+						BAR = {
+							has_war = yes
+							has_country_flag = BAR_asinti_ded_count
+						}
+					}
+					BAR = {
+						divide_variable = { BAR_asinti_blood_resource = 2 }
+						round_variable = BAR_asinti_blood_resource
+						set_variable = { inflicted_casualties_last_month = inflicted_casualties }
+						count_inflicted_casualties_on_current_enemies = yes
+						subtract_from_variable = { inflicted_casualties_last_month = inflicted_casualties }
+						multiply_variable = { inflicted_casualties_last_month = -1 }
+						if = {
+							limit = {
+								check_variable = { BAR_asinti_blood_resource < 2100000 }
+							}
+							add_to_variable = { BAR_asinti_blood_resource = inflicted_casualties_last_month }
+						}
+						else = {
+							set_variable = { BAR_asinti_blood_resource = 2100000 }
+						}
+					}	
+				}
+			}	
 		}
 	}
 }
