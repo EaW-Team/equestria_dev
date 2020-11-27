@@ -442,6 +442,12 @@ country_event = { #### AI PONYPOWER BUFF
 		is_ai = yes
 		has_war_with = CHN
 		surrender_progress > 0.12
+		NOT = {
+			has_game_rule = {
+				rule = great_war_ai_buffs
+				option = BUFFS_REMOVED
+			}
+		}
 	}
 
 	fire_only_once = yes
@@ -465,6 +471,12 @@ country_event = { #### AI PONYPOWER BUFF 2
 		105 = { is_controlled_by = CHN }
 		surrender_progress > 0.25
 		has_idea = eqs_ai_buff
+		NOT = {
+			has_game_rule = {
+				rule = great_war_ai_buffs
+				option = BUFFS_REMOVED
+			}
+		}
 	}
 
 	fire_only_once = yes
@@ -1104,18 +1116,21 @@ country_event = { #### Civil War EQS Events: Confederates Break Free
 					limit = {80 = { is_owned_by = ROOT } }
 					transfer_state = 80
 				}
+				if = {
+					limit = {21 = { is_owned_by = ROOT } }
+					transfer_state = 21
+				}
 				transfer_state = 19
 				transfer_state = 20
-				transfer_state = 21
 				transfer_state = 22
 				transfer_state = 23
 				transfer_state = 85
 				add_state_core = 19
 				add_state_core = 20
-				add_state_core = 21
 				add_state_core = 22
 				add_state_core = 23
 				add_state_core = 85
+				add_state_core = 21
 				if = {
 					limit = {
 						has_game_rule = {
@@ -1201,18 +1216,21 @@ country_event = { #### Civil War EQS Events: Confederates Break Free
 					limit = {80 = { is_owned_by = ROOT } }
 					transfer_state = 80
 				}
+				if = {
+					limit = {21 = { is_owned_by = ROOT } }
+					transfer_state = 21
+				}
 				transfer_state = 19
 				transfer_state = 20
-				transfer_state = 21
 				transfer_state = 22
 				transfer_state = 23
 				transfer_state = 85
 				add_state_core = 19
 				add_state_core = 20
-				add_state_core = 21
 				add_state_core = 22
 				add_state_core = 23
 				add_state_core = 85
+				add_state_core = 21
 				if = {
 					limit = {
 						has_game_rule = {
@@ -1602,7 +1620,13 @@ country_event = { #### Return of Sombra
 	option = { ## Ask to join
 		name = equestria.54.b
 		create_wargoal = { type = puppet_wargoal_focus target = FROM.FROM }
-		ai_chance = { factor = 50 }
+		ai_chance = { 
+			factor = 50 
+			modifier = {
+				factor = 0
+				has_war = yes
+			}
+		}
 	}
 	option = { ## Ask to join
 		name = equestria.54.a
@@ -1682,6 +1706,10 @@ country_event = { #### No
 				FROM = { is_ai = no }
 			}
 			change_tag_from = FROM
+		}
+		every_state = {
+			limit = { is_core_of = FROM }
+			add_core_of = ROOT
 		}
 		annex_country = { target = FROM transfer_troops = yes }
 	}
@@ -2001,7 +2029,7 @@ country_event = { #### Buffalo Response Now
 		}
 	}
 }
-country_event = { #### Buffalo Becomes Puppet from their focus tree
+country_event = { #### Buffalo Becomes Annexed, Puppeted, or Joins Faction from their focus tree
 	id = equestria.68
 	immediate = {log = "[GetDateText]: [Root.GetName]: event equestria.68"}
 	title = equestria.68.t
@@ -2021,7 +2049,7 @@ country_event = { #### Buffalo Becomes Puppet from their focus tree
 		FROM = { set_cosmetic_tag = EQSBUF_DEM }
 		if = {
 			limit = { has_dlc = "Together for Victory" }
-			set_autonomy = { target = FROM autonomy_state = autonomy_integrated_puppet }
+			set_autonomy = { target = FROM autonomy_state = autonomy_puppet }
 		}
 		hidden_effect = { news_event = { id = news.12 hours = 6 } }
 	}
@@ -2030,6 +2058,11 @@ country_event = { #### Buffalo Becomes Puppet from their focus tree
 		trigger = { has_country_flag = BUF_annex }
 		annex_country = { target = FROM transfer_troops = yes }
 		hidden_effect = { news_event = { id = news.12 hours = 6 } }
+	}
+	option = {
+		name = equestria.68.c
+		trigger = { has_country_flag = BUF_faction }
+		EQS = { add_to_faction = BUF }
 	}
 }
 country_event = { #### Buffalo Requests Solution to Protests
@@ -2071,7 +2104,9 @@ country_event = { #### Buffalo Increase Autonomy
 	trigger = {
 		original_tag = EQS
 		has_war_together_with = BUF
+		BUF = { is_subject_of = EQS}
 		has_dlc = "Together for Victory"
+		NOT = { BUF = { has_autonomy_state = autonomy_dominion }}
 	}
 
 	option = {
@@ -2112,6 +2147,35 @@ country_event = { #### EVENT FOR YAKYAKISTAN - HELP EQS in the war against Chang
 		add_opinion_modifier = { target = EQS modifier = friendship_refused }
 	}
 }
+country_event = { #### Buffalo want a ton of land
+	id = equestria.73
+	immediate = {log = "[GetDateText]: [Root.GetName]: event equestria.73"}
+	title = equestria.73.t
+	desc = equestria.73.d
+	picture = GFX_event_canyons
+
+	is_triggered_only = yes
+	option = {      # Accept
+		name = equestria.73.a
+		add_political_power = -50
+		FROM = {
+			country_event = { days = 1 id = bufstate.57 }
+		}
+		ai_chance = {
+			factor = 0
+		}
+	}
+	option = {      # Deny
+		name = equestria.73.b
+		FROM = {
+			country_event = { days = 1 id = bufstate.58 }
+		}
+		ai_chance = {
+			factor = 100
+		}
+	}
+}
+
 ##########################################################################################
 ############################################################################################
 ##############################################################################################
@@ -3188,42 +3252,20 @@ country_event = { #### Assasination Attempt
 					check_variable = { NMM_aggressive  = 0 }
 					NOT = { has_global_flag = luna_nlr_friend }
 				}
-				random_list = {
-					30 = {
-						set_global_flag = luna_peace_fail_alone
-						country_event = {
-							id = equestria.211
-						}
-					}
-					70 = {
 						set_global_flag = luna_peace_save_alone
 						country_event = {
 							id = equestria.212
 						}
-					}
-				}
 			}
-			else = {
-				random_list = {
-					5 = {
-						set_global_flag = luna_peace_fail_friend_save
-						country_event = {
-							id = equestria.212
-						}
-					}
-					25 = {
-						set_global_flag = luna_peace_fail_friend_fail
-						country_event = {
-							id = equestria.211
-						}
-					}
-					70 = {
+			else_if = {
+				limit = {
+					check_variable = { NMM_aggressive  = 0 }
+					has_global_flag = luna_nlr_friend
+				}
 						set_global_flag = luna_peace_save_with_friend
 						country_event = {
 							id = equestria.212
 						}
-					}
-				}
 			}
 		}
 	}
@@ -3383,14 +3425,14 @@ country_event = { ##Happy Ending
 					portrait_path = "gfx/leaders/NLR/Selenite.tga"
 					traits = { moonatik thestral_race_trait }
 					desc = NLR_selenite_desc
-					skill = 1
+					skill = 2
 					attack_skill = 2
 					defense_skill = 3
 					planning_skill = 1
 					logistics_skill = 1
 					id = 790
 					female = yes
-				}
+				} custom_effect_tooltip = selenite_stats_tp
 				set_global_flag = EQS_Selenite_created
 				hidden_effect = {
 					random_army_leader = {
@@ -3407,14 +3449,14 @@ country_event = { ##Happy Ending
 					name = "Tempest Wind"
 					portrait_path = "gfx/leaders/NLR/TempestWind.tga"
 					traits = { night_guard commando panzer_leader pony_race_trait }
-					skill = 2
+					skill = 3
 					attack_skill = 3
 					defense_skill = 2
 					planning_skill = 3
 					logistics_skill = 3
 					female = yes
 					id = 202
-				}
+				} custom_effect_tooltip = tempest_wind_stats_tp
 				set_global_flag = EQS_Tempest_Wind_created
 				hidden_effect = {
 					random_army_leader = {
@@ -3431,14 +3473,14 @@ country_event = { ##Happy Ending
 					name = "Bipen"
 					portrait_path = "gfx/leaders/NLR/Bipen.tga"
 					traits = { night_guard thestral_race_trait }
-					skill = 1
+					skill = 2
 					attack_skill = 2
 					defense_skill = 2
 					planning_skill = 2
 					logistics_skill = 2
 					female = yes
 					id = 789
-				}
+				} custom_effect_tooltip = bipen_stats_tp
 				set_global_flag = EQS_Bipen_created
 				hidden_effect = {
 					random_army_leader = {
@@ -3456,14 +3498,14 @@ country_event = { ##Happy Ending
 				portrait_path = "gfx/leaders/NLR/Selenite.tga"
 					traits = { moonatik thestral_race_trait }
 					desc = NLR_selenite_desc
-					skill = 1
+					skill = 2
 					attack_skill = 2
 					defense_skill = 3
 					planning_skill = 1
 					logistics_skill = 1
 					female = yes
 					id = 790
-				}
+				} custom_effect_tooltip = selenite_stats_tp
 				set_global_flag = EQS_Selenite_created
 				hidden_effect = {
 					random_army_leader = {
@@ -3480,13 +3522,13 @@ country_event = { ##Happy Ending
 					name = "Midnight Oil"
 					portrait_path = "gfx/leaders/NLR/Cyrus.tga"
 					traits = { night_guard trait_reckless pony_race_trait }
-					skill = 1
+					skill = 2
 					attack_skill = 3
 					defense_skill = 2
 					planning_skill = 1
 					logistics_skill = 2
 					id = 205
-				}
+				} custom_effect_tooltip = midnight_oil_stats_tp
 				set_global_flag = EQS_Midnight_Oil_created
 				hidden_effect = {
 					random_army_leader = {
@@ -3510,7 +3552,7 @@ country_event = { ##Happy Ending
 					planning_skill = 3
 					logistics_skill = 2
 					id = 206
-				}
+				} custom_effect_tooltip = oli_equites_stats_tp
 				set_global_flag = EQS_Oligarch_created
 				hidden_effect = {
 					random_army_leader = {
@@ -4179,8 +4221,9 @@ country_event = {
 
 		hidden_effect = {
 			EQS_NLR_civil_war = yes
-			country_event = { id = equestria.105 days = 25 }
-			country_event = { id = equestria.179 days = 29 }
+			country_event = { id = equestria.105 days = 11 }
+			country_event = { id = equestria.179 days = 13 }
+			country_event = { id = equestria.106 days = 14 }
 		}
 	}
 	option = { # Tag switch to EQC
@@ -4231,8 +4274,9 @@ country_event = {##Secret event to make sure NLR gets the events about LSP and S
 	option = {
 		name = equestria.919.a
 		NLR = {
-			country_event = { id = equestria.105 days = 24 }
-			country_event = { id = equestria.179 days = 28 }		
+			country_event = { id = equestria.105 days = 10 }
+			country_event = { id = equestria.179 days = 12 }
+			country_event = { id = equestria.106 days = 13 }
 		}
 	}
 }
@@ -4446,18 +4490,21 @@ country_event = { #### Civil War EQS Events: Confederates Break Free
 					limit = {80 = { owner = { OR = { original_tag = EQS original_tag = NLR } } } }
 					transfer_state = 80
 				}
+				if = {
+					limit = {21 = { owner = { OR = { original_tag = EQS original_tag = NLR } } } }
+					transfer_state = 21
+				}
 				transfer_state = 19
 				transfer_state = 20
-				transfer_state = 21
 				transfer_state = 22
 				transfer_state = 23
 				transfer_state = 85
 				add_state_core = 19
 				add_state_core = 20
-				add_state_core = 21
 				add_state_core = 22
 				add_state_core = 23
 				add_state_core = 85
+				add_state_core = 21
 				if = {
 					limit = {
 						has_game_rule = {
@@ -4568,18 +4615,21 @@ country_event = { #### Civil War EQS Events: Confederates Break Free
 					limit = {80 = { owner = { OR = { original_tag = EQS original_tag = NLR } } } }
 					transfer_state = 80
 				}
+				if = {
+					limit = {21 = { owner = { OR = { original_tag = EQS original_tag = NLR } } } }
+					transfer_state = 21
+				}
 				transfer_state = 19
 				transfer_state = 20
-				transfer_state = 21
 				transfer_state = 22
 				transfer_state = 23
 				transfer_state = 85
 				add_state_core = 19
 				add_state_core = 20
-				add_state_core = 21
 				add_state_core = 22
 				add_state_core = 23
 				add_state_core = 85
+				add_state_core = 21
 				if = {
 					limit = {
 						has_game_rule = {
@@ -4661,15 +4711,7 @@ country_event = { #### Civil War EQS Events: Vanhoover Breaks Free
 	desc = equestria.106.d
 	picture = GFX_event_western_griffon_city
 
-	trigger = {
-		tag = EQS
-		NOT = {
-			has_government = communism
-		}
-		has_global_flag = equestrian_civil_war
-		NOT = { has_global_flag = equestrian_civil_war_ended }
-	}
-	mean_time_to_happen = { days = 20 }
+	is_triggered_only = yes
 	fire_only_once = yes
 	option = {
 		name = equestria.106.a
@@ -4768,20 +4810,20 @@ country_event = {
 		name = equestria.110.a
 		if = {
 			limit = { NMS = { has_war_with = CES } NOT = { has_war_with = NMS } }
+			give_military_access = CES
+			CES = { give_military_access = ROOT }
 			add_to_war = { targeted_alliance = CES enemy = NMS }
 		}
-		else_if = {
-			limit = { country_exists = NMS NOT = { has_war_with = NMS } }
-			hidden_effect = {
-				create_wargoal = { 
-					type = annex_everything
-					target = NMS
-				}
-			}
-			declare_war_on = { target = NMS type = annex_everything }
-		}
-		give_military_access = CES
-		CES = { give_military_access = ROOT }
+		#else_if = {
+		#	limit = { country_exists = NMS NOT = { has_war_with = NMS } }
+		#	hidden_effect = {
+		#		create_wargoal = { 
+		#			type = annex_everything
+		#			target = NMS
+		#		}
+		#	}
+		#	declare_war_on = { target = NMS type = annex_everything }
+		#}
 		ai_chance = { factor = 100 }
 	}
 }
@@ -5491,6 +5533,10 @@ country_event = { ## Renaming Stalliongrad
 				level = 2
 			}
 		}
+		set_victory_points = {
+			province = 488
+			value = 1
+		}
 		restore_previous_manpower = yes
 		hidden_effect = {
 			news_event = { id = news.208 days = 2 }
@@ -5541,6 +5587,11 @@ country_event = { ## Switching to Jungle Nation
 	fire_only_once = yes
 	option = {
 		name = equestria.135.a
+		trigger = { NOT = { original_tag = NLR } }
+	}
+	option = {
+		name = equestria.135.c
+		trigger = { original_tag = NLR }
 	}
 	option = {
 		name = equestria.135.b
@@ -6722,6 +6773,10 @@ country_event = { #Change
 		}
 	}
 
+	immediate = {
+		set_country_flag = supernova_fired
+	}
+
 	fire_only_once = yes
 
 	option = { #yay
@@ -6747,6 +6802,7 @@ country_event = { #Change
 		name = equestria.154.b
 		trigger = {
 			has_war = no
+			NOT = { has_country_flag = supernova_by_decision }
 		}
 		effect_tooltip = { add_political_power = -300 add_popularity = { ideology = fascism popularity = -0.4 } }
 		hidden_effect = {
@@ -6811,6 +6867,7 @@ country_event = { #Change
 		name = equestria.154.b
 		trigger = {
 			has_war = yes
+			NOT = { has_country_flag = supernova_by_decision }
 		}
 		effect_tooltip = { add_political_power = -300 add_popularity = { ideology = fascism popularity = -0.4 } }
 		hidden_effect = {
