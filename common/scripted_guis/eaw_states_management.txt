@@ -1,0 +1,1444 @@
+scripted_gui = {
+	EaW_states_management = {
+		window_name = "EaW_states_management"
+		parent_window_token = selected_state_view
+		context_type = selected_state_context
+		
+		visible = {
+			ROOT = { has_country_flag = SM_GUI_unlocked_flag } # remove on_action
+			
+			is_core_of = ROOT
+			is_owned_and_controlled_by = ROOT
+		}
+		
+		triggers = {
+			NTR_guilds_management_icon_visible = {
+				ROOT = { has_government = democratic }
+			}
+			NTR_communes_management_icon_visible = {
+				ROOT = { has_government = communism }
+			}
+			
+			SM_amount_of_complexes_textbox_click_enabled = {
+				always = no
+			}
+			SM_complexes_remove_button_click_enabled = {
+				check_variable = { SM_state_amount_of_complexes > 0 }
+			}
+			SM_complexes_add_button_click_enabled = {
+				check_variable = { SM_state_amount_of_complexes?0 < building_level@industrial_complex }
+				
+				ROOT = {
+					num_of_civilian_factories_available_for_projects > 0
+					
+					#has_political_power > SM_trigger_cost_var
+				}
+			}
+			
+			SM_amount_of_factories_textbox_click_enabled = {
+				always = no
+			}
+			SM_factories_remove_button_click_enabled = {
+				check_variable = { SM_state_amount_of_factories > 0 }
+			}
+			SM_factories_add_button_click_enabled = {
+				check_variable = { SM_state_amount_of_factories?0 < building_level@arms_factory }
+				
+				ROOT = {
+					num_of_military_factories > 0
+					
+					#has_political_power > SM_trigger_cost_var
+				}
+			}
+			
+			SM_amount_of_dockyards_textbox_click_enabled = {
+				always = no
+			}
+			SM_dockyards_remove_button_click_enabled = {
+				check_variable = { SM_state_amount_of_dockyards > 0 }
+			}
+			SM_dockyards_add_button_click_enabled = {
+				check_variable = { SM_state_amount_of_dockyards?0 < building_level@dockyard }
+				
+				ROOT = {
+					num_of_naval_factories > 0
+					
+					#has_political_power > SM_trigger_cost_var
+				}
+			}
+		}
+		
+		effects = {
+			SM_complexes_remove_button_click = {
+				ROOT = { add_political_power = SM_effect_cost_var }
+				
+				hidden_effect = {
+					if = {
+						limit = {
+							check_variable = { SM_state_amount_of_complexes = 1 }
+						}
+						
+						remove_dynamic_modifier = { modifier = SM_state_complexes_modifier }
+						
+						subtract_from_variable = { SM_state_monthly_population_var = SM_dynamic_state_monthly_population_var }
+						
+						clear_variable = SM_state_amount_of_complexes
+						clear_variable = SM_dynamic_state_monthly_population_var
+						clear_variable = SM_local_resources_var
+						
+						ROOT = {
+							if = {
+								limit = {
+									check_variable = { SM_country_amount_of_complexes = 1 }
+								}
+								
+								remove_dynamic_modifier = { modifier = SM_country_complexes_modifier }
+								
+								set_variable = { SM_country_amount_of_complexes = 0 }
+								clear_variable = SM_negative_industrial_factory_donations_var
+								
+								if = {
+									limit = {
+										has_completed_focus = NTR_the_future_planning_committee
+									}
+									
+									clear_variable = RS_daily_industrial_savings_var
+								}
+								
+								clear_array = SM_states_with_dynamic_modifiers_from_complexes
+							}
+							else = {
+								subtract_from_variable = { SM_country_amount_of_complexes = 1 }
+								add_to_variable = { SM_negative_industrial_factory_donations_var = 1 }
+								
+								if = {
+									limit = {
+										has_completed_focus = NTR_the_future_planning_committee
+									}
+									
+									divide_variable = { RS_daily_industrial_savings_var = SM_country_amount_of_complexes }
+									subtract_from_variable = { SM_country_amount_of_complexes = 1 }
+									multiply_variable = { RS_daily_industrial_savings_var = SM_country_amount_of_complexes }
+								}
+								
+								add_to_array = { SM_states_with_dynamic_modifiers_from_complexes = PREV }
+							}
+						}
+					}
+					else = {
+						subtract_from_variable = { SM_state_monthly_population_var = SM_dynamic_state_monthly_population_var }
+						
+						divide_variable = { SM_dynamic_state_monthly_population_var = SM_state_amount_of_complexes }
+						divide_variable = { SM_local_resources_var = SM_state_amount_of_complexes }
+						subtract_from_variable = { SM_state_amount_of_complexes = 1 }
+						multiply_variable = { SM_dynamic_state_monthly_population_var = SM_state_amount_of_complexes }
+						multiply_variable = { SM_local_resources_var = SM_state_amount_of_complexes }
+						
+						add_to_variable = { SM_state_monthly_population_var = SM_dynamic_state_monthly_population_var }
+						
+						ROOT = {
+							if = {
+								limit = {
+									has_completed_focus = NTR_the_future_planning_committee
+								}
+								
+								divide_variable = { RS_daily_industrial_savings_var = SM_country_amount_of_complexes }
+								subtract_from_variable = { SM_country_amount_of_complexes = 1 }
+								multiply_variable = { RS_daily_industrial_savings_var = SM_country_amount_of_complexes }
+							}
+							else = {
+								subtract_from_variable = { SM_country_amount_of_complexes = 1 }
+							}
+							
+							add_to_variable = { SM_negative_industrial_factory_donations_var = 1 }
+						}
+					}
+				}
+			}
+			SM_complexes_add_button_click = {
+				ROOT = {
+					add_political_power = SM_effect_cost_var
+					
+					hidden_effect = {
+						if = {
+							limit = {
+								has_dynamic_modifier = { modifier = SM_country_complexes_modifier }
+							}
+							
+							PREV = {
+								if = {
+									limit = {
+										has_dynamic_modifier = { modifier = SM_state_complexes_modifier }
+									}
+									
+									subtract_from_variable = { SM_state_monthly_population_var = SM_dynamic_state_monthly_population_var }
+									
+									divide_variable = { SM_dynamic_state_monthly_population_var = SM_state_amount_of_complexes }
+									divide_variable = { SM_local_resources_var = SM_state_amount_of_complexes }
+									add_to_variable = { SM_state_amount_of_complexes = 1 }
+									multiply_variable = { SM_dynamic_state_monthly_population_var = SM_state_amount_of_complexes }
+									multiply_variable = { SM_local_resources_var = SM_state_amount_of_complexes }
+									
+									add_to_variable = { SM_state_monthly_population_var = SM_dynamic_state_monthly_population_var }
+								}
+								else = {
+									set_variable = { SM_state_amount_of_complexes = 1 }
+									
+									set_variable = { SM_dynamic_state_monthly_population_var = 1 }
+									add_to_variable = { SM_dynamic_state_monthly_population_var = ROOT.modifier@production_speed_buildings_factor }
+									multiply_variable = { SM_dynamic_state_monthly_population_var = SM_base_local_monthly_population_var?0.04 }
+									
+									add_to_variable = { SM_state_monthly_population_var = SM_dynamic_state_monthly_population_var }
+									
+									set_variable = { SM_local_resources_var = 1 }
+									add_to_variable = { SM_local_resources_var = ROOT.modifier@local_resources_factor }
+									multiply_variable = { SM_local_resources_var = SM_base_local_resources_var?0.04 }
+									
+									add_dynamic_modifier = { modifier = SM_state_complexes_modifier }
+									
+									add_to_array = { ROOT.SM_states_with_dynamic_modifiers_from_complexes = THIS }
+								}
+							}
+							
+							if = {
+								limit = {
+									has_completed_focus = NTR_the_future_planning_committee
+								}
+								
+								divide_variable = { RS_daily_industrial_savings_var = SM_country_amount_of_complexes }
+								add_to_variable = { SM_country_amount_of_complexes = 1 }
+								multiply_variable = { RS_daily_industrial_savings_var = SM_country_amount_of_complexes }
+							}
+							else = {
+								add_to_variable = { SM_country_amount_of_complexes = 1 }
+							}
+							
+							subtract_from_variable = { SM_negative_industrial_factory_donations_var = 1 }
+						}
+						else = {
+							if = {
+								limit = {
+									NOT = { has_variable = SM_country_amount_of_factories }
+								}
+								
+								country_event = { id = SM_and_RS_GUI_events.3 days = 7 }
+								log = "[GetDateText]: [Root.GetName]: self-triggering event SM_and_RS_GUI_events.3 started"
+							}
+							
+							set_variable = { SM_country_amount_of_complexes = 1 }
+							set_variable = { SM_negative_industrial_factory_donations_var = -1 }
+							
+							add_dynamic_modifier = { modifier = SM_country_complexes_modifier }
+							
+							if = {
+								limit = {
+									has_completed_focus = NTR_the_future_planning_committee
+								}
+								
+								if = {
+									limit = {
+										NOT = { has_variable = RS_daily_industrial_savings_var }
+									}
+									
+									country_event = { id = SM_and_RS_GUI_events.2 days = 7 }
+									log = "[GetDateText]: [Root.GetName]: self-triggering event SM_and_RS_GUI_events.2 started"
+								}
+								
+								set_variable = { RS_daily_industrial_savings_var = 1 }
+								add_to_variable = { RS_daily_industrial_savings_var = modifier@research_speed_factor }
+								
+								if = {
+									limit = {
+										has_completed_focus = NTR_establishing_the_supracommunal_committee
+									}
+									
+									multiply_variable = { RS_daily_industrial_savings_var = 0.024 }
+								}
+								else = {
+									multiply_variable = { RS_daily_industrial_savings_var = 0.02 }
+								}
+							}
+							
+							PREV = {
+								set_variable = { SM_state_amount_of_complexes = 1 }
+								
+								set_variable = { SM_dynamic_state_monthly_population_var = 1 }
+								add_to_variable = { SM_dynamic_state_monthly_population_var = ROOT.modifier@production_speed_buildings_factor }
+								multiply_variable = { SM_dynamic_state_monthly_population_var = SM_base_local_monthly_population_var?0.04 }
+								
+								add_to_variable = { SM_state_monthly_population_var = SM_dynamic_state_monthly_population_var }
+								
+								set_variable = { SM_local_resources_var = 1 }
+								add_to_variable = { SM_local_resources_var = ROOT.modifier@local_resources_factor }
+								multiply_variable = { SM_local_resources_var = SM_base_local_resources_var?0.04 }
+								
+								add_dynamic_modifier = { modifier = SM_state_complexes_modifier }
+								
+								add_to_array = { ROOT.SM_states_with_dynamic_modifiers_from_complexes = THIS }
+							}
+						}
+					}
+				}
+			}
+			
+			SM_factories_remove_button_click = {
+				subtract_from_variable = { SM_state_amount_of_factories = 1 }
+				
+				ROOT = {
+					add_political_power = SM_effect_cost_var
+					
+					hidden_effect = {
+						if = {
+							limit = {
+								check_variable = { SM_country_amount_of_factories = 1 }
+							}
+							
+							remove_dynamic_modifier = { modifier = SM_country_factories_modifier }
+							
+							set_variable = { SM_country_amount_of_factories = 0 }
+							clear_variable = SM_experience_gain_army_var
+							clear_variable = SM_negative_military_factory_donations_var
+							
+							if = {
+								limit = {
+									has_country_flag = SM_weekly_ponypower_unlocked_flag
+								}
+								
+								clear_variable = SM_weekly_manpower_var
+							}
+							if = {
+								limit = {
+									has_variable = RS_daily_army_savings_var
+								}
+								
+								set_variable = { RS_daily_army_savings_var = 0 }
+							}
+							if = {
+								limit = { has_variable = SM_experience_gain_air_var }
+								
+								clear_variable = SM_experience_gain_air_var
+								clear_variable = RS_daily_air_savings_var
+							}
+						}
+						else = {
+							if = {
+								limit = {
+									has_completed_focus = NTR_the_future_planning_committee
+								}
+								
+								if = {
+									limit = {
+										has_completed_focus = NTR_a_northern_airforce
+									}
+									
+									if = {
+										limit = {
+											has_country_flag = SM_weekly_ponypower_unlocked_flag
+										}
+										
+										divide_variable = { SM_weekly_manpower_var = SM_country_amount_of_factories }
+										divide_variable = { SM_experience_gain_army_var = SM_country_amount_of_factories }
+										divide_variable = { SM_experience_gain_air_var = SM_country_amount_of_factories }
+										divide_variable = { RS_daily_army_savings_var = SM_country_amount_of_factories }
+										divide_variable = { RS_daily_air_savings_var = SM_country_amount_of_factories }
+										subtract_from_variable = { SM_country_amount_of_factories = 1 }
+										multiply_variable = { SM_weekly_manpower_var = SM_country_amount_of_factories }
+										multiply_variable = { SM_experience_gain_army_var = SM_country_amount_of_factories }
+										multiply_variable = { SM_experience_gain_air_var = SM_country_amount_of_factories }
+										multiply_variable = { RS_daily_army_savings_var = SM_country_amount_of_factories }
+										multiply_variable = { RS_daily_air_savings_var = SM_country_amount_of_factories }
+									}
+									else = {
+										divide_variable = { SM_experience_gain_army_var = SM_country_amount_of_factories }
+										divide_variable = { SM_experience_gain_air_var = SM_country_amount_of_factories }
+										divide_variable = { RS_daily_army_savings_var = SM_country_amount_of_factories }
+										divide_variable = { RS_daily_air_savings_var = SM_country_amount_of_factories }
+										subtract_from_variable = { SM_country_amount_of_factories = 1 }
+										multiply_variable = { SM_experience_gain_army_var = SM_country_amount_of_factories }
+										multiply_variable = { SM_experience_gain_air_var = SM_country_amount_of_factories }
+										multiply_variable = { RS_daily_army_savings_var = SM_country_amount_of_factories }
+										multiply_variable = { RS_daily_air_savings_var = SM_country_amount_of_factories }
+									}
+									
+								}
+								else = {
+									if = {
+										limit = {
+											has_country_flag = SM_weekly_ponypower_unlocked_flag
+										}
+										
+										divide_variable = { SM_weekly_manpower_var = SM_country_amount_of_factories }
+										divide_variable = { SM_experience_gain_army_var = SM_country_amount_of_factories }
+										divide_variable = { RS_daily_army_savings_var = SM_country_amount_of_factories }
+										subtract_from_variable = { SM_country_amount_of_factories = 1 }
+										multiply_variable = { SM_weekly_manpower_var = SM_country_amount_of_factories }
+										multiply_variable = { SM_experience_gain_army_var = SM_country_amount_of_factories }
+										multiply_variable = { RS_daily_army_savings_var = SM_country_amount_of_factories }
+									}
+									else = {
+										divide_variable = { SM_experience_gain_army_var = SM_country_amount_of_factories }
+										divide_variable = { RS_daily_army_savings_var = SM_country_amount_of_factories }
+										subtract_from_variable = { SM_country_amount_of_factories = 1 }
+										multiply_variable = { SM_experience_gain_army_var = SM_country_amount_of_factories }
+										multiply_variable = { RS_daily_army_savings_var = SM_country_amount_of_factories }
+									}
+								}
+							}
+							else = {
+								if = {
+									limit = {
+										has_completed_focus = NTR_a_northern_airforce
+									}
+									
+									if = {
+										limit = {
+											has_country_flag = SM_weekly_ponypower_unlocked_flag
+										}
+										
+										divide_variable = { SM_weekly_manpower_var = SM_country_amount_of_factories }
+										divide_variable = { SM_experience_gain_army_var = SM_country_amount_of_factories }
+										divide_variable = { SM_experience_gain_air_var = SM_country_amount_of_factories }
+										subtract_from_variable = { SM_country_amount_of_factories = 1 }
+										multiply_variable = { SM_weekly_manpower_var = SM_country_amount_of_factories }
+										multiply_variable = { SM_experience_gain_army_var = SM_country_amount_of_factories }
+										multiply_variable = { SM_experience_gain_air_var = SM_country_amount_of_factories }
+									}
+									else = {
+										divide_variable = { SM_experience_gain_army_var = SM_country_amount_of_factories }
+										divide_variable = { SM_experience_gain_air_var = SM_country_amount_of_factories }
+										subtract_from_variable = { SM_country_amount_of_factories = 1 }
+										multiply_variable = { SM_experience_gain_army_var = SM_country_amount_of_factories }
+										multiply_variable = { SM_experience_gain_air_var = SM_country_amount_of_factories }
+									}
+								}
+								else = {
+									if = {
+										limit = {
+											has_country_flag = SM_weekly_ponypower_unlocked_flag
+										}
+										
+										divide_variable = { SM_weekly_manpower_var = SM_country_amount_of_factories }
+										divide_variable = { SM_experience_gain_army_var = SM_country_amount_of_factories }
+										subtract_from_variable = { SM_country_amount_of_factories = 1 }
+										multiply_variable = { SM_weekly_manpower_var = SM_country_amount_of_factories }
+										multiply_variable = { SM_experience_gain_army_var = SM_country_amount_of_factories }
+									}
+									else = {
+										divide_variable = { SM_experience_gain_army_var = SM_country_amount_of_factories }
+										subtract_from_variable = { SM_country_amount_of_factories = 1 }
+										multiply_variable = { SM_experience_gain_army_var = SM_country_amount_of_factories }
+									}
+								}
+							}
+							
+							add_to_variable = { SM_negative_military_factory_donations_var = 1 }
+						}
+					}
+				}
+			}
+			SM_factories_add_button_click = {
+				add_to_variable = { SM_state_amount_of_factories = 1 }
+				
+				ROOT = {
+					add_political_power = SM_effect_cost_var
+					
+					hidden_effect = {
+						if = {
+							limit = {
+								has_dynamic_modifier = { modifier = SM_country_factories_modifier }
+							}
+							
+							if = {
+								limit = {
+									has_completed_focus = NTR_the_future_planning_committee
+								}
+								
+								if = {
+									limit = {
+										has_variable = SM_experience_gain_air_var
+									}
+									
+									divide_variable = { SM_weekly_manpower_var = SM_country_amount_of_factories }
+									divide_variable = { SM_experience_gain_army_var = SM_country_amount_of_factories }
+									divide_variable = { SM_experience_gain_air_var = SM_country_amount_of_factories }
+									divide_variable = { RS_daily_army_savings_var = SM_country_amount_of_factories }
+									divide_variable = { RS_daily_air_savings_var = SM_country_amount_of_factories }
+									add_to_variable = { SM_country_amount_of_factories = 1 }
+									multiply_variable = { SM_weekly_manpower_var = SM_country_amount_of_factories }
+									multiply_variable = { SM_experience_gain_army_var = SM_country_amount_of_factories }
+									multiply_variable = { SM_experience_gain_air_var = SM_country_amount_of_factories }
+									multiply_variable = { RS_daily_army_savings_var = SM_country_amount_of_factories }
+									multiply_variable = { RS_daily_air_savings_var = SM_country_amount_of_factories }
+								}
+								else = {
+									divide_variable = { SM_weekly_manpower_var = SM_country_amount_of_factories }
+									divide_variable = { SM_experience_gain_army_var = SM_country_amount_of_factories }
+									divide_variable = { RS_daily_army_savings_var = SM_country_amount_of_factories }
+									add_to_variable = { SM_country_amount_of_factories = 1 }
+									multiply_variable = { SM_weekly_manpower_var = SM_country_amount_of_factories }
+									multiply_variable = { SM_experience_gain_army_var = SM_country_amount_of_factories }
+									multiply_variable = { RS_daily_army_savings_var = SM_country_amount_of_factories }
+								}
+							}
+							else = {
+								if = {
+									limit = {
+										has_variable = SM_experience_gain_air_var
+									}
+									
+									divide_variable = { SM_weekly_manpower_var = SM_country_amount_of_factories }
+									divide_variable = { SM_experience_gain_army_var = SM_country_amount_of_factories }
+									divide_variable = { SM_experience_gain_air_var = SM_country_amount_of_factories }
+									add_to_variable = { SM_country_amount_of_factories = 1 }
+									multiply_variable = { SM_weekly_manpower_var = SM_country_amount_of_factories }
+									multiply_variable = { SM_experience_gain_army_var = SM_country_amount_of_factories }
+									multiply_variable = { SM_experience_gain_air_var = SM_country_amount_of_factories }
+								}
+								else = {
+									divide_variable = { SM_weekly_manpower_var = SM_country_amount_of_factories }
+									divide_variable = { SM_experience_gain_army_var = SM_country_amount_of_factories }
+									add_to_variable = { SM_country_amount_of_factories = 1 }
+									multiply_variable = { SM_weekly_manpower_var = SM_country_amount_of_factories }
+									multiply_variable = { SM_experience_gain_army_var = SM_country_amount_of_factories }
+								}
+							}
+							
+							subtract_from_variable = { SM_negative_military_factory_donations_var = 1 }
+						}
+						else = {
+							if = {
+								limit = {
+									NOT = { has_variable = SM_country_amount_of_factories }
+								}
+								
+								country_event = { id = SM_and_RS_GUI_events.5 days = 7 }
+								log = "[GetDateText]: [Root.GetName]: self-triggering event SM_and_RS_GUI_events.5 started"
+							}
+							
+							set_variable = { SM_country_amount_of_factories = 1 }
+							set_variable = { SM_negative_military_factory_donations_var = -1 }
+							
+							set_variable = { SM_experience_gain_army_var = 1 }
+							add_to_variable = { SM_experience_gain_army_var = modifier@industrial_capacity_factory }
+							
+							if = {
+								limit = {
+									has_country_flag = SM_weekly_ponypower_unlocked_flag
+								}
+								
+								SM_calculate_bonus_ponypower_percentage = yes
+								
+								set_variable = { SM_weekly_manpower_var = SM_bonus_consciptors_percentage_var }
+								multiply_variable = { SM_weekly_manpower_var = 20 }
+							}
+							
+							if = {
+								limit = {
+									has_completed_focus = NTR_the_future_planning_committee
+								}
+								
+								if = {
+									limit = {
+										NOT = { has_variable = RS_daily_army_savings_var }
+									}
+									
+									country_event = { id = SM_and_RS_GUI_events.4 days = 7 }
+									log = "[GetDateText]: [Root.GetName]: self-triggering event SM_and_RS_GUI_events.4 started"
+								}
+								
+								set_variable = { RS_daily_army_savings_var = 1 }
+								add_to_variable = { RS_daily_army_savings_var = modifier@research_speed_factor }
+								
+								if = {
+									limit = {
+										has_completed_focus = NTR_establishing_the_supracommunal_committee
+									}
+									
+									multiply_variable = { RS_daily_army_savings_var = 0.024 }
+								}
+								else = {
+									multiply_variable = { RS_daily_army_savings_var = 0.02 }
+								}
+							}
+							
+							if = {
+								limit = {
+									has_completed_focus = NTR_a_northern_airforce
+								}
+								
+								set_variable = { SM_experience_gain_air_var = SM_experience_gain_army_var }
+								multiply_variable = { SM_experience_gain_air_var = SM_basic_air_experience_var?0.01 }
+								
+								if = {
+									limit = {
+										has_variable = RS_daily_army_savings_var
+									}
+									
+									set_variable = { RS_daily_air_savings_var = RS_daily_army_savings_var }
+									divide_variable = { RS_daily_air_savings_var = 2 }
+								}
+								
+								multiply_variable = { SM_experience_gain_air_var = SM_basic_air_experience_var?0.01 }
+							}
+							
+							multiply_variable = { SM_experience_gain_army_var = SM_basic_army_experience_var?0.02 }
+							
+							add_dynamic_modifier = { modifier = SM_country_factories_modifier }
+						}
+					}
+				}
+			}
+			
+			SM_dockyards_remove_button_click = {
+				ROOT = {
+					add_political_power = SM_effect_cost_var
+					
+					hidden_effect = {
+						if = {
+							limit = {
+								check_variable = { SM_country_amount_of_dockyards = 1 }
+							}
+							
+							remove_dynamic_modifier = { modifier = SM_country_dockyards_modifier }
+							
+							clear_array = SM_states_with_dockyards_donations
+							
+							set_variable = { SM_country_amount_of_dockyards = 0 }
+							clear_variable = SM_negative_dockyard_donations_var
+							clear_variable = SM_experience_gain_navy_var
+							
+							if = {
+								limit = {
+									has_completed_focus = NTR_the_future_planning_committee
+								}
+								
+								set_variable = { RS_daily_naval_savings_var = 0 }
+							}
+							
+							PREV = { clear_variable = SM_state_amount_of_dockyards }
+							
+							if = {
+								limit = {
+									has_completed_focus = NTR_northern_free_trade_area
+								}
+								
+								SM_calculate_resources_objects_if_needed = yes
+								
+								PREV = {
+									if = {
+										limit = {
+											check_variable = {
+												var = modifier@local_resources
+												compare = not_equals
+												value = 0
+											}
+										}
+										
+										SM_calculate_resources_updater_with_local_modifier = yes
+										
+										if = {
+											limit = { check_variable = { SM_state_bonus_resources^0 = 0 } }
+											add_resource = { type = crystals amount = -2 }
+											add_to_variable = { ROOT.SM_needed_resources^0 = SM_needed_resources_local_updater_temp_var }
+										}
+										else_if = {
+											limit = { check_variable = { SM_state_bonus_resources^0 = 1 } }
+											add_resource = { type = chromium amount = -2 }
+											add_to_variable = { ROOT.SM_needed_resources^1 = SM_needed_resources_local_updater_temp_var }
+										}
+										else_if = {
+											limit = { check_variable = { SM_state_bonus_resources^0 = 2 } }
+											add_resource = { type = rubber amount = -2 }
+											add_to_variable = { ROOT.SM_needed_resources^2 = SM_needed_resources_local_updater_temp_var }
+										}
+										else_if = {
+											limit = { check_variable = { SM_state_bonus_resources^0 = 3 } }
+											add_resource = { type = aluminium amount = -2 }
+											add_to_variable = { ROOT.SM_needed_resources^3 = SM_needed_resources_local_updater_temp_var }
+										}
+										else_if = {
+											limit = { check_variable = { SM_state_bonus_resources^0 = 4 } }
+											add_resource = { type = tungsten amount = -2 }
+											add_to_variable = { ROOT.SM_needed_resources^4 = SM_needed_resources_local_updater_temp_var }
+										}
+										else = {
+											add_resource = { type = steel amount = -2 }
+											add_to_variable = { ROOT.SM_needed_resources^5 = SM_needed_resources_local_updater_temp_var }
+										}
+									}
+									else = {
+										if = {
+											limit = { check_variable = { SM_state_bonus_resources^0 = 1 } }
+											add_resource = { type = crystals amount = -2 }
+											add_to_variable = { ROOT.SM_needed_resources^0 = ROOT.SM_needed_resources_updater_var }
+										}
+										else_if = {
+											limit = { check_variable = { SM_state_bonus_resources^0 = 2 } }
+											add_resource = { type = chromium amount = -2 }
+											add_to_variable = { ROOT.SM_needed_resources^1 = ROOT.SM_needed_resources_updater_var }
+										}
+										else_if = {
+											limit = { check_variable = { SM_state_bonus_resources^0 = 3 } }
+											add_resource = { type = rubber amount = -2 }
+											add_to_variable = { ROOT.SM_needed_resources^2 = ROOT.SM_needed_resources_updater_var }
+										}
+										else_if = {
+											limit = { check_variable = { SM_state_bonus_resources^0 = 4 } }
+											add_resource = { type = aluminium amount = -2 }
+											add_to_variable = { ROOT.SM_needed_resources^3 = ROOT.SM_needed_resources_updater_var }
+										}
+										else_if = {
+											limit = { check_variable = { SM_state_bonus_resources^0 = 5 } }
+											add_resource = { type = tungsten amount = -2 }
+											add_to_variable = { ROOT.SM_needed_resources^4 = ROOT.SM_needed_resources_updater_var }
+										}
+										else = {
+											add_resource = { type = steel amount = -2 }
+											add_to_variable = { ROOT.SM_needed_resources^5 = ROOT.SM_needed_resources_updater_var }
+										}
+									}
+									
+									clear_array = SM_state_bonus_resources
+								}
+							}
+						}
+						else = {
+							if = {
+								limit = {
+									has_completed_focus = NTR_founding_the_northern_navy
+									has_completed_focus = NTR_the_future_planning_committee
+								}
+								
+								divide_variable = { SM_experience_gain_navy_var = SM_country_amount_of_dockyards }
+								divide_variable = { RS_daily_naval_savings_var = SM_country_amount_of_dockyards }
+								subtract_from_variable = { SM_country_amount_of_dockyards = 1 }
+								multiply_variable = { SM_experience_gain_navy_var = SM_country_amount_of_dockyards }
+								multiply_variable = { RS_daily_naval_savings_var = SM_country_amount_of_dockyards }
+							}
+							else = {
+								divide_variable = { SM_experience_gain_navy_var = SM_country_amount_of_dockyards }
+								subtract_from_variable = { SM_country_amount_of_dockyards = 1 }
+								multiply_variable = { SM_experience_gain_navy_var = SM_country_amount_of_dockyards }
+							}
+							
+							add_to_variable = { SM_negative_dockyard_donations_var = 1 }
+							
+							PREV = { subtract_from_variable = { SM_state_amount_of_dockyards = 1 } }
+							
+							if = {
+								limit = {
+									has_completed_focus = NTR_northern_free_trade_area
+								}
+								
+								SM_calculate_resources_objects_if_needed = yes
+								
+								PREV = {
+									if = {
+										limit = {
+											check_variable = { SM_state_amount_of_dockyards = 0 }
+										}
+										
+										clear_variable = SM_state_amount_of_dockyards
+										
+										if = {
+											limit = { check_variable = { SM_state_bonus_resources^0 = 1 } }
+											add_resource = { type = crystals amount = -2 }
+										}
+										else_if = {
+											limit = { check_variable = { SM_state_bonus_resources^0 = 2 } }
+											add_resource = { type = chromium amount = -2 }
+										}
+										else_if = {
+											limit = { check_variable = { SM_state_bonus_resources^0 = 3 } }
+											add_resource = { type = rubber amount = -2 }
+										}
+										else_if = {
+											limit = { check_variable = { SM_state_bonus_resources^0 = 4 } }
+											add_resource = { type = aluminium amount = -2 }
+										}
+										else_if = {
+											limit = { check_variable = { SM_state_bonus_resources^0 = 5 } }
+											add_resource = { type = tungsten amount = -2 }
+										}
+										else = {
+											add_resource = { type = steel amount = -2 }
+										}
+										
+										if = {
+											limit = {
+												check_variable = {
+													var = modifier@local_resources
+													compare = not_equals
+													value = 0
+												}
+											}
+											
+											SM_calculate_resources_updater_with_local_modifier = yes
+											
+											add_to_variable = { ROOT.SM_needed_resources^SM_state_amount_of_dockyards = SM_needed_resources_local_updater_temp_var }
+										}
+										else = {
+											add_to_variable = { ROOT.SM_needed_resources^SM_state_amount_of_dockyards = ROOT.SM_needed_resources_updater_var }
+										}
+										
+										clear_array = SM_state_bonus_resources
+										
+										remove_from_array = {
+											array = ROOT.SM_states_with_dockyards_donations
+											value = THIS
+										}
+									}
+									else = {
+										if = {
+											limit = { # check for a variety of bonus resources in the state
+												any_of = {
+													array = SM_state_bonus_resources
+													
+													check_variable = {
+														var = v
+														compare = not_equals
+														value = SM_state_bonus_resources^0
+													}
+													check_variable = {
+														var = i
+														compare = not_equals
+														value = 0
+													}
+												}
+											}
+											
+											add_to_temp_array = { ROOT.SM_needed_resources_for_substract = ROOT.SM_needed_resources^5 }
+											add_to_temp_array = { ROOT.SM_needed_resources_for_substract = ROOT.SM_needed_resources^4 }
+											add_to_temp_array = { ROOT.SM_needed_resources_for_substract = ROOT.SM_needed_resources^3 }
+											add_to_temp_array = { ROOT.SM_needed_resources_for_substract = ROOT.SM_needed_resources^2 }
+											add_to_temp_array = { ROOT.SM_needed_resources_for_substract = ROOT.SM_needed_resources^1 }
+											add_to_temp_array = { ROOT.SM_needed_resources_for_substract = ROOT.SM_needed_resources^0 }
+											
+											while_loop_effect = {
+												limit = { always = yes } # do_while
+												break = SM_bonus_resources_substraction_break_temp_var
+												
+												find_highest_in_array = {
+													array = ROOT.SM_needed_resources_for_substract
+													index = SM_least_needed_resource_index_temp_var
+												}
+												
+												if = {
+													limit = {
+														any_of = {
+															array = SM_state_bonus_resources
+															
+															if = {
+																limit = { check_variable = { v = 0 } }
+																check_variable = { SM_least_needed_resource_index_temp_var = 5 }
+															}
+															else_if = {
+																limit = { check_variable = { v = 1 } }
+																check_variable = { SM_least_needed_resource_index_temp_var = 4 }
+															}
+															else_if = {
+																limit = { check_variable = { v = 2 } }
+																check_variable = { SM_least_needed_resource_index_temp_var = 3 }
+															}
+															else_if = {
+																limit = { check_variable = { v = 3 } }
+																check_variable = { SM_least_needed_resource_index_temp_var = 2 }
+															}
+															else_if = {
+																limit = { check_variable = { v = 4 } }
+																check_variable = { SM_least_needed_resource_index_temp_var = 1 }
+															}
+															else = {
+																check_variable = { SM_least_needed_resource_index_temp_var = 0 }
+															}
+														}
+													}
+													
+													for_each_loop = {
+														array = SM_state_bonus_resources
+														
+														if = {
+															limit = {
+																if = {
+																	limit = { check_variable = { v = 0 } }
+																	check_variable = { SM_least_needed_resource_index_temp_var = 5 }
+																}
+																else_if = {
+																	limit = { check_variable = { v = 1 } }
+																	check_variable = { SM_least_needed_resource_index_temp_var = 4 }
+																}
+																else_if = {
+																	limit = { check_variable = { v = 2 } }
+																	check_variable = { SM_least_needed_resource_index_temp_var = 3 }
+																}
+																else_if = {
+																	limit = { check_variable = { v = 3 } }
+																	check_variable = { SM_least_needed_resource_index_temp_var = 2 }
+																}
+																else_if = {
+																	limit = { check_variable = { v = 4 } }
+																	check_variable = { SM_least_needed_resource_index_temp_var = 1 }
+																}
+																else = {
+																	check_variable = { SM_least_needed_resource_index_temp_var = 0 }
+																}
+															}
+															
+															if = {
+																limit = {
+																	check_variable = {
+																		var = modifier@local_resources
+																		compare = not_equals
+																		value = 0
+																	}
+																}
+																
+																SM_calculate_resources_updater_with_local_modifier = yes
+																
+																if = {
+																	limit = { check_variable = { v = 0 } }
+																	add_resource = { type = steel amount = -2 }
+																	add_to_variable = { ROOT.SM_needed_resources^5 = SM_needed_resources_local_updater_temp_var }
+																}
+																else_if = {
+																	limit = { check_variable = { v = 1 } }
+																	add_resource = { type = tungsten amount = -2 }
+																	add_to_variable = { ROOT.SM_needed_resources^4 = SM_needed_resources_local_updater_temp_var }
+																}
+																else_if = {
+																	limit = { check_variable = { v = 2 } }
+																	add_resource = { type = aluminium amount = -2 }
+																	add_to_variable = { ROOT.SM_needed_resources^3 = SM_needed_resources_local_updater_temp_var }
+																}
+																else_if = {
+																	limit = { check_variable = { v = 3 } }
+																	add_resource = { type = rubber amount = -2 }
+																	add_to_variable = { ROOT.SM_needed_resources^2 = SM_needed_resources_local_updater_temp_var }
+																}
+																else_if = {
+																	limit = { check_variable = { v = 4 } }
+																	add_resource = { type = chromium amount = -2 }
+																	add_to_variable = { ROOT.SM_needed_resources^1 = SM_needed_resources_local_updater_temp_var }
+																}
+																else = {
+																	add_resource = { type = crystals amount = -2 }
+																	add_to_variable = { ROOT.SM_needed_resources^0 = SM_needed_resources_local_updater_temp_var }
+																}
+															}
+															else = {
+																if = {
+																	limit = { check_variable = { v = 0 } }
+																	add_resource = { type = steel amount = -2 }
+																	add_to_variable = { ROOT.SM_needed_resources^5 = ROOT.SM_needed_resources_updater_var }
+																}
+																else_if = {
+																	limit = { check_variable = { v = 1 } }
+																	add_resource = { type = tungsten amount = -2 }
+																	add_to_variable = { ROOT.SM_needed_resources^4 = ROOT.SM_needed_resources_updater_var }
+																}
+																else_if = {
+																	limit = { check_variable = { v = 2 } }
+																	add_resource = { type = aluminium amount = -2 }
+																	add_to_variable = { ROOT.SM_needed_resources^3 = ROOT.SM_needed_resources_updater_var }
+																}
+																else_if = {
+																	limit = { check_variable = { v = 3 } }
+																	add_resource = { type = rubber amount = -2 }
+																	add_to_variable = { ROOT.SM_needed_resources^2 = ROOT.SM_needed_resources_updater_var }
+																}
+																else_if = {
+																	limit = { check_variable = { v = 4 } }
+																	add_resource = { type = chromium amount = -2 }
+																	add_to_variable = { ROOT.SM_needed_resources^1 = ROOT.SM_needed_resources_updater_var }
+																}
+																else = {
+																	add_resource = { type = crystals amount = -2 }
+																	add_to_variable = { ROOT.SM_needed_resources^0 = ROOT.SM_needed_resources_updater_var }
+																}
+															}
+															
+															if = { # shifting the array
+																limit = {
+																	check_variable = {
+																		var = i
+																		compare = not_equals
+																		value = SM_state_amount_of_dockyards
+																	}
+																}
+																
+																set_temp_variable = { SM_state_bonus_resources_substraction_iterator_temp_var = i }
+																
+																for_loop_effect = {
+																	start = i
+																	end = SM_state_amount_of_dockyards
+																	
+																	add_to_temp_variable = { SM_state_bonus_resources_substraction_iterator_temp_var = 1 }
+																	
+																	set_variable = { SM_state_bonus_resources^v = SM_state_bonus_resources^SM_state_bonus_resources_substraction_iterator_temp_var }
+																}
+															}
+															
+															remove_from_array = {
+																array = SM_state_bonus_resources
+																index = SM_state_amount_of_dockyards
+															}
+															
+															set_temp_variable = { SM_bonus_resources_substraction_break_temp_var = 1 }
+															set_temp_variable = { break = 1 }
+														}
+													}
+												}
+												else = {
+													remove_from_array = {
+														array = ROOT.SM_needed_resources_for_substract
+														index = SM_least_needed_resource_index_temp_var
+													}
+												}
+											}
+										}
+										else = {
+											if = {
+												limit = {
+													check_variable = {
+														var = modifier@local_resources
+														compare = not_equals
+														value = 0
+													}
+												}
+												
+												SM_calculate_resources_updater_with_local_modifier = yes
+												
+												if = {
+													limit = { check_variable = { SM_state_bonus_resources^SM_state_amount_of_dockyards = 0 } }
+													add_resource = { type = crystals amount = -2 }
+													add_to_variable = { ROOT.SM_needed_resources^0 = SM_needed_resources_local_updater_temp_var }
+												}
+												else_if = {
+													limit = { check_variable = { SM_state_bonus_resources^SM_state_amount_of_dockyards = 1 } }
+													add_resource = { type = chromium amount = -2 }
+													add_to_variable = { ROOT.SM_needed_resources^1 = SM_needed_resources_local_updater_temp_var }
+												}
+												else_if = {
+													limit = { check_variable = { SM_state_bonus_resources^SM_state_amount_of_dockyards = 2 } }
+													add_resource = { type = rubber amount = -2 }
+													add_to_variable = { ROOT.SM_needed_resources^2 = SM_needed_resources_local_updater_temp_var }
+												}
+												else_if = {
+													limit = { check_variable = { SM_state_bonus_resources^SM_state_amount_of_dockyards = 3 } }
+													add_resource = { type = aluminium amount = -2 }
+													add_to_variable = { ROOT.SM_needed_resources^3 = SM_needed_resources_local_updater_temp_var }
+												}
+												else_if = {
+													limit = { check_variable = { SM_state_bonus_resources^SM_state_amount_of_dockyards = 4 } }
+													add_resource = { type = tungsten amount = -2 }
+													add_to_variable = { ROOT.SM_needed_resources^4 = SM_needed_resources_local_updater_temp_var }
+												}
+												else = {
+													add_resource = { type = steel amount = -2 }
+													add_to_variable = { ROOT.SM_needed_resources^5 = SM_needed_resources_local_updater_temp_var }
+												}
+											}
+											else = {
+												if = {
+													limit = { check_variable = { SM_state_bonus_resources^SM_state_amount_of_dockyards = 0 } }
+													add_resource = { type = crystals amount = -2 }
+													add_to_variable = { ROOT.SM_needed_resources^0 = ROOT.SM_needed_resources_updater_var }
+												}
+												else_if = {
+													limit = { check_variable = { SM_state_bonus_resources^SM_state_amount_of_dockyards = 1 } }
+													add_resource = { type = chromium amount = -2 }
+													add_to_variable = { ROOT.SM_needed_resources^1 = ROOT.SM_needed_resources_updater_var }
+												}
+												else_if = {
+													limit = { check_variable = { SM_state_bonus_resources^SM_state_amount_of_dockyards = 2 } }
+													add_resource = { type = rubber amount = -2 }
+													add_to_variable = { ROOT.SM_needed_resources^2 = ROOT.SM_needed_resources_updater_var }
+												}
+												else_if = {
+													limit = { check_variable = { SM_state_bonus_resources^SM_state_amount_of_dockyards = 3 } }
+													add_resource = { type = aluminium amount = -2 }
+													add_to_variable = { ROOT.SM_needed_resources^3 = ROOT.SM_needed_resources_updater_var }
+												}
+												else_if = {
+													limit = { check_variable = { SM_state_bonus_resources^SM_state_amount_of_dockyards = 4 } }
+													add_resource = { type = tungsten amount = -2 }
+													add_to_variable = { ROOT.SM_needed_resources^4 = ROOT.SM_needed_resources_updater_var }
+												}
+												else = {
+													add_resource = { type = steel amount = -2 }
+													add_to_variable = { ROOT.SM_needed_resources^5 = ROOT.SM_needed_resources_updater_var }
+												}
+											}
+										}
+										
+										remove_from_array = {
+											array = SM_state_bonus_resources
+											index = SM_state_amount_of_dockyards
+										}
+									}
+								}
+							}
+							else_if = {
+								limit = {
+									check_variable = { SM_state_amount_of_dockyards = 0 }
+								}
+								
+								clear_variable = SM_state_amount_of_dockyards
+								
+								remove_from_array = {
+									array = ROOT.SM_states_with_dockyards_donations
+									value = THIS
+								}
+							}
+						}
+					}
+				}
+			}
+			SM_dockyards_add_button_click = {
+				add_to_variable = { SM_state_amount_of_dockyards = 1 }
+				
+				ROOT = {
+					add_political_power = SM_effect_cost_var
+					
+					hidden_effect = {
+						if = {
+							limit = {
+								has_dynamic_modifier = { modifier = SM_country_dockyards_modifier }
+							}
+							
+							if = {
+								limit = {
+									has_completed_focus = NTR_founding_the_northern_navy
+									has_completed_focus = NTR_the_future_planning_committee
+								}
+								
+								divide_variable = { SM_experience_gain_navy_var = SM_country_amount_of_dockyards }
+								divide_variable = { RS_daily_naval_savings_var = SM_country_amount_of_dockyards }
+								add_to_variable = { SM_country_amount_of_dockyards = 1 }
+								multiply_variable = { SM_experience_gain_navy_var = SM_country_amount_of_dockyards }
+								multiply_variable = { RS_daily_naval_savings_var = SM_country_amount_of_dockyards }
+							}
+							else = {
+								divide_variable = { SM_experience_gain_navy_var = SM_country_amount_of_dockyards }
+								add_to_variable = { SM_country_amount_of_dockyards = 1 }
+								multiply_variable = { SM_experience_gain_navy_var = SM_country_amount_of_dockyards }
+							}
+							
+							subtract_from_variable = { SM_negative_dockyard_donations_var = 1 }
+							
+							if = {
+								limit = {
+									NOT = { is_in_array = { SM_states_with_dockyards_donations = PREV } }
+								}
+								
+								add_to_array = { SM_states_with_dockyards_donations = PREV }
+							}
+						}
+						else = {
+							add_to_array = { SM_states_with_dockyards_donations = PREV }
+							
+							if = {
+								limit = {
+									NOT = { has_variable = SM_country_amount_of_dockyards }
+								}
+								
+								country_event = { id = SM_and_RS_GUI_events.7 days = 7 }
+								log = "[GetDateText]: [Root.GetName]: self-triggering event SM_and_RS_GUI_events.7 started"
+							}
+							
+							set_variable = { SM_country_amount_of_dockyards = 1 }
+							set_variable = { SM_negative_dockyard_donations_var = -1 }
+							
+							set_variable = { SM_experience_gain_navy_var = 1 }
+							add_to_variable = { SM_experience_gain_navy_var = modifier@industrial_capacity_dockyard }
+							
+							if = {
+								limit = {
+									has_completed_focus = NTR_founding_the_northern_navy
+									has_completed_focus = NTR_the_future_planning_committee
+								}
+								
+								if = {
+									limit = {
+										NOT = { has_variable = RS_daily_naval_savings_var }
+									}
+									
+									country_event = { id = SM_and_RS_GUI_events.6 days = 7 }
+									log = "[GetDateText]: [Root.GetName]: self-triggering event SM_and_RS_GUI_events.6 started"
+								}
+								
+								set_variable = { RS_daily_naval_savings_var = 1 }
+								add_to_variable = { RS_daily_naval_savings_var = modifier@research_speed_factor }
+								
+								if = {
+									limit = {
+										has_completed_focus = NTR_establishing_the_supracommunal_committee
+									}
+									
+									multiply_variable = { RS_daily_naval_savings_var = 1.2 }
+								}
+							}
+							
+							multiply_variable = { SM_experience_gain_navy_var = SM_basic_navy_experience_var?0.02 }
+							
+							add_dynamic_modifier = { modifier = SM_country_dockyards_modifier }
+						}
+						
+						if = {
+							limit = {
+								has_completed_focus = NTR_northern_free_trade_area
+							}
+							
+							SM_calculate_resources_objects_if_needed = yes
+							
+							PREV = {
+								find_lowest_in_array = { array = ROOT.SM_needed_resources }
+								
+								add_to_array = { SM_state_bonus_resources = i }
+								
+								SM_add_bonus_resources = yes
+								
+								if = {
+									limit = {
+										check_variable = {
+											var = modifier@local_resources
+											compare = not_equals
+											value = 0
+										}
+									}
+									
+									SM_calculate_resources_updater_with_local_modifier = yes
+									
+									add_to_variable = { ROOT.SM_needed_resources^i = SM_needed_resources_local_updater_temp_var }
+								}
+								else = {
+									add_to_variable = { ROOT.SM_needed_resources^i = ROOT.SM_needed_resources_updater_var }
+								}
+							}
+						}
+					}
+				}
+			}
+		}
+		
+		ai_enabled = {
+			original_tag = NTR
+		}
+		
+		ai_test_interval = 350 # hours = 14,58(3) days (int)
+		ai_test_variance = 0.4 # ai_test_interval * 0.2 = x +- ai_test_interval = hours_to_next_ai_check (float)
+		ai_test_scopes = test_self_owned_states # owned_states
+		
+		ai_check = {
+			ROOT = { has_political_power > SM_trigger_cost_var }
+		}
+		
+		ai_check_scope = {
+			is_core_of = ROOT
+			is_controlled_by = ROOT
+		}
+		
+		ai_weights = { # ALPHA; works only with NTR_AI_processor (Ntribes.1000)
+			SM_complexes_remove_button_click = {
+				ai_will_do = {
+					base = 0
+					
+					modifier = {
+						add = 1
+						
+						ROOT = { num_of_available_civilian_factories < 1 } # we need more complexes
+					}
+				}
+			}
+			SM_complexes_add_button_click = {
+				ai_will_do = {
+					base = 0
+					
+					modifier = {
+						add = 1
+						
+						ROOT = {
+							num_of_available_civilian_factories > 3 # unused complexes in construction
+							
+							if = { # priority for population
+								limit = {
+									check_variable = { NTR_war_construction_AI_factor > 0 } # ALL resources >= 0
+								}
+								
+								NOT = {
+									any_of_scopes = {
+										array = core_states
+										
+										is_owned_and_controlled_by = ROOT
+										
+										check_variable = { SM_state_amount_of_complexes < industrial_complex }
+										check_variable = { state_population_k > PREV.state_population_k }
+										
+										NOT = { state = PREV }
+									}
+								}
+							}
+							else = {
+								if = { # priority for resources - first
+									OR = {
+										AND = {
+											PREV = { has_resources_amount = { resource = steel amount > 0 } }
+											check_variable = { resource@steel < 0 }
+										}
+										AND = {
+											PREV = { has_resources_amount = { resource = aluminium amount > 0 } }
+											check_variable = { resource@aluminium < 0 }
+										}
+										AND = {
+											PREV = { has_resources_amount = { resource = rubber amount > 0 } }
+											check_variable = { resource@rubber < 0 }
+										}
+										AND = {
+											PREV = { has_resources_amount = { resource = tungsten amount > 0 } }
+											check_variable = { resource@tungsten < 0 }
+										}
+										AND = {
+											PREV = { has_resources_amount = { resource = chromium amount > 0 } }
+											check_variable = { resource@chromium < 0 }
+										}
+										AND = {
+											PREV = { has_resources_amount = { resource = crystals amount > 0 } }
+											check_variable = { resource@crystals < 0 }
+										}
+									}
+								}
+								else = { # for population - second
+									NOT = {
+										any_of_scopes = {
+											array = core_states
+											
+											is_owned_and_controlled_by = ROOT
+											
+											check_variable = { SM_state_amount_of_complexes < industrial_complex }
+											check_variable = { state_population_k > PREV.state_population_k }
+											
+											NOT = { state = PREV }
+										}
+									}
+								}
+							}
+						}
+					}
+				}
+			}
+			
+			SM_factories_remove_button_click = {
+				ai_will_do = {
+					base = 0
+					
+					modifier = {
+						add = 1
+						
+						ROOT = {
+							check_variable = { SM_country_amount_of_factories > num_of_military_factories }
+							check_variable = { NTR_war_construction_AI_factor > 0.5 }
+						}
+					}
+				}
+			}
+			SM_factories_add_button_click = {
+				ai_will_do = {
+					base = 0
+					
+					modifier = {
+						add = 1
+						
+						ROOT = {
+							has_political_power > 150 # save for civilian needs
+							
+							set_temp_variable = { SM_country_amount_of_factories_check_temp = SM_country_amount_of_factories }
+							subtract_from_temp_variable = { SM_country_amount_of_factories_check_temp = 1 }
+							
+							check_variable = { SM_country_amount_of_factories_check_temp < num_of_military_factories }
+							check_variable = { NTR_war_construction_AI_factor < 0.5 }
+							check_variable = { NTR_war_construction_AI_factor < NTR_war_production_AI_factor }
+						}
+					}
+				}
+			}
+			
+			SM_dockyards_remove_button_click = {
+				ai_will_do = {
+					base = 0
+					
+					modifier = {
+						add = 1
+						
+						OR = {
+							OR = {
+								check_variable = { resource@steel > 4 }
+								check_variable = { SM_state_bonus_resources^5 > 0 }
+							}
+							OR = {
+								check_variable = { resource@tungsten > 4 }
+								check_variable = { SM_state_bonus_resources^4 > 0 }
+							}
+							OR = {
+								check_variable = { resource@aluminium > 4 }
+								check_variable = { SM_state_bonus_resources^3 > 0 }
+							}
+							OR = {
+								check_variable = { resource@rubber > 4 }
+								check_variable = { SM_state_bonus_resources^2 > 0 }
+							}
+							OR = {
+								check_variable = { resource@chromium > 4 }
+								check_variable = { SM_state_bonus_resources^1 > 0 }
+							}
+							OR = {
+								check_variable = { resource@crystals > 4 }
+								check_variable = { SM_state_bonus_resources^0 > 0 }
+							}
+							
+							ROOT = {
+								OR = {
+									check_variable = { SM_country_amount_of_dockyards < num_of_naval_factories }
+									
+									alliance_naval_strength_ratio < 1
+								}
+							}
+						}
+					}
+				}
+			}
+			SM_dockyards_add_button_click = {
+				ai_will_do = {
+					base = 0
+					
+					modifier = {
+						add = 1
+						
+						ROOT = {
+							set_temp_variable = { SM_country_amount_of_dockyards_check_temp = SM_country_amount_of_dockyards }
+							subtract_from_temp_variable = { SM_country_amount_of_dockyards_check_temp = 1 }
+							
+							check_variable = { SM_country_amount_of_dockyards_check_temp < num_of_naval_factories }
+							
+							OR = {
+								alliance_naval_strength_ratio > 1.5 # increasing the technological advantage
+								
+								AND = {
+									has_completed_focus = NTR_northern_free_trade_area # bonus resources from trade
+									
+									OR = {
+										check_variable = { resource_imported@steel > 0 }
+										check_variable = { resource_imported@tungsten > 0 }
+										check_variable = { resource_imported@aluminium > 0 }
+										check_variable = { resource_imported@rubber > 0 }
+										check_variable = { resource_imported@chromium > 0 }
+										check_variable = { resource_imported@crystals > 0 }
+									}
+								}
+							}
+						}
+					}
+				}
+			}
+		}
+	}
+}

@@ -1,0 +1,172 @@
+SM_create_resources_array = {
+	if = {
+		limit = { check_variable = { resource_consumed@crystals > 0 } }
+		add_to_array = { SM_needed_resources = resource_consumed@crystals }
+	}
+	else = {
+		add_to_array = { SM_needed_resources = 10000 }
+	}
+	if = {
+		limit = { check_variable = { resource_consumed@chromium > 0 } }
+		add_to_array = { SM_needed_resources = resource_consumed@chromium }
+	}
+	else = {
+		add_to_array = { SM_needed_resources = 10000 }
+	}
+	if = {
+		limit = { check_variable = { resource_consumed@rubber > 0 } }
+		add_to_array = { SM_needed_resources = resource_consumed@rubber }
+	}
+	else = {
+		add_to_array = { SM_needed_resources = 10000 }
+	}
+	if = {
+		limit = { check_variable = { resource_consumed@aluminium > 0 } }
+		add_to_array = { SM_needed_resources = resource_consumed@aluminium }
+	}
+	else = {
+		add_to_array = { SM_needed_resources = 10000 }
+	}
+	if = {
+		limit = { check_variable = { resource_consumed@tungsten > 0 } }
+		add_to_array = { SM_needed_resources = resource_consumed@tungsten }
+	}
+	else = {
+		add_to_array = { SM_needed_resources = 10000 }
+	}
+	if = {
+		limit = { check_variable = { resource_consumed@steel > 0 } }
+		add_to_array = { SM_needed_resources = resource_consumed@steel }
+	}
+	else = {
+		add_to_array = { SM_needed_resources = 10000 }
+	}
+}
+
+SM_calculate_not_export_multiplier_and_array_updater_variable = {
+	set_temp_variable = { SM_not_export_resources_multiplier_temp_var = 1 }
+	subtract_from_temp_variable = { SM_not_export_resources_multiplier_temp_var = modifier@min_export }
+	
+	set_variable = { SM_needed_resources_updater_var = 1 }
+	add_to_variable = { SM_needed_resources_updater_var = modifier@local_resources_factor }
+	multiply_variable = { SM_needed_resources_updater_var = 2 }
+	multiply_variable = { SM_needed_resources_updater_var = SM_not_export_resources_multiplier_temp_var }
+}
+
+SM_add_bonus_resources = {
+	if = {
+		limit = { check_variable = { i = 0 } }
+		add_resource = { type = crystals amount = 2 }
+	}
+	else_if = {
+		limit = { check_variable = { i = 1 } }
+		add_resource = { type = chromium amount = 2 }
+	}
+	else_if = {
+		limit = { check_variable = { i = 2 } }
+		add_resource = { type = rubber amount = 2 }
+	}
+	else_if = {
+		limit = { check_variable = { i = 3 } }
+		add_resource = { type = aluminium amount = 2 }
+	}
+	else_if = {
+		limit = { check_variable = { i = 4 } }
+		add_resource = { type = tungsten amount = 2 }
+	}
+	else = {
+		add_resource = { type = steel amount = 2 }
+	}
+}
+
+SM_calculate_resources_updater_with_local_modifier = {
+	set_temp_variable = { SM_needed_resources_local_updater_temp_var = 1 }
+	add_to_temp_variable = { SM_needed_resources_local_updater_temp_var = modifier@local_resources }
+	multiply_temp_variable = { SM_needed_resources_local_updater_temp_var = ROOT.SM_needed_resources_updater_var }
+}
+
+SM_calculate_resources_objects_if_needed = {
+	if = {
+		limit = {
+			NOT = { has_variable = SM_needed_resources_updater_var }
+		}
+		
+		SM_create_resources_array = yes
+		SM_calculate_not_export_multiplier_and_array_updater_variable = yes
+		
+		country_event = { id = SM_and_RS_GUI_events.8 hours = 1 }
+	}
+}
+
+SM_calculate_bonus_ponypower_percentage = {
+	set_temp_variable = { SM_conscription_percentage_temp_var = 1 }
+	add_to_temp_variable = { SM_conscription_percentage_temp_var = modifier@conscription_factor }
+	multiply_temp_variable = { SM_conscription_percentage_temp_var = modifier@conscription }
+	
+	if = {
+		limit = {
+			any_of_scopes = {
+				array = owned_controlled_states
+				
+				NOT = { is_core_of = ROOT }
+			}
+		}
+		
+		set_temp_variable = { SM_non_core_conscription_percentage_temp_var = 1 }
+		add_to_temp_variable = { SM_non_core_conscription_percentage_temp_var = modifier@conscription_factor }
+		multiply_temp_variable = { SM_non_core_conscription_percentage_temp_var = modifier@non_core_manpower }
+	}
+	
+	for_each_scope_loop = {
+		array = owned_controlled_states
+		
+		if = {
+			limit = {
+				is_core_of = ROOT
+			}
+			
+			if = {
+				limit = {
+					check_variable = {
+						var = modifier@local_manpower
+						compare = not_equals
+						value = 0
+					}
+				}
+				
+				set_temp_variable = { SM_state_conscriptors_temp_var = 1 }
+				add_to_temp_variable = { SM_state_conscriptors_temp_var = modifier@local_manpower }
+				multiply_temp_variable = { SM_state_conscriptors_temp_var = ROOT.SM_conscription_percentage_temp_var }
+			}
+			else = {
+				set_temp_variable = { SM_state_conscriptors_temp_var = ROOT.SM_conscription_percentage_temp_var }
+			}
+		}
+		else = {
+			if = {
+				limit = {
+					check_variable = {
+						var = modifier@local_non_core_manpower
+						compare = not_equals
+						value = 0
+					}
+				}
+				
+				set_temp_variable = { SM_state_conscriptors_temp_var = 1 }
+				add_to_temp_variable = { SM_state_conscriptors_temp_var = modifier@local_non_core_manpower }
+				multiply_temp_variable = { SM_state_conscriptors_temp_var = ROOT.SM_non_core_conscription_percentage_temp_var }
+			}
+			else = {
+				set_temp_variable = { SM_state_conscriptors_temp_var = ROOT.SM_non_core_conscription_percentage_temp_var }
+			}
+		}
+		
+		multiply_temp_variable = { SM_state_conscriptors_temp_var = state_population_k }
+		add_to_variable = { ROOT.SM_manpower_k_from_conscription_var = SM_state_conscriptors_temp_var }
+	}
+	
+	subtract_from_variable = { SM_manpower_k_from_conscription_var = casualties_k }
+	
+	set_variable = { SM_bonus_consciptors_percentage_var = SM_manpower_k_from_conscription_var }
+	divide_variable = { SM_bonus_consciptors_percentage_var = manpower_k }
+}

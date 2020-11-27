@@ -925,7 +925,7 @@ focus_tree = {
 				limit = { has_government = neutrality }
 				country_event = { id = mountain.6 days = 1 }
 			}
-			if = {
+			else_if = {
 				limit = { has_government = fascism }
 				country_event = { id = mountain.7 days = 1 }
 			}
@@ -937,6 +937,7 @@ focus_tree = {
 		id = MNC_mountain_expansion
 		icon = GFX_focus_generic_provoke_border_clashes
 		prerequisite = { focus = MNC_new_kingdom focus = MNC_new_SSR focus = MNC_new_republic }
+		available = { is_subject = no }
 		cost = 10.00
 		x = -2
 		y = 1
@@ -1008,10 +1009,24 @@ focus_tree = {
 					instant_build = yes
 				}
 			}
-			add_resource = {
-				type = steel
-				amount = 14
-				state = 480
+			if = {
+				limit = {
+					480 = {
+						NOT = {
+							has_state_flag = windford_steel_developed
+						}
+					}
+				}
+				add_resource = {
+					type = steel
+					amount = 14
+					state = 480
+				}
+			}
+			hidden_effect = {
+				480 = {
+					set_state_flag = windford_steel_developed
+				}
 			}
 		}
 		search_filters = { FOCUS_FILTER_MANPOWER FOCUS_FILTER_INDUSTRY FOCUS_FILTER_POLITICAL }
@@ -1044,12 +1059,53 @@ focus_tree = {
 		id = MNC_elf_lake_expansion
 		icon = GFX_focus_generic_provoke_border_clashes
 		prerequisite = { focus = MNC_new_kingdom focus = MNC_new_SSR focus = MNC_new_republic }
+		available = {
+			is_subject = no
+			NOT = {
+				has_country_flag = NTR_agreed_to_cooperate_flag
+				has_non_aggression_pact_with = NTR
+				is_in_faction_with = NTR
+			}
+		}
 		cost = 10.00
 		x = 2
 		y = 1
 		relative_position_id = MNC_new_kingdom
 		ai_will_do = {
 			factor = 100
+			modifier = {
+				factor = 0.01
+				if = {
+					limit = {
+						NTR = { has_government = democratic }
+					}
+					OR = {
+						has_government = neutrality
+						AND = {
+							has_government = communism
+							has_completed_focus = MNC_integrate_democrats
+						}
+					}
+				}
+				else_if = {
+					limit = {
+						NTR = { has_country_leader = { name = "Northland General Congress" ruling_only = yes } }
+					}
+					has_government = democratic
+					has_completed_focus = MNC_integrate_commies
+				}
+			}
+			modifier = {
+				factor = 0
+				if = {
+					limit = { has_government = democratic }
+					NTR = { has_government = democratic }
+				}
+				else_if = {
+					limit = { has_government = communism }
+					NTR = { has_government = communism }
+				}
+			}
 		}
 		completion_reward = {
 			log = "[GetDateText]: [Root.GetName]: Focus MNC_elf_lake_expansion"
@@ -1278,7 +1334,7 @@ focus_tree = {
 
 	focus = {
 		id = MNC_educate_people
-		icon = GFX_goal_KTG_Bookstack
+		icon = GFX_goal_bookstack
 		x = -2
 		y = 1
 		relative_position_id = MNC_hunt_down_eriviar
