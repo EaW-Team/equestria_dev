@@ -1,0 +1,349 @@
+MTA_artifact_experimentation_category = {
+	MTA_artifact_action = {
+		icon = GFX_decision_eng_trade_unions_demand
+
+		visible = {
+			has_country_flag = MTA_opened_cave_flag
+			is_in_array = { ROOT.MTA_owned_artifacts = FROM }
+			FROM = {
+				NOT = {
+					has_state_flag = MTA_sealed_artifact_flag
+					state = 2
+				}
+			}
+		}
+		available = {
+			NOT = { has_country_flag = MTA_recent_artifact_action_flag }
+		}
+		state_target = yes
+		target_array = ROOT.MTA_owned_artifacts
+		target_trigger = {
+			is_in_array = { ROOT.MTA_owned_artifacts = FROM }
+			FROM = {
+				NOT = {
+					has_state_flag = MTA_sealed_artifact_flag
+					state = 2
+				}
+			}
+		}
+		target_root_trigger = {
+			has_country_flag = MTA_opened_cave_flag
+		}
+		ai_will_do = {
+			factor = 100
+		}
+		cost = 0
+
+		complete_effect = {
+			log = "[GetDateText]: [Root.GetName]: Decision MTA_artifact_action"
+			set_country_flag = { flag = MTA_recent_artifact_action_flag days = 30 value = 1 }
+			FROM = { add_to_array = { ROOT.MTA_tested_artifact = THIS } }
+			country_event = marcsi.1
+		}
+	}
+	MTA_quarterly_review = {
+		icon = GFX_decision_generic_break_treaty
+
+		allowed = { always = no } #manually activated
+
+		available = {
+			hidden_trigger = { always = no }
+		}
+
+		cancel_trigger = {
+			NOT = { has_country_flag = MTA_opened_cave_flag }
+		}
+
+		selectable_mission = no
+		is_good = no
+		days_mission_timeout = 183
+
+		timeout_effect = {
+			log = "[GetDateText]: [Root.GetName]: Decision timeout MTA_quarterly_review"
+			
+			activate_mission = MTA_quarterly_review
+		}
+	}
+}
+MTA_artifact_acquisition_category = {
+	MTA_artifact_searching_lootbox_roll = {
+		icon = generic_magic
+
+		cost = MTA_artifact_searching_lootbox_cost?25
+		days_remove = MTA_artifact_searching_lootbox_time?90
+		modifier = {
+			#research_speed_factor = -0.1
+		}
+		visible = {
+			has_country_flag = MTA_opened_cave_flag
+		}
+
+		ai_will_do = {
+			factor = 50
+		}
+		
+		complete_effect = {
+			log = "[GetDateText] [Root.GetName]: Decision MTA_artifact_searching_lootbox_roll" 
+			custom_effect_tooltip = MTA_artifact_searching_lootbox_roll_tt
+        }
+		remove_effect = {
+			log = "[GetDateText]: [Root.GetName]: Decision remove MTA_artifact_searching_lootbox_roll"
+			custom_effect_tooltip = MTA_artifact_searching_lootbox_roll_remove_tt
+			add_to_variable = { MTA_artifact_searching_lootbox_cost = 10 }
+			add_to_variable = { MTA_artifact_searching_lootbox_time = 30 }
+			hidden_effect = {
+				country_event = marcsi.4
+			}
+		}
+	}
+}
+MTA_economic_affairs = {
+	MTA_magical_manufacturing_decision = {
+		icon = generic_construction
+		
+		visible = {
+			has_full_control_of_state = FROM
+			has_completed_focus = MTA_magical_manufactures
+		}
+		available = {
+			FROM = {
+				has_resources_amount = { 
+					resource = crystals 
+					amount > 4 
+				}
+			}
+		}
+		
+		days_remove = 90
+		
+		state_target = yes
+		targets = { 994 995 997 962 }
+		target_root_trigger = {
+			has_full_control_of_state = FROM
+			has_completed_focus = MTA_magical_manufactures
+		}
+		
+		cost = 0
+
+		ai_will_do = {
+			factor = 20
+			modifier = {
+				factor = 0
+				check_variable = { MTA_construction_ai_sanity_check > 5 }
+			}
+		}
+
+		complete_effect = {
+			log = "[GetDateText]: [Root.GetName]: Decision MTA_magical_manufacturing_decision"
+			add_to_variable = { MTA_construction_ai_sanity_check = 1 }
+			add_resource = {
+				type = crystals
+				amount = -5
+				state = FROM
+			}
+		}
+
+		remove_effect = {
+			log = "[GetDateText]: [Root.GetName]: Decision remove MTA_magical_manufacturing_decision"
+			FROM = {
+				add_extra_state_shared_building_slots = 1
+				add_building_construction = {
+					type = industrial_complex
+					level = 1
+					instant_build = yes
+				}
+			}
+		}
+	}
+}
+MTA_military_affairs = {
+	MTA_acquire_guns = { 
+		icon = generic_prepare_civil_war
+
+		fire_only_once = no
+		days_remove = 90
+		
+		visible = {
+			has_completed_focus = MTA_get_infantry_equipment
+		}
+
+		ai_will_do = {
+			factor = 50
+		}
+
+		cost = 50
+
+		complete_effect = {
+			log = "[GetDateText]: [Root.GetName]: decision MTA_acquire_guns"
+			add_equipment_to_stockpile = {
+				type = infantry_equipment
+				amount = 1000
+				producer = MTA
+			}
+		}
+	}
+	MTA_invade_riseia_states = {
+		icon = hol_draw_up_staff_plans
+
+		available = {
+			is_neighbor_of = FROM
+		}
+
+		visible = {
+			can_declare_war_on = FROM
+		}
+
+		targets = { MHR HMR }
+		target_root_trigger = {
+			has_completed_focus = MTA_war_plan_ivory_tower
+		}
+		target_trigger = {
+			can_declare_war_on = FROM
+		}
+
+		cost = 10
+		days_remove = 14
+		fire_only_once = yes
+		war_with_target_on_remove = yes
+		ai_will_do = {
+			factor = 100
+			modifier = {
+				factor = 0
+				enemies_strength_ratio > 0.4
+			}
+			modifier = {
+				factor = 0
+				surrender_progress > 0
+			}
+			modifier = {
+				factor = 0
+				strength_ratio = { tag = FROM ratio < 0.8 }
+			}
+			modifier = {
+				factor = 0
+				FROM = {
+					is_in_faction = yes
+					any_allied_country = {
+						strength_ratio = { tag = ROOT ratio > 0.7 }
+					}
+				}
+			}
+			modifier = {
+				factor = 0
+				FROM = {
+					is_subject = yes
+					overlord = {
+						strength_ratio = { tag = ROOT ratio > 0.7 }
+					}
+				}
+			}
+			modifier = {
+				factor = 0
+				has_country_flag = imminent_war
+			}
+		}
+
+		complete_effect = {
+			log = "[GetDateText]: [Root.GetName]: Decision MTA_invade_riseia_states target: [From.GetName]"
+			set_country_flag = { flag = imminent_war days = 15 value = 1 }
+			FROM = {
+				add_ai_strategy = {
+					type = prepare_for_war
+					id = ROOT
+					value = 1000
+				}
+			}
+		}
+		remove_effect = {
+			log = "[GetDateText]: [Root.GetName]: Decision remove MTA_invade_riseia_states target: [From.GetName]"
+			FROM = { add_to_ROOT_potential_cores = yes } # move to a separate decision later
+			FROM = {
+				add_ai_strategy = {
+					type = prepare_for_war
+					id = ROOT
+					value = -1000
+				}
+			}
+			declare_war_on = {
+				target = FROM
+				type = annex_everything
+			}
+		}
+	}
+}
+MTA_eotc_decisions = {
+	MTA_eotc_spread_atrophy = {
+		icon = generic_ignite_civil_war
+		
+		allowed = {
+			original_tag = MTA
+		}
+		
+		visible = { 
+			FROM = {
+				NOT = { has_state_flag = MTA_eotc_atrophied_state }
+			}
+		}
+
+		target_root_trigger = {
+			has_completed_focus = MTA_eotc_focus
+		}
+		
+		available = { 
+			FROM = {
+				is_fully_controlled_by = MTA
+			}
+		}
+
+		state_target = yes
+
+		target_array = controlled_states
+
+		target_trigger = {
+			FROM = {
+				NOT = { has_state_flag = MTA_eotc_atrophied_state }
+			}
+		}
+		
+		ai_will_do = {
+			base = 100
+		}
+		
+		days_remove = 30
+		
+		modifier = { 
+			army_speed_factor = -0.1
+		}
+		
+		remove_effect = {
+			log = "[GetDateText]: [Root.GetName]: Decision remove MTA_eotc_spread_atrophy"
+			FROM = {
+				set_state_flag = MTA_eotc_atrophied_state
+				add_dynamic_modifier = { modifier = MTA_entropy_state }
+				custom_effect_tooltip = MTA_remove_core_eotc_tt
+				for_each_loop = {
+					array = core_countries
+					add_to_temp_array = { cores_to_remove = v }
+				}
+				for_each_loop = {
+					array = cores_to_remove
+					remove_core_of = var:v
+				}
+				custom_effect_tooltip = MTA_all_factories_converted_to_units_tt
+				set_temp_variable = { from_fact = FROM.building_level@arms_factory }
+				add_to_temp_variable = { from_fact = FROM.building_level@industrial_complex }
+				add_to_temp_variable = { from_fact = FROM.building_level@dockyard }
+				hidden_effect = {
+					create_unit = {
+						division = "name = \"Unnamed\" division_template = \"Spectral Infantry\" start_equipment_factor = 1.0 start_experience_factor = 0.3"
+						owner = MTA
+						count = MTA.from_fact
+					}
+					remove_building = { type = arms_factory level = 20 }
+					remove_building = { type = industrial_complex level = 20 }
+					remove_building = { type = dockyard level = 20 }
+				}
+			}
+		}
+	}
+}
