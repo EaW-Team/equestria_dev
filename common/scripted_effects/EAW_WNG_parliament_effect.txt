@@ -1,0 +1,176 @@
+@PARLIAMENT_SEATS = 535
+@NUM_PARTIES = 15
+
+setup_WNG_parliament = {
+	resize_array = {
+		array = WNG.parliament_parties
+		value = 0
+		size = @NUM_PARTIES
+	}
+	resize_array = {
+		array = WNG.parliament_parties_colors
+		value = 0
+		size = @NUM_PARTIES
+	}
+	# 0 - CPW - Communist
+	# 1 - WSP - Communist
+	# 2 - USP - Democratic
+	# 3 - WRSP - Democratic
+	# 4 - WRP - Democratic
+	# 5 - WSDP - Democratic
+	# 6 - RDP - Democratic
+	# 7 - FAP - Democratic
+	# 8 - DLP - Democratic
+	# 9 - WPP - Democratic
+	# 10 - PPW - Neutrality
+	# 11 - WLP - Neutrality
+	# 12 - CP - Neutrality
+	# 13 - WNA - Fascism
+	# 14 - NFP - Fascism
+	set_variable = { WNG.parliament_parties^0 = 15 }
+	set_variable = { WNG.parliament_parties^1 = 123 }
+	set_variable = { WNG.parliament_parties^2 = 0 }
+	set_variable = { WNG.parliament_parties^3 = 1 }
+	set_variable = { WNG.parliament_parties^4 = 6 }
+	set_variable = { WNG.parliament_parties^5 = 29 }
+	set_variable = { WNG.parliament_parties^6 = 11 }
+	set_variable = { WNG.parliament_parties^7 = 0 }
+	set_variable = { WNG.parliament_parties^8 = 68 }
+	set_variable = { WNG.parliament_parties^9 = 108 }
+	set_variable = { WNG.parliament_parties^10 = 0 }
+	set_variable = { WNG.parliament_parties^11 = 43 }
+	set_variable = { WNG.parliament_parties^12 = 10 }
+	set_variable = { WNG.parliament_parties^13 = 16 }
+	set_variable = { WNG.parliament_parties^14 = 105 }
+
+	set_variable = { WNG.parliament_parties_colors^0 = 2 }
+	set_variable = { WNG.parliament_parties_colors^1 = 2 }
+	set_variable = { WNG.parliament_parties_colors^2 = 1 }
+	set_variable = { WNG.parliament_parties_colors^3 = 1 }
+	set_variable = { WNG.parliament_parties_colors^4 = 1 }
+	set_variable = { WNG.parliament_parties_colors^5 = 1 }
+	set_variable = { WNG.parliament_parties_colors^6 = 1 }
+	set_variable = { WNG.parliament_parties_colors^7 = 1 }
+	set_variable = { WNG.parliament_parties_colors^8 = 1 }
+	set_variable = { WNG.parliament_parties_colors^9 = 1 }
+	set_variable = { WNG.parliament_parties_colors^10 = 4 }
+	set_variable = { WNG.parliament_parties_colors^11 = 4 }
+	set_variable = { WNG.parliament_parties_colors^12 = 4 }
+	set_variable = { WNG.parliament_parties_colors^13 = 3 }
+	set_variable = { WNG.parliament_parties_colors^14 = 3 }
+
+	add_to_variable = { WNG.parliament_parties_colors^3 = 4 }
+	add_to_variable = { WNG.parliament_parties_colors^5 = 4 }
+	add_to_variable = { WNG.parliament_parties_colors^8 = 4 }
+	add_to_variable = { WNG.parliament_parties_colors^9 = 4 }
+	add_to_variable = { WNG.parliament_parties_colors^11 = 4 }
+
+	update_WNG_parliament_description = yes
+	update_WNG_frame_array = yes
+
+	set_variable = {
+		var = WNG.WNG_parliament_seats
+		value = 0
+	}
+
+	for_each_loop = {
+		array = WNG.parliament_parties_colors
+		if = {
+			limit = {
+				check_variable = {
+					v > 4
+				}
+			}
+			add_to_variable = {
+				WNG.WNG_parliament_seats = WNG.parliament_parties^i
+			}
+		}
+	}
+}
+
+update_WNG_parliament_description = {
+	clear_array = WNG.parliament_parties_description
+	resize_temp_array = {
+		array = parliament_parties_sort
+		value = -1
+		size = @NUM_PARTIES
+	}
+	for_loop_effect = {
+		start = 0
+		end = @NUM_PARTIES
+		set_temp_variable = {
+			parliament_parties_sort^v = WNG.parliament_parties^v
+		}
+	}
+
+	for_loop_effect = {
+		start = 0
+		end = @NUM_PARTIES
+		find_highest_in_array = {
+			array = parliament_parties_sort
+			value = max
+			index = max_index
+		}
+		if = {
+			limit = {
+				check_variable = {
+					max > 0
+				}
+			}
+			add_to_array = {
+				WNG.parliament_parties_description = max_index
+			}
+		}
+		set_temp_variable = {
+			parliament_parties_sort^max_index = -1
+		}
+	}
+	
+}
+
+update_WNG_frame_array = {
+	if = {
+		limit = {
+			NOT = {
+				WNG = { has_variable = z_parliament_decision_ui_dirty_var }
+			}
+		}
+		WNG = {
+			add_to_variable = {
+				z_parliament_decision_ui_dirty_var = 1
+			}
+		}
+	}
+	if = {
+		limit = { 
+			NOT = { check_variable = { WNG.parliament_frame_array^num = @PARLIAMENT_SEATS } }
+		}
+		resize_array = {
+			array = WNG.parliament_frame_array
+			value = 1
+			size = @PARLIAMENT_SEATS
+		}
+	}
+	set_temp_variable = { previous_end = 0 }
+	for_each_loop = {
+		array = WNG.parliament_parties
+		value = party
+		set_temp_variable = {
+			next_end = party
+		}
+		add_to_temp_variable = {
+			next_end = previous_end
+		}
+		for_loop_effect = {
+			start = previous_end
+			end = next_end
+			set_variable = {
+				WNG.parliament_frame_array^v = WNG.parliament_parties_colors^i
+			}
+		}
+		set_temp_variable = { previous_end = next_end }
+	}
+	add_to_variable = {
+		WNG.z_parliament_decision_ui_dirty_var = 1
+	}
+}
