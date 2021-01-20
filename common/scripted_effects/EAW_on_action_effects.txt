@@ -1795,6 +1795,67 @@ remove_from_global_arrays_on_annex = {
 			value = THIS
 		}
 	}
+	remove_from_attaches_arrays = yes
+}
+
+remove_from_attaches_arrays = {
+	remove_from_attaches_arrays_do = yes
+
+	# this event fires the above scripted effect again after a day to remove attaches properly after a peace
+	country_event = {
+		id = utility.15
+		days = 1
+	}
+}
+
+remove_from_attaches_arrays_do = {
+	for_each_scope_loop = {
+		array = global.countries_that_sent_attaches
+		if = {
+			limit = {
+				check_variable = {
+					attaches_sent_to^num > 0
+				}
+				PREV = {
+					NOT = {
+						has_attache_from = PREV
+					}
+				}
+			}
+			remove_from_array = { attaches_sent_to = PREV }
+			if = {
+				limit = {
+					check_variable = {
+						attaches_sent_to^num = 0
+					}
+				}
+				add_to_temp_array = {
+					countries_that_sent_attaches_to_remove = THIS
+				}
+			}
+		}
+	}
+	if = {
+		limit = {
+			is_in_array = {
+				global.countries_that_sent_attaches = THIS
+			}
+			NOT = {
+				any_country = {
+					has_attache_from = PREV
+				}
+			}
+		}
+		add_to_temp_array = {
+			countries_that_sent_attaches_to_remove = THIS
+		}
+	}
+	for_each_loop = {
+		array = countries_that_sent_attaches_to_remove
+		remove_from_array = {
+			global.countries_that_sent_attaches = v
+		}
+	}
 }
 
 WORKAROUND_civil_war_load_tree_for_revolter = {
