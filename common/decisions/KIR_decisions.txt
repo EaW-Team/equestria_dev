@@ -1084,4 +1084,79 @@ KIR_great_leap_forward_category = {
 }
 
 KIR_nakp_treasury_category = {
+	KIR_nakp_treasury_monthly_income = {
+		icon = gre_paying_ifc_debt
+		allowed = { original_tag = KIS }
+		activation = { always = no }
+		available = { 
+			hidden_trigger = { 
+				always = no 
+			}
+		}
+		
+		fixed_random_seed = no
+		selectable_mission = no
+		days_mission_timeout = 30
+		is_good = yes
+		
+		timeout_effect = {
+			log = "[GetDateText]: [Root.GetName]: Decision timeout KIR_nakp_treasury_monthly_income"
+			set_variable = { var = KISTreasuryIncomeFC value = KIS.num_of_civilian_factories }
+			multiply_variable = { var = KISTreasuryIncomeFC value = KISTreasuryIncomePerFC }
+			set_variable = { var = KISTreasuryIncomeFM value = KIS.num_of_military_factories }
+			multiply_variable = { var = KISTreasuryIncomeFM value = KISTreasuryIncomePerFM }
+			set_variable = { var = KISTreasuryIncomeFD value = KIS.num_of_naval_factories }
+			multiply_variable = { var = KISTreasuryIncomeFD value = KISTreasuryIncomePerFD }
+			set_variable = { var = TreasuryIncome value = 0 }
+			add_to_variable = { var = TreasuryIncome value = KISTreasuryIncomeFC }
+			add_to_variable = { var = TreasuryIncome value = KISTreasuryIncomeFM }
+			add_to_variable = { var = TreasuryIncome value = KISTreasuryIncomeFD }
+			#########################################
+			## A Little RNG -> "Accounting Errors" ##
+			#########################################
+			set_variable = { var = TreasuryIncomeMax value = TreasuryIncome }
+			multiply_variable = { var = TreasuryIncomeMax value = 0.1 }
+			set_variable = { var = TreasuryIncomeMin value = 0 }
+			subtract_from_variable = { var = TreasuryIncomeMin value = TreasuryIncomeMax }
+			set_variable = { var = TreasuryIncomeRand value = 0 }
+			randomize_variable = {
+				var = TreasuryIncomeRand
+				distribution = binomial
+				min = ROOT.TreasuryIncomeMin
+				max = ROOT.TreasuryIncomeMax
+			}
+			add_to_variable = { var = TreasuryIncome value = TreasuryIncomeRand }
+			############################
+			## Add Income to Treasury ##
+			############################
+			add_to_variable = { var = KIS.TreasuryWealth value = KIS.TreasuryIncome }
+			###################################################
+			## Calculate Income Change from the Month Before ##
+			###################################################
+			set_variable = { var = KISTreasuryIncomeChangeNow value = KIS.TreasuryIncome }
+			if = {
+				#########################################
+				## If we made a Loss this (last) Month ##
+				#########################################
+				limit = {
+					check_variable = { KIS.KISTreasuryIncomeMonthBefore > KIS.KISTreasuryIncomeChangeNow } 
+				}
+				subtract_from_variable = { var = KIS.KISTreasuryIncomeChangeNow value = KIS.KISTreasuryIncomeMonthBefore }
+			}
+			else = {
+				subtract_from_variable = { var = KISTreasuryIncomeChangeNow value = KIS.KISTreasuryIncomeMonthBefore }
+			}
+			set_variable = { var = KIS.KISTreasuryIncomeChange value = KISTreasuryIncomeChangeNow }
+			round_variable = KISTreasuryIncomeChange
+			#############################################
+			## Set Income Change for this (last) Month ##
+			#############################################
+			set_variable = { var = KISTreasuryIncomeMonthBefore value = TreasuryIncome }
+			######################
+			## Activate Mission ##
+			######################
+			custom_effect_tooltip = KIR_nakp_treasury_gain_monthly_income_tt
+			activate_mission = KIR_nakp_treasury_monthly_income
+		}
+	}
 }
