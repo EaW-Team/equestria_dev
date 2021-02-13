@@ -803,6 +803,20 @@ WIT_load_ideology_focus = {
 		}
 		if = {
 			limit = {
+				FROM = {
+					OR = {
+						has_government = communism 
+						has_country_flag = have_regular_puppets
+					}
+				}
+			}
+		
+			ROOT = {
+				load_focus_tree = { tree = WIT_focus_tree_volaire keep_completed = yes }
+			}
+		}
+		else_if = {
+			limit = {
 				FROM = { has_government = neutrality }
 			}
 		
@@ -817,15 +831,6 @@ WIT_load_ideology_focus = {
 		
 			ROOT = {
 				load_focus_tree = { tree = WIT_focus_tree_white_star keep_completed = yes }
-			}
-		}
-		else_if = {
-			limit = {
-				FROM = { has_government = communism }
-			}
-		
-			ROOT = {
-				load_focus_tree = { tree = WIT_focus_tree_volaire keep_completed = yes }
 			}
 		}
 		else_if = {
@@ -1594,7 +1599,7 @@ set_have_regular_puppets = {
 			}
 			FROM = { has_country_flag = have_regular_puppets }
 		}
-		kill_country_leader = yes
+		#kill_country_leader = yes
 		set_country_flag = have_regular_puppets
 	}
 }
@@ -2210,5 +2215,61 @@ mark_land_connected_states = {
 		}
 		clear_variable = global.current_state_land_connection_index
 		clear_array = global.unchecked_land_connection_states
+	}
+}
+
+# We want to be able to determine whether a puppet wargoal was used during peace conferences
+# however, declaring war makes wargoals poof. This works around that
+# FROM is war target
+save_puppet_wargoals = {
+	clear_puppet_wargoals = yes
+	if = {
+		limit = {
+			has_wargoal_against = { target = FROM type = puppet_wargoal_focus }
+			NOT = {
+				is_in_array = {
+					puppet_wargoals_war = FROM
+				}
+			}
+		}
+		add_to_array = {
+			puppet_wargoals_war = FROM
+		}
+	}
+}
+
+clear_puppet_wargoals = {
+	country_event = {
+		id = utility.16
+		hours = 1
+	}
+}
+
+clear_puppet_wargoals_do = {
+	clear_temp_array = puppet_wargoals_war_to_remove
+	for_each_scope_loop = {
+		array = puppet_wargoals_war
+		if = {
+			limit = {
+				OR = {
+					exists = no
+					has_war = no
+				}
+			}
+			add_to_temp_array = { puppet_wargoals_war_to_remove = THIS }
+		}
+	}
+	for_each_loop = {
+		array = puppet_wargoals_war_to_remove
+		remove_from_array = {
+			array = puppet_wargoals_war
+			value = var:v
+		}
+	}
+	if = {
+		limit = {
+			check_variable = { puppet_wargoals_war^num = 0 }
+		}
+		clear_array = puppet_wargoals_war
 	}
 }
