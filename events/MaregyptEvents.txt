@@ -400,7 +400,10 @@ add_namespace = mgy
 		 add_popularity = {
 			ideology = democratic popularity = 0.05
 		 }
-		 add_war_support = -0.05
+		 custom_effect_tooltip = MGY_lose_ws
+		 hidden_effect = {
+			add_war_support = -0.05
+		 }
 	}
 
  }
@@ -573,10 +576,6 @@ add_namespace = mgy
 					check_variable = { party_popularity@democratic > ARMPop }									
 				}
 			}
-			add_popularity = {
-				ideology = democratic
-				popularity = 0.25
-			}
 			load_focus_tree = MGY_KM_tree
 			complete_national_focus = MGY_KM_victory
 		 }
@@ -590,10 +589,6 @@ add_namespace = mgy
 			set_politics = {
 				ruling_party = communism
 				elections_allowed = no
-			}
-			add_popularity = {
-				ideology = communism
-				popularity = 0.15
 			}
 			load_focus_tree = MGY_LPMG_tree
 			remove_ideas = MGY_EQS_influence
@@ -610,15 +605,8 @@ add_namespace = mgy
 				ruling_party = neutrality
 				elections_allowed = no
 			}
-			add_popularity = {
-				ideology = neutrality
-				popularity = 0.10
-			}
-			add_popularity = {
-				ideology = fascism
-				popularity = 0.10
-			}
 			load_focus_tree = MGY_ARM_tree
+			remove_ideas = MGY_EQS_influence			
 			complete_national_focus = MGY_ARM_victory						
 		 }
 	}
@@ -634,7 +622,7 @@ add_namespace = mgy
 	 trigger = {
 		original_tag = MGY
 		has_country_flag = MGY_election_over
-		has_war_support > 0.5
+		has_war_support > 0.6 #Given the revised way that this works now, I think we should increase the threshold a little to give you time to actually do the war focuses
 	 }
 	 mean_time_to_happen = { days = 1 }
 	 fire_only_once = yes
@@ -865,8 +853,14 @@ add_namespace = mgy
 	 option = {#Oh no. The people now hate you and call you an idiot. AND you still don't have the land!
 		name = mgy.28.a
 			add_stability = -0.1
+			add_war_support = 0.2
 			add_political_power = -100
-			set_country_flag = MGY_manedalusia_defused #I mean it's technically over...
+			complete_national_focus = MGY_three_times_denied
+			activate_mission = MGY_abyssinia_crisis
+			#add_days_mission_timeout = {#you prepare for war instead
+            #    mission = MGY_abyssinia_crisis
+            #    days = 35
+            #}			
 		}
 }
  country_event = {
@@ -1108,7 +1102,7 @@ country_event = {#the first civil war begins. I don't know if you can do multipl
 				transfer_state = 732
 				transfer_state = 733
 				transfer_state = 742
-				#TODO: Spawn OOBs
+				load_oob = "MGY_cw_democratic"
 			}
 			declare_war_on = {
 				target = MGH
@@ -1136,7 +1130,7 @@ country_event = {#the first civil war begins. I don't know if you can do multipl
 				transfer_state = 738
 				transfer_state = 737
 				transfer_state = 740
-				#TODO: Spawn OOBs
+				load_oob = "MGY_cw_communism"
 			}
 			declare_war_on = {
 				target = MGC
@@ -1167,7 +1161,7 @@ country_event = {#the first civil war begins. I don't know if you can do multipl
 				transfer_state = 759
 				transfer_state = 739
 				transfer_state = 765
-				#TODO: Spawn OOBs
+				load_oob = "MGY_cw_neutrality"
 			}
 			declare_war_on = {
 				target = MGN
@@ -1192,13 +1186,69 @@ country_event = {#the first civil war begins. I don't know if you can do multipl
 				transfer_state = 758
 				transfer_state = 760
 				transfer_state = 761
-				#TODO: Spawn OOBs
+				load_oob = "MGY_cw_fascism"
 			}
 			declare_war_on = {
 				target = MGF
 				type = annex_everything
 			}			
 		}
+		MGH = {
+			declare_war_on = {
+				target = MGF
+				type = annex_everything
+			}
+			declare_war_on = {
+				target = MGC
+				type = annex_everything
+			}
+			declare_war_on = {
+				target = MGN
+				type = annex_everything
+			}			
+		}
+		MGC = {
+			declare_war_on = {
+				target = MGF
+				type = annex_everything
+			}
+			declare_war_on = {
+				target = MGH
+				type = annex_everything
+			}
+			declare_war_on = {
+				target = MGN
+				type = annex_everything
+			}			
+		}
+		MGN = {
+			declare_war_on = {
+				target = MGF
+				type = annex_everything
+			}
+			declare_war_on = {
+				target = MGC
+				type = annex_everything
+			}
+			declare_war_on = {
+				target = MGH
+				type = annex_everything
+			}			
+		}
+		MGF = {
+			declare_war_on = {
+				target = MGH
+				type = annex_everything
+			}
+			declare_war_on = {
+				target = MGC
+				type = annex_everything
+			}
+			declare_war_on = {
+				target = MGN
+				type = annex_everything
+			}			
+		}		
 		if = {
 			limit = {
 				has_idea = MGY_ovambo_war
@@ -1216,8 +1266,29 @@ country_event = {#the first civil war begins. I don't know if you can do multipl
 			limit = {
 				has_government = democratic
 			}
+			hidden_effect = {
+				
+			}
 			load_focus_tree = { tree = MGY_KM_civil_war keep_completed = yes }		
 		}
+		else_if = {
+			limit = {
+				has_government = communism
+			}
+			load_focus_tree = { tree = MGY_LPMG_civil_war keep_completed = yes }		
+		}
+		else_if = {
+			limit = {
+				has_government = neutrality
+			}
+			load_focus_tree = { tree = MGY_ARM_monarchist_civil_war keep_completed = yes }		
+		}
+		if = {
+			limit = {
+				has_government = fascism
+			}
+			load_focus_tree = { tree = MGY_ARM_republican_civil_war keep_completed = yes }		
+		}		
 	}
 	option = {#Become Harmonist - only shows up if you're not Harmonic
 		trigger = {
@@ -1263,7 +1334,9 @@ country_event = {#Peaceful Ovingo secession if the civil war breaks out - they d
 			#TODO: Spawn OOBs
 		}
 		load_oob = "MKS_militia"
-		add_ideas = MKS_resistance
+		MKS = {
+				add_ideas = MKS_resistance
+		}
 		762 = {
 			add_core_of = MKS
 		}
