@@ -162,6 +162,10 @@ apply_cosmetic_tags_on_puppet_PREV_is_overlord = {
 			limit = { original_tag = YAK }
 			country_event = solarempire.1017
 		}
+		else_if = {
+			limit = { original_tag = PCB }
+			country_event = solarempire.1019
+		}
 	}
 	else_if = {
 		limit = {
@@ -185,7 +189,7 @@ apply_cosmetic_tags_on_puppet_PREV_is_overlord = {
 				if = {
 					limit = {
 						has_global_flag = rarity_captured
-						has_completed_focus = NLR_forgive_elements
+						#has_completed_focus = NLR_forgive_elements
 					}
 					set_global_flag = NLR_rarity_governor
 				}
@@ -403,6 +407,11 @@ apply_cosmetic_tags_on_puppet_PREV_is_overlord = {
 		else_if = {
 			limit = { original_tag = HAU }
 			set_cosmetic_tag = HAU_CHN
+			set_country_flag = is_changeling_puppet
+		}
+		else_if = {
+			limit = { original_tag = PCB }
+			set_cosmetic_tag = PCB_CHN
 			set_country_flag = is_changeling_puppet
 		}
 		else_if = {
@@ -722,6 +731,21 @@ BRF_load_mason_focus = {
 			load_focus_tree = BRF_Mason_Tree
 		}
 	}
+	else_if = {
+		limit = {
+			FROM = {
+				NOT = {
+					has_government = democratic
+				}
+			}
+			ROOT = {
+				has_focus_tree = BRF_Mason_Tree
+			}
+		}
+		ROOT = {
+			load_focus_tree = generic_griffon_focus
+		}
+	}
 }
 
 GRU_load_commie_tree = {
@@ -803,6 +827,20 @@ WIT_load_ideology_focus = {
 		}
 		if = {
 			limit = {
+				FROM = {
+					OR = {
+						has_government = communism 
+						has_country_flag = have_regular_puppets
+					}
+				}
+			}
+		
+			ROOT = {
+				load_focus_tree = { tree = WIT_focus_tree_volaire keep_completed = yes }
+			}
+		}
+		else_if = {
+			limit = {
 				FROM = { has_government = neutrality }
 			}
 		
@@ -817,15 +855,6 @@ WIT_load_ideology_focus = {
 		
 			ROOT = {
 				load_focus_tree = { tree = WIT_focus_tree_white_star keep_completed = yes }
-			}
-		}
-		else_if = {
-			limit = {
-				FROM = { has_government = communism }
-			}
-		
-			ROOT = {
-				load_focus_tree = { tree = WIT_focus_tree_volaire keep_completed = yes }
 			}
 		}
 		else_if = {
@@ -1076,7 +1105,10 @@ AI_puppet_to_annex = {
 		limit = {
 			FROM = {
 				is_ai = yes
-				is_riverlands_country = yes
+				OR = {
+					is_riverlands_country = yes
+					original_tag = OLV
+				}
 			}
 			original_tag = BAR
 		}
@@ -1404,6 +1436,7 @@ NIM_load_focus_tree_on_puppet = {
 }
 
 GRY_load_focus_tree_on_puppet = {
+	log = "[GetDateText]: ROOT: [Root.GetName] FROM: [From.GetName] GRY_load_focus_tree_on_puppet"
 	load_focus_tree = GRY_focus
 	if = {
 		limit = {
@@ -1411,7 +1444,7 @@ GRY_load_focus_tree_on_puppet = {
 				has_government = communism
 			}
 		}
-		complete_national_focus = GRY_first_universale
+		complete_national_focus = GRY_young_socialists
 		create_country_leader = {
 			name = "Cornilo Khurshevich"
 			desc = ""
@@ -1509,27 +1542,51 @@ CHN_handle_fascist_communist_overlord = {
 }
 
 transfer_society_and_science_ideas_when_released = {
-	if = {
-		limit = {
-			FROM = {
-				NOT = { has_idea = modern_society }
+	hidden_effect = {
+		if = {
+			limit = {
+				FROM = {
+					NOT = { has_idea = modern_society }
+				}
 			}
+			FROM = { ROOT = { transfer_society_ideas = yes } }
 		}
-		hidden_effect = { FROM = { ROOT = { transfer_society_ideas = yes } } }
-	}
-	else = {
-		hidden_effect = { add_ideas = modern_society }
-	}
-	if = {
-		limit = {
-			FROM = {
-				NOT = { has_idea = proper_science_base }
+		else = {
+			add_ideas = modern_society
+		}
+		if = {
+			limit = {
+				FROM = {
+					NOT = { has_idea = proper_science_base }
+				}
 			}
+			FROM = { ROOT = { transfer_science_ideas = yes } }
 		}
-		hidden_effect = { FROM = { ROOT = { transfer_science_ideas = yes } } }
-	}
-	else = {
-		hidden_effect = { add_ideas = proper_science_base }
+		else = {
+			add_ideas = proper_science_base
+		}
+		if = {
+			limit = {
+				FROM = {
+					NOT = { has_idea = no_poverty }
+				}
+			}
+			FROM = { ROOT = { transfer_poverty_ideas = yes } }
+		}
+		else = {
+			add_ideas = no_poverty
+		}
+		if = {
+			limit = {
+				FROM = {
+					NOT = { has_idea = no_lack_of_scientists }
+				}
+			}
+			FROM = { ROOT = { transfer_illiteracy_ideas = yes } }
+		}
+		else = {
+			add_ideas = no_lack_of_scientists
+		}
 	}
 }
 
@@ -1593,13 +1650,29 @@ set_have_regular_puppets = {
 	if = {
 		limit = {
 			is_feudal_vassal = yes
+			NOT = {
+				has_country_flag = have_regular_puppets
+			}
 			FROM = { has_country_flag = have_regular_puppets }
 		}
-		kill_country_leader = yes
+		#kill_country_leader = yes
 		set_country_flag = have_regular_puppets
 	}
 }
 
+# research workaround to apply the pre 1.6 research speed function by Yard1
+# before 1.6, research speed was linear, and had the equation:
+#
+# time = (cost-(cost/100)*x)/(speed)
+#
+# the research speed modifier was applied to the tech cost, so if we had a tech that had a base cost of 100 days, a research speed modifier of +50% would bring that to 50 days
+# after 1.6, the equation changed to:
+#
+# time = (cost)/(speed-(speed/100)*x)
+#
+# now the research speed modifier was applied to the speed itself (aka daily research gain). Which meant that, if we had a +50% research speed modifier, the 100 days tech would take 66.67 days
+# this modifier adds just the right amount of the research speed modifier to make the new equation give the same results as the old one. Without it, we would not be able to have
+# very large maluses, as the research would take an infinite amount of days
 adjust_research_modifier = {
 	if = {
 		limit = {
@@ -1752,6 +1825,67 @@ remove_from_global_arrays_on_annex = {
 		remove_from_array = {
 			array = global.river_coalition_members
 			value = THIS
+		}
+	}
+	remove_from_attaches_arrays = yes
+}
+
+remove_from_attaches_arrays = {
+	remove_from_attaches_arrays_do = yes
+
+	# this event fires the above scripted effect again after a day to remove attaches properly after a peace
+	country_event = {
+		id = utility.15
+		days = 1
+	}
+}
+
+remove_from_attaches_arrays_do = {
+	for_each_scope_loop = {
+		array = global.countries_that_sent_attaches
+		if = {
+			limit = {
+				check_variable = {
+					attaches_sent_to^num > 0
+				}
+				PREV = {
+					NOT = {
+						has_attache_from = PREV
+					}
+				}
+			}
+			remove_from_array = { attaches_sent_to = PREV }
+			if = {
+				limit = {
+					check_variable = {
+						attaches_sent_to^num = 0
+					}
+				}
+				add_to_temp_array = {
+					countries_that_sent_attaches_to_remove = THIS
+				}
+			}
+		}
+	}
+	if = {
+		limit = {
+			is_in_array = {
+				global.countries_that_sent_attaches = THIS
+			}
+			NOT = {
+				any_country = {
+					has_attache_from = PREV
+				}
+			}
+		}
+		add_to_temp_array = {
+			countries_that_sent_attaches_to_remove = THIS
+		}
+	}
+	for_each_loop = {
+		array = countries_that_sent_attaches_to_remove
+		remove_from_array = {
+			global.countries_that_sent_attaches = v
 		}
 	}
 }
@@ -2137,5 +2271,61 @@ mark_land_connected_states = {
 		}
 		clear_variable = global.current_state_land_connection_index
 		clear_array = global.unchecked_land_connection_states
+	}
+}
+
+# We want to be able to determine whether a puppet wargoal was used during peace conferences
+# however, declaring war makes wargoals poof. This works around that
+# FROM is war target
+save_puppet_wargoals = {
+	clear_puppet_wargoals = yes
+	if = {
+		limit = {
+			has_wargoal_against = { target = FROM type = puppet_wargoal_focus }
+			NOT = {
+				is_in_array = {
+					puppet_wargoals_war = FROM
+				}
+			}
+		}
+		add_to_array = {
+			puppet_wargoals_war = FROM
+		}
+	}
+}
+
+clear_puppet_wargoals = {
+	country_event = {
+		id = utility.16
+		hours = 1
+	}
+}
+
+clear_puppet_wargoals_do = {
+	clear_temp_array = puppet_wargoals_war_to_remove
+	for_each_scope_loop = {
+		array = puppet_wargoals_war
+		if = {
+			limit = {
+				OR = {
+					exists = no
+					has_war = no
+				}
+			}
+			add_to_temp_array = { puppet_wargoals_war_to_remove = THIS }
+		}
+	}
+	for_each_loop = {
+		array = puppet_wargoals_war_to_remove
+		remove_from_array = {
+			array = puppet_wargoals_war
+			value = var:v
+		}
+	}
+	if = {
+		limit = {
+			check_variable = { puppet_wargoals_war^num = 0 }
+		}
+		clear_array = puppet_wargoals_war
 	}
 }
