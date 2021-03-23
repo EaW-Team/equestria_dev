@@ -827,94 +827,228 @@ DED_shield_crisis_cat = {
 
 DED_APN_undead_economics = {
 
-	DED_disable_state_stuff = {
-		visible = {
-			tag = DED
-			NOT = {has_country_flag = DED_APN_decision_disable}
-			has_country_flag = DED_APN_converting_dead
-			
-		}
-		available = {
-			tag = DED
-			NOT = {has_country_flag = DED_APN_decision_disable}
-		}
-		complete_effect = {
-			set_country_flag = DED_APN_decision_disable
-		}
-	}
-
-	DED_reenable_state_stuff = {
-		visible = {
-			tag = DED
-			has_country_flag = DED_APN_decision_disable
-			has_country_flag = DED_APN_converting_dead
-		}
-		
-		available = {
-			tag = DED
-			has_country_flag = DED_APN_decision_disable
-		}
-		complete_effect = {
-			clr_country_flag = DED_APN_decision_disable
-		}
-
-	}
-
-	DED_APN_order_in_the_league = {
+	DED_convert_the_league = {
 		#icon = GFX_icon_
 		visible = {
 			tag = DED
-			owns_state = FROM
-			has_country_flag = DED_APN_converting_dead_league
-			NOT = {has_country_flag = DED_APN_decision_disable}
+			FROM = {
+				is_fully_controlled_by = DED
+				NOT = {
+					has_state_flag = DED_APN_conversion_done
+				}
+				OR = {
+					state = 420
+					state = 419
+					state = 418
+					state = 417
+					state = 416
+					state = 415
+				}
+			}
+
+			has_country_flag = DED_APN_flag_convert_to_undead
 			
 		}
 		available = {
 			tag = DED
-			owns_state = FROM
-			has_country_flag = DED_APN_converting_dead_league
+			FROM = {
+				is_fully_controlled_by = DED
+				NOT = {
+					has_state_flag = DED_APN_conversion_done
+				}
+				OR = {
+					state = 420
+					state = 419
+					state = 418
+					state = 417
+					state = 416
+					state = 415
+				}
+			}
+			has_country_flag = DED_APN_flag_convert_to_undead
+			has_manpower > 50000
 		}
-		fire_only_once = yes
 		is_good = yes
-
 		state_target = yes
-		on_map_mode = map_and_decisions_view
-
-		days_remove = 60
-		#cost = 30
+		on_map_mode = map_only
+		days_remove = 40
+		cost = 30
+		complete_effect = {
+			add_manpower = -50000
+		}
 		remove_effect = {
-			hidden_effect = {
-				DED_APN_core_state = yes
+			add_manpower = 50000
+			if = {
+				limit = {
+					FROM = {
+						OR = {
+							state = 420
+							state = 419
+							state = 418
+							state = 417
+							state = 416
+						}
+						
+					}
+				}
+
+				FROM = {
+					DED_APN_convert_league = yes
+				}
+			}
+			else_if = {
+				limit = {
+					FROM = {
+						state = 415
+					}
+				}
+				if = {
+					limit = {
+						415 = {
+							has_state_flag = DED_APN_starting_conversion
+						}
+					}
+					415 = {
+						set_building_level = {
+						    type = arms_factory
+						    level = 1
+						}
+						set_building_level = {
+						    type = industrial_complex
+						    level = 0
+						}
+						add_manpower = -200000
+						clr_state_flag = DED_APN_starting_conversion
+						set_state_flag = DED_APN_conversion_step_two
+						set_variable = {
+							DED_APN_conversion_magehold = 0
+						}
+					}
+					add_manpower = 200000
+				}
+				else_if = {
+					limit = {
+						415 = {
+							has_state_flag = DED_APN_conversion_step_two
+						}
+					}
+					415 = {
+						add_to_variable = {
+							DED_APN_conversion_magehold = 1
+						}
+						if = {
+							limit = {
+								check_variable = {
+									DED_APN_conversion_magehold = 4
+								}
+							}
+							clr_state_flag = DED_APN_conversion_step_two
+							set_state_flag = DED_APN_conversion_done
+						}
+						add_building_construction = {
+						    type = arms_factory
+						    level = 1
+						    instant_build = yes
+						}
+						add_manpower = -200000
+						
+					}
+					add_manpower = 200000
+				}
 			}
 		}
 	}
+
+	DED_exploit_ressources_league = {
+		#icon = GFX_icon_
+		visible = {
+			tag = DED
+			FROM = {
+				is_fully_controlled_by = DED
+				state = 415
+				infrastructure < 10
+			}
+			has_country_flag = DED_APN_ressources_league
+		}
+		available = {
+			tag = DED
+			FROM = {
+				is_fully_controlled_by = DED
+				state = 415
+				infrastructure < 10
+			}
+			has_country_flag = DED_APN_ressources_league
+			has_manpower > 50000
+		}
+		is_good = yes
+		state_target = yes
+		on_map_mode = map_and_decisions_view
+		days_remove = 40
+		cost = 30
+		complete_effect = {
+			add_manpower = -50000
+		}
+		remove_effect = {
+			415 = {
+				if = {
+					limit = {
+						infrastructure = 7
+					}
+					add_building_construction = {
+					    type = infrastructure
+					    level = 3
+					    instant_build = yes
+					}
+				}
+				else = {
+					add_building_construction = {
+					    type = infrastructure
+					    level = 2
+					    instant_build = yes
+					}
+				}
+			}
+			
+			add_resource = {
+			    type = steel
+			    amount = 2
+			    state = 415
+			}
+			add_resource = {
+			    type = crystals
+			    amount = 1
+			    state = 415
+			}
+		}
+	}
+
 
 	DED_APN_order_in_region = {
 		#icon = GFX_icon_
 		visible = {
 			tag = DED
-			is_fully_controlled_by = DED
 			NOT = {
 				owns_state = FROM
 			}
 			FROM = {
+				is_fully_controlled_by = DED
 				NOT = {
 					is_core_of = DED
 				}
+				any_neighbor_state = {
+					is_owned_by = DED
+				}
 			}
 			has_country_flag = DED_APN_converting_dead
-			NOT = {has_country_flag = DED_APN_decision_disable}
 			
 		}
 		available = {
-			PREV = {
-				tag = DED
-			}
-			is_fully_controlled_by = DED
+			tag = DED
 			NOT = {
 				owns_state = FROM
 			}
 			FROM = {
+				is_fully_controlled_by = DED
 				NOT = {
 					is_core_of = DED
 				}
@@ -925,7 +1059,7 @@ DED_APN_undead_economics = {
 		fire_only_once = yes
 		is_good = yes
 		state_target = yes
-		on_map_mode = map_and_decisions_view
+		on_map_mode = map_only
 		days_remove = 30
 		#cost = 30
 		complete_effect = {
@@ -952,7 +1086,6 @@ DED_APN_undead_economics = {
 				}
 			}
 			has_country_flag = DED_APN_converting_dead
-			NOT = {has_country_flag = DED_APN_decision_disable}
 		}
 
 		available = {
@@ -982,6 +1115,7 @@ DED_APN_undead_economics = {
 		on_map_mode = map_only
 
 		days_remove = 60
+		cost = 20
 		complete_effect = {
 			add_manpower = -100000
 			add_to_variable = {
@@ -989,7 +1123,7 @@ DED_APN_undead_economics = {
 			}
 		}
 		remove_effect = {
-			add_manpower = 80000
+			add_manpower = 40000
 			subtract_from_variable = {
 				DEDAPNconvertthelivingcurrent = 1
 			}
@@ -1011,7 +1145,27 @@ DED_APN_undead_economics = {
 		available = {
 			tag = DED
 			has_country_flag = DED_APN_build_factories
-			has_manpower > 100000
+			has_manpower > 40000
+		}
+		days_remove = 120
+		cost = 50
+		complete_effect = {
+			add_manpower = -40000
+		}
+		remove_effect = {
+			random_owned_state = {
+				limit = {
+					is_fully_controlled_by = DED
+					is_core_of = DED
+				}
+				add_manpower = 40000
+				add_building_construction = {
+				    type = arms_factory
+				    level = 2
+				    instant_build = yes
+				}
+				add_extra_state_shared_building_slots = 2
+			}
 		}
 	}
 }
