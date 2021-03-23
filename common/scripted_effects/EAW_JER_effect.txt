@@ -1,0 +1,362 @@
+@PARLIAMENT_SEATS = 400
+
+update_JER_parliament_max = {
+	set_temp_variable = { JER.communist_max_old = JER.communist_max }
+	set_temp_variable = { JER.democratic_max_old = JER.democratic_max }
+	set_temp_variable = { JER.fascist_max_old = JER.fascist_max }
+	set_temp_variable = { JER.neutrality_max_old = JER.neutrality_max }
+
+	set_variable = { JER.communist_max = party_popularity@communism }
+	set_variable = { JER.democratic_max = party_popularity@democratic }
+	set_variable = { JER.fascist_max = party_popularity@fascism }
+	set_variable = { JER.neutrality_max = party_popularity@neutrality }
+
+	multiply_variable = { JER.communist_max = @PARLIAMENT_SEATS }
+	multiply_variable = { JER.democratic_max = @PARLIAMENT_SEATS }
+	multiply_variable = { JER.fascist_max = @PARLIAMENT_SEATS }
+	multiply_variable = { JER.neutrality_max = @PARLIAMENT_SEATS }
+
+	round_variable = JER.communist_max
+	round_variable = JER.democratic_max
+	round_variable = JER.fascist_max
+	round_variable = JER.neutrality_max
+
+	set_temp_variable = { JER.max_check = JER.communist_max }
+	add_to_temp_variable = { JER.max_check = JER.democratic_max }
+	add_to_temp_variable = { JER.max_check = JER.fascist_max }
+	add_to_temp_variable = { JER.max_check = JER.neutrality_max }
+
+	if = {
+		limit = { check_variable = { JER.max_check < @PARLIAMENT_SEATS } }
+		if = {
+			limit = {
+				check_variable = { var = JER.communist_max value = JER.democratic_max compare = greater_than_or_equals }
+				check_variable = { var = JER.communist_max value = JER.fascist_max compare = greater_than_or_equals }
+				check_variable = { var = JER.communist_max value = JER.neutrality_max compare = greater_than_or_equals }
+			}
+			add_to_variable = { JER.communist_max = 1 }
+		}
+		else_if = {
+			limit = {
+				check_variable = { var = JER.democratic_max value = JER.communist_max compare = greater_than_or_equals }
+				check_variable = { var = JER.democratic_max value = JER.fascist_max compare = greater_than_or_equals }
+				check_variable = { var = JER.democratic_max value = JER.neutrality_max compare = greater_than_or_equals }
+			}
+			add_to_variable = { JER.democratic_max = 1 }
+		}
+		else_if = {
+			limit = {
+				check_variable = { var = JER.fascist_max value = JER.communist_max compare = greater_than_or_equals }
+				check_variable = { var = JER.fascist_max value = JER.democratic_max compare = greater_than_or_equals }
+				check_variable = { var = JER.fascist_max value = JER.neutrality_max compare = greater_than_or_equals }
+			}
+			add_to_variable = { JER.fascist_max = 1 }
+		}
+		else = {
+			add_to_variable = { JER.neutrality_max = 1 }
+		}
+	}
+
+	set_temp_variable = { JER.communist_max_diff = JER.communist_max }
+	set_temp_variable = { JER.democratic_max_diff = JER.democratic_max }
+	set_temp_variable = { JER.fascist_max_diff = JER.fascist_max }
+	set_temp_variable = { JER.neutrality_max_diff = JER.neutrality_max }
+
+	subtract_from_temp_variable = { JER.communist_max_diff = JER.communist_max_old }
+	subtract_from_temp_variable = { JER.democratic_max_diff = JER.democratic_max_old }
+	subtract_from_temp_variable = { JER.fascist_max_diff = JER.fascist_max_old }
+	subtract_from_temp_variable = { JER.neutrality_max_diff = JER.neutrality_max_old }
+
+	if = {
+		limit = { NOT = { has_variable = JER.communist_support } }
+		set_variable = { JER.communist_support = 0 }
+		set_variable = { JER.democratic_support = 0 }
+		set_variable = { JER.fascist_support = 0 }
+		set_variable = { JER.neutrality_support = 0 }
+	}
+
+	clamp_variable = { var = JER.communist_support min = 0 max = JER.communist_max }
+	clamp_variable = { var = JER.democratic_support min = 0 max = JER.democratic_max }
+	clamp_variable = { var = JER.fascist_support min = 0 max = JER.fascist_max }
+	clamp_variable = { var = JER.neutrality_support min = 0 max = JER.neutrality_max }
+
+	set_variable = { JER.parliament_max = JER.communist_support }
+	add_to_variable = { JER.parliament_max = JER.democratic_support }
+	add_to_variable = { JER.parliament_max = JER.fascist_support }
+	add_to_variable = { JER.parliament_max = JER.neutrality_support }
+
+	update_JER_frame_array = yes
+	update_JER_deputies_stability_pp = yes
+	set_global_flag = update_JER_parliament_max_fired
+}
+
+update_JER_frame_array = {
+	if = {
+		limit = {
+			NOT = {
+				JER = { has_variable = z_parliament_decision_ui_dirty_var }
+			}
+		}
+		JER = {
+			add_to_variable = {
+				z_parliament_decision_ui_dirty_var = 1
+			}
+		}
+	}
+	if = {
+		limit = { 
+			NOT = { check_variable = { JER.parliament_frame_array^num = @PARLIAMENT_SEATS } }
+		}
+		resize_array = {
+			array = JER.parliament_frame_array
+			value = 1
+			size = @PARLIAMENT_SEATS
+		}
+	}
+	for_loop_effect = {
+		start = 0
+		end = JER.communist_max
+		set_variable = {
+			JER.parliament_frame_array^v = 2
+		}
+	}
+	set_temp_variable = { next_end = JER.communist_max }
+	add_to_temp_variable = { next_end = JER.democratic_max }
+	for_loop_effect = {
+		start = JER.communist_max
+		end = next_end
+		set_variable = {
+			JER.parliament_frame_array^v = 1
+		}
+	}
+	set_temp_variable = { next_start = next_end }
+	add_to_temp_variable = { next_end = JER.neutrality_max }
+	for_loop_effect = {
+		start = next_start
+		end = next_end
+		set_variable = {
+			JER.parliament_frame_array^v = 4
+		}
+	}
+	set_temp_variable = { next_start = next_end }
+	add_to_temp_variable = { next_end = JER.fascist_max }
+	for_loop_effect = {
+		start = next_start
+		end = next_end
+		set_variable = {
+			JER.parliament_frame_array^v = 3
+		}
+	}
+	add_to_variable = {
+		JER.z_parliament_decision_ui_dirty_var = 1
+	}
+}
+
+update_JER_deputies_stability_pp = {
+	set_variable = {
+		JER_deputies_stability_pp_var = parliament_max
+	}
+	multiply_variable = {
+		JER_deputies_stability_pp_var = 0.75
+	}
+	subtract_from_variable = {
+		JER_deputies_stability_pp_var = 150
+	}
+	divide_variable = {
+		JER_deputies_stability_pp_var = 1000
+	}
+	clamp_variable = {
+		var = JER_deputies_stability_pp_var
+		min = -0.15
+		max = 0.15
+	}
+	force_update_dynamic_modifier = yes
+}
+
+activate_JER_parliament_lose_support_mission = {
+	random_list = {
+		1 = {
+			modifier = {
+				factor = 0
+				has_government = communism
+			}
+			set_variable = {
+				JER_parliament_lose_support_mission_party = token:communism
+			}
+		}
+		1 = {
+			modifier = {
+				factor = 0
+				has_government = democratic
+			}
+			set_variable = {
+				JER_parliament_lose_support_mission_party = token:democratic
+			}
+		}
+		1 = {
+			modifier = {
+				factor = 0
+				has_government = fascism
+			}
+			set_variable = {
+				JER_parliament_lose_support_mission_party = token:fascism
+			}
+		}
+		1 = {
+			modifier = {
+				factor = 0
+				has_government = neutrality
+			}
+			set_variable = {
+				JER_parliament_lose_support_mission_party = token:neutrality
+			}
+		}
+	}
+	activate_mission = JER_parliament_lose_support_mission
+}
+
+calculate_spread_decision_vars = {
+	if = {
+		limit = { 
+			check_variable = {
+				JER_cheaper_integration_var = 1
+			}
+		}
+		set_variable = { 
+			JER_spread_1_decision_cost = 10
+		}
+		set_variable = { 
+			JER_spread_2_decision_cost = 15
+		}
+		set_variable = { 
+			JER_spread_3_decision_cost = 20
+		}
+	}
+	else_if = {
+		limit = { 
+			check_variable = {
+				JER_cheaper_integration_var = 2
+			}
+		}
+		set_variable = { 
+			JER_spread_1_decision_cost = 5
+		}
+		set_variable = { 
+			JER_spread_2_decision_cost = 10
+		}
+		set_variable = { 
+			JER_spread_3_decision_cost = 15
+		}
+	}
+	if = {
+		limit = { 
+			check_variable = {
+				JER_faster_integration_var = 1
+			}
+		}
+		set_variable = { 
+			JER_spread_1_decision_take_time = 90 
+		}
+		set_variable = { 
+			JER_spread_2_decision_take_time = 120
+		}
+		set_variable = { 
+			JER_spread_3_decision_take_time = 150
+		}
+	}
+	else_if = {
+		limit = { 
+			check_variable = {
+				JER_faster_integration_var = 2
+			}
+		}
+		set_variable = { 
+			JER_spread_1_decision_take_time = 60
+		}
+		set_variable = { 
+			JER_spread_2_decision_take_time = 90 
+		}
+		set_variable = { 
+			JER_spread_3_decision_take_time = 120 
+		}
+	}
+}
+
+calculate_spread_decision_vars_2 = {
+	if = {
+		limit = { 
+			check_variable = {
+				JER_cheaper_integration_2_var = 1
+			}
+		}
+		set_variable = { 
+			JER_spread_4_decision_cost = 10
+		}
+		set_variable = { 
+			JER_spread_5_decision_cost = 15
+		}
+		set_variable = { 
+			JER_spread_6_decision_cost = 20
+		}
+	}
+	else_if = {
+		limit = { 
+			check_variable = {
+				JER_cheaper_integration_2_var = 2
+			}
+		}
+		set_variable = { 
+			JER_spread_4_decision_cost = 5
+		}
+		set_variable = { 
+			JER_spread_5_decision_cost = 10
+		}
+		set_variable = { 
+			JER_spread_6_decision_cost = 15
+		}
+	}
+	if = {
+		limit = { 
+			check_variable = {
+				JER_faster_integration_2_var = 1
+			}
+		}
+		set_variable = { 
+			JER_spread_4_decision_take_time = 90 
+		}
+		set_variable = { 
+			JER_spread_5_decision_take_time = 120
+		}
+		set_variable = { 
+			JER_spread_6_decision_take_time = 150
+		}
+	}
+	else_if = {
+		limit = { 
+			check_variable = {
+				JER_faster_integration_2_var = 2
+			}
+		}
+		set_variable = { 
+			JER_spread_4_decision_take_time = 60
+		}
+		set_variable = { 
+			JER_spread_5_decision_take_time = 90 
+		}
+		set_variable = { 
+			JER_spread_6_decision_take_time = 120 
+		}
+	}
+}
+
+update_JER_stability_weekly_mod = {
+	set_variable = {
+		JER_stability_weekly_mod_var = stability
+	}
+	multiply_variable = {
+		JER_stability_weekly_mod_var = -0.033
+	}
+	add_to_variable = {
+		JER_stability_weekly_mod_var = 0.02
+	}
+}
