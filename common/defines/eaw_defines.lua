@@ -79,8 +79,9 @@ NDefines.NProduction.BASE_FACTORY_SPEED_NAV = 3 -- vanilla is 2.5
 NDefines.NProduction.CAPITAL_SHIP_MAX_NAV_FACTORIES_PER_LINE = 10 -- vanilla is 5
 NDefines.NNavy.SCREENS_TO_CAPITAL_RATIO = 3.0	-- Vanilla is 4.0
 NDefines.NAI.CAPITAL_TASKFORCE_MAX_CAPITAL_COUNT = 6 		-- optimum capital count for capital taskforces Vanilla is 12
-NDefines.NAI.SCREEN_TASKFORCE_MAX_SHIP_COUNT = 5			-- optimum screen count for screen taskforces Vanilla is 12
-NDefines.NAI.SUB_TASKFORCE_MAX_SHIP_COUNT = 6 				-- optimum sub count for sub taskforces Vanilla is 16
+NDefines.NAI.SCREEN_TASKFORCE_MAX_SHIP_COUNT = 5		-- optimum screen count for screen taskforces Vanilla is 12
+NDefines.NAI.SUB_TASKFORCE_MAX_SHIP_COUNT = 6 			-- optimum sub count for sub taskforces Vanilla is 16
+NDefines.NAir.NAVAL_COMBAT_EXTERNAL_PLANES_JOIN_RATIO = 0.04 	-- Max planes that can join a combat comparing to the total strength of the ships, vanilla is 0.05
 
 NDefines.NAI.DIPLOMACY_ACCEPT_VOLUNTEERS_BASE = 100
 
