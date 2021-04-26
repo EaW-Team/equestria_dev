@@ -1,0 +1,656 @@
+@PARLIAMENT_SEATS = 535
+@NUM_PARTIES = 16 # actually 15 but 0 has to be unused
+
+setup_WNG_parliament = {
+	resize_array = {
+		array = WNG.parliament_parties
+		value = 0
+		size = @NUM_PARTIES
+	}
+	resize_array = {
+		array = WNG.parliament_parties_colors
+		value = 0
+		size = @NUM_PARTIES
+	}
+	# 1 - CPW - Communist
+	# 2 - WSP - Communist
+	# 3 - USP - Democratic
+	# 4 - WRSP - Democratic
+	# 5 - WRP - Democratic
+	# 6 - WSDP - Democratic
+	# 7 - RDP - Democratic
+	# 8 - FAP - Democratic
+	# 9 - DLP - Democratic
+	# 10 - WPP - Democratic
+	# 11 - PPW - Neutrality
+	# 12 - WLP - Neutrality
+	# 13 - CP - Neutrality
+	# 14 - WNA - Fascism
+	# 15 - NFP - Fascism
+	set_variable = { WNG.parliament_parties^1 = 15 }
+	set_variable = { WNG.parliament_parties^2 = 123 }
+	set_variable = { WNG.parliament_parties^3 = 0 }
+	set_variable = { WNG.parliament_parties^4 = 1 }
+	set_variable = { WNG.parliament_parties^5 = 6 }
+	set_variable = { WNG.parliament_parties^6 = 29 }
+	set_variable = { WNG.parliament_parties^7 = 11 }
+	set_variable = { WNG.parliament_parties^8 = 0 }
+	set_variable = { WNG.parliament_parties^9 = 68 }
+	set_variable = { WNG.parliament_parties^10 = 108 }
+	set_variable = { WNG.parliament_parties^11 = 0 }
+	set_variable = { WNG.parliament_parties^12 = 43 }
+	set_variable = { WNG.parliament_parties^13 = 10 }
+	set_variable = { WNG.parliament_parties^14 = 16 }
+	set_variable = { WNG.parliament_parties^15 = 105 }
+
+	add_to_array = { WNG.parliament_parties_ruling = 4 }
+	add_to_array = { WNG.parliament_parties_ruling = 6 }
+	add_to_array = { WNG.parliament_parties_ruling = 9 }
+	add_to_array = { WNG.parliament_parties_ruling = 10 }
+	add_to_array = { WNG.parliament_parties_ruling = 12 }
+
+	update_WNG_parliament = yes
+	reset_WNG_parliament_support = yes
+	update_WNG_parliament = yes
+}
+
+update_WNG_party_colors = {
+	set_variable = { WNG.parliament_parties_colors^1 = 2 }
+	set_variable = { WNG.parliament_parties_colors^2 = 2 }
+	set_variable = { WNG.parliament_parties_colors^3 = 1 }
+	set_variable = { WNG.parliament_parties_colors^4 = 1 }
+	set_variable = { WNG.parliament_parties_colors^5 = 1 }
+	set_variable = { WNG.parliament_parties_colors^6 = 1 }
+	set_variable = { WNG.parliament_parties_colors^7 = 1 }
+	set_variable = { WNG.parliament_parties_colors^8 = 1 }
+	set_variable = { WNG.parliament_parties_colors^9 = 1 }
+	set_variable = { WNG.parliament_parties_colors^10 = 1 }
+	set_variable = { WNG.parliament_parties_colors^11 = 4 }
+	set_variable = { WNG.parliament_parties_colors^12 = 4 }
+	set_variable = { WNG.parliament_parties_colors^13 = 4 }
+	set_variable = { WNG.parliament_parties_colors^14 = 3 }
+	set_variable = { WNG.parliament_parties_colors^15 = 3 }
+
+	for_each_loop = {
+		array = WNG.parliament_parties_ruling
+		add_to_variable = { WNG.parliament_parties_colors^v = 4 }
+	}
+}
+
+update_WNG_parliament_description = {
+	clear_array = WNG.parliament_parties_description
+	resize_temp_array = {
+		array = parliament_parties_sort
+		value = -1
+		size = @NUM_PARTIES
+	}
+	for_loop_effect = {
+		start = 1
+		end = @NUM_PARTIES
+		set_temp_variable = {
+			parliament_parties_sort^v = WNG.parliament_parties^v
+		}
+	}
+
+	for_loop_effect = {
+		start = 1
+		end = @NUM_PARTIES
+		find_highest_in_array = {
+			array = parliament_parties_sort
+			value = max
+			index = max_index
+		}
+		add_to_array = {
+			WNG.parliament_parties_description = max_index
+		}
+		set_temp_variable = {
+			parliament_parties_sort^max_index = -1
+		}
+	}
+	
+}
+
+update_WNG_frame_array = {
+	if = {
+		limit = {
+			NOT = {
+				WNG = { has_variable = z_parliament_decision_ui_dirty_var }
+			}
+		}
+		WNG = {
+			add_to_variable = {
+				z_parliament_decision_ui_dirty_var = 1
+			}
+		}
+	}
+	if = {
+		limit = { 
+			NOT = { check_variable = { WNG.parliament_frame_array^num = @PARLIAMENT_SEATS } }
+		}
+		resize_array = {
+			array = WNG.parliament_frame_array
+			value = 1
+			size = @PARLIAMENT_SEATS
+		}
+	}
+	set_temp_variable = { previous_end = 0 }
+	for_each_loop = {
+		array = WNG.parliament_parties
+		value = party
+		set_temp_variable = {
+			next_end = party
+		}
+		add_to_temp_variable = {
+			next_end = previous_end
+		}
+		for_loop_effect = {
+			start = previous_end
+			end = next_end
+			set_variable = {
+				WNG.parliament_frame_array^v = WNG.parliament_parties_colors^i
+			}
+		}
+		set_temp_variable = { previous_end = next_end }
+	}
+	update_WNG_party_colors = yes
+	add_to_variable = {
+		WNG.z_parliament_decision_ui_dirty_var = 1
+	}
+}
+
+update_WNG_parliament_party_seats = {
+	set_variable = {
+		var = WNG.WNG_parliament_seats
+		value = 0
+	}
+
+	for_each_loop = {
+		array = WNG.parliament_parties_colors
+		if = {
+			limit = {
+				check_variable = {
+					v > 4
+				}
+			}
+			add_to_variable = {
+				WNG.WNG_parliament_seats = WNG.parliament_parties^i
+			}
+		}
+	}
+}
+
+reset_WNG_parliament_support = {
+	set_variable = {
+		var = WNG.WNG_parliament_support
+		value = 0
+	}
+	add_to_variable = {
+		WNG.WNG_parliament_support = WNG.WNG_parliament_seats
+	}
+}
+
+update_WNG_parliament = {
+	update_WNG_parliament_description = yes
+	update_WNG_frame_array = yes
+	update_WNG_parliament_party_seats = yes
+	update_WNG_max_parliament_support = yes
+}
+
+update_WNG_max_parliament_support = {
+	set_variable = {
+		var = WNG.WNG_parliament_max_support
+		value = 0
+	}
+	# 1 - CPW - Communist
+	# 2 - WSP - Communist
+	# 3 - USP - Democratic
+	# 4 - WRSP - Democratic
+	# 5 - WRP - Democratic
+	# 6 - WSDP - Democratic
+	# 7 - RDP - Democratic
+	# 8 - FAP - Democratic
+	# 9 - DLP - Democratic
+	# 10 - WPP - Democratic
+	# 11 - PPW - Neutrality
+	# 12 - WLP - Neutrality
+	# 13 - CP - Neutrality
+	# 14 - WNA - Fascism
+	# 15 - NFP - Fascism
+	if = {
+		limit = {
+			WNG_has_majority_government = yes
+		}
+		set_variable = {
+			WNG_parliament_max_support = WNG.WNG_parliament_seats
+		}
+	}
+	else = {
+		if = {
+			limit = {
+				has_country_leader = { # Communist
+					name = "Antonino Proletarino"
+					ruling_only = yes
+				}
+			}
+			add_to_variable = {
+				WNG.WNG_parliament_max_support = WNG.parliament_parties^3
+			}
+			add_to_variable = {
+				WNG.WNG_parliament_max_support = WNG.parliament_parties^5
+			}
+			add_to_variable = {
+				WNG.WNG_parliament_max_support = WNG.parliament_parties^6
+			}
+			add_to_variable = {
+				WNG.WNG_parliament_max_support = WNG.parliament_parties^11
+			}
+			multiply_variable = {
+				WNG.WNG_parliament_max_support = 0.5
+			}
+			round_variable = WNG.WNG_parliament_max_support
+			
+			add_to_variable = {
+				WNG.WNG_parliament_max_support = WNG.parliament_parties^1
+			}
+			add_to_variable = {
+				WNG.WNG_parliament_max_support = WNG.parliament_parties^2
+			}
+		}
+		else_if = {
+			limit = {
+				OR = {
+					has_country_leader = { # Harmony
+						name = "Giacomo Gatteotti"
+						ruling_only = yes
+					}
+					has_country_leader = { # Communist
+						name = "Giovanni Gacci"
+						ruling_only = yes
+					}
+				}
+			}
+			add_to_variable = {
+				WNG.WNG_parliament_max_support = WNG.parliament_parties^7
+			}
+			add_to_variable = {
+				WNG.WNG_parliament_max_support = WNG.parliament_parties^8
+			}
+			add_to_variable = {
+				WNG.WNG_parliament_max_support = WNG.parliament_parties^9
+			}
+			add_to_variable = {
+				WNG.WNG_parliament_max_support = WNG.parliament_parties^10
+			}
+			add_to_variable = {
+				WNG.WNG_parliament_max_support = WNG.parliament_parties^11
+			}
+			add_to_variable = {
+				WNG.WNG_parliament_max_support = WNG.parliament_parties^1
+			}
+			multiply_variable = {
+				WNG.WNG_parliament_max_support = 0.5
+			}
+			round_variable = WNG.WNG_parliament_max_support
+			
+			add_to_variable = {
+				WNG.WNG_parliament_max_support = WNG.parliament_parties^2
+			}
+			add_to_variable = {
+				WNG.WNG_parliament_max_support = WNG.parliament_parties^3
+			}
+			add_to_variable = {
+				WNG.WNG_parliament_max_support = WNG.parliament_parties^4
+			}
+			add_to_variable = {
+				WNG.WNG_parliament_max_support = WNG.parliament_parties^5
+			}
+			add_to_variable = {
+				WNG.WNG_parliament_max_support = WNG.parliament_parties^6
+			}
+		}
+		else_if = {
+			limit = {
+				OR = {
+					has_country_leader = { # Harmony
+						name = "Guto Golajanni"
+						ruling_only = yes
+					}
+				}
+			}
+			add_to_variable = {
+				WNG.WNG_parliament_max_support = WNG.parliament_parties^2
+			}
+			add_to_variable = {
+				WNG.WNG_parliament_max_support = WNG.parliament_parties^10
+			}
+			add_to_variable = {
+				WNG.WNG_parliament_max_support = WNG.parliament_parties^11
+			}
+			add_to_variable = {
+				WNG.WNG_parliament_max_support = WNG.parliament_parties^12
+			}
+			add_to_variable = {
+				WNG.WNG_parliament_max_support = WNG.parliament_parties^13
+			}
+			multiply_variable = {
+				WNG.WNG_parliament_max_support = 0.5
+			}
+			round_variable = WNG.WNG_parliament_max_support
+	
+			add_to_variable = {
+				WNG.WNG_parliament_max_support = WNG.parliament_parties^3
+			}
+			add_to_variable = {
+				WNG.WNG_parliament_max_support = WNG.parliament_parties^4
+			}
+			add_to_variable = {
+				WNG.WNG_parliament_max_support = WNG.parliament_parties^5
+			}
+			add_to_variable = {
+				WNG.WNG_parliament_max_support = WNG.parliament_parties^6
+			}
+			add_to_variable = {
+				WNG.WNG_parliament_max_support = WNG.parliament_parties^7
+			}
+			add_to_variable = {
+				WNG.WNG_parliament_max_support = WNG.parliament_parties^8
+			}
+			add_to_variable = {
+				WNG.WNG_parliament_max_support = WNG.parliament_parties^9
+			}
+		}
+		else_if = {
+			limit = {
+				OR = {
+					has_country_leader = { # Harmony
+						name = "Don Luigi Guturzo"
+						ruling_only = yes
+					}
+					has_country_leader = { # Harmony
+						name = "Giovanni De Gaspwingi"
+						ruling_only = yes
+					}
+				}
+			}
+			add_to_variable = {
+				WNG.WNG_parliament_max_support = WNG.parliament_parties^2
+			}
+			multiply_variable = {
+				WNG.WNG_parliament_max_support = 0.5
+			}
+			round_variable = WNG.WNG_parliament_max_support
+	
+			add_to_variable = {
+				WNG.WNG_parliament_max_support = WNG.parliament_parties^3
+			}
+			add_to_variable = {
+				WNG.WNG_parliament_max_support = WNG.parliament_parties^4
+			}
+			add_to_variable = {
+				WNG.WNG_parliament_max_support = WNG.parliament_parties^5
+			}
+			add_to_variable = {
+				WNG.WNG_parliament_max_support = WNG.parliament_parties^6
+			}
+			add_to_variable = {
+				WNG.WNG_parliament_max_support = WNG.parliament_parties^7
+			}
+			add_to_variable = {
+				WNG.WNG_parliament_max_support = WNG.parliament_parties^8
+			}
+			add_to_variable = {
+				WNG.WNG_parliament_max_support = WNG.parliament_parties^9
+			}
+			add_to_variable = {
+				WNG.WNG_parliament_max_support = WNG.parliament_parties^10
+			}
+			add_to_variable = {
+				WNG.WNG_parliament_max_support = WNG.parliament_parties^11
+			}
+			add_to_variable = {
+				WNG.WNG_parliament_max_support = WNG.parliament_parties^12
+			}
+			add_to_variable = {
+				WNG.WNG_parliament_max_support = WNG.parliament_parties^13
+			}
+		}
+		else_if = {
+			limit = {
+				has_country_leader = { # Non-Alligned
+					name = "Gallo Ventriglio"
+					ruling_only = yes
+				}
+			}
+			add_to_variable = {
+				WNG.WNG_parliament_max_support = WNG.parliament_parties^3
+			}
+			add_to_variable = {
+				WNG.WNG_parliament_max_support = WNG.parliament_parties^4
+			}
+			add_to_variable = {
+				WNG.WNG_parliament_max_support = WNG.parliament_parties^5
+			}
+			add_to_variable = {
+				WNG.WNG_parliament_max_support = WNG.parliament_parties^6
+			}
+			add_to_variable = {
+				WNG.WNG_parliament_max_support = WNG.parliament_parties^7
+			}
+			add_to_variable = {
+				WNG.WNG_parliament_max_support = WNG.parliament_parties^8
+			}
+			add_to_variable = {
+				WNG.WNG_parliament_max_support = WNG.parliament_parties^9
+			}
+			add_to_variable = {
+				WNG.WNG_parliament_max_support = WNG.parliament_parties^10
+			}
+			add_to_variable = {
+				WNG.WNG_parliament_max_support = WNG.parliament_parties^11
+			}
+			add_to_variable = {
+				WNG.WNG_parliament_max_support = WNG.parliament_parties^12
+			}
+			add_to_variable = {
+				WNG.WNG_parliament_max_support = WNG.parliament_parties^13
+			}
+			add_to_variable = {
+				WNG.WNG_parliament_max_support = WNG.parliament_parties^14
+			}
+			add_to_variable = {
+				WNG.WNG_parliament_max_support = WNG.parliament_parties^15
+			}
+		}
+		else_if = {
+			limit = {
+				has_country_leader = { # Fascism
+					name = "Giulio Beakolini"
+					ruling_only = yes
+				}
+			}
+			add_to_variable = {
+				WNG.WNG_parliament_max_support = WNG.parliament_parties^11
+			}
+			add_to_variable = {
+				WNG.WNG_parliament_max_support = WNG.parliament_parties^10
+			}
+			add_to_variable = {
+				WNG.WNG_parliament_max_support = WNG.parliament_parties^9
+			}
+			add_to_variable = {
+				WNG.WNG_parliament_max_support = WNG.parliament_parties^5
+			}
+			multiply_variable = {
+				WNG.WNG_parliament_max_support = 0.5
+			}
+			round_variable = WNG.WNG_parliament_max_support
+	
+			add_to_variable = {
+				WNG.WNG_parliament_max_support = WNG.parliament_parties^6
+			}
+			add_to_variable = {
+				WNG.WNG_parliament_max_support = WNG.parliament_parties^12
+			}
+			add_to_variable = {
+				WNG.WNG_parliament_max_support = WNG.parliament_parties^13
+			}
+			add_to_variable = {
+				WNG.WNG_parliament_max_support = WNG.parliament_parties^14
+			}
+			add_to_variable = {
+				WNG.WNG_parliament_max_support = WNG.parliament_parties^15
+			}
+		}
+		else_if = {
+			limit = {
+				has_government = fascism
+			}
+			add_to_variable = {
+				WNG.WNG_parliament_max_support = WNG.parliament_parties^11
+			}
+			add_to_variable = {
+				WNG.WNG_parliament_max_support = WNG.parliament_parties^10
+			}
+			add_to_variable = {
+				WNG.WNG_parliament_max_support = WNG.parliament_parties^9
+			}
+			add_to_variable = {
+				WNG.WNG_parliament_max_support = WNG.parliament_parties^5
+			}
+			multiply_variable = {
+				WNG.WNG_parliament_max_support = 0.5
+			}
+			round_variable = WNG.WNG_parliament_max_support
+			add_to_variable = {
+				WNG.WNG_parliament_max_support = WNG.parliament_parties^6
+			}
+			add_to_variable = {
+				WNG.WNG_parliament_max_support = WNG.parliament_parties^12
+			}
+			add_to_variable = {
+				WNG.WNG_parliament_max_support = WNG.parliament_parties^13
+			}
+			add_to_variable = {
+				WNG.WNG_parliament_max_support = WNG.parliament_parties^14
+			}
+			add_to_variable = {
+				WNG.WNG_parliament_max_support = WNG.parliament_parties^15
+			}
+		}
+		else_if = {
+			limit = {
+				has_government = communism
+			}
+			add_to_variable = {
+				WNG.WNG_parliament_max_support = WNG.parliament_parties^3
+			}
+			add_to_variable = {
+				WNG.WNG_parliament_max_support = WNG.parliament_parties^5
+			}
+			add_to_variable = {
+				WNG.WNG_parliament_max_support = WNG.parliament_parties^6
+			}
+			add_to_variable = {
+				WNG.WNG_parliament_max_support = WNG.parliament_parties^11
+			}
+			multiply_variable = {
+				WNG.WNG_parliament_max_support = 0.5
+			}
+			round_variable = WNG.WNG_parliament_max_support
+			
+			add_to_variable = {
+				WNG.WNG_parliament_max_support = WNG.parliament_parties^1
+			}
+			add_to_variable = {
+				WNG.WNG_parliament_max_support = WNG.parliament_parties^2
+			}
+		}
+		else_if = {
+			limit = {
+				has_government = democratic
+			}
+			add_to_variable = {
+				WNG.WNG_parliament_max_support = WNG.parliament_parties^2
+			}
+			multiply_variable = {
+				WNG.WNG_parliament_max_support = 0.5
+			}
+			round_variable = WNG.WNG_parliament_max_support
+	
+			add_to_variable = {
+				WNG.WNG_parliament_max_support = WNG.parliament_parties^3
+			}
+			add_to_variable = {
+				WNG.WNG_parliament_max_support = WNG.parliament_parties^4
+			}
+			add_to_variable = {
+				WNG.WNG_parliament_max_support = WNG.parliament_parties^5
+			}
+			add_to_variable = {
+				WNG.WNG_parliament_max_support = WNG.parliament_parties^6
+			}
+			add_to_variable = {
+				WNG.WNG_parliament_max_support = WNG.parliament_parties^7
+			}
+			add_to_variable = {
+				WNG.WNG_parliament_max_support = WNG.parliament_parties^8
+			}
+			add_to_variable = {
+				WNG.WNG_parliament_max_support = WNG.parliament_parties^9
+			}
+			add_to_variable = {
+				WNG.WNG_parliament_max_support = WNG.parliament_parties^10
+			}
+			add_to_variable = {
+				WNG.WNG_parliament_max_support = WNG.parliament_parties^11
+			}
+			add_to_variable = {
+				WNG.WNG_parliament_max_support = WNG.parliament_parties^12
+			}
+			add_to_variable = {
+				WNG.WNG_parliament_max_support = WNG.parliament_parties^13
+			}
+		}
+		else = {
+			add_to_variable = {
+				WNG.WNG_parliament_max_support = WNG.parliament_parties^3
+			}
+			add_to_variable = {
+				WNG.WNG_parliament_max_support = WNG.parliament_parties^4
+			}
+			add_to_variable = {
+				WNG.WNG_parliament_max_support = WNG.parliament_parties^5
+			}
+			add_to_variable = {
+				WNG.WNG_parliament_max_support = WNG.parliament_parties^6
+			}
+			add_to_variable = {
+				WNG.WNG_parliament_max_support = WNG.parliament_parties^7
+			}
+			add_to_variable = {
+				WNG.WNG_parliament_max_support = WNG.parliament_parties^8
+			}
+			add_to_variable = {
+				WNG.WNG_parliament_max_support = WNG.parliament_parties^9
+			}
+			add_to_variable = {
+				WNG.WNG_parliament_max_support = WNG.parliament_parties^10
+			}
+			add_to_variable = {
+				WNG.WNG_parliament_max_support = WNG.parliament_parties^11
+			}
+			add_to_variable = {
+				WNG.WNG_parliament_max_support = WNG.parliament_parties^12
+			}
+			add_to_variable = {
+				WNG.WNG_parliament_max_support = WNG.parliament_parties^13
+			}
+			add_to_variable = {
+				WNG.WNG_parliament_max_support = WNG.parliament_parties^14
+			}
+			add_to_variable = {
+				WNG.WNG_parliament_max_support = WNG.parliament_parties^15
+			}
+		}
+	}
+}
