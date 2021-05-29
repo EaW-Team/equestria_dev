@@ -26,3 +26,232 @@ CVA_clear_local_ideas = {
 	remove_ideas = CVA_autonomous_regions_idea
     remove_ideas = CVA_the_principle_of_federalisation_idea
 }
+
+# example:
+# CVA = { ZES = { CVA_transfer_60_percent_of_THIS_to_PREV = yes } }
+CVA_transfer_60_percent_of_THIS_to_PREV = {
+	PREV = {
+		save_current_manpower = yes
+	}
+
+	set_temp_variable = { pop_to_remove_k = 0 }
+	set_temp_variable = { civ_factories_to_remove = 0 }
+	set_temp_variable = { mil_factories_to_remove = 0 }
+	set_temp_variable = { nav_factories_to_remove = 0 }
+	set_temp_variable = { factories_total = 0 }
+	
+	
+	for_each_scope_loop = {
+		array = core_states
+		if = {
+			limit = {
+				is_owned_by = PREV
+				is_fully_controlled_by = PREV
+			}
+			set_temp_variable = { pop_60 = state_population }
+			multiply_temp_variable = { pop_60 = -0.6 }
+			add_manpower = pop_60
+			multiply_temp_variable = { pop_60 = -0.001 }
+			add_to_temp_variable = { pop_to_remove_k = pop_60 }
+		
+			set_temp_variable = { civ_factories = building_level@industrial_complex }
+			multiply_temp_variable = { civ_factories = 0.6 }
+			round_temp_variable = civ_factories
+			remove_building = {
+				type = industrial_complex
+				level = civ_factories
+			}
+			add_to_temp_variable = { civ_factories_to_remove = civ_factories }
+		
+			set_temp_variable = { mil_factories = building_level@arms_factory }
+			multiply_temp_variable = { mil_factories = 0.6 }
+			round_temp_variable = mil_factories
+			remove_building = {
+				type = arms_factory
+				level = mil_factories
+			}
+			add_to_temp_variable = { mil_factories_to_remove = mil_factories }
+		
+			set_temp_variable = { nav_factories = building_level@dockyard }
+			multiply_temp_variable = { nav_factories = 0.6 }
+			round_temp_variable = nav_factories
+			remove_building = {
+				type = dockyard
+				level = nav_factories
+			}
+			add_to_temp_variable = { nav_factories_to_remove = nav_factories }
+		}
+	}
+	
+	add_to_temp_variable = { factories_total = civ_factories_to_remove }
+	add_to_temp_variable = { factories_total = mil_factories_to_remove }
+	add_to_temp_variable = { factories_total = nav_factories_to_remove }
+	set_temp_variable = { one_pop_chunk = pop_to_remove_k }
+	divide_temp_variable = { one_pop_chunk = factories_total }
+	multiply_temp_variable = { one_pop_chunk = 1000 }
+	clamp_temp_variable = {
+		var = one_pop_chunk
+		min = 0
+	}
+
+	#log = "pop_to_remove_k: [?pop_to_remove_k] civ_factories_to_remove: [?civ_factories_to_remove] mil_factories_to_remove: [?mil_factories_to_remove] nav_factories_to_remove: [?nav_factories_to_remove]" 
+	#log = "one_pop_chunk: [?one_pop_chunk]"
+
+	PREV = {
+	
+		while_loop_effect = {
+			limit = {
+				check_variable = { nav_factories_to_remove > 0 }
+			}
+			set_temp_variable = { break = 1 }
+			random_owned_state = {
+				limit = {
+					is_fully_controlled_by = PREV
+					is_core_of = PREV
+					is_coastal = yes
+					free_building_slots = {
+						building = dockyard
+						size > 0
+						include_locked = yes
+					}
+				}
+				#log = "adding nav to [This.GetName]"
+				add_building_construction = {
+					type = dockyard
+					level = 1
+					instant_build = yes
+				}
+				add_manpower = one_pop_chunk
+				set_temp_variable = { break = 0 }
+				subtract_from_temp_variable = { nav_factories_to_remove = 1 }
+			}
+		}
+	
+		
+		while_loop_effect = {
+			limit = {
+				check_variable = { civ_factories_to_remove > 0 }
+			}
+			set_temp_variable = { break = 1 }
+			random_owned_state = {
+				limit = {
+					is_fully_controlled_by = PREV
+					is_core_of = PREV
+					free_building_slots = {
+						building = industrial_complex
+						size > 0
+						include_locked = yes
+					}
+				}
+				#log = "adding civ to [This.GetName]"
+				add_building_construction = {
+					type = industrial_complex
+					level = 1
+					instant_build = yes
+				}
+				add_manpower = one_pop_chunk
+				set_temp_variable = { break = 0 }
+				subtract_from_temp_variable = { civ_factories_to_remove = 1 }
+			}
+		}
+		
+		while_loop_effect = {
+			limit = {
+				check_variable = { mil_factories_to_remove > 0 }
+			}
+			set_temp_variable = { break = 1 }
+			random_owned_state = {
+				limit = {
+					is_fully_controlled_by = PREV
+					is_core_of = PREV
+					free_building_slots = {
+						building = arms_factory
+						size > 0
+						include_locked = yes
+					}
+				}
+				#log = "adding mil to [This.GetName]"
+				add_building_construction = {
+					type = arms_factory
+					level = 1
+					instant_build = yes
+				}
+				add_manpower = one_pop_chunk
+				set_temp_variable = { break = 0 }
+				subtract_from_temp_variable = { mil_factories_to_remove = 1 }
+			}
+		}
+		
+		while_loop_effect = {
+			limit = {
+				check_variable = { nav_factories_to_remove > 0 }
+			}
+			set_temp_variable = { break = 1 }
+			random_owned_state = {
+				limit = {
+					is_fully_controlled_by = PREV
+					is_core_of = PREV
+					is_coastal = yes
+				}
+				#log = "adding slot nav to [This.GetName]"
+				add_extra_state_shared_building_slots = 1
+				add_building_construction = {
+					type = dockyard
+					level = 1
+					instant_build = yes
+				}
+				add_manpower = one_pop_chunk
+				set_temp_variable = { break = 0 }
+				subtract_from_temp_variable = { nav_factories_to_remove = 1 }
+			}
+		}
+		
+		while_loop_effect = {
+			limit = {
+				check_variable = { civ_factories_to_remove > 0 }
+			}
+			set_temp_variable = { break = 1 }
+			random_owned_state = {
+				limit = {
+					is_fully_controlled_by = PREV
+					is_core_of = PREV
+				}
+				#log = "adding slot civ to [This.GetName]"
+				add_extra_state_shared_building_slots = 1
+				add_building_construction = {
+					type = industrial_complex
+					level = 1
+					instant_build = yes
+				}
+				add_manpower = one_pop_chunk
+				set_temp_variable = { break = 0 }
+				subtract_from_temp_variable = { civ_factories_to_remove = 1 }
+			}
+		}
+
+		while_loop_effect = {
+			limit = {
+				check_variable = { mil_factories_to_remove > 0 }
+			}
+			set_temp_variable = { break = 1 }
+			random_owned_state = {
+				limit = {
+					is_fully_controlled_by = PREV
+					is_core_of = PREV
+				}
+				#log = "adding slot mil to [This.GetName]"
+				add_extra_state_shared_building_slots = 1
+				add_building_construction = {
+					type = arms_factory
+					level = 1
+					instant_build = yes
+				}
+				add_manpower = one_pop_chunk
+				set_temp_variable = { break = 0 }
+				subtract_from_temp_variable = { mil_factories_to_remove = 1 }
+			}
+		}
+		
+		restore_previous_manpower = yes
+	}
+}
