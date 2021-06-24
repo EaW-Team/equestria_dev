@@ -1489,4 +1489,119 @@ scripted_gui = {
 			}
 		}
 	}
+	
+	KIC_state_actions_GUI = {
+		context_type = selected_state_context
+		parent_window_token = selected_state_view
+		
+		visible = {
+			ROOT = { 
+				original_tag = KIC
+				OR = {
+					has_country_flag = KIC_chose_agressive_offensive_route
+					has_country_flag = KIC_chose_defensive_maneuver_route
+				}
+			}
+			OR = {
+				OWNER = {
+					OR = {
+						is_kirin_race = yes
+						is_country_main_culture_kirin = yes
+					}
+				}
+				CONTROLLER = {
+					OR = {
+						is_kirin_race = yes
+						is_country_main_culture_kirin = yes
+					}
+				}
+			}
+			if = {
+				limit = {
+					KIC = {
+						has_country_flag = KIC_chose_agressive_offensive_route
+					}
+				}
+				OR = {
+					is_controlled_by = KIC
+					AND = {
+						owner = {
+							is_subject_of = KIC
+						}
+						is_controlled_by = owner
+					}
+				}
+			}
+			else_if = {
+				limit = {
+					KIC = {
+						has_country_flag = KIC_chose_defensive_maneuver_route
+					}
+				}
+				## No Additional Checks
+			}
+		}
+		
+		window_name = "KIC_state_actions_GUI_container"
+		
+		dirty = KIC_state_actions_SG_DIRTY
+		
+		triggers = {
+			KIC_state_actions_recruitment_button_visible = {
+				THIS = {
+					state_population > KIC.KIC_state_actions_recruitment_LIMIT_var ## 10x of KIC.KIC_state_actions_recruitment_POSITIVE_var
+					check_variable = { KIC_state_actions_recruitment_COOLDOWN_var = 0 }
+				}
+			}
+			KIC_state_actions_conscription_button_visible = {
+				KIC = {
+					has_country_flag = KIC_chose_agressive_offensive_route
+				}
+				THIS = {
+					state_population > KIC.KIC_state_actions_conscription_LIMIT_var ## 20x of KIC.KIC_state_actions_conscription_NEGATIVE_var
+					check_variable = { KIC_state_actions_conscription_COOLDOWN_var = 0 }
+				}
+			}
+			KIC_uprising_preparation_button_icon_visible = {
+				KIC = {
+					has_country_flag = KIC_chose_defensive_maneuver_route
+				}
+			}
+			KIC_uprising_button_icon_visible = {
+				KIC = {
+					has_country_flag = KIC_chose_defensive_maneuver_route
+				}
+			}
+			KIC_conscription_button_icon_visible = {
+				KIC = {
+					has_country_flag = KIC_chose_agressive_offensive_route
+				}
+			}
+		}
+		
+		effects = {
+			KIC_state_actions_recruitment_button_click = {
+				THIS = {
+					add_manpower = KIC.KIC_state_actions_recruitment_NEGATIVE_var
+					set_variable = { KIC_state_actions_recruitment_COOLDOWN_var = KIC.KIC_state_actions_recruitment_TIMEOUT_var }
+					add_to_variable = { KIC_state_actions_SG_DIRTY = 1 }
+				}
+				KIC = {
+					add_manpower = KIC.KIC_state_actions_recruitment_POSITIVE_var
+				}
+			}
+			KIC_state_actions_conscription_button_click = {
+				THIS = {
+					add_manpower = KIC.KIC_state_actions_conscription_NEGATIVE_var
+					create_unit = {
+						division = "division_template = \"Militiakirin Banner\" start_experience_factor = 0.1" 
+						owner = KIC
+						count = KIC.KIC_state_actions_conscription_NUM_O_BANNERS_var
+					}
+					set_variable = { KIC_state_actions_conscription_COOLDOWN_var = KIC.KIC_state_actions_conscription_TIMEOUT_var }
+					add_to_variable = { KIC_state_actions_SG_DIRTY = 1 }
+				}
+			}
+		}
+	}
 }
