@@ -3925,3 +3925,185 @@ operations = {
 		}
 	}
 }
+
+KIC_moving_capital_category = {
+	KIC_move_capital_to_decision = {
+		icon = bunker
+		allowed = {
+			original_tag = KIC
+		}
+		on_map_mode = map_only
+
+		visible = {
+			FROM = {
+				is_controlled_by = KIC
+				NOT = {
+					is_capital = yes
+				}
+			}
+		}
+		
+		available = {
+			custom_trigger_tooltip = {
+				tooltip = KIC_move_capital_to_decision_req_tt
+				FROM = {
+					any_neighbor_state = { 
+						is_capital = yes
+						is_controlled_by = KIC
+					}
+				}
+			}
+			custom_trigger_tooltip = {
+				tooltip = KIC_not_moving_capital_req_tt
+				KIC = {
+					NOT = {
+						has_country_flag = KIC_is_moving_capital_flag
+					}
+				}
+			}
+		}
+		
+		state_target = yes
+		target_array = KIC_move_capital_eligible_states_array
+
+		ai_will_do = {
+			base = 50
+		}
+
+		cost = 25
+		days_remove = KIC.KIC_move_capital_duration_var
+
+		modifier = {
+			command_power_gain_mult = -0.05
+		}
+
+		complete_effect = {
+			log = "[GetDateText]: [Root.GetName]: Decision KIC_move_capital_to_decision target: [From.GetName]"
+			hidden_effect = {
+				set_country_flag = KIC_is_moving_capital_flag
+			}
+		}
+		remove_effect = {
+			log = "[GetDateText]: [Root.GetName]: Decision remove KIC_move_capital_to_decision target: [From.GetName]"
+			hidden_effect = {
+				clr_country_flag = KIC_is_moving_capital_flag
+				capital_scope = {
+					remove_province_modifier = { 
+						static_modifiers = { rising_sun_headquarters_core rising_sun_headquarters_non_core }
+						province = {
+							all_provinces = yes
+						}
+					}
+					remove_dynamic_modifier = { modifier = KIC_rising_sun_headquarters_core_state }
+					remove_dynamic_modifier = { modifier = KIC_rising_sun_headquarters_non_core_state }
+					remove_dynamic_modifier = { modifier = KIC_rising_sun_headquarters_core_state_REAL }
+					remove_dynamic_modifier = { modifier = KIC_rising_sun_headquarters_non_core_state_REAL }
+				}
+			}
+			set_capital = FROM
+			if = {
+				limit = {
+					FROM = {
+						is_core_of = KIC
+					}
+				}
+				custom_effect_tooltip = KIC_move_capital_to_decision_core_tt
+				hidden_effect = {
+					FROM = {
+						add_province_modifier = {
+							static_modifiers = { rising_sun_headquarters_core }
+							province = {
+								all_provinces = yes
+							}
+						}
+						add_dynamic_modifier = { modifier = KIC_rising_sun_headquarters_core_state }
+						add_dynamic_modifier = { modifier = KIC_rising_sun_headquarters_core_state_REAL }
+					}
+				}
+			}
+			else_if = {
+				limit = {
+					FROM = {
+						NOT = {
+							is_core_of = KIC
+						}
+					}
+				}
+				custom_effect_tooltip = KIC_move_capital_to_decision_non_core_tt
+				hidden_effect = {
+					FROM = {
+						add_province_modifier = {
+							static_modifiers = { rising_sun_headquarters_non_core }
+							province = {
+								all_provinces = yes
+							}
+						}
+						add_dynamic_modifier = { modifier = KIC_rising_sun_headquarters_non_core_state }
+						add_dynamic_modifier = { modifier = KIC_rising_sun_headquarters_non_core_state_REAL }
+					}
+				}
+			}
+		}
+		cancel_trigger = {
+			FROM = {
+				NOT = {
+					is_controlled_by = KIC
+				}
+			}
+		}
+		cancel_effect = {
+			clr_country_flag = KIC_is_moving_capital_flag
+		}
+	}
+	KIC_capital_icon_decision = {
+		icon = red_star
+		allowed = {
+			original_tag = KIC
+		}
+		on_map_mode = map_only
+
+		visible = {
+			FROM = {
+				is_controlled_by = KIC
+				is_capital = yes
+			}
+		}
+		
+		state_target = yes
+		target_array = KIC_move_capital_eligible_states_array
+	}
+	KIC_truck_pp_reduce_duration = {
+		icon = rickshaw
+		allowed = { original_tag = KIC } 
+		days_remove = 30
+		fire_only_once = yes
+		ai_will_do = {
+			factor = 50
+		}
+		custom_cost_trigger = {
+			KIC = {
+				has_political_power > 49
+				has_equipment = {
+					motorized_equipment > 599
+				}
+			}
+		}
+		
+		custom_cost_text = KIC_pp_50_truck_600
+		modifier = {
+			political_power_factor = -0.05
+		}
+		remove_effect = {
+			log = "[GetDateText]: [Root.GetName]: Decision remove KIC_truck_pp_reduce_duration"
+			custom_effect_tooltip = KIC_truck_pp_reduce_duration_tt
+			hidden_effect = {
+				set_variable = { KIC_move_capital_duration_var = 30 }
+				add_political_power = -50
+				add_equipment_to_stockpile = {
+					type = motorized_equipment
+					amount = -600
+				}
+			}
+		}
+	}
+}
