@@ -1502,18 +1502,15 @@ scripted_gui = {
 					has_country_flag = KIC_chose_defensive_maneuver_route
 				}
 			}
-			OR = {
-				OWNER = {
-					OR = {
-						is_kirin_race = yes
-						is_country_main_culture_kirin = yes
-					}
-				}
-				CONTROLLER = {
-					OR = {
-						is_kirin_race = yes
-						is_country_main_culture_kirin = yes
-					}
+			THIS = {
+				OR = {
+					region = 283
+					region = 316
+					region = 343
+					region = 344
+					region = 345
+					region = 346
+					region = 347
 				}
 			}
 			if = {
@@ -1555,6 +1552,7 @@ scripted_gui = {
 				THIS = {
 					state_population > KIC.KIC_state_actions_recruitment_LIMIT_var ## 10x of KIC.KIC_state_actions_recruitment_POSITIVE_var
 					check_variable = { KIC_state_actions_recruitment_COOLDOWN_var = 0 }
+					is_fully_controlled_by = KIC
 				}
 			}
 			KIC_state_actions_conscription_button_visible = {
@@ -1566,16 +1564,79 @@ scripted_gui = {
 				THIS = {
 					state_population > KIC.KIC_state_actions_conscription_LIMIT_var ## 20x of KIC.KIC_state_actions_conscription_NEGATIVE_var
 					check_variable = { KIC_state_actions_conscription_COOLDOWN_var = 0 }
+					is_fully_controlled_by = KIC
+				}
+			}
+			KIC_uprising_preparation_button_visible = {
+				KIC = {
+					has_country_flag = KIC_chose_defensive_maneuver_route
+					command_power > 29
+					has_manpower > 1199
+				}
+				THIS = {
+					NOT = {
+						has_state_flag = KIC_uprising_prepared_flag
+					}
+					state_population > KIC.KIC_state_actions_uprising_LIMIT_var ## 20x of KIC.KIC_state_actions_uprising_NEGATIVE_var
+					check_variable = { KIC_state_actions_uprising_COOLDOWN_var = 0 }
+					if = {
+						limit = {
+							CONTROLLER = {
+								NOT = {
+									original_tag = KIC
+								}
+							}
+						}
+						CONTROLLER = {
+							has_war_with = KIC
+						}
+						any_neighbor_state = {
+							is_controlled_by = KIC
+						}
+					}
+				}
+			}
+			KIC_uprising_button_visible = {
+				KIC = {
+					has_country_flag = KIC_chose_defensive_maneuver_route
+					has_political_power > 19
+				}
+				THIS = {
+					has_state_flag = KIC_uprising_prepared_flag
+					NOT = {
+						is_controlled_by = KIC
+					}
+					CONTROLLER = {
+						has_war_with = KIC
+					}
+					if = {
+						limit = {
+							CONTROLLER = {
+								NOT = {
+									original_tag = KIC
+								}
+							}
+						}
+						is_capital = no
+					}
 				}
 			}
 			KIC_uprising_preparation_button_icon_visible = {
 				KIC = {
 					has_country_flag = KIC_chose_defensive_maneuver_route
 				}
+				THIS = {
+					NOT = {
+						has_state_flag = KIC_uprising_prepared_flag
+					}
+				}
 			}
 			KIC_uprising_button_icon_visible = {
 				KIC = {
 					has_country_flag = KIC_chose_defensive_maneuver_route
+				}
+				THIS = {
+					has_state_flag = KIC_uprising_prepared_flag
 				}
 			}
 			KIC_conscription_button_icon_visible = {
@@ -1614,9 +1675,78 @@ scripted_gui = {
 				}
 				KIC = {
 					restore_previous_manpower = yes
-					add_manpower = KIC.KIC_state_actions_recruitment_POSITIVE_var
 					add_political_power = -50
-					country_event = { id = kirin_utility.22 days = 1 }
+					country_event = { id = kirin_utility.22 hours = 1 }
+				}
+			}
+			KIC_uprising_preparation_button_click = {
+				THIS = {
+					set_state_flag = KIC_uprising_prepared_flag
+					if = {
+						limit = {
+							THIS = {
+								is_core_of = KIC
+							}
+						}
+						add_dynamic_modifier = { modifier = KIC_uprising_brewing_core }
+					}
+					else_if = {
+						limit = {
+							THIS = {
+								NOT = {
+									is_core_of = KIC
+								}
+							}
+						}
+						add_dynamic_modifier = { modifier = KIC_uprising_brewing_non_core }
+					}
+					add_to_variable = { KIC_state_actions_SG_DIRTY = 1 }
+				}
+				KIC = {
+					add_command_power = -30
+					country_event = { id = kirin_utility.24 hours = 1 }
+				}
+			}
+			KIC_uprising_button_click = {
+				KIC = {
+					save_current_manpower = yes
+				}
+				THIS = {
+					add_manpower = KIC.KIC_state_actions_uprising_NEGATIVE_var
+					create_unit = {
+						division = "division_template = \"Incendiary Banner\" start_equipment_factor = 0.5 start_experience_factor = 0" 
+						owner = KIC
+						count = KIC.KIC_state_actions_uprising_NUM_O_BANNERS_var
+						allow_spawning_on_enemy_provs = yes
+					}
+					set_variable = { KIC_state_actions_uprising_COOLDOWN_var = KIC.KIC_state_actions_uprising_TIMEOUT_var }
+					add_to_variable = { KIC_state_actions_SG_DIRTY = 1 }
+					clr_state_flag = KIC_uprising_prepared_flag
+					if = {
+						limit = {
+							THIS = {
+								NOT = {
+									is_core_of = KIC
+								}
+							}
+						}
+						THIS = {
+							state_event = {
+								id = kirin_republic.18
+								hours = 1
+								trigger_for = owner
+							}
+							state_event = {
+								id = kirin_republic.18
+								hours = 1
+								trigger_for = KIC
+							}
+						}
+					}
+				}
+				KIC = {
+					add_political_power = -20
+					restore_previous_manpower = yes
 				}
 			}
 		}
