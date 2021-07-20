@@ -3,6 +3,7 @@ NDefines.NGame.END_DATE = "1030.1.1.1"
 NDefines.NGame.HANDS_OFF_START_TAG = "DRG"
 
 NDefines.NDiplomacy.TENSION_TIME_SCALE_START_DATE = "1007.1.1.12"
+NDefines.NDiplomacy.TENSION_SIZE_FACTOR = 0.5
 NDefines.NTechnology.BASE_TECH_COST = 85
 NDefines.NAI.RESEARCH_LAND_DOCTRINE_NEED_GAIN_FACTOR = 0.12 -- Multiplies value based on relative military industry size / country size.
 NDefines.NAI.RESEARCH_BONUS_FACTOR = 1.5 				-- To which extent AI should care about bonuses to research
