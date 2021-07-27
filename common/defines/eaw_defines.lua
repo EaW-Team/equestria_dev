@@ -74,6 +74,11 @@ NDefines.NAI.VARIANT_UPGRADE_MIN_XP = 1000
 
 NDefines.NMilitary.PLAN_EXECUTE_CAREFUL_MAX_FORT = 4
 
+NDefines.NNavy.SCREENS_TO_CAPITAL_RATIO = 3.0	-- Vanilla is 4.0
+NDefines.NAI.CAPITAL_TASKFORCE_MAX_CAPITAL_COUNT = 6 		-- optimum capital count for capital taskforces Vanilla is 12
+NDefines.NAI.SCREEN_TASKFORCE_MAX_SHIP_COUNT = 5			-- optimum screen count for screen taskforces Vanilla is 12
+NDefines.NAI.SUB_TASKFORCE_MAX_SHIP_COUNT = 6 				-- optimum sub count for sub taskforces Vanilla is 16
+
 NDefines.NAI.DIPLOMACY_ACCEPT_VOLUNTEERS_BASE = 100
 
 NDefines.NDiplomacy.VOLUNTEERS_DIVISIONS_REQUIRED = 10
