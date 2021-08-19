@@ -3,6 +3,9 @@ NDefines.NGame.END_DATE = "1030.1.1.1"
 NDefines.NGame.HANDS_OFF_START_TAG = "DRG"
 
 NDefines.NDiplomacy.TENSION_TIME_SCALE_START_DATE = "1007.1.1.12"
+NDefines.NDiplomacy.TENSION_SIZE_FACTOR = 0.5
+NDefines.NDiplomacy.TENSION_STATE_VALUE = 1
+NDefines.NDiplomacy.TENSION_PUPPET = 1
 NDefines.NTechnology.BASE_TECH_COST = 85
 NDefines.NAI.RESEARCH_LAND_DOCTRINE_NEED_GAIN_FACTOR = 0.12 -- Multiplies value based on relative military industry size / country size.
 NDefines.NAI.RESEARCH_BONUS_FACTOR = 1.5 				-- To which extent AI should care about bonuses to research
@@ -73,11 +76,13 @@ NDefines.NAI.INVASION_DISTANCE_RANDOMNESS = 400
 NDefines.NAI.VARIANT_UPGRADE_MIN_XP = 1000
 
 NDefines.NMilitary.PLAN_EXECUTE_CAREFUL_MAX_FORT = 4
-
-NDefines.NNavy.SCREENS_TO_CAPITAL_RATIO = 3.0	-- Vanilla is 4.0
+NDefines.NNavy.SHORE_BOMBARDMENT_CAP = 0.3 -- Vanilla is 0.25
+NDefines.NProduction.BASE_FACTORY_SPEED_NAV = 3.5 -- vanilla is 2.5
+NDefines.NNavy.SCREENS_TO_CAPITAL_RATIO = 3.0 -- Vanilla is 4.0, mostly AI stuff
 NDefines.NAI.CAPITAL_TASKFORCE_MAX_CAPITAL_COUNT = 6 		-- optimum capital count for capital taskforces Vanilla is 12
-NDefines.NAI.SCREEN_TASKFORCE_MAX_SHIP_COUNT = 5			-- optimum screen count for screen taskforces Vanilla is 12
-NDefines.NAI.SUB_TASKFORCE_MAX_SHIP_COUNT = 6 				-- optimum sub count for sub taskforces Vanilla is 16
+NDefines.NAI.SCREEN_TASKFORCE_MAX_SHIP_COUNT = 5		-- optimum screen count for screen taskforces Vanilla is 12
+NDefines.NAI.SUB_TASKFORCE_MAX_SHIP_COUNT = 6 			-- optimum sub count for sub taskforces Vanilla is 16
+NDefines.NAir.NAVAL_COMBAT_EXTERNAL_PLANES_JOIN_RATIO = 0.03 	-- Max planes that can join a combat comparing to the total strength of the ships, vanilla is 0.05
 
 NDefines.NAI.DIPLOMACY_ACCEPT_VOLUNTEERS_BASE = 100
 

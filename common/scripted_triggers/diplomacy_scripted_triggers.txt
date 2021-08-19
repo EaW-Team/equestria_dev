@@ -96,6 +96,15 @@ DIPLOMACY_GUARANTEE_ENABLE_TRIGGER = {
 					original_tag = VED
 					original_tag = WNG
 					original_tag = MNC
+					original_tag = JHZ
+					original_tag = JNG
+					original_tag = JGF
+					original_tag = JKR
+					original_tag = JOS
+					original_tag = JHP
+					original_tag = JRV
+					original_tag = JAS
+					original_tag = JEV
 					is_griffon_empire_country = yes
 				}
 				NOT = {
@@ -239,6 +248,25 @@ DIPLOMACY_RELEASE_NATION_ENABLE_TRIGGER = {
 		custom_trigger_tooltip = {
 			tooltip = RULE_ALLOW_RELEASE_NATIONS_NOT_ZUMIDIA_TOOLTIP
 			NOT = { FROM = { tag = ZUM } }
+		}
+	}
+	if = {
+		limit = {
+			OR = {
+				has_game_rule = {
+					rule = allow_release_nations
+					option = FREE
+				}
+				has_game_rule = {
+					rule = allow_release_nations
+					option = PEACE_ONLY
+				}
+			}
+			original_tag = FRN
+		}
+		custom_trigger_tooltip = {
+			tooltip = RULE_ALLOW_RELEASE_NATIONS_NOT_TARRIN_TOOLTIP
+			NOT = { FROM = { tag = JES } }
 		}
 	}
 }
@@ -408,6 +436,27 @@ DIPLOMACY_LEND_LEASE_ENABLE_TRIGGER = {
 		custom_trigger_tooltip = {
 			tooltip = DIPLOMACY_NOT_DETACHED_COUNTRY
 			always = no
+		}
+	}
+	else_if = {
+		limit = {
+			is_river_fed_member = yes
+			FROM = {
+				is_river_fed_member = yes
+				has_war = yes
+			}
+		}
+		always = yes
+	}
+	else_if = {
+		limit = {
+			has_idea = WNG_united_against_disharmony
+		}
+		FROM = {
+			OR = {
+				original_tag = EQS
+				original_tag = WNG
+			}
 		}
 	}
 	else_if = {
@@ -650,6 +699,7 @@ DIPLOMACY_GENERATE_WARGOAL_ENABLE_TRIGGER = {
 				option = LIMITED
 			}
 		}
+		hidden_trigger = { is_ai = no }
 		if = {
 			limit = {
 				tag = GRI
@@ -664,9 +714,6 @@ DIPLOMACY_GENERATE_WARGOAL_ENABLE_TRIGGER = {
 			NOT = {
 			    has_idea = eqs_civil_war
 			}
-		}
-		else = {
-			hidden_trigger = { always = yes }
 		}
 	}
 	else_if = {
@@ -822,12 +869,12 @@ DIPLOMACY_LEAVE_FACTION_ENABLE_TRIGGER = {
     else_if = {
 		limit = {
 			original_tag = EQC
-			NOT = {
-			    OR = {
-					has_completed_focus = EQC_NLR_independence_negotiations
-					has_completed_focus = EQC_NLR_the_prophet
-				}
+			OR = {
+				has_completed_focus = EQC_NLR_independence_negotiations
+				has_completed_focus = EQC_NLR_the_prophet
 			}
+			is_in_faction_with = NLR
+			var:faction_leader = { original_tag = NLR }
 		}
 		custom_trigger_tooltip = {
 			tooltip = RULE_ALLOW_LEAVE_FACTION_BLOCKED_TOOLTIP
@@ -851,6 +898,21 @@ DIPLOMACY_ASSUME_FACTION_LEADERSHIP_ENABLE_TRIGGER = {
 				rule = allow_take_over_faction
 				option = BLOCKED
 			}
+		}
+		custom_trigger_tooltip = {
+			tooltip = RULE_ASSUME_LEADERSHIP_BLOCKED_TOOLTIP
+			always = no
+		}
+	}
+	else_if = {
+		limit = {
+			original_tag = EQC
+			OR = {
+				has_completed_focus = EQC_NLR_independence_negotiations
+				has_completed_focus = EQC_NLR_the_prophet
+			}
+			is_in_faction_with = NLR
+			var:faction_leader = { original_tag = NLR }
 		}
 		custom_trigger_tooltip = {
 			tooltip = RULE_ASSUME_LEADERSHIP_BLOCKED_TOOLTIP
@@ -915,6 +977,17 @@ DIPLOMACY_SEND_VOLUNTEERS_ENABLE_TRIGGER = {
 		custom_trigger_tooltip = {
 			tooltip = DIPLOMACY_NOT_DETACHED_COUNTRY
 			always = no
+		}
+	}
+	else_if = {
+		limit = {
+			has_idea = WNG_united_against_disharmony
+		}
+		FROM = {
+			OR = {
+				original_tag = EQS
+				original_tag = WNG
+			}
 		}
 	}
 	else_if = {
@@ -1105,19 +1178,37 @@ DIPLOMACY_CALL_ALLY_ENABLE_TRIGGER = {
 		limit = {
 			is_river_fed_member = yes
 			has_offensive_war = yes
+			has_defensive_war = no
+			is_subject = no
+			FROM = {
+				is_subject = no
+			}
 		}
 		custom_trigger_tooltip = {
 			tooltip = RIVERFED_OFFENSIVE_WARS_TT
 			OR = {
-				has_idea = RIV_river_union_member1
-				has_idea = RIV_river_union_member2
-			}
-			FROM = {
-				OR = {
-					has_idea = RIV_river_union_member1
-					has_idea = RIV_river_union_member2
+				is_faction_leader = yes
+				AND = {
+					OR = {
+						has_idea = RIV_river_union_member1
+						has_idea = RIV_river_union_member2
+					}
+					FROM = {
+						OR = {
+							has_idea = RIV_river_union_member1
+							has_idea = RIV_river_union_member2
+						}
+					}
 				}
 			}
+		}
+	}
+	else_if = {
+		limit = {
+			tag = FRN
+		}
+		NOT = {
+			has_idea = FRN_insurgency
 		}
 	}
 }
@@ -1138,22 +1229,42 @@ DIPLOMACY_JOIN_ALLY_ENABLE_TRIGGER = {
 	else_if = {
 		limit = {
 			is_river_fed_member = yes
+			is_subject = no
 			FROM = {
+				is_subject = no
 				has_offensive_war = yes
+				has_defensive_war = no
 				is_river_fed_member = yes
 			}
 		}
 		custom_trigger_tooltip = {
 			tooltip = RIVERFED_OFFENSIVE_WARS_TT
 			OR = {
-				has_idea = RIV_river_union_member1
-				has_idea = RIV_river_union_member2
-			}
-			FROM = {
-				OR = {
-					has_idea = RIV_river_union_member1
-					has_idea = RIV_river_union_member2
+				FROM = {
+					is_faction_leader = yes
 				}
+				AND = {
+					OR = {
+						has_idea = RIV_river_union_member1
+						has_idea = RIV_river_union_member2
+					}
+					FROM = {
+						OR = {
+							has_idea = RIV_river_union_member1
+							has_idea = RIV_river_union_member2
+						}
+					}
+				}
+			}
+		}
+	}
+	else_if = {
+		limit = {
+			is_in_faction_with = FRN
+		}
+		NOT = {
+			FROM = {
+				has_idea = FRN_insurgency
 			}
 		}
 	}
