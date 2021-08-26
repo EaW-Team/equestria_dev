@@ -6,9 +6,9 @@
 ## Exodus Input Calculations ##
 # Core Vars #
 @core_refugee_base = 0.08
-@core_nomadicity = 0.75
-@core_occupier_modifier = 0.6
-@core_has_core = 0.8
+@core_nomadicity = 2
+@core_occupier_modifier = 0.8
+@core_has_core = 0.85
 @core_stability_divide = 2
 @core_building_elasticity = 2
 @core_appeal = 2.2
@@ -129,7 +129,18 @@ exodus_add_core_targets = {
 		}
 	}
 	every_country = {
-		limit = { has_country_flag = always_exodus_target }
+		limit = {
+			OR = {
+				has_country_flag = always_exodus_target
+				AND = {
+					is_major = yes
+					any_owned_state = { is_coastal = yes }
+				}
+			}
+			NOT = { tag = var:global.exodus_new_owner }
+			NOT = { tag = var:global.exodus_old_owner }
+			NOT = { is_in_array = { array = global.exodus_valid_targets value = THIS.id } }
+		}
 		add_to_array = { global.exodus_valid_targets = THIS.id }
 		if = { limit = { has_global_flag = exodus_debug } log = "EXODUS - exodus_add_core_targets: added [THIS.GetName] to valid target array as a permanant target" }
 	}
@@ -216,7 +227,9 @@ exodus_remove_from_target = {
 		set_state_flag = { flag = has_had_exodus days = 365 }
 		set_temp_variable = { temp_remove_neg = var:global.exodus_state_refugees }
 		multiply_temp_variable = { temp_remove_neg = -1 }
+		var:global.exodus_old_owner = { save_current_manpower = yes }
 		add_manpower = var:temp_remove_neg
+		var:global.exodus_old_owner = { restore_previous_manpower = yes }
 		if = { limit = { has_global_flag = exodus_debug } log = "EXODUS - remove_from_target: DESTROYING [?global.exodus_arms_refugees] ARMS" }
 		remove_building = {
 			type = arms_factory
@@ -295,8 +308,8 @@ on_refugee_change = {
 		divide_variable = { refugee_to_core_ratio = core_population_k }
 		# Calculate dynamic modifier values
 		set_variable = { ratio_modifier_stab = refugee_to_core_ratio }
-		multiply_variable = { ratio_modifier_stab = -0.5 }
-		clamp_variable = { var = ratio_modifier_stab min = -100 max = 0 }
+		multiply_variable = { ratio_modifier_stab = -0.1 }
+		clamp_variable = { var = ratio_modifier_stab min = -0.5 max = 0 }
 		force_update_dynamic_modifier = yes
 		# Calculate assimilation / expel decision costs
 		set_variable = { exodus_assimilation_cost = 0.55 }
@@ -449,7 +462,7 @@ exodus_reallocate_all = {
 ## Utility Effects ##
 # Usage:
 # Fire in STATE SCOPE of state you wish to simulate an exodus from
-# set_temp_variable = { exodus_set_portion = x }
+# set_temp_variable = { exodus_set_portion = x } (x = 0 to 1)
 # exodus_with_set_proportion = yes
 exodus_with_set_proportion = {
 	hidden_effect = {
@@ -474,7 +487,7 @@ exodus_with_set_proportion = {
 # Usage:
 # Fire in STATE SCOPE of state you wish to decimate
 # This effect does NOT scatter refugees, just destroyes a portion of pop/industry
-# set_temp_variable = { decimation_portion = x }
+# set_temp_variable = { decimation_portion = x } (x = 0 to 1)
 # exodus_decimate_portion = yes
 exodus_decimate_portion = {
 	hidden_effect = {
@@ -491,6 +504,38 @@ exodus_decimate_portion = {
 		exodus_remove_from_target = yes
 		exodus_clean_up = yes
 	}
+}
+# Usage:
+# Fire in COUNTRY SCOPE of nation you wish to add refugees to
+# set_temp_variable = { refugees_to_add = x }
+# exodus_add_refugees = yes
+exodus_add_refugees = {
+	add_to_variable = {
+		var = unassimilated_refugees
+		value = refugees_to_add
+		tooltip = exodus_add_refugees_tt
+	}
+	hidden_effect = { on_refugee_change = yes }
+}
+# Usage:
+# Fire in COUNTRY SCOPE of nation you wish to ADD refugees to
+# set_temp_variable = { refugees_to_add = x }
+# set_temp_variable = { refugee_origin = y } <--> STATE ID OF ORIGIN
+# exodus_send_refugees_to_THIS = yes
+exodus_send_refugees_to_THIS = {
+	var:refugee_origin = {
+		multiply_temp_variable = { refugees_to_add = -1 }
+		owner = { save_current_manpower = yes }
+		add_manpower = refugees_to_add
+		owner = { restore_previous_manpower = yes }
+	}
+	multiply_temp_variable = { refugees_to_add = -1 }
+	add_to_variable = {
+		var = unassimilated_refugees
+		value = refugees_to_add
+		tooltip = exodus_send_refugees_to_THIS_tt
+	}
+	hidden_effect = { on_refugee_change = yes }
 }
 ## Clean-Up ##
 exodus_clean_up = {
