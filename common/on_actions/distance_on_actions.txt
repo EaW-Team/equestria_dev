@@ -1,0 +1,121 @@
+on_actions = {
+	on_startup = {
+		effect = {
+			1 = {
+				update_all_country_distances = yes
+			}
+		}
+	}
+
+	on_annex = {
+		effect = {
+			update_country_distances = yes
+		}
+	}
+
+	on_puppet = {
+		effect = {
+			update_country_distances = yes
+		}
+	}
+
+	# ROOT is new controller
+	# FROM is old controller
+	# FROM.FROM is state ID
+	on_state_control_changed = {
+		effect = {
+			if = {
+				limit = { has_global_flag = distance_debug_logs }
+				log = "Updating distances for [Root.GetTag] and [From.GetTag] after exchanging [From.From.GetName]..."
+			}
+			every_other_country = {
+				set_temp_variable = { current_minimum = closest_distance_to@PREV }
+				if = {
+					limit = { has_global_flag = distance_debug_logs }
+					log = "		 Iterating over states belonging to [This.GetName]..."
+				}
+				for_each_scope_loop = {
+					array =	controlled_states
+					set_temp_variable = { global.state_b = THIS }
+					set_temp_variable = { current_minimum = PREV.closest_distance_to@PREV.PREV }
+					set_temp_variable = { distance = distance_to@FROM.FROM }
+					if = {
+						limit = { has_global_flag = distance_debug_logs }
+						log = "		 Distance between [This.GetName] and [From.From.GetName] = [?distance] ([?current_minimum])"
+					}
+					if = {
+						limit = {
+							check_variable = { distance < current_minimum }
+						}
+						if = {
+							limit = { has_global_flag = distance_debug_logs }
+							log = "		 !! Updating minimum to [?distance] !!"
+						}
+						set_variable = { PREV.closest_distance_to@PREV.PREV = distance }
+						set_variable = { PREV.closest_state_to@PREV.PREV = global.state_b }
+						set_variable = { PREV.PREV.closest_distance_to@PREV = distance }
+						set_variable = { PREV.PREV.closest_state_to@PREV = FROM.FROM }
+					}
+				}
+			}
+			FROM = {
+				every_other_country = {
+					if = {
+						limit = {
+							has_variable = PREV.closest_state_to@THIS
+							check_variable = { PREV.closest_state_to@THIS = FROM.FROM }
+						}
+						set_temp_variable = { current_minimum = @MAX_DISTANCE }
+						if = {
+							limit = { has_global_flag = distance_debug_logs }
+							log = "  Iterating over states belonging to [?PREV.GetName]..."
+						}
+						for_each_scope_loop = {
+							array = PREV.controlled_states
+							set_temp_variable = { global.state_a = THIS }
+							if = {
+								limit = { has_global_flag = distance_debug_logs }
+								log = "		 Iterating over states belonging to [?PREV.GetName]..."
+							}
+							for_each_scope_loop = {
+								array =	PREV.controlled_states
+								set_temp_variable = { global.state_b = THIS }
+								set_temp_variable = { distance = distance_to@PREV }
+								if = {
+									limit = { state = PREV }
+								}
+								else = {
+									if = {
+										limit = { has_global_flag = distance_debug_logs }
+										log = "		 Distance between [?THIS.GetName] and [?PREV.GetName] = [?distance] ([?current_minimum])"
+									}
+									if = {
+										limit = {
+											check_variable = { distance < current_minimum }
+										}
+										if = {
+											limit = { has_global_flag = distance_debug_logs }
+											log = "		 Updating minimum to [?distance]!"
+										}
+										set_temp_variable = { current_minimum = distance_to@PREV }
+										set_temp_variable = { closest_state_a = global.state_a }
+										set_temp_variable = { closest_state_b = global.state_b }
+									}
+								}
+							}
+						}
+						if = {
+							limit = { has_global_flag = distance_debug_logs }
+							log = "  Smallest distance between [?PREV.GetTag] and [?THIS.GetTag] found was [?current_minimum]."
+						}
+						set_variable = { closest_distance_to@PREV = current_minimum }
+						set_variable = { closest_state_to@PREV = closest_state_b }
+						set_variable = { PREV.closest_distance_to@THIS = current_minimum }
+						set_variable = { PREV.closest_state_to@THIS = closest_state_a }
+					}
+				}
+			}
+		}
+	}
+}
+# vim: set ft=pdx ts=2 sw=2 tw=79 :
