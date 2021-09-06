@@ -61,7 +61,7 @@ focus_tree = {
 		y = 0
 
 		ai_will_do = {
-			factor = 5
+			factor = 20
 		}
 
 		cancel_if_invalid = yes
@@ -84,7 +84,7 @@ focus_tree = {
 		}
 
 		ai_will_do = {
-			factor = 10
+			factor = 20
 		}
 
 		cancel_if_invalid = yes
@@ -246,7 +246,9 @@ focus_tree = {
 		prerequisite = {
 			focus = CTH_zarcid_legacy
 		}
-
+		available = {
+			has_war = no
+		}
 		ai_will_do = {
 			factor = 5
 		}
@@ -375,6 +377,9 @@ focus_tree = {
 				remove_idea = CTH_political_instability
 				add_idea = CTH_political_instability_2
 			}
+			CTH_add_1_scientifid_power = yes
+			CTH_add_10_scientifid_loyalty = yes
+			CTH_remove_10_military_faction_loyalty = yes
 		}
 	}
 	focus = {
@@ -411,6 +416,9 @@ focus_tree = {
 				remove_idea = CTH_political_instability
 				add_idea = CTH_political_instability_2
 			}
+			CTH_add_1_military_faction_power = yes
+			CTH_add_10_military_faction_loyalty = yes
+			CTH_remove_10_scientifid_loyalty = yes
 		}
 	}
 	focus = {
@@ -447,6 +455,8 @@ focus_tree = {
 				remove_idea = CTH_political_instability
 				add_idea = CTH_political_instability_2
 			}
+			CTH_remove_10_scientifid_loyalty = yes
+			CTH_remove_10_military_faction_loyalty = yes
 		}
 	}
 	################################
@@ -1665,7 +1675,7 @@ focus_tree = {
 	focus = {
 		id = CTH_liberate_neighmidia
 		icon = GFX_goal_unknown
-		cost = 10
+		cost = 8
 		relative_position_id = CTH_the_batfag_alliance
 		x = -1
 		y = 1
@@ -1675,12 +1685,39 @@ focus_tree = {
 		}
 
 		available = {
-			has_civil_war = no
-			HIP = {
-				exists = yes
-				NOT = {
-					is_in_faction_with = ROOT
-					is_subject_of = ROOT
+			has_war = no
+			has_war_support > 0.9
+			OR = {
+				strength_ratio = {
+					tag = HIP
+					ratio > 1.24
+				}
+				is_in_faction_with = BAT
+			}
+		}
+		bypass = {
+			OR = {
+				AND = {
+					owns_state = 697
+					owns_state = 698
+					owns_state = 710
+					owns_state = 711
+				}
+				AND = {
+					HIP = {
+						OR = {
+							exists = no
+							is_subject = yes
+							has_war_with = ROOT
+						}
+					}
+					ZUM = {
+						OR = {
+							exists = no
+							is_subject_of = ROOT
+							has_war_with = ROOT
+						}
+					}
 				}
 			}
 		}
@@ -1693,12 +1730,133 @@ focus_tree = {
 		continue_if_invalid = no
 		available_if_capitulated = no
 
+		will_lead_to_war_with = HIP
+		will_lead_to_war_with = ZUM
 		completion_reward = {
-			declare_war_on = {
-				target = HIP
-				type = take_state
-				generator = {
-					711 710 698 697
+			if = {
+				limit = {
+					ZUM = {
+						exists = no
+					}
+				}
+				declare_war_on = {
+					target = 697.owner
+					type = take_state
+					generator = {
+						711 710 698 697
+					}
+				}
+			}
+			else_if = {
+				limit = {
+					ZUM = {
+						exists = yes
+						is_subject = no
+					}
+				}
+				ZUM = {
+					country_event = colthage_other.4
+				}
+			}
+			else_if = {
+				limit = {
+					ZUM = {
+						exists = yes
+						is_subject = yes
+						NOT = {
+							is_subject_of = ROOT
+						}
+					}
+				}
+				declare_war_on = { 
+					type = annex_everything 
+					target = ZUM 
+				}
+			}
+		}
+	}
+	focus = {
+		id = CTH_pragmatic_cooperation
+		icon = GFX_goal_unknown
+		cost = 8
+		relative_position_id = CTH_liberate_neighmidia
+		x = -1
+		y = 1
+		prerequisite = {
+			focus = CTH_liberate_neighmidia
+		}
+		mutually_exclusive = {
+			focus = CTH_take_western_zoenicia
+		}
+		available = {
+			has_war = no
+			BAT = {
+				exists = yes
+				is_subject = no
+				OR = {
+					owns_state = 1206
+					owns_state = 688
+					owns_state = 743
+					owns_state = 744
+				}
+			}
+			OR = {
+				AND = {
+					owns_state = 697
+					owns_state = 698
+					owns_state = 710
+					owns_state = 711
+				}
+				ZUM = {
+					is_subject_of = ROOT
+				}
+			}
+		}
+		bypass = {
+			OR = {
+				AND = {
+					owns_state = 1206
+					owns_state = 688
+					owns_state = 743
+					owns_state = 744
+				}
+				BAT = {
+					OR = {
+						exists = no
+						is_subject = yes
+						has_war_with = ROOT
+					}
+				}
+			}
+		}
+		ai_will_do = {
+			factor = 5
+		}
+
+		cancel_if_invalid = yes
+		continue_if_invalid = no
+		available_if_capitulated = no
+		
+		completion_reward = {
+			add_political_power = -75
+			if = {
+				limit = {
+					NOT = {
+						is_in_faction_with = BAT
+					}
+				}
+				diplomatic_relation = {
+					country = BAT
+					relation = non_aggression_pact
+					active = yes
+				}
+			}
+			BAT = {
+				every_owned_state = {
+					limit = {
+						is_claimed_by = CTH
+					}
+					remove_claim_by = CTH
 				}
 			}
 		}
@@ -1706,18 +1864,50 @@ focus_tree = {
 	focus = {
 		id = CTH_take_western_zoenicia
 		icon = GFX_goal_unknown
-		cost = 10
+		cost = 8
 		relative_position_id = CTH_liberate_neighmidia
-		x = 0
+		x = 1
 		y = 1
 		prerequisite = {
 			focus = CTH_liberate_neighmidia
 		}
-
-		available = {
-			
+		mutually_exclusive = {
+			focus = CTH_pragmatic_cooperation
 		}
-
+		available = {
+			has_war = no
+			OR = {
+				AND = {
+					owns_state = 697
+					owns_state = 698
+					owns_state = 710
+					owns_state = 711
+				}
+				ZUM = {
+					is_subject_of = ROOT
+				}
+			}
+			BAT = {
+				OR = {
+					exists = no
+					is_subject = yes
+				}
+				NOT = {
+					owns_state = 1206
+					owns_state = 688
+					owns_state = 743
+					owns_state = 744
+				}
+			}
+		}
+		bypass = {
+			AND = {
+				owns_state = 1206
+				owns_state = 688
+				owns_state = 743
+				owns_state = 744
+			}
+		}
 		ai_will_do = {
 			factor = 5
 		}
@@ -1725,24 +1915,65 @@ focus_tree = {
 		cancel_if_invalid = yes
 		continue_if_invalid = no
 		available_if_capitulated = no
-
+		
+		will_lead_to_war_with = WAR
 		completion_reward = {
-			
+			if = {
+				limit = {
+					WAR = {
+						exists = no
+					}
+				}
+				declare_war_on = {
+					target = 743.owner
+					type = take_state
+					generator = {
+						1206 688 743 744
+					}
+				}
+			}
+			else_if = {
+				limit = {
+					WAR = {
+						exists = yes
+						is_subject = no
+					}
+				}
+				WAR = {
+					country_event = colthage_other.4
+				}
+			}
+			else_if = {
+				limit = {
+					WAR = {
+						exists = yes
+						is_subject = yes
+						NOT = {
+							is_subject_of = ROOT
+						}
+					}
+				}
+				declare_war_on = { 
+					type = annex_everything 
+					target = WAR 
+				}
+			}
 		}
 	}
 	focus = {
 		id = CTH_zoenician_restoration
 		icon = GFX_goal_unknown
-		cost = 10
+		cost = 8
 		relative_position_id = CTH_take_western_zoenicia
-		x = 1
+		x = -1
 		y = 1
 		prerequisite = {
 			focus = CTH_take_western_zoenicia
+			focus = CTH_pragmatic_cooperation
 		}
 
 		available = {
-			
+			has_war = no
 		}
 
 		ai_will_do = {
@@ -1754,6 +1985,8 @@ focus_tree = {
 		available_if_capitulated = no
 
 		completion_reward = {
+			add_political_power = 150
+			set_cosmetic_tag = CVA_CTH_zoenician
 			CDR = { add_to_ROOT_potential_cores = yes }
 			ZUM = { add_to_ROOT_potential_cores = yes }
 			WAR = { add_to_ROOT_potential_cores = yes }
@@ -1783,7 +2016,7 @@ focus_tree = {
 		}
 
 		ai_will_do = {
-			factor = 5
+			factor = 10
 		}
 
 		cancel_if_invalid = yes
@@ -1871,7 +2104,7 @@ focus_tree = {
 		}
 
 		ai_will_do = {
-			factor = 5
+			factor = 10
 		}
 
 		cancel_if_invalid = yes
@@ -1906,7 +2139,7 @@ focus_tree = {
 		}
 
 		ai_will_do = {
-			factor = 5
+			factor = 10
 		}
 
 		cancel_if_invalid = yes
@@ -1959,7 +2192,7 @@ focus_tree = {
 		}
 
 		ai_will_do = {
-			factor = 5
+			factor = 10
 		}
 
 		cancel_if_invalid = yes
@@ -2022,7 +2255,7 @@ focus_tree = {
 		}
 
 		ai_will_do = {
-			factor = 5
+			factor = 10
 		}
 
 		cancel_if_invalid = yes
@@ -2064,7 +2297,7 @@ focus_tree = {
 		}
 
 		ai_will_do = {
-			factor = 5
+			factor = 20
 		}
 
 		cancel_if_invalid = yes
@@ -2096,6 +2329,17 @@ focus_tree = {
 	shared_focus = CTH_invite_wingbardian_investors
 	shared_focus = CTH_colthaginian_autarky
 }
+focus_tree = {
+	id = colthage_constitutionalist_focus_tree
+	country = {
+		factor = 0
+	}
+	default = no
+	continuous_focus_position = { x = 100 y = 1725 }
+	
+	shared_focus = CTH_invite_wingbardian_investors
+	shared_focus = CTH_colthaginian_autarky
+}
 
 ################################
 	####		INDUSTRY		####
@@ -2111,6 +2355,7 @@ shared_focus = {
 		focus = CTH_colthaginian_autarky
 	}
 	available = {
+		has_war = no
 		WNG = {
 			NOT = {
 				has_war_with = CTH
@@ -2854,6 +3099,7 @@ shared_focus = {
 	available = {
 		has_full_control_of_state = 703
 		has_full_control_of_state = 706
+		
 	}
 
 	ai_will_do = {
