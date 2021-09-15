@@ -1330,7 +1330,7 @@ foreign_politics = {
 }
 CTH_mercenaries_cat = {
 	CTH_charger_mercs = {
-		icon = rifles
+		icon = zebra_charger
 		available = {
 			num_of_civilian_factories_available_for_projects > 1
 		}
@@ -1365,7 +1365,7 @@ CTH_mercenaries_cat = {
 		}
 	}
 	CTH_pegasus_mercs = {
-		icon = rifles
+		icon = pegasus_wing
 		available = {
 			num_of_civilian_factories_available_for_projects > 2
 		}
@@ -1411,7 +1411,7 @@ CTH_mercenaries_cat = {
 		}
 	}
 	CTH_knight_mercs = {
-		icon = rifles
+		icon = knight_helm
 		available = {
 			num_of_civilian_factories_available_for_projects > 3
 		}
@@ -1457,4 +1457,106 @@ CTH_mercenaries_cat = {
 		}
 	}
 }
-
+CTH_trade_decisions_cat = {
+	CTH_income_mission = {
+		icon = convoy_ship
+		available = {
+			check_variable = { trade_partners^num < 1 }
+		}
+		activation = {
+			check_variable = { trade_partners^num > 0 }
+		}
+		is_good = yes
+		days_mission_timeout = 90
+		
+		timeout_effect = {
+			log = "[GetDateText]: [Root.GetName]: Decision timeout CTH_income_mission"
+			hidden_effect = {
+				for_each_loop = {
+					array = trade_partners
+					var:v = {
+						if = {
+							limit = {
+								OR = {
+									exists = no
+									NOT = { has_idea = CTH_trading_with_colthage }
+								}
+							}
+							add_to_array = { ROOT.trade_partners_to_remove = THIS.id }
+						}
+					}
+				}
+				for_each_loop = {
+					array = trade_partners_to_remove
+					remove_from_array = { ROOT.trade_partners_to_remove = v }
+				}
+				set_temp_variable = { pp_gain = trade_partners^num }
+				multiply_variable = { pp_gain = 10 }
+				add_political_power = pp_gain
+				clear_array = trade_partners_to_remove
+			}
+			hidden_effect = {
+				activate_mission = CTH_income_mission
+			}
+		}
+	}
+	CTH_propose_trade_deal = {
+		icon = scroll
+		cost = 25
+		fire_only_once = yes
+		ai_will_do = {
+			factor = 160
+		}
+		allowed = {
+			original_tag = CTH
+		}
+		available = {
+			has_war = no
+			custom_trigger_tooltip = {
+                tooltip = CTH_trade_capacity_tt
+                    check_variable = {
+                        trade_partners^num < trade_capacity
+                    }
+            }
+			has_opinion = {
+				target = FROM
+				value > 0
+			}
+			FROM = {
+				has_war = no
+				exists = yes
+				NOT = {
+					has_government = communism
+				}
+				has_opinion = {
+					target = ROOT
+					value > 0
+				}
+			}
+		}
+		targets = { MCW WNG SIC MIT }
+		target_array = neighbors
+		targets_dynamic = yes
+		target_trigger = {
+			FROM = { 
+				OR = {
+					original_tag = MCW
+					original_tag = WNG
+					original_tag = SIC
+					original_tag = MIT
+					is_neighbor_of = ROOT
+				}
+			}
+		}
+		target_root_trigger = {
+			
+		}
+		complete_effect = {
+			log = "[GetDateText]: [Root.GetName]: Decision CTH_propose_trade_deal target: [From.GetName]"
+			FROM = {
+				country_event = colthage_other.33
+			}
+		}
+	}
+	
+}
