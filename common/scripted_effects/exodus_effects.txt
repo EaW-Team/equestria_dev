@@ -1,0 +1,546 @@
+############################
+##    Project EqExodus    ##
+##      By HappyNTH       ##
+############################
+
+## Exodus Input Calculations ##
+# Core Vars #
+@core_refugee_base = 0.08
+@core_nomadicity = 2
+@core_occupier_modifier = 0.8
+@core_has_core = 0.85
+@core_stability_divide = 2
+@core_building_elasticity = 2
+@core_appeal = 2.2
+@core_distance_divisor = 100
+@core_destruction_divisor = 1.4
+@nomadicity_mod_multi = 0.75
+@occupier_appeal_mod_multi = 0.75
+@national_appeal_mod_multi = 0.75
+# Global Var Setting #
+exodus_intialize_global_variables = {
+	set_variable = { global.core_refugee_base = @core_refugee_base }
+	set_variable = { global.core_occupier_modifier = @core_occupier_modifier }
+	set_variable = { global.core_nomadicity = @core_nomadicity }
+	set_variable = { global.core_has_core = @core_has_core }
+	set_variable = { global.core_stability_divide = @core_stability_divide }
+	set_variable = { global.core_appeal = @core_appeal }
+	set_variable = { global.core_building_elasticity = @core_building_elasticity }
+	set_variable = { global.core_distance_divisor = @core_distance_divisor }
+	set_variable = { global.nomadicity_modifier_factor = @nomadicity_mod_multi }
+	set_variable = { global.occupier_modifier_factor = @occupier_appeal_mod_multi }
+	set_variable = { global.appeal_modifier_factor = @national_appeal_mod_multi }
+}
+# Occupier Appeal : ADDITIVE #
+exodus_calculate_occupier_appeal = { # Called in STATE SCOPE
+	set_variable = { occupier_appeal = @core_occupier_modifier }
+	## Positive Factors
+	if = { # Add 0.15 if same ideology
+		limit = { var:global.exodus_new_owner = { var:global.exodus_old_owner = { has_government = PREV } } }
+		if = { limit = { has_global_flag = exodus_debug } log = "EXODUS - occupier_appeal: same ideology" }
+		add_to_variable = { occupier_appeal = 0.15 }
+	}
+	if = { # Add pre-set value if new owner has a core
+		limit = { var:global.exodus_target_state = { is_core_of = global.exodus_new_owner } }
+		if = { limit = { has_global_flag = exodus_debug } log = "EXODUS - occupier_appeal: score of new_owner" }
+		add_to_variable = { occupier_appeal = @core_has_core }
+	}
+	## Negative Factors
+	## Mixed / Generic Factors
+	# Add 1/2 stability
+	set_temp_variable = { stab_impact = global.exodus_new_owner:stability }
+	divide_temp_variable = { stab_impact = @core_stability_divide }
+	add_to_variable = { occupier_appeal = stab_impact }
+	if = { limit = { has_global_flag = exodus_debug } log = "EXODUS - occupier_appeal: stability impact of [?stab_impact] applied" }
+	# Add modifier from new occupier's ideas etc
+	if = { limit = { has_global_flag = exodus_debug } log = "EXODUS - occupier_appeal: new owner's generic modifier of [?global.exodus_new_owner:modifier@exodus_occupier_appeal] applied" }
+	set_temp_variable = { var = occupier_appeal_temp_mod value = ROOT.exodus_new_owner:modifier@exodus_occupier_appeal }
+	multiply_temp_variable = { occupier_appeal_temp_mod = global.occupier_modifier_factor }
+	clamp_temp_variable = { var = occupier_appeal_temp_mod min = -1 max = 1 }
+	add_to_variable = { var = occupier_appeal value = occupier_appeal_temp_mod }
+	if = { limit = { has_global_flag = exodus_debug } log = "EXODUS - occupier_appeal: Sub-Total of Appeal is [?occupier_appeal]" }
+	## Clamp occupier appeal
+	clamp_variable = { var = occupier_appeal min = 0.02 }
+	if = { limit = { has_global_flag = exodus_debug } log = "EXODUS - occupier_appeal: Clamped Appeal is [?occupier_appeal]" }
+}
+# Nomadicity : ADDITIVE #
+exodus_calculate_nomadicity = { # Called in STATE SCOPE
+	set_variable = { nomadicity = @core_nomadicity }
+	## Positive Factors
+	## Negative Factors
+	if = { # Multiply by 0.75 if the state has already suffered an exodus
+		limit = { has_state_flag = has_had_exodus }
+		if = { limit = { has_global_flag = exodus_debug } log = "EXODUS - nomadicity: has had an exodus" }
+		multiply_variable = { nomadicity = 0.75 }
+	}
+	## Mixed / Generic Factors
+	# Add modifier from old occupier's ideas etc
+	if = { limit = { has_global_flag = exodus_debug } log = "EXODUS - nomadicity: old owner's generic modifier of [?global.exodus_old_owner:modifier@exodus_nomadicity] applied" }
+	set_temp_variable = { var = nomadicity_temp_mod value = ROOT.exodus_old_owner:modifier@exodus_nomadicity }
+	multiply_temp_variable = { nomadicity_temp_mod = global.nomadicity_modifier_factor }
+	clamp_temp_variable = { var = nomadicity_temp_mod min = -1 max = 1 }
+	add_to_variable = { var = nomadicity value = nomadicity_temp_mod }
+	if = { limit = { has_global_flag = exodus_debug } log = "EXODUS - nomadicity: Final Nomadicity is [?nomadicity]" }
+	## Clamp nomadicity
+	clamp_variable = { var = nomadicity min = 0 }
+}
+# Calculate Proportions #
+exodus_calculate_proportions = { # Called in STATE SCOPE
+	if = { limit = { has_global_flag = exodus_debug } log = "EXODUS - exodus_calculate_proportions: STARTING CALCULATION. exodus_new_owner: [?global.exodus_new_owner.GetName]. exodus_old_owner: [?global.exodus_old_owner.GetName]. exodus_target_state: [?global.exodus_target_state.GetName]" }
+	set_temp_variable = { refugee_proportion = @core_refugee_base }
+	if = { limit = { has_global_flag = exodus_debug } log = "EXODUS - exodus_calculate_proportions: Calculating Occupier Appeal" }
+	exodus_calculate_occupier_appeal = yes
+	divide_temp_variable = { refugee_proportion = occupier_appeal }
+	if = { limit = { has_global_flag = exodus_debug } log = "EXODUS - exodus_calculate_proportions: Calculating Nomadicity" }
+	exodus_calculate_nomadicity = yes
+	multiply_temp_variable = { refugee_proportion = nomadicity }
+	clamp_temp_variable = { var = refugee_proportion min = 0 max = 0.92 }
+	if = { limit = { has_global_flag = exodus_debug } log = "EXODUS - exodus_calculate_proportions: FINISHED. Final Proportion is [?refugee_proportion]" }
+}
+# Calculate Discretes #
+exodus_calculate_discretes = { # Called in STATE SCOPE
+	if = { limit = { has_global_flag = exodus_debug } log = "EXODUS - exodus_calculate_discretes: STARTING CALCULATION" }
+	set_variable = {  global.exodus_state_refugees = state_population }
+	multiply_variable = { global.exodus_state_refugees = refugee_proportion }
+	round_variable = global.exodus_state_refugees
+	clamp_variable = { var = global.exodus_state_refugees min = 0 }
+	if = { limit = { has_global_flag = exodus_debug } log = "EXODUS - exodus_calculate_discretes: Total Refugees are [?global.exodus_state_refugees]" }
+	multiply_temp_variable = { refugee_proportion = @core_building_elasticity }
+	set_variable = { global.exodus_arms_refugees = arms_factory_level }
+	multiply_variable = { global.exodus_arms_refugees = refugee_proportion }
+	subtract_from_variable = { global.exodus_arms_refugees = 2.5 }
+	round_variable = global.exodus_arms_refugees
+	clamp_variable = { var = global.exodus_arms_refugees min = 0 }
+	if = { limit = { has_global_flag = exodus_debug } log = "EXODUS - exodus_calculate_discretes: Total Arms Factories are [?global.exodus_arms_refugees]" }
+	set_variable = { global.exodus_civ_refugees = industrial_complex_level }
+	multiply_variable = { global.exodus_civ_refugees = refugee_proportion }
+	subtract_from_variable = { global.exodus_civ_refugees = 3.5 }
+	round_variable = global.exodus_civ_refugees
+	clamp_variable = { var = global.exodus_civ_refugees min = 0 }
+	if = { limit = { has_global_flag = exodus_debug } log = "EXODUS - exodus_calculate_discretes: Total Civ Factories are [?global.exodus_civ_refugees]" }
+	if = { limit = { has_global_flag = exodus_debug } log = "EXODUS - exodus_calculate_discretes: CALCULATION COMPLETE" }
+}
+## Exodus Target Calculations ##
+exodus_add_core_targets = {
+	if = { limit = { has_global_flag = exodus_debug } log = "EXODUS - exodus_add_core_targets: start" }
+	var:global.exodus_old_owner = {
+		every_neighbor_country = { # Add capitals of old owner's neighbours
+			limit = { NOT = { tag = var:global.exodus_new_owner } }
+			add_to_array = { global.exodus_valid_targets = THIS.id }
+			if = { limit = { has_global_flag = exodus_debug } log = "EXODUS - exodus_add_core_targets: added [THIS.GetName] to valid target array as old owner neighbour" }
+		}
+	}
+	var:global.exodus_new_owner = {
+		every_neighbor_country = { # Add capitals of new owner's neighbours
+			limit = { NOT = { tag = var:global.exodus_old_owner } }
+			if = {
+				limit = { NOT = { is_in_array = { array = global.exodus_valid_targets value = THIS.id } } }
+				add_to_array = { global.exodus_valid_targets = THIS.id }
+			}
+			if = { limit = { has_global_flag = exodus_debug } log = "EXODUS - exodus_add_core_targets: added [THIS.GetName] to valid target array as new owner neighbour" }
+		}
+	}
+	every_country = {
+		limit = {
+			OR = {
+				has_country_flag = always_exodus_target
+				AND = {
+					is_major = yes
+					any_owned_state = { is_coastal = yes }
+				}
+			}
+			NOT = { tag = var:global.exodus_new_owner }
+			NOT = { tag = var:global.exodus_old_owner }
+			NOT = { is_in_array = { array = global.exodus_valid_targets value = THIS.id } }
+		}
+		add_to_array = { global.exodus_valid_targets = THIS.id }
+		if = { limit = { has_global_flag = exodus_debug } log = "EXODUS - exodus_add_core_targets: added [THIS.GetName] to valid target array as a permanant target" }
+	}
+	if = { limit = { has_global_flag = exodus_debug } log = "EXODUS - exodus_add_core_targets: end" }
+}
+## Exodus Weight Calculations : MULTIPLICATIVE ##
+exodus_weight_targets = { # Called in STATE SCOPE
+	if = { limit = { has_global_flag = exodus_debug } log = "EXODUS - weight_states: STARTING CALCULATION" }
+	set_variable = { global.exodus_total_weighting = 0 }
+	for_each_scope_loop = { # Loops through COUNTRY SCOPES
+		array = global.exodus_valid_targets
+		if = { limit = { has_global_flag = exodus_debug } log = "EXODUS - weight_states: WEIGHTING [THIS.GetName]" }
+		set_variable = { exodus_national_appeal = @core_appeal }
+		## Positive Factors
+		if = { # 1.05 times if same ideology
+			limit = { var:global.exodus_old_owner = { has_government = PREV } }
+			if = { limit = { has_global_flag = exodus_debug } log = "EXODUS - weight_states: same ideology" }
+			multiply_variable = { exodus_national_appeal = 1.05 }
+		}
+		if = { # 1.8 times if has core on taken state
+			limit = { var:global.exodus_target_state = { is_core_of = PREV } }
+			if = { limit = { has_global_flag = exodus_debug } log = "EXODUS - weight_states: shared core" }
+			multiply_variable = { exodus_national_appeal = 1.8 }
+		}
+		if = { # 1.35 if war ally
+			limit = { OR = { has_war_with = var:global.exodus_new_owner is_in_faction_with = var:global.exodus_old_owner } }
+			if = { limit = { has_global_flag = exodus_debug } log = "EXODUS - weight_states: at war with new owner / in faction with old owner" }
+			multiply_variable = { exodus_national_appeal = 1.45 }
+		}
+		if = { # 0.2 if war enemy
+			limit = { OR = { has_war_with = var:global.exodus_old_owner is_in_faction_with = var:global.exodus_new_owner } }
+			if = { limit = { has_global_flag = exodus_debug } log = "EXODUS - weight_states: at war with old owner / in faction with new owner" }
+			multiply_variable = { exodus_national_appeal = 0.2 }
+		}
+		## Negative Factors
+		if = { # 0.85 if at war
+			limit = { has_war = yes }
+			if = { limit = { has_global_flag = exodus_debug } log = "EXODUS - weight_states: has war" }
+			multiply_variable = { exodus_national_appeal = 0.85 }
+		}
+		## Mixed / Generic Factors
+		# Modifiers
+		if = { limit = { has_global_flag = exodus_debug } log = "EXODUS - weight_states: multiplicative weight factored in" }
+		set_temp_variable = { exodus_national_appeal_modifier_temp = THIS:modifier@exodus_national_appeal }
+		add_to_temp_variable = { exodus_national_appeal_modifier_temp = 1 } # Modifier is -1 to 1, this makes it 0 to 2
+		multiply_temp_variable = { exodus_national_appeal_modifier_temp = global.appeal_modifier_factor }
+		clamp_temp_variable = { var = exodus_national_appeal_modifier_temp min = 0 max = 2 }
+		multiply_variable = { exodus_national_appeal = exodus_national_appeal_modifier_temp }
+		# Distance
+		var:global.exodus_old_owner = {
+			PREV = {
+				var:closest_state_to@PREV = {
+					set_temp_variable = { exodus_distance = THIS.distance_to@global.exodus_target_state }
+					if = { limit = { has_global_flag = exodus_debug } log = "EXODUS - weight_states: calculated distance from [global.exodus_target_state.GetName] to [PREV.GetName]'s capital' of [?exodus_distance]" }
+					divide_temp_variable = { exodus_distance = global.core_distance_divisor }
+					divide_variable = { PREV.exodus_national_appeal = exodus_distance }
+				}
+			}
+		}
+		clamp_variable = { var = exodus_national_appeal min = 0 }
+		if = { limit = { has_global_flag = exodus_debug } log = "EXODUS - weight_states: FINAL WEIGHT OF [THIS.GetName] - [?exodus_national_appeal]" }
+		add_to_variable = { global.exodus_total_weighting = exodus_national_appeal }
+	}
+	if = { limit = { check_variable = { global.exodus_total_weighting = 0 } } log = "EXODUS - Total weighting of 0 detected, meaning code is broken or no possible targets to flee to" }
+	if = { limit = { has_global_flag = exodus_debug } log = "EXODUS - weight_states: CALCULATION COMPLETE" }
+}
+
+## Allocation ##
+exodus_remove_from_target = {
+	var:global.exodus_target_state = {
+		if = { limit = { has_global_flag = exodus_debug } log = "EXODUS - remove_from_target: REMOVING [?global.exodus_state_refugees] REFUGEES" }
+		set_state_flag = { flag = has_had_exodus days = 365 }
+		set_temp_variable = { temp_remove_neg = var:global.exodus_state_refugees }
+		multiply_temp_variable = { temp_remove_neg = -1 }
+		var:global.exodus_old_owner = { save_current_manpower = yes }
+		add_manpower = var:temp_remove_neg
+		var:global.exodus_old_owner = { restore_previous_manpower = yes }
+		if = { limit = { has_global_flag = exodus_debug } log = "EXODUS - remove_from_target: DESTROYING [?global.exodus_arms_refugees] ARMS" }
+		remove_building = {
+			type = arms_factory
+			level = var:global.exodus_arms_refugees
+		}
+		if = { limit = { has_global_flag = exodus_debug } log = "EXODUS - remove_from_target: DESTROYING [?global.exodus_civ_refugees] CIVS" }
+		remove_building = {
+			type = industrial_complex
+			level = var:global.exodus_civ_refugees
+		}
+		var:global.exodus_new_owner = {
+			if = {
+				limit = {
+					is_ai = no
+				}
+				if = {
+					limit = {
+						NOT = { has_country_flag = exodus_popup_cooldown }
+						check_variable = { exodus_pop_left > 0 }
+						NOT = {
+							is_in_array = {
+								array = country_icon_popup_array
+								value = 8
+							}
+						}
+					}
+					clear_variable = exodus_pop_left
+					clear_variable = exodus_pop_gained
+					add_to_array = {
+						array = country_icon_popup_array
+						value = 8
+					}
+					add_to_array = {
+						array = country_icon_popup_array_target
+						value = 0
+					}
+					add_to_array = {
+						array = country_icon_popup_array_tertiary
+						value = 0
+					}
+					set_country_flag = {
+						flag = exodus_popup_cooldown
+						days = 60
+						value = 1
+					}
+				}
+				else_if = {
+					limit = {
+						NOT = { has_country_flag = exodus_popup_cooldown }
+					}
+					clear_variable = exodus_pop_left
+					clear_variable = exodus_pop_gained
+				}
+				multiply_temp_variable = { temp_remove_neg = -1 }
+				add_to_variable = { exodus_pop_left = temp_remove_neg }
+				add_to_variable = { global.monthly_gui_update_tick = 1 }
+			}
+		}
+	}
+}
+on_refugee_change = {
+	if = { # Fire assimilation mission, if it's not already ticking away
+		limit = { check_variable = { unassimilated_refugees > 0 } }
+		if = {
+			limit = { NOT = { has_active_mission = exodus_assimilation_pulse_mission } }
+			activate_mission = exodus_assimilation_pulse_mission
+		}
+		# Calculate proportion of refugees to core pop
+		set_variable = { core_population_k = 0 }
+		for_each_scope_loop = {
+			array = core_states
+			add_to_variable = { PREV.core_population_k = state_population_k }
+		}
+		set_variable = { refugee_to_core_ratio = unassimilated_refugees }
+		divide_variable = { refugee_to_core_ratio = 1000 }
+		divide_variable = { refugee_to_core_ratio = core_population_k }
+		# Calculate dynamic modifier values
+		set_variable = { ratio_modifier_stab = refugee_to_core_ratio }
+		multiply_variable = { ratio_modifier_stab = -0.1 }
+		clamp_variable = { var = ratio_modifier_stab min = -0.5 max = 0 }
+		force_update_dynamic_modifier = yes
+		# Calculate assimilation / expel decision costs
+		set_variable = { exodus_assimilation_cost = 0.55 }
+		subtract_from_variable = { var = exodus_assimilation_cost value = modifier@exodus_assimilation_proportion }
+		multiply_variable = { exodus_assimilation_cost = 100 }
+		clamp_variable = { var = exodus_assimilation_cost min = 10 max = 120 }
+		set_variable = { exodus_expel_cost = 0.45 }
+		add_to_variable = { var = exodus_expel_cost value = modifier@exodus_assimilation_proportion }
+		multiply_variable = { exodus_expel_cost = 100 }
+		clamp_variable = { var = exodus_expel_cost min = 10 max = 120 }
+	}
+	else = {
+		clear_variable = unassimilated_refugees
+		remove_dynamic_modifier = { modifier = exodus_refugee_ratio_malus }
+	}
+}
+exodus_reallocate_all = {
+	if = { limit = { has_global_flag = exodus_debug } log = "EXODUS - reallocate_all: STARTING REALLOCATION FROM [?global.exodus_target_state.GetName]" }
+	divide_variable = { global.exodus_arms_refugees = @core_destruction_divisor }
+	round_variable = global.exodus_arms_refugees
+	divide_variable = { global.exodus_civ_refugees = @core_destruction_divisor }
+	round_variable = global.exodus_civ_refugees
+	if = { limit = { has_global_flag = exodus_debug } log = "EXODUS - reallocate_all: removed from target state" }
+	for_each_scope_loop = { # Loops through COUNTRY SCOPES
+		array = global.exodus_valid_targets
+		if = { limit = { has_global_flag = exodus_debug } log = "EXODUS - reallocate_all: ALLOCATING TO [THIS.GetName]" }
+		divide_variable = { exodus_national_appeal = global.exodus_total_weighting }
+		# Refugee allocation
+		set_temp_variable = { exodus_refugees = global.exodus_state_refugees }
+		multiply_temp_variable = { exodus_refugees = exodus_national_appeal }
+		round_temp_variable = exodus_refugees
+		clamp_variable = { var = exodus_refugees min = 0 }
+		if = {
+			limit = { NOT = { has_variable = unassimilated_refugees } }
+			set_variable = { unassimilated_refugees = 0 }
+		}
+		add_to_variable = { unassimilated_refugees = exodus_refugees }
+		if = {
+			limit = { NOT = { has_variable = all_time_refugees } }
+			set_variable = { all_time_refugees = 0 }
+		}
+		add_to_variable = { all_time_refugees = exodus_refugees }
+		if = {
+			limit = { NOT = { has_dynamic_modifier = { modifier = exodus_refugee_ratio_malus } } }
+			add_dynamic_modifier = { modifier = exodus_refugee_ratio_malus }
+		}
+		on_refugee_change = yes
+		if = { limit = { has_global_flag = exodus_debug } log = "EXODUS - reallocate_all: added [?exodus_refugees] refugees to unintegrated pool" }
+		# Arm allocation
+		set_temp_variable = { exodus_arms = global.exodus_arms_refugees }
+		multiply_temp_variable = { exodus_arms = exodus_national_appeal }
+		round_temp_variable = exodus_arms
+		clamp_variable = { var = exodus_arms min = 0 }
+		if = { limit = { has_global_flag = exodus_debug } log = "EXODUS - reallocate_all: want to add [?exodus_arms] arms" }
+		random_owned_state = {
+			limit = {
+				meta_trigger = {
+					text = {
+						free_building_slots = {
+							building = arms_factory
+							size > [FORCE_VAR]
+							include_locked = yes
+						}
+					}
+					FORCE_VAR = "[?exodus_arms]"
+				}
+			}
+			add_building_construction = {
+				type = arms_factory
+				level = var:exodus_arms
+				instant_build = yes
+			}
+			if = { limit = { has_global_flag = exodus_debug } log = "EXODUS - reallocate_all: added [?exodus_arms] arms to [THIS.GetName]" }
+		}
+		# Civ allocation
+		set_temp_variable = { exodus_civs = global.exodus_civ_refugees }
+		multiply_temp_variable = { exodus_civs = exodus_national_appeal }
+		round_temp_variable = exodus_civs
+		clamp_variable = { var = exodus_civs min = 0 }
+		if = { limit = { has_global_flag = exodus_debug } log = "EXODUS - reallocate_all: want to add [?exodus_civs] civs" }
+		random_owned_state = {
+			limit = {
+				meta_trigger = {
+					text = {
+						free_building_slots = {
+							building = industrial_complex
+							size > [FORCE_VAR]
+							include_locked = yes
+						}
+					}
+					FORCE_VAR = "[?exodus_civs]"
+				}
+			}
+			add_building_construction = {
+				type = industrial_complex
+				level = var:exodus_civs
+				instant_build = yes
+			}
+			if = { limit = { has_global_flag = exodus_debug } log = "EXODUS - reallocate_all: added [?exodus_civs] civs to [THIS.GetName]" }
+		}
+		if = { limit = { has_global_flag = exodus_debug } log = "EXODUS - reallocate_all: FINISHED ALLOCATING TO [THIS.GetName]" }
+		if = { ## Add variables to Scripted GUI notification
+			limit = {
+				is_ai = no
+			}
+			if = {
+				limit = {
+					NOT = { has_country_flag = exodus_popup_cooldown }
+					check_variable = { exodus_pop_gained > 0 }
+					NOT = {
+						is_in_array = {
+							array = country_icon_popup_array
+							value = 8
+						}
+					}
+				}
+				clear_variable = exodus_pop_left
+				clear_variable = exodus_pop_gained
+				add_to_array = {
+					array = country_icon_popup_array
+					value = 8
+				}
+				add_to_array = {
+					array = country_icon_popup_array_target
+					value = 0
+				}
+				add_to_array = {
+					array = country_icon_popup_array_tertiary
+					value = 0
+				}
+				set_country_flag = {
+					flag = exodus_popup_cooldown
+					days = 60
+					value = 1
+				}
+			}
+			else_if = {
+				limit = {
+					NOT = { has_country_flag = exodus_popup_cooldown }
+				}
+				clear_variable = exodus_pop_left
+				clear_variable = exodus_pop_gained
+			}
+			add_to_variable = { exodus_pop_gained = exodus_refugees }
+			add_to_variable = { global.monthly_gui_update_tick = -1 }
+		}
+	}
+	if = { limit = { has_global_flag = exodus_debug } log = "EXODUS - reallocate_all: FINISHED REALLOCATION FROM [?global.exodus_target_state.GetName]" }
+}
+## Utility Effects ##
+# Usage:
+# Fire in STATE SCOPE of state you wish to simulate an exodus from
+# set_temp_variable = { exodus_set_portion = x } (x = 0 to 1)
+# exodus_with_set_proportion = yes
+exodus_with_set_proportion = {
+	hidden_effect = {
+		controller = {
+			set_variable = { global.exodus_old_owner = THIS.id }
+			set_variable = { global.exodus_new_owner = THIS.id }
+		}
+		set_variable = { global.exodus_target_state = THIS.id }
+		set_variable = { refugee_proportion = exodus_set_portion }
+		exodus_calculate_discretes = yes
+	}
+	custom_effect_tooltip = exodus_with_set_proportion_tt
+	hidden_effect = {
+		exodus_add_core_targets = yes
+		exodus_weight_targets = yes
+		exodus_remove_from_target = yes
+		exodus_reallocate_all = yes
+		exodus_clean_up = yes
+	}
+}
+# Usage:
+# Fire in STATE SCOPE of state you wish to decimate
+# This effect does NOT scatter refugees, just destroyes a portion of pop/industry
+# set_temp_variable = { decimation_portion = x } (x = 0 to 1)
+# exodus_decimate_portion = yes
+exodus_decimate_portion = {
+	hidden_effect = {
+		set_variable = { refugee_proportion = decimation_portion }
+		set_variable = { global.exodus_target_state = THIS.id }
+		controller = {
+			set_variable = { global.exodus_old_owner = THIS.id }
+			set_variable = { global.exodus_new_owner = THIS.id }
+		}
+		exodus_calculate_discretes = yes
+	}
+	custom_effect_tooltip = exodus_decimate_portion_tt
+	hidden_effect = {
+		exodus_remove_from_target = yes
+		exodus_clean_up = yes
+	}
+}
+# Usage:
+# Fire in COUNTRY SCOPE of nation you wish to add refugees to
+# set_temp_variable = { refugees_to_add = x }
+# exodus_add_refugees = yes
+exodus_add_refugees = {
+	add_to_variable = {
+		var = unassimilated_refugees
+		value = refugees_to_add
+	}
+	custom_effect_tooltip = exodus_add_refugees_tt
+	hidden_effect = { on_refugee_change = yes }
+}
+# Usage:
+# Fire in COUNTRY SCOPE of nation you wish to ADD refugees to
+# set_temp_variable = { refugees_to_add = x }
+# set_temp_variable = { refugee_origin = y } <--> STATE ID OF ORIGIN
+# exodus_send_refugees_to_THIS = yes
+exodus_send_refugees_to_THIS = {
+	multiply_temp_variable = { refugees_to_add = -1 }
+	custom_effect_tooltip = exodus_send_refugees_to_THIS_tt
+	var:refugee_origin = {
+		owner = { save_current_manpower = yes }
+		add_manpower = refugees_to_add
+		owner = { restore_previous_manpower = yes }
+	}
+	multiply_temp_variable = { refugees_to_add = -1 }
+	add_to_variable = {
+		var = unassimilated_refugees
+		value = refugees_to_add
+	}
+	hidden_effect = { on_refugee_change = yes }
+}
+## Clean-Up ##
+exodus_clean_up = {
+	clear_variable = global.exodus_new_owner
+	clear_variable = global.exodus_old_owner
+	clear_variable = global.exodus_target_state
+	clear_variable = global.exodus_total_weighting
+	clear_array = global.exodus_valid_targets
+}

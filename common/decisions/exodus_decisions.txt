@@ -1,0 +1,173 @@
+############################
+##    Project EqExodus    ##
+##      By HappyNTH       ##
+############################
+exodus_refugee_assimilation = {
+	exodus_assimilation_pulse_mission = {
+		activation = {
+			always = no # Fired via exodus_effects if not already running
+		}
+		available = {
+			hidden_trigger = { always = no } # Can't be 'clicked'
+		}
+		days_mission_timeout = 56
+		priority = 2
+		timeout_effect = {
+			set_temp_variable = { pulse_temp_assimilate = unassimilated_refugees }
+			multiply_temp_variable = { pulse_temp_assimilate = modifier@exodus_assimilation_proportion }
+			round_temp_variable = pulse_temp_assimilate
+			clamp_temp_variable = { var = pulse_temp_assimilate min = 0 max = unassimilated_refugees }
+			set_temp_variable = { pulse_assimilate_pre_div = pulse_temp_assimilate }
+			divide_temp_variable = { pulse_temp_assimilate = num_core_states }
+			set_temp_variable = { pulse_assimilate_per_state = pulse_temp_assimilate }
+			round_temp_variable = pulse_assimilate_per_state
+			# Crude napkin workaround to make sure no 'lost' pop when spreading pop over state:
+			set_temp_variable = { pulse_temp_assimilate = pulse_assimilate_per_state }
+			multiply_temp_variable = { pulse_temp_assimilate = num_core_states }
+			round_temp_variable = pulse_temp_assimilate
+			set_temp_variable = { pulse_assimilate = pulse_temp_assimilate }
+			if = { # Tooltip edge-case if nobody will be assimilated
+				limit = { check_variable = { pulse_assimilate = 0 } }
+				custom_effect_tooltip = assimilate_no_prop_tt
+			}
+			else_if = { # If not enough pop to be more than 1 per core state, add all to capital
+				limit = { check_variable = { pulse_assimilate_pre_div < num_core_states } }
+				custom_effect_tooltip = assimilate_n_pop_cap_tt
+				capital_scope = {
+					custom_effect_tooltip = assimilate_add_pop_cap_tt
+					hidden_effect = {
+						add_manpower = pulse_assimilate_pre_div
+						PREV = {
+							subtract_from_variable = { var = unassimilated_refugees value = pulse_assimilate_pre_div }
+							clamp_variable = { var = unassimilated_refugees min = 0 }
+						}
+					}
+				}
+			}
+			else = { # Otherwise spread it out
+				custom_effect_tooltip = assimilate_n_pop_tt
+				every_controlled_state = {
+					tooltip = every_core_controlled_states_tt
+					limit = { is_core_of = ROOT }
+					custom_effect_tooltip = assimilate_add_pop_tt
+					hidden_effect = {
+						add_manpower = pulse_assimilate_per_state
+					}
+				}
+			}
+			hidden_effect = {
+				subtract_from_variable = { var = unassimilated_refugees value = pulse_assimilate }
+				clamp_variable = { var = unassimilated_refugees min = 0 }
+				on_refugee_change = yes
+				if = {
+					limit = { NOT = { has_variable = all_time_assimilate } }
+					set_variable = { all_time_assimilate = 0 }
+				}
+				add_to_variable = { all_time_assimilate = pulse_assimilate }
+			}
+		}
+	}
+	nationwide_assimilation_drive = {
+		visible = {
+			check_variable = { unassimilated_refugees > 0 }
+		}
+		cost = var:exodus_assimilation_cost
+		days_re_enable = 28
+		days_remove = 28
+		available = {
+			custom_trigger_tooltip = {
+				tooltip = nationwide_assimilation_drive_trig_tt
+				check_variable = { unassimilated_refugees > num_core_states }
+			}
+		}
+		ai_will_do = {
+			base = 0
+			modifier = {
+				check_variable = { ratio_modifier_stab < -0.1 }
+				add = 50
+			}
+			modifier = {
+				check_variable = { ratio_modifier_stab < -0.2 }
+				add = 100
+			}
+		}
+		remove_effect = {
+			set_temp_variable = { pulse_temp_assimilate = unassimilated_refugees }
+			multiply_temp_variable = { pulse_temp_assimilate = 0.175 }
+			round_temp_variable = pulse_temp_assimilate
+			clamp_temp_variable = { var = pulse_temp_assimilate min = 0 max = unassimilated_refugees }
+			divide_temp_variable = { pulse_temp_assimilate = num_core_states }
+			round_temp_variable = pulse_temp_assimilate
+			set_temp_variable = { pulse_assimilate_per_state = pulse_temp_assimilate }
+			# Crude napkin workaround to make sure no 'lost' pop when spreading pop over state:
+			multiply_temp_variable = { pulse_temp_assimilate = num_core_states }
+			round_temp_variable = pulse_temp_assimilate
+			set_temp_variable = { pulse_assimilate = pulse_temp_assimilate }
+			custom_effect_tooltip = assimilation_drive_tt
+			every_controlled_state = {
+				tooltip = every_core_controlled_states_tt
+				limit = { is_core_of = ROOT }
+				custom_effect_tooltip = assimilate_add_pop_tt
+				hidden_effect = {
+					add_manpower = pulse_assimilate_per_state
+				}
+			}
+			hidden_effect = {
+				subtract_from_variable = { var = unassimilated_refugees value = pulse_assimilate }
+				clamp_variable = { var = unassimilated_refugees min = 0 }
+				on_refugee_change = yes
+				if = {
+					limit = { NOT = { has_variable = all_time_assimilate } }
+					set_variable = { all_time_assimilate = 0 }
+				}
+				add_to_variable = { all_time_assimilate = pulse_assimilate }
+			}
+		}
+	}
+	expel_refugees = {
+		icon = generic_oppression
+		visible = {
+			check_variable = { unassimilated_refugees > 0 }
+		}
+		cost = var:exodus_expel_cost
+		days_re_enable = 28
+		days_remove = 14
+		available = {
+			custom_trigger_tooltip = {
+				tooltip = expel_refugees_trig_tt
+				check_variable = { ratio_modifier_stab < -0.05 }
+				check_variable = { unassimilated_refugees > 0 }
+			}
+		}
+		ai_will_do = {
+			base = 0
+			modifier = {
+				check_variable = { ratio_modifier_stab < -0.05 }
+				add = 10
+			}
+			modifier = {
+				check_variable = { ratio_modifier_stab < -0.15 }
+				add = 50
+			}
+			modifier = {
+				check_variable = { ratio_modifier_stab < -0.25 }
+				add = 100
+			}
+		}
+		remove_effect = {
+			set_temp_variable = { refugees_expelled = unassimilated_refugees }
+			multiply_temp_variable = { refugees_expelled = 0.2 }
+			round_temp_variable = refugees_expelled
+			clamp_temp_variable = { var = refugees_expelled min = 1 max = unassimilated_refugees }
+			subtract_from_variable = { var = unassimilated_refugees value = refugees_expelled }
+			if = {
+				limit = { NOT = { has_variable = all_time_expelled } }
+				set_variable = { all_time_expelled = 0 }
+			}
+			add_to_variable = { var = all_time_expelled value = refugees_expelled }
+			clamp_variable = { var = unassimilated_refugees min = 0 }
+			custom_effect_tooltip = expel_refugees_tt
+			hidden_effect = { on_refugee_change = yes }
+		}
+	}
+}
