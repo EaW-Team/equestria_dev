@@ -89,6 +89,9 @@ CTH_the_coltva_unrest_cat = {
 			NOT = {
 				has_country_flag = CTH_coltva_revolted
 			}
+			NOT = {
+				has_global_flag = zeirutid_dead
+			}
 			OR = {
 				1093 = {
 					resistance > 70
@@ -133,6 +136,9 @@ CTH_the_coltva_unrest_cat = {
 			}
 			NOT = {
 				has_country_flag = CTH_coltva_revolted
+			}
+			NOT = {
+				has_global_flag = zeirutid_dead
 			}
 		}
 
@@ -1324,7 +1330,7 @@ foreign_politics = {
 }
 CTH_mercenaries_cat = {
 	CTH_charger_mercs = {
-		icon = rifles
+		icon = zebra_charger
 		available = {
 			num_of_civilian_factories_available_for_projects > 1
 		}
@@ -1359,7 +1365,7 @@ CTH_mercenaries_cat = {
 		}
 	}
 	CTH_pegasus_mercs = {
-		icon = rifles
+		icon = pegasus_wing
 		available = {
 			num_of_civilian_factories_available_for_projects > 2
 		}
@@ -1405,7 +1411,7 @@ CTH_mercenaries_cat = {
 		}
 	}
 	CTH_knight_mercs = {
-		icon = rifles
+		icon = knight_helm
 		available = {
 			num_of_civilian_factories_available_for_projects > 3
 		}
@@ -1451,4 +1457,272 @@ CTH_mercenaries_cat = {
 		}
 	}
 }
+CTH_trade_decisions_cat = {
+	CTH_income_mission = {
+		icon = convoy_ship
+		available = {
+			check_variable = { trade_partners^num < 1 }
+		}
+		activation = {
+			check_variable = { trade_partners^num > 0 }
+		}
+		is_good = yes
+		days_mission_timeout = 90
+		
+		timeout_effect = {
+			log = "[GetDateText]: [Root.GetName]: Decision timeout CTH_income_mission"
+			hidden_effect = {
+				for_each_loop = {
+					array = trade_partners
+					var:v = {
+						if = {
+							limit = {
+								OR = {
+									exists = no
+									NOT = { has_idea = CTH_trading_with_colthage }
+								}
+							}
+							add_to_array = { ROOT.trade_partners_to_remove = THIS.id }
+							if = {
+								limit = {
+									original_tag = MCW
+								}
+								CTH = {
+									subtract_from_variable = {
+										var = pearl_demand
+										value = 1
+									}
+									subtract_from_variable = {
+										var = coffee_supply
+										value = 1
+									}
+								}
+							}
+							else_if = {
+								limit = {
+									original_tag = HIP
+								}
+								CTH = {
+									subtract_from_variable = {
+										var = pearl_supply
+										value = 1
+									}
+									subtract_from_variable = {
+										var = coffee_demand
+										value = 1
+									}
+								}
+							}
+						}
+					}
+				}
+				for_each_loop = {
+					array = trade_partners_to_remove
+					remove_from_array = { ROOT.trade_partners_to_remove = v }
+				}
+				set_temp_variable = { pp_gain = trade_partners^num }
+				multiply_temp_variable = { pp_gain = 10 }
+				clear_array = trade_partners_to_remove
+			}
+			add_political_power = pp_gain
+			#Recalc demand/supply/trade capacity
+			set_variable = { trade_capacity = 2 }
+			if = {
+				limit = {
+					OR = {
+						check_variable = {
+							pearl_supply = pearl_demand
+						}
+						check_variable = {
+							pearl_supply > pearl_demand
+						}
+					}
+				}
+				custom_effect_tooltip = CTH_coffee_demand_fulfilled
+				add_to_variable = {
+					var = trade_capacity
+					value = 1
+				}
+			}
+			if = {
+				limit = {
+					OR = {
+						check_variable = {
+							coffee_supply = coffee_demand
+						}
+						check_variable = {
+							coffee_supply > coffee_demand
+						}
+					}
+				}
+				custom_effect_tooltip = CTH_pearl_demand_fulfilled
+				add_to_variable = {
+					var = trade_capacity
+					value = 1
+				}
+			}
+			hidden_effect = {
+				activate_mission = CTH_income_mission
+			}
+			if = {
+				limit = {
+					check_variable = {
+						trade_partners^num > trade_capacity
+					}
+				}
+				custom_effect_tooltip = CTH_warning_insufficient_trade_capacity
+				random_country = {
+					limit = {
+						has_idea = CTH_trading_with_colthage
+					}
+					country_event = colthage_other.36
+				}
+			}
+		}
+	}
+	CTH_propose_trade_deal = {
+		icon = scroll
+		cost = 25
+		fire_only_once = no
+		ai_will_do = {
+			factor = 160
+		}
+		allowed = {
+			original_tag = CTH
+		}
+		available = {
+			has_war = no
+			custom_trigger_tooltip = {
+                tooltip = CTH_trade_capacity_tt
+                    check_variable = {
+                        trade_partners^num < trade_capacity
+                    }
+            }
+			has_opinion = {
+				target = FROM
+				value > -11
+			}
+			FROM = {
+				has_war = no
+				has_opinion = {
+					target = ROOT
+					value > 0
+				}
+			}
+		}
+		visible = {
+			FROM = {
+				exists = yes
+				NOT = {
+					has_idea = CTH_trading_with_colthage
+					has_government = communism
+					has_idea = closed_economy
+					has_idea = BAT_hidden_economy
+				}
+			}
+		}
+		targets = { MCW HIP WNG SIC MIT BAT CGI ZAR HIN CTL CYA GRU LMB BRF GRW WAR FAL HRV TBK }
+		targets_dynamic = yes
+		target_trigger = {
+			FROM = { 
+				OR = {
+					original_tag = MCW
+					original_tag = HIP
+					original_tag = WNG
+					original_tag = SIC
+					original_tag = MIT
+					original_tag = BAT
+					original_tag = CGI
+					original_tag = ZAR
+					original_tag = HIN
+					original_tag = CTL
+					original_tag = CYA
+					original_tag = GRU
+					original_tag = LMB
+					original_tag = BRF
+					original_tag = GRW
+					original_tag = WAR
+					original_tag = FAL
+					original_tag = HRV
+					original_tag = TBK
+				}
+			}
+		}
+		target_root_trigger = {
+			
+		}
+		complete_effect = {
+			log = "[GetDateText]: [Root.GetName]: Decision CTH_propose_trade_deal target: [From.GetName]"
+			FROM = {
+				country_event = colthage_other.33
+			}
+			if = {
+				limit = {
+					FROM = {
+						original_tag = MCW
+					}
+				}
+				custom_effect_tooltip = CTH_MCW_tradegoods_tt
+			}
+			else_if = {
+				limit = {
+					FROM = {
+						original_tag = HIP
+					}
+				}
+				custom_effect_tooltip = CTH_HIP_tradegoods_tt
+			}
+		}
+	}
+	CTH_build_pearl_gathering_crap = {
+		icon = generic_construction
+		available = {
+			custom_trigger_tooltip = {
+				tooltip = CTH_trade_good_factory_requirement
+				check_variable = {
+					pearl_demand > pearl_supply
+				}
+			}
+			has_full_control_of_state = 1095
+			1095 = {
+				is_core_of = ROOT
+			}
+		}
+		visible = {
+			has_country_flag = CTH_pearls_unlocked
+		}
+		fire_only_once = yes
 
+		days_remove = 90
+		cost = 50
+
+		ai_will_do = {
+			base = 100
+		}
+
+		modifier = {
+			civilian_factory_use = 2
+		}
+
+		complete_effect = {
+			
+		}
+
+		remove_effect = {
+			custom_effect_tooltip = CTH_pearl_supply_increase_tt
+			add_to_variable = {
+				var = pearl_supply
+				value = 1
+			}
+			1095 = {
+				add_extra_state_shared_building_slots = 2
+				add_building_construction = {
+					type = industrial_complex
+					level = 2
+					instant_build = yes
+				}
+			}
+		}
+		
+	}
+}
