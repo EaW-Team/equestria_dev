@@ -21,7 +21,7 @@ HIE_Alchemical_Superproject_debug_start = {
 	add_to_array = { HIE_ASPJ_ingredientlist = 1 }
 	add_to_array = { HIE_ASPJ_ingredientlist = 2 }
 	add_to_array = { HIE_ASPJ_ingredientlist = 3 }
-	#add_to_array = { HIE_ASPJ_ingredientlist = 4 }
+	add_to_array = { HIE_ASPJ_ingredientlist = 4 }
 	
 	add_to_variable = { HIE_ASPJ_dirty_var = 0.01 }
 }
@@ -56,13 +56,21 @@ HIE_ASPJ_evaluate_recipe = {
 		set_variable = { HIE_created_concoction = 1 }
 		clear_variable = HIE_ASPJ_selected_formula
 		scoped_sound_effect = "HIE_magic_concoction_complete"
-		log = "[ROOT.gettag]: Concoction complete"
+		HIE_ASPJ_initiate_30day_cooldown = yes
 	}
+	# Failed concoction
 	else = {
 		clear_variable = HIE_created_concoction
-		log = "[ROOT.Gettag]: Wrong Recipe"
+		clear_variable = HIE_ASPJ_selected_formula
+
+		for_each_loop = { # Returns ingredients to ingredients list, empties placed ingredients
+			array = HIE_placed_ingredients
+			add_to_array = { HIE_ASPJ_ingredientlist = HIE_placed_ingredients^i }
+			set_variable = { HIE_placed_ingredients^i = 0 }
+		}
+		HIE_ASPJ_initiate_90day_cooldown = yes
+		country_event = hippone_aspj.0
 	}
-	add_to_variable = { HIE_ASPJ_dirty_var = 0.01 }
 }
 
 HIE_ASPJ_fire_concoction_event = {
@@ -80,5 +88,20 @@ HIE_ASPJ_fire_concoction_event = {
 		set_variable = { HIE_placed_ingredients^i = 0 }
 	}
 	clear_variable = HIE_created_concoction
+	add_to_variable = { HIE_ASPJ_dirty_var = 0.01 }
+}
+
+# `set_country_flag` has a days argument but I couldn't dirty var them...
+HIE_ASPJ_initiate_30day_cooldown = {
+	set_country_flag = HIE_ASPJ_cooldown
+	set_variable = { HIE_ASPJ_days_remaining_cooldown = 31 }
+	country_event = hippone_aspj.1999
+	add_to_variable = { HIE_ASPJ_dirty_var = 0.01 }
+}
+
+HIE_ASPJ_initiate_90day_cooldown = {
+	set_country_flag = HIE_ASPJ_cooldown
+	set_variable = { HIE_ASPJ_days_remaining_cooldown = 91 }
+	country_event = hippone_aspj.1999
 	add_to_variable = { HIE_ASPJ_dirty_var = 0.01 }
 }
