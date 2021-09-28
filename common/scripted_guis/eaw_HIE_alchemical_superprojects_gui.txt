@@ -1,0 +1,129 @@
+scripted_gui = {
+	eaw_HIE_ASPJ_open_button = {
+		window_name = "EaW_HIE_ASPJ_open"
+		context_type = player_context
+		parent_window_token = top_bar
+		visible = { has_country_flag = HIE_ASPJ_is_active }
+		effects = {
+			button_open_click = {
+				if = {
+					limit = {
+						has_country_flag = HIE_ASPJ_open
+					}
+					clr_country_flag = HIE_ASPJ_open
+				}
+				else = { set_country_flag = HIE_ASPJ_open }
+				add_to_variable = { HIE_ASPJ_dirty_var = 0.01 }
+				clr_country_flag = HIE_ASPJ_arrows_show
+			}
+		}
+		triggers = {
+			button_alert_visible = {
+				has_country_flag = HIE_ASPJ_arrows_show
+			}
+		}
+	}
+	eaw_HIE_Alchemical_Superprojects = {
+		window_name = "EaW_HIE_Alchemical_Superprojects"
+		context_type = player_context
+		dirty = HIE_ASPJ_dirty_var
+		visible = {
+			has_country_flag = HIE_ASPJ_open
+			original_tag = HIE
+		}
+		effects = {
+			ingredient_placed_img_click = {
+				set_variable = { HIE_ASPJ_selected_formula = HIE_PING_i } 
+				add_to_variable = { HIE_ASPJ_dirty_var = 0.01 }
+			}
+			ingredient_placed_img_right_click = {
+				if = {
+					limit = {
+						check_variable = { HIE_placed_ingredients^HIE_PING_i > 0 }
+					}
+					add_to_array = { HIE_ASPJ_ingredientlist = HIE_placed_ingredients^HIE_PING_i }
+					set_variable = { HIE_placed_ingredients^HIE_PING_i = 0 }
+				}
+				add_to_variable = { HIE_ASPJ_dirty_var = 0.01 }
+			}
+			created_concoction_click = {
+				if = {
+					limit = { NOT = { has_variable = HIE_created_concoction } }
+					HIE_ASPJ_evaluate_recipe = yes
+				}
+				else = {
+					HIE_ASPJ_fire_concoction_event = yes
+				}
+				add_to_variable = { HIE_ASPJ_dirty_var = 0.01 }
+			}
+		}
+		triggers = {
+			ingredient_placed_img_click_enabled = {
+				NOT = {
+					has_variable = HIE_created_concoction
+					has_country_flag = HIE_ASPJ_cooldown
+				}
+				check_variable = { HIE_ASPJ_ingredientlist^num > 0 }
+			}
+			complete_fire_visible = { has_variable = HIE_created_concoction }
+			created_concoction_visible = {
+				NOT = {
+					is_in_array = { array = HIE_placed_ingredients value = 0 }
+				}
+			}
+		}
+		properties = {
+			ingredient_placed_img = {
+				image = "[HIE_Get_button_GFX]"
+				x = HIE_placed_ingredients_x^HIE_PING_i
+				y = HIE_placed_ingredients_y^HIE_PING_i
+			}
+			created_concoction = {
+				image = "[HIE_Get_concocted_GFX]"
+			}
+		}
+		dynamic_lists = {
+			ingredient_placed_gridbox = {
+				array = HIE_placed_ingredients
+				index = HIE_PING_i
+				entry_container = HIE_placed_ingredient_entry
+			}
+		}
+	}
+	eaw_HIE_Alchemical_Superprojects_window = {
+		window_name = "EaW_HIE_Alchemical_Superprojects_selection"
+		context_type = player_context
+		parent_window_name = "EaW_HIE_Alchemical_Superprojects"
+		visible = { has_variable = HIE_ASPJ_selected_formula }
+		dirty = HIE_ASPJ_dirty_var
+		dynamic_lists = {
+			ingredients_gridbox = {
+				array = HIE_ASPJ_ingredientlist
+				value = Ingredients_v
+				entry_container = HIE_Ingredients_list_entry
+			}
+		}
+		properties = {
+			ingredient_img = { image = "[HIE_Get_ingredients_GFX]" }
+		}
+		triggers = {
+			ingredient_img_click_enabled = {
+				NOT = { has_variable = HIE_created_concoction }
+			}
+		}
+		effects = {
+			ingredient_img_click = {
+				if = {
+					limit = {
+						check_variable = { HIE_placed_ingredients^HIE_ASPJ_selected_formula > 0 }
+					}
+					add_to_array = { HIE_ASPJ_ingredientlist = HIE_placed_ingredients^HIE_ASPJ_selected_formula }
+				}
+				set_variable = { HIE_placed_ingredients^HIE_ASPJ_selected_formula = Ingredients_v }
+				remove_from_array = { HIE_ASPJ_ingredientlist = Ingredients_v }
+				clear_variable = HIE_ASPJ_selected_formula
+				add_to_variable = { HIE_ASPJ_dirty_var = 0.01 }
+			}
+		}
+	}
+}
