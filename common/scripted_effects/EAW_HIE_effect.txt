@@ -103,6 +103,13 @@ HIE_Alchemical_Superproject_debug_start = {
 		add_to_temp_variable = { temp_debug_ingredients = 1 }
 	}
 	
+	# Journal
+	clear_array = HIE_JRNL_dummy_array
+	add_to_array = { HIE_JRNL_dummy_array = 0 }
+	set_variable = { HIE_JRNL_bookmarked_page = 1 }
+	
+	set_country_flag = HIE_debug_popout
+	
 	add_to_variable = { HIE_ASPJ_dirty_var = 0.01 }
 }
 
@@ -128,6 +135,11 @@ HIE_Alchemical_Superproject_start = {
 	add_to_array = { HIE_placed_ingredients_y = 60 }
 	add_to_array = { HIE_placed_ingredients_y = 319 }
 	add_to_array = { HIE_placed_ingredients_y = 319 }
+	
+	# Journal
+	clear_array = HIE_JRNL_dummy_array
+	add_to_array = { HIE_JRNL_dummy_array = 0 }
+	set_variable = { HIE_JRNL_bookmarked_page = 1 }
 	
 	add_to_variable = { HIE_ASPJ_dirty_var = 0.01 }
 	
@@ -313,4 +325,84 @@ HIE_ASPJ_add_ingredient = {
 c_HIE_ASPJ_add_ingredient = {
 	set_temp_variable = { temp_ingredient = args^0 }
 	HIE_ASPJ_add_ingredient = yes
+}
+
+##################
+### Le Journal ###
+##################
+
+HIE_JRNL_clr_popup_vars = { # Closes the popup tab
+	clear_variable = HIE_JRNL_ze_selected
+	clear_variable = HIE_JRNL_eq_selected
+	clear_variable = HIE_JRNL_gr_selected
+}
+
+HIE_JRNL_calculate_odds_of_success = {
+	set_variable = { HIE_JRNL_success_odds = HIE_JRNL_base_success_odds } 
+	# Add more things here
+	clamp_variable = { var = HIE_JRNL_success_odds min = 0 max = 1 }
+}
+
+HIE_JRNL_init_expedition = { # Expeditions are where you follow one path and cannot deviate from that until you find all the ingredients
+	set_variable = { HIE_JRNL_active_expedition = temp_active_expedition }
+}
+
+HIE_JRNL_start_activity = { # Searches are places where you look for the ingredients themselves
+	set_country_flag = HIE_JRNL_is_in_activity
+	if = {
+		limit = {
+			has_variable = HIE_JRNL_ze_selected
+		}
+		set_variable = { HIE_JRNL_ongoing_activity = HIE_JRNL_ze_selected }
+	}
+	else_if = {
+		limit = {
+			has_variable = HIE_JRNL_eq_selected
+		}
+		set_variable = { HIE_JRNL_ongoing_activity = HIE_JRNL_eq_selected }
+	}
+	else_if = {
+		limit = {
+			has_variable = HIE_JRNL_gr_selected
+		}
+		set_variable = { HIE_JRNL_ongoing_activity = HIE_JRNL_gr_selected }
+	}
+	
+	#HIE_JRNL_evaluate_buddy_odds = yes
+
+	set_temp_variable = { temp_success_chance = 100 }
+	set_temp_variable = { temp_fail_chance = 100 }
+
+	multiply_temp_variable = { temp_success_chance = HIE_JRNL_success_odds }
+	subtract_from_temp_variable = { temp_fail_chance = temp_success_chance }
+	random_list = {
+		temp_success_chance = {
+			meta_effect = { # Meta effects are in `EAW_HIE_scripted_localisation`
+				text = {
+					country_event = { id = [JRNL_REGION].[JRNL_VAR] days = 60 }
+				}
+				JRNL_REGION = "[HIE_JRNL_ME_namespace]"
+				JRNL_VAR = "[?HIE_JRNL_ongoing_activity|.0]"
+			}
+			log = "[ROOT.Getname]: [HIE_JRNL_ME_namespace].[?HIE_JRNL_ongoing_activity] Succeeded with [?temp_success_chance]% odds of success"
+		}
+		temp_fail_chance = {
+			meta_effect = {
+				text = {
+					country_event = { id = [JRNL_REGION].0 days = 60 }
+				}
+				JRNL_REGION = "[HIE_JRNL_ME_namespace]"
+			}
+			log = "[ROOT.Getname]: failed with [?temp_fail_chance]% odds of failure"
+		}
+	}
+	HIE_JRNL_clr_popup_vars = yes
+}
+
+#HIE_JRNL_evaluate_buddy_odds = {
+
+HIE_JRNL_expedition_clean = { # Fired through events
+	clr_country_flag = HIE_JRNL_is_in_activity
+	clear_variable = HIE_JRNL_ongoing_activity
+	clear_variable = HIE_JRNL_success_odds
 }
