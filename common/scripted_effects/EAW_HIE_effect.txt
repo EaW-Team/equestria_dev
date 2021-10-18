@@ -336,16 +336,22 @@ HIE_JRNL_clr_popup_vars = { # Closes the popup tab
 	clear_variable = HIE_JRNL_eq_selected
 	clear_variable = HIE_JRNL_gr_selected
 	clear_variable = HIE_JRNL_time_event_delay
+	clear_variable = HIE_JRNL_odds_invested_pp
+	clear_variable = HIE_JRNL_odds_invested_pp_result
+	clr_country_flag = HIE_JRNL_invest_pp_open
 }
 
 HIE_JRNL_calculate_odds_of_success = {
 	set_variable = { HIE_JRNL_success_odds = HIE_JRNL_base_success_odds } 
-	# Buddy system + modifiers
-	# Add more things here
+	# TODO: Buddy system(?)
+	
+	add_to_variable = { HIE_JRNL_success_odds = HIE_JRNL_odds_invested_pp_result }
+	add_to_variable = { HIE_JRNL_success_odds = modifier@HIE_JRNL_expedition_success_odds_factor }
 	clamp_variable = { var = HIE_JRNL_success_odds min = 0 max = 1 }
 }
 
 HIE_JRNL_init_expedition = { # Expeditions are where you follow one path and cannot deviate from that until you find all the ingredients
+	custom_effect_tooltip = HIE_JRNL_init_expedition_tt
 	set_variable = { HIE_JRNL_active_expedition = temp_active_expedition }
 }
 
@@ -370,11 +376,22 @@ HIE_JRNL_start_activity = { # Searches are places where you look for the ingredi
 		set_variable = { HIE_JRNL_ongoing_activity = HIE_JRNL_gr_selected }
 	}
 
+	# Spend Invested PP
+	multiply_variable = { HIE_JRNL_odds_invested_pp = -1 }
+	add_political_power = HIE_JRNL_odds_invested_pp
+	
+	# Calculate RNG
 	set_temp_variable = { temp_success_chance = 100 }
 	set_temp_variable = { temp_fail_chance = 100 }
-
 	multiply_temp_variable = { temp_success_chance = HIE_JRNL_success_odds }
 	subtract_from_temp_variable = { temp_fail_chance = temp_success_chance }
+	
+	# Take into account modifiers for time taken # TODO: Uncomment when testing is finished.
+	#set_temp_variable = { temp_time_taken = 1 }
+	#add_to_temp_variable = { temp_time_taken = modifier@HIE_JRNL_expedition_speed_factor }
+	#multiply_variable = { HIE_JRNL_time_event_delay = temp_time_taken }
+	
+	# The RNG script (I hate paradox's RNG)
 	random_list = {
 		temp_success_chance = {
 			meta_effect = { # Meta effects are in `EAW_HIE_scripted_localisation`
