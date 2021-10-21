@@ -1,0 +1,593 @@
+scripted_gui = {
+	eaw_HIE_ASPJ_open_button = {
+		window_name = "EaW_HIE_ASPJ_open"
+		context_type = player_context
+		parent_window_token = top_bar
+		visible = { 
+			has_country_flag = HIE_ASPJ_is_active
+			original_tag = HIE
+		}
+		effects = {
+			button_open_click = {
+				if = {
+					limit = {
+						has_country_flag = HIE_ASPJ_open
+					}
+					clr_country_flag = HIE_ASPJ_open
+				}
+				else = { set_country_flag = HIE_ASPJ_open }
+				add_to_variable = { HIE_ASPJ_dirty_var = 0.01 }
+				clr_country_flag = HIE_ASPJ_arrows_show
+			}
+			button_book_open_click = {
+				if = {
+					limit = { has_variable = HIE_JRNL_book_frame }
+					clear_variable = HIE_JRNL_book_frame
+					clear_variable = HIE_JRNL_selected_page
+					HIE_JRNL_clr_popup_vars = yes
+				}
+				else = { set_variable = { HIE_JRNL_book_frame = 1 } }
+			}
+		}
+		triggers = {
+			button_alert_visible = {
+				has_country_flag = HIE_ASPJ_arrows_show
+			}
+			progbar_30_visible = {
+				has_country_flag = HIE_ASPJ_30days_cooldown
+			}
+			progbar_90_visible = {
+				has_country_flag = HIE_ASPJ_90days_cooldown
+			}
+			button_open_click_enabled = {
+				NOT = { has_country_flag = HIE_ASPJ_cooldown }
+			}
+		}
+		properties = {
+			progbar_30 = { frame = HIE_ASPJ_days_remaining_cooldown }
+			progbar_90 = { frame = HIE_ASPJ_days_remaining_cooldown }
+		}
+	}
+	eaw_HIE_Alchemical_Superprojects = {
+		window_name = "EaW_HIE_Alchemical_Superprojects"
+		context_type = player_context
+		dirty = HIE_ASPJ_dirty_var
+		visible = {
+			has_country_flag = HIE_ASPJ_open
+			original_tag = HIE
+		}
+		effects = {
+			ingredient_placed_img_click = {
+				set_variable = { HIE_ASPJ_selected_formula = HIE_PING_i } 
+				add_to_variable = { HIE_ASPJ_dirty_var = 0.01 }
+			}
+			ingredient_placed_img_right_click = {
+				if = {
+					limit = {
+						check_variable = { HIE_placed_ingredients^HIE_PING_i > 0 }
+					}
+					add_to_array = { HIE_ASPJ_ingredientlist = HIE_placed_ingredients^HIE_PING_i }
+					set_variable = { HIE_placed_ingredients^HIE_PING_i = 0 }
+				}
+				add_to_variable = { HIE_ASPJ_dirty_var = 0.01 }
+			}
+			created_concoction_click = {
+				if = {
+					limit = { NOT = { has_variable = HIE_created_concoction } }
+					HIE_ASPJ_evaluate_recipe = yes
+				}
+				else = {
+					HIE_ASPJ_fire_concoction_event = yes
+				}
+				add_to_variable = { HIE_ASPJ_dirty_var = 0.01 }
+			}
+		}
+		triggers = {
+			ingredient_placed_img_click_enabled = {
+				NOT = {
+					has_variable = HIE_created_concoction
+					has_country_flag = HIE_ASPJ_cooldown
+				}
+				check_variable = { HIE_ASPJ_ingredientlist^num > 0 }
+			}
+			complete_fire_visible = { has_variable = HIE_created_concoction }
+			created_concoction_visible = {
+				NOT = {
+					is_in_array = { array = HIE_placed_ingredients value = 0 }
+				}
+			}
+		}
+		properties = {
+			ingredient_placed_img = {
+				image = "GFX_HIE_ASPJ_ing_[?HIE_placed_ingredients^HIE_PING_i]"
+				x = HIE_placed_ingredients_x^HIE_PING_i
+				y = HIE_placed_ingredients_y^HIE_PING_i
+			}
+			created_concoction = {
+				image = "GFX_HIE_ASPJ_conct_[?HIE_created_concoction]"
+			}
+		}
+		dynamic_lists = {
+			ingredient_placed_gridbox = {
+				array = HIE_placed_ingredients
+				index = HIE_PING_i
+				entry_container = HIE_placed_ingredient_entry
+			}
+		}
+	}
+	eaw_HIE_Alchemical_Superprojects_window = {
+		window_name = "EaW_HIE_Alchemical_Superprojects_selection"
+		context_type = player_context
+		parent_window_name = "EaW_HIE_Alchemical_Superprojects"
+		visible = { has_variable = HIE_ASPJ_selected_formula }
+		dirty = HIE_ASPJ_dirty_var
+		dynamic_lists = {
+			ingredients_gridbox = {
+				array = HIE_ASPJ_ingredientlist
+				value = Ingredients_v
+				entry_container = HIE_Ingredients_list_entry
+			}
+		}
+		properties = {
+			ingredient_img = { image = "GFX_HIE_ASPJ_ing_[?Ingredients_v]" }
+		}
+		triggers = {
+			ingredient_img_click_enabled = {
+				NOT = { has_variable = HIE_created_concoction }
+			}
+		}
+		effects = {
+			ingredient_img_click = {
+				if = {
+					limit = {
+						check_variable = { HIE_placed_ingredients^HIE_ASPJ_selected_formula > 0 }
+					}
+					add_to_array = { HIE_ASPJ_ingredientlist = HIE_placed_ingredients^HIE_ASPJ_selected_formula }
+				}
+				set_variable = { HIE_placed_ingredients^HIE_ASPJ_selected_formula = Ingredients_v }
+				remove_from_array = { HIE_ASPJ_ingredientlist = Ingredients_v }
+				clear_variable = HIE_ASPJ_selected_formula
+				add_to_variable = { HIE_ASPJ_dirty_var = 0.01 }
+			}
+		}
+	}
+	
+	### BOOK JOURNAL SECTION ###
+	eaw_HIE_Journal_window = {
+		window_name = "EaW_HIE_Journal_window"
+		context_type = player_context
+		visible = { has_variable = HIE_JRNL_book_frame }
+		properties = {
+			book_backdrop = {
+				frame = HIE_JRNL_book_frame
+			}
+		}
+		triggers = {
+			flip_page_forward_visible = {
+				check_variable = { HIE_JRNL_selected_page < 4 }
+			}
+			flip_page_backward_visible = {
+				NOT = { check_variable = { HIE_JRNL_book_frame = 1 } }
+			}
+			
+			# Bookmarks
+			bookmark_front_visible = {
+				check_variable = { HIE_JRNL_bookmarked_page < HIE_JRNL_selected_page }
+			}
+			bookmark_back_visible = {
+				check_variable = { HIE_JRNL_bookmarked_page > HIE_JRNL_selected_page }
+			}
+			bookmark_front_right_click_enabled = {
+				check_variable = { HIE_JRNL_selected_page > 0 }
+			}
+			bookmark_back_right_click_enabled = {
+				check_variable = { HIE_JRNL_selected_page > 0 }
+			}
+			eq_expedition_enroute_label_visible = {
+				has_country_flag = HIE_JRNL_is_in_activity
+				check_variable = { HIE_JRNL_book_frame = 2 }
+			}
+			eq_expedition_active_label_visible = {
+				has_variable = HIE_JRNL_active_expedition
+				check_variable = { HIE_JRNL_book_frame = 2 }
+			}
+			eq_expedition_active_label_click_enabled = {
+				NOT = { 
+					has_country_flag = HIE_JRNL_is_in_activity
+					has_variable = HIE_JRNL_ze_selected
+					has_variable = HIE_JRNL_eq_selected
+					has_variable = HIE_JRNL_gr_selected
+				}
+			}
+		}
+		effects = {
+			flip_page_backward_click = {
+				if = {
+					limit = {
+						check_variable = { HIE_JRNL_selected_page = 1 }
+					}
+					set_variable = { HIE_JRNL_book_frame = 1 }
+				}
+				
+				add_to_variable = { HIE_JRNL_selected_page = -1 }
+			}
+			flip_page_backward_right_click = {
+				set_variable = { HIE_JRNL_selected_page = 1 }
+			}
+			flip_page_forward_click = {
+				if = {
+					limit = {
+						check_variable = { HIE_JRNL_book_frame = 1 }
+					}
+					set_variable = { HIE_JRNL_book_frame = 2 }
+				}
+				
+				add_to_variable = { HIE_JRNL_selected_page = 1 }
+			}
+			
+			# Bookmarks
+			bookmark_front_click = { set_variable = { HIE_JRNL_selected_page = HIE_JRNL_bookmarked_page } set_variable = { HIE_JRNL_book_frame = 2 } }
+			bookmark_back_click = { set_variable = { HIE_JRNL_selected_page = HIE_JRNL_bookmarked_page } set_variable = { HIE_JRNL_book_frame = 2 } }
+			bookmark_front_right_click = { set_variable = { HIE_JRNL_bookmarked_page = HIE_JRNL_selected_page } set_variable = { HIE_JRNL_book_frame = 2 } }
+			bookmark_back_right_click = { set_variable = { HIE_JRNL_bookmarked_page = HIE_JRNL_selected_page } set_variable = { HIE_JRNL_book_frame = 2 } }
+			
+			eq_expedition_active_label_right_click = {
+				country_event = { id = hippone_jrnl_zeb.1999 days = 60 }
+				set_country_flag = HIE_JRNL_is_in_activity
+				log = "[ROOT.Getname]: Backing out of expedition"
+			}
+		}
+		dynamic_lists = {
+			journal_contents = {
+				array = HIE_JRNL_dummy_array
+				entry_container = "HIE_page_[?HIE_JRNL_selected_page]"
+			}
+		}
+
+
+		# TABLE OF CONTENTS # `HIE_JRNL_selected_page = 1`
+
+		effects = {
+			contents_1_click = {
+				set_variable = { HIE_JRNL_selected_page = 2 }
+			}
+			contents_2_click = {
+				set_variable = { HIE_JRNL_selected_page = 3 }
+			}
+			contents_3_click = {
+				set_variable = { HIE_JRNL_selected_page = 4 }
+			}
+		}
+
+		# ZEBRICA # `HIE_JRNL_selected_page = 2`
+
+		# EQUUS # `HIE_JRNL_selected_page = 3`
+
+		triggers = {
+			# Starts # country flags are set by events
+			eq_start_hjortland_click_enabled = {
+				NOT = {
+					has_country_flag = HIE_JRNL_is_in_activity
+					has_variable = HIE_JRNL_active_expedition # Starts cannot have an active expedition.
+					has_country_flag = HIE_JRNL_eq_2_DONE
+				}
+			}
+			eq_start_weter_click_enabled = {
+				NOT = {
+					has_country_flag = HIE_JRNL_is_in_activity
+					has_variable = HIE_JRNL_active_expedition
+				}
+			}
+			
+			# Dragon Islands
+			eq_search_dragon_islands_click_enabled = {
+				NOT = {
+					has_country_flag = HIE_JRNL_is_in_activity
+					has_country_flag = HIE_JRNL_eq_1_DONE
+				}
+			}
+			
+			# Hjortland expedition line
+			eq_hjortland_expedition_return_visible = {
+				has_country_flag = HIE_JRNL_eq_2_DONE
+				NOT = {
+					has_variable = HIE_JRNL_active_expedition
+					has_country_flag = HIE_JRNL_eq_6_DONE
+				}
+			}
+			eq_hjortland_expedition_return_click_enabled = {
+				NOT = {
+					has_variable = HIE_JRNL_return_to_expedition
+					has_country_flag = HIE_JRNL_is_in_activity
+					has_variable = HIE_JRNL_ze_selected
+					has_variable = HIE_JRNL_eq_selected
+					has_variable = HIE_JRNL_gr_selected
+				}
+			}
+			
+			EQ_line1_1_visible = {
+				has_country_flag = HIE_JRNL_eq_2_DONE
+			}
+			eq_hjortland_search_hydra_tear_visible = {
+				has_country_flag = HIE_JRNL_eq_2_DONE
+			}
+			eq_hjortland_search_hydra_tear_click_enabled = {
+				check_variable = { HIE_JRNL_active_expedition = 1 }
+				NOT = {
+					has_country_flag = HIE_JRNL_is_in_activity
+					has_country_flag = HIE_JRNL_eq_3_DONE
+				}
+			}
+
+			EQ_line1_2_visible = {
+				has_country_flag = HIE_JRNL_eq_3_DONE
+			}
+			eq_hjortland_info_ditrysium_visible = {
+				has_country_flag = HIE_JRNL_eq_3_DONE
+			}
+			eq_hjortland_info_ditrysium_click_enabled = {
+				check_variable = { HIE_JRNL_active_expedition = 1 }
+				NOT = {
+					has_country_flag = HIE_JRNL_is_in_activity
+					has_country_flag = HIE_JRNL_eq_4_DONE
+				}
+			}
+			
+			EQ_line1_3_visible = {
+				has_country_flag = HIE_JRNL_eq_4_DONE
+			}
+			eq_hjortland_search_key_lake_visible = {
+				has_country_flag = HIE_JRNL_eq_4_DONE
+			}
+			eq_hjortland_search_key_lake_click_enabled = {
+				check_variable = { HIE_JRNL_active_expedition = 1 }
+				NOT = {
+					has_country_flag = HIE_JRNL_is_in_activity
+					has_country_flag = HIE_JRNL_eq_5_DONE
+				}
+			}
+			
+			EQ_line1_4_visible = {
+				has_country_flag = HIE_JRNL_eq_5_DONE
+			}
+			eq_hjortland_search_whitehooves_visible = {
+				has_country_flag = HIE_JRNL_eq_5_DONE
+			}
+			eq_hjortland_search_whitehooves_click_enabled = {
+				check_variable = { HIE_JRNL_active_expedition = 1 }
+				NOT = {
+					has_country_flag = HIE_JRNL_is_in_activity
+					has_country_flag = HIE_JRNL_eq_6_DONE
+				}
+			}
+			
+			# Manehattan expedition line
+			eq_manehattan_expedition_return_visible = {
+				has_country_flag = HIE_JRNL_eq_7_done
+				NOT = {
+					has_variable = HIE_JRNL_active_expedition
+					#has_country_flag =
+				}
+			}
+			eq_manehattan_expedition_return_click_enabled = {
+				NOT = {
+					has_variable = HIE_JRNL_return_to_expedition
+					has_country_flag = HIE_JRNL_is_in_activity
+					has_variable = HIE_JRNL_ze_selected
+					has_variable = HIE_JRNL_eq_selected
+					has_variable = HIE_JRNL_gr_selected
+				}
+			}
+			
+			eq_start_manehattan_click_enabled = {
+				NOT = {
+					has_country_flag = HIE_JRNL_is_in_activity
+					has_variable = HIE_JRNL_active_expedition
+					has_country_flag = HIE_JRNL_eq_7_done
+				}
+			}
+			
+			EQ_line2_1_visible = {
+				has_country_flag = HIE_JRNL_eq_7_done
+			}
+			eq_manehattan_info_bales_visible = {
+				has_country_flag = HIE_JRNL_eq_7_done
+			}
+			eq_manehattan_info_bales_click_enabled = {
+				check_variable = { HIE_JRNL_active_expedition = 2 }
+				NOT = {
+					has_country_flag = HIE_JRNL_is_in_activity
+					has_country_flag = HIE_JRNL_eq_8_DONE
+				}
+			}
+		}
+
+		effects = {
+			# Dragon Islands
+			eq_search_dragon_islands_click = {
+				HIE_JRNL_clr_popup_vars = yes
+				set_variable = { HIE_JRNL_eq_selected = 1 }
+				set_variable = { HIE_JRNL_base_success_odds = 0.35 }
+				set_variable = { HIE_JRNL_time_event_delay = 21 }
+				HIE_JRNL_calculate_odds_of_success = yes
+			}
+			
+			# Hjortland Expedition line
+			eq_hjortland_expedition_return_click = {
+				set_variable = { HIE_JRNL_return_to_expedition = 1 }
+				set_country_flag = HIE_JRNL_is_in_activity
+				country_event = { id = hippone_jrnl_zeb.2000 days = 60 }
+			}
+
+			eq_start_hjortland_click = {
+				HIE_JRNL_clr_popup_vars = yes
+				set_variable = { HIE_JRNL_eq_selected = 2 }
+				set_variable = { HIE_JRNL_base_success_odds = 1 }
+				HIE_JRNL_calculate_odds_of_success = yes
+				set_variable = { HIE_JRNL_time_event_delay = 40 }
+			}
+			eq_hjortland_search_hydra_tear_click = {
+				HIE_JRNL_clr_popup_vars = yes
+				set_variable = { HIE_JRNL_eq_selected = 3 }
+				set_variable = { HIE_JRNL_base_success_odds = 0.45 }
+				HIE_JRNL_calculate_odds_of_success = yes
+				set_variable = { HIE_JRNL_time_event_delay = 14 }
+			}
+			eq_hjortland_info_ditrysium_click = {
+				HIE_JRNL_clr_popup_vars = yes
+				set_variable = { HIE_JRNL_eq_selected = 4 }
+				set_variable = { HIE_JRNL_base_success_odds = 0.75 }
+				HIE_JRNL_calculate_odds_of_success = yes
+				set_variable = { HIE_JRNL_time_event_delay = 60 }
+			}
+			eq_hjortland_search_key_lake_click = {
+				HIE_JRNL_clr_popup_vars = yes
+				set_variable = { HIE_JRNL_eq_selected = 5 }
+				set_variable = { HIE_JRNL_base_success_odds = 0.8 }
+				HIE_JRNL_calculate_odds_of_success = yes
+				set_variable = { HIE_JRNL_time_event_delay = 50 }
+			}
+			eq_hjortland_search_whitehooves_click = {
+				HIE_JRNL_clr_popup_vars = yes
+				set_variable = { HIE_JRNL_eq_selected = 6 }
+				set_variable = { HIE_JRNL_base_success_odds = 0.4 }
+				HIE_JRNL_calculate_odds_of_success = yes
+				set_variable = { HIE_JRNL_time_event_delay = 30 }
+			}
+			
+			# Manehattan expedition line
+			eq_manehattan_expedition_return_click = {
+				set_variable = { HIE_JRNL_return_to_expedition = 2 }
+				set_country_flag = HIE_JRNL_is_in_activity
+				country_event = { id = hippone_jrnl_zeb.2000 days = 60 }
+			}
+			eq_start_manehattan_click = {
+				HIE_JRNL_clr_popup_vars = yes
+				set_variable = { HIE_JRNL_eq_selected = 7 }
+				set_variable = { HIE_JRNL_base_success_odds = 0.85 }
+				HIE_JRNL_calculate_odds_of_success = yes
+				set_variable = { HIE_JRNL_time_event_delay = 60 }
+			}
+			eq_manehattan_info_bales_click = {
+				set_variable = { HIE_JRNL_eq_selected = 8 }
+				set_variable = { HIE_JRNL_base_success_odds = 0.5 }
+				HIE_JRNL_calculate_odds_of_success = yes
+				set_variable = { HIE_JRNL_time_event_delay = 30 }
+			}
+		}
+
+		# GRIFFONIA # `HIE_JRNL_selected_page = 4`
+
+	}
+	
+	eaw_HIE_Journal_popout = {
+		window_name = "EaW_HIE_Journal_popout"
+		context_type = player_context
+		visible = {
+			OR = {
+				has_variable = HIE_JRNL_ze_selected
+				has_variable = HIE_JRNL_eq_selected
+				has_variable = HIE_JRNL_gr_selected
+			}
+		}
+		triggers = {
+			invest_pp_visible = {
+				OR = {
+					check_variable = { HIE_JRNL_success_odds < 1 }
+					check_variable = { HIE_JRNL_odds_invested_pp > 0 }
+				}
+			}
+		}
+		effects = {
+			launch_expedition_btn_click = {
+				HIE_JRNL_start_activity = yes
+			}
+			close_btn_click = {
+				HIE_JRNL_clr_popup_vars = yes
+			}
+			invest_pp_click = {
+				if = {
+					limit = {
+						has_country_flag = HIE_JRNL_invest_pp_open
+					}
+					clr_country_flag = HIE_JRNL_invest_pp_open
+				}
+				else = {
+					set_country_flag = HIE_JRNL_invest_pp_open
+				}
+			}
+		}
+	}
+	eaw_HIE_JRNL_popout_invest_pp = {
+		window_name = "EaW_HIE_JRNL_popout_invest_pp"
+		parent_window_name = "EaW_HIE_Journal_popout"
+		context_type = player_context
+		visible = { has_country_flag = HIE_JRNL_invest_pp_open }
+		triggers = {
+			invest_pp_plus_click_enabled = {
+				set_temp_variable = { temp_pp_invest_amount = HIE_JRNL_odds_invested_pp }
+				add_to_temp_variable = { temp_pp_invest_amount = 7.5 }
+
+				has_political_power > temp_pp_invest_amount
+				check_variable = { HIE_JRNL_success_odds < 1 }
+			}
+			invest_pp_plus_right_click_enabled = {
+				set_temp_variable = { temp_pp_invest_amount = HIE_JRNL_odds_invested_pp }
+				add_to_temp_variable = { temp_pp_invest_amount = 15 }
+
+				has_political_power > temp_pp_invest_amount
+
+				set_temp_variable = { temp_pp_future_success_odds = HIE_JRNL_success_odds }
+				add_to_temp_variable = { temp_pp_future_success_odds = 0.05 }
+
+				check_variable = {
+					var = temp_pp_future_success_odds
+					value = 1
+					compare = less_than_or_equals
+				}
+			}
+			invest_pp_minus_click_enabled = {
+				set_temp_variable = { temp_pp_invest_amount = HIE_JRNL_odds_invested_pp }
+				subtract_from_temp_variable = { temp_pp_invest_amount = 7.5 }
+
+				check_variable = {
+					var = temp_pp_invest_amount
+					value = 0
+					compare = greater_than_or_equals
+				}
+			}
+			invest_pp_minus_right_click_enabled = {
+				set_temp_variable = { temp_pp_invest_amount = HIE_JRNL_odds_invested_pp }
+				subtract_from_temp_variable = { temp_pp_invest_amount = 15 }
+
+				check_variable = {
+					var = temp_pp_invest_amount
+					value = 0
+					compare = greater_than_or_equals
+				}
+			}
+		}
+		effects = {
+			invest_pp_plus_click = {
+				add_to_variable = { HIE_JRNL_odds_invested_pp = 7.5 }
+				add_to_variable = { HIE_JRNL_odds_invested_pp_result = 0.025 }
+				HIE_JRNL_calculate_odds_of_success = yes
+			}
+			invest_pp_plus_right_click = {
+				add_to_variable = { HIE_JRNL_odds_invested_pp = 15 }
+				add_to_variable = { HIE_JRNL_odds_invested_pp_result = 0.05 }
+				HIE_JRNL_calculate_odds_of_success = yes
+			}
+			invest_pp_minus_click = {
+				subtract_from_variable = { HIE_JRNL_odds_invested_pp = 7.5 }
+				subtract_from_variable = { HIE_JRNL_odds_invested_pp_result = 0.025 }
+				HIE_JRNL_calculate_odds_of_success = yes
+			}
+			invest_pp_minus_right_click = {
+				subtract_from_variable = { HIE_JRNL_odds_invested_pp = 15 }
+				subtract_from_variable = { HIE_JRNL_odds_invested_pp_result = 0.05 }
+				HIE_JRNL_calculate_odds_of_success = yes
+			}
+		}
+	}
+}
