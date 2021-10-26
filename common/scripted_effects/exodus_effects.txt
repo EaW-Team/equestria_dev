@@ -1,11 +1,11 @@
 ############################
-##     Project Exodus     ##
-##       By HappyNTH      ##
+##    Project EqExodus    ##
+##      By HappyNTH       ##
 ############################
 
 ## Exodus Input Calculations ##
 # Core Vars #
-@core_refugee_base = 0.08
+@core_refugee_base = 0.04
 @core_nomadicity = 2
 @core_occupier_modifier = 0.8
 @core_has_core = 0.85
@@ -14,6 +14,9 @@
 @core_appeal = 2.2
 @core_distance_divisor = 100
 @core_destruction_divisor = 1.4
+@nomadicity_mod_multi = 0.75
+@occupier_appeal_mod_multi = 0.75
+@national_appeal_mod_multi = 0.75
 # Global Var Setting #
 exodus_intialize_global_variables = {
 	set_variable = { global.core_refugee_base = @core_refugee_base }
@@ -24,6 +27,9 @@ exodus_intialize_global_variables = {
 	set_variable = { global.core_appeal = @core_appeal }
 	set_variable = { global.core_building_elasticity = @core_building_elasticity }
 	set_variable = { global.core_distance_divisor = @core_distance_divisor }
+	set_variable = { global.nomadicity_modifier_factor = @nomadicity_mod_multi }
+	set_variable = { global.occupier_modifier_factor = @occupier_appeal_mod_multi }
+	set_variable = { global.appeal_modifier_factor = @national_appeal_mod_multi }
 }
 # Occupier Appeal : ADDITIVE #
 exodus_calculate_occupier_appeal = { # Called in STATE SCOPE
@@ -48,7 +54,10 @@ exodus_calculate_occupier_appeal = { # Called in STATE SCOPE
 	if = { limit = { has_global_flag = exodus_debug } log = "EXODUS - occupier_appeal: stability impact of [?stab_impact] applied" }
 	# Add modifier from new occupier's ideas etc
 	if = { limit = { has_global_flag = exodus_debug } log = "EXODUS - occupier_appeal: new owner's generic modifier of [?global.exodus_new_owner:modifier@exodus_occupier_appeal] applied" }
-	add_to_variable = { var = occupier_appeal value = global.exodus_new_owner:modifier@exodus_occupier_appeal } # Between -1 and 1, so used raw
+	set_temp_variable = { var = occupier_appeal_temp_mod value = ROOT.exodus_new_owner:modifier@exodus_occupier_appeal }
+	multiply_temp_variable = { occupier_appeal_temp_mod = global.occupier_modifier_factor }
+	clamp_temp_variable = { var = occupier_appeal_temp_mod min = -1 max = 1 }
+	add_to_variable = { var = occupier_appeal value = occupier_appeal_temp_mod }
 	if = { limit = { has_global_flag = exodus_debug } log = "EXODUS - occupier_appeal: Sub-Total of Appeal is [?occupier_appeal]" }
 	## Clamp occupier appeal
 	clamp_variable = { var = occupier_appeal min = 0.02 }
@@ -67,7 +76,10 @@ exodus_calculate_nomadicity = { # Called in STATE SCOPE
 	## Mixed / Generic Factors
 	# Add modifier from old occupier's ideas etc
 	if = { limit = { has_global_flag = exodus_debug } log = "EXODUS - nomadicity: old owner's generic modifier of [?global.exodus_old_owner:modifier@exodus_nomadicity] applied" }
-	add_to_variable = { var = nomadicity value = global.exodus_old_owner:modifier@exodus_nomadicity }
+	set_temp_variable = { var = nomadicity_temp_mod value = ROOT.exodus_old_owner:modifier@exodus_nomadicity }
+	multiply_temp_variable = { nomadicity_temp_mod = global.nomadicity_modifier_factor }
+	clamp_temp_variable = { var = nomadicity_temp_mod min = -1 max = 1 }
+	add_to_variable = { var = nomadicity value = nomadicity_temp_mod }
 	if = { limit = { has_global_flag = exodus_debug } log = "EXODUS - nomadicity: Final Nomadicity is [?nomadicity]" }
 	## Clamp nomadicity
 	clamp_variable = { var = nomadicity min = 0 }
@@ -146,20 +158,6 @@ exodus_add_core_targets = {
 	}
 	if = { limit = { has_global_flag = exodus_debug } log = "EXODUS - exodus_add_core_targets: end" }
 }
-exodus_add_expanded_targets = {
-	if = { limit = { has_global_flag = exodus_debug } log = "EXODUS - exodus_add_expanded_targets: start" }
-	#if = { # Allow island-hopping on the Pacific coastline
-	#	limit = {
-	#		OR = {
-	#			var:global.exodus_old_owner = { any_owned_state = { is_coastal_to_the_pacific_ocean = yes } }
-	#			var:global.exodus_new_owner = { any_owned_state = { is_coastal_to_the_pacific_ocean = yes } }
-	#		}
-	#	}
-	#	if = { limit = { VIC = { exists = yes } } add_to_array = { global.exodus_valid_targets = VIC.id } }
-	#	if = { limit = { HAI = { exists = yes } } add_to_array = { global.exodus_valid_targets = HAI.id } }
-	#}
-	if = { limit = { has_global_flag = exodus_debug } log = "EXODUS - exodus_add_expanded_targets: end" }
-}
 ## Exodus Weight Calculations : MULTIPLICATIVE ##
 exodus_weight_targets = { # Called in STATE SCOPE
 	if = { limit = { has_global_flag = exodus_debug } log = "EXODUS - weight_states: STARTING CALCULATION" }
@@ -198,9 +196,11 @@ exodus_weight_targets = { # Called in STATE SCOPE
 		## Mixed / Generic Factors
 		# Modifiers
 		if = { limit = { has_global_flag = exodus_debug } log = "EXODUS - weight_states: multiplicative weight factored in" }
-		set_temp_variable = { exodus_national_appeal_temp = THIS:modifier@exodus_national_appeal }
-		add_to_temp_variable = { exodus_national_appeal_temp = 1 } # Modifier is -1 to 1, this makes it 0 to 2
-		multiply_variable = { exodus_national_appeal = exodus_national_appeal_temp }
+		set_temp_variable = { exodus_national_appeal_modifier_temp = THIS:modifier@exodus_national_appeal }
+		add_to_temp_variable = { exodus_national_appeal_modifier_temp = 1 } # Modifier is -1 to 1, this makes it 0 to 2
+		multiply_temp_variable = { exodus_national_appeal_modifier_temp = global.appeal_modifier_factor }
+		clamp_temp_variable = { var = exodus_national_appeal_modifier_temp min = 0 max = 2 }
+		multiply_variable = { exodus_national_appeal = exodus_national_appeal_modifier_temp }
 		# Distance
 		var:global.exodus_old_owner = {
 			PREV = {
@@ -477,7 +477,6 @@ exodus_with_set_proportion = {
 	custom_effect_tooltip = exodus_with_set_proportion_tt
 	hidden_effect = {
 		exodus_add_core_targets = yes
-		exodus_add_expanded_targets = yes
 		exodus_weight_targets = yes
 		exodus_remove_from_target = yes
 		exodus_reallocate_all = yes
@@ -523,9 +522,9 @@ exodus_add_refugees = {
 # set_temp_variable = { refugee_origin = y } <--> STATE ID OF ORIGIN
 # exodus_send_refugees_to_THIS = yes
 exodus_send_refugees_to_THIS = {
+	multiply_temp_variable = { refugees_to_add = -1 }
 	custom_effect_tooltip = exodus_send_refugees_to_THIS_tt
 	var:refugee_origin = {
-		multiply_temp_variable = { refugees_to_add = -1 }
 		owner = { save_current_manpower = yes }
 		add_manpower = refugees_to_add
 		owner = { restore_previous_manpower = yes }
