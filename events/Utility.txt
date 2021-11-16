@@ -56,8 +56,8 @@ country_event = { ### Nuke handling
 			}
 			add_state_modifier = {
 				modifier = {
-					local_supplies = -0.35
-					local_factories = -0.15
+					local_supplies = 0.35
+					local_factories = 0.15
 				}
 			}
 			clr_state_flag = nuke_modifier
@@ -264,26 +264,47 @@ country_event = { ### SOL
 	trigger = {
 		is_ai = yes
 		is_subject = yes
-		check_variable = { num_owned_states = 1 }
-		capital_scope = {
-			is_coastal = no
-			is_island_state = no
-		}
-		check_variable = { neighbors^num = 1 }
-		overlord = {
-			is_ai = yes
-		}
-		any_neighbor_country = {
-			is_ai = yes
-			NOT = {
-				ROOT = { is_subject_of = PREV }
+		OR = {
+			AND = {
+				check_variable = { num_owned_states = 1 }
+				capital_scope = {
+					is_coastal = no
+					is_island_state = no
+				}
+				check_variable = { neighbors^num = 1 }
+				overlord = {
+					is_ai = yes
+				}
+				any_neighbor_country = {
+					is_ai = yes
+					NOT = {
+						ROOT = { is_subject_of = PREV }
+					}
+				}
+			}
+			AND = {
+				all_owned_state = {
+					NOT = { is_core_of = ROOT }
+				}
 			}
 		}
 	}
 	option = {
-		random_neighbor_country = {
-			limit = { is_ai = yes }
-			annex_country = { target = ROOT }
+		if = {
+			limit = {
+				all_owned_state = {
+					NOT = { is_core_of = ROOT }
+				}
+			}
+			overlord = {
+				annex_country = { target = ROOT }
+			}
+		}
+		else = {
+			random_neighbor_country = {
+				limit = { is_ai = yes }
+				annex_country = { target = ROOT }
+			}
 		}
 	}
 }
@@ -303,9 +324,6 @@ country_event = { ### Add compliance on diplo/event annex
 				}
 				NOT = { has_state_flag = annex_compliance_added }
 			}
-			set_temp_variable = {
-				ROOT.set_compliance = 0
-			}
 			for_each_loop = {
 				array = ROOT.annex_compliance
 				if = {
@@ -317,7 +335,7 @@ country_event = { ### Add compliance on diplo/event annex
 					}
 					var:v = {
 						set_temp_variable = {
-							ROOT.set_compliance = specific_annex_compliance
+							set_compliance = specific_annex_compliance
 						}
 					}
 					set_temp_variable = {
@@ -327,13 +345,9 @@ country_event = { ### Add compliance on diplo/event annex
 			}
 			if = {
 				limit = {
-					NOT = {
-						check_variable = {
-							ROOT.set_compliance = 0
-						}
-					}
+					has_variable = set_compliance
 				}
-				add_compliance = ROOT.set_compliance
+				add_compliance = set_compliance
 			}
 			else_if = {
 				limit = {
@@ -429,5 +443,29 @@ country_event = {
 		log = "[GetDateText]: [Root.GetName]: is disbanding 10% of their forces"
 		disband_units_fraction = yes
 		country_event = { id = utility.14 days = 20 random = 480 }
+	}
+}
+
+country_event = {
+	id = utility.15
+	immediate = { log = "[GetDateText]: [Root.GetName]: event utility.15" }
+	
+	hidden = yes
+	is_triggered_only = yes
+	
+	immediate = {
+		remove_from_attaches_arrays_do = yes
+	}
+}
+
+country_event = {
+	id = utility.16
+	immediate = { log = "[GetDateText]: [Root.GetName]: event utility.16" }
+	
+	hidden = yes
+	is_triggered_only = yes
+	
+	immediate = {
+		clear_puppet_wargoals_do = yes
 	}
 }

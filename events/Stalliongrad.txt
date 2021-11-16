@@ -1247,7 +1247,7 @@ country_event = { ## Creation of Socialist Union Faction
 		ai_chance = {
 			base = 50
 			modifier = {
-				factor = 0
+				factor = 100
 				is_historical_focus_on = yes
 			}
 		}
@@ -1258,7 +1258,7 @@ country_event = { ## Creation of Socialist Union Faction
 		ai_chance = {
 			base = 50
 			modifier = {
-				factor = 100
+				factor = 0
 				is_historical_focus_on = yes
 			}
 			modifier = {
@@ -1370,20 +1370,9 @@ country_event = { ## Indirect Support
 
 	is_triggered_only = yes
 
-	immediate = {
-		random_other_country = {
-			limit = {
-				original_tag = GRF
-				has_government = communism
-			}
-			save_event_target_as = GRF_commie
-		}
-	}
-
 	option = {
 		name = stalliongrad.51.a
-		send_equipment = { target = event_target:GRF_commie type = infantry_equipment amount = 1000 }
-		send_equipment = { target = event_target:GRF_commie type = fighter_equipment amount = 50 }
+		STG = { create_wargoal = { type = puppet_wargoal_focus target = GFF } }
 	}
 }
 country_event = { ## Communism in GRF
@@ -1449,32 +1438,29 @@ country_event = { ## Civil War Help
 
 	option = { # Actively Help
 		name = stalliongrad.54.a
-		ai_chance = { factor = 100 }
 		random_other_country = {
-			limit = {
-				has_civil_war = yes
-				has_government = communism
-				original_tag = EQS
-			}
-			country_event = {
-				id = stalliongrad.55 days = 2
-			}
+			limit = { original_tag = EQS }
+			STG = { create_wargoal = { type = puppet_wargoal_focus target = EQS } }
+		}
+		random_other_country = {
+			limit = { original_tag = NLR }
+			STG = { create_wargoal = { type = puppet_wargoal_focus target = NLR } }
 		}
 	}
-	option = { ## send_equipment
-		name = stalliongrad.54.b
-		ai_chance = { factor = 0 }
-		random_other_country = {
-			limit = {
-				has_civil_war = yes
-				has_government = communism
-				original_tag = EQS
-			}
-			country_event = {
-				id = stalliongrad.56 days = 2
-			}
-		}
-	}
+	#option = { ## send_equipment
+	#	name = stalliongrad.54.b
+	#	ai_chance = { factor = 0 }
+	#	random_other_country = {
+	#		limit = {
+	#			has_civil_war = yes
+	#			has_government = communism
+	#			original_tag = EQS
+	#		}
+	#		country_event = {
+	#			id = stalliongrad.56 days = 2
+	#		}
+	#	}
+	#}
 }
 country_event = { ## Civil War Help { Event for Equestria Triggered Above }
 	id = stalliongrad.55
@@ -1584,28 +1570,35 @@ country_event = { ## Union with EQS after EQS won the CivilWAr
 
 	is_triggered_only = yes
 
-	trigger = {
-		EQS = { has_government = communism }
-	}
-
 	option = { # stg owns equestria
 		name = stalliongrad.59.a
+		every_state = {
+			limit = { 
+				OR = {
+					is_core_of = EQS
+					is_in_array = {
+						state_original_cores = EQS
+					}
+				}
+			}
+			add_core_of = STG
+		}
 		EQS = {
-			country_event = { id = eqscom.12 days = 1 }
+			transfer_navy = {
+				target = ROOT
+			}
 		}
-		ai_chance = {
-			factor = 50
-		}
+		annex_country = { target = EQS transfer_troops = yes }
 	}
-	option = { # change tag to eqs
-		name = stalliongrad.59.b
-		EQS = {
-			country_event = { id = eqscom.13 days = 1 }
-		}
-		ai_chance = {
-			factor = 50
-		}
-	}
+	#option = { # change tag to eqs
+	#	name = stalliongrad.59.b
+	#	EQS = {
+	#		country_event = { id = eqscom.13 days = 1 }
+	#	}
+	#	ai_chance = {
+	#		factor = 50
+	#	}
+	#}
 }
 country_event = { ## Union with EQS after EQS won the CivilWAr
 	id = stalliongrad.60
@@ -1811,7 +1804,6 @@ country_event = {
 		transfer_state = 159
 		transfer_state = 167
 		transfer_state = 229
-		transfer_state = 67
 		transfer_state = 653
 		transfer_state = 662
 		transfer_state = 661
@@ -2436,7 +2428,7 @@ country_event = { ## Griffon Intervention
 		ai_chance = {
 			base = 70
 			modifier = {
-				factor = 0
+				factor = 100
 				is_historical_focus_on = yes
 			}
 		}
@@ -2446,7 +2438,7 @@ country_event = { ## Griffon Intervention
 		ai_chance = {
 			base = 30
 			modifier = {
-				factor = 100
+				factor = 0
 				is_historical_focus_on = yes
 			}
 		}
@@ -2614,6 +2606,7 @@ country_event = { ## Take STG cores
 	option = { #da
 		name = stalliongrad.103.a
 		STG = {
+			hidden_effect = { add_state_core = 67 }
 			transfer_state = 154
 			transfer_state = 155
 			transfer_state = 156
@@ -2890,9 +2883,57 @@ country_event = {
 			traits = {
 			}
 		}
+		add_popularity = {
+			ideology = communism
+			popularity = 0.2
+		}
 		if = {
 			limit = { is_subject_of = EQS }
 			end_puppet_this = yes
+			if = {
+				limit = {
+					has_war_with = NLR
+					NOT = {
+						any_owned_state = {
+							controller = {
+								OR = {
+									tag = NLR
+									is_subject_of = NLR
+									is_in_faction_with = NLR
+								}
+							}
+						}
+					}
+				}
+				set_country_flag = { flag = bypass_on_peaceconference_ended days = 1 value = 1 }
+				white_peace = NLR
+				hidden_effect = {
+					every_enemy_country = {
+						limit = {
+							is_in_faction_with = NLR
+						}
+						white_peace = ROOT
+					}
+				}
+			}
+		}
+		remove_opinion_modifier = {
+			target = EQS
+			modifier = friendly_government
+		}
+		add_opinion_modifier = {
+			target = EQS
+			modifier = hostility
+		}
+		EQS = {
+			remove_opinion_modifier = {
+				target = ROOT
+				modifier = friendly_government
+			}
+			add_opinion_modifier = {
+				target = ROOT
+				modifier = hostility
+			}
 		}
 		if = {
 			limit = { is_in_faction = yes is_faction_leader = no var:faction_leader = { NOT = { has_government = communism } } }
@@ -2905,6 +2946,7 @@ country_event = {
 			}
 			news_event = { days = 1 id = stalliongrad_news.106 }
 			country_event = stalliongrad.113
+			drop_cosmetic_tag = yes
 		}
 	}
 }
@@ -2923,6 +2965,57 @@ country_event = {
 		add_timed_idea = { days = 200 idea = STG_Nestor_Administration }
 		set_country_flag = vasya_coup
 		complete_national_focus = vasya_leader
+		set_politics = {
+			ruling_party = communism
+		}
+		if = {
+			limit = { is_subject_of = EQS }
+			end_puppet_this = yes
+			if = {
+				limit = {
+					has_war_with = NLR
+					NOT = {
+						any_owned_state = {
+							controller = {
+								OR = {
+									tag = NLR
+									is_subject_of = NLR
+									is_in_faction_with = NLR
+								}
+							}
+						}
+					}
+				}
+				set_country_flag = { flag = bypass_on_peaceconference_ended days = 1 value = 1 }
+				white_peace = NLR
+				hidden_effect = {
+					every_enemy_country = {
+						limit = {
+							is_in_faction_with = NLR
+						}
+						white_peace = ROOT
+					}
+				}
+			}
+		}
+		remove_opinion_modifier = {
+			target = EQS
+			modifier = friendly_government
+		}
+		add_opinion_modifier = {
+			target = EQS
+			modifier = hostility
+		}
+		EQS = {
+			remove_opinion_modifier = {
+				target = ROOT
+				modifier = friendly_government
+			}
+			add_opinion_modifier = {
+				target = ROOT
+				modifier = hostility
+			}
+		}
 		hidden_effect = {
 			set_country_flag = vasya_elected
 			clr_country_flag = darkwing_elected
@@ -2954,6 +3047,61 @@ country_event = {
 		add_political_power = -30
 		add_timed_idea = { days = 200 idea = STG_Nestor_Administration }
 		set_country_flag = sinister_coup
+		set_politics = {
+			ruling_party = communism
+		}
+		if = {
+			limit = { is_subject_of = EQS }
+			end_puppet_this = yes
+			if = {
+				limit = {
+					has_war_with = NLR
+					NOT = {
+						any_owned_state = {
+							controller = {
+								OR = {
+									tag = NLR
+									is_subject_of = NLR
+									is_in_faction_with = NLR
+								}
+							}
+						}
+					}
+				}
+				set_country_flag = { flag = bypass_on_peaceconference_ended days = 1 value = 1 }
+				white_peace = NLR
+				hidden_effect = {
+					every_enemy_country = {
+						limit = {
+							is_in_faction_with = NLR
+						}
+						white_peace = ROOT
+					}
+				}
+			}
+		}
+		remove_opinion_modifier = {
+			target = EQS
+			modifier = friendly_government
+		}
+		add_opinion_modifier = {
+			target = EQS
+			modifier = hostility
+		}
+		EQS = {
+			remove_opinion_modifier = {
+				target = ROOT
+				modifier = friendly_government
+			}
+			add_opinion_modifier = {
+				target = ROOT
+				modifier = hostility
+			}
+		}
+		if = {
+			limit = { is_in_faction = yes is_faction_leader = no var:faction_leader = { NOT = { has_government = communism } } }
+			leave_faction = yes
+		}
 		hidden_effect = {
 			set_country_flag = sinister_elected
 			clr_country_flag = darkwing_elected
@@ -3104,6 +3252,7 @@ country_event = { ## GRW asks for tanks
 country_event = { ## Tanks
 	id = stalliongrad.115
 	immediate = {log = "[GetDateText]: [Root.GetName]: event stalliongrad.115"}
+
 	title = stalliongrad.115.t
 	desc = stalliongrad.115.d
 	picture = GFX_event_stg_red_army
@@ -3114,33 +3263,37 @@ country_event = { ## Tanks
 		add_political_power = -25
 		add_tech_bonus = {
 			name = armor_bonus
-			bonus = 0.65
+			bonus = 1
 			uses = 1
 			category = cat_light_armor
 		}
+	ai_chance = { factor = 4 }
 	}
 	option = {
 		name = stalliongrad.115.b
 		add_political_power = -50
 		add_tech_bonus = {
 			name = armor_bonus
-			bonus = 0.65
+			bonus = 1
 			uses = 1
 			category = cat_medium_armor
 		}
+	ai_chance = { factor = 100 }
 	}
 	option = {
 		name = stalliongrad.115.c
 		add_political_power = -50
 		add_tech_bonus = {
 			name = armor_bonus
-			bonus = 0.65
+			bonus = 1
 			uses = 1
 			category = cat_heavy_armor
 		}
+	ai_chance = { factor = 1 }
 	}
 	option = {
 		name = stalliongrad.115.e
+		ai_chance = { factor = 0 }
 	}
 }
 country_event = { ## Graduates Projects
@@ -3222,6 +3375,7 @@ country_event = { ## Graduates Projects
 country_event = {
 	id = stalliongrad.118
 	immediate = {log = "[GetDateText]: [Root.GetName]: event stalliongrad.118"}
+	is_triggered_only = yes
 	hidden = yes
 	trigger = {
 		OR = {
@@ -3248,6 +3402,7 @@ country_event = {
 country_event = {
 	id = stalliongrad.119
 	immediate = {log = "[GetDateText]: [Root.GetName]: event stalliongrad.119"}
+	is_triggered_only = yes
 	hidden = yes
 	trigger = {
 		has_idea = trade_relations_with_stalliongrad
@@ -3261,6 +3416,7 @@ country_event = {
 country_event = {
 	id = stalliongrad.120
 	immediate = {log = "[GetDateText]: [Root.GetName]: event stalliongrad.120"}
+	is_triggered_only = yes
 	hidden = yes
 	trigger = {
 		has_idea = trade_relations_with_stalliongrad_close
@@ -3273,6 +3429,7 @@ country_event = {
 country_event = {
 	id = stalliongrad.121
 	immediate = {log = "[GetDateText]: [Root.GetName]: event stalliongrad.121"}
+	is_triggered_only = yes
 	hidden = yes
 	trigger = {
 		OR = {
@@ -3302,6 +3459,7 @@ country_event = {
 country_event = {
 	id = stalliongrad.122
 	immediate = {log = "[GetDateText]: [Root.GetName]: event stalliongrad.122"}
+	is_triggered_only = yes
 	hidden = yes
 	trigger = {
 		has_idea = trade_relations_with_stalliongrad_terrible_times
@@ -3318,6 +3476,7 @@ country_event = {
 country_event = {
 	id = stalliongrad.123
 	immediate = {log = "[GetDateText]: [Root.GetName]: event stalliongrad.123"}
+	is_triggered_only = yes
 	hidden = yes
 	trigger = {
 		is_major = yes
@@ -3788,6 +3947,7 @@ country_event = {
 country_event = {
 	id = stalliongrad.141
 	immediate = {log = "[GetDateText]: [Root.GetName]: event stalliongrad.141"}
+	is_triggered_only = yes
 	hidden = yes
 	trigger = {
 		tag = STG
@@ -4050,7 +4210,7 @@ country_event = {
 	id = stalliongrad.149
 	immediate = {log = "[GetDateText]: [Root.GetName]: event stalliongrad.149"}
 	title = stalliongrad.149.t
-	desc = stalliongrad.149.desc
+	desc = stalliongrad.149.d
 	picture = GFX_event_stg_pairlament
 
 

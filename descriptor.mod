@@ -34,5 +34,5 @@ tags={
 }
 picture="equestria.jpg"
 remote_file_id="1826643372"
-supported_version="1.9.*"
+supported_version="1.10.*"
 path="mod/equestria"
