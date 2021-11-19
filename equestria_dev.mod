@@ -28,6 +28,7 @@ replace_path="localisation/events_l_english.yml"
 replace_path="history/countries"
 replace_path="history/states"
 replace_path="history/units"
+replace_path="history/general"
 replace_path="map/strategicregions"
 replace_path="map/supplyareas"
 tags={
