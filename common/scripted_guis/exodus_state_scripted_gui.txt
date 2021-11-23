@@ -1,0 +1,74 @@
+scripted_gui = {
+	exodus_state_view_scripted_gui = {
+		context_type = selected_state_context
+
+		window_name = "exodus_information_container"
+		parent_window_token = selected_state_view
+		dirty = exodus_gui_update_var
+		visible = {
+			if = {
+				limit = {
+					NOT = { is_controlled_by = ROOT }
+				}
+				set_temp_variable = { exodus_new_owner = ROOT }
+			}
+			else_if = {
+				limit = {
+					NOT = {
+						ROOT = { has_variable = exodus_new_owner }
+					}
+				}
+				set_temp_variable = { exodus_new_owner = ROOT.neighbors^neighbor_index }
+			}
+			else = {
+				exodus_precalculate_occupier_appeal = yes
+				exodus_precalculate_nomadicity = yes
+				exodus_precalculate_input = yes
+			}
+			if = {
+				limit = {
+					NOT = {
+						ROOT = { has_variable = exodus_target_state }
+					}
+				}
+				set_temp_variable = { exodus_target_state = THIS.id }
+			}
+			else = {
+				exodus_precalculate_occupier_appeal = yes
+				exodus_precalculate_nomadicity = yes
+				exodus_precalculate_input = yes
+			}
+			#precalculate_exodus_targets = yes
+
+			#
+		}
+		effects = {
+			exodus_button_click = {
+				if = {
+					limit = {
+						NOT = { is_controlled_by = ROOT }
+					}
+					set_variable = { ROOT.exodus_new_owner = ROOT }
+					set_variable = { ROOT.exodus_old_owner = CONTROLLER }
+				}
+				else = {
+					ROOT = {
+						set_variable = { exodus_old_owner = THIS }
+						add_to_variable = { neighbor_index = 1 }
+						if = {
+							limit = {
+								check_variable = { neighbor_index = neighbors^num }
+							}
+							set_variable = { neighbor_index = 0 }
+						}
+						set_variable = { exodus_new_owner = neighbors^neighbor_index }
+					}
+				}
+				set_variable = { ROOT.exodus_target_state = THIS.id }
+				add_to_variable = { exodus_gui_update_var = 1 }
+			}
+		}
+
+	}
+
+}
