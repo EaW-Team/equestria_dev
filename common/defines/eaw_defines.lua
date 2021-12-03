@@ -103,3 +103,6 @@ NDefines.NResistance.GARRISON_EQUIPMENT_LOST_BY_ATTACK = 0.02 	-- Ratio of equip
 
 NDefines.NOperatives.AGENCY_CREATION_FACTORIES = 3
 NDefines.NOperatives.AGENCY_UPGRADE_PER_OPERATIVE_SLOT = 4			-- Number of upgrade needed to unlock an additional operative slot
+
+NDefines.NSupply.VP_TO_SUPPLY_BASE = 1 -- Bonus to supply from a VP, no matter the level (Base is 0.2)
+NDefines.NSupply.AVAILABLE_MANPOWER_STATE_SUPPLY = 10 --Factor for state supply from max manpower (population) (Base is 0.18, this is PER MILLION.)
