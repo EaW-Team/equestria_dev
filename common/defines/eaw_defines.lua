@@ -46,8 +46,8 @@ NDefines.NAI.DEPLOY_MIN_EQUIPMENT_WAR_FACTOR = 0.80	--default 90	-- Required per
 
 NDefines.NAI.MIN_PLAN_VALUE_TO_MICRO_INACTIVE = 0.1 --default 0.2				-- The AI will not consider members of groups which plan is not activated AND evaluates lower than this.
 
-NDefines.NAI.MAX_UNITS_FACTOR_FRONT_ORDER = 3.0	--default 1.5			-- Factor for max number of units to assign to area front orders
-NDefines.NAI.DESIRED_UNITS_FACTOR_FRONT_ORDER = 3.0	--default 1.5		-- Factor for desired number of units to assign to area front orders
+NDefines.NAI.MAX_UNITS_FACTOR_FRONT_ORDER = 3.0	--default 1.0			-- Factor for max number of units to assign to area front orders
+NDefines.NAI.DESIRED_UNITS_FACTOR_FRONT_ORDER = 3.0	--default 1.1		-- Factor for desired number of units to assign to area front orders
 NDefines.NAI.MIN_UNITS_FACTOR_FRONT_ORDER = 2.0	--default 1.0			-- Factor for min number of units to assign to area front orders
 
 NDefines.NAI.MAX_UNITS_FACTOR_INVASION_ORDER = 0.8	--default 1.0	-- Factor for max number of units to assign to naval invasion orders
@@ -92,11 +92,12 @@ NDefines.NDiplomacy.VOLUNTEERS_DIVISIONS_REQUIRED = 10
 NDefines.NCountry.FEMALE_UNIT_LEADER_BASE_CHANCE = { 
     -- applies as a factor to female unit leader randomization
     -- the values needs to be zero if you don't actually have random portraits
-    1.0, -- navy leaders
+    1.0, -- country leaders
     1.0, -- army leaders
+    1.0, -- navy leaders
+    1.0, -- air leaders
     1.0, -- operatives
 }
-NDefines.NCountry.COUNTRY_LEADER_FEMALE_CHANCE = 1.0 -- chance for new country leaders to be female. should be set > 0 only if there are portraits/names for that country
 
 NDefines.NResistance.GARRISON_MANPOWER_LOST_BY_ATTACK = 0.01 	-- Ratio of manpower lost by garrison at each attack on garrison (this number will be reduced by the hardness of garrison template)
 NDefines.NResistance.GARRISON_EQUIPMENT_LOST_BY_ATTACK = 0.02 	-- Ratio of equipment lost by garrison at each attack on garrison (this number will be reduced by the hardness of garrison template)
