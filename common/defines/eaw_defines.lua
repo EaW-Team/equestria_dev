@@ -104,5 +104,9 @@ NDefines.NResistance.GARRISON_EQUIPMENT_LOST_BY_ATTACK = 0.02 	-- Ratio of equip
 NDefines.NOperatives.AGENCY_CREATION_FACTORIES = 3
 NDefines.NOperatives.AGENCY_UPGRADE_PER_OPERATIVE_SLOT = 4			-- Number of upgrade needed to unlock an additional operative slot
 
-NDefines.NSupply.VP_TO_SUPPLY_BASE = 1 -- Bonus to supply from a VP, no matter the level (Base is 0.2)
-NDefines.NSupply.AVAILABLE_MANPOWER_STATE_SUPPLY = 10 --Factor for state supply from max manpower (population) (Base is 0.18, this is PER MILLION.)
+NDefines.NSupply.VP_TO_SUPPLY_BASE = 2 -- Bonus to supply from a VP, no matter the level (Base is 0.2)
+NDefines.NSupply.AVAILABLE_MANPOWER_STATE_SUPPLY = 0.25 --Factor for state supply from max manpower (population) (Base is 0.18, this is PER MILLION.)
+NDefines.NSupply.VP_TO_SUPPLY_BONUS_CONVERSION = 0.05 -- Bonus to supply local supplies from Victory Points, multiplied by this aspect and rounded to closest integer (Base is 0.05)
+NDefines.NSupply.CAPITAL_INITIAL_SUPPLY_FLOW = 5.0 -- starting supply from
+NDefines.NSupply.CAPITAL_STARTING_PENALTY_PER_PROVINCE = 0.3 -- starting penalty that will be added as supply moves away from its origin (modified by stuff like terrain) (Default is 0.5)
+NDefines.NSupply.CAPITAL_ADDED_PENALTY_PER_PROVINCE = 0.5 -- added penalty as we move away from origin (Default is 1.2)
