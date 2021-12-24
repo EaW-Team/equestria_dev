@@ -2,6 +2,7 @@ scripted_gui = {
 	state_lore_container_gui = {
 		context_type = selected_state_context
 		parent_window_token = selected_state_view
+		dirty = ROOT.state_lore_text_state_id
 		
 		window_name = "state_lore_container"
 		
@@ -120,12 +121,26 @@ scripted_gui = {
 		
 		effects = {
 			state_lore_button_click = {
-				meta_effect = { # I am not sure why non meta effects not work. PDX I blame you.
-					text = {
-						set_variable = { ROOT.state_lore_text_state_id = [STATEID] }
+				if = { # Click on the button on the same state again to close the window
+					limit = {
+						state = ROOT.state_lore_text_state_id
 					}
-					STATEID = "[This.GetID]"
+					clear_variable = ROOT.state_lore_text_state_id
 				}
+				else = {
+					meta_effect = { # THIS as a variable breaks inside state scopes for some reason, needs meta effect.
+						text = {
+							set_variable = { ROOT.state_lore_text_state_id = [STATEID] }
+						}
+						STATEID = "[This.GetID]"
+					}
+				}
+			}
+		}
+		
+		properties = {
+			state_lore_button = {
+				image = "[THIS.state_lore_get_button_gfx]"
 			}
 		}
 	}
@@ -133,6 +148,7 @@ scripted_gui = {
 	state_lore_container_text_gui = {
 		context_type = player_context
 		window_name = "state_lore_text_container"
+		dirty = ROOT.state_lore_text_state_id
 		
 		visible = {
 			has_variable = state_lore_text_state_id
@@ -141,6 +157,55 @@ scripted_gui = {
 		effects = {
 			state_lore_text_close_button_click = {
 				clear_variable = state_lore_text_state_id
+			}
+		}
+	}
+	
+	# Commented, breaks with LaR's intel ledger. Waiting for paradox to fix.
+	eaw_state_lore_mapicon_gui = {
+		context_type = state_mapicon
+		window_name = "eaw_state_lore_mapicon_gui"
+		dirty = ROOT.state_lore_text_state_id
+		visible = { ROOT = { has_country_flag = EaW_state_lore_mapicons_visible } }
+		mapicon_targets = {
+			target_array = global.states_with_lore
+		}
+		effects = {
+			state_lore_mapicon_button_click = {
+				meta_effect = { # Same case as above
+					text = {
+						set_variable = { ROOT.state_lore_text_state_id = [STATEID] }
+					}
+					STATEID = "[FROM.GetID]"
+				}
+			}
+		}
+		properties = {
+			state_lore_mapicon_button = {
+				image = "[FROM.state_lore_get_button_gfx]"
+			}
+		}
+	}
+	
+	eaw_state_lore_mapicon_control_panel_gui = {
+		context_type = player_context
+		window_name = "eaw_state_lore_mapicon_control_panel_gui"
+		parent_window_name = "MapmodesInterface_Ingame"
+		visible = { always = yes }
+		effects = {
+			state_lore_mapicon_control_click = {
+				if = {
+					limit = {
+						has_country_flag = EaW_state_lore_mapicons_visible
+					}
+					clr_country_flag = EaW_state_lore_mapicons_visible
+				}
+				else = { set_country_flag = EaW_state_lore_mapicons_visible }
+			}
+		}
+		properties = {
+			state_lore_mapicon_control = {
+				image = "[state_lore_get_gfx_control_panel]"
 			}
 		}
 	}
