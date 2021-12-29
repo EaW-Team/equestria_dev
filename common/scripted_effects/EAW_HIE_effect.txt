@@ -343,7 +343,12 @@ HIE_JRNL_calculate_odds_of_success = {
 	set_variable = { HIE_JRNL_success_odds = HIE_JRNL_base_success_odds } 
 
 	# Buddy system
-	add_to_variable = { HIE_JRNL_success_odds = HIE_JRNL_buddies_success_odds }
+	if = {
+		limit = {
+			has_variable = HIE_JRNL_buddies_success_odds
+		}
+		add_to_variable = { HIE_JRNL_success_odds = HIE_JRNL_buddies_success_odds }
+	}
 	# Modifiers
 	add_to_variable = { HIE_JRNL_success_odds = modifier@HIE_JRNL_expedition_success_odds_factor }
 
@@ -356,6 +361,7 @@ HIE_JRNL_init_expedition = { # Expeditions are where you follow one path and can
 }
 
 HIE_JRNL_start_activity = { # Searches are places where you look for the ingredients themselves
+	HIE_JRNL_start_activity_misc_effects = yes
 	set_country_flag = HIE_JRNL_is_in_activity
 	if = {
 		limit = {
@@ -376,16 +382,14 @@ HIE_JRNL_start_activity = { # Searches are places where you look for the ingredi
 		set_variable = { HIE_JRNL_ongoing_activity = HIE_JRNL_gr_selected }
 	}
 	
-	# Calculate RNG
-	set_temp_variable = { temp_fail_chance = 1 }
-	subtract_from_temp_variable = { temp_fail_chance = HIE_JRNL_success_odds }
-	
 	# Take into account modifiers for time taken # TODO: Uncomment when testing is finished.
 	#set_temp_variable = { temp_time_taken = 1 }
 	#add_to_temp_variable = { temp_time_taken = modifier@HIE_JRNL_expedition_speed_factor }
 	#multiply_variable = { HIE_JRNL_time_event_delay = temp_time_taken }
 	
-	# The RNG script (I hate paradox's RNG)
+	# Calculate RNG
+	set_temp_variable = { temp_fail_chance = 1 }
+	subtract_from_temp_variable = { temp_fail_chance = HIE_JRNL_success_odds }
 	random_list = {
 		HIE_JRNL_success_odds = {
 			meta_effect = { # Meta effects are in `EAW_HIE_scripted_localisation`
@@ -410,6 +414,19 @@ HIE_JRNL_start_activity = { # Searches are places where you look for the ingredi
 	HIE_JRNL_clr_popup_vars = yes
 	clear_variable = HIE_JRNL_success_odds
 	clear_variable = HIE_JRNL_time_event_delay
+}
+
+HIE_JRNL_start_activity_misc_effects = {
+	if = {
+		limit = {
+			OR = {
+				check_variable = { HIE_JRNL_eq_selected = 10 }
+				check_variable = { HIE_JRNL_eq_selected = 11 }
+				check_variable = { HIE_JRNL_eq_selected = 12 }
+			}
+		}
+		clr_country_flag = HIE_JRNL_ponyville_area_window_open
+	}
 }
 
 HIE_JRNL_expedition_clean = { # Fired through events
