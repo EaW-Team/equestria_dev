@@ -591,10 +591,121 @@ scripted_gui = {
 				HIE_JRNL_start_activity = yes
 			}
 			odds_of_succeeding_click = {
-				set_country_flag = HIE_JRNL_popup_hide_arrows
+				if = {
+					limit = {
+						NOT = { has_country_flag = HIE_JRNL_popup_hide_arrows }
+					}
+					set_country_flag = HIE_JRNL_popup_hide_arrows
+				}
+				
+				if = {
+					limit = {
+						has_country_flag = HIE_JRNL_popup_show_increase_chance_window
+					}
+					clr_country_flag = HIE_JRNL_popup_show_increase_chance_window
+					else = { set_country_flag = HIE_JRNL_popup_show_increase_chance_window }
+				}
 			}
 			close_btn_click = {
 				HIE_JRNL_clr_popup_vars = yes
+			}
+		}
+	}
+	
+	eaw_HIE_Journal_popout_increase_chances = {
+		window_name = "EaW_HIE_Journal_popout_increase_chances"
+		context_type = player_context
+		parent_window_name = "EaW_HIE_Journal_popout"
+		visible = { has_country_flag = HIE_JRNL_popup_show_increase_chance_window }
+		dynamic_lists = {
+			increase_chances_gridbox = {
+				array = HIE_ic_options
+				index = ic_i
+				value = ic_v
+				entry_container = EaW_HIE_Journal_ic_entry
+			}
+		}
+		triggers = {
+			main_button_click_enabled = {
+				if = {
+					limit = {
+						check_variable = { ic_v = 1 }
+					}
+					has_political_power > 34.99
+				}
+				else_if = {
+					limit = {
+						check_variable = { ic_v = 2 }
+					}
+					command_power > 39.99
+				}
+				else_if = {
+					limit = {
+						check_variable = { ic_v = 3 }
+					}
+					has_equipment = {
+						support_equipment_1 > 99
+					}
+				}
+				else_if = {
+					limit = {
+						check_variable = { ic_v = 4 }
+					}
+					has_army_experience > 14.99
+				}
+			}
+		}
+		effects = {
+			main_button_click = {
+				if = {
+					limit = {
+						check_variable = { ic_v = 1 }
+					}
+					add_political_power = -35
+					add_to_variable = { HIE_JRNL_total_odds_bank = 0.05 }
+				}
+				else_if = {
+					limit = {
+						check_variable = { ic_v = 2 }
+					}
+					add_command_power = -40
+					add_to_variable = { HIE_JRNL_total_odds_bank = 0.075 }
+				}
+				else_if = {
+					limit = {
+						check_variable = { ic_v = 3 }
+					}
+					add_equipment_to_stockpile = {
+						type = support_equipment_1
+						amount = -100
+						producer = HIE
+					}
+					add_to_variable = { HIE_JRNL_total_odds_bank = 0.1 }
+				}
+				else_if = {
+					limit = {
+						check_variable = { ic_v = 4 }
+					}
+					army_experience = -20
+					add_to_variable = { HIE_JRNL_total_odds_bank = 0.125 }
+				}
+				
+				# Cooldown logic
+				add_to_array = { HIE_ic_options_cooldown = ic_v }
+				remove_from_array = { HIE_ic_options = ic_v }
+				country_event = { id = hippone_aspj.2000 days = 45 }
+			}
+			button_increase_ic_click = {
+				add_to_variable = { HIE_JRNL_odds_invested = 0.025 }
+				clamp_variable = { var = HIE_JRNL_odds_invested min = 0 max = HIE_JRNL_total_odds_bank }
+				clamp_variable = { var = HIE_JRNL_odds_invested min = 0 max = HIE_JRNL_success_odds_min_100 }
+				HIE_JRNL_calculate_odds_of_success = yes
+			}
+			button_decrease_ic_click = {
+				add_to_variable = { HIE_JRNL_odds_invested = -0.025 }
+				clamp_variable = { var = HIE_JRNL_odds_invested min = 0 max = HIE_JRNL_total_odds_bank }
+				clamp_variable = { var = HIE_JRNL_odds_invested min = 0 max = HIE_JRNL_success_odds_min_100 }
+				HIE_JRNL_calculate_odds_of_success = yes
 			}
 		}
 	}
