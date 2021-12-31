@@ -5,7 +5,7 @@ political_actions = {
 		icon = generic_research
 
 		allowed = {
-			always = no
+			always = yes
 		}
 
 		available = {
@@ -16,16 +16,16 @@ political_actions = {
 		}
 
 		target_root_trigger = {
-			has_tech = atomic_research
-			NOT = { has_global_flag = first_nuke_dropped }
-			NOT = { has_idea = race_for_the_bomb }
+            has_tech = atomic_research
+            NOT = { has_global_flag = first_nuke_dropped }
+            NOT = { has_idea = race_for_the_bomb }
 		}
 
 		#If this trigger matches a country.
 		target_trigger = {
 			#Target is FROM
 			FROM = {
-				NOT = { is_in_faction_with = ROOT }
+        		NOT = { is_in_faction_with = ROOT }
 				has_tech = nuclear_reactor
 				any_owned_state = {
 					nuclear_reactor > 0
@@ -34,12 +34,12 @@ political_actions = {
 		}
 
 		visible = {
-			#Target is FROM
-			has_tech = atomic_research
-			NOT = { has_global_flag = first_nuke_dropped }
-			NOT = { has_idea = race_for_the_bomb }
-			FROM = {
-				NOT = { is_in_faction_with = ROOT }
+            #Target is FROM
+            has_tech = atomic_research
+            NOT = { has_global_flag = first_nuke_dropped }
+            NOT = { has_idea = race_for_the_bomb }
+            FROM = {
+        		NOT = { is_in_faction_with = ROOT }
 				has_tech = nuclear_reactor
 				any_owned_state = {
 					nuclear_reactor > 0
@@ -48,7 +48,6 @@ political_actions = {
 		}
 
 		complete_effect = {
-			log = "[GetDateText]: [Root.GetName]: Decision targeted_race_for_the_bomb target: [From.GetName]"
 			set_country_flag = racing_for_the_bomb
 			add_ideas = race_for_the_bomb
 		}
@@ -240,6 +239,73 @@ political_actions = {
 }
 
 economy_decisions = {
+	restructure_supply_system = { #one time boost to get a few cheap supply hubs
+
+
+		visible = { 
+			OR = {
+				is_major = no
+				AND = {
+					is_faction_leader = yes
+					num_of_factories < 51 #would be a minor if it wasn't for faction leader status
+				}
+			}
+		}
+		fire_only_once = yes
+
+		days_remove = 120
+
+		ai_will_do = {
+			factor = 1
+			modifier = {
+				num_of_factories < 30
+				factor = 0
+			}
+		}
+
+		modifier = {
+			production_speed_supply_node_factor = 3
+		}
+
+		complete_effect = {
+			set_variable = { node_goal = num_of_supply_nodes }
+			add_to_variable = { node_goal = 3 } #maximum 3 additional nodes
+		}
+
+		cancel_trigger = {
+			
+			 check_variable = { node_goal < num_of_supply_nodes } #if the number of supply nodes exceeds the old number by +3, immediately cancel
+		}
+	}
+	seize_some_trains_woo = { #repeating train seize
+
+		visible = { 
+			num_of_factories < 60
+		}
+		
+		available = {
+			has_equipment = { train_equipment < 101 }
+			has_tech = basic_train
+		}
+		
+		days_remove = 180
+
+		ai_will_do = {
+			base = 0
+			modifier = {
+				add = 1
+				has_stability > 0.74
+			}
+		}
+
+		complete_effect = {
+			add_equipment_to_stockpile = {
+				type = train_equipment
+				amount = 15
+			}
+			add_stability = -0.05
+		}
+	}			
 
 }
 
@@ -306,7 +372,7 @@ propaganda_efforts = {
 
 		complete_effect = {
 			log = "[GetDateText]: [Root.GetName]: Decision war_propaganda"
-			set_country_flag = war_propaganda_campaign_running
+			set_country_flag = { flag = war_propaganda_campaign_running value = 1 days = 90 } #TODO_Manu: This is a nasty fix so that the flag gets eventually removed if the target is annexed. days = days_remove
 		}
 		remove_effect = {
 			log = "[GetDateText]: [Root.GetName]: Decision remove war_propaganda"
@@ -859,7 +925,7 @@ economy_decisions = {
 							include_locked = yes
 						}
 						NOT = { has_state_flag = war_building_slot_flag }
-						infrastructure > 8
+						infrastructure > 4
 					}
 				}
 				random_owned_state = {
@@ -871,7 +937,7 @@ economy_decisions = {
 							include_locked = yes
 						}
 						NOT = { has_state_flag = war_building_slot_flag }
-						infrastructure > 8
+						infrastructure > 4
 					}
 					add_extra_state_shared_building_slots = 1
 					set_state_flag = war_building_slot_flag
@@ -887,7 +953,7 @@ economy_decisions = {
 							include_locked = yes
 						}
 						NOT = { has_state_flag = war_building_slot_flag }
-						infrastructure > 5
+						infrastructure > 2
 					}
 				}
 				random_owned_state = {
@@ -899,7 +965,7 @@ economy_decisions = {
 							include_locked = yes
 						}
 						NOT = { has_state_flag = war_building_slot_flag }
-						infrastructure > 5
+						infrastructure > 2
 					}
 					add_extra_state_shared_building_slots = 1
 					set_state_flag = war_building_slot_flag
@@ -915,7 +981,7 @@ economy_decisions = {
 							include_locked = yes
 						}
 						NOT = { has_state_flag = war_building_slot_flag }
-						infrastructure > 8
+						infrastructure > 4
 					}
 					add_extra_state_shared_building_slots = 1
 					set_state_flag = war_building_slot_flag
@@ -930,7 +996,7 @@ economy_decisions = {
 			}
 			modifier = {
 				any_owned_state = {
-					infrastructure > 5
+					infrastructure > 3
 					free_building_slots = { building = industrial_complex size > 0 include_locked = no }
 				}
 				factor = 0
