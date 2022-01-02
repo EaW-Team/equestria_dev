@@ -2,11 +2,12 @@ scripted_gui = {
 	state_lore_container_gui = {
 		context_type = selected_state_context
 		parent_window_token = selected_state_view
+		dirty = ROOT.state_lore_text_state_id
 		
 		window_name = "state_lore_container"
 		
 		visible = {
-			THIS = { 
+			THIS = {
 				OR = {
 				    ### Equestria ###
 					state = 75 #Manehatten
@@ -113,99 +114,99 @@ scripted_gui = {
 					state = 649 #B-Baka!
 
 					### North Zebrica ###
-					state = 875
+					state = 875 #Colthage
+					state = 1196 #Belle-Île
 				}
 			}
 		}
 		
 		effects = {
 			state_lore_button_click = {
-				ROOT = {
-					set_variable = { state_lore_text_state_id = 0 }
-					set_variable = { state_lore_text_container_variable_visible = 1 } 
-				}
-				if = {
-					limit = { THIS = { state = 75 } }
-					ROOT = { set_variable = { state_lore_text_state_id = 75 } }
-				}
-				if = {
-					limit = { THIS = { state = 3 } }
-					ROOT = { set_variable = { state_lore_text_state_id = 3 } }
-				}
-				if = {
-					limit = { THIS = { state = 12 } }
-					ROOT = { set_variable = { state_lore_text_state_id = 12 } }
-				}
-				if = {
-					limit = { THIS = { state = 70 } }
-					ROOT = { set_variable = { state_lore_text_state_id = 70 } }
-				}
-				if = {
-					limit = { THIS = { state = 74 } }
-					ROOT = { set_variable = { state_lore_text_state_id = 74 } }
-				}
-				if = {
-					limit = { THIS = { state = 2 } }
-					ROOT = { set_variable = { state_lore_text_state_id = 2 } }
-				}
-				if = {
-					limit = { THIS = { state = 68 } }
-					ROOT = { set_variable = { state_lore_text_state_id = 68 } }
-				}
-				if = {
-					limit = { THIS = { state = 13 } }
-					ROOT = { set_variable = { state_lore_text_state_id = 13 } }
-				}
-				if = {
-					limit = { THIS = { state = 38 } }
-					ROOT = { set_variable = { state_lore_text_state_id = 38 } }
-				}
-				if = {
-					limit = { THIS = { state = 66 } }
-					ROOT = { set_variable = { state_lore_text_state_id = 66 } }
-				}
-				if = {
-					limit = { THIS = { state = 14 } }
-					ROOT = { set_variable = { state_lore_text_state_id = 14 } }
-				}
-				if = {
-					limit = { THIS = { state = 21 } }
-					ROOT = { set_variable = { state_lore_text_state_id = 21 } }
-				}
-				if = {
-					limit = { THIS = { state = 649 } }
-					ROOT = { set_variable = { state_lore_text_state_id = 649 } }
-				}
-				if = {
-					limit = { THIS = { state = 366 } }
-					ROOT = { set_variable = { state_lore_text_state_id = 366 } }
-				}
-				meta_effect = {
-					text = {
-						set_variable = { ROOT.state_lore_text_state_id = [STATEID] }
+				if = { # Click on the button on the same state again to close the window
+					limit = {
+						state = ROOT.state_lore_text_state_id
 					}
-					STATEID = "[This.GetID]"
+					clear_variable = ROOT.state_lore_text_state_id
 				}
+				else = {
+					meta_effect = { # THIS as a variable breaks inside state scopes for some reason, needs meta effect.
+						text = {
+							set_variable = { ROOT.state_lore_text_state_id = [STATEID] }
+						}
+						STATEID = "[This.GetID]"
+					}
+				}
+			}
+		}
+		
+		properties = {
+			state_lore_button = {
+				image = "[THIS.state_lore_get_button_gfx]"
 			}
 		}
 	}
 	
 	state_lore_container_text_gui = {
 		context_type = player_context
-		
 		window_name = "state_lore_text_container"
+		dirty = ROOT.state_lore_text_state_id
 		
 		visible = {
-			ROOT = { 
-				check_variable = { state_lore_text_container_variable_visible > 0 }
-			}
+			has_variable = state_lore_text_state_id
 		}
 		
 		effects = {
 			state_lore_text_close_button_click = {
-				ROOT = { 
-					set_variable = { state_lore_text_container_variable_visible = 0 }
+				clear_variable = state_lore_text_state_id
+			}
+		}
+	}
+	
+	# Commented, breaks with LaR's intel ledger. Waiting for paradox to fix.
+	eaw_state_lore_mapicon_gui = {
+		context_type = state_mapicon
+		window_name = "eaw_state_lore_mapicon_gui"
+		dirty = ROOT.state_lore_text_state_id
+		visible = { ROOT = { has_country_flag = EaW_state_lore_mapicons_visible } }
+		mapicon_targets = {
+			target_array = global.states_with_lore
+		}
+		effects = {
+			state_lore_mapicon_button_click = {
+				meta_effect = { # Same case as above
+					text = {
+						set_variable = { ROOT.state_lore_text_state_id = [STATEID] }
+					}
+					STATEID = "[FROM.GetID]"
 				}
+			}
+		}
+		properties = {
+			state_lore_mapicon_button = {
+				image = "[FROM.state_lore_get_button_gfx]"
+			}
+		}
+	}
+	
+	eaw_state_lore_mapicon_control_panel_gui = {
+		context_type = player_context
+		window_name = "eaw_state_lore_mapicon_control_panel_gui"
+		parent_window_name = "MapmodesInterface_Ingame"
+		visible = { always = yes }
+		effects = {
+			state_lore_mapicon_control_click = {
+				if = {
+					limit = {
+						has_country_flag = EaW_state_lore_mapicons_visible
+					}
+					clr_country_flag = EaW_state_lore_mapicons_visible
+				}
+				else = { set_country_flag = EaW_state_lore_mapicons_visible }
+			}
+		}
+		properties = {
+			state_lore_mapicon_control = {
+				image = "[state_lore_get_gfx_control_panel]"
 			}
 		}
 	}
