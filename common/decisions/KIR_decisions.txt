@@ -6641,12 +6641,15 @@ operations = {
 				OR = {
 					AND = {
 						NOT = { is_controlled_by = ROOT }
-						any_neighbor_state = {
-							is_controlled_by = ROOT
-							PREV = {
-								any_neighbor_state = {
-									NOT = { state = PREV.PREV }
-									is_controlled_by = ROOT
+						custom_trigger_tooltip = {
+							tooltip = KIR_controls_2_neighbor_states
+							any_neighbor_state = {
+								is_controlled_by = ROOT
+								PREV = {
+									any_neighbor_state = {
+										NOT = { state = PREV.PREV }
+										is_controlled_by = ROOT
+									}
 								}
 							}
 						}
@@ -6790,6 +6793,115 @@ operations = {
 				NOT = {
 					is_controlled_by = ROOT
 				}
+			}
+		}
+	}
+	COC_guerilla_strike_decision = {
+		icon = generic_ignite_civil_war
+		allowed = {
+			original_tag = KIC
+		}
+
+		visible = {
+			ROOT = {
+				has_country_flag = COC_guerilla_strike_flag
+				has_war_with = KIS
+			}
+			FROM = {
+				OR = {
+					region = 283
+					region = 343
+					region = 344
+					region = 345
+					region = 346
+					region = 347
+				}
+				controller = {
+					OR = {
+						original_tag = KIC
+						has_war_with = ROOT
+					}
+				}
+			}
+		}
+		
+		available = {
+			FROM = {
+				OR = {
+					AND = {
+						NOT = { is_controlled_by = ROOT }
+						custom_trigger_tooltip = {
+							tooltip = KIR_controls_2_neighbor_states
+							any_neighbor_state = {
+								is_controlled_by = ROOT
+								PREV = {
+									any_neighbor_state = {
+										NOT = { state = PREV.PREV }
+										is_controlled_by = ROOT
+									}
+								}
+							}
+						}
+					}
+					AND = {
+						is_controlled_by = ROOT
+						NOT = { is_fully_controlled_by = ROOT }
+					}
+				}
+			}
+		}
+		
+		state_target = yes
+		on_map_mode = map_only
+		
+		custom_cost_trigger = {
+			has_manpower > 999
+			command_power > 19
+		}
+		
+		custom_cost_text = COC_guerilla_strike_cost
+		
+		days_remove = 14
+
+		modifier = {
+			command_power_gain_mult = -0.1
+		}
+
+		complete_effect = {
+			log = "[GetDateText]: [Root.GetName]: Decision COC_guerilla_strike_decision target: [From.GetName]"
+			hidden_effect = {
+				add_manpower = -1000
+				add_command_power = -20
+			}
+		}
+		remove_effect = {
+			log = "[GetDateText]: [Root.GetName]: Decision remove COC_guerilla_strike_decision target: [From.GetName]"
+			custom_effect_tooltip = COC_guerilla_strike_decision_tt
+			FROM = {
+				set_variable = { guerilla_strike_divisions_in_state_var_ORG = 90 } ##15 org damage across 6 divisions; for context, a 16w pure inf division has 63 org max
+				set_variable = { guerilla_strike_divisions_in_state_var_STR = 150 } ##25 str/hp damage across 6 divisions; for context, a 16w pure inf division has 200 HP max
+				divide_variable = { guerilla_strike_divisions_in_state_var_ORG = KIS.num_armies_in_state@FROM } ##unfortunately, I could only think of a way to check for KIS divisions, and not those of their puppets, although this just means that a proportionally higher amount of damage will be dealt to their puppet divisions as well.
+				divide_variable = { guerilla_strike_divisions_in_state_var_STR = KIS.num_armies_in_state@FROM }
+			}
+			meta_effect = {
+				text = {
+					damage_units = {
+						state = FROM
+						limit = { has_war_with = ROOT }
+						org_damage = [GUERILLA_STRIKE_ORG_DMG]
+						str_damage = [GUERILLA_STRIKE_STR_DMG]
+						ratio = no
+						army = yes
+						navy = no
+					}
+				}
+				GUERILLA_STRIKE_ORG_DMG = "[?FROM.guerilla_strike_divisions_in_state_var_ORG]"
+				GUERILLA_STRIKE_STR_DMG = "[?FROM.guerilla_strike_divisions_in_state_var_STR]"
+			}
+		}
+		cancel_trigger = {
+			FROM = {
+				is_fully_controlled_by = ROOT
 			}
 		}
 	}
