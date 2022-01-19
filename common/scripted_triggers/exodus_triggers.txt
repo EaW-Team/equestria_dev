@@ -1,15 +1,13 @@
 ############################
-##     Project Exodus     ##
-##       By HappyNTH      ##
+##    Project EqExodus    ##
+##      By HappyNTH       ##
 ############################
 
 allow_exodus_from_THIS = { # Called in STATE SCOPE
-	NOT = { has_global_flag = exodus_disabled }
-	NOT = { has_state_flag = do_not_exodus }
-	var:exodus_old_owner = {
-		NOT = {
-			is_subject_of = var:exodus_new_owner
-		}
+	NOT = { has_global_flag = exodus_disabled } # Check for global off switch
+	NOT = { has_state_flag = do_not_exodus } # Check for state-to-state off switch
+	owner  = { 
+		has_war = yes
 	}
 }
 
@@ -52,7 +50,10 @@ exodus_precalculate_nomadicity = { # Called in STATE SCOPE
 	}
 	## Mixed / Generic Factors
 	# Add modifier from old occupier's ideas etc
-	add_to_temp_variable = { var = nomadicity_temp value = var:ROOT.exodus_old_owner:modifier@exodus_nomadicity }
+	set_temp_variable = { var = nomadicity_temp_mod value = ROOT.exodus_old_owner:modifier@exodus_nomadicity }
+	multiply_temp_variable = { nomadicity_temp_mod = global.nomadicity_modifier_factor }
+	clamp_temp_variable = { var = nomadicity_temp_mod min = -1 max = 1 }
+	add_to_temp_variable = { var = nomadicity_temp value = nomadicity_temp_mod }
 	clamp_temp_variable = { var = nomadicity_temp min = 0 }
 }
 
@@ -74,7 +75,10 @@ exodus_precalculate_occupier_appeal = { # Called in STATE SCOPE
 	divide_temp_variable = { stab_impact = global.core_stability_divide }
 	add_to_temp_variable = { occupier_appeal_temp = stab_impact }
 	# Add modifier from new occupier's ideas etc
-	add_to_temp_variable = { occupier_appeal_temp = ROOT.exodus_new_owner:modifier@exodus_occupier_appeal }
+	set_temp_variable = { var = occupier_appeal_temp_mod value = ROOT.exodus_new_owner:modifier@exodus_occupier_appeal }
+	multiply_temp_variable = { occupier_appeal_temp_mod = global.occupier_modifier_factor }
+	clamp_temp_variable = { var = occupier_appeal_temp_mod min = -1 max = 1 }
+	add_to_temp_variable = { var = occupier_appeal_temp value = occupier_appeal_temp_mod }
 	clamp_temp_variable = { var = occupier_appeal_temp min = 0.01 }
 	#log = "[?occupier_appeal_temp]"
 }
@@ -141,7 +145,9 @@ exodus_pre_weight_states = { # Called in STATE SCOPE
 		# Modifiers
 		#if = { limit = { has_global_flag = exodus_debug } log = "EXODUS - weight_states: multiplicative weight factored in" }
 		set_temp_variable = { exodus_national_appeal_modifier_temp = THIS:modifier@exodus_national_appeal }
-		add_to_temp_variable = { exodus_national_appeal_modifier_temp = 1 }
+		add_to_temp_variable = { exodus_national_appeal_modifier_temp = 1 } # Modifier is -1 to 1, this makes it 0 to 2
+		multiply_temp_variable = { exodus_national_appeal_modifier_temp = global.appeal_modifier_factor }
+		clamp_temp_variable = { var = exodus_national_appeal_modifier_temp min = 0 max = 2 }
 		multiply_temp_variable = { exodus_national_appeal_temp = exodus_national_appeal_modifier_temp }
 		# Distance
 		var:global.exodus_old_owner = {
