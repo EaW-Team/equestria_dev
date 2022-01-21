@@ -192,7 +192,6 @@ country_event = {
 		ai_chance = {
 			factor = 5
 		}
-		custom_effect_tooltip = CTH_coltvan_peace_tt
 		set_country_flag = CTH_peace_with_coltva
 		every_owned_state = {
 			limit = {
@@ -835,6 +834,7 @@ country_event = {
 			}
 			CTH_remove_coltvan_unrest_ideas = yes
 		}
+		set_country_flag = CTH_peace_with_coltva
 	}
 }
 
@@ -930,6 +930,19 @@ country_event = {
 			}
 			CTH_set_to_minimal_unrest = yes
 		}
+	}
+}
+country_event = { 
+	id = colthage_coltvan.26 # Kingston's flavour event
+	immediate = {log = "[GetDateText]: [Root.GetName]: event colthage_coltvan.26"}
+	title = colthage_coltvan.26.t
+	desc = colthage_coltvan.26.d
+	picture = GFX_event_colthagevillage
+	is_triggered_only = yes
+	
+	option = { 
+		name = colthage_coltvan.26.a
+		
 	}
 }
 
@@ -1440,10 +1453,19 @@ country_event = {
 					is_core_of = ROOT
 				}
 			}
-			add_resistance = -15
+			add_resistance = -20
 		}
 		remove_ideas = CTC_freedom_or_death
 		set_country_flag = CTH_no_co_sufrit_flag
+		if = {
+			limit = {
+				has_template = "Hippogriffian Volunteers"
+			}
+			delete_unit_template_and_units = {
+				division_template = "Hippogriffian Volunteers"
+				disband = no
+			}
+		}
 		#Best to hide this absurdity from the player :^)
 		hidden_effect = {
 			CTA = {
@@ -1469,29 +1491,6 @@ country_event = {
 		#	 remove_core_of = CTA
 		#}
 	}
-}
-country_event = { ## Loop event to prevent use of MTTH
-	id = colthage_civil_war.100
-	immediate = {
-		log = "[GetDateText]: [Root.GetName]: event colthage_civil_war.100"
-		if = {
-			limit = {
-				has_war_with = CTA
-				CTA = {
-					surrender_progress > 0.49
-				}
-			}
-			country_event = colthage_civil_war.10
-		}
-		else_if = {
-			limit = {
-				has_war_with = CTA
-			}
-			country_event = { id = colthage_civil_war.100 days = 1 }
-		}
-	}
-	hidden = yes
-	is_triggered_only = yes
 }
 # Militarists/Scientifids propose alliance against Zarca
 country_event = {
@@ -1637,6 +1636,8 @@ country_event = {
 				add_ideas = CTH_no_co_sufrit
 			}
 		}
+		set_variable = { CTH_constitutionalist_loyalty = 100 } #out of 100
+		set_variable = { CTH_harmonites_loyalty = 60 } #out of 100
 		#Dunno if this works
 		every_controlled_state = {
 			 remove_core_of = CTB
@@ -1710,9 +1711,14 @@ country_event = {
 		name = colthage_civil_war.15.a
 		add_war_support = -0.25
 		load_focus_tree = {
-			tree = colthage_zerutra_post_win_treelet
+			tree = colthage_militarist_focus_tree
 			keep_completed = yes		   
 		}
+		set_country_flag = CTH_zerutra_bypass_flag
+		#load_focus_tree = {
+		#	tree = colthage_zerutra_post_win_treelet
+		#	keep_completed = yes		   
+		#}
 		every_controlled_state = {
 			 remove_core_of = CTC
 			 remove_core_of = CTB
@@ -1955,30 +1961,6 @@ country_event = { # Coltdar/Zumidia/Warzena refuses
 		}
 	}
 }
-country_event = { ## Loop event to prevent use of MTTH
-	id = colthage_other.0
-	immediate = {
-		log = "[GetDateText]: [Root.GetName]: event colthage_other.0"
-		if = {
-			limit = {
-				has_war_with = CGI
-				CGI = {
-					surrender_progress > 0.29
-				}
-				has_country_flag = CTH_limited_CGI_war_flag
-			}
-			country_event = colthage_other.8
-		}
-		else_if = {
-			limit = {
-				has_war_with = CGI
-			}
-			country_event = { id = colthage_other.0 days = 1 }
-		}
-	}
-	hidden = yes
-	is_triggered_only = yes
-}
 country_event = { # Colthage gets event to make peace with Quaggatai
 	id = colthage_other.8
 	immediate = {log = "[GetDateText]: [Root.GetName]: event colthage_other.8"}
@@ -1992,6 +1974,7 @@ country_event = { # Colthage gets event to make peace with Quaggatai
 
 	option = { # 
 		name = colthage_other.8.a
+		clr_country_flag = CTH_limited_CGI_war_flag
 		set_country_flag = { flag = bypass_on_peaceconference_ended days = 1 value = 1 }
 		white_peace = CGI
 		set_truce = { target = CGI days = 365 }
@@ -2300,11 +2283,6 @@ country_event = { # Scientifid Coup
 			long_name = CTH_scientifid_party_long 
 			name = CTH_scientifid_party
 		}
-		remove_ideas = {
-			CTH_batrun_zaryes
-			CTH_baltazar_zakbar
-			CTH_zaron_zorrel
-		}
 		clr_country_flag = CTH_baltazar_zakbar_flag
 		clr_country_flag = CTH_zaron_zorrel_flag
 		clr_country_flag = CTH_batrun_zaryes_flag
@@ -2341,7 +2319,7 @@ country_event = { # Scientifid Coup
 		add_country_leader_role = {
 			character = CTH_batrun_zaryes
 			country_leader = {
-				desc = POLITICS_BATRUN_ZARYES_DESC
+				desc = CTH_batrun_zaryes_desc
 				expire = "1965.1.1"
 				ideology = stratocracy
 			}
@@ -2353,6 +2331,11 @@ country_event = { # Scientifid Coup
 					has_trait = zarcid_supporter
 				}
 				set_nationality = SOL
+			}
+			remove_ideas = {
+				CTH_batrun_zaryes
+				CTH_baltazar_zakbar
+				CTH_zaron_zorrel
 			}
 		}
 	}
@@ -2822,7 +2805,22 @@ country_event = { #Incoming trade offer meme
 
 	option = { #Yes
 		name = colthage_other.33.a
-		add_ideas = CTH_trading_with_colthage
+		if = {
+			limit = {
+				FROM = {
+					original_tag = CTH
+				}
+			}
+			add_ideas = CTH_trading_with_colthage
+		}
+		else_if = {
+			limit = {
+				FROM = {
+					original_tag = TRO
+				}
+			}
+			add_ideas = TRO_CTH_trading_with_colthage
+		}
 		FROM = {
 			country_event = { 
 				days = 1 
@@ -3178,7 +3176,22 @@ country_event = { #Informed about colthage ending trade
 
 	option = { 
 		name = colthage_other.36.a
-		remove_ideas = CTH_trading_with_colthage
+		if = {
+			limit = {
+				FROM = {
+					original_tag = CTH
+				}
+			}
+			remove_ideas = CTH_trading_with_colthage
+		}
+		else_if = {
+			limit = {
+				FROM = {
+					original_tag = TRO
+				}
+			}
+			remove_ideas = TRO_CTH_trading_with_colthage
+		}
 	}
 }
 country_event = { #Fate of the media
@@ -3235,7 +3248,7 @@ country_event = { #Military coup
 		add_country_leader_role = {
 			character = CTH_batrun_zaryes
 			country_leader = {
-				desc = POLITICS_BATRUN_ZARYES_DESC
+				desc = CTH_batrun_zaryes_desc
 				expire = "1965.1.1"
 				ideology = stratocracy
 			}
@@ -3258,11 +3271,6 @@ country_event = { #Military coup
 			ideology = fascism 
 			long_name = CTH_military_party_long 
 			name = CTH_military_party
-		}
-		remove_ideas = {
-			CTH_batrun_zaryes
-			CTH_baltazar_zakbar
-			CTH_zaron_zorrel
 		}
 		clr_country_flag = CTH_baltazar_zakbar_flag
 		clr_country_flag = CTH_zaron_zorrel_flag
@@ -3299,6 +3307,11 @@ country_event = { #Military coup
 					has_trait = zarcid_supporter
 				}
 				set_nationality = SOL
+			}
+			remove_ideas = {
+				CTH_batrun_zaryes
+				CTH_baltazar_zakbar
+				CTH_zaron_zorrel
 			}
 		}
 	}
@@ -3345,7 +3358,7 @@ country_event = { #Final zarca event
         text = colthage_other.40.d_not_wholesome
         trigger = { 
 			check_variable = {
-				CTH_harmonites_loyalty < 40
+				CTH_harmonites_loyalty < 50
 			}
 		}
     }
@@ -3353,7 +3366,7 @@ country_event = { #Final zarca event
         text = colthage_other.40.d_wholesome
         trigger = { 
 			check_variable = {
-				CTH_harmonites_loyalty > 39
+				CTH_harmonites_loyalty > 49
 			}
 		}
     }
@@ -3382,6 +3395,19 @@ country_event = { #Final zarca event
 			set_politics = {
 				ruling_party = fascism
 				elections_allowed = no
+			}
+			if = {
+				limit = {
+					check_variable = {
+						CTH_harmonites_loyalty > 49
+					}
+					has_country_flag = CTH_peace_with_coltva
+					has_country_flag = annizalid_coltva
+				}
+				country_event = { 
+					days = 7
+					id = colthage_coltvan.26
+				}
 			}
 		}
 	}
@@ -3451,7 +3477,7 @@ country_event = { #Hippogriffs send volunteers
 
 	option = { 
 		name = colthage_other.43.a
-		add_opinion_modifier = { target = FROM modifier = GRF_oversea_support }
+		add_opinion_modifier = { target = FROM modifier = AET_helped_us_out }
 		custom_effect_tooltip = CTH_HIP_volunteers_tt
 		hidden_effect = {
 			load_oob = "CTH_HIP_volunteers"
@@ -3469,7 +3495,7 @@ country_event = { #Hippogriffs send guns
 
 	option = { 
 		name = colthage_other.44.a
-		add_opinion_modifier = { target = FROM modifier = GRF_oversea_support }
+		add_opinion_modifier = { target = FROM modifier = AET_helped_us_out }
 		add_equipment_to_stockpile = {
 			type = infantry_equipment
 			amount = 1500
@@ -3716,6 +3742,16 @@ country_event = { #Zeirutid agrees on certain conditions
 				}
 			}
 		}
+		effect_tooltip = {
+			CTH_batnoam_zarza = {
+				retire = yes
+			}
+		}
+		hidden_effect = {
+			CTH_batnoam_zarza = {
+				set_nationality = SOL
+			}
+		}
 		ai_chance = {
 			factor = 2
 		}
@@ -3738,7 +3774,10 @@ country_event = { #Zeirutid agrees on certain conditions
 		else = {
 			if = {
 				limit = {
-					has_country_flag = CTH_CVA_cooperation
+					OR = {
+						has_country_flag = CTH_CVA_cooperation
+						has_country_flag = CTH_coltva_revolted
+					}
 				}
 				country_event = { 
 					days = 6
@@ -3874,7 +3913,6 @@ country_event = { #An agreement is made/Zoblos fucking shoots Zeirutid what the 
 			}
 		}
 		else = {
-			custom_effect_tooltip = CTH_minor_land_reforms_tt
 			every_owned_state = {
 				limit = {
 					is_core_of = CVA
@@ -3896,6 +3934,16 @@ country_event = { #An agreement is made/Zoblos fucking shoots Zeirutid what the 
 				}
 			}
 		}
+		effect_tooltip = {
+			CTH_batnoam_zarza = {
+				retire = yes
+			}
+		}
+		hidden_effect = {
+			CTH_batnoam_zarza = {
+				set_nationality = SOL
+			}
+		}
 	}
 	option = { #
 		name = colthage_other.54.b
@@ -3907,6 +3955,20 @@ country_event = { #An agreement is made/Zoblos fucking shoots Zeirutid what the 
 				ideology = primitive_communism
 			}
 			retire_character = CVA_zeshmunazash_zeirutid
+			add_country_leader_role = {
+				character = CVA_zarishat_zeirutid
+				promote_leader = yes
+						
+				country_leader = {
+					desc = "POLITICS_ZARISHAT_DESC"
+					expire = "1965.1.1"
+					ideology = primitive_communism
+					traits = { 
+						CVA_depressed_alcoholic
+						hedonist
+					}
+				}
+			}
 		}
 		set_global_flag = zeirutid_dead
 		if = {
@@ -3992,7 +4054,7 @@ country_event = { #The most unorthodox way of getting constitutionalists in char
 			country_leader = {
 				desc = ""
 				expire = "1965.1.1"
-				ideology = republicanism
+				ideology = centrism
 				traits = {
 					JER_father_of_the_republic
 				}
@@ -4003,11 +4065,6 @@ country_event = { #The most unorthodox way of getting constitutionalists in char
 			ruling_party = neutrality
 			election_frequency = 60
 			elections_allowed = yes
-		}
-		remove_ideas = {
-			CTH_batrun_zaryes
-			CTH_baltazar_zakbar
-			CTH_zaron_zorrel
 		}
 		clr_country_flag = CTH_baltazar_zakbar_flag
 		clr_country_flag = CTH_zaron_zorrel_flag
@@ -4038,6 +4095,11 @@ country_event = { #The most unorthodox way of getting constitutionalists in char
 			ideology = plutocracy
 		}
 		hidden_effect = {
+			remove_ideas = {
+				CTH_batrun_zaryes
+				CTH_baltazar_zakbar
+				CTH_zaron_zorrel
+			}
 			every_character = {
 				limit = {
 					has_trait = zarcid_supporter
@@ -4082,7 +4144,7 @@ country_event = { #This might be even more unorthodox
 			country_leader = {
 				desc = ""
 				expire = "1965.1.1"
-				ideology = republicanism
+				ideology = centrism
 				traits = {
 					JER_father_of_the_republic
 				}
@@ -4093,11 +4155,6 @@ country_event = { #This might be even more unorthodox
 			ruling_party = neutrality
 			election_frequency = 60
 			elections_allowed = yes
-		}
-		remove_ideas = {
-			CTH_batrun_zaryes
-			CTH_baltazar_zakbar
-			CTH_zaron_zorrel
 		}
 		clr_country_flag = CTH_baltazar_zakbar_flag
 		clr_country_flag = CTH_zaron_zorrel_flag
@@ -4121,6 +4178,11 @@ country_event = { #This might be even more unorthodox
 			ideology = plutocracy
 		}
 		hidden_effect = {
+			remove_ideas = {
+				CTH_batrun_zaryes
+				CTH_baltazar_zakbar
+				CTH_zaron_zorrel
+			}
 			every_unit_leader = {
 				limit = {
 					has_trait = zarcid_supporter
@@ -4152,15 +4214,15 @@ country_event = { #This might be even more unorthodox
 			tree = colthage_harmonite_focus_tree
 			keep_completed = yes		   
 		}
-		remove_ideas = {
-			CTH_batrun_zaryes
-			CTH_baltazar_zakbar
-			CTH_zaron_zorrel
-		}
 		clr_country_flag = CTH_baltazar_zakbar_flag
 		clr_country_flag = CTH_zaron_zorrel_flag
 		clr_country_flag = CTH_batrun_zaryes_flag
 		hidden_effect = {
+			remove_ideas = {
+				CTH_batrun_zaryes
+				CTH_baltazar_zakbar
+				CTH_zaron_zorrel
+			}
 			every_unit_leader = {
 				limit = {
 					has_trait = zarcid_supporter
@@ -4831,6 +4893,7 @@ country_event = { #Escalation
 	option = { #God fucking dammit
 		name = colthage_other.77.a
 		custom_effect_tooltip = CVA_revolution_tp
+		set_country_flag = CTH_coltva_cored
 		hidden_effect = {
 			country_event = {
 				id = zebra_zapata.1
@@ -5331,7 +5394,6 @@ country_event = { #Is land reform cringe or not?
 					exists = no
 				}
 			}
-			custom_effect_tooltip = CTH_reassure_the_landlords_tt
 			every_controlled_state = {
 				limit = {
 					is_core_of = CVA
@@ -5377,7 +5439,6 @@ country_event = { #Is land reform cringe or not?
 					exists = no
 				}
 			}
-			custom_effect_tooltip = CTH_minor_land_reforms_tt
 			every_owned_state = {
 				limit = {
 					is_core_of = CVA
@@ -5435,11 +5496,6 @@ country_event = { #Harmonite coup
 			tree = colthage_harmonite_focus_tree
 			keep_completed = yes		   
 		}
-		remove_ideas = {
-			CTH_batrun_zaryes
-			CTH_baltazar_zakbar
-			CTH_zaron_zorrel
-		}
 		if = {
 			limit = {
 				has_idea = CTH_political_instability_2
@@ -5470,6 +5526,11 @@ country_event = { #Harmonite coup
 					has_trait = zarcid_supporter
 				}
 				set_nationality = SOL
+			}
+			remove_ideas = {
+				CTH_batrun_zaryes
+				CTH_baltazar_zakbar
+				CTH_zaron_zorrel
 			}
 		}
 	}
@@ -5989,9 +6050,854 @@ country_event = { #Zidon intro event
 
 	option = {
 		name = colthage_other.114.a
-		add_stability = 0.15
+		add_stability = 0.25
 		add_war_support = 0.1
 		add_political_power = 150
+	}
+}
+country_event = { #Zidon interview
+	id = colthage_other.115
+	immediate = {log = "[GetDateText]: [Root.GetName]: event colthage_other.115"}
+	title = colthage_other.115.t
+	desc = colthage_other.115.d
+
+	picture = GFX_event_colthagevillage
+	is_triggered_only = yes
+
+	option = {
+		name = colthage_other.115.a
+		if = {
+			limit = {
+				NOT = {
+					original_tag = CTB
+				}
+			}
+			add_opinion_modifier = { target = FROM modifier = TBK_improved_relations }
+			add_ai_strategy = {
+				id = CTB
+				type = support
+				value = 200
+			}
+		}
+		else = {
+			add_political_power = 75
+			add_war_support = 0.1
+			add_manpower = 15000
+		}
+	}
+}
+country_event = { #Zidon pranks Zaranzid
+	id = colthage_other.116
+	immediate = {log = "[GetDateText]: [Root.GetName]: event colthage_other.116"}
+	title = colthage_other.116.t
+	desc = colthage_other.116.d
+
+	picture = GFX_event_colthagevillage
+	is_triggered_only = yes
+
+	option = {
+		name = colthage_other.116.a
+		if = {
+			limit = {
+				tag = CTC
+			}
+			add_opinion_modifier = { target = CTB modifier = CTB_coping }
+			add_political_power = -25
+		}
+		else = {
+			add_political_power = 25
+		}
+	}
+}
+country_event = { #Zaryes forms the Junta
+	id = colthage_other.117
+	immediate = {log = "[GetDateText]: [Root.GetName]: event colthage_other.117"}
+	title = colthage_other.117.t
+	desc = colthage_other.117.d
+
+	picture = GFX_event_colthage
+	is_triggered_only = yes
+
+	option = {
+		name = colthage_other.117.a
+		add_political_power = 100
+		add_stability = 0.05
+		add_war_support = 0.05
+		if = {
+			limit = { 
+				has_character = CTH_batrun_zaryes
+				CTH_batrun_zaryes = {
+					is_field_marshal = no
+				}
+			}
+			CTH_batrun_zaryes = {
+				promote_leader = yes
+			}
+		}
+		add_country_leader_trait = generallissimo
+		set_country_flag = CTH_warlords_unlocked
+		custom_effect_tooltip = CTH_warlords_unlocked_tt
+		set_variable = { CTH_zerutra_power = 2 } #out of 3
+		set_variable = { CTH_zerutra_loyalty = 2 } #out of 3
+		set_variable = { CTH_zoblos_power = 2 } #out of 3
+		set_variable = { CTH_zoblos_loyalty = 2 } #out of 3
+		set_variable = { CTH_ochzors_power = 2 } #out of 3
+		set_variable = { CTH_ochzors_loyalty = 2 } #out of 3
+		clamp_variable = {
+			var = CTH_zerutra_power
+			min = 0
+			max = 3
+		}
+		clamp_variable = {
+			var = CTH_zerutra_loyalty
+			min = 0
+			max = 3
+		}
+		clamp_variable = {
+			var = CTH_zoblos_power
+			min = 0
+			max = 3
+		}
+		clamp_variable = {
+			var = CTH_zoblos_loyalty
+			min = 0
+			max = 3
+		}
+		clamp_variable = {
+			var = CTH_ochzors_power
+			min = 0
+			max = 3
+		}
+		clamp_variable = {
+			var = CTH_ochzors_loyalty
+			min = 0
+			max = 3
+		}
+		706 = {
+			add_dynamic_modifier = {
+				modifier = CTH_zerutras_fiefdom
+			}
+		}
+		709 = {
+			add_dynamic_modifier = {
+				modifier = CTH_zoblos_fiefdom
+			}
+		}
+		699 = {
+			add_dynamic_modifier = {
+				modifier = CTH_ochzors_fiefdom
+			}
+		}
+	}
+}
+country_event = { #Suspension of constitution 
+	id = colthage_other.118
+	immediate = {log = "[GetDateText]: [Root.GetName]: event colthage_other.118"}
+	title = colthage_other.118.t
+	desc = colthage_other.118.d
+
+	picture = GFX_event_colthage
+	is_triggered_only = yes
+
+	option = {
+		name = colthage_other.118.a
+		add_ideas = CTH_suspended_constitution
+		custom_effect_tooltip = CTH_all_loyalties_zero
+		if = {
+			limit = {
+				check_variable = {
+					CTH_scientifid_loyalty > 49
+				}
+			}
+			set_variable = { CTH_scientifid_loyalty = 0 } #out of 100
+			multiply_variable = {
+				var = CTH_science_production_factory_efficiency_factor_var
+				value = -1
+			}
+			multiply_variable = {
+				var = CTH_science_eureka_factor_var
+				value = -1
+			}
+		}
+		else = {
+			set_variable = { CTH_scientifid_loyalty = 0 } #out of 100
+		}
+		if = {
+			limit = {
+				check_variable = {
+					CTH_constitutionalist_loyalty > 49
+				}
+			}
+			set_variable = { CTH_constitutionalist_loyalty = 0 } #out of 100
+			multiply_variable = {
+				var = CTH_constitutionalist_economy_cost_factor_var
+				value = -1
+			}
+			multiply_variable = {
+				var = CTH_constitutionalist_mobilization_laws_cost_factor_var
+				value = -1
+			}
+		}
+		else = {
+			set_variable = { CTH_constitutionalist_loyalty = 0 } #out of 100
+		}
+		if = {
+			limit = {
+				check_variable = {
+					CTH_harmonites_loyalty > 49
+				}
+			}
+			set_variable = { CTH_harmonites_loyalty = 0 } #out of 100
+			multiply_variable = {
+				var = CTH_harmonite_stability_factor_var
+				value = -1
+			}
+			multiply_variable = {
+				var = CTH_harmonite_trade_opinion_factor_var
+				value = -1
+			}
+		}
+		else = {
+			set_variable = { CTH_harmonites_loyalty = 0 } #out of 100
+		}
+		force_update_dynamic_modifier = yes
+	}
+}
+country_event = { #New constitution
+	id = colthage_other.119
+	immediate = {log = "[GetDateText]: [Root.GetName]: event colthage_other.119"}
+	title = colthage_other.119.t
+	desc = colthage_other.119.d
+
+	picture = GFX_event_colthage
+	is_triggered_only = yes
+
+	option = {
+		name = colthage_other.119.a
+		add_political_power = 200
+		#custom_effect_tooltip = CTH_factionalism_disabled
+		clr_country_flag = CTH_factions_unlocked_flag
+		remove_dynamic_modifier = { modifier = CTH_factions_modifier }
+		remove_ideas = CTH_political_instability
+		add_ideas = CTH_loyal_landowners
+		swap_ideas = {
+			remove_idea = CTH_suspended_constitution
+			add_idea = CTH_military_constitution
+		}
+	}
+}
+country_event = { #Choosing a sufrit
+	id = colthage_other.120
+	immediate = {log = "[GetDateText]: [Root.GetName]: event colthage_other.120"}
+	title = colthage_other.120.t
+	desc = colthage_other.120.d
+
+	picture = GFX_event_colthage
+	is_triggered_only = yes
+
+	option = {
+		name = colthage_other.120.a
+		set_country_flag = CTH_cosufrit_zerutra_flag
+		clr_country_flag = CTH_no_co_sufrit_flag
+		remove_ideas = CTH_no_co_sufrit
+		add_advisor_role = {
+			character = CTH_bezelshazzar_zerutra
+			advisor = {
+				slot = political_advisor
+				idea_token = CTH_zerutra_sufrit
+				visible = {
+					has_country_flag = CTH_cosufrit_zerutra_flag
+				}
+				allowed = {
+					original_tag = CTH
+				}
+				traits = { CTH_zerutra_trait }
+				removal_cost = -1
+			}
+			activate = yes
+		}
+		custom_effect_tooltip = CTH_add_1_zerutra_power_loyalty_tt
+		add_to_variable = {
+			var = CTH_zerutra_power
+			value = 1
+		}
+		add_to_variable = {
+			var = CTH_zerutra_loyalty
+			value = 1
+		}
+		custom_effect_tooltip = CTH_remove_1_loyalty_others_tt
+		subtract_from_variable = {
+			var = CTH_zoblos_loyalty
+			value = 1
+		}
+		subtract_from_variable = {
+			var = CTH_ochzors_loyalty
+			value = 1
+		}
+	}
+	option = {
+		name = colthage_other.120.b
+		set_country_flag = CTH_cosufrit_zoblos_flag
+		clr_country_flag = CTH_no_co_sufrit_flag
+		hidden_effect = {
+			remove_advisor_role = {
+				character = CTH_jebzel_zoblos
+				slot = political_advisor
+			}
+		}
+		remove_ideas = CTH_no_co_sufrit
+		add_advisor_role = {
+			character = CTH_jebzel_zoblos
+			advisor = {
+				slot = political_advisor
+				idea_token = CTH_zoblos_sufrit
+				visible = {
+					has_country_flag = CTH_cosufrit_zoblos_flag
+				}
+				allowed = {
+					original_tag = CTH
+				}
+				traits = { CTH_zoblos_trait }
+				removal_cost = -1
+			}
+			activate = yes
+		}
+		custom_effect_tooltip = CTH_add_1_zoblos_power_loyalty_tt
+		add_to_variable = {
+			var = CTH_zoblos_power
+			value = 1
+		}
+		add_to_variable = {
+			var = CTH_zoblos_loyalty
+			value = 1
+		}
+		custom_effect_tooltip = CTH_remove_1_loyalty_others_tt
+		subtract_from_variable = {
+			var = CTH_zerutra_loyalty
+			value = 1
+		}
+		subtract_from_variable = {
+			var = CTH_ochzors_loyalty
+			value = 1
+		}
+	}
+	option = {
+		name = colthage_other.120.c
+		set_country_flag = CTH_cosufrit_ochzor_flag
+		clr_country_flag = CTH_no_co_sufrit_flag
+		hidden_effect = {
+			remove_advisor_role = {
+				character = CTH_zauro_ochzor
+				slot = political_advisor
+			}
+		}
+		remove_ideas = CTH_no_co_sufrit
+		add_advisor_role = {
+			character = CTH_zauro_ochzor
+			advisor = {
+				slot = political_advisor
+				idea_token = CTH_ochzor_sufrit
+				visible = {
+					has_country_flag = CTH_cosufrit_ochzor_flag
+				}
+				allowed = {
+					original_tag = CTH
+				}
+				traits = { CTH_ochzor_trait }
+				removal_cost = -1
+			}
+			activate = yes
+		}
+		custom_effect_tooltip = CTH_add_1_ochzor_power_loyalty_tt
+		add_to_variable = {
+			var = CTH_ochzors_power
+			value = 1
+		}
+		add_to_variable = {
+			var = CTH_ochzors_loyalty
+			value = 1
+		}
+		custom_effect_tooltip = CTH_remove_1_loyalty_others_tt
+		subtract_from_variable = {
+			var = CTH_zerutra_loyalty
+			value = 1
+		}
+		subtract_from_variable = {
+			var = CTH_zoblos_loyalty
+			value = 1
+		}
+	}
+}
+
+country_event = { #Warlord(s) coup zaryes
+	id = colthage_other.121
+	immediate = {log = "[GetDateText]: [Root.GetName]: event colthage_other.121"}
+	title = colthage_other.121.t
+	desc = colthage_other.121.d
+
+	picture = GFX_event_colthage
+	is_triggered_only = yes
+
+	option = {
+		name = colthage_other.121.a
+		add_stability = -0.25
+		add_political_power = -150
+		if = {
+			limit = {
+				check_variable = {
+					CTH_zerutra_power > 2
+				}
+			}
+			effect_tooltip = {
+				CTH_batrun_zaryes = {
+					retire = yes
+				}
+			}
+			hidden_effect = {
+				remove_country_leader_role = {
+					character = CTH_batrun_zaryes
+					ideology = stratocracy
+				}
+				CTH_batrun_zaryes = {
+					set_nationality = SOL
+				}
+			}
+			if = {
+				limit = {
+					has_idea = CTH_zerutra_sufrit
+				}
+				clr_country_flag = CTH_cosufrit_zerutra_flag
+				set_country_flag = CTH_no_co_sufrit_flag
+				remove_ideas = CTH_zerutra_sufrit
+			}
+			add_country_leader_role = {
+				character = CTH_bezelshazzar_zerutra
+				country_leader = {
+					desc = CTH_bezelshazzar_zerutra_desc
+					expire = "1965.1.1"
+					ideology = stratocracy
+					traits = { hedonist }
+				}
+				promote_leader = yes
+			}
+			if = {
+				limit = { 
+					has_character = CTH_bezelshazzar_zerutra
+					CTH_bezelshazzar_zerutra = {
+						is_field_marshal = no
+					}
+				}
+				CTH_bezelshazzar_zerutra = {
+					promote_leader = yes
+				}
+			}
+			set_variable = { CTH_zerutra_power = 3 } 
+			set_variable = { CTH_zerutra_loyalty = 3 }
+			custom_effect_tooltip = CTH_warlord_disloyalty_tt
+			set_variable = { CTH_zoblos_loyalty = 1 }
+			set_variable = { CTH_ochzors_loyalty = 1 }
+			hidden_effect = {
+				country_event = {
+					id = colthage_other.122
+					days = 3
+				}
+			}
+		}
+		else_if = {
+			limit = {
+				check_variable = {
+					CTH_zoblos_power > 2
+				}
+			}
+			effect_tooltip = {
+				CTH_batrun_zaryes = {
+					retire = yes
+				}
+			}
+			hidden_effect = {
+				remove_country_leader_role = {
+					character = CTH_batrun_zaryes
+					ideology = stratocracy
+				}
+				CTH_batrun_zaryes = {
+					set_nationality = SOL
+				}
+			}
+			if = {
+				limit = {
+					has_idea = CTH_zoblos_sufrit
+				}
+				clr_country_flag = CTH_cosufrit_zoblos_flag
+				set_country_flag = CTH_no_co_sufrit_flag
+				remove_ideas = CTH_zoblos_sufrit
+			}
+			add_country_leader_role = {
+				character = CTH_jebzel_zoblos
+				country_leader = {
+					expire = "1965.1.1"
+					ideology = stratocracy
+					traits = { princess_of_terror }
+				}
+				promote_leader = yes
+			}
+			if = {
+				limit = { 
+					has_character = CTH_jebzel_zoblos
+					CTH_jebzel_zoblos = {
+						is_field_marshal = no
+					}
+				}
+				CTH_jebzel_zoblos = {
+					promote_leader = yes
+				}
+			}
+			set_variable = { CTH_zoblos_power = 3 } 
+			set_variable = { CTH_zoblos_loyalty = 3 }
+			custom_effect_tooltip = CTH_warlord_disloyalty_tt
+			set_variable = { CTH_zerutra_loyalty = 1 }
+			set_variable = { CTH_ochzors_loyalty = 1 }
+			hidden_effect = {
+				country_event = {
+					id = colthage_other.122
+					days = 3
+				}
+			}
+		}
+		else = {
+			effect_tooltip = {
+				CTH_batrun_zaryes = {
+					retire = yes
+				}
+			}
+			hidden_effect = {
+				remove_country_leader_role = {
+					character = CTH_batrun_zaryes
+					ideology = stratocracy
+				}
+				CTH_batrun_zaryes = {
+					set_nationality = SOL
+				}
+			}
+			if = {
+				limit = {
+					has_idea = CTH_ochzor_sufrit
+				}
+				clr_country_flag = CTH_cosufrit_ochzor_flag
+				set_country_flag = CTH_no_co_sufrit_flag
+				remove_ideas = CTH_ochzor_sufrit
+			}
+			add_country_leader_role = {
+				character = CTH_zauro_ochzor
+				country_leader = {
+					expire = "1965.1.1"
+					ideology = stratocracy
+					traits = { infantry_equipment_designer }
+				}
+				promote_leader = yes
+			}
+			if = {
+				limit = { 
+					has_character = CTH_zauro_ochzor
+					CTH_zauro_ochzor = {
+						is_field_marshal = no
+					}
+				}
+				CTH_zauro_ochzor = {
+					promote_leader = yes
+				}
+			}
+			set_variable = { CTH_ochzors_power = 3 } 
+			set_variable = { CTH_ochzors_loyalty = 3 }
+			custom_effect_tooltip = CTH_warlord_disloyalty_tt
+			set_variable = { CTH_zerutra_loyalty = 1 }
+			set_variable = { CTH_zoblos_loyalty = 1 }
+			hidden_effect = {
+				country_event = {
+					id = colthage_other.122
+					days = 3
+				}
+			}
+		}
+		clr_country_flag = CTH_warlords_unlocked
+	}
+}
+country_event = { #Warlord declares independence
+	id = colthage_other.122
+	immediate = {log = "[GetDateText]: [Root.GetName]: event colthage_other.122"}
+	title = colthage_other.122.t
+	desc = colthage_other.122.d
+
+	picture = GFX_event_colthage
+	is_triggered_only = yes
+
+	option = {
+		name = colthage_other.122.a
+		add_stability = -0.1
+		add_political_power = -75
+		if = {
+			limit = {
+				check_variable = {
+					CTH_zerutra_loyalty < 2
+				}
+			}
+			if = {
+				limit = {
+					has_idea = CTH_zerutra_sufrit
+				}
+				clr_country_flag = CTH_cosufrit_zerutra_flag
+				set_country_flag = CTH_no_co_sufrit_flag
+				remove_ideas = CTH_zerutra_sufrit
+			}
+			CTH_bezelshazzar_zerutra = {
+				set_nationality = TRO
+			}
+			every_owned_state = {
+				limit = {
+					has_dynamic_modifier = {
+						modifier = CTH_zerutras_fiefdom
+					}
+				}
+				transfer_state_to = TRO
+				add_core_of = TRO
+			}
+			transfer_units_fraction = {
+				target = TRO
+				size = 0.25
+				stockpile_ratio = 0.25
+				army_ratio = 0.25
+				navy_ratio = 0.1
+				air_ratio = 0.25
+				keep_unit_leaders_trigger = {
+					OR = {
+						has_id = 1927
+						has_id = 1928
+						has_id = 1931
+						has_id = 1925
+						has_id = 1932
+						has_id = 1929
+					}
+				}
+			}
+			TRO = {
+				load_focus_tree = generic_zebra_focus
+				transfer_technology = yes
+				set_popularities = {
+					democratic = 0
+					fascism = 80
+					communism = 0
+					neutrality = 20
+				}
+				set_party_name = { 
+					ideology = fascism 
+					long_name = CTH_alcohol_drugs_and_guns_party_long 
+					name = CTH_alcohol_drugs_and_guns_party
+				}
+				set_politics = {
+					ruling_party = fascism
+					elections_allowed = no
+				}
+				add_country_leader_role = {
+					character = CTH_bezelshazzar_zerutra
+					country_leader = {
+						desc = CTH_bezelshazzar_zerutra_desc
+						expire = "1965.1.1"
+						ideology = stratocracy
+						traits = { hedonist }
+					}
+					promote_leader = yes
+				}
+			}
+			set_variable = { CTH_zerutra_power = 0 } 
+			set_variable = { CTH_zerutra_loyalty = 0 }
+		}
+		if = {
+			limit = {
+				check_variable = {
+					CTH_zoblos_loyalty < 2
+				}
+			}
+			if = {
+				limit = {
+					has_idea = CTH_zoblos_sufrit
+				}
+				clr_country_flag = CTH_cosufrit_zoblos_flag
+				set_country_flag = CTH_no_co_sufrit_flag
+				remove_ideas = CTH_zoblos_sufrit
+			}
+			CTH_jebzel_zoblos = {
+				set_nationality = CTC
+			}
+			every_owned_state = {
+				limit = {
+					has_dynamic_modifier = {
+						modifier = CTH_zoblos_fiefdom
+					}
+				}
+				transfer_state_to = CTC
+				add_core_of = CTC
+			}
+			transfer_units_fraction = {
+				target = CTC
+				size = 0.25
+				stockpile_ratio = 0.25
+				army_ratio = 0.25
+				navy_ratio = 0.1
+				air_ratio = 0.25
+				keep_unit_leaders_trigger = {
+					OR = {
+						has_id = 1927
+						has_id = 1928
+						has_id = 1931
+						has_id = 1925
+						has_id = 1932
+						has_id = 1929
+					}
+				}
+			}
+			CTC = {
+				load_focus_tree = generic_zebra_focus
+				transfer_technology = yes
+				set_popularities = {
+					democratic = 0
+					fascism = 80
+					communism = 0
+					neutrality = 20
+				}
+				drop_cosmetic_tag = yes
+				set_cosmetic_tag = CTH_zoblos_cosmetic
+				set_party_name = { 
+					ideology = fascism 
+					long_name = CTH_girlboss_party_long 
+					name = CTH_girlboss_party
+				}
+				set_politics = {
+					ruling_party = fascism
+					elections_allowed = no
+				}
+				add_country_leader_role = {
+					character = CTH_jebzel_zoblos
+					country_leader = {
+						expire = "1965.1.1"
+						ideology = neofeudalism
+						traits = { princess_of_terror }
+					}
+					promote_leader = yes
+				}
+				every_character = {
+					limit = {
+						OR = {
+							has_trait = constitutionalist_supporter
+							has_trait = harmonid_supporter
+						}
+					}
+					set_nationality = SOL
+				}
+			}
+			set_variable = { CTH_zoblos_power = 0 } 
+			set_variable = { CTH_zoblos_loyalty = 0 }
+		}
+		if = {
+			limit = {
+				check_variable = {
+					CTH_ochzors_loyalty < 2
+				}
+			}
+			if = {
+				limit = {
+					has_idea = CTH_ochzor_sufrit
+				}
+				clr_country_flag = CTH_cosufrit_ochzor_flag
+				set_country_flag = CTH_no_co_sufrit_flag
+				remove_ideas = CTH_ochzor_sufrit
+			}
+			CTH_zauro_ochzor = {
+				set_nationality = HIE
+			}
+			CTH_zamalad_ochzor = {
+				set_nationality = HIE
+			}
+			every_owned_state = {
+				limit = {
+					has_dynamic_modifier = {
+						modifier = CTH_ochzors_fiefdom
+					}
+				}
+				transfer_state_to = HIE
+				add_core_of = HIE
+			}
+			transfer_units_fraction = {
+				target = HIE
+				size = 0.25
+				stockpile_ratio = 0.25
+				army_ratio = 0.25
+				navy_ratio = 0.5
+				air_ratio = 0.25
+				keep_unit_leaders_trigger = {
+					OR = {
+						has_id = 1927
+						has_id = 1928
+						has_id = 1931
+						has_id = 1925
+						has_id = 1932
+						has_id = 1929
+					}
+				}
+			}
+			HIE = {
+				load_focus_tree = generic_zebra_focus
+				transfer_technology = yes
+				set_popularities = {
+					democratic = 0
+					fascism = 80
+					communism = 0
+					neutrality = 20
+				}
+				set_party_name = { 
+					ideology = fascism 
+					long_name = CTH_ochzor_party_long 
+					name = CTH_ochzor_party
+				}
+				set_politics = {
+					ruling_party = fascism
+					elections_allowed = no
+				}
+				add_country_leader_role = {
+					character = CTH_zauro_ochzor
+					country_leader = {
+						expire = "1965.1.1"
+						ideology = stratocracy
+						traits = { infantry_equipment_designer }
+					}
+					promote_leader = yes
+				}
+			}
+			set_variable = { CTH_ochzors_power = 0 } 
+			set_variable = { CTH_ochzors_loyalty = 0 }
+		}
+	}
+}
+country_event = { #Feathara girls
+	id = colthage_other.123
+	immediate = {log = "[GetDateText]: [Root.GetName]: event colthage_other.123"}
+	title = colthage_other.123.t
+	desc = colthage_other.123.d
+
+	picture = GFX_event_colthage
+	is_triggered_only = yes
+
+	option = {
+		name = colthage_other.123.a
+		if = {
+			limit = {
+				NOT = {
+					has_idea = free_trade
+				}
+			}
+			add_ideas = free_trade
+		}
+		set_country_flag = TRD_forced_market
+		custom_effect_tooltip = available_political_advisor
+		show_ideas_tooltip = CTH_feathara_girls_char
 	}
 }
 ### News events
