@@ -255,3 +255,228 @@ TRO_join_the_war_on_drugs_on_the_side_of_the_drugs = {
 	
 	add_to_variable = { TRO_drugs_dirty_bit = 0.001 }
 }
+
+TRO_drugs_recassign_state_dynmods = {
+	hidden_effect = {
+		for_each_loop = {
+			array = TRO_drugs_map_array
+			var:v = {
+				remove_dynamic_modifier = { modifier = TRO_CTH_drugs_tiger_dynmod }
+				remove_dynamic_modifier = { modifier = TRO_CTH_drugs_zaga_dynmod }
+				remove_dynamic_modifier = { modifier = TRO_CTH_drugs_zapsa_dynmod }
+				remove_dynamic_modifier = { modifier = TRO_CTH_drugs_zurumilki_dynmod }
+				remove_dynamic_modifier = { modifier = TRO_CTH_drugs_abizaal_dynmod }
+				if = {
+					limit = {
+						check_variable = { ROOT.TRO_cartel_action_option^0 = 1 }
+						check_variable = { TRO_drugs_ruling_cartel = 0 }
+					}
+					add_dynamic_modifier = { modifier = TRO_CTH_drugs_tiger_dynmod }
+				}
+				else_if = {
+					limit = {
+						check_variable = { ROOT.TRO_cartel_action_option^1 = 1 }
+						check_variable = { TRO_CTH_drugs_zaga_dynmod = 1 }
+					}
+					add_dynamic_modifier = { modifier = TRO_CTH_drugs_tiger_dynmod }
+				}
+				else_if = {
+					limit = {
+						check_variable = { ROOT.TRO_cartel_action_option^2 = 1 }
+						check_variable = { TRO_CTH_drugs_zapsa_dynmod = 2 }
+					}
+					add_dynamic_modifier = { modifier = TRO_CTH_drugs_tiger_dynmod }
+				}
+				else_if = {
+					limit = {
+						check_variable = { ROOT.TRO_cartel_action_option^3 = 1 }
+						check_variable = { TRO_CTH_drugs_zurumilki_dynmod = 3 }
+					}
+					add_dynamic_modifier = { modifier = TRO_CTH_drugs_tiger_dynmod }
+				}
+				else_if = {
+					limit = {
+						check_variable = { ROOT.TRO_cartel_action_option^4 = 1 }
+						check_variable = { TRO_CTH_drugs_abizaal_dynmod = 4 }
+					}
+					add_dynamic_modifier = { modifier = TRO_CTH_drugs_tiger_dynmod }
+				}
+			}
+		}
+		TRO_drugs_recalculate_dynmod_values = yes
+	}
+}
+
+TRO_drugs_recalculate_dynmod_values = {
+	if = {
+		limit = {
+			check_variable = { ROOT.TRO_cartel_action_option^0 = 1 }
+		}
+		set_temp_variable = { x = TRO_drugs_friendly_power_status^0 }
+		divide_temp_variable = { x = 100 }
+		set_temp_variable = { y = TRO_drugs_friendly_relations_status^0 }
+		divide_temp_variable = { y = 100 }
+		subtract_from_temp_variable = { y = 0.5 }
+		multiply_temp_variable = { y = 2 }
+		
+		add_to_array = { TRO_drugs_tiger_dynmod_array = 0.2 }
+		add_to_array = { TRO_drugs_tiger_dynmod_array = 0.1 }
+		if = {
+			limit = {
+				check_variable = { x > 0.5 }
+				check_variable = { y > 0 }
+			}
+			add_to_array = { TRO_drugs_tiger_dynmod_array = -0.15 }
+		}
+		for_each_loop = {
+			array = TRO_drugs_tiger_dynmod_array
+			multiply_variable = { TRO_drugs_tiger_dynmod_array^i = x }
+			multiply_variable = { TRO_drugs_tiger_dynmod_array^i = y }
+		}
+	}
+	else_if = {
+		limit = {
+			check_variable = { TRO_cartel_action_option^1 = 1 }
+		}
+		set_temp_variable = { x = TRO_drugs_friendly_power_status^1 }
+		divide_temp_variable = { x = 100 }
+		set_temp_variable = { y = TRO_drugs_friendly_relations_status^1 }
+		divide_temp_variable = { y = 100 }
+		subtract_from_temp_variable = { y = 0.5 }
+		multiply_temp_variable = { y = 2 }
+		
+		add_to_array = { TRO_drugs_zaga_dynmod_array = -0.3 }
+		add_to_array = { TRO_drugs_zaga_dynmod_array = 0.2 }
+		for_each_loop = {
+			array = TRO_drugs_zaga_dynmod_array
+			multiply_variable = { TRO_drugs_zaga_dynmod_array^i = x }
+			multiply_variable = { TRO_drugs_zaga_dynmod_array^i = y }
+		}
+	}
+}
+
+TRO_drugs_friendly_power_change = {
+	if = {
+		limit = {
+			check_variable = { TRO_cartel_action_option^temp_idx = 1 }
+		}
+		add_to_variable = { TRO_drugs_friendly_power_status^temp_idx = temp_p_change }
+		if = {
+			limit = {
+				check_variable = { temp_p_change < 0 }
+			}
+			multiply_temp_variable = { temp_p_change = -1 }
+			custom_effect_tooltip = TRO_CTH_drugs_friendly_power_decrease
+		}
+		else = {
+			custom_effect_tooltip = TRO_CTH_drugs_friendly_power_increase
+		}
+		for_each_loop = {
+			array = TRO_drugs_friendly_power_status
+			clamp_variable = { var = TRO_drugs_friendly_power_status^i min = 0 max = 100 }
+		}
+		add_to_variable = { TRO_drugs_dirty_bit = 0.001 }
+	}
+}
+
+TRO_drugs_friendly_relations_change = {
+	if = {
+		limit = {
+			check_variable = { TRO_cartel_action_option^temp_idx = 1 }
+		}
+		add_to_variable = { TRO_drugs_friendly_relations_status^temp_idx = temp_r_change }
+		if = {
+			limit = {
+				check_variable = { temp_r_change < 0 }
+			}
+			multiply_temp_variable = { temp_r_change = -1 }
+			custom_effect_tooltip = TRO_CTH_drugs_friendly_relations_worsen
+		}
+		else = {
+			custom_effect_tooltip = TRO_CTH_drugs_friendly_relations_improve
+		}
+		for_each_loop = {
+			array = TRO_drugs_friendly_relations_status
+			clamp_variable = { var = TRO_drugs_friendly_relations_status^i min = 0 max = 100 }
+		}
+		add_to_variable = { TRO_drugs_dirty_bit = 0.001 }
+	}
+}
+
+TRO_drugs_enemy_influence_change = {
+	if = {
+		limit = {
+			check_variable = { TRO_cartel_action_option^temp_idx = 2 }
+		}
+		add_to_variable = { TRO_drugs_enemy_influence_status^temp_idx = temp_i_change }
+		if = {
+			limit = {
+				check_variable = { temp_i_change < 0 }
+			}
+			multiply_temp_variable = { temp_i_change = -1 }
+			custom_effect_tooltip = TRO_CTH_drugs_enemy_influence_shrink
+			else = {
+				custom_effect_tooltip = TRO_CTH_drugs_enemy_influence_grow
+			}
+		}
+		for_each_loop = {
+			array = TRO_drugs_enemy_influence_status
+			clamp_variable = { var = TRO_drugs_enemy_influence_status^i min = 0 max = 100 }
+		}
+		add_to_variable = { TRO_drugs_dirty_bit = 0.001 }
+	}
+}
+
+TRO_drugs_enemy_control_change = {
+	if = {
+		limit = {
+			check_variable = { TRO_cartel_action_option^temp_idx = 2 }
+		}
+		add_to_variable = { TRO_drugs_enemy_control_status^temp_idx = temp_c_change }
+		if = {
+			limit = {
+				check_variable = { temp_c_change < 0 }
+			}
+			multiply_temp_variable = { temp_c_change = -1 }
+			custom_effect_tooltip = TRO_CTH_drugs_enemy_control_weaken
+			else = {
+				custom_effect_tooltip = TRO_CTH_drugs_enemy_control_strengthen
+			}
+		}
+		for_each_loop = {
+			array = TRO_drugs_enemy_control_status
+			clamp_variable = { var = TRO_drugs_enemy_control_status^i min = 0 max = 100 }
+		}
+		add_to_variable = { TRO_drugs_dirty_bit = 0.001 }
+	}
+}
+
+TRO_drugs_enemy_aggression_change = {
+	if = {
+		limit = {
+			check_variable = { TRO_cartel_action_option^temp_idx = 2 }
+		}
+		add_to_variable = { TRO_drugs_enemy_aggression_status^temp_idx = temp_a_change }
+		if = {
+			limit = {
+				check_variable = { temp_a_change < 0 }
+			}
+			multiply_temp_variable = { temp_a_change = -1 }
+			custom_effect_tooltip = TRO_CTH_drugs_enemy_aggression_decrease
+			else = {
+				custom_effect_tooltip = TRO_CTH_drugs_enemy_aggression_increase
+			}
+		}
+		for_each_loop = {
+			array = TRO_drugs_enemy_aggression_status
+			clamp_variable = { var = TRO_drugs_enemy_aggression_status^i min = 0 max = 100 }
+		}
+		add_to_variable = { TRO_drugs_dirty_bit = 0.001 }
+	}
+}
+
+TRO_drugs_state_control_change = {
+	set_variable = { temp_state_id:TRO_drugs_ruling_cartel = temp_idx }
+	custom_effect_tooltip = TRO_CTH_drugs_state_control_change
+	add_to_variable = { TRO_drugs_dirty_bit = 0.001 }
+}
