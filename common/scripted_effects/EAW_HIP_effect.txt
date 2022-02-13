@@ -845,3 +845,176 @@ HIP_SIR_integrate_colthage = {
 		add_resistance = HIP_SIR_CGI_resistance_loss
 	}
 }
+
+
+HIP_underwater_conscription_var_display = {
+	set_variable = { HIP_seapony_population_displayed = HIP_seapony_population }
+	round_variable = HIP_seapony_population_displayed
+	divide_variable = { HIP_seapony_population_displayed = 1000 }
+
+	set_variable = { HIP_conscription_target_displayed = HIP_conscription_target }
+	multiply_variable = { HIP_conscription_target_displayed = 100 }
+	set_variable = { HIP_conscription_rate_displayed = HIP_conscription_rate }
+	multiply_variable = { HIP_conscription_rate_displayed = 1000 }
+}
+HIP_underwater_population_increase = {
+	multiply_variable = { HIP_seapony_population = 1.00125 }
+}
+HIP_underwater_conscription_pool_calculation = {
+	set_variable = { HIP_conscription_pool = HIP_seapony_population }
+	multiply_variable = { HIP_conscription_pool = HIP_conscription_target }
+	round_variable = HIP_conscription_pool #--Value in thousands
+
+
+	set_variable = { HIP_conscription_rate = HIP_conscription_pool }
+	multiply_variable = { HIP_conscription_rate = HIP_conscription_mobilization_speed }
+	round_variable = HIP_conscription_rate #--Value in thousands
+
+}
+
+HIP_underwater_conscription_setup = {
+	set_variable = { HIP_seapony_population = 7014.943 } #In Thousands
+	set_variable = { HIP_conscription_base = 0.015 }
+	set_variable = { HIP_conscription_multiplier = 1 }
+	set_variable = { HIP_conscription_target = 0.015 }
+
+	set_variable = { HIP_conscription_mobilization_speed = 0.05 }
+
+	HIP_underwater_conscription_pool_calculation = yes
+
+
+
+	set_variable = { HIP_conscription_conscripted_seaponies = 84 } #In Thousands
+	add_manpower = 84000
+	HIP_underwater_conscription_var_display = yes
+}
+HIP_underwater_conscription_weekly = {
+	HIP_underwater_conscription_pool_calculation = yes
+	clr_country_flag = HIP_seapony_trying_to_demobilize
+	if = {
+		limit = {
+			check_variable = {
+				HIP_conscription_conscripted_seaponies < HIP_conscription_pool
+			}
+		}
+		#Conscripting more
+		set_country_flag = HIP_seapony_mobilizing
+		set_temp_variable = {
+			HIP_unconscripted_seaponies = HIP_conscription_pool
+		}
+		subtract_from_temp_variable = {
+			HIP_unconscripted_seaponies = HIP_conscription_conscripted_seaponies
+		}
+		if = {
+			limit = {
+				check_variable = {
+					var = HIP_unconscripted_seaponies
+					value = HIP_conscription_rate
+					compare = less_than_or_equals
+				}
+			}
+			set_variable = { HIP_conscription_conscripted_seaponies = HIP_conscription_pool }
+			set_temp_variable = { HIP_var_added_manpower = HIP_unconscripted_seaponies }
+			multiply_temp_variable = { HIP_var_added_manpower = 1000 }
+			add_manpower = var:HIP_var_added_manpower
+		}
+		else = {
+			add_to_variable = { HIP_conscription_conscripted_seaponies = HIP_conscription_rate }
+			set_temp_variable = { HIP_var_added_manpower = HIP_conscription_rate }
+			multiply_temp_variable = { HIP_var_added_manpower = 1000 }
+			add_manpower = var:HIP_var_added_manpower
+		}
+	}
+	else_if = {
+		limit = {
+			check_variable = {
+				HIP_conscription_conscripted_seaponies > HIP_conscription_pool
+			}
+			NOT = {
+				check_variable = {
+					manpower = 0
+				}
+			}
+		}
+		#Conscripting loss
+		set_country_flag = HIP_seapony_demobilizing
+		set_temp_variable = {
+			HIP_unconscripted_seaponies = HIP_conscription_conscripted_seaponies
+		}
+		subtract_from_temp_variable = {
+			HIP_unconscripted_seaponies = HIP_conscription_pool
+		}
+		set_temp_var = { HIP_unconscripted_seaponies_k = HIP_unconscripted_seaponies}
+		multiply_temp_var = { HIP_unconscripted_seaponies_k = 1000}
+		set_temp_var = { HIP_conscription_rate_k = HIP_conscription_rate}
+		multiply_temp_var = { HIP_conscription_rate_k = 1000}
+
+		set_temp_var = { manpower_removal = manpower }
+		if = {
+			limit = {
+				check_variable = {
+					var = HIP_unconscripted_seaponies_k
+					value = HIP_conscription_rate_k
+					compare = less_than_or_equals
+				}
+			}
+			if = {
+				limit = {
+					check_variable = {
+						manpower_removal < HIP_unconscripted_seaponies_k
+					}
+				}
+				#We can't demobilize everyone
+				set_country_flag = HIP_seapony_trying_to_demobilize
+				multiply_temp_variable = { manpower_removal = -1}
+				add_manpower = var:manpower_removal
+				multiply_temp_variable = { manpower_removal = -0.001}
+				round_temp_variable = manpower_removal
+				subtract_from_variable = { HIP_conscription_conscripted_seaponies = manpower_removal}
+			}
+			else = {
+				multiply_temp_variable = { HIP_unconscripted_seaponies_k = -1}
+				add_manpower = var:HIP_unconscripted_seaponies_k
+				set_variable = { HIP_conscription_conscripted_seaponies = HIP_conscription_pool }
+			}
+		}
+		else = {
+			if = {
+				limit = {
+					check_variable = {
+						manpower_removal < HIP_conscription_rate_k
+					}
+				}
+				#We can't demobilize everyone
+				set_country_flag = HIP_seapony_trying_to_demobilize
+				multiply_temp_variable = { manpower_removal = -1}
+				add_manpower = var:manpower_removal
+				multiply_temp_variable = { manpower_removal = -0.001}
+				round_temp_variable = manpower_removal
+				subtract_from_variable = { HIP_conscription_conscripted_seaponies = manpower_removal}
+			}
+			else = {
+				multiply_temp_variable = { HIP_conscription_rate_k = -1}
+				add_manpower = var:HIP_conscription_rate_k
+				substract_from_variable = { HIP_conscription_conscripted_seaponies = HIP_conscription_rate }
+			}
+		}
+		
+
+	}
+	else_if = {
+		limit = {
+			check_variable = {
+				HIP_conscription_conscripted_seaponies > HIP_conscription_pool
+			}
+			check_variable = {
+				manpower = 0
+			}
+		}
+		set_country_flag = HIP_seapony_trying_to_demobilize
+	}
+	else = {
+		clr_country_flag = HIP_seapony_demobilizing
+		clr_country_flag = HIP_seapony_mobilizing
+	}
+}
