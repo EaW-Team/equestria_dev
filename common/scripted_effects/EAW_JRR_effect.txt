@@ -104,3 +104,86 @@ bring_to_aquileian_level = {
 		} 
 	}
 }
+
+### Thank you Scars, very cool ###
+
+# Index
+
+# 0 - Evolutionary
+# 1 - Orthodox
+# 2 - Pragmatist
+
+# How to use
+
+# set_temp_variable = { t_change = 10 }
+# set_temp_variable = { t_index = 1 }
+# JRR_change_directorate_Influence = yes
+
+# This will change Orthodox influence by 10, adjusting the others accordingly.
+
+JRR_change_directorate_Influence = {
+	set_temp_variable = { v_check = JRR_Directorate_Influence^t_index }
+	add_to_temp_variable = { v_check = t_change }
+
+	if = {
+		limit = {
+			check_variable = { v_check < 0 }
+		}
+		subtract_from_temp_variable = { t_change = v_check }
+	}
+	else_if = {
+		limit = {
+			check_variable = { v_check > 100 }
+		}
+		set_temp_variable = { n_100 = v_check }
+		subtract_from_temp_variable = { n_100 = 100 }
+		subtract_from_temp_variable = { t_change = n_100 }
+	}
+	
+	custom_effect_tooltip = CVA_CTH_Pol_Influence_CET
+	
+	if = {
+		limit = {
+			NOT = {
+				check_variable = { t_change = 0 }
+			}
+		}
+		add_to_variable = { JRR_Directorate_Influence^t_index = t_change }
+		divide_temp_variable = { t_change = 2 }
+		set_temp_variable = { excess = 0 }
+		for_each_loop = {
+			array = JRR_Directorate_Influence
+			if = {
+				limit = {
+					NOT = {
+						check_variable = { i = t_index }
+					}
+				}
+				subtract_from_variable = { JRR_Directorate_Influence^i = t_change }
+			}
+			if = {
+				limit = { check_variable = { JRR_Directorate_Influence^i < 0 } }
+				add_to_temp_variable = { excess = JRR_Directorate_Influence^i }
+				set_variable = { JRR_Directorate_Influence^i = 0 }
+				add_to_temp_array = { zero_value = i }
+			}
+		}
+		for_each_loop = {
+			array = JRR_Directorate_Influence
+			if = {
+				limit = {
+					NOT = {
+						is_in_array = { array = zero_value value = i }
+						check_variable = { i = t_index }
+					}
+				}
+				add_to_variable = { JRR_Directorate_Influence^i = excess }
+			}
+		}
+	}
+
+	# Display pie chart
+
+	set_variable = { orthodox_frame = JRR_Directorate_Influence^0 }
+	add_to_variable = { orthodox_frame = JRR_Directorate_Influence^1 }
+}
