@@ -1,4 +1,6 @@
 DED_startup = {
+	DED_catacomb_startup = yes
+
 	set_technology = {
 		DED_tech_first_seal = 1
 		DED_tech_sentience_matrix = 1
@@ -56,51 +58,148 @@ DED_startup = {
 	load_focus_tree = DED_START
 	#army_experience = 100
 	#set_variable = { DED_undead_production = 735 }
-	country_event = { id = dread.1 days = 3 }
+	#country_event = { id = dread.1 days = 3 }
 
-	DED_catacomb_startup = yes
 }
+
+#Welcome to my personal purgatory
+#Integer limits are in the air
+#Gaze upon my work ye mighty
+#And despair.
 
 DED_monthly = {
 	if = {
 		limit = {
 			has_country_flag = DED_catacomb_system_active
 		}
-		DED_catacomb_gain = yes
+		DED_catacomb_system_loop = yes
 	}
+}
+
+DED_catacomb_system_loop = {
+	DED_catacomb_corpse_gain = yes
+	DED_mage_gain = yes
+	DED_catacomb_gain_undead_base = yes
+	DED_undead_attrition = yes
+	DED_catacomb_gain_undead = yes
 }
 
 DED_catacomb_startup = {
-	set_variable = { DED_corpse_stockpile = 100000 }
-	set_variable = { DED_waste_stockpile = 50000 }
-	set_variable = { DED_necromancer_cap = 100 }
+	set_variable = { DED_corpse_stockpile = 100 }	#This variable stores the amount of corpses in store. It's in hundreds for the sake of not going over the bloody integer limit.
+	set_variable = { DED_death_rate = 20 }			#What a joyous variable, the death rate per 1000 people in the dread league's territory! (it's pretty high innit?)
+
+	set_variable = { DED_necromancer_ressurectors = 200 }
+	set_variable = { DED_necromancer_ressurection_rate = 10 }
+
+
+	set_variable = { DED_necromancer_teachers = 50 }
+	set_variable = { DED_necromancer_teaching_rate = 0.04 }
+
+	set_variable = { DED_mage_auto_assignment = 0 }
+
 	set_country_flag = DED_catacomb_system_active
+	DED_catacomb_system_loop = yes
 }
 
-DED_catacomb_gain = {
-	set_temp_variable = {
-		DED_total = max_manpower_k
-	}
-	multiply_temp_variable = {
-		DED_total = 20
-	}
-	divide_temp_variable = {
-		DED_total = 12
-	}
+
+
+#Calculates the Number of corpses gained each months. Adds them to ze corpse stockpile Simple as
+DED_catacomb_corpse_gain = {
+
+
+	set_temp_variable = { DED_temp_death_rate = DED_death_rate }
+	divide_temp_variable = { DED_temp_death_rate = 12 }
+	set_temp_variable = { DED_total = max_manpower_k }
+	divide_temp_variable = { DED_total = 100 }
+	multiply_temp_variable = { DED_total = DED_temp_death_rate }
 	round_temp_variable = DED_total
-	set_variable = {
-		DED_corpse_production = DED_total
-	}
+
+	set_variable = { DED_corpse_production = DED_total }
 	add_to_variable = { DED_corpse_stockpile = DED_corpse_production }
 }
 
+
+
+#Calculate the bree- uh ... schooling rate of mages? yes. Schooling Rate.
+DED_mage_gain = {
+
+	#First, we calculate the new state of production. Kinda the same system as IC in game. Except here it's be ... Schooling Capacity?	
+	#Essentially, Teachers teach less than one student per month (in the sense, that a teacher will have to take some 30 months of personal time to teach to one student.)
+
+	set_variable = { DED_mage_monthly_prod = DED_necromancer_teachers }
+	multiply_variable = { DED_mage_monthly_prod = DED_necromancer_teaching_rate }
+
+	add_to_variable = { DED_mage_prod = DED_mage_monthly_prod }
+
+	set_temp_variable = { DED_temp_mage_prod = DED_mage_prod }
+	round_temp_variable = DED_temp_mage_prod
+	if = { #If DED_temp_mage_prod's decimal is >0.5, it'll round up instead of down. We always want it to round down, so:
+		limit = { check_variable = { DED_temp_mage_prod > DED_mage_prod }}
+		subtract_from_temp_variable = { DED_temp_mage_prod = 1}
+	}
+
+	#From that, we now remove the 'produced' mages, and send them to wherever they work.
+
+	subtract_from_variable = { DED_mage_prod = DED_temp_mage_prod}
+
+	if = {			#Military Auto Assignment
+		limit = { check_variable = { DED_mage_auto_assignment = 0 }	}	
+
+		add_equipment_to_stockpile = {
+			type = DED_mage_equipment
+	    	amount = var:DED_temp_mage_prod
+	    	producer = DED
+		}
+	}
+	else_if = {		#Schooling Auto Assignment
+		limit = { check_variable = { DED_mage_auto_assignment = 1 }	}	
+
+		add_to_variable = { DED_necromancer_teachers = DED_temp_mage_prod }
+	}
+	else_if = {		#Ressurection Auto Assignment
+		limit = { check_variable = { DED_mage_auto_assignment = 2 }	}
+
+		add_to_variable = { DED_necromancer_ressurectors = DED_temp_mage_prod }
+	}
+}
+
+
+
+DED_catacomb_gain_undead_base = {
+	set_variable = { DED_undead_monthly_prod = DED_necromancer_ressurectors }
+	multiply_variable = { DED_undead_monthly_prod = DED_necromancer_ressurection_rate }
+
+	#We need a stockpile of undeads on the per unit level .... I need to setup some arrays to keep numbers that can go in the 2+ millions
+}
+
+DED_undead_attrition = {
+
+	#LOSSES IN ARMY
+
+	set_variable = { DED_undead_in_army_reliability = 0.95 }
+
+	set_variable = { DED_undead_in_army_reliability_final = 1 }
+	subtract_from_variable = { DED_undead_in_army_reliability_final = DED_undead_in_army_reliability }
+
+	set_variable = { DED_undead_in_army = num_equipment@DED_undead_equipment }
+	set_variable = { DED_undead_in_army_lost = DED_undead_in_army }
+	multiply_variable = { DED_undead_in_army_lost = DED_undead_in_army_reliability_final }
+
+
+
+	#LOSSES IN INDUSTRY
+
+	#LOSSES IN SUPPLY
+
+}
+
+
+
 DED_catacomb_gain_undead = {
-	set_temp_variable = {
-		DED_undead_equipement_gain = DED_undead_production
-	}
-	divide_temp_variable = {
-		DED_undead_equipement_gain = 100
-	}
+	set_variable = { DED_undead_equipement_gain = DED_undead_monthly_prod }
+
+	subtract_from_variable = { DED_undead_equipement_gain = DED_undead_in_army_lost }
+
 	round_temp_variable = DED_undead_equipement_gain
 	add_equipment_to_stockpile = {
 		type = undead_equipment_0
