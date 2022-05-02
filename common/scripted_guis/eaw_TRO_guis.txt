@@ -1,0 +1,155 @@
+scripted_gui = {
+	eaw_TRO_corruption_karma = {
+		context_type = decision_category
+		window_name = "eaw_TRO_corruption_karma"
+		dirty = TRO_CTH_corruption
+		properties = {
+			corruption_karma_counter = {
+				x = TRO_corruption_karma_x
+			}
+			corruption_indicator = {
+				x = TRO_corruption_karma_x
+			}
+		}
+	}
+	
+	# Drugs #
+	eaw_TRO_drugs = {
+		context_type = decision_category
+		window_name = "eaw_TRO_drugs"
+		dirty = TRO_drugs_dirty_bit
+		dynamic_lists = {
+			cartel_folders = {
+				entry_container = eaw_TRO_drugs_folder_entry
+				array = TRO_cartel_array
+				index = k
+				value = cartel_id
+			}
+			mid_section_container = {
+				entry_container = "eaw_TRO_drugs_midsection_[?selected_cartel_action_option]"
+				array = TRO_drugs_dummy_midsection
+			}
+			map_grid = {
+				entry_container = eaw_TRO_drugs_map_entry
+				array = TRO_drugs_map_array
+				index = l
+				value = map_id
+			}
+		}
+		
+		## cartel_folders gridbox ##
+
+		effects = {
+			# Buttons at the top of the gui to access different cartels
+			button_entry_click = {
+				set_variable = { selected_cartel = cartel_id }
+				set_variable = { selected_cartel_action_option = TRO_cartel_action_option^k }
+				add_to_variable = { TRO_drugs_dirty_bit = 0.001 }
+			}
+		}
+		triggers = {
+			button_entry_click_enabled = {
+				# Temporary variable calculation for frame
+				if = {
+					limit = {
+						check_variable = { selected_cartel = cartel_id }
+					}
+					set_temp_variable = { folder_frame = 1 }
+					set_temp_variable = { icon_y = 0 }
+				}
+				else = {
+					set_temp_variable = { folder_frame = 2 }
+					set_temp_variable = { icon_y = 3 }
+				}
+				
+				NOT = {
+					is_in_array = { array = TRO_cartels_finished value = cartel_id }
+				}
+			}
+			drugs_icon_entry_click_enabled = { # Just for black and white effect
+				NOT = {
+					is_in_array = { array = TRO_cartels_finished value = cartel_id }
+				}
+			}
+		}
+		properties = {
+			button_entry = { frame = folder_frame }
+			drugs_icon_entry = {
+				image = "GFX_TRO_cartel_icon_[?TRO_cartel_array^k]"
+				frame = folder_frame
+				y = icon_y
+			}
+		}
+		
+		## Mid-section ##
+
+		triggers = {
+			influence_bar_frame_visible = {
+				# Temporary variable calculation for enemies gui
+				if = {
+					limit = {
+						check_variable = { selected_cartel_action_option = 2 }
+					}
+					# Left curve, "Influence"| I_frame = 1.2x + 210 | where x is 0-100 value, I_frame is 210-330 value
+
+					set_temp_variable = { I_frame = TRO_drugs_enemy_influence_status^selected_cartel }
+					multiply_temp_variable = { I_frame = 1.2 }
+					add_to_temp_variable = { I_frame = 210 }
+					
+					# Right curve, "Control" | c_frame = -1.2x + 150 | where x is 0-100 value, I_frame is 150-30 value (reversed)
+					
+					set_temp_variable = { c_frame = TRO_drugs_enemy_control_status^selected_cartel }
+					multiply_temp_variable = { c_frame = -1.2 }
+					add_to_temp_variable = { c_frame = 150 }
+				}
+			}
+		}
+		properties = {
+			cartel_portrait = { image = "GFX_TRO_cartel_portrait_[?selected_cartel]" }
+			
+			# Friendly
+			power_bar = {
+				image = "GFX_TRO_cartel_bar_power_[?selected_cartel]"
+				frame = TRO_drugs_friendly_power_status^selected_cartel
+			}
+			relations_bar = {
+				frame = TRO_drugs_friendly_relations_status^selected_cartel
+			}
+			
+			# Enemy
+			influence_bar = {
+				image = "GFX_TRO_cartel_curve_left_bar_[?selected_cartel]"
+				frame = I_frame
+			}
+			control_bar = {
+				image = "GFX_TRO_cartel_curve_right_bar_[?selected_cartel]"
+				frame = c_frame
+			}
+			dial_needle = {
+				image = "GFX_TRO_cartel_dial_needle_[?selected_cartel]"
+				frame = TRO_drugs_enemy_aggression_status^selected_cartel
+			}
+			dial_bg = {
+				image = "GFX_TRO_cartel_dial_bg_[?selected_cartel]"
+			}
+		}
+		
+		## Map section
+		
+		triggers = {
+			map_entry_visible = {
+				set_temp_variable = { color = map_id:TRO_drugs_ruling_cartel }
+				add_to_temp_variable = { color = 1 }
+			}
+		}
+
+		properties = {
+			map_entry = {
+				image = "GFX_TRO_map_[?map_id]"
+				frame = color
+				x = TRO_drugs_map_x^l
+				y = TRO_drugs_map_y^l
+			}
+		}
+	}
+}
