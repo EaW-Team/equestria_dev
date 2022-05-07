@@ -13,10 +13,11 @@ TRO_CTH_drugs_deccat = {
 		allowed = { original_tag = TRO }
 		visible = {
 			check_variable = { TRO_cartel_action_option^selected_cartel = 1 }
+			NOT = { has_variable = cartel_to_integrate }
 		}
 		available = {
 			custom_trigger_tooltip = {
-				tooltip = TRO_CTH_welcome_cartel_to_the_fold_tt
+				tooltip = TRO_CTH_welcome_cartel_to_the_fold_trigger
 				check_variable = { TRO_drugs_friendly_relations_status^selected_cartel > 90 }
 				check_variable = { TRO_drugs_friendly_power_status^selected_cartel > 90 }
 			}
@@ -27,7 +28,10 @@ TRO_CTH_drugs_deccat = {
 			set_variable = { cartel_to_integrate = selected_cartel }
 		}
 		remove_effect = {
-			add_to_array = { TRO_cartels_finished = cartel_to_integrate }
+			custom_effect_tooltip = TRO_CTH_welcome_cartel_to_the_fold_tt
+			add_political_power = 50
+			add_stability = -0.075
+			
 			if = {
 				limit = {
 					has_variable = cartel_to_integrate
@@ -55,10 +59,8 @@ TRO_CTH_drugs_deccat = {
 			meta_effect = {
 				text = {
 					country_event = trot_drugs.[EVENTID]
-					add_ideas = TRO_CTH_drugs_befriended_[ID]
 				}
 				EVENTID = "[?eventid]"
-				ID = "[?befriended]"
 			}
 			
 			if = {
@@ -102,6 +104,7 @@ TRO_CTH_drugs_deccat = {
 				set_country_flag = TRO_drugs_befriended_4
 			}
 			
+			add_to_array = { TRO_cartels_finished = cartel_to_integrate }
 			hidden_effect = {
 				random_list = {
 					1 = {
@@ -152,6 +155,125 @@ TRO_CTH_drugs_deccat = {
 				}
 			}
 			clear_variable = cartel_to_integrate
+			add_to_variable = { TRO_drugs_dirty_bit = 0.001 }
+		}
+	}
+	
+	TRO_CTH_dismantle_cartel = {
+		icon = GFX_decision_rifles
+		allowed = { original_tag = TRO }
+		visible = {
+			check_variable = { TRO_cartel_action_option^selected_cartel = 2 }
+			NOT = { has_variable = cartel_to_integrate }
+		}
+		available = {
+			custom_trigger_tooltip = {
+				tooltip = TRO_CTH_dismantle_cartel_trigger
+				check_variable = { TRO_drugs_enemy_influence_status^selected_cartel < 10 }
+				check_variable = { TRO_drugs_enemy_control_status^selected_cartel < 10 }
+			}
+		}
+		custom_cost_text = decision_cost_CP_35_pp_35
+		custom_cost_trigger = {
+			has_political_power > 34.99
+			command_power > 34.99
+		}
+		complete_effect = {
+			hidden_effect = {
+				add_political_power = -35
+				add_command_power = -35
+			}
+			set_variable = { cartel_to_integrate = selected_cartel }
+		}
+		remove_effect = {
+			custom_effect_tooltip = TRO_CTH_dismantle_cartel_tt
+			add_political_power = 100
+			add_stability = 0.1
+			
+			if = {
+				limit = {
+					has_variable = cartel_to_integrate
+				}
+				set_temp_variable = { killed = cartel_to_integrate }
+			}
+			else = {
+				set_temp_variable = { killed = selected_cartel }
+			}
+			
+			every_owned_state = {
+				limit = {
+					check_variable = { TRO_drugs_ruling_cartel = x }
+				}
+				set_temp_variable = { temp_idx = 5 }
+				TRO_drugs_state_control_change = yes
+			}
+			
+			set_variable = { TRO_drugs_enemy_aggression_status^x = 0 }
+			set_variable = { TRO_drugs_enemy_influence_status^x = 0 }
+			set_variable = { TRO_drugs_enemy_control_status^x = 0 }
+			TRO_drugs_recalculate_national_dynmod_values = yes
+			
+			set_temp_variable = { eventid = killed }
+			add_to_temp_variable = { eventid = 11 }
+			meta_effect = {
+				text = {
+					country_event = trot_drugs.[EVENTID]
+				}
+				EVENTID = "[?eventid]"
+			}
+			
+			add_to_array = { TRO_cartels_finished = cartel_to_integrate }
+			hidden_effect = {
+				random_list = {
+					1 = {
+						modifier = {
+							is_in_array = { array = TRO_cartels_finished value = 0 }
+							factor = 0
+						}
+						set_variable = { selected_cartel = 0 }
+					}
+					1 = {
+						modifier = {
+							is_in_array = { array = TRO_cartels_finished value = 1 }
+							factor = 0
+						}
+						set_variable = { selected_cartel = 1 }
+					}
+					1 = {
+						modifier = {
+							is_in_array = { array = TRO_cartels_finished value = 2 }
+							factor = 0
+						}
+						set_variable = { selected_cartel = 2 }
+					}
+					1 = {
+						modifier = {
+							is_in_array = { array = TRO_cartels_finished value = 3 }
+							factor = 0
+						}
+						set_variable = { selected_cartel = 3 }
+					}
+					1 = {
+						modifier = {
+							is_in_array = { array = TRO_cartels_finished value = 4 }
+							factor = 0
+						}
+						set_variable = { selected_cartel = 4 }
+					}
+				}
+				if = {
+					limit = {
+						is_in_array = { array = TRO_cartels_finished value = 0 }
+						is_in_array = { array = TRO_cartels_finished value = 1 }
+						is_in_array = { array = TRO_cartels_finished value = 2 }
+						is_in_array = { array = TRO_cartels_finished value = 3 }
+						is_in_array = { array = TRO_cartels_finished value = 4 }
+					}
+					TRO_drugs_finished = yes
+				}
+			}
+			clear_variable = cartel_to_integrate
+			add_to_variable = { TRO_drugs_dirty_bit = 0.001 }
 		}
 	}
 	
@@ -162,6 +284,7 @@ TRO_CTH_drugs_deccat = {
 		visible = {
 			check_variable = { TRO_cartel_action_option^selected_cartel = 1 }
 			check_variable = { selected_cartel = 0 }
+			NOT = { has_variable = TRO_CTH_friendly_promise_protection_CARTEL }
 		}
 		available = {
 			TRO_doing_drugs_decision_trigger = yes
@@ -170,6 +293,8 @@ TRO_CTH_drugs_deccat = {
 			command_power > 24.99
 		}
 		custom_cost_text = decision_cost_CP_25
+		days_remove = 30
+		days_re_enable = 30
 		complete_effect = {
 			hidden_effect = {
 				add_command_power = -25
@@ -188,6 +313,7 @@ TRO_CTH_drugs_deccat = {
 		visible = {
 			check_variable = { TRO_cartel_action_option^selected_cartel = 1 }
 			check_variable = { selected_cartel = 1 }
+			NOT = { has_variable = TRO_CTH_friendly_promise_protection_CARTEL }
 		}
 		available = {
 			TRO_doing_drugs_decision_trigger = yes
@@ -196,6 +322,8 @@ TRO_CTH_drugs_deccat = {
 			command_power > 24.99
 		}
 		custom_cost_text = decision_cost_CP_25
+		days_remove = 30
+		days_re_enable = 30
 		complete_effect = {
 			hidden_effect = {
 				add_command_power = -25
@@ -214,6 +342,7 @@ TRO_CTH_drugs_deccat = {
 		visible = {
 			check_variable = { TRO_cartel_action_option^selected_cartel = 1 }
 			check_variable = { selected_cartel = 2 }
+			NOT = { has_variable = TRO_CTH_friendly_promise_protection_CARTEL }
 		}
 		available = {
 			TRO_doing_drugs_decision_trigger = yes
@@ -222,6 +351,8 @@ TRO_CTH_drugs_deccat = {
 			command_power > 24.99
 		}
 		custom_cost_text = decision_cost_CP_25
+		days_remove = 30
+		days_re_enable = 30
 		complete_effect = {
 			hidden_effect = {
 				add_command_power = -25
@@ -240,6 +371,7 @@ TRO_CTH_drugs_deccat = {
 		visible = {
 			check_variable = { TRO_cartel_action_option^selected_cartel = 1 }
 			check_variable = { selected_cartel = 3 }
+			NOT = { has_variable = TRO_CTH_friendly_promise_protection_CARTEL }
 		}
 		available = {
 			TRO_doing_drugs_decision_trigger = yes
@@ -248,6 +380,8 @@ TRO_CTH_drugs_deccat = {
 			command_power > 24.99
 		}
 		custom_cost_text = decision_cost_CP_25
+		days_remove = 30
+		days_re_enable = 30
 		complete_effect = {
 			hidden_effect = {
 				add_command_power = -25
@@ -266,6 +400,7 @@ TRO_CTH_drugs_deccat = {
 		visible = {
 			check_variable = { TRO_cartel_action_option^selected_cartel = 1 }
 			check_variable = { selected_cartel = 4 }
+			NOT = { has_variable = TRO_CTH_friendly_promise_protection_CARTEL }
 		}
 		available = {
 			TRO_doing_drugs_decision_trigger = yes
@@ -274,6 +409,8 @@ TRO_CTH_drugs_deccat = {
 			command_power > 24.99
 		}
 		custom_cost_text = decision_cost_CP_25
+		days_remove = 30
+		days_re_enable = 30
 		complete_effect = {
 			hidden_effect = {
 				add_command_power = -25
@@ -291,6 +428,402 @@ TRO_CTH_drugs_deccat = {
 	
 	
 	
+	TRO_CTH_friendly_overlook_enforcement_0 = {
+		icon = GFX_decision_scroll
+		allowed = { original_tag = TRO }
+		visible = {
+			check_variable = { TRO_cartel_action_option^selected_cartel = 1 }
+			check_variable = { selected_cartel = 0 }
+			NOT = { has_variable = TRO_CTH_friendly_overlook_enforcement_CARTEL }
+		}
+		available = {
+			TRO_doing_drugs_decision_trigger = yes
+		}
+		cost = 30
+		days_remove = 30
+		days_re_enable = 30
+		complete_effect = {
+			set_country_flag = TRO_doing_drugs_decision_0
+			set_variable = { TRO_CTH_friendly_overlook_enforcement_CARTEL = selected_cartel }
+		}
+		remove_effect = {
+			clr_country_flag = TRO_doing_drugs_decision_0
+			TRO_CTH_friendly_overlook_enforcement_effect = yes
+		}
+	}
+	TRO_CTH_friendly_overlook_enforcement_1 = {
+		icon = GFX_decision_scroll
+		allowed = { original_tag = TRO }
+		visible = {
+			check_variable = { TRO_cartel_action_option^selected_cartel = 1 }
+			check_variable = { selected_cartel = 1 }
+			NOT = { has_variable = TRO_CTH_friendly_overlook_enforcement_CARTEL }
+		}
+		available = {
+			TRO_doing_drugs_decision_trigger = yes
+		}
+		cost = 30
+		days_remove = 30
+		days_re_enable = 30
+		complete_effect = {
+			set_country_flag = TRO_doing_drugs_decision_1
+			set_variable = { TRO_CTH_friendly_overlook_enforcement_CARTEL = selected_cartel }
+		}
+		remove_effect = {
+			clr_country_flag = TRO_doing_drugs_decision_1
+			TRO_CTH_friendly_overlook_enforcement_effect = yes
+		}
+	}
+	TRO_CTH_friendly_overlook_enforcement_2 = {
+		icon = GFX_decision_scroll
+		allowed = { original_tag = TRO }
+		visible = {
+			check_variable = { TRO_cartel_action_option^selected_cartel = 1 }
+			check_variable = { selected_cartel = 2 }
+			NOT = { has_variable = TRO_CTH_friendly_overlook_enforcement_CARTEL }
+		}
+		available = {
+			TRO_doing_drugs_decision_trigger = yes
+		}
+		cost = 30
+		days_remove = 30
+		days_re_enable = 30
+		complete_effect = {
+			set_country_flag = TRO_doing_drugs_decision_2
+			set_variable = { TRO_CTH_friendly_overlook_enforcement_CARTEL = selected_cartel }
+		}
+		remove_effect = {
+			clr_country_flag = TRO_doing_drugs_decision_2
+			TRO_CTH_friendly_overlook_enforcement_effect = yes
+		}
+	}
+	TRO_CTH_friendly_overlook_enforcement_3 = {
+		icon = GFX_decision_scroll
+		allowed = { original_tag = TRO }
+		visible = {
+			check_variable = { TRO_cartel_action_option^selected_cartel = 1 }
+			check_variable = { selected_cartel = 3 }
+			NOT = { has_variable = TRO_CTH_friendly_overlook_enforcement_CARTEL }
+		}
+		available = {
+			TRO_doing_drugs_decision_trigger = yes
+		}
+		cost = 30
+		days_remove = 30
+		days_re_enable = 30
+		complete_effect = {
+			set_country_flag = TRO_doing_drugs_decision_3
+			set_variable = { TRO_CTH_friendly_overlook_enforcement_CARTEL = selected_cartel }
+		}
+		remove_effect = {
+			clr_country_flag = TRO_doing_drugs_decision_3
+			TRO_CTH_friendly_overlook_enforcement_effect = yes
+		}
+	}
+	TRO_CTH_friendly_overlook_enforcement_4 = {
+		icon = GFX_decision_scroll
+		allowed = { original_tag = TRO }
+		visible = {
+			check_variable = { TRO_cartel_action_option^selected_cartel = 1 }
+			check_variable = { selected_cartel = 4 }
+			NOT = { has_variable = TRO_CTH_friendly_overlook_enforcement_CARTEL }
+		}
+		available = {
+			TRO_doing_drugs_decision_trigger = yes
+		}
+		cost = 25
+		days_remove = 30
+		days_re_enable = 30
+		complete_effect = {
+			set_country_flag = TRO_doing_drugs_decision_4
+			set_variable = { TRO_CTH_friendly_overlook_enforcement_CARTEL = selected_cartel }
+		}
+		remove_effect = {
+			clr_country_flag = TRO_doing_drugs_decision_4
+			TRO_CTH_friendly_overlook_enforcement_effect = yes
+		}
+	}
+	
+	
+	
+	
+	
+	TRO_CTH_friendly_grant_licenses_0 = {
+		icon = GFX_decision_swamp
+		allowed = { original_tag = TRO }
+		visible = {
+			check_variable = { TRO_cartel_action_option^selected_cartel = 1 }
+			check_variable = { selected_cartel = 0 }
+			NOT = { has_variable = TRO_CTH_friendly_grant_licenses_CARTEL }
+			has_country_flag = TRO_drugs_opium_licenses
+		}
+		available = {
+			TRO_doing_drugs_decision_trigger = yes
+		}
+		cost = 35
+		days_remove = 30
+		days_re_enable = 30
+		complete_effect = {
+			set_country_flag = TRO_doing_drugs_decision_0
+			set_variable = { TRO_CTH_friendly_grant_licenses_CARTEL = selected_cartel }
+		}
+		modifier = {
+			consumer_goods_factor = 0.05
+		}
+		remove_effect = {
+			clr_country_flag = TRO_doing_drugs_decision_0
+			TRO_CTH_friendly_grant_licenses_effect = yes
+		}
+	}
+	TRO_CTH_friendly_grant_licenses_1 = {
+		icon = GFX_decision_swamp
+		allowed = { original_tag = TRO }
+		visible = {
+			check_variable = { TRO_cartel_action_option^selected_cartel = 1 }
+			check_variable = { selected_cartel = 1 }
+			NOT = { has_variable = TRO_CTH_friendly_grant_licenses_CARTEL }
+			has_country_flag = TRO_drugs_opium_licenses
+		}
+		available = {
+			TRO_doing_drugs_decision_trigger = yes
+		}
+		cost = 35
+		days_remove = 30
+		days_re_enable = 30
+		complete_effect = {
+			set_country_flag = TRO_doing_drugs_decision_1
+			set_variable = { TRO_CTH_friendly_grant_licenses_CARTEL = selected_cartel }
+		}
+		modifier = {
+			consumer_goods_factor = 0.05
+		}
+		remove_effect = {
+			clr_country_flag = TRO_doing_drugs_decision_1
+			TRO_CTH_friendly_grant_licenses_effect = yes
+		}
+	}
+	TRO_CTH_friendly_grant_licenses_2 = {
+		icon = GFX_decision_swamp
+		allowed = { original_tag = TRO }
+		visible = {
+			check_variable = { TRO_cartel_action_option^selected_cartel = 1 }
+			check_variable = { selected_cartel = 2 }
+			NOT = { has_variable = TRO_CTH_friendly_grant_licenses_CARTEL }
+			has_country_flag = TRO_drugs_opium_licenses
+		}
+		available = {
+			TRO_doing_drugs_decision_trigger = yes
+		}
+		cost = 35
+		days_remove = 30
+		days_re_enable = 30
+		complete_effect = {
+			set_country_flag = TRO_doing_drugs_decision_2
+			set_variable = { TRO_CTH_friendly_grant_licenses_CARTEL = selected_cartel }
+		}
+		modifier = {
+			consumer_goods_factor = 0.05
+		}
+		remove_effect = {
+			clr_country_flag = TRO_doing_drugs_decision_2
+			TRO_CTH_friendly_grant_licenses_effect = yes
+		}
+	}
+	TRO_CTH_friendly_grant_licenses_3 = {
+		icon = GFX_decision_swamp
+		allowed = { original_tag = TRO }
+		visible = {
+			check_variable = { TRO_cartel_action_option^selected_cartel = 1 }
+			check_variable = { selected_cartel = 3 }
+			NOT = { has_variable = TRO_CTH_friendly_grant_licenses_CARTEL }
+			has_country_flag = TRO_drugs_opium_licenses
+		}
+		available = {
+			TRO_doing_drugs_decision_trigger = yes
+		}
+		cost = 35
+		days_remove = 30
+		days_re_enable = 30
+		complete_effect = {
+			set_country_flag = TRO_doing_drugs_decision_3
+			set_variable = { TRO_CTH_friendly_grant_licenses_CARTEL = selected_cartel }
+		}
+		modifier = {
+			consumer_goods_factor = 0.05
+		}
+		remove_effect = {
+			clr_country_flag = TRO_doing_drugs_decision_3
+			TRO_CTH_friendly_grant_licenses_effect = yes
+		}
+	}
+	TRO_CTH_friendly_grant_licenses_4 = {
+		icon = GFX_decision_swamp
+		allowed = { original_tag = TRO }
+		visible = {
+			check_variable = { TRO_cartel_action_option^selected_cartel = 1 }
+			check_variable = { selected_cartel = 4 }
+			NOT = { has_variable = TRO_CTH_friendly_grant_licenses_CARTEL }
+			has_country_flag = TRO_drugs_opium_licenses
+		}
+		available = {
+			TRO_doing_drugs_decision_trigger = yes
+		}
+		cost = 35
+		days_remove = 30
+		days_re_enable = 30
+		complete_effect = {
+			set_country_flag = TRO_doing_drugs_decision_4
+			set_variable = { TRO_CTH_friendly_grant_licenses_CARTEL = selected_cartel }
+		}
+		modifier = {
+			consumer_goods_factor = 0.05
+		}
+		remove_effect = {
+			clr_country_flag = TRO_doing_drugs_decision_4
+			TRO_CTH_friendly_grant_licenses_effect = yes
+		}
+	}
+	
+	
+	
+	
+	
+	TRO_CTH_friendly_lease_land_0 = {
+		icon = GFX_decision_straw_hat
+		allowed = { original_tag = TRO }
+		visible = {
+			check_variable = { TRO_cartel_action_option^selected_cartel = 1 }
+			check_variable = { selected_cartel = 0 }
+			NOT = { has_variable = TRO_CTH_friendly_lease_land_CARTEL }
+			has_country_flag = TRO_drugs_state_controlled
+		}
+		available = {
+			TRO_doing_drugs_decision_trigger = yes
+		}
+		cost = 35
+		days_remove = 30
+		days_re_enable = 30
+		complete_effect = {
+			set_country_flag = TRO_doing_drugs_decision_0
+			set_variable = { TRO_CTH_friendly_lease_land_CARTEL = selected_cartel }
+		}
+		modifier = {
+			political_power_gain = -0.1
+		}
+		remove_effect = {
+			clr_country_flag = TRO_doing_drugs_decision_0
+			TRO_CTH_friendly_lease_land_effect = yes
+		}
+	}
+	TRO_CTH_friendly_lease_land_1 = {
+		icon = GFX_decision_straw_hat
+		allowed = { original_tag = TRO }
+		visible = {
+			check_variable = { TRO_cartel_action_option^selected_cartel = 1 }
+			check_variable = { selected_cartel = 1 }
+			NOT = { has_variable = TRO_CTH_friendly_lease_land_CARTEL }
+			has_country_flag = TRO_drugs_state_controlled
+		}
+		available = {
+			TRO_doing_drugs_decision_trigger = yes
+		}
+		cost = 35
+		days_remove = 30
+		days_re_enable = 30
+		complete_effect = {
+			set_country_flag = TRO_doing_drugs_decision_1
+			set_variable = { TRO_CTH_friendly_lease_land_CARTEL = selected_cartel }
+		}
+		modifier = {
+			political_power_gain = -0.1
+		}
+		remove_effect = {
+			clr_country_flag = TRO_doing_drugs_decision_1
+			TRO_CTH_friendly_lease_land_effect = yes
+		}
+	}
+	TRO_CTH_friendly_lease_land_2 = {
+		icon = GFX_decision_straw_hat
+		allowed = { original_tag = TRO }
+		visible = {
+			check_variable = { TRO_cartel_action_option^selected_cartel = 1 }
+			check_variable = { selected_cartel = 2 }
+			NOT = { has_variable = TRO_CTH_friendly_lease_land_CARTEL }
+			has_country_flag = TRO_drugs_state_controlled
+		}
+		available = {
+			TRO_doing_drugs_decision_trigger = yes
+		}
+		cost = 35
+		days_remove = 30
+		days_re_enable = 30
+		complete_effect = {
+			set_country_flag = TRO_doing_drugs_decision_2
+			set_variable = { TRO_CTH_friendly_lease_land_CARTEL = selected_cartel }
+		}
+		modifier = {
+			political_power_gain = -0.1
+		}
+		remove_effect = {
+			clr_country_flag = TRO_doing_drugs_decision_2
+			TRO_CTH_friendly_lease_land_effect = yes
+		}
+	}
+	TRO_CTH_friendly_lease_land_3 = {
+		icon = GFX_decision_straw_hat
+		allowed = { original_tag = TRO }
+		visible = {
+			check_variable = { TRO_cartel_action_option^selected_cartel = 1 }
+			check_variable = { selected_cartel = 3 }
+			NOT = { has_variable = TRO_CTH_friendly_lease_land_CARTEL }
+			has_country_flag = TRO_drugs_state_controlled
+		}
+		available = {
+			TRO_doing_drugs_decision_trigger = yes
+		}
+		cost = 35
+		days_remove = 30
+		days_re_enable = 30
+		complete_effect = {
+			set_country_flag = TRO_doing_drugs_decision_3
+			set_variable = { TRO_CTH_friendly_lease_land_CARTEL = selected_cartel }
+		}
+		modifier = {
+			political_power_gain = -0.1
+		}
+		remove_effect = {
+			clr_country_flag = TRO_doing_drugs_decision_3
+			TRO_CTH_friendly_lease_land_effect = yes
+		}
+	}
+	TRO_CTH_friendly_lease_land_4 = {
+		icon = GFX_decision_straw_hat
+		allowed = { original_tag = TRO }
+		visible = {
+			check_variable = { TRO_cartel_action_option^selected_cartel = 1 }
+			check_variable = { selected_cartel = 4 }
+			NOT = { has_variable = TRO_CTH_friendly_lease_land_CARTEL }
+			has_country_flag = TRO_drugs_state_controlled
+		}
+		available = {
+			TRO_doing_drugs_decision_trigger = yes
+		}
+		cost = 35
+		days_remove = 30
+		days_re_enable = 30
+		complete_effect = {
+			set_country_flag = TRO_doing_drugs_decision_4
+			set_variable = { TRO_CTH_friendly_lease_land_CARTEL = selected_cartel }
+		}
+		modifier = {
+			political_power_gain = -0.1
+		}
+		remove_effect = {
+			clr_country_flag = TRO_doing_drugs_decision_4
+			TRO_CTH_friendly_lease_land_effect = yes
+		}
+	}
+	
 	### DECISIONS AGAINST ENEMY ###
 	TRO_CTH_operation_appease_cartel_0 = {
 		icon = GFX_decision_megaphone
@@ -298,6 +831,7 @@ TRO_CTH_drugs_deccat = {
 		visible = {
 			check_variable = { TRO_cartel_action_option^selected_cartel = 2 }
 			check_variable = { selected_cartel = 0 }
+			NOT = { has_variable = TRO_CTH_operation_appease_cartel_CARTEL }
 		}
 		available = {
 			TRO_doing_drugs_decision_trigger = yes
@@ -310,10 +844,10 @@ TRO_CTH_drugs_deccat = {
 			set_variable = { TRO_CTH_operation_appease_cartel_CARTEL = selected_cartel }
 		}
 		modifier = {
-			clr_country_flag = TRO_doing_drugs_decision_0
 			political_power_gain = -0.1
 		}
 		remove_effect = {
+			clr_country_flag = TRO_doing_drugs_decision_0
 			TRO_CTH_operation_appease_cartel_effect = yes
 		}
 	}
@@ -323,6 +857,7 @@ TRO_CTH_drugs_deccat = {
 		visible = {
 			check_variable = { TRO_cartel_action_option^selected_cartel = 2 }
 			check_variable = { selected_cartel = 1 }
+			NOT = { has_variable = TRO_CTH_operation_appease_cartel_CARTEL }
 		}
 		available = {
 			TRO_doing_drugs_decision_trigger = yes
@@ -348,6 +883,7 @@ TRO_CTH_drugs_deccat = {
 		visible = {
 			check_variable = { TRO_cartel_action_option^selected_cartel = 2 }
 			check_variable = { selected_cartel = 2 }
+			NOT = { has_variable = TRO_CTH_operation_appease_cartel_CARTEL }
 		}
 		available = {
 			TRO_doing_drugs_decision_trigger = yes
@@ -373,6 +909,7 @@ TRO_CTH_drugs_deccat = {
 		visible = {
 			check_variable = { TRO_cartel_action_option^selected_cartel = 2 }
 			check_variable = { selected_cartel = 3 }
+			NOT = { has_variable = TRO_CTH_operation_appease_cartel_CARTEL }
 		}
 		available = {
 			TRO_doing_drugs_decision_trigger = yes
@@ -398,6 +935,7 @@ TRO_CTH_drugs_deccat = {
 		visible = {
 			check_variable = { TRO_cartel_action_option^selected_cartel = 2 }
 			check_variable = { selected_cartel = 4 }
+			NOT = { has_variable = TRO_CTH_operation_appease_cartel_CARTEL }
 		}
 		available = {
 			TRO_doing_drugs_decision_trigger = yes
@@ -428,6 +966,7 @@ TRO_CTH_drugs_deccat = {
 		visible = {
 			check_variable = { TRO_cartel_action_option^selected_cartel = 2 }
 			check_variable = { selected_cartel = 0 }
+			NOT = { has_variable = TRO_CTH_operation_investigate_cartel_officials_CARTEL }
 		}
 		available = {
 			TRO_doing_drugs_decision_trigger = yes
@@ -453,6 +992,7 @@ TRO_CTH_drugs_deccat = {
 		visible = {
 			check_variable = { TRO_cartel_action_option^selected_cartel = 2 }
 			check_variable = { selected_cartel = 1 }
+			NOT = { has_variable = TRO_CTH_operation_investigate_cartel_officials_CARTEL }
 		}
 		available = {
 			TRO_doing_drugs_decision_trigger = yes
@@ -478,6 +1018,7 @@ TRO_CTH_drugs_deccat = {
 		visible = {
 			check_variable = { TRO_cartel_action_option^selected_cartel = 2 }
 			check_variable = { selected_cartel = 2 }
+			NOT = { has_variable = TRO_CTH_operation_investigate_cartel_officials_CARTEL }
 		}
 		available = {
 			TRO_doing_drugs_decision_trigger = yes
@@ -503,6 +1044,7 @@ TRO_CTH_drugs_deccat = {
 		visible = {
 			check_variable = { TRO_cartel_action_option^selected_cartel = 2 }
 			check_variable = { selected_cartel = 3 }
+			NOT = { has_variable = TRO_CTH_operation_investigate_cartel_officials_CARTEL }
 		}
 		available = {
 			TRO_doing_drugs_decision_trigger = yes
@@ -528,6 +1070,7 @@ TRO_CTH_drugs_deccat = {
 		visible = {
 			check_variable = { TRO_cartel_action_option^selected_cartel = 2 }
 			check_variable = { selected_cartel = 4 }
+			NOT = { has_variable = TRO_CTH_operation_investigate_cartel_officials_CARTEL }
 		}
 		available = {
 			TRO_doing_drugs_decision_trigger = yes
@@ -558,6 +1101,7 @@ TRO_CTH_drugs_deccat = {
 		visible = {
 			check_variable = { TRO_cartel_action_option^selected_cartel = 2 }
 			check_variable = { selected_cartel = 0 }
+			NOT = { has_variable = TRO_CTH_operation_carry_out_small_raids_CARTEL }
 		}
 		available = {
 			TRO_doing_drugs_decision_trigger = yes
@@ -586,6 +1130,7 @@ TRO_CTH_drugs_deccat = {
 		visible = {
 			check_variable = { TRO_cartel_action_option^selected_cartel = 2 }
 			check_variable = { selected_cartel = 1 }
+			NOT = { has_variable = TRO_CTH_operation_carry_out_small_raids_CARTEL }
 		}
 		available = {
 			TRO_doing_drugs_decision_trigger = yes
@@ -614,6 +1159,7 @@ TRO_CTH_drugs_deccat = {
 		visible = {
 			check_variable = { TRO_cartel_action_option^selected_cartel = 2 }
 			check_variable = { selected_cartel = 2 }
+			NOT = { has_variable = TRO_CTH_operation_carry_out_small_raids_CARTEL }
 		}
 		available = {
 			TRO_doing_drugs_decision_trigger = yes
@@ -642,6 +1188,7 @@ TRO_CTH_drugs_deccat = {
 		visible = {
 			check_variable = { TRO_cartel_action_option^selected_cartel = 2 }
 			check_variable = { selected_cartel = 3 }
+			NOT = { has_variable = TRO_CTH_operation_carry_out_small_raids_CARTEL }
 		}
 		available = {
 			TRO_doing_drugs_decision_trigger = yes
@@ -670,6 +1217,7 @@ TRO_CTH_drugs_deccat = {
 		visible = {
 			check_variable = { TRO_cartel_action_option^selected_cartel = 2 }
 			check_variable = { selected_cartel = 4 }
+			NOT = { has_variable = TRO_CTH_operation_carry_out_small_raids_CARTEL }
 		}
 		available = {
 			TRO_doing_drugs_decision_trigger = yes
@@ -703,6 +1251,7 @@ TRO_CTH_drugs_deccat = {
 		visible = {
 			check_variable = { TRO_cartel_action_option^selected_cartel = 2 }
 			check_variable = { selected_cartel = 0 }
+			NOT = { has_variable = TRO_CTH_operation_show_of_force_CARTEL }
 		}
 		available = {
 			TRO_doing_drugs_decision_trigger = yes
@@ -736,6 +1285,7 @@ TRO_CTH_drugs_deccat = {
 		visible = {
 			check_variable = { TRO_cartel_action_option^selected_cartel = 2 }
 			check_variable = { selected_cartel = 1 }
+			NOT = { has_variable = TRO_CTH_operation_show_of_force_CARTEL }
 		}
 		available = {
 			TRO_doing_drugs_decision_trigger = yes
@@ -769,6 +1319,7 @@ TRO_CTH_drugs_deccat = {
 		visible = {
 			check_variable = { TRO_cartel_action_option^selected_cartel = 2 }
 			check_variable = { selected_cartel = 2 }
+			NOT = { has_variable = TRO_CTH_operation_show_of_force_CARTEL }
 		}
 		available = {
 			TRO_doing_drugs_decision_trigger = yes
@@ -802,6 +1353,7 @@ TRO_CTH_drugs_deccat = {
 		visible = {
 			check_variable = { TRO_cartel_action_option^selected_cartel = 2 }
 			check_variable = { selected_cartel = 3 }
+			NOT = { has_variable = TRO_CTH_operation_show_of_force_CARTEL }
 		}
 		available = {
 			TRO_doing_drugs_decision_trigger = yes
@@ -835,6 +1387,7 @@ TRO_CTH_drugs_deccat = {
 		visible = {
 			check_variable = { TRO_cartel_action_option^selected_cartel = 2 }
 			check_variable = { selected_cartel = 4 }
+			NOT = { has_variable = TRO_CTH_operation_show_of_force_CARTEL }
 		}
 		available = {
 			TRO_doing_drugs_decision_trigger = yes
@@ -873,6 +1426,7 @@ TRO_CTH_drugs_deccat = {
 		visible = {
 			check_variable = { TRO_cartel_action_option^selected_cartel = 2 }
 			check_variable = { selected_cartel = 0 }
+			NOT = { has_variable = TRO_CTH_operation_aid_their_enemy_CARTEL }
 			
 			set_temp_variable = { enemy = 4 }
 			subtract_from_temp_variable = { enemy = selected_cartel }
@@ -903,6 +1457,7 @@ TRO_CTH_drugs_deccat = {
 		visible = {
 			check_variable = { TRO_cartel_action_option^selected_cartel = 2 }
 			check_variable = { selected_cartel = 1 }
+			NOT = { has_variable = TRO_CTH_operation_aid_their_enemy_CARTEL }
 			
 			set_temp_variable = { enemy = 4 }
 			subtract_from_temp_variable = { enemy = selected_cartel }
@@ -933,6 +1488,7 @@ TRO_CTH_drugs_deccat = {
 		visible = {
 			check_variable = { TRO_cartel_action_option^selected_cartel = 2 }
 			check_variable = { selected_cartel = 2 }
+			NOT = { has_variable = TRO_CTH_operation_aid_their_enemy_CARTEL }
 			
 			set_temp_variable = { enemy = 4 }
 			subtract_from_temp_variable = { enemy = selected_cartel }
@@ -963,6 +1519,7 @@ TRO_CTH_drugs_deccat = {
 		visible = {
 			check_variable = { TRO_cartel_action_option^selected_cartel = 2 }
 			check_variable = { selected_cartel = 3 }
+			NOT = { has_variable = TRO_CTH_operation_aid_their_enemy_CARTEL }
 			
 			set_temp_variable = { enemy = 4 }
 			subtract_from_temp_variable = { enemy = selected_cartel }
@@ -993,6 +1550,7 @@ TRO_CTH_drugs_deccat = {
 		visible = {
 			check_variable = { TRO_cartel_action_option^selected_cartel = 2 }
 			check_variable = { selected_cartel = 4 }
+			NOT = { has_variable = TRO_CTH_operation_aid_their_enemy_CARTEL }
 			
 			set_temp_variable = { enemy = 4 }
 			subtract_from_temp_variable = { enemy = selected_cartel }
