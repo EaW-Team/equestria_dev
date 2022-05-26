@@ -1965,6 +1965,15 @@ BAT_chiropterran_hegemony = {
 				has_government = fascism
 				has_government = neutrality
 			}
+			CTH = {
+				OR = {
+				exists = no
+					is_subject = yes
+					NOT = {
+						is_in_faction_with = BAT
+					}
+				}	
+			}
 		}
 		available = {
 			is_subject = no
@@ -6609,6 +6618,101 @@ BAT_opium_production = {
 			}
 		}
 	}
+	BAT_opium_flood = {
+		icon = hol_draw_up_staff_plans
+		cost = 50
+		fire_only_once = no
+		ai_will_do = {
+			factor = 160
+		}
+		allowed = {
+			original_tag = BAT
+		}
+		visible = {
+			is_subject = no
+			has_completed_focus = BAT_literal_drug_smuggling
+		}
+		#target_array = neighbors
+		target_trigger = {
+			FROM = {
+				exists = yes
+				if = {
+					limit = {
+						is_neighbor_of = ROOT
+					}
+					is_neighbor_of = ROOT
+				}
+				else = {
+					any_of_scopes = {
+						array = ROOT.owned_controlled_states
+						
+						check_variable = { distance_to@PREV.capital < 100 }
+					}
+				}
+				NOT = {
+					has_idea = BAT_opium_flooded_idea
+					is_in_faction_with = ROOT
+					is_subject_of = ROOT
+				}
+			}
+		}
+		custom_cost_trigger = {
+			FROM = {
+				set_temp_variable = { calc = num_owned_states }
+				multiply_temp_variable = { calc = 2 }
+				
+				if = {
+					limit = {
+						has_idea = poverty
+					}
+					set_temp_variable = { poverty_lvl = 6 }
+				}
+				else_if = {
+					limit = {
+						has_idea = poverty1
+					}
+					set_temp_variable = { poverty_lvl = 5 }
+				}
+				else_if = {
+					limit = {
+						has_idea = poverty2
+					}
+					set_temp_variable = { poverty_lvl = 4 }
+				}
+				else_if = {
+					limit = {
+						has_idea = poverty3
+					}
+					set_temp_variable = { poverty_lvl = 3 }
+				}
+				else_if = {
+					limit = {
+						has_idea = poverty4
+					}
+					set_temp_variable = { poverty_lvl = 2 }
+				}
+				else_if = {
+					limit = {
+						OR = {
+							has_idea = poverty5
+							has_idea = no_poverty
+						}
+					}
+					set_temp_variable = { poverty_lvl = 1 }
+				}
+				divide_temp_variable = { calc = poverty_lvl }
+			}
+			check_variable = {
+				var = opium
+				value = calc 
+				compare = greater_than_or_equals
+			}
+		}
+		custom_cost_text = BAT_opium_flood_cost
+		complete_effect = {
+			log = "[GetDateText]: [Root.GetName]: Decision BAT_opium_flood target: [From.GetName]"
+		}
+	}
 }
 
 foreign_politics = {
@@ -7405,6 +7509,81 @@ political_actions = {
 			}
 		}
 	}
+	BAT_fight_warzena_preemptive = {
+		icon = GFX_decision_generic_merge_plant_tank
+		available = {
+			WAR = {
+				OR = {
+					is_subject_of = HIP
+					is_subject = no
+				}
+			}
+			BAT = {
+				has_war_with = HIP
+				surrender_progress < 0.05
+			}
+			custom_trigger_tooltip = {
+				tooltip = BAT_60_days_war_tp
+				has_country_flag = BAT_60_days_war
+			}
+		}
+		visible = {
+			has_country_flag = BAT_preemptive_HIP_strike
+			WAR = {
+				OR = {
+					is_subject_of = HIP
+					is_subject = no
+				}
+				exists = yes
+			}
+		}
+		cost = 50
+		fire_only_once = yes
+		days_remove = 7
+		
+		ai_will_do = {
+			base = 20
+		}
+		
+		complete_effect = {
+			FROM = {
+                add_ai_strategy = {
+                    type = prepare_for_war
+                    id = ROOT
+                    value = 1000
+                }
+            }
+			hidden_effect = {
+				if = {
+				    limit = {
+					    WAR = {
+						    is_ai = no
+						}
+					}
+					FROM = {
+					    country_event = {
+							id = bat.155
+						}
+					}
+				}
+			}
+		}
+		
+		remove_effect = {
+			log = "[GetDateText]: [Root.GetName]: Decision remove BAT_fight_warzena"
+			FROM = {
+                add_ai_strategy = {
+                    type = prepare_for_war
+                    id = ROOT
+                    value = -1000
+                }
+            }
+			declare_war_on = {
+				target = WAR
+				type = annex_everything
+			}
+		}
+	}
 	BAT_fight_zumidia = {
 		icon = GFX_decision_generic_merge_plant_tank
 		available = {
@@ -7641,6 +7820,8 @@ political_actions = {
 				has_completed_focus = BAT_h18
 				has_completed_focus = BAT_g18
 				has_completed_focus = BAT_f18
+				has_completed_focus = BAT_d18
+				has_completed_focus = BAT_e18
 			}
             FROM = {
                 is_owned_by = ROOT
@@ -7651,6 +7832,8 @@ political_actions = {
 				has_completed_focus = BAT_h18
 				has_completed_focus = BAT_g18
 				has_completed_focus = BAT_f18
+				has_completed_focus = BAT_d18
+				has_completed_focus = BAT_e18
 			}
         }
         state_target = yes
@@ -7747,6 +7930,42 @@ political_actions = {
             }
         }
     }
+	BAT_equestrian_detente = {
+		icon = eng_trade_unions_support
+		available = {
+			EQS = {
+				has_government = democratic
+				is_in_faction = yes
+				is_subject = no
+				NOT = {
+					has_war_with = BAT
+				}
+			}
+			is_subject = no
+		}
+		visible = {
+			OR = {
+				has_completed_focus = BAT_d18
+				has_completed_focus = BAT_e18
+			}
+		}
+		cost = 0
+		fire_only_once = yes
+		
+		ai_will_do = {
+			base = 20
+		}
+		
+		complete_effect = {
+			log = "[GetDateText]: [Root.GetName]: Decision BAT_equestrian_detente"
+			EQS = {
+				country_event = {
+					id = bat.189
+					days = 2
+				}
+			}
+		}
+	}
 }
 
 economy_decisions = {
@@ -15470,7 +15689,11 @@ BAT_the_troubles_category = {
 			    OR = {
 				    has_government = fascism
 					has_country_leader = { 
-		                name = "Stirling Silver"
+		                character = BAT_stirling_silver
+			            ruling_only = yes
+		            }
+					has_country_leader = { 
+		                character = BAT_gorge_batton
 			            ruling_only = yes
 		            }
 				}
@@ -15548,7 +15771,11 @@ BAT_the_troubles_category = {
 				OR = {
 				    has_government = fascism
 					has_country_leader = { 
-		                name = "Stirling Silver"
+		                character = BAT_stirling_silver
+			            ruling_only = yes
+		            }
+					has_country_leader = { 
+		                character = BAT_gorge_batton
 			            ruling_only = yes
 		            }
 				}
@@ -15606,7 +15833,13 @@ BAT_the_troubles_category = {
                 compare = greater_than
             }
 			NOT = {
-				has_government = fascism
+			    OR = {
+					has_government = fascism
+			    	has_country_leader = { 
+		            	character = BAT_gorge_batton
+			        	ruling_only = yes
+		       	 	}
+				}
 			}
 		}
     
@@ -15622,7 +15855,7 @@ BAT_the_troubles_category = {
 			if = {
 			    limit = {
 				    has_country_leader = { 
-		                name = "Stirling Silver"
+		                character = BAT_stirling_silver
 			            ruling_only = yes
 		            }
 				}
@@ -15675,7 +15908,11 @@ BAT_the_troubles_category = {
 				OR = {
 				    has_government = fascism
 					has_country_leader = { 
-		                name = "Stirling Silver"
+		                character = BAT_stirling_silver
+			            ruling_only = yes
+		            }
+					has_country_leader = { 
+		                character = BAT_gorge_batton
 			            ruling_only = yes
 		            }
 				}
@@ -15753,7 +15990,11 @@ BAT_the_troubles_category = {
 				OR = {
 				    has_government = fascism
 					has_country_leader = { 
-		                name = "Stirling Silver"
+		                character = BAT_stirling_silver
+			            ruling_only = yes
+		            }
+					has_country_leader = { 
+		                character = BAT_gorge_batton
 			            ruling_only = yes
 		            }
 				}
@@ -15812,7 +16053,11 @@ BAT_the_troubles_category = {
 				OR = {
 				    has_government = fascism
 					has_country_leader = { 
-		                name = "Stirling Silver"
+		                character = BAT_stirling_silver
+			            ruling_only = yes
+		            }
+					has_country_leader = { 
+		                character = BAT_gorge_batton
 			            ruling_only = yes
 		            }
 				}
@@ -15900,7 +16145,7 @@ BAT_the_troubles_category = {
                 compare = greater_than
             }
 		    has_country_leader = { 
-		        name = "Stirling Silver"
+		        character = BAT_stirling_silver
 			    ruling_only = yes
 			}
 		}
@@ -15917,7 +16162,7 @@ BAT_the_troubles_category = {
 			if = {
 			    limit = {
 				    has_country_leader = { 
-		                name = "Stirling Silver"
+		                character = BAT_stirling_silver
 			            ruling_only = yes
 		            }
 				}
@@ -15987,7 +16232,11 @@ BAT_the_troubles_category = {
 				OR = {
 				    has_government = fascism
 					has_country_leader = { 
-		                name = "Stirling Silver"
+		                character = BAT_stirling_silver
+			            ruling_only = yes
+		            }
+					has_country_leader = { 
+		                character = BAT_gorge_batton
 			            ruling_only = yes
 		            }
 				}
@@ -16048,7 +16297,11 @@ BAT_the_troubles_category = {
 				OR = {
 				    has_government = fascism
 					has_country_leader = { 
-		                name = "Stirling Silver"
+		                character = BAT_stirling_silver
+			            ruling_only = yes
+		            }
+					has_country_leader = { 
+		                character = BAT_gorge_batton
 			            ruling_only = yes
 		            }
 				}
@@ -16139,6 +16392,12 @@ BAT_the_troubles_category = {
                 value = 0
                 compare = greater_than
             }
+			NOT = {
+			    has_country_leader = { 
+		            character = BAT_gorge_batton
+			        ruling_only = yes
+		        }
+			}
 		}
     
         ai_will_do = {
@@ -16153,7 +16412,7 @@ BAT_the_troubles_category = {
 			if = {
 			    limit = {
 				    has_country_leader = { 
-		                name = "Stirling Silver"
+		                character = BAT_stirling_silver
 			            ruling_only = yes
 		            }
 				}
