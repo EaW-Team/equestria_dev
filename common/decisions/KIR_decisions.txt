@@ -10515,17 +10515,21 @@ operations = {
 					state = 1061
 				}
 				OR = {
-					is_controlled_by = KIC
+					AND = {
+						any_neighbor_state = {
+							is_controlled_by = ROOT
+						}
+						is_controlled_by = KIC
+					}
 					AND = {
 						is_controlled_by = ROOT
-						NOT = { 
-							has_war_with = KIC 
+						NOT = {
 							is_core_of = ROOT
 						}
 					}
 				}
 				NOT = {
-					has_dynamic_modifier = { modifier = FRV_support_for_fragrance_modifier }
+					has_dynamic_modifier = { modifier = FRV_support_for_fragrance_modifier scope = FRV }
 				}
 			}
 		}
@@ -10548,11 +10552,58 @@ operations = {
 					}
 				}
 				country_event = { id = kirin_republic.105 hours = 1 }
+				set_country_flag = FRV_rouse_support_decision_event_fired_flag
 			}
+			custom_effect_tooltip = FRV_rouse_support_decision_tt
 			FROM = {
-				add_core_of = FRV
 				add_dynamic_modifier = { modifier = FRV_support_for_fragrance_modifier scope = FRV }
 				custom_effect_tooltip = KIR_line_break
+			}
+		}
+	}
+	FRV_add_core_decision = {
+		icon = SOV_place_hq
+		allowed = {
+			original_tag = KIS
+		}
+
+		visible = {
+			ROOT = {
+				has_country_flag = unlocked_FRV_rouse_support_decision_flag
+			}
+			FROM = {
+				has_dynamic_modifier = { modifier = FRV_support_for_fragrance_modifier scope = FRV }
+				OR = {
+					region = 283
+					state = 817
+					state = 1060
+					state = 1061
+				}
+				NOT = {
+					is_core_of = ROOT
+				}
+			}
+		}
+		
+		available = {
+			FROM = {
+				is_controlled_by = ROOT
+			}
+		}
+		
+		state_target = yes
+		on_map_mode = map_only
+		
+		cost = 30
+		days_remove = 60
+
+		complete_effect = {
+			log = "[GetDateText]: [Root.GetName]: Decision FRV_add_core_decision target: [From.GetName]"
+		}
+		remove_effect = {
+			log = "[GetDateText]: [Root.GetName]: Decision remove FRV_add_core_decision target: [From.GetName]"
+			FROM = {
+				add_core_of = ROOT
 			}
 		}
 	}
@@ -14685,6 +14736,10 @@ CFR_infiltration_category = {
 				has_country_flag = CHN_FRV_flag
 			}
 		}
+		
+		available = {
+			has_manpower > ROOT.CFR_infiltration_school_class_size_var
+		}
 
 		custom_cost_trigger = {
 			has_political_power > ROOT.CFR_infiltration_school_PP_cost ##base of 75
@@ -14701,6 +14756,7 @@ CFR_infiltration_category = {
 
 		complete_effect = {
 			log = "[GetDateText]: [Root.GetName]: Decision CFR_infiltration_school target: [From.GetName]"
+			add_manpower = ROOT.CFR_infiltration_school_class_size_negative_var
 			hidden_effect = {
 				add_political_power = ROOT.CFR_infiltration_school_PP_negative_cost
 				add_command_power = ROOT.CFR_infiltration_school_CP_negative_cost
@@ -14748,6 +14804,7 @@ CFR_infiltration_category = {
 			subtract_from_variable = { CFR_infiltration_school_PP_negative_cost = 25 }
 			subtract_from_variable = { CFR_infiltration_school_CP_negative_cost = 25 }
 			add_to_variable = { CFR_infiltration_school_class_size_var = 25 }
+			subtract_from_variable = { CFR_infiltration_school_class_size_negative_var = 25 }
 		}
 	}
 	
@@ -14784,6 +14841,325 @@ CFR_infiltration_category = {
 			add_to_variable = { CFR_infiltration_school_PP_negative_cost = 25 }
 			add_to_variable = { CFR_infiltration_school_CP_negative_cost = 25 }
 			subtract_from_variable = { CFR_infiltration_school_class_size_var = 25 }
+			add_to_variable = { CFR_infiltration_school_class_size_negative_var = 25 }
+		}
+	}
+	CFR_infiltrate_country = {
+		icon = changeling_skull
+		allowed = {
+			original_tag = CHN
+		}
+		ai_will_do = {
+			factor = 15
+		}
+		
+		visible = {
+			ROOT = {
+				has_country_flag = CHN_FRV_flag
+				has_country_flag = CFR_infiltrate_country_available
+				has_country_flag = CFR_infiltrate_country_visible
+			}
+		}
+		
+		target_trigger = {
+			FROM = {
+				capital_scope = {
+					is_on_continent = africa
+					distance_to = { value < 5000 target = 1071 }
+				}
+				NOT = {
+					is_in_array = {
+						array = CFR_infiltrated_countries_array
+					}
+				}
+			}
+		}
+		
+		custom_cost_trigger = {
+			check_variable = { ROOT.infiltrators_var > 39 }
+			command_power > 24
+		}
+		
+		custom_cost_text = CFR_infiltrate_country_cost
+
+		fire_only_once = yes
+		
+		modifier = {
+			political_power_factor = -0.05
+		}
+		
+		days_remove = 120
+		
+		complete_effect = {
+			log = "[GetDateText]: [Root.GetName]: Decision CFR_infiltrate_country"
+			hidden_effect = {
+				subtract_from_variable = { ROOT.infiltrators_var = 40 }
+				add_command_power = -25
+			}
+		}
+		
+		remove_effect = {
+			log = "[GetDateText]: [Root.GetName]: Decision remove CFR_infiltrate_country"
+			custom_effect_tooltip = CFR_infiltrate_country_tt
+			hidden_effect = {
+				add_to_array = {
+					array = CFR_infiltrated_countries_array
+					value = FROM
+				}
+				for_each_scope_loop = {
+					array = FROM.owned_states
+					add_to_array = {
+						array = CFR.CFR_infiltrated_countries_states_array
+						value = THIS
+					}
+				}
+			}
+		}
+	}
+	CFR_steal_tech = {
+		icon = generic_research
+		allowed = {
+			original_tag = CHN
+		}
+		ai_will_do = {
+			factor = 15
+		}
+		
+		visible = {
+			ROOT = {
+				has_country_flag = CHN_FRV_flag
+				has_country_flag = CFR_infiltrate_country_available
+				has_country_flag = CFR_steal_tech_visible
+			}
+		}
+		
+		target_array = CFR_infiltrated_countries_array
+		target_trigger = {
+			FROM = {
+				num_researched_technologies > ROOT.researched_techs
+			}
+		}
+		
+		custom_cost_trigger = {
+			command_power > 14
+			has_political_power > 14
+		}
+		
+		custom_cost_text = decision_cost_CP_15_pp_15
+		
+		modifier = {
+			research_speed_factor = 0.02
+		}
+		
+		days_remove = 60
+		days_re_enable = 60
+		
+		complete_effect = {
+			log = "[GetDateText]: [Root.GetName]: Decision CFR_steal_tech"
+			hidden_effect = {
+				add_political_power = -15
+				add_command_power = -15
+			}
+		}
+		
+		remove_effect = {
+			log = "[GetDateText]: [Root.GetName]: Decision remove CFR_steal_tech"
+			effect_tooltip = {
+				steal_random_tech_bonus = {
+					ahead_reduction = 1
+					bonus = 2
+					base_bonus = 2
+					name = CFR_steal_tech_name
+					#instant = yes
+					target = FROM
+					uses = 1
+				}
+			}
+			hidden_effect = {
+				random_list = {
+					1 = {
+						steal_random_tech_bonus = {
+							ahead_reduction = 1
+							bonus = 2
+							base_bonus = 2
+							name = CFR_steal_tech_name
+							folder = electronics_folder
+							#instant = yes
+							target = FROM
+							uses = 1
+						}
+					}
+					1 = {
+						steal_random_tech_bonus = {
+							ahead_reduction = 1
+							bonus = 2
+							base_bonus = 2
+							name = CFR_steal_tech_name
+							folder = industry_folder
+							#instant = yes
+							target = FROM
+							uses = 1
+						}
+					}
+					1 = {
+						steal_random_tech_bonus = {
+							ahead_reduction = 1
+							bonus = 2
+							base_bonus = 2
+							name = CFR_steal_tech_name
+							folder = infantry_folder
+							#instant = yes
+							target = FROM
+							uses = 1
+						}
+					}
+					1 = {
+						steal_random_tech_bonus = {
+							ahead_reduction = 1
+							bonus = 2
+							base_bonus = 2
+							name = CFR_steal_tech_name
+							folder = support_folder
+							#instant = yes
+							target = FROM
+							uses = 1
+						}
+					}
+					1 = {
+						if = {
+							limit = { not = { has_dlc = "No Step Back" } }
+							steal_random_tech_bonus = {
+								ahead_reduction = 1
+								bonus = 2
+								base_bonus = 2
+								name = CFR_steal_tech_name
+								folder = armour_folder
+								#instant = yes
+								target = FROM
+								uses = 1
+							}
+						}
+						else_if = {
+							limit = { has_dlc = "No Step Back" }
+							steal_random_tech_bonus = {
+								ahead_reduction = 1
+								bonus = 2
+								base_bonus = 2
+								name = CFR_steal_tech_name
+								folder = nsb_armour_folder
+								#instant = yes
+								target = FROM
+								uses = 1
+							}
+						}
+					}
+					1 = {
+						steal_random_tech_bonus = {
+							ahead_reduction = 1
+							bonus = 2
+							base_bonus = 2
+							name = CFR_steal_tech_name
+							folder = artillery_folder
+							#instant = yes
+							target = FROM
+							uses = 1
+						}
+					}
+					1 = {
+						steal_random_tech_bonus = {
+							ahead_reduction = 1
+							bonus = 2
+							base_bonus = 2
+							name = CFR_steal_tech_name
+							folder = air_techs_folder
+							#instant = yes
+							target = FROM
+							uses = 1
+						}
+					}
+					1 = {
+						if = {
+							limit = { not = { has_dlc = "Man the Guns" } }
+							steal_random_tech_bonus = {
+								ahead_reduction = 1
+								bonus = 2
+								base_bonus = 2
+								name = CFR_steal_tech_name
+								folder = naval_folder
+								#instant = yes
+								target = FROM
+								uses = 1
+							}
+						}
+						else_if = {
+							limit = { has_dlc = "Man the Guns" }
+							steal_random_tech_bonus = {
+								ahead_reduction = 1
+								bonus = 2
+								base_bonus = 2
+								name = CFR_steal_tech_name
+								folder = mtgnavalfolder
+								#instant = yes
+								target = FROM
+								uses = 1
+							}
+						}
+					}
+				}
+			}
+			custom_effect_tooltip = CFR_steal_tech_tt
+		}
+	}
+	CFR_disruption_operation = {
+		icon = generic_ignite_civil_war
+		allowed = {
+			original_tag = CHN
+		}
+		ai_will_do = {
+			factor = 15
+		}
+		
+		visible = {
+			ROOT = {
+				has_country_flag = CHN_FRV_flag
+				#has_country_flag = CFR_infiltrate_country_state_available
+				#has_country_flag = CFR_disruption_operation_visible
+			}
+		}
+		
+		state_target = yes
+		on_map_mode = map_only
+		target_array = CFR_infiltrated_countries_states_array
+		target_trigger = {
+			FROM = {
+				
+			}
+		}
+		
+		custom_cost_trigger = {
+			command_power > 14
+			has_political_power > 14
+		}
+		
+		custom_cost_text = decision_cost_CP_15_pp_15
+		
+		modifier = {
+			research_speed_factor = 0.02
+		}
+		
+		#days_remove = 60
+		#days_re_enable = 60
+		
+		complete_effect = {
+			log = "[GetDateText]: [Root.GetName]: Decision CFR_disruption_operation"
+			hidden_effect = {
+				add_political_power = -15
+				add_command_power = -15
+			}
+		}
+		
+		remove_effect = {
+			log = "[GetDateText]: [Root.GetName]: Decision remove CFR_disruption_operation"
 		}
 	}
 }
