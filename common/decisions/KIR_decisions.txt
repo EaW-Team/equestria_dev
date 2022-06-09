@@ -7563,9 +7563,6 @@ operations = {
 		
 		visible = {
 			ROOT = {
-				#is_in_array = {
-				#	array = CFR.CFR_infiltrated_countries_array
-				#}
 				has_dynamic_modifier = {
 					modifier = CFR_financial_irregularities
 				}
@@ -7605,6 +7602,7 @@ operations = {
 					subtract_from_variable = { CFR_industrial_factory_donations_var = 1 }
 					add_offsite_building = { type = industrial_complex level = -1 }
 					add_to_variable = { CFR_counteroperation_steal_factories = 1 }
+					add_to_variable = { infiltrators_var = 5 }
 					if = {
 						limit = {
 							NOT = {
@@ -7614,6 +7612,59 @@ operations = {
 						country_event = { id = kirin_council.87 }
 						set_country_flag = CFR_counteroperation_steal_factories_decision_event_flag
 					}
+				}
+			}
+		}
+	}
+	
+	CFR_counteroperation_steal_resources_decision = {
+		icon = steel
+		allowed = {
+			ROOT = { is_on_continent = africa }
+		}
+		ai_will_do = {
+			factor = 15
+		}
+		
+		visible = {
+			ROOT = {
+				OR = {
+					controls_state = FROM
+					owns_state = FROM
+				}
+			}
+		}
+		
+		state_target = yes
+		on_map_mode = map_only
+		target_array = CFR.CFR_infiltrated_countries_states_array
+		target_trigger = {
+			FROM = {
+				has_state_flag = CFR_stole_resources_from_this_state
+			}
+		}
+		
+		cost = 15
+		
+		modifier = {
+			political_power_factor = -0.01
+		}
+		
+		days_remove = 30
+		days_re_enable = 7
+		
+		complete_effect = {
+			log = "[GetDateText]: [Root.GetName]: Decision CFR_counteroperation_steal_resources_decision"
+		}
+		
+		remove_effect = {
+			log = "[GetDateText]: [Root.GetName]: Decision remove CFR_counteroperation_steal_resources_decision"
+			CFR = { remove_resource_rights = FROM }
+			FROM = { clr_state_flag = CFR_stole_resources_from_this_state }
+			hidden_effect = {
+				CFR = {
+					add_to_variable = { CFR_counteroperation_divert_resources = 1 }
+					add_to_variable = { infiltrators_var = 5 }
 				}
 			}
 		}
@@ -14897,8 +14948,6 @@ CFR_infiltration_category = {
 				has_decision = CFR_infiltration_school
 			}
 		}
-		
-		cost = 5
 
 		complete_effect = {
 			log = "[GetDateText]: [Root.GetName]: Decision CFR_infiltration_school_down target: [From.GetName]"
@@ -15047,6 +15096,7 @@ CFR_infiltration_category = {
 					bonus = 2
 					base_bonus = 2
 					name = CFR_steal_tech_name
+					folder = electronics_folder
 					#instant = yes
 					target = FROM
 					uses = 1
@@ -15383,8 +15433,8 @@ CFR_infiltration_category = {
 		visible = {
 			ROOT = {
 				has_country_flag = CHN_FRV_flag
-				#has_country_flag = CFR_infiltrate_country_state_available
-				#has_country_flag = CFR_disruption_operation_visible
+				has_country_flag = CFR_infiltrate_country_state_available
+				has_country_flag = CFR_disruption_operation_visible
 			}
 		}
 		
@@ -15396,6 +15446,9 @@ CFR_infiltration_category = {
 				NOT = {
 					is_owned_by = CFR
 					is_controlled_by = CFR
+					has_dynamic_modifier = {
+						modifier = CFR_disrupted_infrastructure
+					}
 				}
 			}
 		}
@@ -15407,12 +15460,8 @@ CFR_infiltration_category = {
 		
 		custom_cost_text = decision_cost_CP_15_pp_15
 		
-		modifier = {
-			research_speed_factor = 0.02
-		}
-		
-		days_remove = 60
-		days_re_enable = 60
+		days_remove = 20
+		days_re_enable = 80
 		
 		complete_effect = {
 			log = "[GetDateText]: [Root.GetName]: Decision CFR_disruption_operation"
@@ -15424,6 +15473,174 @@ CFR_infiltration_category = {
 		
 		remove_effect = {
 			log = "[GetDateText]: [Root.GetName]: Decision remove CFR_disruption_operation"
+			FROM = {
+				add_dynamic_modifier = { modifier = CFR_disrupted_infrastructure days = 70 }
+				custom_effect_tooltip = KIR_line_break
+			}
+		}
+	}
+	CFR_sabotage_operation = {
+		icon = generic_prepare_civil_war
+		allowed = {
+			original_tag = CHN
+		}
+		ai_will_do = {
+			factor = 15
+		}
+		
+		visible = {
+			ROOT = {
+				has_country_flag = CHN_FRV_flag
+				has_country_flag = CFR_infiltrate_country_state_available
+				has_country_flag = CFR_sabotage_operation_visible
+			}
+		}
+		
+		state_target = yes
+		on_map_mode = map_only
+		target_array = CFR_infiltrated_countries_states_array
+		target_trigger = {
+			FROM = {
+				NOT = {
+					is_owned_by = CFR
+					is_controlled_by = CFR
+					has_dynamic_modifier = {
+						modifier = CFR_sabotaged_defences
+					}
+				}
+			}
+		}
+		
+		custom_cost_trigger = {
+			command_power > 14
+			has_political_power > 14
+		}
+		
+		custom_cost_text = decision_cost_CP_15_pp_15
+		
+		days_remove = 20
+		days_re_enable = 80
+		
+		complete_effect = {
+			log = "[GetDateText]: [Root.GetName]: Decision CFR_sabotage_operation"
+			hidden_effect = {
+				add_political_power = -15
+				add_command_power = -15
+			}
+		}
+		
+		remove_effect = {
+			log = "[GetDateText]: [Root.GetName]: Decision remove CFR_sabotage_operation"
+			FROM = {
+				add_dynamic_modifier = { modifier = CFR_sabotaged_defences days = 70 }
+				custom_effect_tooltip = KIR_line_break
+			}
+		}
+	}
+	CFR_resource_operation = {
+		icon = steel
+		allowed = {
+			original_tag = CHN
+		}
+		ai_will_do = {
+			factor = 15
+		}
+		
+		visible = {
+			ROOT = {
+				has_country_flag = CHN_FRV_flag
+				has_country_flag = CFR_infiltrate_country_state_available
+				has_country_flag = CFR_resource_operation_visible
+			}
+		}
+		
+		state_target = yes
+		on_map_mode = map_only
+		target_array = CFR_infiltrated_countries_states_array
+		target_trigger = {
+			FROM = {
+				NOT = {
+					is_owned_by = CFR
+					is_controlled_by = CFR
+					has_state_flag = CFR_stole_resources_from_this_state
+				}
+				OR = {
+					check_variable = {
+						var = FROM.resource@crystals
+						value = 1
+						compare = greater_than_or_equals
+					}
+					check_variable = {
+						var = FROM.resource@chromium
+						value = 1
+						compare = greater_than_or_equals
+					}
+					check_variable = {
+						var = FROM.resource@steel
+						value = 1
+						compare = greater_than_or_equals
+					}
+					check_variable = {
+						var = FROM.resource@tungsten
+						value = 1
+						compare = greater_than_or_equals
+					}
+					check_variable = {
+						var = FROM.resource@rubber
+						value = 1
+						compare = greater_than_or_equals
+					}
+					check_variable = {
+						var = FROM.resource@aluminium
+						value = 1
+						compare = greater_than_or_equals
+					}
+					check_variable = {
+						var = FROM.resource@oil
+						value = 1
+						compare = greater_than_or_equals
+					}
+				}
+			}
+		}
+		
+		custom_cost_trigger = {
+			check_variable = { ROOT.infiltrators_var > 4 }
+			command_power > 14
+		}
+		
+		custom_cost_text = CFR_steal_factories_cost
+		
+		modifier = {
+		}
+		
+		days_remove = 20
+		days_re_enable = 80
+		
+		complete_effect = {
+			log = "[GetDateText]: [Root.GetName]: Decision CFR_resource_operation"
+			hidden_effect = {
+				add_command_power = -15
+				subtract_from_variable = { ROOT.infiltrators_var = 5 }
+			}
+		}
+		
+		remove_effect = {
+			log = "[GetDateText]: [Root.GetName]: Decision remove CFR_resource_operation"
+			FROM.owner = {
+				give_resource_rights = { receiver = CFR state = FROM }
+				custom_effect_tooltip = CFR_resource_operation_tt
+			}
+			hidden_effect = {
+				FROM = {
+					set_state_flag = CFR_stole_resources_from_this_state
+					state_event = {
+						id = kirin_utility.35
+						days = 365
+						trigger_for = controller
+					}
+				}
+			}
 		}
 	}
 }
