@@ -1,20 +1,25 @@
 political_actions = {
-	ZAR_releasing_BAT = {
-		icon = GFX_decision_faction_gre_monarchist
-		allowed = {
-			original_tag = ZAR
-		}
-		fire_only_once = yes
-		ai_will_do = {
-			factor = 100
-		}
-		is_good = no
-		days_mission_timeout = 30
-		timeout_effect = {
-			log = "[GetDateText]: [Root.GetName]: Decision ZAR_releasing_BAT"
-			country_event = zarantia.441
-		}
-	}
+	#ZAR_releasing_BAT = {
+	#	icon = GFX_decision_faction_gre_monarchist
+	#	allowed = {
+	#		original_tag = ZAR
+	#	}
+	#	fire_only_once = yes
+	#	ai_will_do = {
+	#		factor = 100
+	#	}
+	#	available = {
+	#		BAT = {
+	#			exists = no
+	#		}
+	#	}
+	#	is_good = no
+	#	days_mission_timeout = 30
+	#	timeout_effect = {
+	#		log = "[GetDateText]: [Root.GetName]: Decision ZAR_releasing_BAT"
+	#		country_event = zarantia.441
+	#	}
+	#}
 	ZAR_final_focus_tree = {
 		icon = GFX_decision_faction_gre_monarchist
 		allowed = {
@@ -35,6 +40,7 @@ political_actions = {
 					exists = no
 				}
 			}
+			has_completed_focus = ZAR_pearl_of_the_green_bay
 		}
 		fire_only_once = yes
 		ai_will_do = {
@@ -54,6 +60,7 @@ political_actions = {
 			}
 		}
 		visible = {
+			NOT = {has_global_flag = ZAR_TBK_mutual_treaty_flag}
 			ZAR = {
 				exists = yes
 				NOT = {
@@ -65,6 +72,7 @@ political_actions = {
 			}
 		}
 		available = {
+			NOT = {has_global_flag = ZAR_TBK_mutual_treaty_flag}
 			OR = {
 				BAT = {	
 					focus_progress = {
@@ -87,6 +95,7 @@ political_actions = {
 		}
 		complete_effect = {
 			log = "[GetDateText]: [Root.GetName]: Decision ZAR_final_focus_tree"
+			set_global_flag = ZAR_TBK_mutual_treaty_flag
 			if = {
 				limit = {
 					tag = TBK
@@ -100,6 +109,7 @@ political_actions = {
 					country_event = zarantia.43	
 				}
 			}
+			custom_effect_tooltip = ZAR_TBK_mutual_defense_tt
 		}
 	}
 	
@@ -250,6 +260,8 @@ ZAR_trade_cat = {
 		ai_will_do = {
 			factor = 50
 		}
+		fire_only_once = yes
+
 		target_trigger = {
 			OR = {
 				FROM = {
@@ -265,15 +277,32 @@ ZAR_trade_cat = {
 			political_power_factor = -0.1
 		}
 		target_root_trigger = {
-			has_country_flag = ZAR_choose_mercantile
-			NOT = {
-				has_country_flag = ZAR_trading
-			}
+			has_country_flag = ZAR_grand_caravan_flag
 		}
 		remove_effect = {
 			clr_country_flag = ZAR_trading
-			FROM = {
-				country_event = zarantia.300
+			random_list = {
+				80 = {
+					custom_effect_tooltip = ZAR_trade_success_tt
+					country_event = {
+						id = zarantia.300
+					}
+					add_to_variable = { ZAR_trading_partners = 1 }
+					if = {
+						limit = {
+							check_variable = { ZAR_trading_partners = 4 }
+						}
+						country_event = {
+							id = zarantia.3002
+						}
+					}
+				}
+				20 = {
+					custom_effect_tooltip = ZAR_trade_failure_tt
+					country_event = {
+						id = zarantia.3001
+					}
+				}
 			}
 		}
 		complete_effect = {
@@ -759,34 +788,20 @@ ZAR_reintegrate_tobuck_decisions = {
 	}
 }
 
+
+
 ZAR_amsisi_coring = {
-	ZAR_core_FROM = {
+	ZAR_federation_core_BAT = {
 		icon = GFX_decision_faction_tur_kemalist
 
-		target_trigger = {
-			FROM = {
-				OR = {
-					tag = CTH
-					tag = CVA
-					tag = HIE
-					tag = TRO
-					tag = ZUM
-					tag = WAR
-					tag = BAT
-					tag = CGI
-					tag = CDR
-					tag = BKH
-#					any_neighbor_state = {
-#						is_core_of = ZAR
-#					}
-				}
-			}
-		}
 		available = {
-			all_of_scopes = {
-				array = FROM.core_states
-				owner = {
-					tag = ZAR
+			custom_trigger_tooltip = {
+				tooltip = ZAR_core_BAT_availability_tooltip
+				all_of_scopes = {
+					array = ZAR_BAT_states
+					owner = {
+						tag = ZAR
+					}
 				}
 			}
 			NOT = {
@@ -798,37 +813,386 @@ ZAR_amsisi_coring = {
 			set_country_flag = ZAR_currently_coring
 		}
 		modifier = {
-			stability_weekly = -0.01
+			stability_weekly = -0.005
 			political_power_factor = -0.5
 		}
-		cost = 150
-		days_remove = 180
+		cost = 100
+		days_remove = 140
+
 		fire_only_once = yes
+
 		remove_effect = {
-			every_owned_state = {
-				limit = {
-					is_core_of = FROM
-				}
-				add_core_of = ZAR
-				if = {
+			hidden_effect = {
+				clr_country_flag = ZAR_currently_coring
+				every_owned_state = {
 					limit = {
-						FROM = {
-							original_tag = BAT
+						is_in_array = {
+							array = ZAR.ZAR_BAT_states
+							value = THIS
 						}
 					}
-					add_dynamic_modifier = {
-						modifier = industrial_exemptions_granted
-					}
-				}
-				else = {		
+					add_core_of = ZAR		
 					add_dynamic_modifier = {
 						modifier = conscription_exemptions_granted
 					}
 				}
 			}
+			custom_effect_tooltip = ZAR_federation_core_BAT_tt
+		}
+	}
+	ZAR_federation_core_WAR = {
+		icon = GFX_decision_faction_tur_kemalist
+
+		available = {
+			custom_trigger_tooltip = {
+				tooltip = ZAR_core_WAR_availability_tooltip
+				all_of_scopes = {
+					array = ZAR_WAR_states
+					owner = {
+						tag = ZAR
+					}
+				}
+			}
+			NOT = {
+				has_country_flag = ZAR_currently_coring
+			}
+		}
+
+		complete_effect = {
+			set_country_flag = ZAR_currently_coring
+		}
+		modifier = {
+			stability_weekly = -0.005
+			political_power_factor = -0.25
+		}
+		cost = 75
+		days_remove = 100
+
+		fire_only_once = yes
+
+		remove_effect = {
+			hidden_effect = {
+				clr_country_flag = ZAR_currently_coring
+				every_owned_state = {
+					limit = {
+						is_in_array = {
+							array = ZAR.ZAR_WAR_states
+							value = THIS
+						}
+					}
+					add_core_of = ZAR		
+					add_dynamic_modifier = {
+						modifier = conscription_exemptions_granted
+					}
+				}
+			}
+			custom_effect_tooltip = ZAR_federation_core_WAR_tt
+		}
+	}
+	ZAR_federation_core_ZUM = {
+		icon = GFX_decision_faction_tur_kemalist
+
+		available = {
+			custom_trigger_tooltip = {
+				tooltip = ZAR_core_ZUM_availability_tooltip
+				all_of_scopes = {
+					array = ZAR_ZUM_states
+					owner = {
+						tag = ZAR
+					}
+				}
+			}
+			NOT = {
+				has_country_flag = ZAR_currently_coring
+			}
+		}
+
+		complete_effect = {
+			set_country_flag = ZAR_currently_coring
+		}
+		modifier = {
+			stability_weekly = -0.005
+			political_power_factor = -0.25
+		}
+		cost = 75
+		days_remove = 100
+
+
+		fire_only_once = yes
+
+		remove_effect = {
+			hidden_effect = {
+				clr_country_flag = ZAR_currently_coring
+				every_owned_state = {
+					limit = {
+						is_in_array = {
+							array = ZAR.ZAR_ZUM_states
+							value = THIS
+						}
+					}
+					add_core_of = ZAR		
+					add_dynamic_modifier = {
+						modifier = conscription_exemptions_granted
+					}
+				}
+			}
+			custom_effect_tooltip = ZAR_federation_core_ZUM_tt
+		}
+	}
+	ZAR_federation_core_CGI = {
+		icon = GFX_decision_faction_tur_kemalist
+
+		available = {
+			custom_trigger_tooltip = {
+				tooltip = ZAR_core_CGI_availability_tooltip
+				all_of_scopes = {
+					array = ZAR_CGI_states
+					owner = {
+						tag = ZAR
+					}
+				}
+			}
+			NOT = {
+				has_country_flag = ZAR_currently_coring
+			}
+		}
+
+		complete_effect = {
+			set_country_flag = ZAR_currently_coring
+		}
+		modifier = {
+			stability_weekly = -0.005
+			political_power_factor = -0.5
+		}
+		cost = 150
+		days_remove = 180
+
+		fire_only_once = yes
+
+		remove_effect = {
+			hidden_effect = {
+				clr_country_flag = ZAR_currently_coring
+				every_owned_state = {
+					limit = {
+						is_in_array = {
+							array = ZAR.ZAR_CGI_states
+							value = THIS
+						}
+					}
+					add_core_of = ZAR		
+					add_dynamic_modifier = {
+						modifier = conscription_exemptions_granted
+					}
+				}
+				if = {
+					limit = {
+						all_of_scopes = {
+							array = ZAR_CDR_states
+							owner = {
+								tag = ZAR
+							}
+						}
+						NOT = { has_country_flag = ZAR_cored_CDR }
+					}
+					set_country_flag = ZAR_cored_CDR
+					every_owned_state = {
+						limit = {
+							is_in_array = {
+								array = ZAR.ZAR_CDR_states
+								value = THIS
+							}
+						}
+						add_core_of = ZAR		
+						add_dynamic_modifier = {
+							modifier = conscription_exemptions_granted
+						}
+					}
+				}
+				if = {
+					limit = {
+						933 = { 
+							is_owned_by = ZAR
+							NOT = { is_core_of = ZAR }
+						}
+					}
+					933 = { 
+						add_core_of = ZAR		
+						add_dynamic_modifier = {
+							modifier = conscription_exemptions_granted
+						}
+					}
+				}
+				set_country_flag = ZAR_cored_CGI
+			}
+			custom_effect_tooltip = ZAR_federation_core_CGI_tt
+		}
+	}
+	ZAR_federation_core_CTH = {
+		icon = GFX_decision_faction_tur_kemalist
+
+		available = {
+			custom_trigger_tooltip = {
+				tooltip = ZAR_core_CTH_availability_tooltip
+				all_of_scopes = {
+					array = ZAR_CTH_states
+					owner = {
+						tag = ZAR
+					}
+				}
+			}
+			NOT = {
+				has_country_flag = ZAR_currently_coring
+			}
+		}
+
+		complete_effect = {
+			set_country_flag = ZAR_currently_coring
+		}
+		modifier = {
+			stability_weekly = -0.005
+			political_power_factor = -0.5
+		}
+		cost = 150
+		days_remove = 180
+
+		fire_only_once = yes
+
+		remove_effect = {
+			hidden_effect = {
+				clr_country_flag = ZAR_currently_coring
+				every_owned_state = {
+					limit = {
+						is_in_array = {
+							array = ZAR.ZAR_CTH_states
+							value = THIS
+						}
+					}
+					add_core_of = ZAR		
+					add_dynamic_modifier = {
+						modifier = conscription_exemptions_granted
+					}
+				}
+				if = {
+					limit = {
+						all_of_scopes = {
+							array = ZAR_CDR_states
+							owner = {
+								tag = ZAR
+							}
+						}
+						NOT = { has_country_flag = ZAR_cored_CDR }
+					}
+					set_country_flag = ZAR_cored_CDR
+					every_owned_state = {
+						limit = {
+							is_in_array = {
+								array = ZAR.ZAR_CDR_states
+								value = THIS
+							}
+						}
+						add_core_of = ZAR		
+						add_dynamic_modifier = {
+							modifier = conscription_exemptions_granted
+						}
+					}
+				}
+			}
+			custom_effect_tooltip = ZAR_federation_core_CTH_tt
+		}
+	}
+	ZAR_federation_core_CVA = {
+		icon = GFX_decision_faction_tur_kemalist
+
+		available = {
+			custom_trigger_tooltip = {
+				tooltip = ZAR_core_CVA_availability_tooltip
+				1093 = { is_owned_by = ZAR }
+				1094 = { is_owned_by = ZAR }
+				1095 = { is_owned_by = ZAR }
+			}
+
+			NOT = {
+				has_country_flag = ZAR_currently_coring
+			}
+		}
+
+		complete_effect = {
+			set_country_flag = ZAR_currently_coring
+		}
+		modifier = {
+			stability_weekly = -0.005
+			political_power_factor = -0.25
+		}
+		cost = 75
+		days_remove = 100
+
+		fire_only_once = yes
+
+		remove_effect = {
+			hidden_effect = {
+				clr_country_flag = ZAR_currently_coring
+				every_owned_state = {
+					limit = {
+						is_core_of = CVA
+					}
+					add_core_of = ZAR		
+					add_dynamic_modifier = {
+						modifier = conscription_exemptions_granted
+					}
+				}
+				set_country_flag = ZAR_cored_CVA
+			}
+			custom_effect_tooltip = ZAR_federation_core_CVA_tt
+		}
+	}
+	ZAR_federation_core_kar_alpaka = {
+		icon = GFX_decision_faction_tur_kemalist
+
+		visible = {
+			has_country_flag = ZAR_cored_CVA
+			has_country_flag = ZAR_cored_CGI
+		}
+
+		available = {
+			1092 = { 
+				is_owned_by = ZAR 
+				NOT = { is_core_of = ZAR }
+			}
+
+			NOT = {
+				has_country_flag = ZAR_currently_coring
+			}
+		}
+
+		complete_effect = {
+			set_country_flag = ZAR_currently_coring
+		}
+		modifier = {
+			stability_weekly = -0.005
+			political_power_factor = -0.25
+		}
+		cost = 25
+		days_remove = 30
+
+		fire_only_once = yes
+
+		remove_effect = {	
+			hidden_effect = {
+				clr_country_flag = ZAR_currently_coring
+				1092 = { 
+					add_core_of = ZAR		
+					add_dynamic_modifier = {
+						modifier = conscription_exemptions_granted
+					}
+				}
+			}
+			custom_effect_tooltip = ZAR_federation_core_kar_alpaka_tt
 		}
 	}
 }
+
+
+
 ZAR_amsisi_luv_harmonists =  {
 	ZAR_invite_harmonists = {
 		icon = GFX_decision_faction_tur_kemalist
@@ -1009,6 +1373,856 @@ ZAR_map_painting = {
 		}
 	}
 }
+
+
+ZAR_empire_coring = {
+	ZAR_empire_core_BAT = {
+		icon = GFX_decision_faction_tur_kemalist
+
+		available = {
+			custom_trigger_tooltip = {
+				tooltip = ZAR_core_BAT_availability_tooltip
+				all_of_scopes = {
+					array = ZAR_BAT_states
+					owner = {
+						tag = ZAR
+					}
+				}
+			}
+			NOT = {
+				has_country_flag = ZAR_currently_coring
+			}
+		}
+
+		complete_effect = {
+			set_country_flag = ZAR_currently_coring
+			add_stability = -0.05
+		}
+		modifier = {
+			stability_weekly = -0.005
+			political_power_factor = -0.25
+		}
+		cost = 75
+		days_remove = 120
+
+		fire_only_once = yes
+
+		remove_effect = {
+			hidden_effect = {
+				clr_country_flag = ZAR_currently_coring
+				every_owned_state = {
+					limit = {
+						is_in_array = {
+							array = ZAR.ZAR_BAT_states
+							value = THIS
+						}
+					}
+					add_core_of = ZAR		
+					add_dynamic_modifier = {
+						modifier = conscription_exemptions_granted
+					}
+				}
+			}
+			custom_effect_tooltip = ZAR_empire_core_BAT_tt
+		}
+	}
+	ZAR_empire_core_WAR = {
+		icon = GFX_decision_faction_tur_kemalist
+
+		available = {
+			custom_trigger_tooltip = {
+				tooltip = ZAR_core_WAR_availability_tooltip
+				all_of_scopes = {
+					array = ZAR_WAR_states
+					owner = {
+						tag = ZAR
+					}
+				}
+			}
+			NOT = {
+				has_country_flag = ZAR_currently_coring
+			}
+		}
+
+		complete_effect = {
+			set_country_flag = ZAR_currently_coring
+			add_stability = -0.025
+		}
+		modifier = {
+			stability_weekly = -0.005
+			political_power_factor = -0.15
+		}
+		cost = 50
+		days_remove = 80
+
+		fire_only_once = yes
+
+		remove_effect = {
+			hidden_effect = {
+				clr_country_flag = ZAR_currently_coring
+				every_owned_state = {
+					limit = {
+						is_in_array = {
+							array = ZAR.ZAR_WAR_states
+							value = THIS
+						}
+					}
+					add_core_of = ZAR		
+					add_dynamic_modifier = {
+						modifier = conscription_exemptions_granted
+					}
+				}
+			}
+			custom_effect_tooltip = ZAR_empire_core_WAR_tt
+		}
+	}
+	ZAR_empire_core_ZUM = {
+		icon = GFX_decision_faction_tur_kemalist
+
+		available = {
+			custom_trigger_tooltip = {
+				tooltip = ZAR_core_ZUM_availability_tooltip
+				all_of_scopes = {
+					array = ZAR_ZUM_states
+					owner = {
+						tag = ZAR
+					}
+				}
+			}
+			NOT = {
+				has_country_flag = ZAR_currently_coring
+			}
+		}
+
+		complete_effect = {
+			set_country_flag = ZAR_currently_coring
+			add_stability = -0.025
+		}
+		modifier = {
+			stability_weekly = -0.005
+			political_power_factor = -0.15
+		}
+		cost = 50
+		days_remove = 80
+
+		fire_only_once = yes
+
+		remove_effect = {
+			hidden_effect = {
+				clr_country_flag = ZAR_currently_coring
+				every_owned_state = {
+					limit = {
+						is_in_array = {
+							array = ZAR.ZAR_ZUM_states
+							value = THIS
+						}
+					}
+					add_core_of = ZAR		
+					add_dynamic_modifier = {
+						modifier = conscription_exemptions_granted
+					}
+				}
+			}
+			custom_effect_tooltip = ZAR_empire_core_ZUM_tt
+		}
+	}
+	ZAR_empire_core_CGI = {
+		icon = GFX_decision_faction_tur_kemalist
+
+		available = {
+			custom_trigger_tooltip = {
+				tooltip = ZAR_core_CGI_availability_tooltip
+				all_of_scopes = {
+					array = ZAR_CGI_states
+					owner = {
+						tag = ZAR
+					}
+				}
+			}
+			NOT = {
+				has_country_flag = ZAR_currently_coring
+			}
+		}
+
+		complete_effect = {
+			set_country_flag = ZAR_currently_coring
+			add_stability = -0.075
+		}
+		modifier = {
+			stability_weekly = -0.005
+			political_power_factor = -0.25
+		}
+		cost = 120
+		days_remove = 150
+
+		fire_only_once = yes
+
+		remove_effect = {
+			hidden_effect = {
+				clr_country_flag = ZAR_currently_coring
+				every_owned_state = {
+					limit = {
+						is_in_array = {
+							array = ZAR.ZAR_CGI_states
+							value = THIS
+						}
+					}
+					add_core_of = ZAR		
+					add_dynamic_modifier = {
+						modifier = conscription_exemptions_granted
+					}
+				}
+				if = {
+					limit = {
+						all_of_scopes = {
+							array = ZAR_CDR_states
+							owner = {
+								tag = ZAR
+							}
+						}
+						NOT = { has_country_flag = ZAR_cored_CDR }
+					}
+					set_country_flag = ZAR_cored_CDR
+					every_owned_state = {
+						limit = {
+							is_in_array = {
+								array = ZAR.ZAR_CDR_states
+								value = THIS
+							}
+						}
+						add_core_of = ZAR		
+						add_dynamic_modifier = {
+							modifier = conscription_exemptions_granted
+						}
+					}
+				}
+				if = {
+					limit = {
+						933 = { 
+							is_owned_by = ZAR
+							NOT = { is_core_of = ZAR }
+						}
+					}
+					933 = { 
+						add_core_of = ZAR		
+						add_dynamic_modifier = {
+							modifier = conscription_exemptions_granted
+						}
+					}
+				}
+				set_country_flag = ZAR_cored_CGI
+			}
+			custom_effect_tooltip = ZAR_empire_core_CGI_tt
+		}
+	}
+	ZAR_empire_core_CTH = {
+		icon = GFX_decision_faction_tur_kemalist
+
+		available = {
+			custom_trigger_tooltip = {
+				tooltip = ZAR_core_CTH_availability_tooltip
+				all_of_scopes = {
+					array = ZAR_CTH_states
+					owner = {
+						tag = ZAR
+					}
+				}
+			}
+			NOT = {
+				has_country_flag = ZAR_currently_coring
+			}
+		}
+
+		complete_effect = {
+			set_country_flag = ZAR_currently_coring
+			add_stability = -0.075
+		}
+		modifier = {
+			stability_weekly = -0.005
+			political_power_factor = -0.25
+		}
+		cost = 120
+		days_remove = 150
+
+		fire_only_once = yes
+
+		remove_effect = {
+			hidden_effect = {
+				clr_country_flag = ZAR_currently_coring
+				every_owned_state = {
+					limit = {
+						is_in_array = {
+							array = ZAR.ZAR_CTH_states
+							value = THIS
+						}
+					}
+					add_core_of = ZAR		
+					add_dynamic_modifier = {
+						modifier = conscription_exemptions_granted
+					}
+				}
+				if = {
+					limit = {
+						all_of_scopes = {
+							array = ZAR_CDR_states
+							owner = {
+								tag = ZAR
+							}
+						}
+						NOT = { has_country_flag = ZAR_cored_CDR }
+					}
+					set_country_flag = ZAR_cored_CDR
+					every_owned_state = {
+						limit = {
+							is_in_array = {
+								array = ZAR.ZAR_CDR_states
+								value = THIS
+							}
+						}
+						add_core_of = ZAR		
+						add_dynamic_modifier = {
+							modifier = conscription_exemptions_granted
+						}
+					}
+				}
+			}
+			custom_effect_tooltip = ZAR_empire_core_CTH_tt
+		}
+	}
+	ZAR_empire_core_CVA = {
+		icon = GFX_decision_faction_tur_kemalist
+
+		available = {
+			custom_trigger_tooltip = {
+				tooltip = ZAR_core_CVA_availability_tooltip
+				1093 = { is_owned_by = ZAR }
+				1094 = { is_owned_by = ZAR }
+				1095 = { is_owned_by = ZAR }
+			}
+
+			NOT = {
+				has_country_flag = ZAR_currently_coring
+			}
+		}
+
+		complete_effect = {
+			set_country_flag = ZAR_currently_coring
+			add_stability = -0.025
+		}
+		modifier = {
+			stability_weekly = -0.005
+			political_power_factor = -0.15
+		}
+		cost = 50
+		days_remove = 80
+
+		fire_only_once = yes
+
+		remove_effect = {
+			hidden_effect = {
+				clr_country_flag = ZAR_currently_coring
+				every_owned_state = {
+					limit = {
+						is_core_of = CVA
+					}
+					add_core_of = ZAR		
+					add_dynamic_modifier = {
+						modifier = conscription_exemptions_granted
+					}
+				}
+				set_country_flag = ZAR_cored_CVA
+			}
+			custom_effect_tooltip = ZAR_empire_core_CVA_tt
+		}
+	}
+	ZAR_empire_core_kar_alpaka = {
+		icon = GFX_decision_faction_tur_kemalist
+
+		visible = {
+			has_country_flag = ZAR_cored_CVA
+			has_country_flag = ZAR_cored_CGI
+		}
+
+		available = {
+			1092 = { 
+				is_owned_by = ZAR 
+				NOT = { is_core_of = ZAR }
+			}
+
+			NOT = {
+				has_country_flag = ZAR_currently_coring
+			}
+		}
+
+		complete_effect = {
+			set_country_flag = ZAR_currently_coring
+			add_stability = -0.01
+		}
+		modifier = {
+			stability_weekly = -0.005
+			political_power_factor = -0.10
+		}
+		cost = 10
+		days_remove = 15
+
+		fire_only_once = yes
+
+		remove_effect = {	
+			hidden_effect = {
+				clr_country_flag = ZAR_currently_coring
+				1092 = { 
+					add_core_of = ZAR		
+					add_dynamic_modifier = {
+						modifier = conscription_exemptions_granted
+					}
+				}
+			}
+			custom_effect_tooltip = ZAR_empire_core_kar_alpaka_tt
+		}
+	}
+}
+
+
+ZAR_umalez_rituals_deccat = {
+	ZAR_umalez_ritual_small = {
+		icon = GFX_decision_faction_tur_kurdish
+		visible = {
+			has_completed_focus = ZAR_pacification_of_tribes
+		}	
+		available = {
+			has_completed_focus = ZAR_pacification_of_tribes
+			NOT = { has_country_flag = ZAR_umalez_doing_ritual }
+		}
+		days_remove = 20
+		cost = 15
+		complete_effect = {
+			set_country_flag = ZAR_umalez_doing_ritual
+		}
+		modifier = {
+			production_factory_efficiency_gain_factor = 0.30
+			industrial_capacity_factory = 0.20
+		}
+		remove_effect = {
+			clr_country_flag = ZAR_umalez_doing_ritual
+			add_stability = 0.03
+			add_to_variable = { ZAR_WORM_ritual_count = 1}
+		}
+	}
+	ZAR_umalez_ritual_medium = {
+		icon = GFX_decision_faction_tur_kurdish
+		visible = {
+			has_completed_focus = ZAR_cultural_renaissance
+		}	
+		available = {
+			has_completed_focus = ZAR_cultural_renaissance
+			NOT = { has_country_flag = ZAR_umalez_doing_ritual }
+		}
+		days_remove = 40
+		cost = 25
+		complete_effect = {
+			set_country_flag = ZAR_umalez_doing_ritual
+		}
+		modifier = {
+			local_resources_factor = 0.20
+			production_lack_of_resource_penalty_factor = -0.20
+		}
+		remove_effect = {
+			clr_country_flag = ZAR_umalez_doing_ritual
+			add_stability = 0.06
+			add_to_variable = { ZAR_WORM_ritual_count = 1.5}
+		}
+	}
+	ZAR_umalez_ritual_large = {
+		icon = GFX_decision_faction_tur_kurdish
+		visible = {
+			has_completed_focus = ZAR_grand_ceremonies
+		}	
+		available = {
+			has_completed_focus = ZAR_grand_ceremonies
+			NOT = { has_country_flag = ZAR_umalez_doing_ritual }
+		}
+		days_remove = 60
+		cost = 50
+		complete_effect = {
+			set_country_flag = ZAR_umalez_doing_ritual
+		}
+		modifier = {
+			production_speed_buildings_factor = 0.20
+			consumer_goods_factor = -0.05
+		}
+		remove_effect = {
+			clr_country_flag = ZAR_umalez_doing_ritual
+			add_stability = 0.1
+			add_to_variable = { ZAR_WORM_ritual_count = 2}
+		}
+	}
+}
+
+
+
+ZAR_worm_coring = {
+	ZAR_worm_core_BAT = {
+		icon = GFX_decision_faction_tur_kemalist
+
+		available = {
+			custom_trigger_tooltip = {
+				tooltip = ZAR_core_BAT_availability_tooltip
+				all_of_scopes = {
+					array = ZAR_BAT_states
+					owner = {
+						tag = ZAR
+					}
+				}
+			}
+			NOT = {
+				has_country_flag = ZAR_currently_coring
+			}
+		}
+
+		complete_effect = {
+			set_country_flag = ZAR_currently_coring
+		}
+		modifier = {
+			stability_weekly = -0.005
+		}
+		cost = 50
+		days_remove = 70
+
+		fire_only_once = yes
+
+		remove_effect = {
+			hidden_effect = {
+				clr_country_flag = ZAR_currently_coring
+				every_owned_state = {
+					limit = {
+						is_in_array = {
+							array = ZAR.ZAR_BAT_states
+							value = THIS
+						}
+					}
+					ZAR_worm_coring_purge = yes
+				}
+			}
+			custom_effect_tooltip = ZAR_worm_core_BAT_tt
+		}
+	}
+	ZAR_worm_core_WAR = {
+		icon = GFX_decision_faction_tur_kemalist
+
+		available = {
+			custom_trigger_tooltip = {
+				tooltip = ZAR_core_WAR_availability_tooltip
+				all_of_scopes = {
+					array = ZAR_WAR_states
+					owner = {
+						tag = ZAR
+					}
+				}
+			}
+			NOT = {
+				has_country_flag = ZAR_currently_coring
+			}
+		}
+
+		complete_effect = {
+			set_country_flag = ZAR_currently_coring
+		}
+		modifier = {
+			stability_weekly = -0.005
+		}
+		cost = 25
+		days_remove = 50
+
+		fire_only_once = yes
+
+		remove_effect = {
+			hidden_effect = {
+				clr_country_flag = ZAR_currently_coring
+				every_owned_state = {
+					limit = {
+						is_in_array = {
+							array = ZAR.ZAR_WAR_states
+							value = THIS
+						}
+					}
+					ZAR_worm_coring_purge = yes
+				}
+			}
+			custom_effect_tooltip = ZAR_worm_core_WAR_tt
+		}
+	}
+	ZAR_worm_core_ZUM = {
+		icon = GFX_decision_faction_tur_kemalist
+
+		available = {
+			custom_trigger_tooltip = {
+				tooltip = ZAR_core_ZUM_availability_tooltip
+				all_of_scopes = {
+					array = ZAR_ZUM_states
+					owner = {
+						tag = ZAR
+					}
+				}
+			}
+			NOT = {
+				has_country_flag = ZAR_currently_coring
+			}
+		}
+
+		complete_effect = {
+			set_country_flag = ZAR_currently_coring
+		}
+		modifier = {
+			stability_weekly = -0.005
+		}
+		cost = 25
+		days_remove = 50
+
+		fire_only_once = yes
+
+		remove_effect = {
+			hidden_effect = {
+				clr_country_flag = ZAR_currently_coring
+				every_owned_state = {
+					limit = {
+						is_in_array = {
+							array = ZAR.ZAR_ZUM_states
+							value = THIS
+						}
+					}
+					ZAR_worm_coring_purge = yes
+				}
+			}
+			custom_effect_tooltip = ZAR_worm_core_ZUM_tt
+		}
+	}
+	ZAR_worm_core_CGI = {
+		icon = GFX_decision_faction_tur_kemalist
+
+		available = {
+			custom_trigger_tooltip = {
+				tooltip = ZAR_core_CGI_availability_tooltip
+				all_of_scopes = {
+					array = ZAR_CGI_states
+					owner = {
+						tag = ZAR
+					}
+				}
+			}
+			NOT = {
+				has_country_flag = ZAR_currently_coring
+			}
+		}
+
+		complete_effect = {
+			set_country_flag = ZAR_currently_coring
+		}
+		modifier = {
+			stability_weekly = -0.005
+		}
+		cost = 75
+		days_remove = 100
+
+		fire_only_once = yes
+
+		remove_effect = {
+			hidden_effect = {
+				clr_country_flag = ZAR_currently_coring
+				every_owned_state = {
+					limit = {
+						is_in_array = {
+							array = ZAR.ZAR_CGI_states
+							value = THIS
+						}
+					}
+					ZAR_worm_coring_purge = yes
+				}
+				if = {
+					limit = {
+						all_of_scopes = {
+							array = ZAR_CDR_states
+							owner = {
+								tag = ZAR
+							}
+						}
+						NOT = { has_country_flag = ZAR_cored_CDR }
+					}
+					set_country_flag = ZAR_cored_CDR
+					every_owned_state = {
+						limit = {
+							is_in_array = {
+								array = ZAR.ZAR_CDR_states
+								value = THIS
+							}
+						}
+						ZAR_worm_coring_purge = yes
+					}
+				}
+				if = {
+					limit = {
+						933 = { 
+							is_owned_by = ZAR
+							NOT = { is_core_of = ZAR }
+						}
+					}
+					933 = { 
+						ZAR_worm_coring_purge = yes
+					}
+				}
+				set_country_flag = ZAR_cored_CGI
+			}
+			custom_effect_tooltip = ZAR_worm_core_CGI_tt
+		}
+	}
+	ZAR_worm_core_CTH = {
+		icon = GFX_decision_faction_tur_kemalist
+
+		available = {
+			custom_trigger_tooltip = {
+				tooltip = ZAR_core_CTH_availability_tooltip
+				all_of_scopes = {
+					array = ZAR_CTH_states
+					owner = {
+						tag = ZAR
+					}
+				}
+			}
+			NOT = {
+				has_country_flag = ZAR_currently_coring
+			}
+		}
+
+		complete_effect = {
+			set_country_flag = ZAR_currently_coring
+		}
+		modifier = {
+			stability_weekly = -0.005
+		}
+		cost = 75
+		days_remove = 100
+
+		fire_only_once = yes
+
+		remove_effect = {
+			hidden_effect = {
+				clr_country_flag = ZAR_currently_coring
+				every_owned_state = {
+					limit = {
+						is_in_array = {
+							array = ZAR.ZAR_CTH_states
+							value = THIS
+						}
+					}
+					ZAR_worm_coring_purge = yes
+				}
+				if = {
+					limit = {
+						all_of_scopes = {
+							array = ZAR_CDR_states
+							owner = {
+								tag = ZAR
+							}
+						}
+						NOT = { has_country_flag = ZAR_cored_CDR }
+					}
+					set_country_flag = ZAR_cored_CDR
+					every_owned_state = {
+						limit = {
+							is_in_array = {
+								array = ZAR.ZAR_CDR_states
+								value = THIS
+							}
+						}
+						ZAR_worm_coring_purge = yes
+					}
+				}
+			}
+			custom_effect_tooltip = ZAR_worm_core_CTH_tt
+		}
+	}
+	ZAR_worm_core_CVA = {
+		icon = GFX_decision_faction_tur_kemalist
+
+		available = {
+			custom_trigger_tooltip = {
+				tooltip = ZAR_core_CVA_availability_tooltip
+				1093 = { is_owned_by = ZAR }
+				1094 = { is_owned_by = ZAR }
+				1095 = { is_owned_by = ZAR }
+			}
+
+			NOT = {
+				has_country_flag = ZAR_currently_coring
+			}
+		}
+
+		complete_effect = {
+			set_country_flag = ZAR_currently_coring
+		}
+		modifier = {
+			stability_weekly = -0.005
+		}
+		cost = 25
+		days_remove = 50
+
+		fire_only_once = yes
+
+		remove_effect = {
+			hidden_effect = {
+				clr_country_flag = ZAR_currently_coring
+				every_owned_state = {
+					limit = {
+						is_core_of = CVA
+					}
+					ZAR_worm_coring_purge = yes
+				}
+				set_country_flag = ZAR_cored_CVA
+			}
+			custom_effect_tooltip = ZAR_worm_core_CVA_tt
+		}
+	}
+	ZAR_worm_core_kar_alpaka = {
+		icon = GFX_decision_faction_tur_kemalist
+
+		visible = {
+			has_country_flag = ZAR_cored_CVA
+			has_country_flag = ZAR_cored_CGI
+		}
+
+		available = {
+			1092 = { 
+				is_owned_by = ZAR 
+				NOT = { is_core_of = ZAR }
+			}
+
+			NOT = {
+				has_country_flag = ZAR_currently_coring
+			}
+		}
+
+		complete_effect = {
+			set_country_flag = ZAR_currently_coring
+		}
+		modifier = {
+			stability_weekly = -0.005
+		}
+		cost = 5
+		days_remove = 10
+
+		fire_only_once = yes
+
+		remove_effect = {	
+			hidden_effect = {
+				clr_country_flag = ZAR_currently_coring
+				1092 = { 
+					ZAR_worm_coring_purge = yes
+				}
+			}
+			custom_effect_tooltip = ZAR_worm_core_kar_alpaka_tt
+		}
+	}
+}
+
 
 # ZAR_subjugation_table = { #Need more ideias
 # 	ZAR_subjugation_1 = {
