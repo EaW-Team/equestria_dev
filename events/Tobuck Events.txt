@@ -4543,7 +4543,7 @@ country_event = { ### Tobuck event if some other states after war with HIP own Z
 	}
 }
 
-country_event = { ### event to warn target that TBK is about to attack
+country_event = { ### Wallnut event to warn target that TBK is about to attack
 	id = tobuck_wallnut.82
 	title = tobuck_wallnut.82.t
 	desc = tobuck_wallnut.82.d
@@ -4609,8 +4609,8 @@ country_event = { ### event offering peace in return for giving TBK owned ZUM st
 	}
 	option = { ## Decline
 		name = tobuck_wallnut.83.b
-		add_stability = -0.05
-		add_war_support = -0.05
+		add_stability = -0.1
+		add_war_support = -0.1
 	}
 }
 
@@ -5315,6 +5315,25 @@ country_event = { ### event telling about Baragzen decadence
 		}
 		set_country_flag = TBK_baragzen_leisures
 		activate_mission = TBK_baragzen_leisure
+		set_variable = {
+			var = TBK_commoner_mood_weekly_tick_change
+			value = 2
+		}
+		set_variable = {
+			var = TBK_commoner_mood_weekly_tick
+			value = 0
+		}
+		set_variable = {
+			var = TBK_commoner_mood_weekly_tick_max
+			value = 100
+		}
+		clamp_variable = {
+			var = TBK_commoner_mood_weekly_tick
+			min = 0
+			max = TBK_commoner_mood_weekly_tick_max
+		}
+		TBK_calculate_commoner_mood_modifier = yes
+		add_dynamic_modifier = TBK_commoner_mood_modifier
 	}
 }
 
@@ -5622,7 +5641,6 @@ country_event = { ### Baragzen Scandal event — 10th Large Scandal
 	}
 }
 
-
 country_event = { ### Baragzen Scandal event — 1st Minor Scandal
 	id = tobuck_baragzen.36
 	title = tobuck_baragzen.36.t
@@ -5770,6 +5788,100 @@ country_event = { ### Baragzen Scandal event — 15th Minor Scandal
 	is_triggered_only = yes
 	option = { 
 		name = tobuck_baragzen.50.a
+	}
+}
+
+country_event = { ### Zumidia handover demand
+	id = tobuck_baragzen.51
+	title = tobuck_baragzen.51.t
+	desc = tobuck_baragzen.51.d
+	is_triggered_only = yes
+	option = { 
+		name = tobuck_baragzen.51.a
+		for_each_loop = {
+			array = ZUM.core_states
+			owner = = {
+				OR = {
+					tag = PREV
+					is_subject_of = PREV
+				}
+			}
+			controller = {
+				OR = {
+					tag = PREV
+					is_subject_of = PREV
+				}
+			}
+			TBK = {
+				transfer_state = var:v
+			}
+		}
+	}
+	option = {
+		name = tobuck_baragzen.51.b
+		for_each_loop = {
+			array = ZUM.core_states
+			NOT = {
+				owner = {
+					tag = TBK
+					is_subject_of = TBK
+				}
+			}
+			set_state_flag = TBK_enemy_zum_states_flag
+		}
+		TBK = {
+			hidden_effect = {
+				create_wargoal = { 
+					type = annex_everything 
+					target = PREV
+				}
+			}
+			declare_war_on = {
+				target = PREV
+				type = annex_everything
+			}
+		}
+	}
+}
+
+country_event = { ### Zumidia annexation demand
+	id = tobuck_baragzen.52
+	title = tobuck_baragzen.52.t
+	desc = tobuck_baragzen.52.d
+	is_triggered_only = yes
+	option = { 
+		name = tobuck_baragzen.52.a
+		TBK = {
+			annex_country = { 
+				target = ZUM 
+				transfer_troops = no 
+			} 
+		}
+	}
+	option = {
+		name = tobuck_baragzen.51.b
+		for_each_loop = {
+			array = ZUM.core_states
+			NOT = {
+				owner = {
+					tag = TBK
+					is_subject_of = TBK
+				}
+			}
+			set_state_flag = TBK_enemy_zum_states_flag
+		}
+		TBK = {
+			hidden_effect = {
+				create_wargoal = { 
+					type = annex_everything 
+					target = ZUM
+				}
+			}
+			declare_war_on = {
+				target = ZUM
+				type = annex_everything
+			}
+		}
 	}
 }
 
@@ -7137,8 +7249,70 @@ country_event = { ### Offer Peace In Warzena
 	}
 	option = { ## Decline
 		name = tobuck_diplo.1.b
-		add_stability = -0.05
-		add_war_support = -0.05
+		add_stability = -0.1
+		add_war_support = -0.1
+	}
+}
+
+country_event = { ### Offer Peace In Zumidia
+	id = tobuck_diplo.2 
+	title = tobuck_diplo.2.t
+	desc = tobuck_diplo.2.d
+	is_triggered_only = yes
+	option = { ## Agree
+		name = tobuck_diplo.2.a
+		FROM = {
+			set_country_flag = { flag = bypass_on_peaceconference_ended days = 1 value = 1 }
+			white_peace = TBK
+		}
+		every_other_country = {
+			limit = {
+				OR = {
+					is_subject_of = TBK
+					is_in_faction_with = TBK
+				}
+			}
+			set_country_flag = { flag = bypass_on_peaceconference_ended days = 1 value = 1 }
+			white_peace = FROM
+		}
+		every_other_country = {
+			limit = {
+				OR = {
+					is_subject_of = ROOT
+					is_in_faction_with = ROOT
+				}
+			}
+			set_country_flag = { flag = bypass_on_peaceconference_ended days = 1 value = 1 }
+			white_peace = TBK
+		}
+		for_each_loop = {
+			array = ZUM.core_states
+			has_state_flag = TBK_enemy_zum_states_flag
+			owner = {
+				OR = {
+					tag = ROOT
+					is_subject_of = ROOT
+				}
+			}
+			TBK = {
+				transfer_state = var:v
+			}
+		}
+	}
+	option = { ## Decline
+		name = tobuck_diplo.2.b
+		add_stability = -0.1
+		add_war_support = -0.1
+	}
+}
+
+country_event = { ### generic event warning that TBK is about to attack to conquer owned ZUM states
+	id = tobuck_diplo.3 
+	title = tobuck_diplo.3.t
+	desc = tobuck_diplo.3.d
+	is_triggered_only = yes
+	option = {
+		name = tobuck_diplo.3.a
 	}
 }
 
@@ -7406,9 +7580,5 @@ country_event = { ### bugfixing event
 	is_triggered_only = yes
 	option = {
 		name = tobuck_dummy.1.a
-		declare_war_on = {
-			target = WAR
-			type = annex_everything
-		}
 	}
 }
