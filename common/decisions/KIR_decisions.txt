@@ -6916,6 +6916,7 @@ operations = {
 						original_tag = KIC
 						has_war_with = ROOT
 					}
+					check_variable = { num_armies_in_state@FROM > 0 }
 				}
 			}
 		}
@@ -16043,6 +16044,206 @@ CFR_infiltration_category = {
 						trigger_for = controller
 					}
 				}
+			}
+		}
+	}
+}
+KIR_VAKA_category = {
+	KIR_VAKA_raise_territorial_guard = {
+		icon = generic_prepare_civil_war
+		allowed = {
+			original_tag = KIR
+		}
+
+		visible = {
+			ROOT = {
+				has_country_flag = KIR_VAKA_raise_territorial_guard_flag
+			}
+			FROM = {
+				is_controlled_by = KIR
+				OR = {
+					KIR = {
+						NOT = {
+							has_full_control_of_state = PREV
+						}
+					}
+					any_neighbor_state = {
+						controller = {
+							has_war_with = KIR
+						}
+					}
+				}
+			}
+		}
+		
+		state_target = yes
+		target_array = KIR_raise_territorial_guard_states_array
+		on_map_mode = map_only
+
+		ai_will_do = {
+			base = 150
+		}
+
+		cost = 40
+		days_remove = 20
+		days_re_enable = 365
+
+		modifier = {
+			political_power_factor = -0.05
+		}
+
+		complete_effect = {
+			log = "[GetDateText]: [Root.GetName]: Decision KIR_raise_territorial_guard target: [From.GetName]"
+		}
+		remove_effect = {
+			log = "[GetDateText]: [Root.GetName]: Decision remove KIR_raise_territorial_guard target: [From.GetName]"
+			hidden_effect = {
+				KIR = {
+					save_current_manpower = yes
+				}
+				FROM = {
+					add_manpower = -12000
+				}
+				KIR = {
+					restore_previous_manpower = yes
+				}
+				meta_effect = {
+					text = {
+						FROM = {
+							create_unit = {
+								division = "name = \"No. [KIR_TERRITORIALS_NUMBER] [KIR_TERRITORIALS_STATE_NAME] Territorials\" division_template = \"Territorial Guard\" start_experience_factor = 0.02 start_equipment_factor = 0.33" 
+								owner = KIR
+								count = 1
+							}
+						}
+					}
+					KIR_TERRITORIALS_STATE_NAME = "[FROM.GetName]"
+					KIR_TERRITORIALS_NUMBER = "[?KIR.KIR_TERRITORIALS_NUMBER_VAR]"
+				}
+				KIR = { add_to_variable = { KIR_TERRITORIALS_NUMBER_VAR = 1 } }
+				meta_effect = {
+					text = {
+						FROM = {
+							create_unit = {
+								division = "name = \"No. [KIR_TERRITORIALS_NUMBER] [KIR_TERRITORIALS_STATE_NAME] Territorials\" division_template = \"Territorial Guard\" start_experience_factor = 0.02 start_equipment_factor = 0.33" 
+								owner = KIR
+								count = 1
+							}
+						}
+					}
+					KIR_TERRITORIALS_STATE_NAME = "[FROM.GetName]"
+					KIR_TERRITORIALS_NUMBER = "[?KIR.KIR_TERRITORIALS_NUMBER_VAR]"
+				}
+				KIR = { 
+					add_to_variable = { KIR_TERRITORIALS_NUMBER_VAR = 1 }
+					add_equipment_to_stockpile = { type = melee_equipment_1 amount = 300 }
+					add_equipment_to_stockpile = { type = melee_equipment_0 amount = 200 }
+				}
+			}
+			custom_effect_tooltip = KIR_raise_territorial_guard_tt
+			effect_tooltip = {
+				FROM = {
+					add_manpower = -12000
+				}
+			}
+		}
+		cancel_trigger = {
+			FROM = {
+				NOT = {
+					is_controlled_by = KIR
+				}
+			}
+		}
+	}
+	KIR_VAKA_guerilla_strike = {
+		icon = generic_ignite_civil_war
+		allowed = {
+			original_tag = KIR
+		}
+
+		visible = {
+			ROOT = {
+				has_country_flag = KIR_VAKA_guerilla_strike_flag
+			}
+			FROM = {
+				is_core_of = KIR
+				owner = {
+					original_tag = KIR
+				}
+				controller = {
+					has_war_with = KIR
+					check_variable = { num_armies_in_state@FROM > 0 }
+				}
+			}
+		}
+		
+		available = {
+			FROM = {
+				any_neighbor_state = {
+					is_controlled_by = ROOT
+				}
+			}
+		}
+		
+		state_target = yes
+		target_array = KIR_VAKA_guerilla_strike_states_array
+		on_map_mode = map_only
+		
+		custom_cost_trigger = {
+			has_manpower > 1499
+			command_power > 9
+		}
+		
+		custom_cost_text = COC_guerilla_strike_cost
+		
+		days_remove = 14
+		days_re_enable = 180
+
+		modifier = {
+			command_power_gain_mult = -0.1
+		}
+
+		complete_effect = {
+			log = "[GetDateText]: [Root.GetName]: Decision KIR_VAKA_guerilla_strike target: [From.GetName]"
+			hidden_effect = {
+				add_manpower = -1500
+				add_command_power = -10
+			}
+		}
+		remove_effect = {
+			log = "[GetDateText]: [Root.GetName]: Decision remove KIR_VAKA_guerilla_strike target: [From.GetName]"
+			custom_effect_tooltip = KIR_VAKA_guerilla_strike_tt
+			FROM.controller = {
+				set_temp_variable = { guerilla_strike_divisions_in_state_var_ORG = 80 }
+				set_temp_variable = { guerilla_strike_divisions_in_state_var_STR = 100 }
+				divide_temp_variable = { guerilla_strike_divisions_in_state_var_ORG = num_armies_in_state@FROM }
+				divide_temp_variable = { guerilla_strike_divisions_in_state_var_STR = num_armies_in_state@FROM }
+				FROM = {
+					set_variable = { guerilla_strike_divisions_in_state_var_ORG = controller.guerilla_strike_divisions_in_state_var_ORG }
+					set_variable = { guerilla_strike_divisions_in_state_var_STR = controller.guerilla_strike_divisions_in_state_var_STR }
+				}
+			}
+			meta_effect = {
+				text = {
+					damage_units = {
+						state = FROM
+						limit = {
+							has_war_with = ROOT 
+						}
+						org_damage = [GUERILLA_STRIKE_ORG_DMG]
+						str_damage = [GUERILLA_STRIKE_STR_DMG]
+						ratio = no
+						army = yes
+						navy = no
+					}
+				}
+				GUERILLA_STRIKE_ORG_DMG = "[?FROM.guerilla_strike_divisions_in_state_var_ORG]"
+				GUERILLA_STRIKE_STR_DMG = "[?FROM.guerilla_strike_divisions_in_state_var_STR]"
+			}
+		}
+		cancel_trigger = {
+			FROM = {
+				is_fully_controlled_by = ROOT
 			}
 		}
 	}
