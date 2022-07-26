@@ -1595,7 +1595,7 @@
 	shared_focus = {
 		id = HIP_expand_refugee_zone
 		icon = GFX_goal_expand_refugee_zone
-		cost = 6
+		cost = 4
 		x = 0
 		y = 1
 		relative_position_id = HIP_fortify_zebrica
@@ -1639,7 +1639,36 @@
 		completion_reward = {
 			add_war_support = 0.10
 			add_stability = -0.05
-			#Increases refugee pull, gives intel on bats
+			add_ideas = HIP_refugee_zone
+			custom_effect_tooltip = HIP_refugee_zone_tt
+			hidden_effect = {
+				every_state = {
+					limit = {
+						OR = {
+							is_owned_and_controlled_by = BAT
+							is_owned_and_controlled_by = ZAR
+						}
+						OR = {
+							is_core_of = TBK
+							is_core_of = ZAR
+						}
+					}
+					add_manpower = -3000
+					add_compliance = -0.05
+				}
+			}
+			697 = {
+				add_manpower = 19800
+			}
+			698 = {
+				add_manpower = 2200
+			}
+			710 = {
+				add_manpower = 950
+			}
+			711 = {
+				add_manpower = 1050
+			}
 		}
 	}
 
@@ -2379,10 +2408,10 @@
 					is_in_faction = no
 				}
 				set_rule = {
-				can_create_factions = yes
-			}
-			create_faction = HIP_middle_sea_treaty
-			unlock_decision_category_tooltip = HIP_invite_allies
+					can_create_factions = yes
+				}
+				create_faction = HIP_middle_sea_treaty
+				unlock_decision_category_tooltip = HIP_invite_allies
 			}
 			else_if = {
 				limit = {
@@ -2596,6 +2625,10 @@
 
 		ai_will_do = {
 			factor = 100
+			modifier = {
+				has_stability < 0.40
+				factor = 0.2
+			}
 		}
 
 		cancel_if_invalid = yes
@@ -2919,7 +2952,11 @@
 		}
 
 		ai_will_do = {
-			factor = 20
+			factor = 5
+			modifier = {
+				has_stability < 0.50
+				factor = 20
+			}
 		}
 
 		cancel_if_invalid = yes
@@ -3225,7 +3262,7 @@
 
 	shared_focus = {
 		id = HIP_terrafin_mission
-		icon = GFX_goal_HIP_terrafin_proposal
+		icon = GFX_goal_HIP_terrafin_mission
 		cost = 5
 		x = 0
 		y = 1
@@ -3275,7 +3312,10 @@
 		allow_branch = {
 			has_government = democratic
 			has_country_flag = HIP_won_north_zebrican_war
-			NOT = {has_country_flag = HIP_Antifa_Skystar_flag}
+			NOT = {
+				has_country_flag = HIP_Antifa_Skystar_flag
+				has_country_flag = BAT_HIP_defeated
+			}
 			is_subject = no
 		}
 
@@ -5016,7 +5056,18 @@
 		available_if_capitulated = no
 
 		completion_reward = {
-			add_ideas = HIP_skapitoria_help
+			if = {
+				limit = {
+					has_idea = HIP_refugee_zone
+				}
+				swap_ideas = {
+					remove_idea = HIP_refugee_zone
+					add_idea = HIP_skapitoria_help_2
+				}
+			}
+			else = {
+				add_ideas = HIP_skapitoria_help
+			}
 		}
 	}
 	shared_focus = {
@@ -5410,7 +5461,7 @@
 		available_if_capitulated = no
 
 		completion_reward = {
-
+			add_ideas = HIP_vet_benefits
 		}
 	}
 	shared_focus = {
@@ -6204,6 +6255,7 @@ shared_focus = {
 			date > 1012.07.01
 			has_war_support > 0.70
 			hidden_trigger = {is_subject = no}
+			NOT = {has_completed_focus = HIP_handle_bats}
 		}
 
 		cancel_if_invalid = yes
@@ -6726,7 +6778,25 @@ shared_focus = {
 		available_if_capitulated = no
 
 		completion_reward = {#empower Moonfeather, decision category to buy weapons
-			
+			custom_effect_tooltip = HIP_negotiate_factories_tt
+			hidden_effect = {
+				add_offsite_building = {
+					type = arms_factory
+					level = 2
+				}
+				add_offsite_building = {
+					type = dockyard
+					level = 1
+				}
+				add_to_variable = { var = HIP_underwater_mil value = 2 }
+				add_to_variable = { var = HIP_underwater_mil_remove value = -2 }
+				add_to_variable = { var = HIP_underwater_dockyard value = 1 }
+			}
+			add_to_variable = {
+				var = HIP_underwater_slots
+				value = 4
+			}
+			add_ideas = HIP_public_private_partnership
 		}
 	}
 
@@ -6921,6 +6991,7 @@ shared_focus = {
 						OR = {
 							tag = HIP
 							is_subject_of = HIP
+							is_in_faction_with = HIP
 						}
 					}
 				}
@@ -6929,6 +7000,7 @@ shared_focus = {
 						OR = {
 							tag = HIP
 							is_subject_of = HIP
+							is_in_faction_with = HIP
 						}
 					}
 				}
@@ -6937,6 +7009,7 @@ shared_focus = {
 						OR = {
 							tag = HIP
 							is_subject_of = HIP
+							is_in_faction_with = HIP
 						}
 					}
 				}
@@ -6949,6 +7022,34 @@ shared_focus = {
 
 		completion_reward = {
 			country_event = arisfirst.72
+			if = {
+				limit = {
+					OR = {
+						has_completed_focus = HIP_return_to_isolation
+						has_completed_focus = HIP_international_obligations
+					}
+					OR = {
+						has_completed_focus = HIP_handle_bats
+						NOT = {
+							712 = {
+								owner = {
+									OR = {
+										tag = HIP
+										is_subject_of = HIP
+										is_in_faction_with = HIP
+									}
+								}
+							}
+						}
+					}
+					NOT = {has_country_flag = HIP_moonfeather_crisis}
+				}
+				country_event = {
+					id = arisfirst.80
+					days = 3
+				}
+				set_country_flag = HIP_moonfeather_crisis
+			}
 		}
 	}
 
@@ -7022,12 +7123,40 @@ shared_focus = {
 
 		completion_reward = {
 			custom_effect_tooltip = afm_handle_bats_tt
+			if = {
+				limit = {
+					OR = {
+						has_completed_focus = HIP_return_to_isolation
+						has_completed_focus = HIP_international_obligations
+					}
+					OR = {
+						has_completed_focus = HIP_puppet_sufrit
+						NOT = {
+							875 = {
+								owner = {
+									OR = {
+										tag = HIP
+										is_subject_of = HIP
+										is_in_faction_with = HIP
+									}
+								}
+							}
+						}
+					}
+					NOT = {has_country_flag = HIP_moonfeather_crisis}
+				}
+				country_event = {
+					id = arisfirst.80
+					days = 3
+				}
+				set_country_flag = HIP_moonfeather_crisis
+			}
 		}
 	}
 
 	shared_focus = {#Raft begins reorg of Aris First
 		id = HIP_fate_of_aris_first
-		icon = GFX_goal_national_populism
+		icon = GFX_HIP_fate_of_aris_first
 		cost = 6
 		x = 2
 		y = 1
@@ -7059,7 +7188,7 @@ shared_focus = {
 		available_if_capitulated = no
 
 		completion_reward = {#Aris First party convention begins
-			
+			custom_effect_tooltip = HIP_af_convention_tt
 		}
 	}
 
@@ -7158,6 +7287,44 @@ shared_focus = {
 
 		completion_reward = {
 			add_ideas = HIP_splendid_isolation_2
+			WAR = {leave_faction = yes}
+			ZUM = {leave_faction = yes}
+			if = {
+				limit = {
+					OR = {
+						has_completed_focus = HIP_handle_bats
+						NOT = {
+							712 = {
+								owner = {
+									OR = {
+										tag = HIP
+										is_subject_of = HIP
+										is_in_faction_with = HIP
+									}
+								}
+							}
+						}
+					}
+					OR = {
+						875 = {
+							owner = {
+								OR = {
+									tag = HIP
+									is_subject_of = HIP
+									is_in_faction_with = HIP
+								}
+							}
+						}
+						has_completed_focus = HIP_puppet_sufrit
+					}
+					NOT = {has_country_flag = HIP_moonfeather_crisis}
+				}
+				country_event = {
+					id = arisfirst.80
+					days = 3
+				}
+				set_country_flag = HIP_moonfeather_crisis
+			}
 		}
 	}
 
@@ -7188,12 +7355,218 @@ shared_focus = {
 		}
 
 		completion_reward = {
+			add_war_support = 0.05
+			if = {
+				limit = {
+					is_in_faction = no
+				}
+				set_rule = { can_create_factions = yes }
+				create_faction = NORTH_ZEBRICAN_COALITION
+			}
+			if = {
+				limit = {
+					WAR = { 
+						is_in_faction = no
+						has_government = democratic
+					}
+				}
+				add_to_faction = WAR
+			}
+			if = {
+				limit = {
+					ZUM = { 
+						is_in_faction = no
+					}
+				}
+				add_to_faction = WAR
+			}
+			if = {
+				limit = {
+					OR = {
+						has_completed_focus = HIP_handle_bats
+						NOT = {
+							712 = {
+								owner = {
+									OR = {
+										tag = HIP
+										is_subject_of = HIP
+										is_in_faction_with = HIP
+									}
+								}
+							}
+						}
+					}
+					OR = {
+						875 = {
+							owner = {
+								OR = {
+									tag = HIP
+									is_subject_of = HIP
+									is_in_faction_with = HIP
+								}
+							}
+						}
+						has_completed_focus = HIP_puppet_sufrit
+					}
+					NOT = {has_country_flag = HIP_moonfeather_crisis}
+				}
+				country_event = {
+					id = arisfirst.80
+					days = 3
+				}
+				set_country_flag = HIP_moonfeather_crisis
+			}
+		}
+	}
 
+	shared_focus = {
+		id = HIP_seaquestrian_rennaissance
+		icon = GFX_goal_national_populism
+		cost = 6
+		x = -2
+		y = 3
+		relative_position_id = HIP_fate_of_aris_first
 
+		ai_will_do = {factor = 8}
+
+		prerequisite = {
+			focus = HIP_international_obligations
+			focus = HIP_return_to_isolation
+		}
+
+		prerequisite = {
+			focus = HIP_handle_bats
+			focus = HIP_puppet_sufrit
+		}
+
+		available = {
+			has_government = neutrality
+		}
+
+		completion_reward = {
+			country_event = arisfirst.81
 		}
 	}
 	
+	shared_focus = {
+		id = HIP_autarky_perfected
+		icon = GFX_goal_national_populism
+		cost = 6
+		x = -1
+		y = 1
+		relative_position_id = HIP_seaquestrian_rennaissance
 
+		ai_will_do = {factor = 8}
+
+		prerequisite = {
+			focus = HIP_seaquestrian_rennaissance
+		}
+
+		available = {
+			has_government = neutrality
+		}
+
+		completion_reward = {
+			#unlock_decision_tooltip = HIP_undersea_mining_tt
+		}
+	}
+
+	shared_focus = {
+		id = HIP_strong_and_free
+		icon = GFX_goal_national_populism
+		cost = 6
+		x = 1
+		y = 1
+		relative_position_id = HIP_seaquestrian_rennaissance
+
+		ai_will_do = {factor = 8}
+
+		prerequisite = {
+			focus = HIP_seaquestrian_rennaissance
+		}
+
+		available = {
+			has_government = neutrality
+		}
+
+		completion_reward = {
+
+		}
+	}
+
+	shared_focus = {
+		id = HIP_pride_of_aris
+		icon = GFX_goal_national_populism
+		cost = 6
+		x = 2
+		y = 2
+		relative_position_id = HIP_seaquestrian_rennaissance
+
+		ai_will_do = {factor = 8}
+
+		prerequisite = {
+			focus = HIP_strong_and_free
+		}
+
+		available = {
+			has_government = neutrality
+		}
+
+		completion_reward = {
+			add_ideas = HIP_vet_benefits
+		}
+	}
+
+	shared_focus = {
+		id = HIP_lessons_of_nzw
+		icon = GFX_goal_national_populism
+		cost = 6
+		x = 3
+		y = 3
+		relative_position_id = HIP_seaquestrian_rennaissance
+
+		prerequisite = {focus = HIP_pride_of_aris}
+
+		ai_will_do = {factor = 8}
+
+		completion_reward = {
+			add_doctrine_cost_reduction = {
+				name = HIP_lessons_of_nzw
+				cost_reduction = 0.5
+				uses = 1
+				category = air_doctrine
+			}
+			add_doctrine_cost_reduction = {
+				name = HIP_lessons_of_nzw
+				cost_reduction = 0.5
+				uses = 1
+				category = naval_doctrine
+			}
+			add_doctrine_cost_reduction = {
+				name = HIP_lessons_of_nzw
+				cost_reduction = 0.5
+				uses = 1
+				category = land_doctrine
+			}
+		}
+	}
+
+	shared_focus = {
+		id = HIP_arisian_warfare_perfected
+		icon = GFX_goal_national_populism
+		cost = 6
+		x = 3
+		y = 4
+		relative_position_id = HIP_seaquestrian_rennaissance
+
+		prerequisite = {focus = HIP_lessons_of_nzw}
+
+		ai_will_do = {factor = 8}
+
+		completion_reward = {
+			custom_effect_tooltip = HIP_arisian_warfare_tt
+		}
+	}
 	
 
 
@@ -8179,6 +8552,10 @@ shared_focus = {
 					id = antifa.15
 					days = 46
 				}
+				country_event = {
+					id = antifa.23
+					days = 83
+				}
 			}
 		}
 	}
@@ -8201,33 +8578,33 @@ shared_focus = {
 
 		completion_reward = {
 			country_event = antifa.5
-		if = {
-			limit = {
-				has_idea = HIP_crisis_3
+			if = {
+				limit = {
+					has_idea = HIP_crisis_3
+				}
+				swap_ideas = {
+					remove_idea = HIP_crisis_3
+					add_idea = HIP_crisis_2
+				}
 			}
-			swap_ideas = {
-				remove_idea = HIP_crisis_3
-				add_idea = HIP_crisis_2
+			else_if = {
+				limit = {
+					has_idea = HIP_crisis_2
+				}
+				swap_ideas = {
+					remove_idea = HIP_crisis_2
+					add_idea = HIP_crisis_1
+				}
 			}
-		}
-		else_if = {
-			limit = {
-				has_idea = HIP_crisis_2
+			else_if = {
+				limit = {
+					has_idea = HIP_crisis_1
+				}
+				remove_ideas = HIP_crisis_1
 			}
-			swap_ideas = {
-				remove_idea = HIP_crisis_2
-				add_idea = HIP_crisis_1
+			else = {
+				add_political_power = 25
 			}
-		}
-		else_if = {
-			limit = {
-				has_idea = HIP_crisis_1
-			}
-			remove_ideas = HIP_crisis_1
-		}
-		else = {
-			add_political_power = 25
-		}
 		}
 	}
 
@@ -8282,6 +8659,9 @@ shared_focus = {
 		y = 2
 		relative_position_id = HIP_political_violence
 		prerequisite = {focus = HIP_political_violence}
+		prerequisite = {
+			focus = HIP_question_of_constitutions
+		}
 		ai_will_do = {
 			factor = 7
 		}
@@ -8325,6 +8705,9 @@ shared_focus = {
 		y = 2
 		relative_position_id = HIP_right_to_bear_arms
 		prerequisite = {focus = HIP_right_to_bear_arms}
+		prerequisite = {
+			focus = HIP_question_of_constitutions
+		}
 		ai_will_do = {
 			factor = 7
 		}
@@ -8357,32 +8740,32 @@ shared_focus = {
 		completion_reward = {
 			country_event = antifa.6
 			if = {
-			limit = {
-				has_idea = HIP_crisis_3
+				limit = {
+					has_idea = HIP_crisis_3
+				}
+				swap_ideas = {
+					remove_idea = HIP_crisis_3
+					add_idea = HIP_crisis_2
+				}
 			}
-			swap_ideas = {
-				remove_idea = HIP_crisis_3
-				add_idea = HIP_crisis_2
+			else_if = {
+				limit = {
+					has_idea = HIP_crisis_2
+				}
+				swap_ideas = {
+					remove_idea = HIP_crisis_2
+					add_idea = HIP_crisis_1
+				}
 			}
-		}
-		else_if = {
-			limit = {
-				has_idea = HIP_crisis_2
+			else_if = {
+				limit = {
+					has_idea = HIP_crisis_1
+				}
+				remove_ideas = HIP_crisis_1
 			}
-			swap_ideas = {
-				remove_idea = HIP_crisis_2
-				add_idea = HIP_crisis_1
+			else = {
+				add_political_power = 25
 			}
-		}
-		else_if = {
-			limit = {
-				has_idea = HIP_crisis_1
-			}
-			remove_ideas = HIP_crisis_1
-		}
-		else = {
-			add_political_power = 25
-		}
 		}
 	}
 
@@ -8469,32 +8852,32 @@ shared_focus = {
 		completion_reward = {#unlock some decisions to improve army, some requiring military reexamination to be complete and others requiring commie purges. Tie to a dynamic army modifier.
 
 			if = {
-			limit = {
-				has_idea = HIP_crisis_3
+				limit = {
+					has_idea = HIP_crisis_3
+				}
+				swap_ideas = {
+					remove_idea = HIP_crisis_3
+					add_idea = HIP_crisis_2
+				}
 			}
-			swap_ideas = {
-				remove_idea = HIP_crisis_3
-				add_idea = HIP_crisis_2
+			else_if = {
+				limit = {
+					has_idea = HIP_crisis_2
+				}
+				swap_ideas = {
+					remove_idea = HIP_crisis_2
+					add_idea = HIP_crisis_1
+				}
 			}
-		}
-		else_if = {
-			limit = {
-				has_idea = HIP_crisis_2
+			else_if = {
+				limit = {
+					has_idea = HIP_crisis_1
+				}
+				remove_ideas = HIP_crisis_1
 			}
-			swap_ideas = {
-				remove_idea = HIP_crisis_2
-				add_idea = HIP_crisis_1
+			else = {
+				add_political_power = 25
 			}
-		}
-		else_if = {
-			limit = {
-				has_idea = HIP_crisis_1
-			}
-			remove_ideas = HIP_crisis_1
-		}
-		else = {
-			add_political_power = 25
-		}
 		}
 	}
 
@@ -8636,13 +9019,13 @@ shared_focus = {
 			}
 			hidden_effect = {
 				add_country_leader_role = {
-				character = HIP_silverstream
-				promote_leader = yes
-				country_leader = {
-					ideology = conservatism
-					expire = "1965.1.1"
-					traits = {
-						friendship_school_student
+					character = HIP_silverstream
+					promote_leader = yes
+					country_leader = {
+						ideology = conservatism
+						expire = "1965.1.1"
+						traits = {
+							friendship_school_student
 						}
 					}
 				}
@@ -10296,6 +10679,24 @@ shared_focus = {
 			else = {
 				add_political_power = 150
 			}
+			custom_effect_tooltip = HIP_lose_army_spirits_tt
+			hidden_effect = {
+				remove_ideas = HIP_royal_legion_of_aris_idea
+				remove_ideas = HIP_invite_griffon_officers_idea
+				remove_ideas = HIP_lessons_from_the_enemy_idea
+				remove_ideas = HIP_special_service_force_idea
+				remove_ideas = HIP_cluster_bombing_idea
+				remove_ideas = HIP_bomber_offensive_idea
+				remove_ideas = HIP_trans_continental_air_warfare_idea
+				remove_ideas = HIP_young_flyers_programme
+				remove_ideas = HIP_academy_of_air_sciences_idea
+				remove_ideas = HIP_air_industry_fund_idea
+				remove_ideas = HIP_underwater_supremacy_idea
+				remove_ideas = HIP_freedom_ships_idea
+				remove_ideas = HIP_defence_department_idea
+				remove_ideas = HIP_rapid_strike_tactics_idea
+				remove_ideas = HIP_army_armament_bonds_idea
+			}
 		}
 	}
 	shared_focus = {
@@ -10531,7 +10932,7 @@ shared_focus = {
 					cruiser_submarines_nomtg = 1
 				}
 			}
-			
+			custom_effect_tooltip = HIP_torpedo_cruiser_tp
 		}
 	}
 	shared_focus = {
@@ -17741,7 +18142,15 @@ shared_focus = {
 		}
 
 		available = {
+			NOT = {
+				has_completed_focus = HIP_import_the_revolution
+			}
+		}
 
+		allow_branch = {
+			NOT = {
+				has_completed_focus = HIP_import_the_revolution
+			}
 		}
 		
 		bypass = {
@@ -17870,7 +18279,7 @@ shared_focus = {
 		available_if_capitulated = no
 
 		completion_reward = {
-			add_ideas = HIP_freedom_ships
+			add_ideas = HIP_freedom_ships_idea
 		}
 	}
 
@@ -18018,7 +18427,7 @@ shared_focus = {
 		available_if_capitulated = no
 
 		completion_reward = {
-			add_ideas = HIP_underwater_supremacy
+			add_ideas = HIP_underwater_supremacy_idea
 			if = {
 				limit = {
 					has_dlc = "Man the Guns"
@@ -18328,7 +18737,7 @@ shared_focus = {
 		available_if_capitulated = no
 
 		completion_reward = {
-			add_ideas = HIP_rapid_strike_tactics
+			add_ideas = HIP_rapid_strike_tactics_idea
 		}
 	}
 
@@ -18403,9 +18812,17 @@ shared_focus = {
 		}
 
 		available = {
-
+			NOT = {
+				has_completed_focus = HIP_import_the_revolution
+			}
 		}
 		
+		allow_branch = {
+			NOT = {
+				has_completed_focus = HIP_import_the_revolution
+			}
+		}
+
 		bypass = {
 
 		}
@@ -18454,8 +18871,16 @@ shared_focus = {
 			}
 		}
 
-		available = {
+		allow_branch = {
+			NOT = {
+				has_completed_focus = HIP_import_the_revolution
+			}
+		}
 
+		available = {
+			NOT = {
+				has_completed_focus = HIP_import_the_revolution
+			}
 		}
 		
 		bypass = {
@@ -18820,7 +19245,7 @@ shared_focus = {
 		available_if_capitulated = no
 
 		completion_reward = {
-			add_ideas = HIP_air_industry_fund
+			add_ideas = HIP_air_industry_fund_idea
 		}
 	}
 
@@ -19021,7 +19446,7 @@ shared_focus = {
 		available_if_capitulated = no
 
 		completion_reward = {
-			add_ideas = HIP_defence_department
+			add_ideas = HIP_defence_department_idea
 			army_experience = 25
 		}
 	}
@@ -19894,7 +20319,15 @@ shared_focus = {
 		}
 
 		available = {
+			NOT = {
+				has_completed_focus = HIP_import_the_revolution
+			}
+		}
 
+		allow_branch = {
+			NOT = {
+				has_completed_focus = HIP_import_the_revolution
+			}
 		}
 		
 		bypass = {
