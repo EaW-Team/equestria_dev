@@ -774,34 +774,6 @@ HIP_antifa_army_reforms = {
 }
 
 HIP_psyop_cat = {
-	HIP_seed_BAT_rebels = {
-		icon = GFX_decision_POL_organize_strike_two
-		available = {
-			has_war_with = BAT
-			BAT = {
-				any_owned_state = {
-					is_owned_and_controlled_by = BAT
-					OR = {
-						is_core_of = ZAR
-						is_core_of = TBK
-						is_core_of = WAR
-					}
-				}
-			}
-		}
-		cost = 50
-		complete_effect = {
-			add_equipment_to_stockpile = {
-				type = infantry_equipment
-				amount = -500
-			}
-		}
-		days_remove = 21
-		fire_only_once = yes
-		remove_effect = {#Spawn rebels
-
-		}
-	}
 	HIP_incite_coltva = {
 		icon = GFX_decision_POL_organize_strike_two
 		available = {
@@ -816,9 +788,20 @@ HIP_psyop_cat = {
 			}
 		}
 		cost = 50
-		days_re_enable = 120
+		days_re_enable = 180
 		complete_effect = {#Boost resistance, reduce compliance in Coltvan states
-
+			add_equipment_to_stockpile = {
+				type = infantry_equipment
+				amount = -500
+			}
+			every_state = {
+				limit = {
+					is_controlled_by = CTH
+					is_core_of = CVA
+				}
+				add_resistance_target = {amount = 10 days = 180}
+				add_compliance = -7.5
+			}
 		}
 	}
 	HIP_profile_BAT_units = {
@@ -843,25 +826,55 @@ HIP_psyop_cat = {
 		icon = GFX_decision_generic_intelligence_operation
 		available = {
 			has_war_with = BAT
-			command_power > 24
+			hidden_trigger = {command_power > 29}
 			has_idea = HIP_studied_BAT_units
 		}
-		cost = 25
-		fire_only_once = yes
-		days_remove = 60
-		complete_effect = {
-			add_command_power = -25
+		custom_cost_trigger = {
+			command_power > 29
+			has_political_power > 24
+		}
+		cancel_trigger = {
+			OR = {
+				surrender_progress > 0.3
+				NOT = {has_war_with = BAT}
+			}
+		}
+		cancel_effect = {
+			log = "[GetDateText]: [Root.GetName]: Decision Cancel HIP_surgical_strikes"
 			BAT = {
-				country_event = arisfirst.24
+				every_unit_leader = {
+					remove_unit_leader_trait = HIP_disrupted_command
+				}
+			}
+		}
+		custom_cost_text = decision_cost_CP_30_pp_25
+		fire_only_once = yes
+		days_remove = 180
+		complete_effect = {
+			log = "[GetDateText]: [Root.GetName]: Decision HIP_surgical_strikes"
+			hidden_effect = {add_political_power = -25 add_command_power = -30}
+			BAT = {
+				every_unit_leader = {
+					add_unit_leader_trait = HIP_disrupted_command
+				}
+			}
+		}
+		remove_effect = {
+			log = "[GetDateText]: [Root.GetName]: Decision Remove HIP_surgical_strikes"
+			CTH = {
+				every_unit_leader = {
+					remove_unit_leader_trait = HIP_disrupted_command
+				}
 			}
 		}
 	}
 	HIP_foment_CTH_army_unrest = {
 		icon = GFX_decision_POL_organize_strike_two
 		available = {
+			hidden_trigger = {command_power > 29}
 			OR = {
 				has_war_with = CTH
-				has_war_with = HIE
+#				has_war_with = HIE
 			}
 			if = {
 				limit = {
@@ -874,27 +887,58 @@ HIP_psyop_cat = {
 					}
 				}
 			}
-			if = {
-				limit = {
-					has_war_with = HIE
-				}
-				HIE = {
-					casualties_inflicted_by = {
-						opponent = HIP
-						thousands > 10
-					}
+#			if = {
+#				limit = {
+#					has_war_with = HIE
+#				}
+#				HIE = {
+#					casualties_inflicted_by = {
+#						opponent = HIP
+#						thousands > 10
+#					}
+#				}
+#			}
+		}
+		custom_cost_trigger = {
+			command_power > 29
+			has_political_power > 24
+		}
+		custom_cost_text = decision_cost_CP_30_pp_25
+		days_remove = 180
+		fire_only_once = yes
+		complete_effect = {
+			log = "[GetDateText]: [Root.GetName]: Decision HIP_foment_CTH_army_unrest"
+			hidden_effect = {add_political_power = -25 add_command_power = -30}
+			CTH = {
+				every_unit_leader = {
+					add_unit_leader_trait = HIP_disrupted_command
 				}
 			}
 		}
-		cost = 50
-		days_remove = 21
-		fire_only_once = yes
-		complete_effect = {
-			add_command_power = -25
+
+		cancel_trigger = {
+			OR = {
+				surrender_progress > 0.3
+				NOT = {has_war_with = CTH}
+			}
+		}
+
+		cancel_effect = {
+			log = "[GetDateText]: [Root.GetName]: Decision Cancel HIP_foment_CTH_army_unrest"
+			CTH = {
+				every_unit_leader = {
+					remove_unit_leader_trait = HIP_disrupted_command
+				}
+			}
 		}
 		
-		remove_effect = {#faction based effects
-
+		remove_effect = {
+			log = "[GetDateText]: [Root.GetName]: Decision Remove HIP_foment_CTH_army_unrest"
+			CTH = {
+				every_unit_leader = {
+					remove_unit_leader_trait = HIP_disrupted_command
+				}
+			}
 		}
 	}
 	HIP_homefront_effort = {
@@ -2174,7 +2218,7 @@ prospect_for_resources = {
 		available = {
 			has_completed_focus = HIP_autarky_perfected
 			NOT = {has_country_flag = HIP_chromium_3}
-			num_of_civilian_factories_available_for_projects = 9
+			num_of_civilian_factories_available_for_projects > 8
 			if = {
 				limit = {
 					has_country_flag = HIP_chromium_2
@@ -5492,6 +5536,8 @@ HIP_communist_international_decisions = {
 					has_country_flag = HIP_considered_comintern
 				}
 			}
+			has_government = communism
+			is_faction_leader = yes
 			has_completed_focus = HIP_form_the_comintern
 		}
 		target_root_trigger = {
@@ -5585,13 +5631,17 @@ HIP_communist_international_decisions = {
 				}
 				NOT = { has_country_flag = HIP_considered_full_comintern }
 			}
-			has_completed_focus = HIP_form_the_comintern
-		}
-		target_root_trigger = {
 			has_government = communism
 			is_faction_leader = yes
 			has_completed_focus = HIP_form_the_comintern
 		}
+		target_root_trigger = {
+			is_ai = no  # ai_chance = 0
+			has_government = communism
+			is_faction_leader = yes
+			has_completed_focus = HIP_form_the_comintern
+		}
+		targets = { SRS EQC BRZ STG }
 		target_trigger = {
 			FROM = {
 				has_government = communism
@@ -5632,6 +5682,7 @@ HIP_communist_international_decisions = {
 			}
 		}
 		ai_will_do = {
+			# if set to non-zero, also change target_root_trigger
 			factor = 0
 		}
 		cost = 50
@@ -5992,16 +6043,16 @@ HIP_thermonuclear_bombs = {
 		priority = 10
 		icon = GFX_decision_sombra_crystals
 		visible = {
-			any_other_country = {
+			num_of_nukes > 24
+			FROM = {
 				has_war_with = ROOT
 				is_major = yes
 			}
-			num_of_nukes > 24
 		}
 		allowed = {
 			original_tag = HIP
 		}
-		
+		target_array = enemies
 		target_trigger = {
 			FROM = {
 				is_major = yes
@@ -6607,25 +6658,33 @@ HIP_divided_society = {
 				has_idea = HIP_seapony_resentment_3
 				has_idea = HIP_seapony_resentment_4
 			}
-		}
-		custom_cost_trigger = {
+			hidden_trigger = {
 				has_political_power > 24
 				command_power > 24
 			}
-			custom_cost_text = decision_cost_pp_25_cp_25
+		}
+		custom_cost_trigger = {
+			has_political_power > 24
+			command_power > 24
+		}
+		custom_cost_text = decision_cost_pp_25_cp_25
 		ai_will_do = {
 			factor = 50
 		}
 		modifier = {
-			weekly_manpower = -50
+			weekly_manpower = -100
 		}
 		days_remove = 14
 		days_re_enable = 60
 		complete_effect = {
-			add_command_power = -25
-			add_political_power = -25
+			log = "[GetDateText]: [Root.GetName]: Decision HIP_seaquestrian_crackdowns"
+			hidden_effect = {
+				add_command_power = -25
+				add_political_power = -25
+			}
 		}
 		remove_effect = {
+			log = "[GetDateText]: [Root.GetName]: Decision Remove HIP_seaquestrian_crackdowns"
 			if = {
 				limit = {
 					has_idea = HIP_seapony_resentment_1
@@ -8971,12 +9030,19 @@ HIP_SIR_siren_expansionism = {
 		cost = 50
 		fire_only_once = yes
 		
+		war_with_on_complete = CTH
+		war_with_on_complete = CVA
+		war_with_on_complete = HIE
+		war_with_on_complete = TRO
+		war_with_on_complete = CDR
+		
 		complete_effect = {
 			log = "[GetDateText]: [Root.GetName]: Decision HIP_SIR_strike_the_colthaginian_warlords"
 			if = {
 				limit = {
 					CTH = {
 						exists = yes
+						NOT = { has_war_with = ROOT }
 					}
 				}
 				declare_war_on = {
@@ -8988,6 +9054,7 @@ HIP_SIR_siren_expansionism = {
 				limit = {
 					CVA = {
 						exists = yes
+						NOT = { has_war_with = ROOT }
 					}
 				}
 				declare_war_on = {
@@ -8999,6 +9066,7 @@ HIP_SIR_siren_expansionism = {
 				limit = {
 					HIE = {
 						exists = yes
+						NOT = { has_war_with = ROOT }
 					}
 				}
 				declare_war_on = {
@@ -9010,6 +9078,7 @@ HIP_SIR_siren_expansionism = {
 				limit = {
 					TRO = {
 						exists = yes
+						NOT = { has_war_with = ROOT }
 					}
 				}
 				declare_war_on = {
@@ -9021,6 +9090,7 @@ HIP_SIR_siren_expansionism = {
 				limit = {
 					CDR = {
 						exists = yes
+						NOT = { has_war_with = ROOT }
 					}
 				}
 				declare_war_on = {
@@ -9093,6 +9163,26 @@ HIP_SIR_siren_expansionism = {
 				}
 			}
 		}
+		target_root_trigger = {
+			has_completed_focus = HIP_SIR_the_zonician_excuse
+			NOT = {
+				CDR = {
+					exists = yes
+				}
+			}
+			NOT = {
+				owns_state = 708
+				HIP = {
+					owns_state = 708
+				}
+				CGI = {
+					owns_state = 708
+				}
+				BKH = {
+					owns_state = 708
+				}
+			}
+		}
 		visible = {
 			has_completed_focus = HIP_SIR_the_zonician_excuse
 			NOT = {
@@ -9101,6 +9191,7 @@ HIP_SIR_siren_expansionism = {
 				}
 			}
 			NOT = {
+				owns_state = 708
 				HIP = {
 					owns_state = 708
 				}
@@ -9114,11 +9205,17 @@ HIP_SIR_siren_expansionism = {
 		}
 		cost = 50
 		fire_only_once = yes
+		war_with_target_on_complete = yes
+
+		targets = { 708.owner }
+		target_trigger = {
+			FROM = { owns_state = 708 }
+		}
 		
 		complete_effect = {
 			log = "[GetDateText]: [Root.GetName]: Decision HIP_SIR_take_coltdar"
 			declare_war_on = {
-				target = 708.owner
+				target = FROM
 				type = annex_everything
 			}
 		}
@@ -9143,6 +9240,11 @@ HIP_SIR_siren_expansionism = {
 		cost = 20
 		fire_only_once = yes
 		days_remove = 15
+		war_with_target_on_remove = yes
+		targets = { KLG }
+		target_trigger = {
+			FROM = { tag = KLG }
+		}
 		
 		remove_effect = {
 			log = "[GetDateText]: [Root.GetName]: Decision remove HIP_SIR_destroy_klugetown"
@@ -9199,6 +9301,11 @@ HIP_SIR_siren_expansionism = {
 		cost = 50
 		fire_only_once = yes
 		days_remove = 20
+		war_with_target_on_remove = yes
+		targets = { MER }
+		target_trigger = {
+			FROM = { tag = MER }
+		}
 		
 		remove_effect = {
 			log = "[GetDateText]: [Root.GetName]: Decision remove HIP_SIR_take_the_meridiennes"
@@ -9228,7 +9335,12 @@ HIP_SIR_siren_expansionism = {
 		cost = 30
 		fire_only_once = yes
 		days_remove = 25
-		
+		war_with_target_on_remove = yes
+		targets = { PCB }
+		target_trigger = {
+			FROM = { tag = PCB }
+		}
+
 		remove_effect = {
 			log = "[GetDateText]: [Root.GetName]: Decision remove HIP_SIR_attack_puerto_caballo"
 			declare_war_on = {
@@ -9257,6 +9369,11 @@ HIP_SIR_siren_expansionism = {
 		cost = 50
 		fire_only_once = yes
 		days_remove = 35
+		war_with_target_on_remove = yes
+		targets = { DRG }
+		target_trigger = {
+			FROM = { tag = DRG }
+		}
 		
 		remove_effect = {
 			log = "[GetDateText]: [Root.GetName]: Decision remove HIP_SIR_the_dragon_isles"
@@ -10196,6 +10313,11 @@ foreign_politics = {
 				}
 			}
 		}
+		targets = { BAT }
+		target_trigger = {
+			FROM = { tag = BAT }
+		}
+		war_with_target_on_remove = yes
 		days_remove = 42
 		remove_effect = {
 			declare_war_on = {
