@@ -1713,6 +1713,7 @@ TBK_money_decisions = {
 
 		target_root_trigger = {
             hidden_trigger = {
+				is_owned_by_ROOT_or_ally = yes
 				has_country_flag = TBK_unlocked_money_stuff
 				OR = {
 					has_completed_focus = TBK_house_of_trade
@@ -1782,6 +1783,7 @@ TBK_money_decisions = {
 
 		target_root_trigger = {
             hidden_trigger = {
+				is_owned_by_ROOT_or_ally = yes
 				has_country_flag = TBK_unlocked_money_stuff
 				OR = {
 					has_completed_focus = TBK_house_of_trade
@@ -1804,6 +1806,7 @@ TBK_money_decisions = {
 
 		remove_effect = {
 			log = "[GetDateText]: [Root.GetName]: Decision TBK_build_arms_factory"
+			clr_country_flag = TBK_investing_stuff
 			one_random_arms_factory = yes
 			subtract_from_variable = {
 				var = TBK_dirty_money
@@ -1850,6 +1853,7 @@ TBK_money_decisions = {
 
 		target_root_trigger = {
             hidden_trigger = {
+				is_owned_by_ROOT_or_ally = yes
 				has_country_flag = TBK_unlocked_money_stuff
 				OR = {
 					has_completed_focus = TBK_house_of_trade
@@ -1872,6 +1876,7 @@ TBK_money_decisions = {
 
 		remove_effect = {
 			log = "[GetDateText]: [Root.GetName]: Decision TBK_build_dockyard"
+			clr_country_flag = TBK_investing_stuff
 			one_random_dockyard = yes
 			subtract_from_variable = {
 				var = TBK_dirty_money
@@ -1923,6 +1928,7 @@ TBK_money_decisions = {
 
 		target_root_trigger = {
             hidden_trigger = {
+				is_owned_by_ROOT_or_ally = yes
 				has_country_flag = TBK_unlocked_money_stuff
 				OR = {
 					has_completed_focus = TBK_house_of_trade
@@ -1945,6 +1951,7 @@ TBK_money_decisions = {
 
 		remove_effect = {
 			log = "[GetDateText]: [Root.GetName]: Decision TBK_expand_building_slot"
+			clr_country_flag = TBK_investing_stuff
 			FROM = {
 			    add_extra_state_shared_building_slots = 1
             }
@@ -1993,7 +2000,6 @@ TBK_money_decisions = {
 
 		modifier = {
 			drift_defence_factor = 0.25
-			neutrality_drift = 0.5
 		}
 
 		complete_effect = {
@@ -2003,6 +2009,16 @@ TBK_money_decisions = {
 
 		remove_effect = {
 			log = "[GetDateText]: [Root.GetName]: Decision TBK_donate_for_popularity"
+			clr_country_flag = TBK_investing_stuff
+			if = {
+				limit = {
+					has_government = neutrality
+				}
+				add_popularity = { ideology = neutrality popularity = 0.15 }
+			}
+			else = {
+				add_popularity = { ideology = fascism popularity = 0.15 }
+			}
 			subtract_from_variable = {
 				var = TBK_dirty_money
 				value = 50
@@ -2018,7 +2034,10 @@ TBK_money_decisions = {
 
 		cost = 35
 		custom_cost_trigger = {
-			check_variable = { party_popularity@neutrality > 0.04 }
+			OR = {
+				check_variable = { party_popularity@neutrality > 0.04 }
+				check_variable = { party_popularity@faascism > 0.04 }
+			}
 		}
 		custom_cost_text = decision_cost_popularity_5_tooltip
 
@@ -2039,7 +2058,12 @@ TBK_money_decisions = {
 			}
 		}
 		available = {
-			hidden_trigger = { check_variable = { party_popularity@neutrality > 0.04 }	}
+			hidden_trigger = {
+				OR = {
+					check_variable = { party_popularity@neutrality > 0.04 }
+					check_variable = { party_popularity@faascism > 0.04 }
+				}
+			}
 	 		NOT = {
 				has_country_flag = TBK_aquiring_money
 			}
@@ -2057,7 +2081,15 @@ TBK_money_decisions = {
 		remove_effect = {
 			log = "[GetDateText]: [Root.GetName]: Decision TBK_roughen_populace"
 			clr_country_flag = TBK_aquiring_money
-			add_popularity = { ideology = neutrality popularity = -0.05 }
+			if = {
+				limit = {
+					has_government = neutrality
+				}
+				add_popularity = { ideology = neutrality popularity = -0.05 }
+			}
+			else = {
+				add_popularity = { ideology = fascism popularity = -0.05 }
+			}
 			custom_effect_tooltip = TBK_add_10_million_tp
 			add_to_variable = {
 				var = TBK_dirty_money
@@ -2102,12 +2134,12 @@ TBK_money_decisions = {
 
 		modifier = {
 			political_power_gain = -0.15
-			stability_weekly = -0.00125
 		}
 
 		complete_effect = {
 			log = "[GetDateText]: [Root.GetName]: Decision TBK_temporary_taxation"
 			set_country_flag = TBK_aquiring_money
+			add_stability = -0.05
 		}
 
 		remove_effect = {
@@ -2145,23 +2177,24 @@ TBK_money_decisions = {
 			}
 		}
 		available = {
-			num_of_civilian_factories_available_for_projects > 3
+			num_of_civilian_factories_available_for_projects > 2
 	 		NOT = {
 				has_country_flag = TBK_aquiring_money
 			}
 		}
 
 		modifier = {
+			civilian_factory_use = 3
 			political_power_gain = -0.25
 		}
 
 		complete_effect = {
-			log = "[GetDateText]: [Root.GetName]: Decision TBK_temporary_taxation"
+			log = "[GetDateText]: [Root.GetName]: Decision TBK_generate_profits"
 			set_country_flag = TBK_aquiring_money
 		}
 
 		remove_effect = {
-			log = "[GetDateText]: [Root.GetName]: Decision TBK_temporary_taxation"
+			log = "[GetDateText]: [Root.GetName]: Decision TBK_generate_profits"
 			clr_country_flag = TBK_aquiring_money
 			custom_effect_tooltip = TBK_add_20_million_tp
 			add_to_variable = {
@@ -6182,16 +6215,18 @@ foreign_politics = {
 			all_of_scopes = {
 				array = WAR.original_cores
 				if = {
-					owner = {
-						OR = {
-							tag = FROM
-							is_ally_with = FROM
+					limit = {
+						owner = {
+							OR = {
+								tag = FROM
+								is_ally_with = FROM
+							}
 						}
-					}
-					controller = {
-						OR = {
-							tag = ROOT
-							is_subject_of = ROOT
+						controller = {
+							OR = {
+								tag = ROOT
+								is_subject_of = ROOT
+							}
 						}
 					}
 				}
