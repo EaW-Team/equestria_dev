@@ -1,4 +1,72 @@
 foreign_politics = {
+	CHN_northern_war_timer = {
+		icon = eng_trade_unions_demand
+			available = {
+				always = no
+			} 
+		
+		activation = {
+			PLB = {
+				has_defensive_war_with = CHN
+				is_in_faction = no
+			}
+		}
+		
+		visible = {
+          		  CHN = {
+				has_completed_focus = CHN_attack_PLB
+				}
+				PLB = {
+				has_defensive_war_with = CHN
+				}
+			}
+		fire_only_once = yes
+		is_good = no
+		days_mission_timeout = 180
+
+      		 cancel_trigger = {
+			PLB = {
+				OR = {
+					is_subject_of = CHN
+					has_capitulated = yes
+					exists = no
+				}
+			}
+		}
+		
+		cancel_effect = {
+			log = "[GetDateText]: [Root.GetName]: Decision cancel CHN_northern_war"
+			news_event = { id = plb_news.3 hours = 3 }
+			CHN = {
+				country_event = { id = plb_news.4 days = 1 }
+			}
+		}
+		
+
+		timeout_effect = {
+			log = "[GetDateText]: [Root.GetName]: Decision timeout CHN_northern_war"
+	        every_other_country = {
+	    	    limit = {
+					is_in_faction_with = CHN
+				}
+				white_peace = PLB
+		    }
+			PLB = {
+				country_event = { id = plb_news.5 days = 1 }
+			}
+			CHN = {
+				country_event = { id = plb_news.6 days = 1 }
+			}
+			hidden_effect = {
+				news_event = { id = plb_news.2 hours = 3 }
+			}
+		}
+		complete_effect = {
+			log = "[GetDateText]: [Root.GetName]: Decision CHN_northern_war_timer"
+		}
+	}
+	
+	
 	PLB_break_ties_with_CHN = {
 		allowed = {
 			tag = PLB
@@ -38,28 +106,196 @@ foreign_politics = {
 			country_event = { id = changelings.58 hours = 3 }
 		}
 	}
-}
-
-economy_decisions = {
-	PLB_modernisation_under_CHN = {
-
+	
+	
+	PLB_NP_request_hyperbearia = {
 		allowed = {
 			tag = PLB
 		}
-		visible = {
-			is_subject_of = CHN
+		available = {
+			has_capitulated = no
+			if = {
+				limit = {
+					has_dlc = "Death or Dishonor"
+				}
+				has_autonomy_state = autonomy_satellite
+			}
+			else_if = {
+				limit = {
+					has_dlc = "Together for Victory"
+				}
+				has_autonomy_state = autonomy_dominion
+			}
+			else = {
+				is_major = yes
+			}
+			all_owned_state = {
+				is_controlled_by = ROOT
+			}
+			PNG = {
+				is_subject_of = CHN
+			}
 		}
+		visible = {
+			is_subject_of = FROM
+		}
+
+		targets = { CHN }
+		target_trigger = {
+			FROM = { tag = CHN }
+		}
+		cost = 40
 
 		ai_will_do = {
 			factor = 1000
 		}
-		cost = 100
+
 		fire_only_once = yes
-		days_remove = 150
-		remove_effect = {
-			log = "[GetDateText]: [Root.GetName]: Decision remove PLB_modernisation_under_CHN"
-			increase_society_development_gradual = yes
+
+		complete_effect = {
+			log = "[GetDateText]: [Root.GetName]: Decision PLB_NP_request_hyperbearia target: [From.GetName]"
+			CHN = {
+				country_event = { id = northern_protectorate.12 hours = 3 }
+			}
 		}
 	}
 }
+
+
+economy_decisions = {
+	# PLB_modernisation_under_CHN = {
+
+	# 	allowed = {
+	# 		tag = PLB
+	# 	}
+	# 	visible = {
+	# 		is_subject_of = CHN
+	# 	}
+
+	# 	ai_will_do = {
+	# 		factor = 1000
+	# 	}
+	# 	cost = 100
+	# 	fire_only_once = yes
+	# 	days_remove = 150
+	# 	remove_effect = {
+	# 		log = "[GetDateText]: [Root.GetName]: Decision remove PLB_modernisation_under_CHN"
+	# 		increase_society_development_gradual = yes
+	# 		increase_science_base = yes
+	# 	}
+	# }
+	PLB_remove_illiteracy = {
+		allowed = {
+			original_tag = PLB
+		}
+		visible = {
+			NOT = {
+				has_idea = PLB_clan_divides
+				has_idea = PLB_clan_divides1
+				has_idea = PLB_clan_divides2
+				has_idea = PLB_clan_divides3
+				has_idea = PLB_clan_divides4
+				has_idea = PLB_clan_divides5
+			}
+			has_illiteracy = yes
+		}
+		cost = 50
+		days_remove = 180
+		fire_only_once = yes
+		modifier = {
+			consumer_goods_factor = 0.05
+		}
+		remove_effect = {
+			decrease_illiteracy = yes
+		}
+	}
+}
+
+PLB_republican_struggle_decisions = {
+	PLB_twin_republics = {
+		icon = hol_draw_up_staff_plans
+		visible = {
+			GRF = { exists = no }
+		}
+		available = {
+			has_full_control_of_state = 283
+			has_full_control_of_state = 277
+			has_full_control_of_state = 271
+			has_full_control_of_state = 278
+			has_full_control_of_state = 243
+		}
+		cost = 150
+		days_remove = 25
+		fire_only_once = yes
+		modifier = { 
+			political_power_factor = -0.25
+		}
+		remove_effect = {
+			log = "[GetDateText]: [Root.GetName]: Decision remove GRF_form_avian_republic"
+			release_puppet = GRF
+			if = {
+				limit = { has_dlc = "Together for Victory" }
+				set_autonomy = { target = GRF autonomy_state = autonomy_integrated_puppet }
+			}
+			GRF = {
+				set_cosmetic_tag = GRF_PLB_puppet
+				load_focus_tree = generic_focus
+				set_politics = { ruling_party = neutrality }
+				create_country_leader = {
+					name = "Avian Council"
+					desc = ""
+					picture = ""
+					expire = "1965.1.1"
+					ideology = despotism
+					traits = {}
+				}
+			}
+			set_country_flag = PLB_avian_republic
+			transfer_state = 283
+			transfer_state = 277
+			transfer_state = 281
+			transfer_state = 278
+			
+		}
+		ai_will_do = {
+			factor = 50
+		}
+	}
+	
+	PLB_great_northern_republic = {
+		icon = hol_draw_up_staff_plans
+		visible = {
+			GRF = { exists = no }
+		}
+		available = {
+			has_full_control_of_state = 283
+			has_full_control_of_state = 277
+			has_full_control_of_state = 271
+			has_full_control_of_state = 278
+			has_full_control_of_state = 243
+		}
+		cost = 200
+		days_remove = 5
+		fire_only_once = yes
+		modifier = { 
+			political_power_factor = -0.25
+		}
+		remove_effect = {
+			log = "[GetDateText]: [Root.GetName]: Decision remove GRF_form_avian_republic"
+			PLB = {
+				set_cosmetic_tag = PLB_northern_republic
+			}
+			set_country_flag = PLB_northern_republic
+		}
+		ai_will_do = {
+			factor = 50
+		}
+	}
+	
+	
+	
+}
+
+
+
 
