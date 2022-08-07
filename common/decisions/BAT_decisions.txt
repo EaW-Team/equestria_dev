@@ -5418,6 +5418,7 @@ BAT_LMRD = {
 			NOT = {
 			    has_country_flag = BAT_LMRD_disbanded
 			}
+			always = no #PDX broke mechanics so I'm disabling this project chain until it is fixed
 		}
 		modifier = {
 			civilian_factory_use = 1
@@ -6636,31 +6637,112 @@ BAT_opium_production = {
 		visible = {
 			is_subject = no
 			has_completed_focus = BAT_literal_drug_smuggling
+			FROM = {
+				exists = yes
+				NOT = {
+					is_in_faction_with = ROOT
+					is_subject_of = ROOT
+				}
+				if = {
+					limit = {
+						is_neighbor_of = ROOT
+					}
+					always = yes
+				}
+				else = {
+					check_variable = { closest_distance_to@ROOT < 100 }
+				}
+			}
+		}
+		target_root_trigger = {
+			is_subject = no
+			has_completed_focus = BAT_literal_drug_smuggling
 		}
 		#target_array = neighbors
 		target_trigger = {
 			FROM = {
 				exists = yes
-				if = {
-					limit = {
-						is_neighbor_of = ROOT
-					}
-					is_neighbor_of = ROOT
-				}
-				else = {
-					any_of_scopes = {
-						array = ROOT.owned_controlled_states
-						
-						check_variable = { distance_to@PREV.capital < 100 }
-					}
-				}
 				NOT = {
 					is_in_faction_with = ROOT
 					is_subject_of = ROOT
 				}
+				if = {
+					limit = {
+						is_neighbor_of = ROOT
+					}
+					always = yes
+				}
+				else = {
+					check_variable = { closest_distance_to@ROOT < 100 }
+				}
 			}
 		}
-		custom_cost_trigger = {
+		available = {
+			hidden_trigger = {
+				FROM = {
+					set_temp_variable = { calc = num_owned_states }
+					multiply_temp_variable = { calc = 2 }
+					
+					if = {
+						limit = {
+							has_idea = poverty
+						}
+						set_temp_variable = { poverty_lvl = 6 }
+					}
+					else_if = {
+						limit = {
+							has_idea = poverty1
+						}
+						set_temp_variable = { poverty_lvl = 5 }
+					}
+					else_if = {
+						limit = {
+							has_idea = poverty2
+						}
+						set_temp_variable = { poverty_lvl = 4 }
+					}
+					else_if = {
+						limit = {
+							has_idea = poverty3
+						}
+						set_temp_variable = { poverty_lvl = 3 }
+					}
+					else_if = {
+						limit = {
+							has_idea = poverty4
+						}
+						set_temp_variable = { poverty_lvl = 2 }
+					}
+					else_if = {
+						limit = {
+							OR = {
+								has_idea = poverty5
+								has_idea = no_poverty
+							}
+						}
+						set_temp_variable = { poverty_lvl = 1 }
+					}
+					divide_temp_variable = { calc = poverty_lvl }
+				}
+				if = {
+					limit = {
+						check_variable = {
+							var = opium
+							value = calc 
+							compare = greater_than_or_equals
+						}
+					}
+					set_temp_variable = { can_flood_opium = 1 }
+				}
+			}
+			custom_trigger_tooltip = {
+				tooltip = BAT_opium_flood_cost
+				check_variable = { can_flood_opium = 1 }
+			}
+		}
+		cost = 50
+		complete_effect = {
+			log = "[GetDateText]: [Root.GetName]: Decision BAT_opium_flood target: [From.GetName]"
 			FROM = {
 				set_temp_variable = { calc = num_owned_states }
 				multiply_temp_variable = { calc = 2 }
@@ -6705,16 +6787,12 @@ BAT_opium_production = {
 					set_temp_variable = { poverty_lvl = 1 }
 				}
 				divide_temp_variable = { calc = poverty_lvl }
+				add_timed_idea = {
+					idea = BAT_opioid_epidemic
+					days = 365
+				}
 			}
-			check_variable = {
-				var = opium
-				value = calc 
-				compare = greater_than_or_equals
-			}
-		}
-		custom_cost_text = BAT_opium_flood_cost
-		complete_effect = {
-			log = "[GetDateText]: [Root.GetName]: Decision BAT_opium_flood target: [From.GetName]"
+			subtract_from_variable = { opium = calc }
 		}
 	}
 }
@@ -7207,7 +7285,20 @@ political_actions = {
 			}
         }
 		target_root_trigger = {
-            has_completed_focus = BAT_legal_opposition
+            OR = {
+			    AND = {
+		            has_completed_focus = BAT_secure_tobuck
+		            has_completed_focus = BAT_legal_opposition
+				}
+				AND = {
+		            has_completed_focus = BAT_integrate_the_new_territory
+		            has_completed_focus = BAT_end_the_hierachy
+				}
+				AND = {
+		            has_completed_focus = BAT_integrate_the_new_territory
+		            has_completed_focus = BAT_the_commonwealth_secured
+				}
+			}
         }
         state_target = yes
         targets = { 710 711 697 698 }
@@ -7243,6 +7334,15 @@ political_actions = {
 				has_completed_focus = BAT_h18
 				has_completed_focus = BAT_g18
 				has_completed_focus = BAT_f18
+				AND = {
+					OR = {
+						has_completed_focus = BAT_d18
+						has_completed_focus = BAT_e18
+					}
+					TBK = {
+						has_government = fascism
+					}
+				}
 			}
 			TBK = {
 				is_subject = no
@@ -7317,6 +7417,15 @@ political_actions = {
 				has_completed_focus = BAT_h18
 				has_completed_focus = BAT_g18
 				has_completed_focus = BAT_f18
+				AND = {
+					OR = {
+						has_completed_focus = BAT_d18
+						has_completed_focus = BAT_e18
+					}
+					ZAR = {
+						has_government = fascism
+					}
+				}
 			}
 			ZAR = {
 				is_subject = no
@@ -7457,6 +7566,15 @@ political_actions = {
 			OR = {
 				has_completed_focus = BAT_g18
 				has_completed_focus = BAT_f18
+				AND = {
+					OR = {
+						has_completed_focus = BAT_d18
+						has_completed_focus = BAT_e18
+					}
+					WAR = {
+						has_government = fascism
+					}
+				}
 			}
 			WAR = {
 				OR = {
@@ -7908,13 +8026,21 @@ political_actions = {
             }
         }
         visible = {
-		    has_completed_focus = BAT_f18
+			OR = {
+				has_completed_focus = BAT_f18
+				has_completed_focus = BAT_e18
+				has_completed_focus = BAT_d18
+			}
             FROM = {
                 is_owned_by = ROOT
             }
         }
         target_root_trigger = {
-            has_completed_focus = BAT_f18
+			OR = {
+				has_completed_focus = BAT_f18
+				has_completed_focus = BAT_e18
+				has_completed_focus = BAT_d18
+			}
         }
         state_target = yes
         targets = { 743 744 1206 688 730 746 747 755 748 754 756 878 }
@@ -7951,6 +8077,10 @@ political_actions = {
 			OR = {
 				has_completed_focus = BAT_d18
 				has_completed_focus = BAT_e18
+			}
+			NOT = {
+				is_in_faction_with = HIP
+				HIP = {is_faction_leader = yes}
 			}
 		}
 		cost = 0
@@ -8551,6 +8681,7 @@ BAT_NZRAO = {
 		}
 
 		ai_will_do = {
+			# if set to non-zero, also change target_root_trigger
 			base = 0
 		}
 
@@ -8975,7 +9106,9 @@ BAT_the_triarchy_category = {
 		targets_dynamic = yes
 		target_trigger = {
 			FROM = { 
-			    has_country_flag = BAT_took_BAT_states
+			    #has_country_flag = BAT_took_BAT_states
+				owns_state = 815
+				owns_state = 691
 			    OR = {
 			        original_tag = TBK
 					original_tag = ZAR
@@ -9040,9 +9173,12 @@ BAT_the_triarchy_category = {
                 }
             }
 			hidden_effect = {
+				FROM = {
+					set_country_flag = BAT_took_BAT_states
+				}
 				if = {
 				    limit = {
-					    TBK = {
+					    FROM = {
 						    is_ai = no
 						}
 					}
