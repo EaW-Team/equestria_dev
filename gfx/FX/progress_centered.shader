@@ -61,7 +61,8 @@ VertexShader =
 			VS_OUTPUT Out;
 		   	Out.vPosition  = mul( WorldViewProjectionMatrix, v.vPosition );
 			Out.vTexCoord0  = v.vTexCoord;
-
+			Out.vTexCoord0.y = -Out.vTexCoord0.y;
+		
 			return Out;
 		}
 		
@@ -75,7 +76,7 @@ PixelShader =
 		
 		float4 main( VS_OUTPUT v ) : PDX_COLOR
 		{
-			if( v.vTexCoord0.x <= CurrentState / 2.f )
+			if( v.vTexCoord0.x <= CurrentState )
 				return vFirstColor;
 			else
 				return vSecondColor;
@@ -88,13 +89,15 @@ PixelShader =
 		
 		float4 main( VS_OUTPUT v ) : PDX_COLOR
 		{
-			float rot = CurrentState * 3.14159265f;
-			float2 centeredPos = v.vTexCoord0 + float2(-0.5f, -0.5f);
-			float2 newPos = float2(cos(rot) * centeredPos.x - sin(rot) * centeredPos.y, sin(rot) * centeredPos.x + cos(rot) * centeredPos.y) + float2(0.5f, 0.5f);
-			if (newPos.x > 1.f || newPos.x < 0.f || newPos.y > 1.f || newPos.y < 0.f) {
-				return float4(0.f, 0.f, 0.f, 0.f);
-			}
-			return tex2D( TextureOne, float2(newPos.x, -newPos.y) );
+			
+			float StartCurrentState = (1.f-CurrentState) / 2.f;
+			float EndCurrentState = 1.f - StartCurrentState;
+			if( CurrentState <= 0.01)
+				return tex2D( TextureTwo, v.vTexCoord0.xy );
+			else if( (v.vTexCoord0.x >= StartCurrentState) && (v.vTexCoord0.x <= EndCurrentState) )
+				return tex2D( TextureOne, v.vTexCoord0.xy );
+			else
+				return tex2D( TextureTwo, v.vTexCoord0.xy );
 		}
 		
 	]]
@@ -120,3 +123,4 @@ Effect Texture
 	VertexShader = "VertexShader"
 	PixelShader = "PixelTexture"
 }
+
