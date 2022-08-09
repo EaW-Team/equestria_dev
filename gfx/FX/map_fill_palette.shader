@@ -1,5 +1,3 @@
-// Kindly provided by The New Order: Last Days of Europe team.
-
 Includes = {
 }
 
