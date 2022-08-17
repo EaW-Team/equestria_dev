@@ -23,7 +23,7 @@ NDefines.NCountry.FEMALE_UNIT_LEADER_BASE_CHANCE = {
 }
 
 NDefines.NResistance.GARRISON_MANPOWER_LOST_BY_ATTACK = 0.01 	-- Ratio of manpower lost by garrison at each attack on garrison (this number will be reduced by the hardness of garrison template)
-NDefines.NAI.GARRISON_TEMPLATE_SCORE_IC_FACTOR = 0.75		-- ai uses these defines while calculating garrison template score of a template.
+NDefines.NAI.GARRISON_TEMPLATE_SCORE_IC_FACTOR = 0.6		-- ai uses these defines while calculating garrison template score of a template.
 NDefines.NAI.GARRISON_TEMPLATE_SCORE_MANPOWER_FACTOR = 0.1  -- formula is (template_ic * ic_factor + template_manpower * manpower_factor ) / template_supression (lower is better)
 
 
