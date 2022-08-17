@@ -80,6 +80,10 @@ NDefines.NAI.CAPITAL_TASKFORCE_MAX_CAPITAL_COUNT = 12 		-- optimum capital count
 NDefines.NAI.SCREEN_TASKFORCE_MAX_SHIP_COUNT = 5		-- optimum screen count for screen taskforces Vanilla is 12
 NDefines.NAI.SUB_TASKFORCE_MAX_SHIP_COUNT = 4 			-- optimum sub count for sub taskforces Vanilla is 16
 NDefines.NAI.DIPLOMACY_ACCEPT_VOLUNTEERS_BASE = 100
+NDefines.NAI.MAX_AHEAD_RESEARCH_PENALTY = 2.5             -- max ahead of tiem penalty ai will pick ever
+NDefines.NAI.RESEARCH_AHEAD_OF_TIME_FACTOR = 5.0 		-- To which extent AI should care about ahead of time penalties to research
+NDefines.NAI.RESEARCH_AHEAD_BONUS_FACTOR = 2.5          -- To which extent AI should care about ahead of time bonuses to research
+NDefines.NAI.RESEARCH_BONUS_FACTOR = 2.0 				-- To which extent AI should care about bonuses to research
 
 NDefines.NOperatives.AGENCY_CREATION_FACTORIES = 3
 NDefines.NOperatives.AGENCY_UPGRADE_PER_OPERATIVE_SLOT = 4			-- Number of upgrade needed to unlock an additional operative slot
