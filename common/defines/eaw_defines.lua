@@ -77,6 +77,10 @@ NDefines.NAI.CAPITAL_TASKFORCE_MAX_CAPITAL_COUNT = 12 		-- optimum capital count
 NDefines.NAI.SCREEN_TASKFORCE_MAX_SHIP_COUNT = 5		-- optimum screen count for screen taskforces Vanilla is 12
 NDefines.NAI.SUB_TASKFORCE_MAX_SHIP_COUNT = 4 			-- optimum sub count for sub taskforces Vanilla is 16
 NDefines.NAI.DIPLOMACY_ACCEPT_VOLUNTEERS_BASE = 100
+NDefines.NAI.MAX_AHEAD_RESEARCH_PENALTY = 2.5             -- max ahead of tiem penalty ai will pick ever
+NDefines.NAI.RESEARCH_AHEAD_OF_TIME_FACTOR = 5.0 		-- To which extent AI should care about ahead of time penalties to research
+NDefines.NAI.RESEARCH_AHEAD_BONUS_FACTOR = 2.5          -- To which extent AI should care about ahead of time bonuses to research
+NDefines.NAI.RESEARCH_BONUS_FACTOR = 2.0 				-- To which extent AI should care about bonuses to research
 
 NDefines.NOperatives.AGENCY_CREATION_FACTORIES = 3
 NDefines.NOperatives.AGENCY_UPGRADE_PER_OPERATIVE_SLOT = 4			-- Number of upgrade needed to unlock an additional operative slot
@@ -85,5 +89,19 @@ NDefines.NSupply.VP_TO_SUPPLY_BASE = 0.2 -- Bonus to supply from a VP, no matter
 NDefines.NSupply.AVAILABLE_MANPOWER_STATE_SUPPLY = 0.5 --Factor for state supply from max manpower (population) (Base is 0.18, this is PER MILLION.)
 NDefines.NSupply.VP_TO_SUPPLY_BONUS_CONVERSION = 0.05 -- Bonus to supply local supplies from Victory Points, multiplied by this aspect and rounded to closest integer (Base is 0.05)
 NDefines.NSupply.CAPITAL_INITIAL_SUPPLY_FLOW = 5.0 -- starting supply from
-NDefines.NSupply.CAPITAL_STARTING_PENALTY_PER_PROVINCE = 0.3 -- starting penalty that will be added as supply moves away from its origin (modified by stuff like terrain) (Default is 0.5)
-NDefines.NSupply.CAPITAL_ADDED_PENALTY_PER_PROVINCE = 1.0 -- added penalty as we move away from origin (Default is 1.2)
+NDefines.NSupply.CAPITAL_STARTING_PENALTY_PER_PROVINCE = 0.5 -- starting penalty that will be added as supply moves away from its origin (modified by stuff like terrain) (Default is 0.5)
+NDefines.NSupply.CAPITAL_ADDED_PENALTY_PER_PROVINCE = 1.2 -- added penalty as we move away from origin (Default is 1.2)
+
+-- defines that are used for supply reach for built nodes
+NDefines.NSupply.NODE_INITIAL_SUPPLY_FLOW = 2.8
+NDefines.NSupply.NODE_STARTING_PENALTY_PER_PROVINCE = 0.30 -- default is 0.5
+NDefines.NSupply.NODE_ADDED_PENALTY_PER_PROVINCE = 0.50 -- default is 0.7
+
+-- defines that are used for supply reach for dockyards
+NDefines.NSupply.NAVAL_BASE_INITIAL_SUPPLY_FLOW = 3.3
+NDefines.NSupply.NAVAL_BASE_STARTING_PENALTY_PER_PROVINCE = 0.84
+NDefines.NSupply.NAVAL_BASE_ADDED_PENALTY_PER_PROVINCE = 1.1
+
+
+NDefines.NTechnology.BASE_TECH_COST = 80					-- Base cost for a tech. multiplied with tech cost and ahead of time penalties. 100 in vanilla
+NDefines.NTechnology.BASE_YEAR_AHEAD_PENALTY_FACTOR = 2.5	-- Base year ahead penalty. Vanilla is 2
