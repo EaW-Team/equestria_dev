@@ -106,12 +106,12 @@ NDefines.NSupply.NAVAL_BASE_ADDED_PENALTY_PER_PROVINCE = 1.1
 NDefines.NTechnology.BASE_YEAR_AHEAD_PENALTY_FACTOR = 2.5	-- Base year ahead penalty. Vanilla is 2
 
 
-NDefines.NAI.DESIRE_USE_XP_TO_UPGRADE_LAND_EQUIPMENT = 0.75  -- How quickly is desire to update/create land equipment variants accumulated?
-NDefines.NAI.DESIRE_USE_XP_TO_UPGRADE_NAVAL_EQUIPMENT = 0.75 -- How quickly is desire to update/create naval equipment variants accumulated?
-NDefines.NAI.DESIRE_USE_XP_TO_UPGRADE_AIR_EQUIPMENT = 0.75   -- How quickly is desire to update/create air equipment variants accumulated?
-NDefines.NAI.DESIRE_USE_XP_TO_UNLOCK_LAND_DOCTRINE = 0.75    -- How quickly is desire to unlock land doctrines accumulated?
-NDefines.NAI.DESIRE_USE_XP_TO_UNLOCK_NAVAL_DOCTRINE = 0.75   -- How quickly is desire to unlock naval doctrines accumulated?
-NDefines.NAI.DESIRE_USE_XP_TO_UNLOCK_AIR_DOCTRINE = 0.75     -- How quickly is desire to unlock air doctrines accumulated?
+NDefines.NAI.DESIRE_USE_XP_TO_UPGRADE_LAND_EQUIPMENT = 0.8  -- How quickly is desire to update/create land equipment variants accumulated?
+NDefines.NAI.DESIRE_USE_XP_TO_UPGRADE_NAVAL_EQUIPMENT = 0.8 -- How quickly is desire to update/create naval equipment variants accumulated?
+NDefines.NAI.DESIRE_USE_XP_TO_UPGRADE_AIR_EQUIPMENT = 0.8   -- How quickly is desire to update/create air equipment variants accumulated?
+NDefines.NAI.DESIRE_USE_XP_TO_UNLOCK_LAND_DOCTRINE = 0.7    -- How quickly is desire to unlock land doctrines accumulated?
+NDefines.NAI.DESIRE_USE_XP_TO_UNLOCK_NAVAL_DOCTRINE = 0.7   -- How quickly is desire to unlock naval doctrines accumulated?
+NDefines.NAI.DESIRE_USE_XP_TO_UNLOCK_AIR_DOCTRINE = 0.7     -- How quickly is desire to unlock air doctrines accumulated?
 
 NDefines.NAI.DEFAULT_MODULE_VARIANT_CREATION_XP_CUTOFF_LAND = 30
 NDefines.NAI.DEFAULT_MODULE_VARIANT_CREATION_XP_CUTOFF_NAVY = 50
