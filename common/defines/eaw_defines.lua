@@ -23,6 +23,9 @@ NDefines.NCountry.FEMALE_UNIT_LEADER_BASE_CHANCE = {
 }
 
 NDefines.NResistance.GARRISON_MANPOWER_LOST_BY_ATTACK = 0.01 	-- Ratio of manpower lost by garrison at each attack on garrison (this number will be reduced by the hardness of garrison template)
+NDefines.NResistance.GARRISON_TEMPLATE_SCORE_IC_FACTOR = 0.7		-- ai uses these defines while calculating garrison template score of a template.
+NDefines.NResistance.GARRISON_TEMPLATE_SCORE_MANPOWER_FACTOR = 0.2  -- formula is (template_ic * ic_factor + template_manpower * manpower_factor ) / template_supression (lower is better)
+
 
 NDefines.NProduction.BASE_FACTORY_SPEED_NAV = 3.5 -- vanilla is 2.5
 
@@ -39,7 +42,7 @@ NDefines.NNavy.SCREENS_TO_CAPITAL_RATIO = 3.0 -- Vanilla is 4.0, mostly AI stuff
 NDefines.NAir.NAVAL_COMBAT_EXTERNAL_PLANES_JOIN_RATIO = 0.03 	-- Max planes that can join a combat comparing to the total strength of the ships, vanilla is 0.05
 
 NDefines.NAI.RESEARCH_LAND_DOCTRINE_NEED_GAIN_FACTOR = 0.12 -- Multiplies value based on relative military industry size / country size.
-NDefines.NAI.RESEARCH_BONUS_FACTOR = 1.5 				-- To which extent AI should care about bonuses to research
+NDefines.NAI.RESEARCH_BONUS_FACTOR = 2.0 				-- To which extent AI should care about bonuses to research
 NDefines.NAI.DYNAMIC_STRATEGIES_THREAT_FACTOR = 6.0
 NDefines.NAI.BASE_DISTANCE_TO_CARE = 400.0
 NDefines.NAI.ATTACK_HEAVILY_DEFENDED_LIMIT = 1.1
