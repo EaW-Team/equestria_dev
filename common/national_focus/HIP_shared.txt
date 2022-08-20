@@ -190,25 +190,36 @@
 			add_research_slot = 1
 		}
 	}
-	shared_focus = { #With changes to lend lease WT requirements in 1.9.1 plus AI not knowing how to use it these focuses are basically useless for AI
+	shared_focus = {
 		id = HIP_long_distance_friendship
 		icon = GFX_goal_generic_intelligence_exchange_pony_griffon
-		cost = 3
+		cost = 2
 		x = 1
 		y = 1
 		relative_position_id = HIP_expand_the_royal_acadamy
 
 		ai_will_do = {
-			factor = 0
+			factor = 5
 			modifier = {
 				EQS = {
-					has_war = yes
+					OR = {
+						has_war = yes
+						any_of_potential_and_current_enemies_justifying_or_has_wargoal_on_THIS = yes
+					}
 				}
 				factor = 2
 			}
 			modifier = {
 				has_war = yes
 				factor = 0.5
+			}
+			modifier = {
+				has_completed_focus = HIP_hippogriffia_first
+				factor = 0
+			}
+			modifier = {
+				threat > 0.5
+				factor = 0
 			}
 		}
 
@@ -234,15 +245,26 @@
 		relative_position_id = HIP_long_distance_friendship
 
 		ai_will_do = {
-			factor = 0
+			factor = 5
 			modifier = {
 				EQS = {
-					has_war = yes
+					OR = {
+						has_war = yes
+						any_of_potential_and_current_enemies_justifying_or_has_wargoal_on_THIS = yes
+					}
 				}
 				factor = 2
 			}
 			modifier = {
 				has_war = yes
+				factor = 0.5
+			}
+			modifier = {
+				has_completed_focus = HIP_hippogriffia_first
+				factor = 0
+			}
+			modifier = {
+				threat > 0.5
 				factor = 0
 			}
 		}
@@ -323,35 +345,45 @@
 			OR = {
 				has_war = yes
 				has_completed_focus = HIP_stirring_from_slumber
+				any_of_potential_and_current_enemies_justifying_or_has_wargoal_on_THIS = yes
 				AND = {
-					TBK = {
-						OR = {
-							exists = no
-							is_subject_of = BAT
-							is_subject_of = CTH
-						}
-					}
-					ZAR = {
-						OR = {
-							exists = no
-							is_subject_of = BAT
-							is_subject_of = CTH
-							is_subject_of = TBK
-						}
-					}
+					has_guaranteed = WAR
 					WAR = {
-						OR = {
-							AND = {
+						any_of_potential_and_current_enemies_justifying_or_has_wargoal_on_THIS = yes
+					}
+				}
+				custom_trigger_tooltip = {
+					tooltip = HIP_mountain_awakes_trigger_tt
+					AND = {
+						TBK = {
+							OR = {
 								exists = no
-								NOT = {
-									743 = {
-										is_owned_and_controlled_by = HIP
+								is_subject_of = BAT
+								is_subject_of = CTH
+							}
+						}
+						ZAR = {
+							OR = {
+								exists = no
+								is_subject_of = BAT
+								is_subject_of = CTH
+								is_subject_of = TBK
+							}
+						}
+						WAR = {
+							OR = {
+								AND = {
+									exists = no
+									NOT = {
+										743 = {
+											is_owned_and_controlled_by = HIP
+										}
 									}
 								}
+								is_subject_of = BAT
+								is_subject_of = CTH
+								is_subject_of = TBK
 							}
-							is_subject_of = BAT
-							is_subject_of = CTH
-							is_subject_of = TBK
 						}
 					}
 				}
@@ -1439,7 +1471,7 @@
 	shared_focus = {
 		id = HIP_our_zebra_citizens
 		icon = GFX_goal_zebra_citizens
-		cost = 6
+		cost = 4
 		x = -1
 		y = 1
 		relative_position_id = HIP_reform_the_royal_advisory_council
@@ -1499,7 +1531,7 @@
 	shared_focus = {
 		id = HIP_three_race_nation
 		icon = GFX_goal_nation_of_three_races
-		cost = 7
+		cost = 6
 		x = 2
 		y = 1
 		relative_position_id = HIP_our_zebra_citizens
@@ -1537,7 +1569,7 @@
 	shared_focus = {
 		id = HIP_shelter_dissidents
 		icon = GFX_goal_shelter_dissidents
-		cost = 6
+		cost = 4
 		x = 0
 		y = 1
 		relative_position_id = HIP_three_race_nation
@@ -1662,7 +1694,7 @@
 						}
 					}
 					add_manpower = -3000
-					add_compliance = -0.05
+					add_compliance = -5
 				}
 			}
 			697 = {
@@ -3929,6 +3961,13 @@
 					}
 				}
 			}
+			NOT = {
+				EQS = {
+					exists = yes
+					is_subject = no
+					has_government = democratic
+				}
+			}
 		}
 		prerequisite = {
 			focus = HIP_deradicalize_chiropterra
@@ -5051,6 +5090,7 @@
 				every_other_country = {
 					limit = {
 						is_in_faction_with = ROOT
+						is_faction_leader = no
 					}
 					country_event = hippogriff.74
 				}
@@ -5060,6 +5100,7 @@
 					limit = {
 						is_in_faction_with = ROOT
 						has_country_flag = HIP_alliance_member
+						NOT = {original_tag = HIP}
 					}
 				}
 				country_event = hippogriff.74
@@ -10780,25 +10821,45 @@ shared_focus = {
 		available_if_capitulated = no
 
 		completion_reward = {
-			effect_tooltip = {
-				retire_character = HIP_skybolt_spear
-			}
-			hidden_effect = {
-				HIP_skybolt_spear = {
-					set_nationality = SOL
+			if = {
+				limit = { has_character = HIP_skybolt_spear }
+				effect_tooltip = {
+					retire_character = HIP_skybolt_spear
 				}
-				country_event = {
-					id = commander.14
-					days = 7
+				hidden_effect = {
+					HIP_skybolt_spear = {
+						set_nationality = SOL
+					}
+					country_event = {
+						id = commander.14
+						days = 7
+					}
 				}
 			}
-			retire_character = HIP_cold_stream
-			retire_character = HIP_stratus_skyranger
-			retire_character = HIP_seaspray
-			retire_character = HIP_meteorum_blaze
-			retire_character = HIP_sky_beak
-
-			retire_character = HIP_terrafin
+			if = {
+				limit = { has_character = HIP_cold_stream }
+				retire_character = HIP_cold_stream
+			}
+			if = {
+				limit = { has_character = HIP_stratus_skyranger }
+				retire_character = HIP_stratus_skyranger
+			}
+			if = {
+				limit = { has_character = HIP_seaspray }
+				retire_character = HIP_seaspray
+			}
+			if = {
+				limit = { has_character = HIP_meteorum_blaze }
+				retire_character = HIP_meteorum_blaze
+			}
+			if = {
+				limit = { has_character = HIP_sky_beak }
+				retire_character = HIP_sky_beak
+			}
+			if = {
+				limit = { has_character = HIP_terrafin }
+				retire_character = HIP_terrafin
+			}
 			add_timed_idea = {
 				idea = HIP_army_purges
 				days = 270
@@ -18803,7 +18864,7 @@ shared_focus = {
 	shared_focus = {
 		id = HIP_government_representation
 		icon = GFX_goal_ZUM_representation
-		cost = 6
+		cost = 5
 		x = -2
 		y = 2
 		relative_position_id = HIP_encourage_migration
@@ -18840,12 +18901,13 @@ shared_focus = {
 				add_compliance = 15
 			}
 			add_political_power = 75
+			add_war_support = 0.05
 		}
 	}
 	shared_focus = {
 		id = HIP_zumidian_regiments
 		icon = GFX_goal_HIP_zumregiments
-		cost = 6
+		cost = 5
 		x = 0
 		y = 2
 		relative_position_id = HIP_encourage_migration
@@ -18876,6 +18938,7 @@ shared_focus = {
 			hidden_effect = {
 				load_oob = HIP_zumidian_volunteers
 			}
+			add_war_support = 0.05
 		}
 	}
 	shared_focus = {
@@ -18945,7 +19008,7 @@ shared_focus = {
 	shared_focus = {
 		id = HIP_self_rule
 		icon = GFX_zebra_scale
-		cost = 6
+		cost = 5
 		x = 2
 		y = 2
 		relative_position_id = HIP_encourage_migration
@@ -19087,7 +19150,7 @@ shared_focus = {
 	shared_focus = {
 		id = HIP_north_zebrican_research
 		icon = GFX_zebra_science
-		cost = 6
+		cost = 5
 		x = 1
 		y = 1
 		relative_position_id = HIP_north_zebrican_union
@@ -22764,6 +22827,7 @@ shared_focus = {
 	completion_reward = {
 		log = "[GetDateText]: [Root.GetName]: Focus HIP_SIR_the_rising_resistance"
 		country_event = hippogriff_abyss_resistance.2
+		custom_effect_tooltip = HIP_SIR_how_to_beat_resistance_tt
 	}
 }
 
