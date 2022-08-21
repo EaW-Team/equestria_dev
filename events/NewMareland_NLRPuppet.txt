@@ -64,17 +64,207 @@ country_event = { ## End of the Civil War
 	}
 }
 
-country_event = { ## A Friendlier Shadowbolt Society
+country_event = {
 	id = EQC_NLR.4
 	immediate = {log = "[GetDateText]: [Root.GetName]: event EQC_NLR.4"}
 	title = EQC_NLR.4.t
-	desc = EQC_NLR.4.d
-	picture = GFX_event_crystal_university
+	desc = { text = EQC_NLR.4.d1
+		trigger = { FROM = { has_country_flag = nlr_early_discovery } }
+	}
+	desc = { text = EQC_NLR.4.d2
+		trigger = { FROM = { NOT = { has_country_flag = nlr_early_discovery } } }
+	}
+	picture = GFX_event_night_riders
 
-	is_triggered_only = yes #moved to EQC_NLR_love_a_bat
+	is_triggered_only = yes
 
-	option = {
+	option = { #Support celestia
 		name = EQC_NLR.4.a
+		reverse_add_opinion_modifier = { target = NLR modifier = cry_betrayal }
+		effect_tooltip = {
+			add_to_war_EQS_against_NLR = yes
+		}
+		hidden_effect = {
+			country_event = { id = equestria.166 days = 1 }
+			if = {
+				limit = { is_subject = yes is_ai = no }
+				set_rule = { can_decline_call_to_war = no }
+			}
+			set_country_flag = supported_EQS
+		}
+		ai_chance = {
+			base = 3
+			modifier = {
+				original_tag = EQC
+				has_completed_focus = EQC_patriation
+				factor = 0
+			}
+			modifier = {
+				OR = {
+					has_country_flag = EQS_AI_LUNAR_CIVIL_WAR_MAX 
+					has_game_rule = {
+						rule = EQS_ai_behavior
+						option = LUNAR_CIVIL_WAR_MAX
+					}
+				}
+				factor = 0
+			}
+		}
+	}
+	option = { #Stay neutral
+		name = EQC_NLR.4.b
+		trigger = {
+			NOT = { has_completed_focus = EQC_strengthen_equestrian_ties }
+		}
+		end_puppet_this = yes
+		if = {
+			limit = { is_in_faction_with = event_target:equestria }
+			leave_faction = yes
+		}
+		reverse_add_opinion_modifier = { target = NLR modifier = cry_betrayal }
+		reverse_add_opinion_modifier = { target = event_target:equestria modifier = cry_betrayal }
+		hidden_effect = {
+			if = {
+				limit = { has_war_with = NLR }
+				set_country_flag = { flag = bypass_on_peaceconference_ended days = 1 value = 1 }
+				white_peace = NLR
+				every_enemy_country = {
+					limit = {
+						is_in_faction_with = NLR
+					}
+					white_peace = ROOT
+				}
+			}
+			set_country_flag = ignored_EQS_civil_war
+			add_to_array = {
+				global.former_EQS_puppets = THIS
+			}
+			set_country_flag = former_EQS_puppet
+		}
+		ai_chance = {
+			base = 4
+			modifier = {
+				NOT = { is_pony_race = yes }
+				factor = 3
+			}
+			modifier = {
+				is_major = yes
+				factor = 6
+			}
+			modifier = {
+				NOT = {
+					is_neighbor_of = event_target:equestria
+					is_neighbor_of = NLR
+				}
+				factor = 3
+			}
+			modifier = {
+				OR = {
+					has_country_flag = EQS_AI_LUNAR_CIVIL_WAR_MAX 
+					has_game_rule = {
+						rule = EQS_ai_behavior
+						option = LUNAR_CIVIL_WAR_MAX
+					}
+				}
+				factor = 0
+			}
+		}
+	}
+	option = { #Support NMM
+		name = EQC_NLR.4.c
+		if = {
+			limit = { is_subject_of = event_target:equestria }
+			get_current_autonomy_level = yes
+			add_to_array = {
+				global.former_EQS_puppets = THIS
+			}
+			set_country_flag = former_EQS_puppet
+			set_country_flag = supported_NLR
+			end_puppet_this = yes
+		}
+		if = {
+			limit = { is_in_faction_with = event_target:equestria }
+			leave_faction = yes
+		}
+		hidden_effect = {
+			if = {
+				limit = { has_war_with = NLR }
+				set_country_flag = { flag = bypass_on_peaceconference_ended days = 1 value = 1 }
+				white_peace = NLR
+				every_enemy_country = {
+					limit = {
+						is_in_faction_with = NLR
+					}
+					white_peace = ROOT
+				}
+			}
+			country_event = { id = equestria.167 days = 1 }
+			#country_event = { id = EQC_NLR.11 days = 94 }
+			set_popularities = {
+				democratic = 25
+				fascism = 30
+				communism = 0
+				neutrality = 45
+			}
+		}
+		reverse_add_opinion_modifier = { target = event_target:equestria modifier = cry_betrayal }
+		add_popularity = { ideology = democratic popularity = -0.1 }
+		effect_tooltip = {
+			add_to_war_NLR_against_EQS = yes
+		}
+		if = {
+			limit = {
+				has_dlc = "Together for Victory"
+			}
+			NLR = { set_autonomy = { target = ROOT autonomy_state = autonomy_satellite } }
+			else = {
+				NLR = { puppet = ROOT }
+			}
+		}
+		#load_focus_tree = eqc_nlr_focus
+		add_country_leader_role = {
+			character = EQC_jet_set
+			promote_leader = yes
+
+			country_leader={
+				desc = "snooty_noble_desc"
+				ideology = centrism
+				expire="1965.1.1.1"
+				traits = { democratic_sympathies }
+			}
+		}
+		set_party_name = { ideology = fascism name = EQC_bat_supporters_fash long_name = EQC_bat_supporters_fash_long }
+		add_country_leader_role = {
+			character = EQC_evening_dew
+			promote_leader = yes
+
+			country_leader={
+				desc = "another_edgy_bat_desc"
+				ideology = esotericism
+				expire="1965.1.1.1"
+				traits = {  }
+			}
+		}
+		set_politics = {
+			ruling_party = neutrality
+			elections_allowed = no
+		}
+		set_party_name = { ideology = neutrality name = EQC_bat_supporters long_name = EQC_bat_supporters_long }
+		country_event = { id = mareland.44 days = 1 }
+		add_stability = -0.15
+		add_war_support = -0.15
+		add_ideas = EQC_NLR_loyalist_discontent
+		ai_chance = {
+			factor = 1.5
+			modifier = {
+				factor = 0
+				is_historical_focus_on = yes
+			}
+			modifier = {
+				factor = 10
+				has_government = fascism
+			}
+		}
 	}
 }
 
@@ -441,6 +631,20 @@ country_event = { ## NLR event for Evening Dew being heretical
 		#hidden_effect = {
 			#complete_national_focus = EQC_NLR_the_old_shadowbolts 
 		#}
+	#}
+#}
+
+#country_event = { ## A Friendlier Shadowbolt Society
+	#id = EQC_NLR.4
+	#immediate = {log = "[GetDateText]: [Root.GetName]: event EQC_NLR.4"}
+	#title = EQC_NLR.4.t
+	#desc = EQC_NLR.4.d
+	#picture = GFX_event_crystal_university
+
+	#is_triggered_only = yes #moved to EQC_NLR_love_a_bat
+
+	#option = {
+		#name = EQC_NLR.4.a
 	#}
 #}
 
