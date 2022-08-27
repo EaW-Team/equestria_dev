@@ -1,10 +1,145 @@
 
 LCT_DIET_initiate = {
+	clear_array = LCT_DIET_seats_array
+	
+	add_to_array = { LCT_DIET_seats_array = 40 }
+	add_to_array = { LCT_DIET_seats_array = 40 }
+	add_to_array = { LCT_DIET_seats_array = 40 }
+	add_to_array = { LCT_DIET_seats_array = 40 }
+	
 	clear_array = LCT_DIET_seats_display_array
-	resize_array = { LCT_DIET_seats_display_array = 40 value = 1 }
-	resize_array = { LCT_DIET_seats_display_array = 80 value = 2 }
-	resize_array = { LCT_DIET_seats_display_array = 120 value = 3 }
-	resize_array = { LCT_DIET_seats_display_array = 160 value = 4 }
+	
+	resize_array = { LCT_DIET_seats_display_array = 40 value = 0 }
+	resize_array = { LCT_DIET_seats_display_array = 80 value = 1 }
+	resize_array = { LCT_DIET_seats_display_array = 120 value = 2 }
+	resize_array = { LCT_DIET_seats_display_array = 160 value = 3 }
 	
 	set_country_flag = LCT_Diet_Visible
+	add_to_variable = { LCT_Diet_Dirty = 0.01 }
+}
+
+LCT_DIET_change_seats = {
+	
+	## Normalize values
+	set_temp_variable = { future_value = LCT_DIET_seats_array^temp_faction }
+	add_to_temp_variable = { future_value = temp_seats }
+	if = {
+		limit = {
+			check_variable = { future_value > 160 }
+		}
+		set_temp_variable = { min_temp_seats = future_value }
+		subtract_from_temp_variable = { min_temp_seats = 160 }
+		subtract_from_temp_variable = { temp_seats = min_temp_seats }
+	}
+	else_if = {
+		limit = {
+			check_variable = { future_value < 0 }
+		}
+		subtract_from_temp_variable = { temp_seats = future_value }
+	}
+	
+	## Tooltip generation + seperating positive/negative
+	if = {
+		limit = {
+			check_variable = { temp_seats > 0 }
+		}
+		set_temp_variable = { positive_negative = 1 }
+		custom_effect_tooltip = LCT_DIET_change_seats_positive_tt
+	}
+	else = {
+		set_temp_variable = { positive_negative = -1 }
+		multiply_temp_variable = { temp_seats = -1 }
+		custom_effect_tooltip = LCT_DIET_change_seats_negative_tt
+	}
+	
+	## Subtracting seats from other factions based on:
+	#	if positive: more seats means you are more likely to be subtracted from
+	#	if negative: less seats means you are more likely to be added upon
+	for_loop_effect = {
+		start = 0
+		end = temp_seats
+
+		for_each_loop = {
+			array = LCT_DIET_seats_array
+			value = x
+			index = y
+			
+			if = {
+				limit = {
+					check_variable = { positive_negative = 1 }
+				}
+				add_to_temp_array = { chance = x }
+			}
+			else = {
+				set_temp_variable = { chance_n = 160 }
+				subtract_from_temp_variable = { chance_n = x }
+				add_to_temp_array = { chance = chance_n }
+			}
+
+			if = {
+				limit = {
+					OR = {
+						check_variable = { temp_faction = y }
+						AND = {
+							check_variable = { positive_negative = 1 }
+							check_variable = { x = 0 }
+						}
+					}
+				}
+				set_temp_variable = { chance^y = 0 }
+			}
+		}
+		
+		random_list = {
+			chance^0 = {
+				subtract_from_variable = { LCT_DIET_seats_array^0 = positive_negative }
+			}
+			chance^1 = {
+				subtract_from_variable = { LCT_DIET_seats_array^1 = positive_negative }
+			}
+			chance^2 = {
+				subtract_from_variable = { LCT_DIET_seats_array^2 = positive_negative }
+			}
+			chance^3 = {
+				subtract_from_variable = { LCT_DIET_seats_array^3 = positive_negative }
+			}
+		}
+		clear_temp_array = chance
+	}
+	multiply_temp_variable = { temp_seats = positive_negative }
+	add_to_variable = { LCT_DIET_seats_array^temp_faction = temp_seats }
+	
+	LCT_DIET_re_render = yes
+}
+
+d_LCT_DIET_change_seats = {
+	set_temp_variable = { temp_seats = args^0 }
+	set_temp_variable = { temp_faction = args^1 }
+	LCT_DIET_change_seats = yes
+}
+
+LCT_DIET_re_render = {
+	set_temp_variable = { seats_1 = LCT_DIET_seats_array^0 }
+	add_to_temp_variable = { seats_1 = LCT_DIET_seats_array^1 }
+
+	set_temp_variable = { seats_2 = seats_1 }
+	add_to_temp_variable = { seats_2 = LCT_DIET_seats_array^2 }
+
+	set_temp_variable = { seats_3 = seats_2 }
+	add_to_temp_variable = { seats_3 = LCT_DIET_seats_array^3 }
+	
+	clear_array = LCT_DIET_seats_display_array
+	
+	resize_array = { LCT_DIET_seats_display_array = LCT_DIET_seats_array^0 value = 0 }
+	resize_array = { LCT_DIET_seats_display_array = seats_1 value = 1 }
+	resize_array = { LCT_DIET_seats_display_array = seats_2 value = 2 }
+	resize_array = { LCT_DIET_seats_display_array = seats_3 value = 3 }
+	add_to_variable = { LCT_Diet_Dirty = 0.01 }
+	
+	log = "LCT: Re render GUI"
+	log = "LCT_DIET_seats_array^0 = [?LCT_DIET_seats_array^0]"
+	log = "LCT_DIET_seats_array^1 = [?LCT_DIET_seats_array^1]"
+	log = "LCT_DIET_seats_array^2 = [?LCT_DIET_seats_array^2]"
+	log = "LCT_DIET_seats_array^3 = [?LCT_DIET_seats_array^3]"
+	log = "TOTAL = [?LCT_DIET_seats_display_array^num]"
 }
