@@ -10,6 +10,21 @@ on_actions = {
 				}
 				remove_core_of = CTC
 			}
+			every_country = {
+				limit = {
+					OR = {
+						has_idea = zebrica_legacy_of_storm1
+						has_idea = zebrica_legacy_of_storm2
+						has_idea = zebrica_legacy_of_storm3
+					}
+				}
+				add_opinion_modifier = { target = THU modifier = distrustful_relations }
+				add_opinion_modifier = { target = GYZ modifier = distrustful_relations }
+				add_opinion_modifier = { target = STM modifier = distrustful_relations }
+				add_opinion_modifier = { target = SLC modifier = distrustful_relations }
+				add_opinion_modifier = { target = BLT modifier = distrustful_relations }
+				add_opinion_modifier = { target = CZR modifier = distrustful_relations }
+			}
 			1093 = {
 				add_dynamic_modifier = { modifier = coltvan_unrest }
 			}
@@ -444,6 +459,39 @@ on_actions = {
 						}
 					}
 				}
+				# TODO: Once it's fixed, transfer EQS Con Mane to ELF instead.
+				# Not possible to set operative nationality in Barbarossa 1.11.12
+				ELF = {
+					create_operative_leader = {
+						name = "Con Mane"
+						GFX = GFX_portrait_Con_Mane_ELF
+						bypass_recruitment = yes
+						available_to_spy_master = yes
+						nationalities = {
+							EQS
+							STG
+							CRY
+							STL
+							NLR
+							VAN
+							SCS
+							BAL
+							NMS
+							CES
+							JUN
+							TEM
+							LSP
+							ELF
+							EQC
+							PCB
+						}
+						traits = { 
+							operative_agentbio_conmane_elf
+							operative_commando   operative_seducer  operative_tough  operative_linguist  operative_safe_cracker  operative_well_groomed  operative_natural_orator  operative_escape_artist
+							pony_race_trait
+						}
+					}
+				}
 				clr_global_flag = starting_operatives
 				clear_variable = global.onstartup_operative
 			}
@@ -455,6 +503,10 @@ on_actions = {
 					remember_old_capital = no
 				}
 			}
+			random_country = {
+				set_continent_flags_on_every_possible_country = yes
+			}
+
 			every_possible_country = {
 				add_ai_strategy = {
 					type = pp_spend_priority
@@ -1408,6 +1460,9 @@ on_actions = {
 								has_country_flag = BAT_HIP_defeated
 							}
 							NOT = {
+								has_country_flag = HIP_won_north_zebrican_war
+							}
+							NOT = {
 						    	has_global_flag = BAT_won_civil_war
 							}
 						}
@@ -1421,7 +1476,13 @@ on_actions = {
 								original_tag = TBK
 							}
 							NOT = {
-							    has_country_flag = BAT_national_catastrophe
+							    OR = {
+							    	has_country_flag = BAT_national_catastrophe
+							    	AND = {
+							    		original_tag = WNG
+							    		NOT = { has_government = fascism }
+							    	}
+							    }
 							}
 							FROM = {
 							    original_tag = HIP
@@ -1431,6 +1492,12 @@ on_actions = {
 								}
 								NOT = {
 									has_country_flag = HIP_second_war
+								}
+								NOT = {
+									has_country_flag = HIP_won_north_zebrican_war
+								}
+								NOT = {
+									has_country_flag = BAT_HIP_defeated
 								}
 							}
 						}
@@ -1509,6 +1576,12 @@ on_actions = {
 							NOT = {
 								has_country_flag = HIP_second_war
 							}
+							NOT = {
+								has_country_flag = BAT_HIP_defeated
+							}
+							NOT = {
+								has_country_flag = HIP_won_north_zebrican_war
+							}
 							FROM = {
 								OR = {
 									original_tag = BAT
@@ -1517,7 +1590,13 @@ on_actions = {
 									original_tag = TBK
 								}
 								NOT = {
-							    	has_country_flag = BAT_national_catastrophe
+									OR = {
+							    		has_country_flag = BAT_national_catastrophe
+										AND = {
+											original_tag = WNG
+											NOT = {has_government = fascism}
+										}
+									}
 								}
 							}
 						}
@@ -1539,25 +1618,25 @@ on_actions = {
 							}
 						}
 					}
-					if = {
-						limit = {
-						    original_tag = HIP
-							has_completed_focus = HIP_sunset_atoll_test
-						}
+				}
+				if = {
+					limit = {
+						original_tag = HIP
+						has_completed_focus = HIP_sunset_atoll_test
+					}
+					FROM = {
+						add_ideas = HIP_sunset_atoll_terror
+					}
+				}
+				if = {
+					limit = {
 						FROM = {
-							add_ideas = HIP_sunset_atoll_terror
+							original_tag = HIP
+							has_completed_focus = HIP_sunset_atoll_test
 						}
 					}
-					if = {
-						limit = {
-							FROM = {
-								original_tag = HIP
-							}
-							has_completed_focus = HIP_sunset_atoll_test
-						}
-						ROOT = {
-							add_ideas = HIP_sunset_atoll_terror
-						}
+					ROOT = {
+						add_ideas = HIP_sunset_atoll_terror
 					}
 				}
 			}
@@ -2599,9 +2678,77 @@ on_actions = {
 					FROM = { state = 389 }
 					NOT = { has_global_flag = griffonstone_nuked }
 				}
+				set_temp_variable = {
+					nuked = FROM.owner
+				}
 				save_global_event_target_as = griffonstone_nuker
 				set_global_flag = griffonstone_nuked
 				news_event = { id =  nuke_dropped.101 hours = 3 }
+				every_other_country = {
+					limit = { is_griffon_continent_griffon_country = yes }
+					add_ai_strategy = {
+						type = antagonize
+						id = PREV
+						value = 500
+					}
+					add_ai_strategy = {
+						type = contain
+						id = PREV
+						value = 500
+					}
+					add_ai_strategy = {
+						type = befriend
+						id = PREV
+						value = -500
+					}
+					add_ai_strategy = {
+						type = alliance
+						id = PREV
+						value = -500
+					}
+					add_ai_strategy = {
+						type = ignore
+						id = PREV
+						value = -200
+					}
+					var:nuked = {
+						PREV = {
+							add_ai_strategy = {
+								type = protect
+								id = PREV
+								value = 500
+							}
+							add_ai_strategy = {
+								type = alliance
+								id = PREV
+								value = 500
+							}
+							add_ai_strategy = {
+								type = send_volunteers_desire
+								id = PREV
+								value = 500
+							}
+							add_ai_strategy = {
+								type = support
+								id = PREV
+								value = 500
+							}
+							add_ai_strategy = {
+								type = ignore
+								id = PREV
+								value = -200
+							}
+						}
+					}
+					add_opinion_modifier = {
+						target = event_target:griffonstone_nuker
+						modifier = nuked_griffonstone
+					}
+					add_opinion_modifier = { 
+						target = event_target:griffonstone_nuker 
+						modifier = CHN_embargo 
+					}
+				}
 			}
 			if = {
 				limit = {
@@ -2722,6 +2869,15 @@ on_actions = {
 			FRN_load_ideology_focus = yes
 			CTH_load_ideology_focus = yes
 			set_AI_strategies_on_every_possible_country_delayed = yes
+			if = {
+				limit = {
+					FROM = {
+						original_tag = EQS
+						is_in_tech_sharing_group = equestrian_research
+					}
+				}
+				add_to_tech_sharing_group = equestrian_research
+			}
 			if = {
 				limit = { original_tag = BAK }
 				load_focus_tree = generic_griffon_focus
@@ -3316,6 +3472,15 @@ on_actions = {
 		effect = {
 			log = "[GetDateText]: ROOT: [Root.GetName] FROM: [From.GetName] on_release_as_puppet"
 			GRU_load_commie_tree = yes
+			if = {
+				limit = {
+					FROM = {
+						original_tag = EQS
+						is_in_tech_sharing_group = equestrian_research
+					}
+				}
+				add_to_tech_sharing_group = equestrian_research
+			}
 			if = {
 				limit = {
 					FROM = { original_tag = GRW }
@@ -4577,6 +4742,12 @@ on_actions = {
 				}
 				country_event = colthage_civil_war.15
 			}
+			else_if = {
+				limit = {
+					original_tag = VED
+				}
+				country_event = vedina.76
+			}
 		}
 	}
 	# ROOT is capitulated country, FROM is winner
@@ -4706,20 +4877,25 @@ on_actions = {
 				limit = {
 					original_tag = EQS
 					has_government = democratic
-					is_in_faction_with = HIP
 					HIP = {
 						exists = yes
 						has_capitulated = no
 						NOT = {
 							any_owned_state = {
-								is_controlled_by = FROM
+								OR = {
+									is_controlled_by = FROM
+									CONTROLLER = {
+										is_ally_with = FROM
+									}
+								}
 							}
 						}
+						has_war_with = FROM
 					}
 				}
 				HIP = {
 					if = {
-						limit = { is_in_faction = yes }
+						limit = { is_in_faction_with = EQS }
 						leave_faction = yes
 					}
 					if = {
@@ -4746,6 +4922,12 @@ on_actions = {
 								OR = {
 									has_country_flag = HIP_alliance_member
 									is_subject_of = HIP
+									AND = {
+										is_in_faction_with = HIP
+										NOT = {
+											is_in_faction_with = EQS
+										}
+									}
 								}
 							}
 							if = {
@@ -4755,6 +4937,7 @@ on_actions = {
 							}
 						}
 					}
+					HIP = {country_event = hippogriff.83}
 				}
 			}
 			else_if = {
@@ -5004,7 +5187,7 @@ on_actions = {
 					}
 					BAT = {
 						for_each_scope_loop = {
-							array = europe_states
+							array = global.europe_states
 							# we teleport all armies in Equestrian continent...
 							teleport_armies = {
 								limit = {
@@ -5049,9 +5232,10 @@ on_actions = {
 			if = {
 				limit = {
 					tag = BAT
-					any_country = {
-						has_war_with = NLR
-						is_zebrican_continent_country = yes
+					NLR = {
+						any_enemy_country = {
+							is_zebrican_continent_country = yes
+						}
 					}
 				}
 				leave_faction = yes
@@ -5673,9 +5857,11 @@ on_actions = {
 				if = {
 					limit = {
 						HIP = {
-							is_in_faction_with = EQS
+							OR = {
+								is_in_faction_with = EQS
+								has_war_together_with = EQS
+							}
 							is_subject = no
-							is_faction_leader = no
 							NOT = {has_government = fascism}
 						}
 					}
@@ -5713,8 +5899,13 @@ on_actions = {
 										tag = HIP
 										is_subject_of = HIP
 										has_country_flag = HIP_alliance_member
+										AND = {
+											is_in_faction_with = HIP
+											NOT = {is_in_faction_with = EQS}
+										}
 									}
 								}
+								set_country_flag = { flag = bypass_on_peaceconference_ended days = 1 value = 1 }
 								white_peace = PREV
 							}
 						}
@@ -5789,6 +5980,12 @@ on_actions = {
 					original_tag = LUS
 				}
 				country_event = { id = lushi.155 hours = 1 }
+			}
+			if = {
+				limit = {
+					original_tag = VED
+				}
+				country_event = vedina.76
 			}
 		}
 	}
@@ -6574,14 +6771,40 @@ on_actions = {
 								}
 						    }
 						    FROM = {
-							    OR = {
-								    tag = BAT
-									tag = CTH
-									tag = TBK
-									tag = WNG
+								OR = {
+									AND = {
+							   			OR = {
+											tag = BAT
+											tag = CTH
+											tag = TBK
+											tag = WNG
+										}
+						       			has_country_flag = north_zebrican_war_participant
+									}
+									tag = HIE
 								}
-						        has_country_flag = north_zebrican_war_participant
 						    }
+						}
+					}
+					set_country_flag = HIP_won_north_zebrican_war
+					ROOT = {clr_country_flag = north_zebrican_war_participant}
+					FROM = {clr_country_flag = north_zebrican_war_participant}
+					mark_focus_tree_layout_dirty = yes
+				}
+				else_if = {
+					limit = {
+						ROOT = {
+							original_tag = HIP
+							has_completed_focus = HIP_strike_first
+						}
+						FROM = {
+							OR = {
+								original_tag = TBK
+								original_tag = ZAR
+								original_tag = BAT
+								original_tag = WAR
+							}
+							owns_state = 712
 						}
 					}
 					set_country_flag = HIP_won_north_zebrican_war
@@ -6652,8 +6875,24 @@ on_actions = {
 						    original_tag = HIP
 						}
 					}
-					country_event = { 
-						id = bat.81
+					if = {
+						limit = {
+							is_in_faction_with = CTH
+							CTH = {
+								has_country_leader = {
+									character = CTH_zalathel_zarca
+									ruling_only = yes
+								}
+							}
+						}
+						CTH = {
+							country_event = {
+								id = colthage_other.211
+							}
+						}
+					}
+					else = {
+						country_event = bat.81
 					}
 				}
 				if = {
@@ -6828,6 +7067,25 @@ on_actions = {
 										is_subject_of = BAT
 									}
 								}
+							}
+							AND = {
+								FROM = {
+									original_tag = CTH
+									has_country_flag = CTH_war_with_bats
+								}
+								TBK = {
+									OR = {
+										exists = no
+										is_subject_of = BAT
+									}
+								}
+								ZAR = {
+									OR = {
+										exists = no
+										is_subject_of = BAT
+									}
+								}
+								has_country_flag = BAT_HIP_defeated
 							}
 						}
 					}
@@ -7224,6 +7482,20 @@ on_actions = {
 						#ZAR beat Chiropterra with Tobuck, transfers states to it.
 						if = {
 							limit = {
+								BAT = {
+									exists = yes
+									is_puppet_of = ZAR
+								}
+							}
+							TBK = { 
+								annex_country = { 
+									target = BAT 
+									transfer_troops = no
+								} 
+							}
+						}
+						if = {
+							limit = {
 								ZAR = {
 									any_owned_state = {
 										is_core_of = BAT
@@ -7243,13 +7515,33 @@ on_actions = {
 						}
 					}
 					else = {
+
 						if = {
 							limit = {
-								ZAR = {
-									has_country_flag = ZAR_wormy
+								BAT = {
+									exists = yes
+									is_puppet_of = ZAR
 								}
 							}
-							#Nothing happens, ZAR is in worm path and will not release BAT.
+							ZAR = { 
+								annex_country = { 
+									target = BAT 
+									transfer_troops = no
+								} 
+							}
+						}
+						if = {
+							limit = {
+								OR = {		
+									ZAR = {
+										has_country_flag = ZAR_wormy
+									}
+									BAT = {
+										has_country_flag = BAT_national_catastrophe
+									}
+								}
+							}
+							#Nothing happens, ZAR is in worm path, or BAT came in for a revenge and died again. This will not release BAT.
 						}
 
 						else_if = {
@@ -7416,6 +7708,7 @@ on_actions = {
 	#ROOT is new controller #FROM is old controller #FROM.FROM is state ID
 	on_state_control_changed = {
 		effect = {
+			force_potential_core_resistance_on_controlled_changed = yes
 			FROM = {
 				save_event_target_as = former_controller
 			}
@@ -8070,6 +8363,18 @@ on_actions = {
 			}
 			if = {
 				limit = {
+					original_tag = HIP
+				}
+				FROM = {
+					add_ai_strategy = {
+						id = "HIP"
+						type = alliance
+						value = 100
+					}
+				}
+			}
+			if = {
+				limit = {
 					original_tag = MIT
 					has_completed_focus = MIT_SIC_assistance
 				}
@@ -8101,8 +8406,9 @@ on_actions = {
 				for_each_scope_loop = {
     				array = faction_members
    					 if = {
-       					 limit = {
+       					limit = {
             				OR = {
+								original_tag = TBK
 								original_tag = WAR
 								original_tag = ZAR
 								original_tag = ZUM
@@ -8112,14 +8418,58 @@ on_actions = {
     				}
 				}
 				clamp_variable = { var = TBK.TBK_hazrumenia_members min = 1 max = 4 }
-				add_dynamic_modifier = {
-					modifier = TBK_great_hazrumenian_family
+				for_each_scope_loop = {
+    				array = faction_members
+   					if = {
+       					limit = {
+							is_in_faction_with = TBK
+							TBK = {
+								has_government = democratic
+								has_country_leader = {
+									character = TBK_wallnut_drive
+									ruling_only = yes
+								}
+							}
+            				OR = {
+								original_tag = WAR
+								original_tag = ZAR
+								original_tag = ZUM
+							}
+        				}
+						if = {
+							limit = {
+								TBK = {
+									has_completed_focus = TBK_harmony_alliance_internal_development
+								}
+								NOT = {
+									has_dynamic_modifier = {
+										modifier = TBK_great_hazrumenian_family
+									}
+								}
+							}
+							add_dynamic_modifier = {
+								modifier = TBK_great_hazrumenian_family
+							}
+						}
+						if = {
+							limit = {
+								TBK = {
+									has_completed_focus = TBK_harmony_alliance_economy
+								}
+								NOT = {
+									has_dynamic_modifier = {
+										modifier = TBK_hazrumenian_economic_cooperation
+									}
+								}
+							}
+							add_dynamic_modifier = {
+								modifier = TBK_hazrumenian_economic_cooperation
+							}
+						}
+						TBK_apply_hazrumenia_family_modifier_values = yes
+						TBK_apply_hazrumenia_economic_cooperation_modifier_values = yes
+    				}
 				}
-				TBK_apply_hazrumenia_family_modifier_values = yes
-				add_dynamic_modifier = {
-					modifier = TBK_hazrumenian_economic_cooperation
-				}
-				TBK_apply_hazrumenia_economic_cooperation_modifier_values = yes
 			}
 			FROM = { update_global_arrays = yes }
 		}
@@ -8149,6 +8499,18 @@ on_actions = {
 					country = HLQ
 					relation = non_aggression_pact
 					active = yes
+				}
+			}
+			if = {
+				limit = {
+					FROM = {
+						original_tag = HIP
+					}
+				}
+				add_ai_strategy = {
+					id = "HIP"
+					type = alliance
+					value = 100
 				}
 			}
 			if = {
@@ -9954,7 +10316,10 @@ on_actions = {
 			#Add to Equestria tech group
 			if = {
 				limit = {
-					overlord = { is_in_tech_sharing_group = equestrian_research }
+					FROM = {
+						original_tag = EQS
+						is_in_tech_sharing_group = equestrian_research
+					}
 				}
 				add_to_tech_sharing_group = equestrian_research
 			}
