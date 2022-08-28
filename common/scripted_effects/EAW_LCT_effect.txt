@@ -18,6 +18,20 @@ LCT_DIET_initiate = {
 	add_to_variable = { LCT_Diet_Dirty = 0.01 }
 }
 
+#### Indexes
+# 0 = TBD
+# 1 = LDP
+# 2 = CTT
+# 3 = Independents
+
+## How to use:
+# set_temp_variable = { temp_faction = 1 }
+# set_temp_variable = { temp_seats = 10 }
+# LCT_DIET_change_seats = yes
+
+## This will change the LDP's (1) seat count by 10, deducting it from other factions.
+## The scripted effect will generate its own tooltip so don't worry about that.
+
 LCT_DIET_change_seats = {
 	
 	## Normalize values
@@ -110,13 +124,56 @@ LCT_DIET_change_seats = {
 	add_to_variable = { LCT_DIET_seats_array^temp_faction = temp_seats }
 	
 	LCT_DIET_re_render = yes
+	
+	clear_variable = temp_seats
+	clear_variable = temp_faction
 }
 
-d_LCT_DIET_change_seats = {
-	set_temp_variable = { temp_seats = args^0 }
-	set_temp_variable = { temp_faction = args^1 }
-	LCT_DIET_change_seats = yes
+LCT_initiate_new_bill = {
+	custom_effect_tooltip = LCT_initiate_new_bill_tt
+
+	for_each_loop = {
+		array = LCT_DIET_seats_array
+		add_to_array = { LCT_DIET_support = v }
+		multiply_variable = { LCT_DIET_support^i = bill_support_ratio^i }
+		round_variable = LCT_DIET_support^i
+	}
+	set_country_flag = LCT_bill_on_the_floor
+	LCT_re_calculate_support_for_bill = yes
 }
+
+## How to use:
+# set_temp_variable = { temp_faction = 1 }
+# set_temp_variable = { temp_support = 10 }
+# LCT_change_support_for_bill = yes
+
+## This will change the LDP's (1) support for the current bill by 10, maxing out at the LDP's total seat count.
+## The scripted effect will generate its own tooltip so don't worry about that.
+
+LCT_change_support_for_bill = {
+	set_temp_variable = { hard_cap = LCT_DIET_seats_array^temp_faction }
+	set_temp_variable = { future_value = LCT_DIET_support^temp_faction }
+	add_to_temp_variable = { future_value = temp_support }
+	
+	if = {
+		limit = {
+			check_variable = { future_value > hard_cap }
+		}
+		set_temp_variable = { normalizer = future_value }
+		subtract_from_temp_variable = { normalizer = hard_cap }
+		subtract_from_temp_variable = { temp_support = normalizer }
+	}
+
+	custom_effect_tooltip = LCT_change_support_for_bill_tt
+
+	add_to_variable = { LCT_DIET_support^temp_faction = temp_support }
+	LCT_re_calculate_support_for_bill = yes
+	
+	clear_variable = temp_faction
+	clear_variable = temp_support
+}
+
+### BACKEND STUFF, don't worry about these
 
 LCT_DIET_re_render = {
 	set_temp_variable = { seats_1 = LCT_DIET_seats_array^0 }
@@ -149,19 +206,6 @@ LCT_DIET_re_render = {
 	log = "LCT_DIET_seats_array^2 = [?LCT_DIET_seats_array^2]"
 	log = "LCT_DIET_seats_array^3 = [?LCT_DIET_seats_array^3]"
 	log = "TOTAL = [?LCT_DIET_seats_display_array^num]"
-}
-
-LCT_initiate_new_bill = {
-	custom_effect_tooltip = LCT_initiate_new_bill_tt
-
-	for_each_loop = {
-		array = LCT_DIET_seats_array
-		add_to_array = { LCT_DIET_support = v }
-		multiply_variable = { LCT_DIET_support^i = bill_support_ratio^i }
-		round_variable = LCT_DIET_support^i
-	}
-	set_country_flag = LCT_bill_on_the_floor
-	LCT_re_calculate_support_for_bill = yes
 }
 
 LCT_re_calculate_support_for_bill = {
