@@ -44,6 +44,15 @@ country_event = {
 				exists = no
 			}
 		}
+		if = {
+			limit = {
+				HIP = {
+					is_in_faction_with = CHN
+					has_country_flag = HIP_siren_takeover
+				}
+			}
+			has_country_flag = HIP_CHN_negotiations_ended
+		}
 	}
 
 	mean_time_to_happen = {
@@ -136,12 +145,39 @@ country_event = {
 		ELF = {
 			hidden_effect = {
 				event_target:EQS_chancellor_neighsay_target = { set_nationality = ELF }
+				promote_character = {
+					character = EQS_chancellor_neighsay
+					ideology = fascism_ideology
+				}
 				event_target:EQS_fancy_pants_target = {	set_nationality = ELF }
-				event_target:EQS_starlight_glimmer_target = {
-					set_portraits = {
-						army = {
-							large = "gfx/leaders/MAN/Starlight.tga"
+				EQS_fancy_pants = {
+					add_country_leader_role = {
+						promote_leader = yes
+
+						country_leader = {
+							expire = "1965.1.1" 
+							ideology = centrism 
+							traits = { connected_diplomat }
+							id = -1
 						}
+					}
+				}
+				event_target:BAL_golden_delicious_target = {
+					set_nationality = ELF
+
+					if = {
+						limit = { is_unit_leader = yes }
+						remove_unit_leader_role = yes
+					}
+				}
+				promote_character = {
+					character = BAL_golden_delicious
+					ideology = syndicalism
+				}
+				event_target:EQS_starlight_glimmer_target = {
+					if = {
+						limit = { is_unit_leader = yes }
+						remove_unit_leader_role = yes
 					}
 					add_field_marshal_role = {
 						traits = { pony_race_trait trait_talented_coordinator brilliant_strategist thorough_planner inspirational_leader expert_delegator }
@@ -195,15 +231,6 @@ country_event = {
 						}
 						set_nationality = ELF
 					}
-				}
-				event_target:BAL_golden_delicious_target = {
-					set_nationality = ELF
-
-					if = {
-						limit = { is_unit_leader = yes }
-						remove_unit_leader_role = yes
-					}
-					promote_character = syndicalism
 				}
 				ELF_flash_force	= {
 					if = {
@@ -2912,7 +2939,15 @@ country_event = {
 	
 	option = {
 		name = MAN_ELF_new.193.a
-		add_ideas = ELF_spike
+		if = {
+			limit = {
+				has_dlc = "La Resistance"
+			}
+			add_ideas = ELF_spike_lar
+		}
+		else = {
+			add_ideas = ELF_spike
+		}
 		country_event = { id = MAN_ELF_new.1930 hours = 2 }
 	}
 }
@@ -3716,9 +3751,49 @@ country_event = {
 			hidden_effect = {
 				set_country_flag = demilitarized
 				add_manpower = -99999999
+				transfer_units_fraction = {
+					target = ROOT          # the recipient
+					target_organization = 1
+					source_organization = 1
+					size = 0             # [0,1] Default value for the ratio below if they are not specified
+					stockpile_ratio = 0.85  # [0,1] Overrides size modifier for the stockpiled equipment and fuel
+					army_ratio = 0       # [0,1] Overrides size modifier for army
+					navy_ratio = 0.75       # [0,1] Overrides size modifier for navy
+					air_ratio = 0.95        # [0,1] Overrides size modifier for air
+					keep_unit_leaders_trigger = {
+						always = yes
+					}
+				}
+				# Additionally, transfer anything bigger than a light cruiser
+				for_loop_effect = {
+					start = 0
+					end = 50
+					transfer_ship = {
+						type = heavy_cruiser
+						target = ROOT
+					}
+					transfer_ship = {
+						type = battle_cruiser
+						target = ROOT
+					}
+					transfer_ship = {
+						type = battleship
+						target = ROOT
+					}
+					transfer_ship = {
+						type = carrier
+						target = ROOT
+					}
+				}
 				add_ideas = {
 					civilian_economy
 					disarmed_nation
+				}
+				hidden_effect = {
+					add_timed_idea = {
+						idea = CHN_rapid_demobilization
+						days = 7
+					}
 				}
 			}
 		}
@@ -4051,7 +4126,15 @@ country_event = {
 	option = {
 		name = MAN_ELF_new.235.b
 		add_to_variable = { var = ELF_blueblood_support_var value = 1 }
-		swap_ideas = { remove_idea = ELF_echa_base add_idea = ELF_echa_intelligence }
+		if = {
+			limit = {
+				has_dlc = "La Resistance"
+			}
+			swap_ideas = { remove_idea = ELF_echa_base add_idea = ELF_echa_intelligence_lar }
+		}
+		else = {
+			swap_ideas = { remove_idea = ELF_echa_base add_idea = ELF_echa_intelligence }
+		}
 	}
 }
 
@@ -4119,10 +4202,9 @@ country_event = {
 			character = EQS_fancy_pants
 			promote_leader = yes
 			country_leader = {
-				desc = "ELF_BLUEBLOOD_DESC"
 				expire = "1965.1.1"
 				ideology = centrism
-				traits = { prince_of_equestria }
+				traits = { }
 			}
 		}
 		country_event = { id = MAN_ELF_new.240 days = 4 }

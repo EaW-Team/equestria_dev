@@ -672,6 +672,12 @@ country_event = {
 				character = EQS_sunset_shimmer 
 			}
 		}
+		if = {
+			limit = { has_country_flag = EQS_starlight_glimmer_arrived }
+			remove_unit_leader_role = {
+				character = EQS_starlight_glimmer 
+			}
+		}
 		set_country_flag = SOL_harmonic_commanders_leave
 	}
 }
@@ -1043,30 +1049,10 @@ country_event = {
 	fire_only_once = yes
 	option = {
 		name = solarempire.13.a
-		trigger = {
-			NOT = {
-				any_country = {
-					has_country_leader = { character = EQS_twilight_sparkle ruling_only = yes }
-				}
-			}
-		}
 		custom_effect_tooltip = available_political_advisor
 		show_ideas_tooltip = evil_twilight_sparkle
-		hidden_effect = {
-			set_global_flag = SOL_twilight_converted
-			every_country = {
-				limit = { has_country_flag = CRY_solar_governorship }
-				retire_country_leader = yes
-				event_target:EQS_twilight_sparkle_target = {
-					set_nationality = PREV
-
-					promote_character = falangism
-				}
-			}
-		}
 		if = {
 			limit = {
-				NOT = { has_global_flag = CRY_puppet_chosen }
 				CRY = {
 					is_subject_of = ROOT
 					NOT = { has_country_flag = CRY_solar_governorship }
@@ -1074,45 +1060,6 @@ country_event = {
 			}
 			country_event = solarempire.131
 		}
-	}
-	option = {
-		name = solarempire.13.a
-		trigger = {
-			any_country = {
-				has_country_leader = { character = EQS_twilight_sparkle ruling_only = yes }
-			}
-		}
-		random_country = {
-			limit = { has_country_leader = { character = EQS_twilight_sparkle ruling_only = yes } }
-			if = {
-				limit = { NOT = { is_subject_of = ROOT } }
-				ROOT = { puppet = PREV }
-			}
-			hidden_effect = {
-				ROOT = {
-					set_country_flag = SOL_twilight_governor
-					set_autonomy = { target = PREV autonomy_state = autonomy_reichskommissariat }
-				}
-				set_cosmetic_tag = CRY_SOL
-				add_autonomy_ratio = { value = -0.20 }
-				set_country_flag = CRY_solar_governorship
-				load_focus_tree = crystal_empire_solar_focus
-				if = {
-					limit = {
-						CRY_shining_armour = { is_unit_leader = yes }
-					}
-					remove_unit_leader_role = CRY_shining_armour
-				}
-				set_party_name = { ideology = fascism long_name = SOL_fascism_party_long name = SOL_fascism_party }
-				retire_country_leader = yes
-				event_target:EQS_twilight_sparkle_target = {
-					set_nationality = PREV
-
-					promote_character = falangism
-				}
-			}
-		}
-		hidden_effect = { set_global_flag = SOL_twilight_converted }
 	}
 }
 
@@ -1122,12 +1069,14 @@ country_event = {
 	title = solarempire.131.t
 	desc = solarempire.131.d
 	picture = GFX_event_solarempire
+	trigger = {
+		NOT = { has_global_flag = CRY_puppet_chosen }
+	}
 	immediate = {
 		hidden_effect = {
 			random_country_with_original_tag = {
 				original_tag_to_check = CRY
 				limit = { is_subject_of = ROOT NOT = { has_country_flag = CRY_solar_governorship } }
-				event_target:EQS_twilight_sparkle_target = { set_nationality = PREV }
 				save_event_target_as = puppet_CRY
 			}
 			set_global_flag = CRY_puppet_chosen
@@ -1143,14 +1092,25 @@ country_event = {
 				country_event = solarempire.132
 			}
 		}
+		ai_chance = {
+			factor = 1
+			modifier = {
+				factor = 0
+				has_global_flag = EQS_evil_celestia
+			}
+		}
 	}
 	option = {
 		name = solarempire.131.b
+		effect_tooltip = {
+			event_target:EQS_twilight_sparkle_target = {
+				set_nationality = event_target:puppet_CRY
+				promote_character = yes
+			}
+		}
 		event_target:puppet_CRY = {
 			effect_tooltip = {
-				event_target:EQS_twilight_sparkle_target = {
-					promote_character = falangism
-				}
+				load_focus_tree = crystal_empire_solar_focus
 			}
 			hidden_effect = {
 				ROOT = {
@@ -1160,16 +1120,12 @@ country_event = {
 				set_cosmetic_tag = CRY_SOL
 				add_autonomy_ratio = { value = -0.20 }
 				set_country_flag = CRY_solar_governorship
-				if = {
-					limit = {
-						CRY_shining_armour = { is_unit_leader = yes }
-					}
-					remove_unit_leader_role = CRY_shining_armour
-				}
-				retire_country_leader = yes
 
 				country_event = solarempire.133
 			}
+		}
+		ai_chance = {
+			factor = 3
 		}
 	}
 }
@@ -1195,13 +1151,20 @@ country_event = {
 	is_triggered_only = yes
 	option = {
 		name = solarempire.133.a
-		set_party_name = { ideology = fascism long_name = SOL_fascism_party_long name = SOL_fascism_party }
+		set_party_name = { ideology = fascism long_name = EQS_SOL_fascism_party_long name = EQS_SOL_fascism_party }
 		event_target:EQS_twilight_sparkle_target = {
 			set_nationality = ROOT
-
-			promote_character = falangism
+			promote_character = yes
 		}
 		load_focus_tree = crystal_empire_solar_focus
+
+		if = {
+			limit = {
+				has_character = CRY_shining_armour
+				CRY_shining_armour = { is_unit_leader = yes }
+			}
+			remove_unit_leader_role = CRY_shining_armour
+		}
 	}
 }
 
@@ -2065,13 +2028,20 @@ news_event = {
 		}
 		OR = {
 			NOT = { country_exists = CRY }
-			AND = {
-				any_country = {
-					has_country_flag = EQS_CRY_has_twilight
-					OR = {
-						has_capitulated = yes
-						is_subject_of = ROOT
-					}
+			any_country_with_original_tag = {
+				original_tag_to_check = CRY
+				has_country_flag = EQS_CRY_has_twilight
+				OR = {
+					has_capitulated = yes
+					is_subject_of = ROOT
+				}
+			}
+			any_country_with_original_tag = {
+				original_tag_to_check = EQS
+				has_country_flag = EQS_CRY_has_twilight
+				OR = {
+					has_capitulated = yes
+					is_subject_of = ROOT
 				}
 			}
 		}
@@ -2843,50 +2813,29 @@ country_event = { #BURN THE BATS, BURN THE BATS, MAKE THEM GO AND NOT COME BACK
 			}
 			remove_unit_leader_role = EQS_SOL_comet_trail
 		}
+		save_current_manpower = yes
 		40 = {
-			set_temp_variable = { decimation_portion = 0.5 } # (x = 0 to 1)
-			exodus_decimate_portion = yes
+			add_manpower = -75000
 			damage_building = {
 				type = infrastructure
 				damage = 2
 			}
 		}
-		31 = {
-			set_temp_variable = { decimation_portion = 0.5 } # (x = 0 to 1)
-			exodus_decimate_portion = yes
-		}
-		36 = {
-			set_temp_variable = { decimation_portion = 0.5 } # (x = 0 to 1)
-			exodus_decimate_portion = yes
-		}
+		31 = { add_manpower = -50000 }
+		36 = { add_manpower = -5000 }
 		24 = {
-			set_temp_variable = { decimation_portion = 0.5 } # (x = 0 to 1)
-			exodus_decimate_portion = yes
+			add_manpower = -50000
 			damage_building = {
 				type = infrastructure
 				damage = 2
 			}
 		}
-		81 = {
-			set_temp_variable = { decimation_portion = 0.5 } # (x = 0 to 1)
-			exodus_decimate_portion = yes
-		}
-		350 = {
-			set_temp_variable = { decimation_portion = 0.5 } # (x = 0 to 1)
-			exodus_decimate_portion = yes
-		}
-		32 = {
-			set_temp_variable = { decimation_portion = 0.5 } # (x = 0 to 1)
-			exodus_decimate_portion = yes
-		}
-		25 = {
-			set_temp_variable = { decimation_portion = 0.5 } # (x = 0 to 1)
-			exodus_decimate_portion = yes
-		}
-		30 = {
-			set_temp_variable = { decimation_portion = 0.5 } # (x = 0 to 1)
-			exodus_decimate_portion = yes
-		}
+		81 = { add_manpower = -50000 }
+		350 = { add_manpower = -50000 }
+		32 = { add_manpower = -50000 }
+		25 = { add_manpower = -50000 }
+		30 = { add_manpower = -50000 }
+		restore_previous_manpower = yes
 		every_state = {
 			limit = {
 				OR = {
@@ -2952,8 +2901,15 @@ country_event = { #Batfugees
 	option = { #
 		name = solarempire.43.a
 		add_stability = -0.05
-		set_temp_variable = { refugees_to_add = 30000 }
-		exodus_add_refugees = yes
+		random_owned_state = {
+			add_manpower = 10000
+		}
+		random_owned_state = {
+			add_manpower = 10000
+		}
+		random_owned_state = {
+			add_manpower = 10000
+		}
 	}
 }
 country_event = { #Add bat resistance
@@ -4328,11 +4284,10 @@ country_event = {
 					}
 					remove_unit_leader_role = CRY_shining_armour
 				}
-				set_party_name = { ideology = fascism long_name = SOL_fascism_party_long name = SOL_fascism_party }
+				set_party_name = { ideology = fascism long_name = EQS_SOL_fascism_party_long name = EQS_SOL_fascism_party }
 				retire_country_leader = yes
 				event_target:EQS_twilight_sparkle_target = {
-					set_nationality = PREV
-					promote_character = falangism
+					promote_character = yes
 				}
 			}
 			news_event = { id = solarempiresparkles.40 days = 2 }
