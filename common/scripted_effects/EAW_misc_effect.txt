@@ -3215,3 +3215,409 @@ set_continent_flags_on_every_possible_country = {
 		}
 	}
 }
+
+# Not perfect, but gets the job done
+build_air_base = {
+	set_temp_variable = { built_airport = 0 }
+	if = {
+		limit = {
+			is_ai = yes
+			num_of_civilian_factories_available_for_projects > 9
+			has_deployed_air_force_size = {
+				size > 0
+			}
+		}
+		set_temp_variable = { air_capacity = 0 }
+		if = {
+			limit = {
+				has_war = yes
+				any_enemy_country = {
+					is_neighbor_of = ROOT
+				}
+			}
+			set_temp_variable = { has_neighbor_war = 1 }
+		}
+		else_if = {
+			limit = {
+				has_war = no
+				any_neighbor_country = {
+					is_in_array = {
+						ROOT.potential_and_current_enemies = THIS
+					}
+				}
+			}
+			set_temp_variable = { has_neighbor_enemy = 1 }
+		}
+		every_controlled_state = {
+			limit = {
+				if = {
+					limit = {
+						ROOT = {
+							check_variable = { has_neighbor_war > 0 }
+						}
+					}
+					any_neighbor_state = {
+						OR = {
+							controller = { has_war_with = ROOT }
+							any_neighbor_state = {
+								controller = { has_war_with = ROOT }
+							}
+						}
+					}
+				}
+				else_if = {
+					limit = {
+						ROOT = {
+							check_variable = { has_neighbor_enemy > 0 }
+						}
+					}
+					any_neighbor_state = {
+						OR = {
+							controller = {
+								is_in_array = {
+									ROOT.potential_and_current_enemies = THIS
+								}
+							}
+							any_neighbor_state = {
+								controller = {
+									is_in_array = {
+										ROOT.potential_and_current_enemies = THIS
+									}
+								}
+							}
+						}
+					}
+				}
+				else = {
+					always = yes
+				}
+			}
+			set_temp_variable = { local_air_capacity = building_level@air_base }
+			multiply_temp_variable = { local_air_capacity = 200 }
+			add_to_temp_variable = { air_capacity = local_air_capacity }
+		}
+		log = "build_air_base: [?Root.GetTag] has air_capacity at [?air_capacity|0]"
+		subtract_from_temp_variable = { air_capacity = 200 }
+		random_list = {
+			5 = {
+				multiply_temp_variable = { air_capacity = 0.5 }
+			}
+			95 = {}
+		}
+		if = {
+			limit = {
+				has_deployed_air_force_size = {
+					size > var:air_capacity
+				}
+			}
+			log = "build_air_base: [?Root.GetTag] Execute build"
+			if = {
+				limit = {
+					has_war = yes
+				}
+				log = "build_air_base: [?Root.GetTag] has_war"
+				random_country = {
+					limit = {
+						has_war_with = ROOT
+					}
+					set_temp_variable = { closest_state = ROOT.closest_state_to@THIS }
+				}
+				random_controlled_state = {
+					limit = {
+						is_fully_controlled_by = ROOT
+						air_base < 10
+						OR = {
+							state = var:closest_state
+							any_neighbor_state = {
+								OR = {
+									state = var:closest_state
+									controller = { has_war_with = ROOT }
+								}
+							}
+						}
+					}
+					log = "build_air_base: [?Root.GetTag] builds in [?this.GetName] ([?this|0)"
+					add_building_construction = {
+						type = air_base
+						level = 1
+						instant_build = no
+					}
+					set_temp_variable = { built_airport = 1 }
+				}
+			}
+			else_if = {
+				limit = {
+					check_variable = { potential_and_current_enemies^num > 0 }
+				}
+				log = "build_air_base: [?Root.GetTag] has potential_and_current_enemies"
+				random_country = {
+					limit = {
+						is_in_array = {
+							ROOT.potential_and_current_enemies = THIS
+						}
+					}
+					set_temp_variable = { closest_state = ROOT.closest_state_to@THIS }
+				}
+				random_controlled_state = {
+					limit = {
+						is_fully_controlled_by = ROOT
+						air_base < 10
+						OR = {
+							state = var:closest_state
+							any_neighbor_state = {
+								OR = {
+									state = var:closest_state
+									controller = {
+										is_in_array = {
+											ROOT.potential_and_current_enemies = THIS
+										}
+									}
+								}
+							}
+						}
+					}
+					log = "build_air_base: [?Root.GetTag] builds in [?this.GetName] ([?this|0)"
+					add_building_construction = {
+						type = air_base
+						level = 1
+						instant_build = no
+					}
+					set_temp_variable = { built_airport = 1 }
+				}
+			}
+		
+			if = {
+				limit = {
+					check_variable = {
+						built_airport = 0
+					}
+				}
+				random_country = {
+					limit = {
+						ROOT = {
+							OR = {
+								check_variable = { ai_strategy_conquer@PREV > 0 }
+								check_variable = { ai_strategy_antagonize@PREV > 0 }
+								check_variable = { ai_strategy_declare_war@PREV > 0 }
+								check_variable = { ai_strategy_prepare_for_war@PREV > 0 }
+							}
+						}
+					}
+					set_temp_variable = { closest_state = ROOT.closest_state_to@THIS }
+					set_temp_variable = { probable_enemy = THIS }
+				}
+				log = "build_air_base: [?Root.GetTag] has strats against [?probable_enemy.GetTag]"
+				random_controlled_state = {
+					limit = {
+						is_fully_controlled_by = ROOT
+						air_base < 10
+						OR = {
+							state = var:closest_state
+							any_neighbor_state = {
+								OR = {
+									state = var:closest_state
+									controller = {
+										tag = var:probable_enemy
+									}
+								}
+							}
+						}
+					}
+					log = "build_air_base: [?Root.GetTag] builds in [?this.GetName] ([?this|0)"
+					add_building_construction = {
+						type = air_base
+						level = 1
+						instant_build = no
+					}
+					set_temp_variable = { built_airport = 1 }
+				}
+			}
+		
+			if = {
+				limit = {
+					check_variable = {
+						built_airport = 0
+					}
+				}
+				log = "build_air_base: [?Root.GetTag] fallback"
+				random_controlled_state = {
+					limit = {
+						is_fully_controlled_by = ROOT
+						air_base > 0
+						air_base < 10
+					}
+					log = "build_air_base: [?Root.GetTag] builds in [?this.GetName] ([?this|0)"
+					add_building_construction = {
+						type = air_base
+						level = 1
+						instant_build = no
+					}
+					set_temp_variable = { built_airport = 1 }
+				}
+			}
+
+			if = {
+				limit = {
+					check_variable = {
+						built_airport = 0
+					}
+				}
+				log = "build_air_base: [?Root.GetTag] fallback 2"
+				random_list = {
+					50 = {
+						capital_scope = {
+							log = "build_air_base: [?Root.GetTag] builds in [?this.GetName] ([?this|0)"
+							add_building_construction = {
+								type = air_base
+								level = 1
+								instant_build = no
+							}
+							set_temp_variable = { built_airport = 1 }
+						}
+						modifier = {
+							factor = 0
+							capital_scope = {
+								OR = {
+									air_base > 9
+									NOT = { is_fully_controlled_by = ROOT }
+								}
+							}
+						}
+					}
+					50 = {
+						random_controlled_state = {
+							limit = {
+								is_fully_controlled_by = ROOT
+								is_in_home_area = yes
+								air_base < 10
+							}
+							log = "build_air_base: [?Root.GetTag] builds in [?this.GetName] ([?this|0)"
+							add_building_construction = {
+								type = air_base
+								level = 1
+								instant_build = no
+							}
+							set_temp_variable = { built_airport = 1 }
+						}
+					}
+				}
+			}
+		}
+	}
+}
+
+STG_EQS_all_ponies_front = {
+	STG = {
+		every_country = {
+			limit = { is_in_faction_with = STG }
+			set_country_flag = was_in_STG_faction
+			leave_faction = yes
+			add_ai_strategy = {
+				type = alliance
+				id = EQS
+				value = 200
+			}
+			EQS = {
+				add_ai_strategy = {
+					type = alliance
+					id = PREV
+					value = 200
+				}
+				add_to_faction = PREV
+			}
+		}
+		set_country_flag = was_in_STG_faction
+		dismantle_faction = yes
+		add_ai_strategy = {
+			type = alliance
+			id = EQS
+			value = 200
+		}
+		EQS = {
+			add_ai_strategy = {
+				type = alliance
+				id = PREV
+				value = 200
+			}
+			add_to_faction = PREV
+		}
+	}
+	EQS = {
+		every_enemy_country = {
+			every_country = {
+				limit = { has_country_flag = was_in_STG_faction }
+				add_to_war = { targeted_alliance = EQS enemy = PREV }
+			}
+		}
+		set_faction_name = "ponies_front"
+	}
+}
+
+STG_EQS_all_ponies_front_end = {
+	if = {
+		limit = {
+			STG = {
+				has_country_flag = was_in_STG_faction
+			}
+		}
+		STG = {
+			clr_country_flag = was_in_STG_faction
+			add_ai_strategy = {
+				type = alliance
+				id = EQS
+				value = -200
+			}
+			EQS = {
+				add_ai_strategy = {
+					type = alliance
+					id = PREV
+					value = -200
+				}
+			}
+			if = {
+				limit = {
+					is_subject = no
+				}
+				leave_faction = yes
+				create_faction = "Socialist_Union"
+			}
+		}
+		every_country = {
+			limit = {
+				OR = {
+					has_country_flag = was_in_STG_faction 
+					is_subject_of = STG
+				}
+			}
+			if = {
+				limit = {
+					has_country_flag = was_in_STG_faction 
+				}
+				clr_country_flag = was_in_STG_faction
+				add_ai_strategy = {
+					type = alliance
+					id = EQS
+					value = -200
+				}
+				EQS = {
+					add_ai_strategy = {
+						type = alliance
+						id = PREV
+						value = -200
+					}
+				}
+			}
+			if = {
+				limit = {
+					is_in_faction_with = EQS
+					STG = { is_faction_leader = yes }
+				}
+				leave_faction = yes
+				STG = { add_to_faction = PREV }
+			}
+		}
+		EQS = {
+			set_faction_name = "All_ponies_front"
+		}
+	}
+}
