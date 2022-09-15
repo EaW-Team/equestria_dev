@@ -1,0 +1,172 @@
+#HAY_NM refers to the National Mood system. HAY_FC refers to the Federal Cohesion system.
+
+
+HAY_setup = {
+	HAY_national_mood_setup = yes
+}
+
+HAY_weekly_effect = {
+	HAY_national_mood_weekly = yes
+}
+
+
+
+HAY_national_mood_setup = {
+
+	###INITIALISED CORE VARIABLES FOR NATIONAL MOOD
+		set_variable = { HAY_NM_zealotry = 0.54 }
+		set_variable = { HAY_NM_plotting = 0.32 }
+	
+	###INITIALISED VARIABLE FOR ANTAGONISM
+		set_variable = { HAY_NM_antagonism = 0} #This is a boolean used for a scripted localisation's checks
+
+	###CONFIG VALUES FOR NATIONAL MOOD RELATIVE DRIFT CALC
+
+		#Check Values
+		set_variable = { HAY_NM_antagonism_h = 0.30 }
+		set_variable = { HAY_NM_antagonism_m = 0.20 }
+		set_variable = { HAY_NM_antagonism_l = 0.10 }
+
+		#Drift Values
+		set_variable = { HAY_NM_drift_h = 0.05 }
+		set_variable = { HAY_NM_drift_m = 0.02 }
+		set_variable = { HAY_NM_drift_l = 0.01 }
+
+	###CONFIG VALUES FOR NATIONAL MOOD WAR/PEACE DRIFT
+
+		#/!\ Positive values only, unless you want to reverse the effect (say, gaining zealotry at peace for example.)
+
+		#War values
+		set_variable = { HAY_NM_Z_war_drift = 0.01 }
+		set_variable = { HAY_NM_P_war_drift = 0.01 }
+
+		#Peace values
+		set_variable = { HAY_NM_P_peace_drift = 0.01 }
+		set_variable = { HAY_NM_Z_peace_drift = 0.01 }
+
+
+	HAY_NM_value_update = yes
+}
+
+
+
+HAY_national_mood_weekly = {
+	HAY_NM_value_update = yes
+
+	#This applies the values.
+
+	add_to_variable = { HAY_NM_zealotry = HAY_NM_Z_drift }
+	add_to_variable = { HAY_NM_plotting = HAY_NM_P_drift }
+	clamp_variable = {
+		var = HAY_NM_zealotry
+		min = 0
+		max = 1
+	}
+	clamp_variable = {
+		var = HAY_NM_plotting
+		min = 0
+		max = 1
+	}
+
+	HAY_NM_dynamic_modifier_calc = yes
+
+	HAY_NM_value_update = yes
+}
+
+
+
+HAY_NM_dynamic_modifier_calc = {
+	
+}
+
+
+
+HAY_NM_value_update = {
+	set_variable = { HAY_NM_P_drift = 0 }
+	set_variable = { HAY_NM_Z_drift = 0 }
+
+	HAY_NM_relative_drift = yes
+
+	add_to_variable = { HAY_NM_P_drift = modifier@HAY_weekly_plotting }
+	add_to_variable = { HAY_NM_Z_drift = modifier@HAY_weekly_zealotry }
+	
+	if = {
+		limit = {
+			has_war = yes
+		}
+		add_to_variable = { HAY_NM_P_drift = HAY_NM_P_war_drift }
+		add_to_variable = { HAY_NM_Z_drift = HAY_NM_Z_war_drift }
+	}
+	else = {
+		subtract_from_variable = { HAY_NM_P_drift = HAY_NM_P_peace_drift }
+		subtract_from_variable = { HAY_NM_Z_drift = HAY_NM_Z_peace_drift }
+	}
+}
+
+
+
+HAY_NM_relative_drift = {
+
+	#This effect serves to determine which of Zealotry or Plotting is lower. Based on the difference between the two, the lowest variable will get a weekly drift bonus.
+
+	if = {	
+		limit = { check_variable = { HAY_NM_zealotry > HAY_NM_plotting } }
+		#Plotting Rubber banding
+		set_variable = { HAY_NM_diff = HAY_NM_zealotry }
+		subtract_from_variable = { HAY_NM_diff = HAY_NM_plotting }
+
+		HAY_NM_relative_drift_calc = yes
+
+		add_to_variable = { HAY_NM_P_drift = HAY_NM_calc_drift}
+
+		set_variable = { HAY_NM_antagonism = 0}
+	}
+	else = {
+		#Zealotry Rubber banding
+		set_temp_variable = { HAY_NM_diff = HAY_NM_plotting }
+		subtract_from_temp_variable = { HAY_NM_diff = HAY_NM_zealotry }
+
+		HAY_NM_relative_drift_calc = yes
+
+		add_to_variable = { HAY_NM_Z_drift = HAY_NM_calc_drift}
+
+		set_variable = { HAY_NM_antagonism = 1}
+	}
+}
+
+
+
+HAY_NM_relative_drift_calc = {
+
+	#This effect calculates the drift of zealotry or plotting based on the current difference.
+
+	if = {
+		limit = { check_variable = { HAY_NM_diff > HAY_NM_antagonism_h } } #High Drift
+		set_variable = { HAY_NM_calc_drift = HAY_NM_drift_h }
+	}
+	else_if = {
+		limit = { check_variable = { HAY_NM_diff > HAY_NM_antagonism_m } } #Medium Drift
+		set_variable = { HAY_NM_calc_drift = HAY_NM_drift_m }
+	}
+	else_if = {
+		limit = { check_variable = { HAY_NM_diff > HAY_NM_antagonism_l } } #Low Drift
+		set_variable = { HAY_NM_calc_drift = HAY_NM_drift_l }
+	}
+	else = {
+		set_variable = { HAY_NM_calc_drift = 0 } #NO DRIFT
+	}
+}
+
+
+
+HAY_federal_cohesion_setup = {
+	
+}
+
+HAY_federal_cohesion_weekly = {
+
+}
+
+HAY_FC_display_update = {
+	
+}
