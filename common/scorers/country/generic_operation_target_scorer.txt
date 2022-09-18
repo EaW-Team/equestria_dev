@@ -23,6 +23,17 @@ ai_generic_operation_target_scorer  = {
 				has_war_with = FROM
 				factor = 4.0
 			}
+
+			modifier = {
+				is_in_array = { global.majors = this }
+				is_major = no
+				NOT = {
+					is_in_array = { FROM.potential_and_current_enemies = this }
+					is_in_array = { FROM.enemies_of_allies = this }
+					is_in_array = { FROM.neighbors = this }
+				}
+				factor = 0
+			}
 			
 			modifier = {
 				OR = {
@@ -35,31 +46,25 @@ ai_generic_operation_target_scorer  = {
 			# quite possibly we will attack this target due to strats
 			modifier = {
 				NOT = {
-					has_war_with = FROM
-					is_justifying_wargoal_against = FROM
-					FROM = {
-						OR = {
-							has_wargoal_against = PREV
-							is_justifying_wargoal_against = PREV
-						}
-					}
+					is_in_array = { FROM.potential_and_current_enemies = this }
+					is_in_array = { FROM.enemies_of_allies = this }
 				}
-				OR = {
-					check_variable = { FROM.ai_strategy_conquer@THIS > 0 }
-					check_variable = { FROM.ai_strategy_antagonize@THIS > 0 }
-					check_variable = { FROM.ai_strategy_declare_war@THIS > 0 }
-					check_variable = { FROM.ai_strategy_prepare_for_war@THIS > 0 }
-					check_variable = { FROM.ai_strategy_contain@THIS > 0 }
+				FROM = {
+					OR = {
+						check_variable = { ai_strategy_conquer@PREV > 0 }
+						check_variable = { ai_strategy_antagonize@PREV > 0 }
+						check_variable = { ai_strategy_declare_war@PREV > 0 }
+						check_variable = { ai_strategy_prepare_for_war@PREV > 0 }
+					}
 				}
 				factor = 1.3
 			}
 
 			modifier = {
 				is_in_array = { FROM.neighbors = this }
-				factor = 1.5
+				factor = 1.2
 			}
 
-			
 			modifier = {
 				is_major = yes
 				factor = 1.1
@@ -74,14 +79,8 @@ ai_generic_operation_target_scorer  = {
 					}
 				}
 				NOT = {
-					has_war_with = FROM
-					is_justifying_wargoal_against = FROM
-					FROM = {
-						OR = {
-							has_wargoal_against = PREV
-							is_justifying_wargoal_against = PREV
-						}
-					}
+					is_in_array = { FROM.potential_and_current_enemies = this }
+					is_in_array = { FROM.enemies_of_allies = this }
 				}
 				factor = 0.8
 			}
@@ -117,16 +116,17 @@ ai_generic_operation_target_scorer  = {
 					is_in_array = { FROM.potential_and_current_enemies = this }
 					is_in_array = { FROM.enemies_of_allies = this }
 				}
-				check_variable = { FROM.ai_strategy_ignore@THIS > 0 }
-				factor = 0.8
-			}
-			modifier = {
-				NOT = {
-					is_in_array = { FROM.potential_and_current_enemies = this }
-					is_in_array = { FROM.enemies_of_allies = this }
+				FROM = {
+					set_temp_variable = { f = ai_strategy_ignore@PREV }
+					clamp_temp_variable = {
+						var = f
+						min = 0
+						max = 200
+					}
+					divide_temp_variable = { f = -200 }
+					add_to_temp_variable = { f = 1 }
 				}
-				check_variable = { FROM.ai_strategy_ignore@THIS > 99 }
-				factor = 0.4
+				factor = f
 			}
 
 			modifier = {
