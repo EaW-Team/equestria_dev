@@ -24,6 +24,7 @@ replace_path="common/units/names_ships"
 replace_path="common/units/names_railway_guns"
 replace_path="common/decisions"
 replace_path="common/decisions/categories"
+replace_path="common/peace_conference"
 replace_path="events"
 replace_path="localisation/events_l_english.yml"
 replace_path="history/countries"
@@ -39,4 +40,4 @@ tags={
 }
 picture="equestria.jpg"
 remote_file_id="1826643372"
-supported_version="1.11.*"
+supported_version="1.12.*"
