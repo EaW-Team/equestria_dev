@@ -36,6 +36,7 @@ NDefines.NMilitary.UNIT_EXP_LEVELS = {0.02,	0.04,	0.06,	0.08,	0.1,	0.14,	0.18,	0
 NDefines.NMilitary.EXPERIENCE_COMBAT_FACTOR = 0.05
 NDefines.NMilitary.ARMY_EXP_BASE_LEVEL = 5
 NDefines.NMilitary.BASE_CAPTURE_EQUIPMENT_RATIO = 0.02
+NDefines.NMilitary.BASE_FEMALE_DIVISIONAL_COMMANDER_CHANCE = 0.5 -- 50% of time by default, female_divisional_commander_chance modifier is additive
 
 NDefines.NNavy.SHORE_BOMBARDMENT_CAP = 0.3 -- Vanilla is 0.25
 NDefines.NNavy.SCREENS_TO_CAPITAL_RATIO = 3.0 -- Vanilla is 4.0, mostly AI stuff
