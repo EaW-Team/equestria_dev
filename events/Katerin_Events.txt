@@ -264,6 +264,7 @@ country_event = { #Potion event -Lucid
 	immediate = {log = "[GetDateText]: [Root.GetName]: event katerin.161"}
 	title = katerin.161.t
 	desc = katerin.161.d
+	is_triggered_only = yes
 	option = { 
 		name = katerin.161.a
 		add_manpower = -1
@@ -275,6 +276,7 @@ country_event = { #Potion event -Derp
 	immediate = {log = "[GetDateText]: [Root.GetName]: event katerin.162"}
 	title = katerin.162.t
 	desc = katerin.162.d
+	is_triggered_only = yes
 	option = { 
 		name = katerin.162.a
 	}
@@ -285,6 +287,7 @@ country_event = { #Potion event -Crazy
 	immediate = {log = "[GetDateText]: [Root.GetName]: event katerin.163"}
 	title = katerin.163.t
 	desc = katerin.163.d
+	is_triggered_only = yes
 	option = { 
 		name = katerin.163.a
 	}
@@ -1072,11 +1075,10 @@ country_event = { #Aftermath of the Embargo
 	
 	option = { #What about a duel?
 		name = katerin.602.a
-		{ country_event = 
+		 country_event = 
 			{ days = 7
 				id = katerin.61
 			}
-		}
 	}
 }
 
@@ -1491,7 +1493,7 @@ country_event = { # Redcrowns and mercenaries fight it out, who will win this ti
 	
 	option = { 
 		name = katerin.779.a #redcrowns win
-		trigger = { communism > 0.25 }
+		trigger = { communism > 0.25 } #TODO balance out party pop for triggers to crop up
 		set_country_flag = KAT_redcrown_win
 		hidden_effect = { 
 			country_event = { id = katerin.780 days = 1 } 
@@ -1523,18 +1525,34 @@ country_event = { # Knights arrive like the Rohirrim, and they fight either redc
 	
 	is_triggered_only = yes
 	
+	immediate = {
+	#TODO trigger with party pop, adding variable stuff
+		set_temp_variable = { KAT_knight_popularity_var = party_popularity@neutrality } #adding the Silberkralle
+		add_to_temp_variable = { 
+			var = KAT_knight_popularity_var
+			value = party_popularity@democratic
+		}
+	}
+		
 	option = { 
 		name = katerin.780.a #knights win
+		
 		if = {
-			limit = { has_country_flag = KAT_redcrown_win }
+			limit = { 
+				has_country_flag = KAT_redcrown_win 
+				check_variable = { KAT_knight_popularity_var > party_popularity@communism } #If the knights are more popular than the communists, they take over
+				}
+			clr_country_flag = KAT_redcrown_win
+			set_country_flag = KAT_knights_win
 		}
-		clr_country_flag = KAT_redcrown_win
-		set_country_flag = KAT_knights_win
-		else_if = {
-			limit = { has_country_flag = KAT_merc_win }
+		if = { 
+			limit = { 
+				has_country_flag = KAT_merc_win 
+				check_variable = { KAT_knight_popularity_var > party_popularity@fascism } #If the knights are more popular than the treue, they take over.
+			}
+			clr_country_flag = KAT_merc_win
+			set_country_flag = KAT_knights_win
 		}
-		clr_country_flag = KAT_merc_win
-		set_country_flag = KAT_knights_win
 		hidden_effect = { 
 			country_event = { id = katerin.781 days = 1 } 
 			}
