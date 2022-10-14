@@ -7,6 +7,7 @@ replace_path="common/ai_strategy"
 replace_path="common/ai_strategy_plans"
 replace_path="common/ai_templates"
 replace_path="common/autonomous_states"
+replace_path="common/bop"
 replace_path="common/characters"
 replace_path="common/countries"
 replace_path="common/country_tags"
@@ -39,4 +40,4 @@ tags={
 }
 picture="equestria.jpg"
 remote_file_id="1826643372"
-supported_version="1.11.*"
+supported_version="1.12.*"
