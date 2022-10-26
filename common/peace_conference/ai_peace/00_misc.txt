@@ -12,6 +12,38 @@ peace_ai_desires = {
         ai_desire = 100
     }
 	
+	generic_influence_cutoff = {
+        peace_action_type = { take_states }
+        enable = {
+            ROOT = { tag = ROOT.FROM } #We are negotiating for ourselves
+            ROOT.FROM.FROM.FROM = { NOT = { is_core_of = ROOT.FROM } } #It is not ours
+			ROOT.FROM.FROM.FROM = { 
+				NOT = { is_claimed_by = ROOT.FROM } 
+				pc_is_state_outside_influence_for = ROOT.FROM
+				NOT = {
+					any_neighbor_state = {
+						pc_is_state_claimed_by = ROOT.FROM
+					}
+				}
+			} #It is not claimed by us
+        }
+        ai_desire = -1000
+    }
+	
+	doesnt_control_no_claim = {
+        peace_action_type = { take_states }
+        enable = {
+            ROOT = { tag = ROOT.FROM } #We are negotiating for ourselves
+			ROOT.FROM.FROM.FROM = { 
+				NOT = { is_core_of = ROOT.FROM }
+				NOT = { is_claimed_by = ROOT.FROM } 
+				NOT = { is_controlled_by = ROOT.FROM }
+			}
+        }
+        ai_desire = -20
+    }
+	
+	### The above trigger looks extremely harsh. In reality, this means the AI is more inclined to step through nearby land without bunny hopping and potentially leaving gaps. 
 	fascist_majors_on_a_mission = {
         peace_action_type = take_states
         enable = {
@@ -205,7 +237,25 @@ peace_ai_desires = {
         peace_action_type = { puppet }
 
         enable = {
-            FROM.FROM = { pc_is_forced_government_by = ROOT }
+			if = {
+				limit = { has_government = democratic }
+				ROOT.FROM.FROM = { pc_is_forced_government_to = democratic }
+			}
+			else_if = {
+				limit = { has_government = fascism }
+				ROOT.FROM.FROM = { pc_is_forced_government_to = fascism }
+			}
+			else_if = {
+				limit = { has_government = communism }
+				ROOT.FROM.FROM = { pc_is_forced_government_to = communism }
+			}
+			else_if = {
+				limit = { has_government = neutrality }
+				ROOT.FROM.FROM = { pc_is_forced_government_to = neutrality }
+			}
+			else = {
+				always = no
+			}
         }
         ai_desire = -200
     }
@@ -266,7 +316,7 @@ peace_ai_desires = {
             }
         }
 
-        ai_desire = -50
+        ai_desire = -200
     }
 
 
@@ -279,7 +329,7 @@ peace_ai_desires = {
             }
         }
 
-        ai_desire = 10
+        ai_desire = 20
     }
 
     liberate_if_already_exists = {
@@ -294,7 +344,7 @@ peace_ai_desires = {
             }
         }
 
-        ai_desire = 30
+        ai_desire = 100
     }
 
 
@@ -392,6 +442,34 @@ peace_ai_desires = {
         }
         ai_desire = 100
     }
+	
+	do_force_government_if_forced_to_our_ideology = {
+        peace_action_type = { force_government }
+
+        enable = {
+			if = {
+				limit = { has_government = democratic }
+				ROOT.FROM.FROM = { pc_is_forced_government_to = democratic }
+			}
+			else_if = {
+				limit = { has_government = fascism }
+				ROOT.FROM.FROM = { pc_is_forced_government_to = fascism }
+			}
+			else_if = {
+				limit = { has_government = communism }
+				ROOT.FROM.FROM = { pc_is_forced_government_to = communism }
+			}
+			else_if = {
+				limit = { has_government = neutrality }
+				ROOT.FROM.FROM = { pc_is_forced_government_to = neutrality }
+			}
+			else = {
+				always = no
+			}
+        }
+        ai_desire = 20
+    }
+
 
     dont_take_states_for_wrong_ideology_allies = {
         peace_action_type = take_states
@@ -474,7 +552,10 @@ peace_ai_desires = {
 			ROOT.FROM = {
 				OR = {
 					is_subject_of = ROOT
-					pc_is_puppeted_by = ROOT
+					AND = {
+						pc_is_puppeted_by = ROOT
+						NOT = { original_tag = GER } #This messes with yalta too much.
+					}
 				}
 			}
 			ROOT.FROM.FROM.FROM = {
@@ -649,5 +730,34 @@ peace_ai_desires = {
 		}
 		ai_desire = -10
 	}
+	
+	minors_avoid_interfering_with_random_claims = {
+		peace_action_type = { take_states }
+		enable = {
+			ROOT = { is_ai = yes }
+			ROOT.FROM = { 
+				tag = ROOT 
+				is_major = no
+			}
+			ROOT.FROM.FROM.FROM = {
+				NOT = { 
+					OR = {
+						is_claimed_by = ROOT 
+						is_core_of = ROOT
+					}
+				}
+			}
+		}
+		ai_desire = -80
+	}
+	
+	dont_even_try_to_puppet_large_states = { ###Too messy
+        peace_action_type = { puppet }
+
+        enable = {
+            ROOT.FROM.FROM = { check_variable = { num_owned_states > 30 } }
+        }
+        ai_desire = -200
+    }
 
 }
