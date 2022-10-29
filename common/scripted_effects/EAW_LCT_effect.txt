@@ -263,16 +263,22 @@ LCT_clean_up_bill = {
 }
 
 LCT_do_demand_random = {
+	log = "[?LCT_active_demands_var]"
 	if = {
 		limit = {
-			NOT = {
-				has_country_flag = LCT_demand_in_Progress
+			check_variable = {
+				var = LCT_active_demands_var
+				value = 2
+				compare = less_than
 			}
 		}
 		random = {
 			chance = 33
 			LCT_select_demand = yes
 		}
+	}
+	else = {
+		log = "Nothing"
 	}
 }
 
@@ -283,6 +289,7 @@ LCT_select_demand = {
 	set_variable = { LCT_raise_rhetoric_chance_var = 0 }
 	set_variable = { LCT_diplomacy_chance_var = 0 }
 	set_variable = { LCT_artillery_stockpile_chance_var = 0 }
+	set_variable = { LCT_build_factory_chance_var = 0 }
 	
 	#Fort Building Demand
 	if = {
@@ -383,10 +390,51 @@ LCT_select_demand = {
 		set_variable = { LCT_artillery_stockpile_chance_var = 10 }
 	}
 	
+	#Build Military Factories
+	if = {
+		limit = {
+			any_owned_state = {
+				free_building_slots = {
+					building = arms_factory
+					size > 0
+					include_locked = no
+				}
+			}
+			NOT = {
+				has_country_flag = LCT_construction_demand_in_progress
+			}
+		}
+		if = {
+			limit = {
+				has_country_flag = LCT_glory_awaits
+			}
+			randomize_variable = {
+				var = num_new_factories
+				distribution = uniform
+				min = 3.5
+				max = 6.49
+			}
+		}
+		else = {
+			randomize_variable = {
+				var = num_new_factories
+				distribution = uniform
+				min = 0.5
+				max = 3.49
+			}
+		}
+		round_variable = num_new_factories
+		set_variable = { LCT_target_factories_num = num_of_military_factories }
+		add_to_variable = { LCT_target_factories_num = num_new_factories }
+		set_variable = { LCT_build_factory_chance_var = 10 }
+	}
+	
+	log = "New Factories: [?num_new_factories]"
 	log = "[?LCT_fort_build_chance_var]"
 	log = "[?LCT_raise_rhetoric_chance_var]"
 	log = "[?LCT_diplomacy_chance_var]"
 	log = "[?LCT_artillery_stockpile_chance_var]"
+	log = "[?LCT_build_factory_chance_var]"
 	
 	#Random Mission List
 	random_list = {
@@ -398,11 +446,13 @@ LCT_select_demand = {
 				random_days = 13
 			}
 			set_country_flag = LCT_construction_demand_in_progress
+			add_to_variable = { LCT_active_demands_var = 1 }
 			log = "Build Forts"
 		}
 		LCT_raise_rhetoric_chance_var = {
 			LCT_raise_rhetoric_demand_selection = yes
 			set_country_flag = LCT_propaganda_demand_in_progress
+			add_to_variable = { LCT_active_demands_var = 1 }
 			log = "Raise Rhetoric"
 		}
 		LCT_diplomacy_chance_var = {
@@ -413,6 +463,7 @@ LCT_select_demand = {
 				random_days = 13
 			}
 			set_country_flag = LCT_diplomacy_demand_in_progress
+			add_to_variable = { LCT_active_demands_var = 1 }
 			log = "Diplomacy"
 		}
 		LCT_artillery_stockpile_chance_var = {
@@ -423,7 +474,19 @@ LCT_select_demand = {
 				random_days = 13
 			}
 			set_country_flag = LCT_artillery_demand_in_progress
+			add_to_variable = { LCT_active_demands_var = 1 }
 			log = "Artillery"
+		}
+		LCT_build_factory_chance_var = {
+			country_event = {
+				id = LCT_six_lords_demands.13
+				days = 5
+				random_hours = 24
+				random_days = 13
+			}
+			set_country_flag = LCT_construction_demand_in_progress
+			add_to_variable = { LCT_active_demands_var = 1 }
+			log = "Build  Factories"
 		}
 	}
 }
