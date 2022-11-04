@@ -19,6 +19,8 @@ NDefines_Graphics.NGraphics.COMMANDGROUP_PRESET_COLORS_HSV = { -- thanks Better 
 	279.0/360.0, 0.95, 0.86,
 	300.0/360.0, 0.95, 0.86,
 	00.0/360.0, 0.00, 0.86
-} 
+}
+
+NDefines_Graphics.NMapMode.MAP_MODE_MANPOWER_RANGE_MAX = 1000000	-- When a state has that much manpower, it will be colored with the color MAP_MODE_MANPOWER_RANGE_COLOR_TO. Everything below that will have an interpolated color.
 
 for k,v in pairs( NDefines_Graphics ) do NDefines[k] = v end
