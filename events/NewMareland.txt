@@ -287,6 +287,7 @@ country_event = {
 	picture = GFX_event_something_in_the_water
 
 	is_triggered_only = yes
+	fire_only_once = yes
 
 	option = {
 		name = mareland.8.a
@@ -759,7 +760,9 @@ country_event = {
 
 	option = { # Sad
 		name = mareland.18.a
-		retire_character = EQC_kingfisher
+		EQC_kingfisher = {
+			retire = yes
+		}
 	}
 }
 
@@ -1050,13 +1053,31 @@ country_event = {
 				size = 0.5
 				capital = 362
 				states = { 362 363 364 365 359 355 }
+				keep_political_leader = yes
 			}
 			random_other_country = {
 				limit = {
 					original_tag = EQC
 					has_government = communism
 				}
-
+				ROOT = {
+					every_character = {
+						limit = {
+							OR = {
+								is_character = EQC_maresoc
+								is_character = EQC_big_sister
+								is_character = EQC_miniluv
+								is_character = EQC_minipax
+								is_character = EQC_miniplenty
+								is_character = EQC_minitrue
+								is_character = EQC_marius_hurricane
+								is_character = EQC_yuria_lovett
+								is_character = EQC_winter_dawn
+							}
+						}
+						set_nationality = PREV.PREV
+					}
+				}
 				load_oob = "EQC_Civil_War_maresoc"
 				set_stability = 0.9
 				set_war_support = 0.8
@@ -1379,15 +1400,21 @@ country_event = {
 		load_focus_tree = eqc_equalists_focus
 		if = {
 			limit = { has_character = EQC_candy_garden }
-			retire_character = EQC_candy_garden
+			EQC_candy_garden = {
+				retire = yes
+			}
 		}
 		if = {
 			limit = { has_character = EQC_chifundo }
-			retire_character = EQC_chifundo
+			EQC_chifundo = {
+				retire = yes
+			}
 		}
 		if = {
 			limit = { has_character = EQC_grand_wingsword }
-			retire_character = EQC_grand_wingsword
+			EQC_grand_wingsword = {
+				retire = yes
+			}
 		}
 		hidden_effect = {
 			news_event = { id = eqc_news.14 hours = 3 }
@@ -1420,32 +1447,7 @@ country_event = {
 	title = mareland.31.t
 	desc = mareland.31.d
 	picture = GFX_event_bank_vault
-
-	trigger = {
-		EQC = {
-			NOT = { has_government = communism }
-			has_completed_focus = EQC_open_banks_to_griffons
-		}
-		NOT = { has_country_flag = EQC_offerd_banks }
-		NOT = { original_tag = EQC }
-		num_of_factories > 14
-		is_griffon_continent_country = yes
-		NOT = {
-			has_idea = detached_country
-			has_tribal_society = yes
-		}
-		does_not_have_communal_society = yes
-		NOT = {
-			has_war_with = EQC
-			has_government = communism
-		}
-	}
-
-	mean_time_to_happen = { days = 15 }
-
-	immediate = {
-		set_country_flag = EQC_offerd_banks
-	}
+	is_triggered_only = yes
 
 	option = { # Yes!
 		name = mareland.31.a
@@ -1736,7 +1738,7 @@ country_event = {
 	immediate = {log = "[GetDateText]: [Root.GetName]: event mareland.38"}
 	title = mareland.38.t
 	desc = mareland.38.d
-	picture = GFX_event_pony_soldiers_sunset
+	picture = GFX_event_statues
 
 	trigger = {
 		original_tag = EQC
@@ -1809,6 +1811,18 @@ country_event = {
 	option = {
 		name = mareland.41.a
 		add_war_support = 0.1
+		if = {
+			limit = {
+				HIP = {
+					has_government = democratic
+					is_subject = no
+					has_war = no
+				}
+			}
+			HIP = {
+				country_event = mareland.42
+			}
+		}
 		every_other_country = {
 			limit = {
 				is_in_faction = no
@@ -1833,12 +1847,20 @@ country_event = {
 	immediate = {log = "[GetDateText]: [Root.GetName]: event mareland.42"}
 	title = mareland.42.t
 	desc = mareland.42.d
-	picture = GFX_event_canterlot
+	picture = GFX_event_statues
 
 	is_triggered_only = yes
 
 	option = {
 		name = mareland.42.a
+		trigger = {
+			OR = {
+				NOT = {
+					tag = HIP
+				}
+				is_faction_leader = no
+			}
+		}
 		add_war_support = 0.1 #Free Equestria!
 		EQC = { add_to_faction = ROOT }
 		ROOT = {
@@ -1848,11 +1870,39 @@ country_event = {
 				value = 200
 			}
 		}
+		ai_chance = { factor = 1 }
 	}
 
 	option = {
 		name = mareland.42.b
 		ai_chance = { factor = 0 }
+	}
+
+	option = {
+		name = mareland.42.c
+		trigger = {
+			AND = {
+				tag = HIP
+				is_faction_leader = yes
+			}
+		}
+		add_war_support = 0.1 #Free Equestria!
+		ai_chance = { factor = 200 }
+		every_country = {
+			limit = {
+				OR = {
+					original_tag = HIP
+					is_in_faction_with = HIP
+				}
+			}
+			EQC = {add_to_faction = PREV}
+			add_ai_strategy = {
+				type = alliance
+				id = "EQC"
+				value = 200
+			}
+		}
+		HIP = {dismantle_faction = yes}
 	}
 }
 
@@ -1886,9 +1936,37 @@ country_event = {
 
 	option = { # They must choose!
 		name = mareland.44.a
+		trigger = {
+			is_ai = yes
+		}
 		NLR = {
 			country_event = { id = mareland.45 days = 1 }
 		}
+	}
+	option = { # We want Jet Set
+		name = mareland.44.b
+		trigger = {
+			is_ai = no
+		}
+		set_country_flag = EQC_NLR_JetSet
+		country_event = { id = mareland.46 days = 1 }
+	}
+	option = { # We want the Shadowbolts
+		name = mareland.44.c
+		trigger = {
+			is_ai = no
+		}
+		set_country_flag = EQC_NLR_Shadowbolts
+		country_event = { id = mareland.46 days = 1 }
+	}
+	option = { # We want Evening Dew lmao
+		name = mareland.44.e
+		trigger = {
+			is_ai = no
+		}
+		set_autonomy = { target = ROOT autonomy_state = autonomy_reichsprotectorate }
+		set_country_flag = EQC_NLR_LoyalBat
+		country_event = { id = mareland.46 days = 1 }
 	}
 }
 
@@ -1908,6 +1986,11 @@ country_event = {
 		    factor = 34
 		}
 		name = mareland.45.a
+		trigger = {
+			NOT = {
+				has_country_flag = EQC_force_puppet_set
+			}
+		}
 		FROM = {
 			set_country_flag = EQC_NLR_JetSet
 			country_event = { id = mareland.46 days = 1 }
@@ -2012,7 +2095,8 @@ country_event = {
 			defense_skill = 1
 			planning_skill = 1
 			logistics_skill = 1
-	    } custom_effect_tooltip = flawless_glow_stats_tp
+	    }
+		custom_effect_tooltip = flawless_glow_stats_tp
 		complete_national_focus = EQC_NLR_embrace_the_night
 		hidden_effect = {
 		    set_cosmetic_tag = EQC_NLR
@@ -2653,7 +2737,9 @@ country_event = { # Equalists remaine Sunset?
 		ai_chance = {
 			base = 50
 		}
-		set_province_name = { id = 10005 name = "EQC_vp_sunset_equalist_1" }
+		356 = {
+			set_state_name = EQC_vp_sunset_equalist_1
+		}
 	}
 
 	option = { # Blueberry
@@ -2661,7 +2747,9 @@ country_event = { # Equalists remaine Sunset?
 		ai_chance = {
 			base = 50
 		}
-		set_province_name = { id = 10005 name = "EQC_vp_sunset_equalist_2" }
+		356 = {
+			set_state_name = EQC_vp_sunset_equalist_2
+		}
 	}
 
 	option = { # Sunset
@@ -2780,6 +2868,9 @@ country_event = { # griffon refugees
 			target = FROM
 			modifier = distrustful_relations
 		}
+		random_owned_state = {
+			add_manpower = 75000
+		}
 	}
 }
 country_event = { # transrad flavor event
@@ -2808,10 +2899,22 @@ country_event = { # thought police event
 
 	option = {
 		name = mareland.73.a
-		swap_ideas = {
-			remove_idea = EQC_MARE_junior_spies
-			add_idea = EQC_MARE_thought_police_idea
+		if = {
+			limit = {
+				has_dlc = "La Resistance"
+			}
+			swap_ideas = {
+				remove_idea = EQC_MARE_junior_spies
+				add_idea = EQC_MARE_thought_police_idea_lar
+			}
 		}
+		else = {
+			swap_ideas = {
+				remove_idea = EQC_MARE_junior_spies
+				add_idea = EQC_MARE_thought_police_idea
+			}
+		}
+
 		356 = {
 			add_manpower = 1
 		}

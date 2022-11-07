@@ -306,21 +306,9 @@ country_event = { #Fate of the mayor
 	option = { #shoot the bastard
 		name = baltimare.7.c
 		set_global_flag = mayor_ded
-		hidden_effect = {
-			remove_advisor_role = {
-			  character = BAL_mayor_ash_moustache
-			  slot = political_advisor
-			}
-			remove_country_leader_role = {
-			  character = BAL_mayor_ash_moustache
-			  ideology = liberalism
-			}
-			remove_country_leader_role = {
-			  character = BAL_mayor_ash_moustache
-			  ideology = centrism
-			}
+		BAL_mayor_ash_moustache = {
+			retire = yes
 		}
-		retire_character = BAL_mayor_ash_moustache
 		add_political_power = 50
 		add_popularity = { 
 			ideology = democratic 
@@ -343,7 +331,7 @@ country_event = { #Ash Moustache flees to CES
 	immediate = {log = "[GetDateText]: [Root.GetName]: event baltimare.8"}
 	title = baltimare.8.t
 	desc = baltimare.8.d
-	picture = GFX_event_western_griffon_city
+	picture = GFX_event_shanty_town
 	is_triggered_only = yes
 	option = {
 		name = baltimare.8.a
@@ -460,7 +448,7 @@ country_event = { #BAL asks us for free shit
 						has_global_flag = BAL_asked_for_planes
 					}
 					has_equipment = {
-						fighter_equipment > 25
+						small_plane_airframe > 25
 					}
 				}
 			}
@@ -494,7 +482,7 @@ country_event = { #BAL asks us for free shit
 				has_global_flag = BAL_asked_for_planes
 			}
 			add_equipment_to_stockpile = {
-				type = fighter_equipment
+				type = small_plane_airframe
 				amount = -25
 			}
 			FROM = {
@@ -580,16 +568,71 @@ country_event = { #STG gives us free shit, this really is communism
 			limit = {
 				has_global_flag = BAL_asked_for_planes
 			}
-			add_equipment_to_stockpile = {
-				type = fighter_equipment
-				amount = 50
-				producer = STG
+			if = {
+				limit = {
+					has_dlc = "By Blood Alone"
+					has_tech = iw_small_airframe
+				}
+				generic_early_fighter = yes
+				add_equipment_to_stockpile = {
+					type = small_plane_airframe_1
+					variant_name = "Early Fighter"
+					amount = 50
+				}
 			}
-			add_tech_bonus = {
-				name = fighter_bonus
-				bonus = 1.0
-				uses = 1
-				category = light_fighter
+			else_if = {
+				limit = {
+					has_dlc = "By Blood Alone"
+					NOT = {
+						has_tech = iw_small_airframe
+					}
+				}
+				set_technology = {
+					iw_small_airframe = 1
+				}
+				generic_early_fighter = yes
+				add_equipment_to_stockpile = {
+					type = small_plane_airframe_1
+					variant_name = "Early Fighter"
+					amount = 50
+				}
+			}
+			else_if = {
+				limit = {
+					has_tech = early_fighter
+				}
+				add_equipment_to_stockpile = {
+					type = small_plane_airframe
+					amount = 50
+				}
+			}
+			else = {
+				set_technology = {
+					early_fighter = 1
+				}
+				add_equipment_to_stockpile = {
+					type = small_plane_airframe
+					amount = 50
+				}
+			}
+			if = {
+	            limit = {
+	                has_dlc = "By Blood Alone"
+	            }
+				add_tech_bonus = {
+					name = fighter_bonus
+					bonus = 1.0
+					uses = 1
+					category = light_air
+				}
+			}
+			else = {
+				add_tech_bonus = {
+					name = fighter_bonus
+					bonus = 1.0
+					uses = 1
+					category = light_fighter
+				}
 			}
 		}
 	}
@@ -756,23 +799,7 @@ country_event = { #Civil War has Ended
 	
 	picture = GFX_event_jungles
 	fire_only_once = yes
-
-	trigger = {
-		original_tag = BAL
-		NOT = {
-			has_war_with = JUN
-			has_war_with = CES
-			has_war_with = NMS
-			count_triggers = {
-				amount = 2
-				country_exists = CES
-				country_exists = JUN
-				country_exists = NMS
-			}
-		}
-		has_focus_tree = baltimare_focus
-	}
-
+	is_triggered_only = yes
 	option = {
 		name = baltimare.20.a
 		custom_effect_tooltip = JUN_new_focus_tree_tp
@@ -785,12 +812,18 @@ country_event = { #Civil War has Ended
 			name = BAL_neutrality_p_party 
 			long_name = BAL_neutrality_p_party_long 
 		}
-		JUN = {
-			JUN_doctor_caballeron = {
-				set_nationality = BAL
-				remove_unit_leader_role = yes
-				promote_leader = yes
+		every_possible_country = {
+			limit = {
+				has_character = JUN_doctor_caballeron
 			}
+			JUN_doctor_caballeron = {
+				remove_unit_leader_role = yes
+				set_nationality = ROOT 
+			}
+		}
+		promote_character = {
+			character = JUN_doctor_caballeron
+			ideology = despotism
 		}
 		add_popularity = { 
 		    ideology = democratic 
@@ -801,12 +834,18 @@ country_event = { #Civil War has Ended
 			name = BAL_democratic_p_party 
 			long_name = BAL_democratic_p_party_long 
 		}
-		CES = {
-			CES_daring_do = {
-				set_nationality = BAL
-				remove_unit_leader_role = yes
-				promote_leader = yes
+		every_possible_country = {
+			limit = {
+				has_character = CES_daring_do
 			}
+			CES_daring_do = {
+				remove_unit_leader_role = yes
+				set_nationality = ROOT 
+			}
+		}
+		promote_character = {
+			character = CES_daring_do
+			ideology = liberalism
 		}
 		add_popularity = { 
 		    ideology = fascism 
@@ -817,12 +856,18 @@ country_event = { #Civil War has Ended
 			name = BAL_fascism_p_party 
 			long_name = BAL_fascism_p_party_long 
 		}
-		NMS = {
-			NMS_stars_whirl = {
-				set_nationality = BAL
-				remove_unit_leader_role = yes
-				promote_leader = yes
+		every_possible_country = {
+			limit = {
+				has_character = NMS_stars_whirl
 			}
+			NMS_stars_whirl = {
+				remove_unit_leader_role = yes
+				set_nationality = ROOT 
+			}
+		}
+		promote_character = {
+			character = NMS_stars_whirl
+			ideology = stratocracy
 		}
 		add_country_leader_role = {
 			character = BAL_ponies_parliament
@@ -974,8 +1019,12 @@ country_event = { #Anarchists literally delete the government
 		drop_cosmetic_tag = yes
 		set_cosmetic_tag = BAL_COMPLETE_ANARCHY
 		set_country_flag = BAL_COMPLETE_ANARCHY
-		retire_character = BAL_boreal_bloom
-		retire_character = BAL_cricket_chafer
+		BAL_boreal_bloom = {
+			retire = yes
+		}
+		BAL_cricket_chafer = {
+			retire = yes
+		}
 		if = {
 			limit = {
 				NOT = {
@@ -995,15 +1044,32 @@ country_event = { #Lavender Berry makes his move
 	is_triggered_only = yes
 	option = {
 		name = baltimare.24.a
-		add_country_leader_role = {
-			character = BAL_lavender_berry
-			country_leader = {
-				expire = "1965.1.1"
-				desc = BAL_amber_alert
-				ideology = stalinism
-				traits = { secret_police_chief }
+		if = {
+			limit = {
+				has_dlc = "La Resistance"
 			}
-			promote_leader = yes
+			add_country_leader_role = {
+				character = BAL_lavender_berry
+				country_leader = {
+					expire = "1965.1.1"
+					desc = BAL_amber_alert
+					ideology = stalinism
+					traits = { secret_police_chief_lar }
+				}
+				promote_leader = yes
+			}
+		}
+		else = {
+			add_country_leader_role = {
+				character = BAL_lavender_berry
+				country_leader = {
+					expire = "1965.1.1"
+					desc = BAL_amber_alert
+					ideology = stalinism
+					traits = { secret_police_chief }
+				}
+				promote_leader = yes
+			}
 		}
 		set_party_name = {
 		    ideology = communism 
@@ -1022,8 +1088,12 @@ country_event = { #Lavender Berry makes his move
 		  character = BAL_cricket_chafer
 		  slot = army_chief
 		}
-		retire_character = BAL_golden_delicious
-		retire_character = BAL_stylus_pen
+		BAL_golden_delicious = {
+			retire = yes
+		}
+		BAL_stylus_pen = {
+			retire = yes
+		}
 		if = {
 			limit = {
 				has_country_flag = BAL_anarchist_advisors_unlocked
@@ -1197,7 +1267,7 @@ country_event = { #Hunting thestrals
 	immediate = {log = "[GetDateText]: [Root.GetName]: event baltimare.29"}
 	title = baltimare.29.t
 	desc = baltimare.29.d
-	picture = GFX_event_jungles
+	picture = GFX_event_moon
 	is_triggered_only = yes
 	option = {
 		name = baltimare.29.a
@@ -1208,13 +1278,14 @@ country_event = { #Hunting thestrals
 		add_political_power = 50
 		add_stability = -0.05
 		add_manpower = -2500
+		save_current_manpower = yes
 		every_owned_state = {
 			limit = {
 				is_core_of = ROOT
 			}
-			set_temp_variable = { exodus_set_portion = 0.05 }
-			exodus_with_set_proportion = yes
+			add_manpower = -5000
 		}
+		restore_previous_manpower = yes
 		if = {
 			limit = {
 				country_exists = NLR
@@ -1223,20 +1294,21 @@ country_event = { #Hunting thestrals
 				country_event = baltimare.46
 			}
 		}
-		hidden_effect = {
-			remove_country_leader_role = {
-				character = NMS_stars_whirl
-				ideology = stratocracy
+		NMS_stars_whirl = {
+			retire = yes
+		}
+		every_possible_country = {
+			limit = {
+				has_character = NMS_light_narrative
+			}
+			NMS_light_narrative = {
+				remove_unit_leader_role = yes
+				set_nationality = ROOT 
 			}
 		}
-		retire_character = NMS_stars_whirl
-		NMS = {
-			NMS_light_narrative = {
-				set_nationality = BAL
-				remove_unit_leader_role = yes
-				promote_character = nazism
-				promote_leader = yes
-			}
+		promote_character = {
+			character = NMS_light_narrative
+			ideology = nazism
 		}
 		remove_ideas = JUN_lunar_remnants
 	}
@@ -1283,20 +1355,21 @@ country_event = { #racism basically
 		add_political_power = 50
 		add_stability = -0.05
 		add_manpower = -1500
-		hidden_effect = {
-			remove_country_leader_role = {
-				character = NMS_stars_whirl
-				ideology = stratocracy
+		NMS_stars_whirl = {
+			retire = yes
+		}
+		every_possible_country = {
+			limit = {
+				has_character = NMS_light_narrative
+			}
+			NMS_light_narrative = {
+				remove_unit_leader_role = yes
+				set_nationality = ROOT 
 			}
 		}
-		retire_character = NMS_stars_whirl
-		NMS = {
-			NMS_light_narrative = {
-				set_nationality = BAL
-				remove_unit_leader_role = yes
-				promote_character = nazism
-				promote_leader = yes
-			}
+		promote_character = {
+			character = NMS_light_narrative
+			ideology = nazism
 		}
 		remove_ideas = JUN_lunar_remnants
 	}
@@ -1453,20 +1526,21 @@ country_event = { #Words not swords
 			name = BAL_fascism_friendly_party 
 			long_name = BAL_fascism_friendly_party_long 
 		}
-		hidden_effect = {
-			remove_country_leader_role = {
-				character = NMS_stars_whirl
-				ideology = stratocracy
+		NMS_stars_whirl = {
+			retire = yes
+		}
+		every_possible_country = {
+			limit = {
+				has_character = NMS_light_narrative
+			}
+			NMS_light_narrative = {
+				remove_unit_leader_role = yes
+				set_nationality = ROOT 
 			}
 		}
-		retire_character = NMS_stars_whirl
-		NMS = {
-			NMS_light_narrative = {
-				set_nationality = BAL
-				remove_unit_leader_role = yes
-				promote_character = nazism
-				promote_leader = yes
-			}
+		promote_character = {
+			character = NMS_light_narrative
+			ideology = nazism
 		}
 		remove_ideas = JUN_lunar_remnants
 		NMS = {
@@ -1524,7 +1598,7 @@ country_event = { #it's not genocide i swear
 	immediate = {log = "[GetDateText]: [Root.GetName]: event baltimare.39"}
 	title = baltimare.39.t
 	desc = baltimare.39.d
-	picture = GFX_event_forest_depression
+	picture = GFX_event_waste
 	is_triggered_only = yes
 	option = {
 		name = baltimare.39.a
@@ -1542,20 +1616,21 @@ country_event = { #it's not genocide i swear
 			add_manpower = -5000
 		}
 		restore_previous_manpower = yes
-		hidden_effect = {
-			remove_country_leader_role = {
-				character = NMS_stars_whirl
-				ideology = stratocracy
+		NMS_stars_whirl = {
+			retire = yes
+		}
+		every_possible_country = {
+			limit = {
+				has_character = NMS_light_narrative
+			}
+			NMS_light_narrative = {
+				remove_unit_leader_role = yes
+				set_nationality = ROOT 
 			}
 		}
-		retire_character = NMS_stars_whirl
-		NMS = {
-			NMS_light_narrative = {
-				set_nationality = BAL
-				remove_unit_leader_role = yes
-				promote_character = nazism
-				promote_leader = yes
-			}
+		promote_character = {
+			character = NMS_light_narrative
+			ideology = nazism
 		}
 		remove_ideas = JUN_lunar_remnants
 	}
@@ -1778,6 +1853,15 @@ country_event = { #Batfugees
 	option = { #REEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEE
 		name = baltimare.46.a
 		add_stability = -0.05
+		84 = {
+			add_manpower = 100000
+		}
+		113 = {
+			add_manpower = 100000
+		}
+		115 = {
+			add_manpower = 100000
+		}
 		add_opinion_modifier = { target = FROM modifier = hostility }
 	}
 }

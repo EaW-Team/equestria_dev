@@ -63,10 +63,6 @@ shared_focus = {
 	cost = 10
 	ai_will_do = {
 		factor = 800
-		modifier = {
-			factor = 0
-			has_global_flag = EQS_evil_celestia
-		}
 	}
 	relative_position_id = SOL_Imperium_Solis
 	x = -4
@@ -327,10 +323,6 @@ shared_focus = {
 	cost = 10
 	ai_will_do = {
 		factor = 1000
-		modifier = {
-			factor = 0.5
-			has_global_flag = EQS_evil_celestia
-		}
 	}
 	relative_position_id = SOL_Imperium_Solis
 	x = 0
@@ -392,7 +384,15 @@ shared_focus = {
 	y = 3
 	completion_reward = {
 		log = "[GetDateText]: [Root.GetName]: Focus SOL_Imperial_Investigative_Service"
-		add_ideas = SOL_Imperial_Investigative_Service_idea
+		if = {
+			limit = {
+				has_dlc = "La Resistance"
+			}
+			add_ideas = SOL_Imperial_Investigative_Service_idea_lar
+		}
+		else = {
+			add_ideas = SOL_Imperial_Investigative_Service_idea
+		}
 		if = {
 			limit = {
 				has_idea = changeling_spies
@@ -602,7 +602,15 @@ shared_focus = {
 	y = 3
 	completion_reward = {
 		log = "[GetDateText]: [Root.GetName]: Focus SOL_Imperial_Inquisition"
-		add_ideas = SOL_Imperial_Inquisition_idea
+		if = {
+			limit = {
+				has_dlc = "La Resistance"
+			}
+			add_ideas = SOL_Imperial_Inquisition_idea_lar
+		}
+		else = {
+			add_ideas = SOL_Imperial_Inquisition_idea
+		}
 		if = {
 			limit = {
 				has_idea = changeling_spies
@@ -782,6 +790,13 @@ shared_focus = {
 				can_use_kamikaze_pilots = yes
 			}
 			set_country_flag = kamikaze_flag
+		}
+		if = {
+			limit = {
+				has_dlc = "By Blood Alone"
+			}
+			custom_effect_tooltip = JAP_strengthen_the_divine_wind_effect_bba
+			hidden_effect = { set_technology = { suicide_charge = 1 popup = no} }
 		}
 		custom_effect_tooltip = kamikaze_focus_tooltip
 	}
@@ -1348,6 +1363,63 @@ shared_focus = {
 	search_filters = { FOCUS_FILTER_ANNEXATION }
 }
 
+shared_focus = {
+	id = SOL_attack_bat
+	icon = GFX_goal_SOL_batnation
+	prerequisite = {
+		focus = SOL_conquer_chn
+	}
+	prerequisite = {
+		focus = SOL_conquer_ole
+	}
+	prerequisite = {
+		focus = SOL_conquer_north
+	}
+	prerequisite = {
+		focus = SOL_conquer_yak
+	}
+	prerequisite = {
+		focus = SOL_conquer_drg
+	}
+	prerequisite = {
+		focus = SOL_conquer_grf
+	}
+	available = {
+		is_subject = no
+	}
+	bypass = {
+		BAT = {
+			OR = {
+				exists = no
+				is_subject_of = ROOT
+				has_war_with = ROOT
+			}
+		}
+	}
+	will_lead_to_war_with = BAT
+	#bypass = { }
+	cost = 10
+	ai_will_do = {
+		factor = 35
+	}
+	relative_position_id = SOL_Imperium_Solis
+	x = 0
+	y = 10
+	completion_reward = {
+		log = "[GetDateText]: [Root.GetName]: Focus SOL_attack_bat"
+		if = {
+			limit = {
+				country_exists = BAT
+			}
+			create_wargoal = {
+				type = annex_everything
+				target = BAT
+			}
+		}
+	}
+	search_filters = { FOCUS_FILTER_ANNEXATION }
+}
+
 #shared_focus = {
 #	id = SOL_conquer_GRI
 #	icon = GFX_goal_solar_attack_griffonia
@@ -1359,7 +1431,7 @@ shared_focus = {
 #		is_subject = no
 #	}
 #	bypass = {
-#		event_target:griffonian_empire = {
+#		GRD = {
 #			OR = {
 #				exists = no
 #				is_subject_of = ROOT
@@ -1391,11 +1463,11 @@ shared_focus = {
 #		log = "[GetDateText]: [Root.GetName]: Focus SOL_conquer_GRI"
 #		if = {
 #			limit = {
-#				country_exists = event_target:griffonian_empire
+#				country_exists = GRD
 #			}
 #			create_wargoal = {
 #				type = puppet_wargoal_focus
-#				target = event_target:griffonian_empire
+#				target = GRD
 #			}
 #		}
 #		else = {
@@ -1621,128 +1693,99 @@ shared_focus = {
 	}
 	completion_reward = {
 		log = "[GetDateText]: [Root.GetName]: Focus SOL_twilight_ascend"
-		country_event = solarempire.13
 		hidden_effect = {
-			EQS_twilight_sparkle = {
-				
-				set_character_flag = twilight_char_ascended_flag
-				set_character_name = EQS_SOL_evil_twilight_sparkle
-				set_portraits = {
-					civilian = {
-						large = "gfx/leaders/CRY/TwilightSunrise.tga"
-						small = "GFX_idea_evil_twilight_sparkle"
-					}
-					army = {
-						large = "gfx/leaders/CRY/TwilightSunrise.tga"
-						small = "GFX_idea_evil_twilight_sparkle"
-					
-					}
+			set_global_flag = SOL_twilight_converted
+			every_possible_country = {
+				limit = {
+					has_character = EQS_twilight_sparkle
 				}
-				add_country_leader_role = {
-					promote_leader = no 
-					country_leader = {
-						expire = "1965.1.1"
-						ideology = falangism
-						#female = yes
-						traits = {
-							lady_inquisitor
+				set_variable = { crysparkle = THIS }
+				EQS_twilight_sparkle = {
+					set_nationality = var:crysparkle 
+				}
+			}
+			var:crysparkle = {
+				EQS_twilight_sparkle = {
+					set_character_flag = twilight_char_ascended_flag
+					set_character_name = EQS_SOL_evil_twilight_sparkle
+					set_portraits = {
+						civilian = {
+							large = "gfx/leaders/CRY/TwilightSunrise.tga"
+							small = "GFX_idea_evil_twilight_sparkle"
+						}
+						army = {
+							large = "gfx/leaders/CRY/TwilightSunrise.tga"
+							small = "GFX_idea_evil_twilight_sparkle"
+						
 						}
 					}
-				}
-				
-				remove_advisor_role = {
-					slot = political_advisor
-				}
-				add_advisor_role = {
-					advisor = {
+					add_country_leader_role = {
+						promote_leader = no
+			
+						country_leader = {
+							expire = "1965.1.1"
+							ideology = falangism
+							traits = {
+								lady_inquisitor
+							}
+						}
+					}
+					remove_advisor_role = {
 						slot = political_advisor
-						idea_token = evil_twilight_sparkle
-						
-						allowed = {
-							original_tag = EQS
-						}
-						visible = {
-							is_EQS_SOL = yes
-						}
-						available = {
-							is_EQS_SOL = yes
-							has_DB_ruler = yes
-							has_global_flag = SOL_twilight_converted
-							NOT = {
-								any_country_with_original_tag = {
-									original_tag_to_check = CRY
-									NOT = { has_country_leader = { character = EQS_twilight_sparkle ruling_only = yes } }
-								}
-							}
-						}
-						traits = { lady_inquisitor }
-						research_bonus = {
-							magical_tech = 0.1
-						}
-						ai_will_do = {
-							factor = 100
-						}
 					}
-					
-				}
-					
-			}
-		}
-		if = {
-			limit = {
-
-				any_country_with_original_tag = {
-					original_tag_to_check = CRY
-					
-					has_country_leader = { character = EQS_twilight_sparkle ruling_only = yes }
-					
-					
-
-				}
-				
-			}
-			hidden_effect = {
-				CRY = {
-				
-					EQS_twilight_sparkle = { 
-						set_character_flag = twilight_char_ascended_flag
-						set_character_name = EQS_SOL_evil_twilight_sparkle
-						set_portraits = {
-							civilian = {
-								large = "gfx/leaders/CRY/TwilightSunrise.tga"
-								small = "GFX_idea_evil_twilight_sparkle"
-							}
-							army = {
-								large = "gfx/leaders/CRY/TwilightSunrise.tga"
-								small = "GFX_idea_evil_twilight_sparkle"
-							
-							}
-						}
-						add_country_leader_role = {
-							promote_leader = no 
-							country_leader = {
-								expire = "1965.1.1"
-								ideology = falangism
-								#female = yes
-								traits = {
-									lady_inquisitor
-								}
-							}
-						}
-						
-						remove_advisor_role = {
+					add_advisor_role = {
+						advisor = {
 							slot = political_advisor
+							idea_token = evil_twilight_sparkle
+							
+							allowed = {
+								original_tag = EQS
+							}
+							visible = {
+								is_EQS_SOL = yes
+							}
+							available = {
+								is_EQS_SOL = yes
+								has_DB_ruler = yes
+								has_global_flag = SOL_twilight_converted
+							}
+							traits = { lady_inquisitor }
+							research_bonus = {
+								magical_tech = 0.1
+							}
+							ai_will_do = {
+								factor = 100
+							}
 						}
-
-
 					}
 				}
-				
-				
 			}
-			custom_effect_tooltip = available_political_advisor
-			show_ideas_tooltip = evil_twilight_sparkle
+			if = {
+				limit = { var:crysparkle = { NOT = { tag = ROOT } } }
+				set_country_flag = SOL_twilight_governor
+				set_autonomy = { target = var:crysparkle autonomy_state = autonomy_reichskommissariat }
+				var:crysparkle = {
+					set_cosmetic_tag = CRY_SOL
+					add_autonomy_ratio = { value = -0.20 }
+					set_country_flag = CRY_solar_governorship
+					set_party_name = { ideology = fascism long_name = EQS_SOL_fascism_party_long name = EQS_SOL_fascism_party }
+					EQS_twilight_sparkle = {
+						promote_character = falangism
+					}
+					load_focus_tree = crystal_empire_solar_focus
+			
+					if = {
+						limit = {
+							has_character = CRY_shining_armour
+							CRY_shining_armour = { is_unit_leader = yes }
+						}
+						remove_unit_leader_role = CRY_shining_armour
+					}
+				}
+				clear_variable = crysparkle
+			}
 		}
+		country_event = solarempire.13
 	}
 }
 
@@ -2607,17 +2650,31 @@ shared_focus = {
 		show_ideas_tooltip = thunderlane
 		custom_effect_tooltip = available_theorist
 		show_ideas_tooltip = wind_rider
-		add_tech_bonus = {
-			name = fighter_bonus
-			bonus = 0.65
-			uses = 1
-			technology = early_fighter
-			technology = fighter1
-			technology = fighter2
-			technology = fighter3
-			technology = heavy_fighter1
-			technology = heavy_fighter2
-			technology = heavy_fighter3
+		if = {
+            limit = {
+                has_dlc = "By Blood Alone"
+            }
+			add_tech_bonus = {
+				name = fighter_bonus
+				bonus = 0.75
+				uses = 1
+				category = light_air
+			}
+			add_tech_bonus = {
+				name = cat_air_guns
+				bonus = 0.75
+				uses = 1
+				category = cat_air_guns
+			}
+		}
+		else = {
+			add_tech_bonus = {
+				name = fighter_bonus
+				bonus = 0.75
+				uses = 1
+				category = light_fighter
+				category = cat_heavy_fighter
+			}
 		}
 	}
 	search_filters = { FOCUS_FILTER_AIRFORCE_BONUS FOCUS_FILTER_RESEARCH }
@@ -2680,11 +2737,24 @@ shared_focus = {
 	y = 2
 	completion_reward = {
 		log = "[GetDateText]: [Root.GetName]: Focus SOL_rb_fighter"
-		add_tech_bonus = {
-			name = fighter_bonus
-			bonus = 1
-			uses = 1
-			category = light_fighter
+		if = {
+            limit = {
+                has_dlc = "By Blood Alone"
+            }
+			add_tech_bonus = {
+				name = fighter_bonus
+				bonus = 1.0
+				uses = 1
+				category = light_air
+			}
+		}
+		else = {
+			add_tech_bonus = {
+				name = fighter_bonus
+				bonus = 1.0
+				uses = 1
+				category = light_fighter
+			}
 		}
 	}
 	search_filters = { FOCUS_FILTER_RESEARCH }
@@ -2705,11 +2775,24 @@ shared_focus = {
 	y = 3
 	completion_reward = {
 		log = "[GetDateText]: [Root.GetName]: Focus SOL_rb_tac_bomber"
-		add_tech_bonus = {
-			name = tactical_bombers
-			bonus = 1
-			uses = 1
-			category = tactical_bomber
+		if = {
+            limit = {
+                has_dlc = "By Blood Alone"
+            }
+			add_tech_bonus = {
+				name = medium_air
+				bonus = 1.0
+				uses = 1
+				category = medium_air
+			}
+		}
+		else = {
+			add_tech_bonus = {
+				name = tactical_bomber
+				bonus = 1.0
+				uses = 1
+				category = tactical_bomber
+			}
 		}
 	}
 	search_filters = { FOCUS_FILTER_RESEARCH }
@@ -2924,11 +3007,30 @@ shared_focus = {
 	y = 2
 	completion_reward = {
 		log = "[GetDateText]: [Root.GetName]: Focus SOL_rb_heavy_fighter"
-		add_tech_bonus = {
-			name = fighter_bonus
-			bonus = 1
-			uses = 1
-			category = cat_heavy_fighter
+		if = {
+            limit = {
+                has_dlc = "By Blood Alone"
+            }
+			add_tech_bonus = {
+				name = medium_air
+				bonus = 0.75
+				uses = 1
+				category = medium_air
+			}
+			add_tech_bonus = {
+				name = cat_air_guns
+				bonus = 0.75
+				uses = 1
+				category = cat_air_guns
+			}
+		}
+		else = {
+			add_tech_bonus = {
+				name = fighter_bonus
+				bonus = 1.0
+				uses = 1
+				category = cat_heavy_fighter
+			}
 		}
 	}
 	search_filters = { FOCUS_FILTER_RESEARCH }
@@ -3228,11 +3330,30 @@ shared_focus = {
 	y = 3
 	completion_reward = {
 		log = "[GetDateText]: [Root.GetName]: Focus SOL_rb_naval_planes"
-		add_tech_bonus = {
-			name = nav_bomber_bonus
-			bonus = 1
-			uses = 1
-			category = naval_air
+		if = {
+            limit = {
+               has_dlc = "By Blood Alone"
+           	}
+			add_tech_bonus = {
+				name = naval_air
+				bonus = 0.75
+				uses = 1
+				category = naval_air
+			}
+			add_tech_bonus = {
+				name = plane_modules_tech
+				bonus = 0.75
+				uses = 1
+				category = plane_modules_tech
+			}
+		}
+		else = {
+			add_tech_bonus = {
+				name = naval_bomber
+				bonus = 1.0
+				uses = 1
+				category = naval_bomber
+			}
 		}
 		add_doctrine_cost_reduction = {
 			name = cat_base_strike
