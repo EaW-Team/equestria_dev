@@ -2779,3 +2779,92 @@ FRN_reduce_tarrin_resistance = {
 		}
 	}
 }
+
+transfer_impassible_state_back = {
+	if = {
+		limit = {
+			FROM.FROM = {
+				impassable = yes
+				NOT = {
+					has_state_flag = impassible_recently_transferred
+				}
+			}
+			NOT = {
+				has_war_with = FROM
+			}
+		}
+		log = "[GetDateText]: [From.From.GetName] was stolen by [Root.GetName] from [?from.GetTag]"
+		FROM.FROM = {
+			set_temp_variable = { transfer_to = 0 }
+			if = {
+				limit = {
+					country_exists = ROOT.FROM
+				}
+				ROOT.FROM = {
+					set_temp_variable = { transfer_to = THIS }
+				}
+			}
+			else = {
+				every_neighbor_state = {
+					limit = {
+						owner = {
+							exists = yes
+							NOT = {
+								has_war_with = ROOT
+							}
+							OR = {
+								original_tag = ROOT.FROM
+								ROOT.FROM.FROM = {
+									is_core_of = PREV
+								}
+							}
+						}
+					}
+					owner = {
+						if = {
+							limit = {
+								NOT = {
+									is_in_array = {
+										possible_transfers = THIS
+									}
+								}
+							}
+							add_to_temp_array = { possible_transfers = THIS }
+						}
+					}
+				}
+				for_each_scope_loop = {
+					array = possible_transfers
+					set_temp_variable = { transfer_to = ROOT.FROM }
+					if = {
+						limit = {
+							original_tag = ROOT.FROM
+						}
+						set_temp_variable = { break = 1 }
+					}
+				}
+			}
+			if = {
+				limit = {
+					NOT = {
+						check_variable = { transfer_to = 0 }
+					}
+				}
+				log = "[GetDateText] [This.GetName] will be transferred back to [?transfer_to.GetTag]"
+				set_state_flag = {
+					flag = impassible_recently_transferred
+					value = 1
+					days = 1
+				}
+				set_variable = {
+					transfer_to_var = transfer_to
+				}
+				state_event = {
+					id = utility.19
+					trigger_for = ROOT
+					hours = 1
+				}
+			}
+		}
+	}
+}
