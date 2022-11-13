@@ -870,7 +870,7 @@ HIP_antifa_army_reforms = {
 			command_power > 24
 		}
 
-		custom_cost_text = decision_cost_CP_25
+		custom_cost_text = decision_cost_army_xp_25
 
 		fire_only_once = yes
 		allowed = {
@@ -1232,6 +1232,28 @@ HIP_psyop_cat = {
 }
 
 military_training_category = {
+	HIP_disband_last_warband = {
+		icon = generic_army_support
+		allowed = {
+			original_tag = HIP
+		}
+		visible = {
+			OR = {
+				has_country_flag = HIP_won_north_zebrican_war
+				has_country_flag = BAT_HIP_defeated
+			}
+			has_country_flag = HIP_has_last_warband
+		}
+		fire_only_once = yes
+		ai_will_do = {
+			factor = 0
+		}
+		complete_effect = {
+			log = "[GetDateText]: [Root.GetName]: Decision HIP_disband_last_warband"
+			delete_unit_template_and_units = {division_template = "Last Warband"}
+			clr_country_flag = HIP_has_last_warband
+		}
+	}
 	HIP_perfect_cluster_bombs = {
 		icon = generic_air
 		allowed = {
@@ -2073,6 +2095,7 @@ HIP_crack_opportunism = {
 			has_country_flag = fighting_maresoc
 
 		}
+		fire_only_once = yes
 		available = {
 			EQC = {
 				exists = no
@@ -2298,6 +2321,8 @@ HIP_crack_opportunism = {
 			}
 		}
 		cost = 25
+		fire_only_once = yes
+		war_with_on_complete = MER
 		complete_effect = {
 			log = "[GetDateText]: [Root.GetName]: Decision HIP_attack_MER"
 			create_wargoal = {
@@ -2321,6 +2346,8 @@ HIP_crack_opportunism = {
 			}
 		}
 		cost = 25
+		fire_only_once = yes
+		war_with_on_complete = PCB
 		complete_effect = {
 			log = "[GetDateText]: [Root.GetName]: Decision HIP_attack_PCB"
 			create_wargoal = {
@@ -4748,7 +4775,20 @@ HIP_posadas_visions = {
 		
 		complete_effect = {
 			log = "[GetDateText]: [Root.GetName]: Decision HIP_final_stage"
-			country_event = hippocommie.74
+			if = {
+				limit = {
+					has_country_flag = HIP_first_therm_strike
+				}
+				effect_tooltip = {
+					country_event = hippocommie.74
+				}
+				hidden_effect = {
+					country_event = hippocommie.741
+				}
+			}
+			else = {
+				country_event = hippocommie.74
+			}
         }
 	}
 }
@@ -5080,7 +5120,6 @@ HIP_exotic_weapons_cat = {
 		complete_effect = {
 			log = "[GetDateText]: [Root.GetName]: Decision HIP_air_launched_cruise_missiles"
 			set_country_flag = HIP_exotic_weapon_researching
-			add_nuclear_bombs = -5
 		}
 		remove_effect = {
 			log = "[GetDateText]: [Root.GetName]: Decision remove HIP_air_launched_cruise_missiles"
@@ -6077,6 +6116,7 @@ HIP_communist_international_decisions = {
 		visible = {
 			FROM = {
 				has_government = communism
+				is_subject = no
 				NOT = {
 					has_idea = detached_country
 					has_idea = communal_society
@@ -6165,6 +6205,7 @@ HIP_communist_international_decisions = {
 		visible = {
 			FROM = {
 				has_government = communism
+				is_subject = no
 				OR = {
 					tag = SRS
 					AND = {
@@ -6622,6 +6663,7 @@ HIP_thermonuclear_bombs = {
 				has_war_with = ROOT
 				is_major = yes
 			}
+			NOT = {has_country_flag = HIP_cancelled_strike}
 		}
 		allowed = {
 			original_tag = HIP
@@ -6636,50 +6678,121 @@ HIP_thermonuclear_bombs = {
 		}
 		complete_effect = {
 			log = "[GetDateText]: [Root.GetName]: Decision HIP_thermonuke_FROM"
+			country_event = hippocommie.641
+		}
+		days_remove = 3
+		cancel_trigger = {
+			has_country_flag = HIP_cancelled_strike
+		}
+		cancel_effect = {
+			log = "[GetDateText]: [Root.GetName]: Decision cancel HIP_thermonuke_FROM"
+		}
+		remove_effect = {
+			log = "[GetDateText]: [Root.GetName]: Decision remove HIP_thermonuke_FROM"
 			add_nuclear_bombs = -50
-			FROM = {
-				capital_scope = {
-					ROOT = {
-						launch_nuke = {
-							state = PREV
-							controller = FROM
-							use_nuke = no
-						}
+			if = {
+				limit = {
+					NOT = {
+						has_country_flag = HIP_first_therm_strike
 					}
-					save_current_manpower = yes
-					add_manpower = -2000000
-					restore_previous_manpower = yes
-					remove_building = { type = arms_factory level = 10 }
-					remove_building = { type = industrial_complex level = 10 }
-					remove_building = { type = dockyard level = 10 }
-					remove_building = { type = infrastructure level = 10 }
-					remove_building = { type = synthetic_refinery level = 10 }
-					remove_building = { type = anti_air_building level = 5 }
-					remove_building = { type = radar_station level = 10 }
-					remove_building = { type = rocket_site level = 5 }
-					remove_building = { type = nuclear_reactor level = 1 }
-					remove_building = { type = air_base level = 10 }
-					set_building_level = {
-						type = bunker
-						level = 0
-						province = {
-							all_provinces = yes
+				}
+				custom_effect_tooltip = HIP_thermonuke_warning_tt
+				FROM = {
+					capital_scope = {
+						ROOT = {
+							launch_nuke = {
+								state = PREV
+								controller = FROM
+								use_nuke = no
+							}
 						}
-					}
-					set_building_level = {
-						type = coastal_bunker
-						level = 0
-						province = {
-							all_provinces = yes
+						save_current_manpower = yes
+						add_manpower = -2000000
+						restore_previous_manpower = yes
+						remove_building = { type = arms_factory level = 10 }
+						remove_building = { type = industrial_complex level = 10 }
+						remove_building = { type = dockyard level = 10 }
+						remove_building = { type = infrastructure level = 10 }
+						remove_building = { type = synthetic_refinery level = 10 }
+						remove_building = { type = anti_air_building level = 5 }
+						remove_building = { type = radar_station level = 10 }
+						remove_building = { type = rocket_site level = 5 }
+						remove_building = { type = nuclear_reactor level = 1 }
+						remove_building = { type = air_base level = 10 }
+						set_building_level = {
+							type = bunker
+							level = 0
+							province = {
+								all_provinces = yes
+							}
 						}
-					}
-					set_building_level = {
+						set_building_level = {
+							type = coastal_bunker
+							level = 0
+							province = {
+								all_provinces = yes
+							}
+						}
+						set_building_level = {
 						type = naval_base
-						level = 0
-						province = {
-							all_provinces = yes
+							level = 0
+							province = {
+								all_provinces = yes
+							}
 						}
-					}			
+					}
+					news_event = {
+						id = hippogriff_news.8
+						hours = 6
+					}
+				}
+				set_country_flag = HIP_first_therm_strike
+			}
+			else = {
+				FROM = {
+					capital_scope = {
+						ROOT = {
+							launch_nuke = {
+								state = PREV
+								controller = FROM
+								use_nuke = no
+							}
+						}
+						save_current_manpower = yes
+						add_manpower = -2000000
+						restore_previous_manpower = yes
+						remove_building = { type = arms_factory level = 10 }
+						remove_building = { type = industrial_complex level = 10 }
+						remove_building = { type = dockyard level = 10 }
+						remove_building = { type = infrastructure level = 10 }
+						remove_building = { type = synthetic_refinery level = 10 }
+						remove_building = { type = anti_air_building level = 5 }
+						remove_building = { type = radar_station level = 10 }
+						remove_building = { type = rocket_site level = 5 }
+						remove_building = { type = nuclear_reactor level = 1 }
+						remove_building = { type = air_base level = 10 }
+						set_building_level = {
+							type = bunker
+							level = 0
+							province = {
+								all_provinces = yes
+							}
+						}
+						set_building_level = {
+							type = coastal_bunker
+							level = 0
+							province = {
+								all_provinces = yes
+							}
+						}
+						set_building_level = {
+						type = naval_base
+							level = 0
+							province = {
+								all_provinces = yes
+							}
+						}			
+					}
 				}
 			}
 		}
@@ -10933,7 +11046,6 @@ foreign_politics = {
 		ai_will_do = {
 			factor = 50
 		}
-		fire_only_once = yes
 		allowed = {
 			tag = HIP
 		}
@@ -10962,6 +11074,7 @@ foreign_politics = {
 				NOT = {
 					has_war_together_with = ROOT
 				}
+				has_government = democratic
 			}
 			NOT = {
 				has_country_flag = BAT_HIP_defeated
@@ -10980,22 +11093,71 @@ foreign_politics = {
 				}
 				country_event = hippogriff.80
 			}
+			hidden_effect = {
+				CHN = {
+					add_ai_strategy = {
+						type = prepare_for_war
+						id = ROOT
+						value = 100
+					}
+				}
+			}
 		}
 		days_remove = 30
 		modifier = {
 			political_power_cost = 1.00
 		}
+		cancel_trigger = {
+			CHN = {
+				NOT = {
+					has_war_with = EQS
+				}
+			}
+		}
+		cancel_effect = {
+		    hidden_effect = {
+				CHN = {
+					add_ai_strategy = {
+						type = prepare_for_war
+						id = ROOT
+						value = -100
+					}
+				}
+			}
+		}
+		war_with_on_remove = CHN
 		remove_effect = {
 			log = "[GetDateText]: [Root.GetName]: Decision remove HIP_intervene_in_Equus"
-			declare_war_on = {
-				type = puppet_wargoal_focus
-				target = CHN
+			if = {
+				limit = {
+					CHN = {
+						is_subject = no
+						has_war_with = EQS
+					}
+				}
+				hidden_effect = {
+					CHN = {
+						add_ai_strategy = {
+							type = prepare_for_war
+							id = ROOT
+							value = -100
+						}
+					}
+				}
+				add_to_war = {
+					targeted_alliance = EQS
+					enemy = CHN
+					hostility_reason = asked_to_join
+				}
+				set_country_flag = HIP_attacking_CHN
 			}
-			set_country_flag = HIP_attacking_CHN
 		}
 	}
 	HIP_ai_send_guns_to_EQS = {
 		cost = 0
+		allowed = {
+			original_tag = HIP
+		}
 		available = {
 			has_war = no
 			has_government = democratic
@@ -11009,11 +11171,11 @@ foreign_politics = {
 		visible = {
 			is_ai = yes
 			EQS = {
-				any_enemy_country = {is_major = yes}
 				has_government = democratic
 				NOT = {
 					has_idea = eqs_civil_war
 				}
+				any_enemy_country = {is_major = yes}
 			}
 		}
 		days_re_enable = 30
@@ -11032,6 +11194,9 @@ foreign_politics = {
 	}
 	HIP_ai_send_support_to_EQS = {
 		cost = 0
+		allowed = {
+			original_tag = HIP
+		}
 		available = {
 			has_war = no
 			has_government = democratic
@@ -11045,11 +11210,11 @@ foreign_politics = {
 		visible = {
 			is_ai = yes
 			EQS = {
-				any_enemy_country = {is_major = yes}
 				has_government = democratic
 				NOT = {
 					has_idea = eqs_civil_war
 				}
+				any_enemy_country = {is_major = yes}
 			}
 		}
 		days_re_enable = 90
@@ -11068,6 +11233,9 @@ foreign_politics = {
 	}
 	HIP_ai_send_arty_to_EQS = {
 		cost = 0
+		allowed = {
+			original_tag = HIP
+		}
 		available = {
 			has_war = no
 			has_government = democratic
@@ -11081,8 +11249,11 @@ foreign_politics = {
 		visible = {
 			is_ai = yes
 			EQS = {
-				any_enemy_country = {is_major = yes}
 				has_government = democratic
+				NOT = {
+					has_idea = eqs_civil_war
+				}
+				any_enemy_country = {is_major = yes}
 			}
 			NOT = {
 				has_idea = eqs_civil_war
@@ -11104,6 +11275,9 @@ foreign_politics = {
 	}
 	HIP_ai_send_trucks_to_EQS = {
 		cost = 0
+		allowed = {
+			original_tag = HIP
+		}
 		available = {
 			has_war = no
 			has_government = democratic
@@ -11117,11 +11291,11 @@ foreign_politics = {
 		visible = {
 			is_ai = yes
 			EQS = {
-				any_enemy_country = {is_major = yes}
 				has_government = democratic
 				NOT = {
 					has_idea = eqs_civil_war
 				}
+				any_enemy_country = {is_major = yes}
 			}
 		}
 		days_re_enable = 30
@@ -11140,6 +11314,9 @@ foreign_politics = {
 	}
 	HIP_ai_send_tanks_to_EQS = {
 		cost = 0
+		allowed = {
+			original_tag = HIP
+		}
 		available = {
 			has_war = no
 			has_government = democratic
@@ -11176,6 +11353,9 @@ foreign_politics = {
 	}
 	HIP_SIR_send_the_elements = {
 		cost = 50
+		allowed = {
+			original_tag = EQS
+		}
 		available = {
 			has_war = no
 			has_government = democratic

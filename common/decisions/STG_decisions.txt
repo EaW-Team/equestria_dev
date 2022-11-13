@@ -400,7 +400,10 @@ STG_foreign_affairs = {
 			}
 		}
 		visible = {
-			is_faction_leader = yes
+			OR = {
+				is_faction_leader = yes
+				has_country_flag = was_in_STG_faction
+			}
 			FROM = {
 				OR = {
 					original_tag = YAK
@@ -423,7 +426,10 @@ STG_foreign_affairs = {
 			}
 		}
 		target_root_trigger = {
-			is_faction_leader = yes
+			OR = {
+				is_faction_leader = yes
+				has_country_flag = was_in_STG_faction
+			}
 		}
 		targets = { YAK JAK GRF PNG CRY OLE CHN CCN }
 		targets_dynamic = yes
@@ -1446,11 +1452,14 @@ political_actions = {
 		target_root_trigger = {
 			is_historical_focus_on = yes
 			NOT = { has_country_flag = war_help }
+			NOT = { has_global_flag = EQS_no_war_help }
 			is_ai = yes
+			is_subject = no
 		}
 		visible = {
 			is_historical_focus_on = yes
 			NOT = { has_country_flag = war_help }
+			NOT = { has_global_flag = EQS_no_war_help }
 			is_ai = yes
 			is_subject = no
 			FROM = {
@@ -1470,6 +1479,7 @@ political_actions = {
 		target_trigger = {
 			FROM = { tag = event_target:equestria }
 		}
+		war_with_on_complete = CHN
 		fire_only_once = yes
 		complete_effect = {
 			log = "[GetDateText]: [Root.GetName]: Decision STG_help_EQS_in_war target: [From.GetName]"
@@ -1712,23 +1722,6 @@ STG_elections_category_2 = {
 		}
 	}
 	
-	STG_sinnie_prepares_vasya = {		#Ask Vasily to support the actions
-		visible = {
-			has_country_flag = STG_sinnie_coup_flag
-			has_country_flag = STG_sinnie_coup_flag_3
-		}
-		cancel_trigger = {
-			NOT = { has_country_flag = STG_sinnie_coup_flag }
-		}
-		cost = 50
-		days_remove = 999
-		
-		complete_effect = {
-			country_event = { id=stalliongrad.16 days = 4 }
-			log = "[GetDateText]: [Root.GetName]: Decision STG_sinnie_prepares_vasya"
-		}
-	}
-	
 	STG_sinnie_prepares_1 = {		#secret transfer of loyal units closer to stalliongrad
 		visible = {
 			has_country_flag = STG_sinnie_coup_flag
@@ -1785,6 +1778,23 @@ STG_elections_category_2 = {
 			log = "[GetDateText]: [Root.GetName]: Decision STG_sinnie_prepares_3"
 		}
 	}
+		
+	STG_sinnie_prepares_vasya = {		#Ask Vasily to support the actions
+		visible = {
+			has_country_flag = STG_sinnie_coup_flag
+			has_country_flag = STG_sinnie_coup_flag_3
+		}
+		cancel_trigger = {
+			NOT = { has_country_flag = STG_sinnie_coup_flag }
+		}
+		cost = 50
+		days_remove = 999
+		
+		complete_effect = {
+			country_event = { id=stalliongrad.16 days = 4 }
+			log = "[GetDateText]: [Root.GetName]: Decision STG_sinnie_prepares_vasya"
+		}
+	}
 	
 	STG_sinnie_prepares_4 = {		#Coup
 		visible = {
@@ -1819,11 +1829,9 @@ STG_elections_category_2 = {
 	STG_vasily_prepares_0 = {		#radio agitation in vasily favor
 		visible = {
 			has_country_flag = STG_sinnie_coup_flag
-			NOT = {
-				OR = {
-					has_country_flag = STG_sinnie_preapares_flag
-					has_country_flag = STG_karamelka_preapares_flag
-				}
+			OR = {
+				has_country_flag = STG_vasiliy_not_helped_sinnie
+				has_country_flag = STG_vasiliy_not_helped_sladkova
 			}
 		}
 		cost = 15
@@ -1967,23 +1975,6 @@ STG_elections_category_2 = {
 		}
 	}
 	
-	STG_sladkova_prepares_vasya = {		#Ask Vasily to support the actions
-		visible = {
-			has_country_flag = STG_sinnie_coup_flag
-			has_country_flag = STG_sladkova_prepares_flag_3
-		}
-		cancel_trigger = {
-			NOT = { has_country_flag = STG_sinnie_coup_flag }
-		}
-		cost = 50
-		days_remove = 999
-		
-		complete_effect = {
-			country_event = { id=stalliongrad.19 days = 1 }
-			log = "[GetDateText]: [Root.GetName]: Decision STG_sladkova_prepares_vasya"
-		}
-	}
-	
 	STG_sladkova_prepares_1 = {		#confirming the loyalty of police forces
 		visible = {
 			has_country_flag = STG_sinnie_coup_flag
@@ -2040,6 +2031,24 @@ STG_elections_category_2 = {
 			log = "[GetDateText]: [Root.GetName]: Decision STG_sladkova_prepares_3"
 		}
 	}
+	
+	STG_sladkova_prepares_vasya = {		#Ask Vasily to support the actions
+		visible = {
+			has_country_flag = STG_sinnie_coup_flag
+			has_country_flag = STG_sladkova_prepares_flag_3
+		}
+		cancel_trigger = {
+			NOT = { has_country_flag = STG_sinnie_coup_flag }
+		}
+		cost = 50
+		days_remove = 999
+		
+		complete_effect = {
+			country_event = { id=stalliongrad.19 days = 1 }
+			log = "[GetDateText]: [Root.GetName]: Decision STG_sladkova_prepares_vasya"
+		}
+	}
+	
 	STG_sladkova_prepares_4 = {		#karamelka remove Vasiliy and Sinister from the party
 		visible = {
 			has_country_flag = STG_sinnie_coup_flag
@@ -2115,99 +2124,100 @@ STG_elections_category_2 = {
 		}
 	}
 	
-	STG_center_and_left_alliance = {
-		available = {
-			NOT = {
-				OR = {
-					has_decision = STG_center_and_right_alliance
-					has_decision = STG_right_and_left_alliance
-				}
-			}
-		}
-		visible = {
-			NOT = { has_country_flag = STG_sinnie_coup_flag }
-		}
-		cost = 25
-		
-		days_remove = 14
-		
-		modifier = {
-			political_power_gain = -0.50
-		}
-		
-		complete_effect = {
-			set_country_flag = STG_alliance_between_center_and_left_flag
-			log = "[GetDateText]: [Root.GetName]: Decision STG_center_and_left_alliance"
-		}
-		remove_effect = {
-			clr_country_flag = STG_alliance_between_center_and_left_flag
-			log = "[GetDateText]: [Root.GetName]: Decision STG_center_and_left_alliance"
-		}	
-	}
-	STG_center_and_right_alliance = {
-		available = {
-			NOT = {
-				OR = {
-					has_decision = STG_center_and_left_alliance
-					has_decision = STG_right_and_left_alliance
-				}
-			}
-		}
-		visible = {
-			NOT = { has_country_flag = STG_sinnie_coup_flag }
-		}
-		cost = 25
-		
-		days_remove = 14
-		
-		modifier = {
-			political_power_gain = -0.50
-		}
-		
-		complete_effect = {
-			set_country_flag = STG_alliance_between_center_and_right_flag
-			log = "[GetDateText]: [Root.GetName]: Decision STG_center_and_right_alliance"
-		}
-		remove_effect = {
-			clr_country_flag = STG_alliance_between_center_and_right_flag
-			log = "[GetDateText]: [Root.GetName]: Decision STG_center_and_right_alliance"
-		}	
-	}
-	STG_right_and_left_alliance = {
-		available = {
-			NOT = {
-				OR = {
-					has_decision = STG_center_and_left_alliance
-					has_decision = STG_center_and_right_alliance
-				}
-			}
-		}
-		visible = {
-			NOT = { has_country_flag = STG_sinnie_coup_flag }
-		}
-		cost = 25
-		
-		days_remove = 14
-		
-		modifier = {
-			political_power_gain = -0.50
-		}
-		
-		complete_effect = {
-			set_country_flag = STG_alliance_between_right_and_left_flag
-			log = "[GetDateText]: [Root.GetName]: Decision STG_right_and_left_alliance"
-		}
-		remove_effect = {
-			clr_country_flag = STG_alliance_between_right_and_left_flag
-			log = "[GetDateText]: [Root.GetName]: Decision STG_right_and_left_alliance"
-		}	
-	}
+	#STG_center_and_left_alliance = {
+	#	available = {
+	#		NOT = {
+	#			OR = {
+	#				has_decision = STG_center_and_right_alliance
+	#				has_decision = STG_right_and_left_alliance
+	#			}
+	#		}
+	#	}
+	#	visible = {
+	#		NOT = { has_country_flag = STG_sinnie_coup_flag }
+	#	}
+	#	cost = 25
+	#	
+	#	days_remove = 14
+	#	
+	#	modifier = {
+	#		political_power_gain = -0.50
+	#	}
+	#	
+	#	complete_effect = {
+	#		set_country_flag = STG_alliance_between_center_and_left_flag
+	#		log = "[GetDateText]: [Root.GetName]: Decision STG_center_and_left_alliance"
+	#	}
+	#	remove_effect = {
+	#		clr_country_flag = STG_alliance_between_center_and_left_flag
+	#		log = "[GetDateText]: [Root.GetName]: Decision STG_center_and_left_alliance"
+	#	}	
+	#}
+	#STG_center_and_right_alliance = {
+	#	available = {
+	#		NOT = {
+	#			OR = {
+	#				has_decision = STG_center_and_left_alliance
+	#				has_decision = STG_right_and_left_alliance
+	#			}
+	#		}
+	#	}
+	#	visible = {
+	#		NOT = { has_country_flag = STG_sinnie_coup_flag }
+	#	}
+	#	cost = 25
+	#	
+	#	days_remove = 14
+	#	
+	#	modifier = {
+	#		political_power_gain = -0.50
+	#	}
+	#	
+	#	complete_effect = {
+	#		set_country_flag = STG_alliance_between_center_and_right_flag
+	#		log = "[GetDateText]: [Root.GetName]: Decision STG_center_and_right_alliance"
+	#	}
+	#	remove_effect = {
+	#		clr_country_flag = STG_alliance_between_center_and_right_flag
+	#		log = "[GetDateText]: [Root.GetName]: Decision STG_center_and_right_alliance"
+	#	}	
+	#}
+	#STG_right_and_left_alliance = {
+	#	available = {
+	#		NOT = {
+	#			OR = {
+	#				has_decision = STG_center_and_left_alliance
+	#				has_decision = STG_center_and_right_alliance
+	#			}
+	#		}
+	#	}
+	#	visible = {
+	#		NOT = { has_country_flag = STG_sinnie_coup_flag }
+	#	}
+	#	cost = 25
+	#	
+	#	days_remove = 14
+	#	
+	#	modifier = {
+	#		political_power_gain = -0.50
+	#	}
+	#	
+	#	complete_effect = {
+	#		set_country_flag = STG_alliance_between_right_and_left_flag
+	#		log = "[GetDateText]: [Root.GetName]: Decision STG_right_and_left_alliance"
+	#	}
+	#	remove_effect = {
+	#		clr_country_flag = STG_alliance_between_right_and_left_flag
+	#		log = "[GetDateText]: [Root.GetName]: Decision STG_right_and_left_alliance"
+	#	}	
+	#}
 	STG_production_plan = {
 		available = {
 			NOT = { has_country_flag = STG_activated_political_plan }
 		}
 		visible = {
 			NOT = { has_country_flag = STG_sinnie_coup_flag }
+			has_completed_focus = STG_peasants_and_workers
 		}
 		cost = 25
 		
@@ -2252,6 +2262,7 @@ STG_elections_category_2 = {
 		}
 		visible = {
 			NOT = { has_country_flag = STG_sinnie_coup_flag }
+			has_completed_focus = STG_peasants_and_workers
 		}
 		cost = 25
 		
@@ -2273,6 +2284,7 @@ STG_elections_category_2 = {
 		}
 		visible = {
 			NOT = { has_country_flag = STG_sinnie_coup_flag }
+			has_completed_focus = STG_amogus_trade
 		}
 		cost = 25
 		fire_only_once = yes
@@ -2296,6 +2308,7 @@ STG_elections_category_2 = {
 		}
 		visible = {
 			NOT = { has_country_flag = STG_sinnie_coup_flag }
+			has_completed_focus = STG_amogus_trade
 		}
 		cost = 25
 		fire_only_once = yes
@@ -2317,6 +2330,7 @@ STG_elections_category_2 = {
 		}
 		visible = {
 			NOT = { has_country_flag = STG_sinnie_coup_flag }
+			has_completed_focus = STG_petershoof_foreign_trade
 		}
 		cost = 25
 
@@ -2338,6 +2352,7 @@ STG_elections_category_2 = {
 		}
 		visible = {
 			NOT = { has_country_flag = STG_sinnie_coup_flag }
+			has_completed_focus = STG_petershoof_foreign_trade
 		}
 		cost = 25
 
@@ -2404,6 +2419,77 @@ STG_elections_category_2 = {
 		complete_effect = {
 			country_event = { id = stalliongrad.60  }
 			log = "[GetDateText]: [Root.GetName]: Decision STG_discuss_about_delegate_in_GRW"
+		}
+	}
+	STG_publish_karamelkas_memoirs = {
+		visible = {
+			NOT = { has_country_flag = STG_sinnie_coup_flag }
+			has_completed_focus = STG_about_freedom_and_unity
+			check_variable = {
+				karamelka_deep_lore < 3
+			}
+		}
+		days_remove = 20
+		cost = 30
+		remove_effect = {
+			country_event = stalliongrad.10013
+			log = "[GetDateText]: [Root.GetName]: Decision STG_publish_karamelkas_memoirs"
+		}
+	}
+	STG_publish_stallions_archive = {
+		visible = {
+			NOT = { has_country_flag = STG_sinnie_coup_flag }
+			has_completed_focus = STG_about_freedom_and_unity
+			check_variable = {
+				majority_deep_lore < 3
+			}
+		}
+		days_remove = 20
+		cost = 30
+		remove_effect = {
+			country_event = stalliongrad.10014
+			log = "[GetDateText]: [Root.GetName]: Decision STG_publish_stallions_archive"
+		}
+	}
+	STG_publish_notes_on_the_current_situation = {
+		visible = {
+			NOT = { has_country_flag = STG_sinnie_coup_flag }
+			has_completed_focus = STG_about_freedom_and_unity
+			check_variable = {
+				masha_deep_lore < 3
+			}
+		}
+		days_remove = 20
+		cost = 30
+		remove_effect = {
+			country_event = stalliongrad.10015
+			log = "[GetDateText]: [Root.GetName]: Decision STG_publish_notes_on_the_current_situation"
+		}
+	}
+	STG_write_mashas_answer = {
+		visible = {
+			NOT = { has_country_flag = STG_sinnie_coup_flag }
+			has_country_flag = STG_left_critics
+		}
+		days_remove = 7
+		cost = 30
+		fire_only_once = yes
+		remove_effect = {
+			log = "[GetDateText]: [Root.GetName]: Decision STG_write_mashas_answer"
+			country_event = stalliongrad.10011
+		}
+	}
+	STG_write_karamelkas_answer = {
+		visible = {
+			NOT = { has_country_flag = STG_sinnie_coup_flag }
+			has_country_flag = STG_right_critics
+		}
+		days_remove = 7
+		cost = 30
+		fire_only_once = yes
+		remove_effect = { 
+			log = "[GetDateText]: [Root.GetName]: Decision STG_write_karamelkas_answer"
+			country_event = stalliongrad.10012
 		}
 	}
 	
