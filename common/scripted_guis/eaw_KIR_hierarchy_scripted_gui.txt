@@ -7,54 +7,35 @@ scripted_gui = {
 
 		effects = {
 			kir_hierarchy_character_button_click = {
-				if = {  # if hch is already selected
-					limit = { has_variable = selected_hch_value }
-					if = {  # if the same hch was clicked, remove selection
+				if = {
+					# we are selecting an hch
+					limit = {
+						is_hch_slot_selected_trigger = yes
+					}
+
+					if = {
+						# we have clicked on the same hch we are selecting
 						limit = {
 							check_variable = { selected_hch_value = hch_value }
 						}
-						kir_clear_selection_effect = yes  # clear the selection
+
+						# clear the selection
+						kir_clear_hch_selection_effect = yes
 					}
-					else = {  # other hch slot was clicked
-						kir_move_select_hch_var_setup_effect = yes
-						if = {  # if current selection is empty, select the other slot
-							limit = {
-								check_variable = { selected_hch_id = 0 }
-							}
-							kir_select_hch_var_setup_effect = yes
-						}
-						else = {  # else do moving
-							if = {  # if the slot we clicked is empty, move our selected hch
-								limit = {
-									check_variable = { move_hch_id = 0 }
-								}
-								move_hch_effect = yes
-							}  # if second slot is taken, do nothing
-							kir_clear_move_selection_effect = yes  # clean the second slot vars
-							kir_clear_selection_effect = yes  # clear the selection
-						}
+					else = {
+						# we have clicked on a different hch
+
+						# select it
+						kir_select_hch_var_setup_effect = yes
 					}
 				}
-				else = {  # if hch not selected, select one
+				else = {
+					# we are not selecting an hch
+
+					# select the one we clicked on
 					kir_select_hch_var_setup_effect = yes
 				}
-
-				# if the new selected slot has no character in it, open character selection
-				if = {
-					limit = {
-						has_variable = selected_hch_value  # has selected a slot
-						check_variable = { selected_hch_id = 0 }  # the slot is empty
-					}
-					set_country_flag = kir_hch_selection_visible_flag
-					kir_move_select_hch_var_setup_effect = yes
-				} else = {
-					clr_country_flag = kir_hch_selection_visible_flag
-				}
 			}
-
-			# kir_hierarchy_character_button_left_click = {
-			# 	#
-			# }
 		}
 
 		triggers = {
@@ -105,43 +86,61 @@ scripted_gui = {
 		window_name = "kir_hierarchy_hch_selection_window"
 
 		visible = {
-			has_country_flag = kir_hch_selection_visible_flag
+			is_hch_slot_selected_trigger = yes
 		}
 
 		triggers = {
 			kir_hierarchy_character_selection_button_click_enabled = {
-				kir_hch_has_pp = yes
+				# kir_hch_has_pp_trigger = yes
+			}
+
+			# currently the resign button is disabled
+			kir_hierarchy_character_selection_resign_button_click_enabled = {
+				# check if we are selecting a hch to resign
+				is_hch_id_selected_trigger = yes
 			}
 		}
 
 		effects = {
-			kir_hierarchy_character_selection_button_click = {			
-				# deduct political power
-				kir_hch_deduct_pp = yes
+			kir_hierarchy_character_selection_button_click = {
+				# setup vars for adding the character
+				kir_assign_hch_var_setup_effect = yes
 
-				# select the current character to move
-				kir_select_hch_var_setup_effect = yes
-				# move them
-				move_hch_effect = yes
-				# remove the moved character from stored characters
-				remove_hch_from_selection_effect = yes
+				if = {
+					# there is a hch in the slot we selected
+					limit = { is_hch_id_selected_trigger = yes }
 
-				# clear everything
-				kir_clear_selection_effect = yes
-				kir_clear_move_selection_effect = yes
-				clr_country_flag = kir_hch_selection_visible_flag
+					# remove the selected hch
+					resign_selected_hch_effect = yes
+				}
+				else = {
+					# we have selected an empty slot
+				}
+
+				# add the add character
+				assign_hch_effect = yes
+
+				# clear selection and added values
+				kir_clear_hch_selection_effect = yes
+				kir_clear_hch_assign_effect = yes
 			}
+
+			kir_hierarchy_character_selection_resign_button_click = {
+				# resign selected character
+				resign_selected_hch_effect = yes
+
+				# clear selection
+				kir_clear_hch_selection_effect = yes
+			}
+
 			kir_hierarchy_character_selection_close_button_click = {
-				kir_clear_selection_effect = yes
-				kir_clear_move_selection_effect = yes
-				clr_country_flag = kir_hch_selection_visible_flag
+				# clear selection and added values
+				kir_clear_hch_selection_effect = yes
+				kir_clear_hch_assign_effect = yes
 			}
 		}
 
 		properties = {
-			kir_hierarchy_character_selection_button = {
-				image = "GFX_idea_entry_bg_2"
-			}
 			kir_hierarchy_character_selection_icon = {
 				image = "[GetHCHgfx]"
 			}
