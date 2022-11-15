@@ -62,17 +62,21 @@ DED_startup = {
 	#set_variable = { DED_undead_production = 735 }
 	#country_event = { id = dread.1 days = 3 }
 
-	
-	add_dynamic_modifier = {	
-		modifier = DED_expanded_farmlands
-		scope = DED
+
+	add_dynamic_modifier = {
+	    modifier = DED_thaumaturgia
 	}
+
 	set_variable = { DED_test_var = 1}
 
 	DED_catacomb_startup = yes
 
 
 	DED_setup_gui = yes
+
+	set_country_flag = DED_magic_schools
+
+	DED_the_thaumaturgia_init = yes
 }
 
 
@@ -94,6 +98,9 @@ DED_setup_gui = {
 	add_to_array = { DED_gui_pos_y_bg = 68}
 	add_to_array = { DED_gui_pos_y_bg = 102}
 }
+
+
+
 
 DED_gui_increase_priority = {
 	# DED_gui_ID is the ID of the "part" moved
@@ -191,7 +198,9 @@ DED_monthly = {
 		}
 		DED_catacomb_system_loop = yes
 	}
+	DED_the_thaumaturgia_update = yes
 }
+
 
 DED_catacomb_system_loop = {
 	DED_catacomb_corpse_gain = yes
@@ -415,3 +424,121 @@ DED_catacomb_undead_pools_changes = {
 		DED_catacomb_undead_pools_changes = yes
 	}
 }
+
+
+
+
+DED_the_thaumaturgia_init = {
+
+	#Free Mages shall always be referenced unitarily. I doubt the player will be able to get over two million mages ... right?
+	set_variable = { DED_free_mages = 23451 }
+	set_variable = { DED_magic_school_current_staff = 2000 }
+	set_variable = { DED_magic_school_max_staff = 2000 }
+	DED_mage_calculations = yes
+}
+
+DED_the_thaumaturgia_update = {
+	add_to_variable = { DED_free_mages = DED_thaum_mg }
+	DED_mage_calculations = yes
+}
+
+DED_mage_calculations = {
+	
+	#Mage Effect calculation
+		#Expected Max Ratio: 1 mage / 100 pop? 
+			#Ex: For 1 910 000pop, we'd need 19 100 Mages in non military service to achieve peak performance.
+			#With the extra pop from HLR, we'd have a around 5.5 million pop, meaning we'd need 55 000 mages to reach peak productivity.
+			#Pop in k would be: 5500. So I'd need to ... divide mages by 10 and I'd have 5500 for 5500
+
+	set_variable = { DED_mage_to_pop_ratio = DED_free_mages }
+	divide_variable = { DED_mage_to_pop_ratio = 10 }
+	divide_variable = { DED_mage_to_pop_ratio = max_manpower_k }
+	clamp_variable = {
+		var = DED_mage_to_pop_ratio
+		min = 0
+		max = 1
+	}
+	set_variable = { DED_mage_pop_perc = 1 }
+	divide_variable = { DED_mage_pop_perc = DED_mage_to_pop_ratio }
+	multiply_variable = { DED_mage_pop_perc = 100 }
+
+
+
+	set_variable = { DED_free_mage_cg = -0.05 }		#Consumer Goods
+	set_variable = { DED_free_mage_rs = 0.05 }		#Research Speed
+	set_variable = { DED_free_mage_tr = -0.05 }		#Thaumaturgic Research
+
+	set_variable = { DED_free_mage_mg = DED_free_mages }		#Mage Gain
+
+
+	#Added bit of a randomness:
+	set_temp_variable_to_random = {
+		var = DED_random_mg
+		max = 50
+		integer = yes
+	}
+	add_to_variable = { DED_free_mage_mg = DED_random_mg }
+
+
+	multiply_variable = { DED_free_mage_cg = DED_mage_to_pop_ratio }	#Consumer Goods
+	multiply_variable = { DED_free_mage_rs = DED_mage_to_pop_ratio }	#Research Speed
+	multiply_variable = { DED_free_mage_tr = DED_mage_to_pop_ratio }	#Thaumaturgic Research
+
+	divide_variable = { DED_free_mage_mg = 100 }	#Mage Gain
+	round_variable = DED_free_mage_mg
+
+
+	#########################
+	###   SCHOOL SYSTEM   ###
+	#########################
+
+	if = {
+		limit = {
+			has_country_flag = DED_magic_schools
+		}
+
+		set_variable = { DED_magic_school_staff_fullfilment = DED_magic_school_current_staff }	#Current Staff in Schools
+		divide_variable = { DED_magic_school_staff_fullfilment = DED_magic_school_max_staff }	#Max Staff in Schools
+
+		set_variable = { DED_magic_school_mg = 1000 }	#Mage Gain
+
+
+		multiply_variable = { DED_magic_school_mg = DED_magic_school_staff_fullfilment }	#Mage Gain
+		round_variable = DED_magic_school_mg
+	}
+
+
+	############################
+	###   SUM OF MODIFIERS   ###
+	############################
+
+
+	#Consumer Goods
+	set_variable = { DED_thaum_cg = DED_free_mage_cg }
+	#add_to_variable = { DED_thaum_cg =  }
+
+	#Research Speed
+	set_variable = { DED_thaum_rs = DED_free_mage_rs }
+	#add_to_variable = { DED_thaum_rs =  }
+
+	#Thaumaturgic Research
+	set_variable = { DED_thaum_tr = DED_free_mage_tr }
+	#add_to_variable = { DED_thaum_tr =  }
+
+	#Mage Gain
+	set_variable = { DED_thaum_mg = DED_free_mage_mg }
+	add_to_variable = { DED_thaum_mg = DED_magic_school_mg }
+	
+}
+
+
+#Undefined Variables currently:
+#
+#
+
+
+
+#set_variable = { DED_thaumaturgia_project_price = 100 }
+#set_temp_variable = { temp_price_mult = 1 }
+#add_to_temp_variable = { temp_price_mult = modifier@DED_thaumaturgic_magic_research_speed }
+#multiply_temp_variable = { DED_thaumaturgia_project_price = temp_price_mult }
