@@ -62,7 +62,7 @@ kir_hch_setup_arrays_effect = {
 	add_to_array = { all_hchs_array = 0.001 }
 	add_to_array = { all_hchs_array = 0.002 }
 	add_to_array = { all_hchs_array = 0.003 }
-	# add_to_array = { all_hchs_array = 0.004 }
+	add_to_array = { all_hchs_array = 0.004 }
 	# add_to_array = { all_hchs_array = 0.005 }
 	# add_to_array = { all_hchs_array = 0.006 }
 
@@ -95,7 +95,7 @@ break = {
 ###############
 # GUI EFFECTS #
 ###############
-# effect to setup needed vars when selecting a hch
+# effect to setup needed vars when selecting a hch slot
 kir_select_hch_var_setup_effect = {
 	# set the selected value
 	set_variable = { selected_hch_value = hch_value }
@@ -114,66 +114,83 @@ kir_select_hch_var_setup_effect = {
 }
 
 # clear selection
-kir_clear_selection_effect = {
+kir_clear_hch_selection_effect = {
 	clear_variable = selected_hch_value
 	clear_variable = selected_hch_id
 	clear_variable = selected_hch_slot
 	clear_variable = selected_hch_level
 }
 
-# effect does the same as select, but for the second slot
-kir_move_select_hch_var_setup_effect = {
+# effect to setup needed vars when selecting a hch to add
+kir_assign_hch_var_setup_effect = {
 	# set the selected value
-	set_variable = { move_hch_value = hch_value }
+	set_variable = { assign_hch_value = hch_value }
 
 	# set id
 	kir_get_hch_id_from_value_effect = yes
-	set_variable = { move_hch_id = hch_id }
-
-	# set slot
-	kir_get_hch_slot_from_value_effect = yes
-	set_variable = { move_hch_slot = hch_slot }
-
-	# set level
-	kir_get_hch_level_from_value_effect = yes
-	set_variable = { move_hch_level = hch_level }
+	set_variable = { assign_hch_id = hch_id }
 }
 
-# clean up vars used for moving
-kir_clear_move_selection_effect = {
-	clear_variable = move_hch_value
-	clear_variable = move_hch_id
-	clear_variable = move_hch_slot
-	clear_variable = move_hch_level
+# clear selection
+kir_clear_hch_assign_effect = {
+	clear_variable = assign_hch_value
+	clear_variable = assign_hch_id
+	clear_variable = assign_hch_slot
+	clear_variable = assign_hch_level
 }
 
-# move selected hch to move-selected hch
-move_hch_effect = {
-	# remove the selected hch from its slote
+# assign the clicked hch to selected slot
+assign_hch_effect = {
+	# add the assign hch to selected slot
 	meta_effect = {
 		text = {
-			set_temp_variable = { rounded_hch_value = selected_hch_value }
-			round_temp_variable = rounded_hch_value
-			set_variable = { level_[HCH_LEVEL_TXT]_hchs_array^selected_hch_slot = rounded_hch_value }
+			add_to_variable = { level_[HCH_LEVEL_TXT]_hchs_array^selected_hch_slot = assign_hch_id }
 		}
 		HCH_LEVEL_TXT = "[?selected_hch_level|0]"
 	}
 
-	# add the selected hch to new slot
-	meta_effect = {
-		text = {
-			add_to_variable = { level_[HCH_LEVEL_TXT]_hchs_array^move_hch_slot = selected_hch_id }
-		}
-		HCH_LEVEL_TXT = "[?move_hch_level|0]"
-	}
+	# remove the assign hch from all characters
+	remove_from_array = { all_hchs_array = assign_hch_id }
 
-	# ideas managment
-	remove_hch_id_idea_effect = yes
-	add_hch_id_ideas_effect = yes
+	# add idea
+	add_assign_hch_id_ideas_effect = yes
 }
 
-# remove the ideas of character of hch_id
-remove_hch_id_idea_effect = {
+# remove the selected hch from its slot
+resign_selected_hch_effect = {
+	# remove the hch from its slot
+	meta_effect = {
+		text = {
+			round_variable = level_[HCH_LEVEL_TXT]_hchs_array^selected_hch_slot
+		}
+		HCH_LEVEL_TXT = "[?selected_hch_level|0]"
+	}
+
+	# add the hch back to selection
+	add_to_array = { all_hchs_array = selected_hch_id }
+
+	# remove idea of this hch
+	remove_selected_hch_id_idea_effect = yes
+}
+
+## Ideas managment
+# add the idea of added character of selected level
+add_assign_hch_id_ideas_effect = {
+	set_temp_variable = { assign_hch_id_1000 = assign_hch_value }
+	multiply_temp_variable = { assign_hch_id_1000 = 1000 }
+	meta_effect = {
+		text = {
+			add_ideas = {
+				hch_[HCH_ID_TXT]_level_[HCH_LEVEL_TXT]_idea
+			}
+		}
+		HCH_ID_TXT = "[?assign_hch_id_1000|0]"
+		HCH_LEVEL_TXT = "[?selected_hch_level|0]"
+	}
+}
+
+# remove the ideas of character of selected_hch_id
+remove_selected_hch_id_idea_effect = {
 	set_temp_variable = { selected_hch_id_1000 = selected_hch_id }
 	multiply_temp_variable = { selected_hch_id_1000 = 1000 }
 	meta_effect = {
@@ -187,37 +204,28 @@ remove_hch_id_idea_effect = {
 	}
 }
 
-# add the idea of character moving
-add_hch_id_ideas_effect = {
-	set_temp_variable = { selected_hch_id_1000 = selected_hch_id }
-	multiply_temp_variable = { selected_hch_id_1000 = 1000 }
-	meta_effect = {
-		text = {
-			add_ideas = {
-				hch_[HCH_ID_TXT]_level_[HCH_LEVEL_TXT]_idea
-			}
+# update current
+kir_update_hch_pool = {
+	# clear the pool array
+	clear_array = current_hch_pool_array
+
+	log = "iterating:"
+	for_each_loop = {
+		array = all_hchs_array
+		value = current_hch_id
+
+		log = "current id: [?current_hch_id]"
+
+		if = {
+			limit = { can_assign_current_hch_to_level_trigger = yes }
+			log = "added id: [?current_hch_id]"
+			add_to_array = { current_hch_pool_array = current_hch_id }
 		}
-		HCH_ID_TXT = "[?selected_hch_id_1000|0]"
-		HCH_LEVEL_TXT = "[?move_hch_level|0]"
 	}
 }
 
-# remove the moved character from stored characters
-remove_hch_from_selection_effect = {
-	remove_from_array = {
-		array = all_hchs_array
-		value = selected_hch_value
-	}
-}
-
-add_hch_to_selection_effect = {
-	add_to_array = {
-		array = all_hchs_array
-		value = selected_hch_value
-	}
-}
-
-kir_hch_deduct_pp = {
+# deduct the pp price depending on the level
+kir_hch_deduct_pp_effect = {
 	if = {
 		limit = {
 			check_variable = { selected_hch_level = 1 }
