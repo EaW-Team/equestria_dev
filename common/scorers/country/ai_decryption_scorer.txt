@@ -14,6 +14,10 @@ ai_decryption_target_scorer = {
 				has_capitulated = yes
 				factor = 0 
 			}
+			# strat is directly added
+			modifier = {
+				add = FROM.ai_strategy_decrypt_target@THIS
+			}
 		
 			# continue existing decryptions
 			modifier = {
@@ -24,17 +28,6 @@ ai_decryption_target_scorer = {
 					add_to_temp_variable = { temp_score = 20 }
 				}
 				add = temp_score
-			}
-
-			modifier = {
-				is_in_array = { global.majors = this }
-				is_major = no
-				NOT = {
-					is_in_array = { FROM.potential_and_current_enemies = this }
-					is_in_array = { FROM.enemies_of_allies = this }
-					is_in_array = { FROM.neighbors = this }
-				}
-				factor = 0
 			}
 
 			modifier = {
@@ -52,19 +45,33 @@ ai_decryption_target_scorer = {
 
 			# quite possibly we will attack this target due to strats
 			modifier = {
-				NOT = {
-					is_in_array = { FROM.potential_and_current_enemies = this }
-					is_in_array = { FROM.enemies_of_allies = this }
-				}
-				FROM = {
-					OR = {
-						check_variable = { ai_strategy_conquer@PREV > 0 }
-						check_variable = { ai_strategy_antagonize@PREV > 0 }
-						check_variable = { ai_strategy_declare_war@PREV > 0 }
-						check_variable = { ai_strategy_prepare_for_war@PREV > 0 }
-					}
+				NOT = { has_war_with = FROM }
+				OR = {
+					check_variable = { FROM.ai_strategy_conquer@THIS > 0 }
+					check_variable = { FROM.ai_strategy_antagonize@THIS > 0 }
+					check_variable = { FROM.ai_strategy_declare_war@THIS > 0 }
+					check_variable = { FROM.ai_strategy_prepare_for_war@THIS > 0 }
+					check_variable = { FROM.ai_strategy_contain@THIS > 0 }
+
+					check_variable = { ai_strategy_conquer@FROM > 0 }
+					check_variable = { ai_strategy_antagonize@FROM > 0 }
+					check_variable = { ai_strategy_declare_war@FROM > 0 }
+					check_variable = { ai_strategy_prepare_for_war@FROM > 0 }
+					check_variable = { ai_strategy_contain@FROM > 0 }
 				}
 				factor = 1.3
+			}
+
+			modifier = {
+				NOT = { has_war_with = FROM }
+				check_variable = { ai_strategy_ignore@FROM > 0 }
+				factor = 0.8
+			}
+
+			modifier = {
+				NOT = { has_war_with = FROM }
+				check_variable = { ai_strategy_ignore@FROM > 100 }
+				factor = 0.4
 			}
 
 			modifier = {
@@ -72,7 +79,6 @@ ai_decryption_target_scorer = {
 				factor = 1.2
 			}
 
-			
 			modifier = {
 				is_major = yes
 				factor = 1.1
@@ -80,15 +86,12 @@ ai_decryption_target_scorer = {
 
 			modifier = {
 				has_government = FROM
-				FROM = {
-					has_opinion = {
-						target = ROOT
-						value > 9
-					}
+				has_opinion = {
+					target = FROM
+					value > 5
 				}
 				NOT = {
-					is_in_array = { FROM.potential_and_current_enemies = this }
-					is_in_array = { FROM.enemies_of_allies = this }
+					has_war_with = FROM
 				}
 				factor = 0.8
 			}
@@ -103,33 +106,29 @@ ai_decryption_target_scorer = {
 			}
 
 			modifier = {
+				is_major = no
+				NOT = { is_in_array = { FROM.neighbors = this } }
 				NOT = {
-					is_in_array = { FROM.potential_and_current_enemies = this }
-					is_in_array = { FROM.enemies_of_allies = this }
+					has_war_with = FROM
+					is_in_array = { potential_and_current_enemies = FROM }
+					is_in_array = { enemies_of_allies = FROM }
 				}
-				FROM = {
-					set_temp_variable = { f = ai_strategy_ignore@PREV }
-					clamp_temp_variable = {
-						var = f
-						min = 0
-						max = 200
-					}
-					divide_temp_variable = { f = -200 }
-					add_to_temp_variable = { f = 1 }
-				}
-				factor = f
-			}
-
-			# strat is directly added
-			modifier = {
-				FROM = {
-					set_temp_variable = { f = ai_strategy_decrypt_target@PREV }
-				}
-				add = t
+				factor = 0.8
 			}
 
 			modifier = {
-				has_idea = detached_country
+				is_major = no
+				FROM = { is_PREV_on_the_same_continent = no }
+				NOT = {
+					has_war_with = FROM
+					is_in_array = { potential_and_current_enemies = FROM }
+					is_in_array = { enemies_of_allies = FROM }
+				}
+				factor = 0.8
+			}
+
+			modifier = {
+				FROM = { has_idea = detached_country }
 				factor = 0
 			}
 		}

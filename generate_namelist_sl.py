@@ -8,9 +8,9 @@ import collections
 import io
 dct = {
     "Pony": {
-        "MaleName": ["Thunder", "Duke", "Star", "Mister", "Brisk", "Steel", "Comet", "Flash", "Wild", "Platinum", "Rapid", "Sunshine", "Blue", "Butter", "Amity", "Hoofer", "Lighthoof", "Ebony", "Torch", "Big", "Braeburn", "Burnt", "Cheese", "Double", "Feather", "Filthy", "Glad", "Hard", "Cream", "Carrot", "Foam", "Piles", "Quibble", "Rusty", "Silver", "Trouble", "Twisty", "Caramel", "Lavender", "Bright", "Pokey", "Golden", "Wensley", "Tough", "Ace", "Black", "Brindle", "Bush", "Chocolate", "Cobalt", "Emerald", "Evening", "Fine", "Full", "Ginger", "Grape", "Hammer", "Hay", "Iron", "Lapis", "Lead", "Lime", "Lucky", "Parcel", "Perfect", "Pine", "Prance", "Rough", "Sealed", "Shiny", "Tall", "Vermilion", "Cloudy", "White", "Crafty", "Sand", "Stellar", "Storm", "Warm", "Midnight", "Moonshadow", "Moonlight", "Starry", "Stars", "Moon", "Night"],
-        "FemaleName": ["Cherry", "Amber", "Scarlet", "Twilight", "Emerald", "Mythic", "Lucky", "Twinkle", "Lotus", "Pink", "Cup", "Charity", "Rarity", "Starlight", "Velvet", "Coco", "Orange", "Prim", "Sapphire", "Shimmy", "Spoiled", "Suri", "Tree", "Marble", "Limestone", "Caramel", "Candy", "Florina", "Gala", "Jonagold", "Lavender", "Peachy", "Perfect", "Red", "Azure", "Beauty", "Blueberry", "Strawberry", "Corn", "Crimson", "Daisy", "Flurry", "Green", "Grape", "Jasmine", "Lilac", "Lily", "Minty", "Snowy", "Ocean", "Flutter", "Rainbow", "Sunset", "Purple", "Raspberry", "Raven", "Soft", "Spring", "Sun", "Sweetie", "Winter", "Lemon", "Lyra", "Merry", "Pearly", "Sea", "Sprinkle", "Twist", "Midnight" , "Moonshadow", "Velvet", "Moonlight"],
-        "Surname": ["Shine", "Kindheart", "Apple", "Blossom", "Cake", "Glimmer", "Cinnamon", "Cloud", "Dew", "Pommel", "Steps", "Tea", "Peach", "Pear", "Shores", "Shake", "Rich", "Milk", "Polomare", "Song", "Hugger", "Trotsworth", "Bucks", "McColt", "Oak", "Breadwinner", "Sandwich", "Diamond", "Amethyst", "Hooffield", "Hat", "Stream", "Stripes", "Nut", "Pants", "Bucket", "Shoes", "Pie", "Cider", "Bumpkin", "Cobbler", "Leaves", "Honey", "Fritter", "Berry", "Core", "Split", "Delicious", "Bottom", "Apricot", "Brass", "Belle", "Frost", "Icicle", "Hoof", "Mane", "Curls", "Spurs", "Twirl", "Swirl", "Punch", "Flower", "Dust", "Dough", "Wheat", "Trot", "Gallop", "Whinny", "Heart", "Rock", "Glamour", "Delight", "Jewel", "Harvest", "Tide", "Leaf", "Bloom", "Valley", "Spray", "Dawn", "Sparkle", "Dash", "Shy", "Melody", "Glow", "Shimmer", "Pearl", "Haze", "Wave", "Glaze", "Ruby", "Splash", "Water", "Ice", "Drops", "Love", "Sap", "Swoon", "Point", "Bread", "Stone", "Saddle", "Neigh", "Trotter", "Light", "Clover", "Dusk", "Sky", "Rose", "Tiara"]},
+        "MaleName": ["Thunder", "Cloud", "Duke", "Star", "Mister", "Brisk", "Steel", "Comet", "Flash", "Midnight", "Wild", "Moonshadow", "Platinum", "Rapid", "Velvet", "Moonlight"],
+        "FemaleName": ["Cherry", "Amber", "Scarlet", "Twilight", "Starry", "Ebony", "Dew", "Emerald", "Mythic", "Lucky", "Cinnamon"],
+        "Surname": ["Wings", "Fashion", "Colt", "Cinnamon", "Twirl", "Scarlet", "Harmony", "Little", "Snowflake", "Bubblegum", "Mythic", "Star", "Amethyst", "Lilly", "Solar", "Wings", "Emerald", "Fashion", "Dew", "Smooch"]},
     "Dragon": {
         "MaleName": ["Gold", "Geode", "Coral", "Diamond", "Amarant", "Baff", "Ballista", "Basil", "Blacktip", "Burnferno", "Clump", "Crackle", "Fizzle", "Flashfire", "Fume", "Gnash", "Knuckerbocker", "Mina", "Prominence", "Rex", "Scales", "Scakui", "Scubtukka", "Scirchy", "Sergio", "Viverno", "Whip"],
         "FemaleName": ["Ruby", "Amber", "Ember", "Garnet", "Amethyst", "Opal", "Diamond", "Sapphire", "Emerald", "Jasper", "Topaz", "Vex", "Jade", "Turquoise", "Lapis", "Quartz", "Spinel", "Tourmaline", "Agate", "Onyx", "Peridot", "Malachite"],
@@ -125,10 +125,10 @@ for tag, types in dct.items():
         name = Get%s%s
         ''' % (len(tpe), tag, cat)
         for idx, name in enumerate(tpe):
-            entry += '''text = {
-            trigger = { state = %d }
-            localization_key = "%s"
-        }
+            entry += '''            text = {
+                trigger = { state = %d }
+                localization_key = "%s"
+            }
         ''' % (idx+1, name)
         entry += "}"
         out.append(entry)
