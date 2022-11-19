@@ -99,7 +99,6 @@ scripted_gui = {
 		triggers = {
 			kir_hierarchy_character_selection_button_click_enabled = {
 				kir_hch_has_pp_trigger = yes
-				check_variable = { selected_hch_id = 0 }
 			}
 
 			kir_hierarchy_character_selection_resign_button_click_enabled = {
@@ -110,11 +109,11 @@ scripted_gui = {
 			}
 
 			kir_hierarchy_character_selection_resign_button_visible = {
-				check_variable = { selected_hch_id > 0 }
+				is_hch_id_selected_trigger = yes
 			}
 
 			kir_hierarchy_character_selection_resign_button_text_visible = {
-				check_variable = { selected_hch_id > 0 }
+				is_hch_id_selected_trigger = yes
 			}
 
 			kir_hierarchy_character_selection_promote_button_click_enabled = {
@@ -126,12 +125,12 @@ scripted_gui = {
 			}
 
 			kir_hierarchy_character_selection_promote_button_visible = {
-				check_variable = { selected_hch_id > 0 }
+				is_hch_id_selected_trigger = yes
 				kir_hch_can_promote_trigger = yes
 			}
 
 			kir_hierarchy_character_selection_promote_button_text_visible = {
-				check_variable = { selected_hch_id > 0 }
+				is_hch_id_selected_trigger = yes
 				kir_hch_can_promote_trigger = yes
 			}
 
@@ -143,12 +142,12 @@ scripted_gui = {
 			}
 
 			kir_hierarchy_character_selection_demote_button_visible = {
-				check_variable = { selected_hch_id > 0 }
+				is_hch_id_selected_trigger = yes
 				kir_hch_can_demote_trigger = yes
 			}
 
 			kir_hierarchy_character_selection_demote_button_text_visible = {
-				check_variable = { selected_hch_id > 0 }
+				is_hch_id_selected_trigger = yes
 				kir_hch_can_demote_trigger = yes
 			}
 		}
@@ -171,19 +170,36 @@ scripted_gui = {
 
 					# remove the selected hch
 					resign_selected_hch_effect = yes
+
+					# if we have clicked on the hch in the slot, we want to only remove it
+					if = {
+						limit = {
+							check_variable = { selected_hch_id = assign_hch_id }
+						}
+						set_country_flag = only_remove_hch_flag
+					}
 				}
 				else = {
 					# we have selected an empty slot
 				}
 
-				# add the add character
-				assign_hch_effect = yes
-				# deduct the pp cost
-				kir_hch_deduct_pp_effect = yes
+				if = {
+					# add the new hch if we need to
+					limit = {
+						NOT = { has_country_flag = only_remove_hch_flag }
+					}
+					# add the add character
+					assign_hch_effect = yes
+					# deduct the pp cost
+					kir_hch_deduct_pp_effect = yes
+				}
 
 				# clear selection and added values
 				kir_clear_hch_selection_effect = yes
 				kir_clear_hch_assign_effect = yes
+
+				# clear the flag for the next usage
+				clr_country_flag = only_remove_hch_flag
 			}
 
 			kir_hierarchy_character_selection_resign_button_click = {
@@ -243,6 +259,9 @@ scripted_gui = {
 		}
 
 		properties = {
+			kir_hierarchy_character_selection_button = {
+				frame = is_selected_hch_array^i  # array which is 1 if not selected hch and 2 if it is
+			}
 			kir_hierarchy_character_selection_icon = {
 				image = "[GetHCHgfx]"
 			}
