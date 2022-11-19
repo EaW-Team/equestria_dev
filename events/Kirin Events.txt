@@ -7802,17 +7802,17 @@ country_event = {
 		add_to_array = { array = kir_hchs_level_5_array value = 0.002 }
 		add_to_array = { array = kir_hchs_level_5_array value = 0.004 }
 		### all available hchs
-		add_to_array = { array = kir_all_available_hchs value = 0.006 }
-		add_to_array = { array = kir_all_available_hchs value = 0.007 }
-		add_to_array = { array = kir_all_available_hchs value = 0.008 }
-		add_to_array = { array = kir_all_available_hchs value = 0.009 }
-		add_to_array = { array = kir_all_available_hchs value = 0.010 }
-		add_to_array = { array = kir_all_available_hchs value = 0.011 }
-		add_to_array = { array = kir_all_available_hchs value = 0.012 }
-		add_to_array = { array = kir_all_available_hchs value = 0.013 }
-		add_to_array = { array = kir_all_available_hchs value = 0.001 }
-		add_to_array = { array = kir_all_available_hchs value = 0.002 }
-		add_to_array = { array = kir_all_available_hchs value = 0.004 }
+		add_to_array = { array = all_hchs_array value = 0.006 }
+		add_to_array = { array = all_hchs_array value = 0.007 }
+		add_to_array = { array = all_hchs_array value = 0.008 }
+		add_to_array = { array = all_hchs_array value = 0.009 }
+		add_to_array = { array = all_hchs_array value = 0.010 }
+		add_to_array = { array = all_hchs_array value = 0.011 }
+		add_to_array = { array = all_hchs_array value = 0.012 }
+		add_to_array = { array = all_hchs_array value = 0.013 }
+		add_to_array = { array = all_hchs_array value = 0.001 }
+		add_to_array = { array = all_hchs_array value = 0.002 }
+		add_to_array = { array = all_hchs_array value = 0.004 }
 	}
 }
 
@@ -8036,13 +8036,13 @@ country_event = {
 		custom_effect_tooltip = KIR_hierocracy_get_advisor_tooltip
 		add_to_array = { array = kir_hchs_level_3_array value = 0.015 }
 		add_to_array = { array = kir_hchs_level_5_array value = 0.015 }
-		add_to_array = { array = kir_all_available_hchs value = 0.015 }
+		add_to_array = { array = all_hchs_array value = 0.015 }
 		custom_effect_tooltip = available_hierarch_burearch
 		set_temp_variable = { selected_hch_id = 0.016 }
 		custom_effect_tooltip = KIR_hierocracy_get_advisor_tooltip
 		add_to_array = { array = kir_hchs_level_3_array value = 0.016 }
 		add_to_array = { array = kir_hchs_level_5_array value = 0.016 }
-		add_to_array = { array = kir_all_available_hchs value = 0.016 }
+		add_to_array = { array = all_hchs_array value = 0.016 }
 	}
 }
 
@@ -8304,16 +8304,24 @@ country_event = {
 	immediate = {
 		hidden_effect = {
 			set_country_flag = { flag = KIR_TRAD_hierocrat_assassinated days = 30 }
-			set_variable = { KIR_total_num_of_hchs = kir_hchs_level_3_array^num }
-			add_to_variable = { KIR_total_num_of_hchs = kir_hchs_level_4_array^num }
-			add_to_variable = { KIR_total_num_of_hchs = kir_hchs_level_5_array^num }
-			set_variable_to_random = {
-				var = KIR_random_hch_num
-				max = KIR_total_num_of_hchs
-				min = 0
+			if = {
+				limit = {
+					check_variable = { all_hchs_array^num = 1 }
+				}
+				set_variable = { KIR_hch_to_kill = all_hchs_array^0 }
 			}
-			set_variable = { KIR_hch_to_kill = kir_all_available_hchs^KIR_random_hch_num }
-			set_temp_variable = { selected_hch_id = KIR_hch_to_kill }
+			else = {
+				set_variable = { KIR_total_num_of_hchs = all_hchs_array^num }
+				set_variable_to_random = {
+					var = KIR_random_hch_num
+					max = KIR_total_num_of_hchs
+					min = 0
+					integer = yes
+				}
+				set_variable = { KIR_hch_to_kill = all_hchs_array^KIR_random_hch_num }
+				clear_variable = KIR_total_num_of_hchs
+				clear_variable = KIR_random_hch_num
+			}
 		}
 	}
 	
@@ -8324,6 +8332,7 @@ country_event = {
 	fire_only_once = yes
 	trigger = {
 		original_tag = KIR
+		check_variable = { all_hchs_array^num > 0 }
 		NOT = { has_country_flag = KIR_TRAD_new_standard_army_revolt }
 		NOT = { has_country_flag = KIR_TRAD_hierocrat_assassinated }
 		NOT = {
@@ -8341,15 +8350,29 @@ country_event = {
 	
 	option = {
 		name = kirin_loyalists.53.a
-		custom_effect_tooltip = available_hierarch_scholarch
-		set_temp_variable = { selected_hch_id = KIR_hch_to_kill }
-		custom_effect_tooltip = KIR_hierocracy_get_advisor_tooltip
-		remove_from_array = { kir_all_available_hchs = KIR_hch_to_kill }
-		remove_from_array = { kir_hchs_level_1_array = KIR_hch_to_kill }
-		remove_from_array = { kir_hchs_level_2_array = KIR_hch_to_kill }
+		## Kill HCH
+		remove_from_array = { all_hchs_array = KIR_hch_to_kill }
+		if = {
+			limit = {
+				is_in_array = { kir_hchs_level_1_array = KIR_hch_to_kill }
+			}
+			remove_from_array = { kir_hchs_level_1_array = KIR_hch_to_kill }
+			subtract_from_variable = { kir_hchs_level_1_promoted = 1 }
+		}
+		if = {
+			limit = {
+				is_in_array = { kir_hchs_level_2_array = KIR_hch_to_kill }
+			}
+			remove_from_array = { kir_hchs_level_2_array = KIR_hch_to_kill }
+			subtract_from_variable = { kir_hchs_level_2_promoted = 1 }
+		}
 		remove_from_array = { kir_hchs_level_3_array = KIR_hch_to_kill }
 		remove_from_array = { kir_hchs_level_4_array = KIR_hch_to_kill }
 		remove_from_array = { kir_hchs_level_5_array = KIR_hch_to_kill }
+		clear_variable = KIR_hch_to_kill
+		add_stability = -0.02
+		add_political_power = -25
+		custom_effect_tooltip = KIR_loyalists_assassination_tt
 	}
 }
 
@@ -8369,6 +8392,7 @@ country_event = {
 	fire_only_once = yes
 	trigger = {
 		original_tag = KIR
+		check_variable = { all_hchs_array^num > 0 }
 		NOT = { has_country_flag = KIR_TRAD_hierocrat_assassinated }
 		NOT = {
 			has_completed_focus = KIR_TRAD_4
@@ -8385,6 +8409,9 @@ country_event = {
 	
 	option = {
 		name = kirin_loyalists.54.a
+		add_stability = -0.02
+		add_political_power = -25
+		custom_effect_tooltip = KIR_loyalists_assassination_tt
 	}
 }
 
@@ -8404,6 +8431,7 @@ country_event = {
 	fire_only_once = yes
 	trigger = {
 		original_tag = KIR
+		check_variable = { all_hchs_array^num > 0 }
 		has_country_flag = KIR_TRAD_new_standard_army_revolt
 		NOT = { has_country_flag = KIR_TRAD_hierocrat_assassinated }
 	}
@@ -8413,6 +8441,9 @@ country_event = {
 	
 	option = {
 		name = kirin_loyalists.55.a
+		add_stability = -0.02
+		add_political_power = -25
+		custom_effect_tooltip = KIR_loyalists_assassination_tt
 	}
 }
 
@@ -8433,6 +8464,31 @@ country_event = {
 	
 	option = {
 		name = kirin_loyalists.56.a
+	}
+}
+
+country_event = {
+	id = kirin_loyalists.60
+	immediate = {log = "[GetDateText]: [Root.GetName]: event kirin_loyalists.60"}
+	title = kirin_loyalists.60.t
+	desc = kirin_loyalists.60.d
+	
+	picture = GFX_event_KIR_evening
+	
+	is_triggered_only = yes
+	
+	option = {
+		name = kirin_loyalists.60.a
+		custom_effect_tooltip = available_hierarch
+		set_temp_variable = { selected_hch_id = 0.019 }
+		custom_effect_tooltip = KIR_hierocracy_get_advisor_tooltip
+		add_to_array = { array = kir_hchs_level_3_array value = 0.019 }
+		add_to_array = { array = all_hchs_array value = 0.019 }
+		custom_effect_tooltip = available_burearch
+		set_temp_variable = { selected_hch_id = 0.02 }
+		custom_effect_tooltip = KIR_hierocracy_get_advisor_tooltip
+		add_to_array = { array = kir_hchs_level_5_array value = 0.02 }
+		add_to_array = { array = all_hchs_array value = 0.02 }
 	}
 }
 
