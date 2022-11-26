@@ -44,11 +44,6 @@ NDefines.NNavy.SHORE_BOMBARDMENT_CAP = 0.3 -- Vanilla is 0.25
 NDefines.NNavy.SCREENS_TO_CAPITAL_RATIO = 3.0 -- Vanilla is 4.0, mostly AI stuff
 
 NDefines.NAir.NAVAL_COMBAT_EXTERNAL_PLANES_JOIN_RATIO = 0.03 	-- Max planes that can join a combat comparing to the total strength of the ships, vanilla is 0.05
-NDefines.NAir.AIR_WING_MAX_STATS_ATTACK = 400					-- Max stats, all quadrupled from vanilla to account for our late timeframe
-NDefines.NAir.AIR_WING_MAX_STATS_DEFENCE = 400
-NDefines.NAir.AIR_WING_MAX_STATS_AGILITY = 400
-NDefines.NAir.AIR_WING_MAX_STATS_SPEED = 3200
-NDefines.NAir.AIR_WING_MAX_STATS_BOMBING = 400
 
 NDefines.NAI.RESEARCH_LAND_DOCTRINE_NEED_GAIN_FACTOR = 0.12 -- Multiplies value based on relative military industry size / country size.
 NDefines.NAI.DYNAMIC_STRATEGIES_THREAT_FACTOR = 6.0
