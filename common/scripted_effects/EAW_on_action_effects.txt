@@ -2779,3 +2779,117 @@ FRN_reduce_tarrin_resistance = {
 		}
 	}
 }
+
+transfer_impassible_states_back = {
+	for_each_scope_loop = {
+		array = global.stolen_impassables
+		# Calculate the best owner
+		set_temp_variable = { impassable_former_owner_temp = impassable_former_owner }
+		set_temp_variable = { impassable_best_owner = 0 }
+		# 1 - original owner
+		# 2 - original tag of original owner
+		# 3 - root (winner in peace deal)
+		# 4 - country with a core allied with root
+		# 5 - country with a core
+		# fallback - current owner (PDX logic)
+		set_temp_variable = { impassable_best_owner_type = 0 }
+
+		if = {
+			limit = {
+				owner = {
+					NOT = { tag = temp_var:impassable_former_owner_temp }
+				}
+			}
+			log = "[GetDateText]: Impassable [This.GetName] was stolen from [?impassable_former_owner.GetTag] by [?owner.GetTag]"
+
+			every_neighbor_state = {
+				limit = {
+					impassable = no
+					owner = {
+						NOT = {
+							has_war_with = ROOT
+							has_war_with = FROM
+						}
+					}
+				}
+				owner = {
+					if = {
+						limit = {
+							NOT = {
+								check_variable = { impassable_best_owner_type > 1 }
+							}
+							tag = temp_var:impassable_former_owner_temp
+						}
+						log = "[GetDateText]: Setting best owner as previous owner [?this.GetTag]"
+						set_temp_variable = { impassable_best_owner = THIS }
+						set_temp_variable = { impassable_best_owner_type = 1 }
+					}
+					else_if = {
+						limit = {
+							check_variable = { impassable_best_owner_type > 2 }
+							original_tag = temp_var:impassable_former_owner_temp
+						}
+						log = "[GetDateText]: Setting best owner as same original tag as previous owner [?this.GetTag]"
+						set_temp_variable = { impassable_best_owner = THIS }
+						set_temp_variable = { impassable_best_owner_type = 2 }
+					}
+					else_if = {
+						limit = {
+							check_variable = { impassable_best_owner_type > 3 }
+							tag = ROOT
+						}
+						log = "[GetDateText]: Setting best owner as root (winner) [?this.GetTag]"
+						set_temp_variable = { impassable_best_owner = THIS }
+						set_temp_variable = { impassable_best_owner_type = 3 }
+					}
+					else_if = {
+						limit = {
+							check_variable = { impassable_best_owner_type > 4 }
+							PREV = { is_core_of = PREV }
+							is_ally_with = ROOT
+						}
+						log = "[GetDateText]: Setting best owner as core owner allied to root [?this.GetTag]"
+						set_temp_variable = { impassable_best_owner = THIS }
+						set_temp_variable = { impassable_best_owner_type = 4 }
+					}
+					else_if = {
+						limit = {
+							check_variable = { impassable_best_owner_type > 5 }
+							PREV = { is_core_of = PREV }
+						}
+						log = "[GetDateText]: Setting best owner as core owner [?this.GetTag]"
+						set_temp_variable = { impassable_best_owner = THIS }
+						set_temp_variable = { impassable_best_owner_type = 5 }
+					}
+				}
+			}
+			if = {
+				limit = {
+					NOT = {
+						check_variable = { impassable_best_owner = 0 }
+					}
+				}
+				log = "[GetDateText]: Impassable [This.GetName] transferring to [?impassable_best_owner.GetTag]"
+				transfer_state_to = temp_var:impassable_best_owner
+			}
+		}
+		clear_variable = impassable_former_owner
+	}
+	clear_array = global.stolen_impassables
+}
+
+save_owner_of_impassible_states = {
+	FROM = {
+		every_owned_state = {
+			limit = {
+				impassable = yes
+			}
+			set_variable = {
+				impassable_former_owner = FROM
+			}
+			add_to_array = {
+				global.stolen_impassables = THIS
+			}
+		}
+	}
+}
