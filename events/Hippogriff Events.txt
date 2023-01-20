@@ -1003,7 +1003,7 @@ country_event = {
 	}
 
 	option = {#naw
-		name = hippogriff.29.a
+		name = hippogriff.29.b
 		ai_chance = {factor = 0}
 	}
 }
@@ -1387,7 +1387,19 @@ country_event = {
 		name = hippogriff.99.a
 		custom_effect_tooltip = HIP_last_imazeeb
 		hidden_effect = {
-			load_oob = HIP_last_imazeeb
+			if = {
+				limit = {
+					NOT = {
+						has_tech = tech_spirit_warriors
+					}
+				}
+				set_technology = {
+					tech_spirit_warriors = 1
+				}
+				fix_weapon_techs = yes
+			}
+			load_oob = "HIP_last_imazeeb"
+			set_country_flag = HIP_has_last_warband
 		}
 	}
 }
@@ -1562,7 +1574,7 @@ country_event = {
 	title = hippogriff.64.t
 	desc = hippogriff.64.d
 
-	picture = GFX_hipposoldier
+	picture = GFX_event_HIP_warzone
 
 	is_triggered_only = yes
 	fire_only_once = yes
@@ -1576,6 +1588,8 @@ country_event = {
 		hidden_effect = {
 			country_event = north_war.30
 		}
+		set_country_flag = HIP_won_north_zebrican_war
+		mark_focus_tree_layout_dirty = yes
 	}
 
 	option = {#Try to dismantle WNG's sphere
@@ -1584,6 +1598,57 @@ country_event = {
 		activate_mission = HIP_WNG_war_countdown
 		ai_chance = {
 			factor = 2
+		}
+	}
+}
+
+country_event = {
+	id = hippogriff.641
+	title = hippogriff.641.t
+	desc = {
+		text = hippogriff.641.d1 
+		trigger = {
+			original_tag = WNG
+			NOT = {HIP = {has_government = fascism}}
+		}
+	}
+	desc = {
+		text = hippogriff.641.d2
+		trigger = {
+			original_tag = HIP
+			NOT = {HIP = {has_government = fascism}}
+		}
+	}
+
+	desc = {
+		text = hippogriff.641.d3
+		trigger = {
+			HIP = {has_government = fascism}
+		}
+	}
+
+
+	picture = GFX_event_beakolini
+
+	is_triggered_only = yes
+	fire_only_once = yes
+
+	option = {
+		name = hippogriff.641.a
+		trigger = {original_tag = WNG}
+	}
+	option = {
+		name = hippogriff.641.b
+		trigger = {
+			original_tag = HIP
+			NOT = {has_government = fascism}
+		}
+	}
+	option = {
+		name = hippogriff.641.c
+		trigger = {
+			original_tag = HIP
+			has_government = fascism
 		}
 	}
 }
@@ -1739,6 +1804,10 @@ country_event = {#Hidden event restoring defeatism
 		}
 	}
 
+	mean_time_to_happen = {
+		days = 2
+	}
+
 	immediate = {
 		if = {
 			limit = {
@@ -1750,9 +1819,7 @@ country_event = {#Hidden event restoring defeatism
 			add_ideas = HIP_defeatism_idea
 		}
 	}
-	option = {#this is hidden tee hee
-	name = hippogrriff.67.a
-	}
+
 }
 
 country_event = {#Hidden event temporarily removing defeatism
@@ -1777,12 +1844,13 @@ country_event = {#Hidden event temporarily removing defeatism
 		}
 	}
 
+	mean_time_to_happen = {
+		days = 2
+	}
+
 	immediate = {
 		remove_ideas = HIP_defeatism_idea_2
 		remove_ideas = HIP_defeatism_idea
-	}
-	option = {#this is hidden tee hee
-	name = hippogrriff.68.a
 	}
 }
 
@@ -1823,9 +1891,30 @@ country_event = {
 		else = {
 			add_ideas = HIP_crisis_1
 		}
+		every_other_country = {
+			limit = {
+				is_on_equestrian_continent = yes
+				has_war_with = ROOT
+			}
+			set_country_flag = {flag = bypass_on_peaceconference_ended value = 1 days = 1}
+			white_peace = ROOT
+		}
 		if = {
 			limit = {
 				is_faction_leader = yes
+			}
+			every_other_country = {
+				limit = {
+					is_in_faction_with = HIP
+				}
+				every_other_country = {
+					limit = {
+						is_on_equestrian_continent = yes
+						has_war_with = PREV
+					}
+					set_country_flag = {flag = bypass_on_peaceconference_ended value = 1 days = 1}
+					white_peace = PREV
+				}
 			}
 			dismantle_faction = yes
 		}
@@ -1849,6 +1938,12 @@ country_event = {
 				id = hippogriff.251
 				days = 7
 			}
+		}
+		if = {
+			limit = {
+				is_ai = yes
+			}
+			hidden_effect = {add_stability = 0.10}
 		}
 	}
 }
@@ -1920,6 +2015,12 @@ country_event = {
 				days = 7
 			}
 		}
+		if = {
+			limit = {
+				is_ai = yes
+			}
+			hidden_effect = {add_stability = 0.10}
+		}
 	}
 }
 
@@ -1935,7 +2036,9 @@ country_event = {
 
 	option = {
 		name = hippogriff.251.a
-		retire_character = HIP_raft_wood
+		HIP_raft_wood = {
+			retire = yes
+		}
 		set_country_flag = HIP_raft_resigned
 		remove_ideas = HIP_figurehead_novo
 		clr_country_flag = HIP_arisfirst_government
@@ -2376,33 +2479,65 @@ country_event = {#debug event to load victory tree
 	}
 }
 
-country_event = {#debug event to load defeat tree
+country_event = {#NZW defeat event sender
 	id = hippogriff.1002
 	title = hippogriff.1002.t
 	desc = hippogriff.1002.d
-
+	hidden = yes
 	is_triggered_only = yes
 
 	option = {
-		set_country_flag = BAT_HIP_defeated
-		mark_focus_tree_layout_dirty = yes
 		if = {
 			limit = {
-				OR = {
-					has_government = democratic
-					has_government = neutrality
+				NOT = {
+					has_country_flag = HIP_won_north_zebrican_war
 				}
 			}
-			country_event = hippogriff.25
-		}
-		else_if = {
-			limit = {
-				has_government = fascism
+			if = {
+				limit = {
+					OR = {
+						has_government = democratic
+						has_government = neutrality
+					}
+					WIN = {
+						exists = no
+					}
+				}
+				country_event = {
+					id = hippogriff.25
+					days = 1
+				}
 			}
-			country_event = arisfirst.60
-		}
-		else = {
-			country_event = hippocommie.68
+			else_if = {
+				limit = {
+					OR = {
+						has_government = democratic
+						has_government = neutrality
+					}
+					WIN = {
+						exists = yes
+					}
+				}
+				country_event = {
+					id = hippogriff.26
+					days = 1
+				}
+			}
+			else_if = {
+				limit = {
+					has_government = fascism
+				}
+				country_event = {
+					id = arisfirst.60
+					days = 1
+				}
+			}
+			else = {
+				country_event = {
+					id = hippocommie.68
+					days = 1
+				}
+			}
 		}
 	}
 }
@@ -2444,7 +2579,7 @@ country_event = {
 			character = HIP_silverstream
 		}
 		add_timed_idea = {
-			idea = HIP_splendid_iscolation
+			idea = HIP_splendid_isolation_2
 			days = 360
 		}
 	}
@@ -2553,14 +2688,18 @@ country_event = {#Release CTH
 								original_tag = CDR
 							}
 						}
-						is_core_of = CTH
+						OR = {
+							is_core_of = CTH
+							is_core_of = CDR
+							is_core_of = CVA
+						}
 					}
 				}
 				CTH = {transfer_state = PREV}
 			}
 			if = {
 				limit = {
-					1097 = {
+					1092 = {
 						owner = {
 							OR = {
 								tag = HIP
@@ -2569,7 +2708,7 @@ country_event = {#Release CTH
 						}
 					}
 				}
-				CTH = {transfer_state = 1097}
+				CTH = {transfer_state = 1092}
 			}
 		}
 	}
@@ -2690,15 +2829,15 @@ country_event = {#deradicalizing BAT is hard
 			limit = {
 				is_core_of = BAT
 			}
-			add_compliance = -0.10
-			add_resistance = 0.10
+			add_compliance = -10
+			add_resistance = 10
 		}
 		random_owned_controlled_state = {
 			limit = {
 				is_core_of = BAT
 			}
-			add_compliance = -0.10
-			add_resistance = 0.10
+			add_compliance = -10
+			add_resistance = 10
 		}
 	}
 }
@@ -2777,7 +2916,7 @@ country_event = {#Equestria plz halp
 			limit = {
 				is_core_of = BAT
 			}
-			add_compliance = 0.05
+			add_compliance = 5
 		}
 		set_country_flag = HIP_equestrian_help
 		add_political_power = 50
@@ -2839,9 +2978,17 @@ country_event = {
 	title = hippogriff.551.t
 	desc = hippogriff.551.d
 	is_triggered_only = yes
+	picture = GFX_event_night_riders
 
 	option = {
 		name = hippogriff.551.a
+		every_controlled_state = {
+			limit = {
+				is_core_of = BAT
+			}
+			add_compliance = 10
+			add_resistance = -5
+		}
 	}
 }
 
@@ -2955,6 +3102,15 @@ country_event = {#what do we do with Tobuck?
 			}
 			custom_effect_tooltip = HIP_cant_annex_WAR_tt
 		}
+		ZAR = {
+			add_ai_strategy = {
+				type = alliance
+				id = "HIP"
+				value = -200
+			}
+		}
+		delete_unit_template_and_units = {division_template = "Last Warband"}
+		clr_country_flag = HIP_has_last_warband
 	}
 	option = {#Compromise!
 		name = hippogriff.56.c
@@ -3034,6 +3190,7 @@ country_event = {
 		if = {
 			limit = {
 				tag = ZAR
+				is_subject = no
 			}
 			country_event = {
 				id = hippogriff.563
@@ -3071,6 +3228,7 @@ country_event = {
 		if = {
 			limit = {
 				tag = ZAR
+				is_subject = no
 			}
 			country_event = {
 				id = hippogriff.563
@@ -3089,7 +3247,7 @@ country_event = {#loads ZAR harmonist tree
 	picture = GFX_event_zebrica_8
 
 	option = {#I did it mom
-		name = hippogriff.56.a
+		name = hippogriff.563.a
 		load_focus_tree = {tree = Zarantia_eternal_federation keep_completed = yes}
 		add_popularity = {
 			ideology = democratic
@@ -3132,6 +3290,24 @@ country_event = { #The fate of Zarantia - post-harmonist victory tree. 63-65 are
 				}
 			}
 			release = ZAR
+			ZAR = {
+				hidden_effect = {
+					set_politics = {
+							ruling_party = neutrality
+							elections_allowed = no
+						}
+						add_country_leader_role = {
+							character = ZAR_umalez
+							promote_leader = yes
+							country_leader = {
+								desc = ""
+								expire = "1965.1.1"
+								ideology = tribal_council
+								traits = { ZAR_first_among_equals }
+						}
+					}
+				}
+			}
 		}
 		else_if = {
 			limit = {
@@ -3140,6 +3316,29 @@ country_event = { #The fate of Zarantia - post-harmonist victory tree. 63-65 are
 				}
 			}
 			end_puppet = ZAR
+			ZAR = {
+				hidden_effect = {
+					set_politics = {
+							ruling_party = neutrality
+							elections_allowed = no
+						}
+						add_country_leader_role = {
+							character = ZAR_umalez
+							promote_leader = yes
+							country_leader = {
+								desc = ""
+								expire = "1965.1.1"
+								ideology = tribal_council
+								traits = { ZAR_first_among_equals }
+						}
+					}
+				}
+			}
+			add_ai_strategy = {
+				type = alliance
+				id = "HIP"
+				value = 100
+			}
 		}
 		every_owned_state = {
 			limit = {
@@ -3154,7 +3353,7 @@ country_event = { #The fate of Zarantia - post-harmonist victory tree. 63-65 are
 		name = hippogriff.70.b
 		ai_chance = { factor = 1 }
 		delete_unit_template_and_units = {division_template = "Last Warband"}
-		release_puppet = ZAR
+		clr_country_flag = HIP_has_last_warband
 		if = {
 			limit = {
 				ZAR = {
@@ -3173,6 +3372,25 @@ country_event = { #The fate of Zarantia - post-harmonist victory tree. 63-65 are
 			ZAR = {transfer_state = PREV}
 		}
 		ZAR = {set_country_flag = HIP_released_ZAR}
+		ZAR = {
+			hidden_effect = {
+				set_politics = {
+						ruling_party = neutrality
+						elections_allowed = no
+					}
+					add_country_leader_role = {
+						character = ZAR_umalez
+						promote_leader = yes
+						country_leader = {
+							desc = ""
+							expire = "1965.1.1"
+							ideology = tribal_council
+							traits = { ZAR_first_among_equals }
+					}
+				}
+				load_focus_tree = generic_zebra_focus
+			}
+		}
 	}
 	option = { #Military Occupation
 		name = hippogriff.70.c
@@ -3191,12 +3409,13 @@ country_event = { #The fate of Zarantia - post-harmonist victory tree. 63-65 are
 		add_war_support = -0.10
 		add_political_power = -50
 		delete_unit_template_and_units = {division_template = "Last Warband"}
+		clr_country_flag = HIP_has_last_warband
 		every_state = {
 			limit = {
 				is_core_of = ZAR
 			}
-			add_resistance = 0.2
-			add_compliance = -0.2
+			add_resistance = 20
+			add_compliance = -20
 		}
 	}
 }
@@ -3310,7 +3529,6 @@ country_event = {
 
 	option = {#yay
 		name = hippogriff.73.a
-		ROOT = {puppet = BAT}
 		if = {
 			limit = {
 				has_dlc = "Man the Guns"
@@ -3338,6 +3556,7 @@ country_event = {
 				}
 			}
 		}
+		BAT = {set_country_flag = HIP_alliance_member}
 	}
 	option = {#tag switch
 		name = hippogriff.73.b
@@ -3369,6 +3588,7 @@ country_event = {
 			}
 		}
 		BAT = {change_tag_from = ROOT}
+		BAT = {set_country_flag = HIP_alliance_member}
 	}
 }
 
@@ -3388,6 +3608,38 @@ country_event = {
 		name = hippogriff.731.b
 		trigger = {tag = BAT}
 		end_puppet_this = yes
+	}
+}
+
+country_event = {#Silverstream has a moonburger
+	id = hippogriff.732
+	title = {
+		text = hippogriff.732.t1 
+		trigger = {has_government = democratic}
+	}
+	title = {
+		text = hippogriff.732.t2
+		trigger = {has_government = communism}
+	}
+	desc = {
+		text = hippogriff.732.d1
+		trigger = {has_government = democratic}
+	}
+	desc = {
+		text = hippogriff.732.d2
+		trigger = {has_government = communism}
+	}
+
+	is_triggered_only = yes
+	picture = GFX_event_aris_and_beach
+
+	option = {#Tasty!
+		name = hippogriff.732.a
+		trigger = {has_government = democratic}
+	}
+	option = {#Tasty and Radioactive!
+		name = hippogriff.732.b
+		trigger = {has_government = communism}
 	}
 }
 
@@ -3470,14 +3722,11 @@ country_event = {
 	}
 	option = {#cool
 		name = hippogriff.75.a
-		set_temp_variable = {politicalpowerwargame = HIP_wargame_participants}
-		multiply_temp_variable = {var = politicalpowergame value = -10}
-		add_political_power = politicalpowergame
 		set_temp_variable = {var = commandpowergame value = HIP_wargame_participants}
 		multiply_temp_variable = {var = commandpowergame value = -5}
 		add_command_power = commandpowergame
 		set_temp_variable = {militaryxpgame = HIP_wargame_participants}
-		multiply_temp_variable = {var = militaryxpgame value = 4}
+		multiply_temp_variable = {var = militaryxpgame value = 40}
 		army_experience = militaryxpgame
 		navy_experience = militaryxpgame
 		air_experience = militaryxpgame
@@ -3522,7 +3771,7 @@ country_event = {
 					name = HIP_wargames
 					category = land_doctrine
 					uses = 1
-					cost_reduction = 0.25
+					cost_reduction = 0.5
 				}
 			}
 			BAT = {
@@ -3530,7 +3779,7 @@ country_event = {
 					name = HIP_wargames
 					category = land_doctrine
 					uses = 1
-					cost_reduction = 0.25
+					cost_reduction = 0.5
 				}
 			}
 		}
@@ -3575,7 +3824,7 @@ country_event = {
 					name = HIP_wargames
 					category = land_doctrine
 					uses = 1
-					cost_reduction = 0.25
+					cost_reduction = 0.5
 				}
 			}
 			CTH = {
@@ -3583,10 +3832,108 @@ country_event = {
 					name = HIP_wargames
 					category = land_doctrine
 					uses = 1
-					cost_reduction = 0.25
+					cost_reduction = 0.5
 				}
 			}
 		}
+	}
+}
+
+country_event = {
+	id = hippogriff.80
+	title = hippogriff.80.t
+	desc = hippogriff.80.d
+
+	is_triggered_only = yes
+	fire_only_once = yes
+	picture = GFX_event_HIP_statues
+
+	option = {
+		name = hippogriff.80.a
+		trigger = {
+			OR = {
+				original_tag = EQS
+				has_war_with = CHN
+			}
+		}
+		diplomatic_relation = {
+				country = HIP
+				relation = docking_rights
+				active = yes
+			}
+		HIP = {
+			diplomatic_relation = {
+				country = ROOT
+				relation = docking_rights
+				active = yes
+			}
+		}
+		diplomatic_relation = {
+				country = HIP
+				relation = military_access
+				active = yes
+			}
+		HIP = {
+			diplomatic_relation = {
+				country = ROOT
+				relation = military_access
+				active = yes
+			}
+		}
+	}
+	option = {
+		name = hippogriff.80.b
+		trigger = {
+			OR = {
+				original_tag = CHN
+				has_war_together_with = CHN
+			}
+		}
+	}
+}
+
+country_event = {#HIP is sending us gear
+	id = hippogriff.81
+	title = hippogriff.81.t
+	desc = hippogriff.81.d
+
+	is_triggered_only = yes
+	picture = GFX_event_pony_soldiers_sunset
+
+	immediate = {
+		HIP = {
+			set_country_flag = HIP_has_sent_gear
+		}
+	}
+
+	option = {#huzzah!
+		name = hippogriff.81.a
+		custom_effect_tooltip = HIP_sending_gear_tt
+		add_opinion_modifier = {
+			target = HIP
+			modifier = common_cause
+		}
+		add_opinion_modifier = {
+			target = HIP
+			modifier = common_cause
+		}
+	}
+}
+
+country_event = {#aw heck Equestria has fallen oh nooooo
+	id = hippogriff.83
+	title = hippogriff.83.t
+	desc = hippogriff.83.d
+
+	is_triggered_only = yes
+
+	picture = GFX_event_HIP_warzone
+
+	option = {#well that suuuucks
+		name = hippogriff.83.a
+		add_political_power = -75
+		add_war_support = -0.15
+		add_manpower = -20000
 	}
 }
 
@@ -4774,7 +5121,7 @@ country_event = {
 		name = hippogriff_society.1.b
 		add_political_power = -5
 		ai_chance = {
-			base = 5
+			base = 2
 		}
 	}
 	option = { # Seapony
@@ -4814,7 +5161,7 @@ country_event = {
 		name = hippogriff_society.2.b
 		add_political_power = -5
 		ai_chance = {
-			base = 5
+			base = 2
 		}
 	}
 	option = { # Hippogriff
@@ -4987,8 +5334,17 @@ country_event = {
 		name = arisfirst.4.a
 		set_temp_variable = { stabilitypen_temp = party_popularity@neutrality }
 		add_to_temp_variable = { stabilitypen_temp = party_popularity@fascism }
-		multiply_temp_variable = { stabilitypen_temp = -0.25 }
-		add_stability = stabilitypen_temp
+		if = {
+			limit = {
+				is_ai = no
+			}
+			multiply_temp_variable = { stabilitypen_temp = -0.25 }
+			add_stability = stabilitypen_temp
+		}
+		else = {
+			multiply_temp_variable = { stabilitypen_temp = -0.15 }
+			add_stability = stabilitypen_temp
+		}
 		hidden_effect = {
 			if = {
 				limit = {
@@ -5279,26 +5635,50 @@ country_event = {
 	option = { # Harmony
 		name = arisfirst.5.a
 		trigger = {
-			has_government = democratic
+			OR = {
+				has_government = democratic
+				has_government = communism
+			}
 		}
+		ai_chance = {factor = 0}
 		add_popularity = {
 			ideology = democratic
 			popularity = 0.02
 		}
 		set_temp_variable = { stabilitypen_temp = party_popularity@neutrality }
 		add_to_temp_variable = { stabilitypen_temp = party_popularity@fascism }
-		multiply_temp_variable = { stabilitypen_temp = -0.25 }
-		add_stability = stabilitypen_temp
+		if = {
+			limit = {
+				is_ai = no
+			}
+			multiply_temp_variable = { stabilitypen_temp = -0.20 }
+			add_stability = stabilitypen_temp
+		}
+		else = {
+			multiply_temp_variable = { stabilitypen_temp = -0.10 }
+			add_stability = stabilitypen_temp
+		}
 	}
 	option = { # neither
 		name = arisfirst.5.b
 		set_temp_variable = { stabilitypen_temp = party_popularity@neutrality }
 		add_to_temp_variable = { stabilitypen_temp = party_popularity@fascism }
-		multiply_temp_variable = { stabilitypen_temp = -0.15 }
-		add_stability = stabilitypen_temp
+		ai_chance = {factor = 1}
+		if = {
+			limit = {
+				is_ai = no
+			}
+			multiply_temp_variable = { stabilitypen_temp = -0.10 }
+			add_stability = stabilitypen_temp
+		}
+		else = {
+			multiply_temp_variable = { stabilitypen_temp = -0.05 }
+			add_stability = stabilitypen_temp
+		}
 	}
 	option = { # non-alligned
 		name = arisfirst.5.c
+		ai_chance = {factor = 1}
 		add_popularity = {
 			ideology = neutrality
 			popularity = 0.02
@@ -5330,8 +5710,17 @@ country_event = {
 		}
 		set_temp_variable = { stabilitypen_temp = party_popularity@neutrality }
 		add_to_temp_variable = { stabilitypen_temp = party_popularity@fascism }
-		multiply_temp_variable = { stabilitypen_temp = -0.2 }
-		add_stability = stabilitypen_temp
+		if = {
+			limit = {
+				is_ai = no
+			}
+			multiply_temp_variable = { stabilitypen_temp = -0.10 }
+			add_stability = stabilitypen_temp
+		}
+		else = {
+			multiply_temp_variable = { stabilitypen_temp = -0.05 }
+			add_stability = stabilitypen_temp
+		}
 		hidden_effect = {
 				if = {
 				limit = {
@@ -6008,8 +6397,8 @@ country_event = {
 			news_event = {
 				id = hippogriff_news.2
 				hours = 6
-				}
 			}
+		}
 		hidden_effect = {
 			country_event = {
 				id = arisfirst.43
@@ -6068,7 +6457,12 @@ country_event = {
 		effect_tooltip = {
 			retire_character = HIP_sky_beak	
 		}
-		retire_character = HIP_violet_facade
+		HIP_violet_facade = {
+			retire = yes
+		}
+		HIP_raft_wood = {
+			retire = yes
+		}
 		hidden_effect = {
 			HIP_sky_beak = {
 				set_nationality = SOL
@@ -6129,7 +6523,6 @@ country_event = {
 				}
 			}
 		}
-		complete_national_focus = HIP_aris_first_no_fascism
 		hidden_effect = {
 			HIP_raft_wood = {
 				set_character_name = HIP_raft_wood
@@ -6138,6 +6531,7 @@ country_event = {
 						large = "gfx/leaders/HIP/raft_wood.tga"
 					}
 				}
+				set_leader_description = RAFT_WOOD_DESC
 				clr_character_flag = HIP_duumvirate_active
 				remove_country_leader_trait = uneasy_duumvirate
 				add_country_leader_trait = isolationist_advisor
@@ -6147,8 +6541,13 @@ country_event = {
 		set_country_flag = HIP_raft_arrests_crack
 		clr_country_flag = HIP_hide_raft
 		mark_focus_tree_layout_dirty = yes
-		retire_character = HIP_razorbeak
-		retire_character = HIP_crack_lightning
+		complete_national_focus = HIP_aris_first_no_fascism
+		HIP_razorbeak = {
+			retire = yes 
+		}
+		HIP_crack_lightning = {
+			retire = yes 
+		}
 	}
 }
 
@@ -6710,7 +7109,6 @@ country_event = {#Zumidian independence
 			idea = HIP_funding_Zumidia
 			days = 365
 		}
-		give_military_access = ZUM
 		diplomatic_relation = {
 			country = ZUM
 			relation = non_aggression_pact
@@ -6720,6 +7118,11 @@ country_event = {#Zumidian independence
 			add_timed_idea = {
 				idea = ZUM_HIP_funding
 				days = 365
+			}
+			diplomatic_relation = {
+				country = HIP
+				relation = docking_rights
+				active = yes
 			}
 			give_military_access = HIP
 			diplomatic_relation = {
@@ -6774,7 +7177,14 @@ country_event = {#Zumidian independence
 			remove_core_of = HIP
 		}
 		release = ZUM
-		give_military_access = ZUM
+		ZUM = {
+			diplomatic_relation = {
+				country = HIP
+				relation = docking_rights
+				active = yes
+			}
+			give_military_access = HIP
+		}
 		diplomatic_relation = {
 			country = ZUM
 			relation = non_aggression_pact
@@ -6947,7 +7357,7 @@ country_event = {#Occupation woes
 		}
 		hidden_effect = {
 			country_event = {
-				id = arisfirst.54
+				id = arisfirst.55
 				days = 12
 			}
 		}
@@ -6986,7 +7396,7 @@ country_event = {#Occupation woes
 		}
 		hidden_effect = {
 			country_event = {
-				id = arisfirst.55
+				id = arisfirst.54
 				days = 12
 			}
 		}
@@ -7299,29 +7709,35 @@ country_event = {#Telegraph fails
 	picture = GFX_event_changeling_approved_stamp
 
 	immediate = {
-		white_peace = PCB
-		set_truce = {
-			target = PCB
-			days = 365
-		}
-		PCB = {
-			white_peace = ROOT
+		hidden_effect = {
+			set_country_flag = {flag = bypass_on_peaceconference_ended days = 1}
+			
+			PCB = {
+				set_country_flag = {flag = bypass_on_peaceconference_ended days = 1}
+				white_peace = ROOT
+				set_truce = {
+					target = ROOT
+					days = 365
+				}
+			}
+			white_peace = PCB
 			set_truce = {
-				target = ROOT
+				target = PCB
 				days = 365
 			}
-		}
-		every_country = {
-			limit = {
-				is_in_faction_with = PCB
-				has_war_with = ROOT
+			every_country = {
+				limit = {
+					is_in_faction_with = PCB
+					has_war_with = ROOT
+				}
+				set_country_flag = {flag = bypass_on_peaceconference_ended days = 1}
+				white_peace = ROOT
 			}
-			white_peace = ROOT
-		}
-		EQS = {
-			puppet = PCB
-		}
+			EQS = {
+				puppet = PCB
+			}
 		PCB = {set_previous_autonomy_level = yes restore_previous_government_type = yes}
+		}
 	}
 
 	option = { # Dammit
@@ -7341,26 +7757,31 @@ country_event = {#Telegraph succeeds
 	picture = GFX_event_changeling_approved_stamp
 
 	immediate = {
-		HIP = {transfer_state = 1193}
-		HIP = {transfer_state = 1194}
-		white_peace = PCB
-		set_truce = {
-			target = PCB
-			days = 365
-		}
-		PCB = {
-			white_peace = ROOT
+		hidden_effect = {
+			HIP = {transfer_state = 1193}
+			HIP = {transfer_state = 1194}
+			set_country_flag = {flag = bypass_on_peaceconference_ended days = 1}
+			white_peace = PCB
 			set_truce = {
-				target = ROOT
+				target = PCB
 				days = 365
 			}
-		}
-		every_country = {
-			limit = {
-				is_in_faction_with = PCB
-				has_war_with = ROOT
+			PCB = {
+				set_country_flag = {flag = bypass_on_peaceconference_ended days = 1}
+				white_peace = ROOT
+				set_truce = {
+					target = ROOT
+					days = 365
+				}
 			}
-			white_peace = ROOT
+			every_country = {
+				limit = {
+					is_in_faction_with = PCB
+					has_war_with = ROOT
+				}
+				set_country_flag = {flag = bypass_on_peaceconference_ended days = 1}
+				white_peace = ROOT
+			}
 		}
 	}
 
@@ -7371,6 +7792,7 @@ country_event = {#Telegraph succeeds
 				amount = 10
 				days = 720
 			}
+			hidden_effect = {add_compliance = -40}
 			add_resistance = 10
 		}
 		1193 = {
@@ -7378,9 +7800,140 @@ country_event = {#Telegraph succeeds
 				amount = 10
 				days = 720
 			}
+			hidden_effect = {add_compliance = -40}
 			add_resistance = 10
 		}
 		navy_experience = 25
+	}
+}
+
+country_event = {
+	id = arisfirst.75
+	title = arisfirst.75.t
+	desc = arisfirst.75.d
+	is_triggered_only = yes
+	picture = GFX_event_canyons
+
+	option = {#fine
+		name = arisfirst.75.a
+		HIP = {country_event = arisfirst.751}
+		ai_chance = {
+			factor = 1
+		}
+		trigger = {NOT = {has_government = communism}}
+		effect_tooltip = {
+			HIP = { puppet = ROOT }
+		}
+	}
+	option = {#No way
+		name = arisfirst.75.b
+		add_war_support = -0.20
+		HIP = {country_event = arisfirst.752}
+		ai_chance = {
+			factor = 0
+		}
+	}
+}
+
+country_event = {
+	id = arisfirst.751
+	title = arisfirst.751.t
+	desc = arisfirst.751.d
+	is_triggered_only = yes
+	picture = GFX_event_canyons
+
+	option = {#excellent
+		name = arisfirst.75.a
+		if = {
+			limit = {
+				has_dlc = "Death or Dishonor"
+			}
+			hidden_effect = { ABY = { get_current_government_type = yes } }
+			set_autonomy = {
+				target = ABY
+				autonomy_state = autonomy_satellite
+			}
+			hidden_effect = { ABY = { restore_previous_government_type = yes } }
+		}
+		else_if = {
+			limit = {
+				OR = {
+					has_dlc = "Together for Victory"
+					has_dlc = "Waking the Tiger"
+				}
+			}
+			hidden_effect = { ABY = { get_current_government_type = yes } }
+			puppet = ABY
+			set_autonomy = {
+				target = ABY
+				autonomy_state = autonomy_colony
+			}
+			hidden_effect = { ABY = { restore_previous_government_type = yes } }
+		}
+		else = {
+			hidden_effect = { ABY = { get_current_government_type = yes } }
+			puppet = ABY
+			hidden_effect = { ABY = { restore_previous_government_type = yes } }
+		}
+		ABY = {
+			transfer_state = 784
+		}
+		ABY = {
+			transfer_state = 1200
+		}
+		ABY = {
+			transfer_state = 1201
+		}
+	}
+}
+
+country_event = {
+	id = arisfirst.752
+	title = arisfirst.752.t
+	desc = arisfirst.752.d
+	is_triggered_only = yes
+	picture = GFX_event_canyons
+
+	option = {#dammit
+		name = arisfirst.752.a
+		create_wargoal = { target = ABY type = puppet_wargoal_focus }
+	}
+}
+
+country_event = {
+	id = arisfirst.76
+	title = arisfirst.76.t
+	desc = arisfirst.76.d
+	is_triggered_only = yes
+	picture = GFX_event_colthage_village
+
+	option = {#Notholsum
+		name = arisfirst.76.a
+	}
+}
+
+country_event = {#Posada flees Aris
+	id = arisfirst.91
+	title = arisfirst.91.t
+	desc = arisfirst.91.d
+	is_triggered_only = yes
+	picture = GFX_event_HIP_posada_portrait
+
+	option = {
+		name = arisfirst.91.a
+		country_event = arisfirst.92
+	}
+}
+
+country_event = {
+	id = arisfirst.92
+	title = arisfirst.92.t
+	desc = arisfirst.92.d
+	is_triggered_only = yes
+	picture = GFX_event_HIP_posada_portrait
+
+	option = {
+		name = arisfirst.92.a
 	}
 }
 
@@ -7443,9 +7996,7 @@ country_event = {#Razorbeak becomes BAT governor
 					original_tag = HIP
 				}
 				traits = { princess_of_terror }
-				ai_will_do = {
-					factor = 10
-				}
+				ai_will_do = {factor = 10}
 			}
 		}
 	}
@@ -7931,7 +8482,7 @@ country_event = {
 	is_triggered_only = yes
 
 	option = {#fine we'll help him
-		name = arisfirst.80.a
+		name = arisfirst.80.b
 		add_manpower = -3000
 		add_equipment_to_stockpile = {
 			type = infantry_equipment
@@ -7942,7 +8493,7 @@ country_event = {
 		HIP = {give_guarantee = ZAR}
 	}
 	option = {#he's on his own
-		name = arisfirst.80.b
+		name = arisfirst.80.a
 		custom_effect_tooltip = HIP_oppose_moonfeather_tt
 		ai_chance = {factor = 10}
 		hidden_effect = {
@@ -8079,7 +8630,9 @@ country_event = {
 				add_idea = HIP_monopolised_economy_3
 			}
 		}
-		retire_character = HIP_violet_facade
+		HIP_violet_facade = {
+			retire = yes
+		}
 		add_country_leader_role = {
 			character = HIP_SIR_plumage_moonfeather
 			promote_leader = yes
@@ -8611,16 +9164,14 @@ country_event = { # The Withdrawal
 				add_ideas = tribal_society
 				set_politics = { ruling_party = neutrality  elections_allowed = no } 
 				add_country_leader_role = {
-					character = ZAR_general_1
-					promote_leader = yes
+					character = ZAR_regency_council
 					country_leader = {
-						desc = ""
+						desc = ZAR_regency_desc
 						expire = "1965.1.1"
 						ideology = tribal_council
-						traits = {
-							silent_mule
-						}
+						traits = { }
 					}
+					promote_leader = yes
 				}
 				hidden_effect = {
 					load_focus_tree = generic_zebra_focus
@@ -8644,10 +9195,21 @@ country_event = { # The Withdrawal
 			add_core_of = WAR
 			WAR = { transfer_state = PREV }
 		}
-		WAR = {
-			add_stability = -0.30
-			add_manpower = -12000
+		if = {
+			limit = {
+				WAR = {
+					any_owned_state = {
+						is_core_of = TBK
+					}
+				}
+			}
+			WAR = {
+				add_stability = -0.30
+				add_manpower = -12000
+			}
 		}
+		delete_unit_template_and_units = {division_template = "Last Warband"}
+		clr_country_flag = HIP_has_last_warband
 	}
 }
 
@@ -8707,9 +9269,17 @@ country_event = {#Novo and Skystar reunited
 				add_idea = HIP_royal_line_of_novo
 			}
 		}
-		swap_ideas = {
-			remove_idea = HIP_hostage_novo
-			add_idea = HIP_queen_mother_novo
+		if = {
+			limit = {
+				has_idea = HIP_hostage_novo
+			}
+			swap_ideas = {
+				remove_idea = HIP_hostage_novo
+				add_idea = HIP_queen_mother_novo
+			}
+		}
+		else = {
+			add_ideas = HIP_queen_mother_novo
 		}
 	}
 }
@@ -8741,24 +9311,21 @@ country_event = {#Silverstream and Posada join cabinet
 
 		clr_country_flag = HIP_xenophobic_harmony
 
+		add_political_power = 150
+
 		add_ideas = HIP_silverstream
 
 		add_ideas = HIP_posada_advisor
 
 		custom_effect_tooltip = HIP_pink_blue_tt
 		set_country_flag = HIP_pink_blue_conflict
-		set_variable = {
-			var = HIP_skystar_pinko_meter
-			value = 10
-		}
-		clamp_variable = {
-			var = HIP_skystar_pinko_meter
-			min = 0
-			max = 20
+		set_power_balance = {
+			id = HIP_antifa_bop
+			set_default = yes
 		}
 		country_event = {
 			id = antifa.4
-			days = 2
+			days = 7
 		}
 		set_party_name = {
 			ideology = democratic
@@ -8769,6 +9336,9 @@ country_event = {#Silverstream and Posada join cabinet
 			ideology = communism
 			long_name = HIP_antifa_communism_long
 			name = HIP_antifa_communism
+		}
+		hidden_effect = {
+			remove_ideas = HIP_figurehead_novo
 		}
 	}
 }
@@ -8805,18 +9375,10 @@ country_event = {
 			ideology = communism
 			popularity = 0.05
 		}
-		hidden_effect = {
-			add_to_variable = {
-				var = HIP_skystar_pinko_meter
-				value = 1
-			}
-			clamp_variable = {
-				var = HIP_skystar_pinko_meter
-				min = 0
-				max = 20
-			}
+		add_power_balance_value = {
+			id = HIP_antifa_bop
+			value = 0.1
 		}
-		custom_effect_tooltip = HIP_add_1_pinko_tt
 	}
 	option = {#Emphasize role of mass politics
 		name = antifa.5.b
@@ -8825,16 +9387,10 @@ country_event = {
 			ideology = democratic
 			popularity = 0.05
 		}
-		add_to_variable = {
-			var = HIP_skystar_pinko_meter
-			value = -1
+		add_power_balance_value = {
+			id = HIP_antifa_bop
+			value = -0.1
 		}
-		clamp_variable = {
-			var = HIP_skystar_pinko_meter
-			min = 0
-			max = 20
-		}
-		custom_effect_tooltip = HIP_subtract_1_pinko_tt
 	}
 }
 
@@ -8855,18 +9411,10 @@ country_event = {
 			ideology = communism
 			popularity = 0.05
 		}
-		hidden_effect = {
-			add_to_variable = {
-				var = HIP_skystar_pinko_meter
-				value = 1
-			}
-			clamp_variable = {
-				var = HIP_skystar_pinko_meter
-				min = 0
-				max = 20
-			}
+		add_power_balance_value = {
+			id = HIP_antifa_bop
+			value = 0.1
 		}
-		custom_effect_tooltip = HIP_add_1_pinko_tt
 	}
 	option = {#We need to recapture what we stand for
 		name = antifa.6.b
@@ -8877,16 +9425,10 @@ country_event = {
 			ideology = democratic
 			popularity = 0.05
 		}
-		add_to_variable = {
-			var = HIP_skystar_pinko_meter
-			value = -1
+		add_power_balance_value = {
+			id = HIP_antifa_bop
+			value = -0.1
 		}
-		clamp_variable = {
-			var = HIP_skystar_pinko_meter
-			min = 0
-			max = 20
-		}
-		custom_effect_tooltip = HIP_subtract_1_pinko_tt
 	}
 }
 
@@ -8970,20 +9512,14 @@ country_event = {#do we spare him?
 			days = 3
 		}
 		set_country_flag = HIP_Spared_Lightning
-		add_to_variable = {
-			var = HIP_skystar_pinko_meter
-			value = -2
-		}
-		clamp_variable = {
-			var = HIP_skystar_pinko_meter
-			min = 0
-			max = 20
+		add_power_balance_value = {
+			id = HIP_antifa_bop
+			value = -0.2
 		}
 		add_popularity = {
 			ideology = democratic
 			popularity = 0.05
 		}
-		custom_effect_tooltip = HIP_subtract_2_pinko_tt
 	}
 	option = {#kill him
 		name = antifa.10.b
@@ -8992,20 +9528,14 @@ country_event = {#do we spare him?
 			days = 3
 		}
 		set_country_flag = HIP_Killed_Lightning
-		add_to_variable = {
-			var = HIP_skystar_pinko_meter
-			value = 2
-		}
-		clamp_variable = {
-			var = HIP_skystar_pinko_meter
-			min = 0
-			max = 20
+		add_power_balance_value = {
+			id = HIP_antifa_bop
+			value = 0.2
 		}
 		add_popularity = {
 			ideology = communism
 			popularity = 0.05
 		}
-		custom_effect_tooltip = HIP_add_2_pinko_tt
 	}
 }
 
@@ -9050,36 +9580,24 @@ country_event = {#oh heck are capitalists bad
 
 	option = {#no
 		name = antifa.13.a
-		add_to_variable = {
-			var = HIP_skystar_pinko_meter
-			value = -1
+		add_power_balance_value = {
+			id = HIP_antifa_bop
+			value = -0.1
 		}
-		clamp_variable = {
-			var = HIP_skystar_pinko_meter
-			min = 0
-			max = 20
-		}
-		custom_effect_tooltip = HIP_subtract_1_pinko_tt
 		add_stability = 0.05
 		add_political_power = 25
 	}
 	option = {#yes
 		name = antifa.13.b
-		add_to_variable = {
-			var = HIP_skystar_pinko_meter
-			value = 2
-		}
-		clamp_variable = {
-			var = HIP_skystar_pinko_meter
-			min = 0
-			max = 20
+		add_power_balance_value = {
+			id = HIP_antifa_bop
+			value = 0.2
 		}
 		add_timed_idea = {
 			idea = HIP_punitive_nationalisations
 			days = 90
 		}
 		custom_effect_tooltip = HIP_punitive_nationalisations_tt
-		custom_effect_tooltip = HIP_add_2_pinko_tt
 	}
 }
 
@@ -9094,32 +9612,20 @@ country_event = {
 
 	option = {#Worker militias
 		name = antifa.14.a
-		add_to_variable = {
-			var = HIP_skystar_pinko_meter
-			value = 2
+		add_power_balance_value = {
+			id = HIP_antifa_bop
+			value = 0.2
 		}
-		clamp_variable = {
-			var = HIP_skystar_pinko_meter
-			min = 0
-			max = 20
-		}
-		custom_effect_tooltip = HIP_add_2_pinko_tt
 		add_ideas = HIP_worker_militias
 	}
 	option = {#No militias
 		name = antifa.14.b
-		add_to_variable = {
-			var = HIP_skystar_pinko_meter
-			value = -2
-		}
-		clamp_variable = {
-			var = HIP_skystar_pinko_meter
-			min = 0
-			max = 20
+		add_power_balance_value = {
+			id = HIP_antifa_bop
+			value = 0.2
 		}
 		add_stability = 0.1
 		add_political_power = 50
-		custom_effect_tooltip = HIP_subtract_2_pinko_tt
 	}
 	option = {#Switzerland
 		name = antifa.14.c
@@ -9167,10 +9673,8 @@ country_event = {#Skybeak and Stratus talk about military kinda sucking now
 			remove_ideas = HIP_committie_for_national_defence_idea_4
 		}
 
-		SOL = {
-			HIP_sky_beak = {
-				set_nationality = HIP
-			}
+		HIP_sky_beak = {
+			set_nationality = HIP
 		}
 		set_variable = { HIP_antifa_army_bonus_air_superiority_factor = 0 }
 		set_variable = { HIP_antifa_army_attack_factor = 0 }
@@ -9207,31 +9711,19 @@ country_event = {#I mean do we really need a constitution
 	option = {#Let's make a pink constitution
 		name = antifa.16.a
 		add_ideas = HIP_pink_constitution
-		add_to_variable = {
-			var = HIP_skystar_pinko_meter
-			value = -2
+		add_power_balance_value = {
+			id = HIP_antifa_bop
+			value = -0.2
 		}
-		clamp_variable = {
-			var = HIP_skystar_pinko_meter
-			min = 0
-			max = 20
-		}
-		custom_effect_tooltip = HIP_subtract_2_pinko_tt
 	}
 
 	option = {#Let's make a blue constitution
 		name = antifa.16.b
 		add_ideas = HIP_blue_constitution
-		add_to_variable = {
-			var = HIP_skystar_pinko_meter
-			value = 2
+		add_power_balance_value = {
+			id = HIP_antifa_bop
+			value = 0.2
 		}
-		clamp_variable = {
-			var = HIP_skystar_pinko_meter
-			min = 0
-			max = 20
-		}
-		custom_effect_tooltip = HIP_add_2_pinko_tt
 	}
 
 	option = {#No we don't lol
@@ -9278,6 +9770,9 @@ country_event = {#Skystar Harmonist coronation
 				add_idea = HIP_pink_absolutism_antifa
 			}
 		}
+		HIP_skystar = {
+			set_character_name = HIP_skystar_queen
+		}
 	}
 }
 
@@ -9318,6 +9813,9 @@ country_event = {#Skystar commie coroniation
 				remove_idea = HIP_absolutism_antifa
 				add_idea = HIP_blue_absolutism_antifa
 			}
+		}
+		HIP_skystar = {
+			set_character_name = HIP_skystar_queen
 		}
 	}
 }
@@ -9389,18 +9887,10 @@ country_event = {#Political Violence
 			popularity = 0.05
 		}
 		add_war_support = 0.15
-		hidden_effect = {
-			add_to_variable = {
-				var = HIP_skystar_pinko_meter
-				value = 1
-			}
-			clamp_variable = {
-				var = HIP_skystar_pinko_meter
-				min = 0
-				max = 20
-			}
+		add_power_balance_value = {
+			id = HIP_antifa_bop
+			value = 0.1
 		}
-		custom_effect_tooltip = HIP_add_1_pinko_tt
 	}
 	option = {#Violence is never good, only necessary
 		name = antifa.24.b
@@ -9409,18 +9899,10 @@ country_event = {#Political Violence
 			popularity = 0.05
 		}
 		add_stability = 0.1
-		hidden_effect = {
-			add_to_variable = {
-				var = HIP_skystar_pinko_meter
-				value = -1
-			}
-			clamp_variable = {
-				var = HIP_skystar_pinko_meter
-				min = 0
-				max = 20
-			}
+		add_power_balance_value = {
+			id = HIP_antifa_bop
+			value = -0.1
 		}
-		custom_effect_tooltip = HIP_subtract_1_pinko_tt
 	}
 }
 
@@ -9441,18 +9923,10 @@ country_event = {#Moral Politics
 			bonus = 1
 			uses = 2
 		}
-		hidden_effect = {
-			add_to_variable = {
-				var = HIP_skystar_pinko_meter
-				value = 1
-			}
-			clamp_variable = {
-				var = HIP_skystar_pinko_meter
-				min = 0
-				max = 20
-			}
+		add_power_balance_value = {
+			id = HIP_antifa_bop
+			value = 0.1
 		}
-		custom_effect_tooltip = HIP_add_1_pinko_tt
 	}
 	option = {#State morality
 		name = antifa.25.b
@@ -9462,18 +9936,10 @@ country_event = {#Moral Politics
 			bonus = 1
 			uses = 2
 		}
-		hidden_effect = {
-			add_to_variable = {
-				var = HIP_skystar_pinko_meter
-				value = -1
-			}
-			clamp_variable = {
-				var = HIP_skystar_pinko_meter
-				min = 0
-				max = 20
-			}
+		add_power_balance_value = {
+			id = HIP_antifa_bop
+			value = -0.1
 		}
-		custom_effect_tooltip = HIP_subtract_1_pinko_tt
 	}
 }
 
@@ -9492,18 +9958,10 @@ country_event = {#Revolutions
 			HIP_antifa_army_morale_factor = 0.15
 		}
 		custom_effect_tooltip = HIP_antifa_morale_up
-		hidden_effect = {
-			add_to_variable = {
-				var = HIP_skystar_pinko_meter
-				value = 1
-			}
-			clamp_variable = {
-				var = HIP_skystar_pinko_meter
-				min = 0
-				max = 20
-			}
+		add_power_balance_value = {
+			id = HIP_antifa_bop
+			value = 0.1
 		}
-		custom_effect_tooltip = HIP_add_1_pinko_tt
 	}
 	option = {#Skystar was the legitimate ruler
 		name = antifa.26.b
@@ -9511,18 +9969,10 @@ country_event = {#Revolutions
 			HIP_antifa_army_org_factor = 0.07
 		}
 		custom_effect_tooltip = HIP_antifa_org_up
-		hidden_effect = {
-			add_to_variable = {
-				var = HIP_skystar_pinko_meter
-				value = -1
-			}
-			clamp_variable = {
-				var = HIP_skystar_pinko_meter
-				min = 0
-				max = 20
-			}
+		add_power_balance_value = {
+			id = HIP_antifa_bop
+			value = -0.1
 		}
-		custom_effect_tooltip = HIP_subtract_1_pinko_tt
 	}
 }
 country_event = {
@@ -9541,18 +9991,10 @@ country_event = {
 			ideology = communism
 			popularity = 0.05
 		}
-		hidden_effect = {
-			add_to_variable = {
-				var = HIP_skystar_pinko_meter
-				value = 1
-			}
-			clamp_variable = {
-				var = HIP_skystar_pinko_meter
-				min = 0
-				max = 20
-			}
+		add_power_balance_value = {
+			id = HIP_antifa_bop
+			value = 0.1
 		}
-		custom_effect_tooltip = HIP_add_1_pinko_tt
 	}
 	option = {#Harmony guided us for a thousand years
 		name = antifa.27.b
@@ -9561,18 +10003,10 @@ country_event = {
 			ideology = democratic
 			popularity = 0.05
 		}
-		hidden_effect = {
-			add_to_variable = {
-				var = HIP_skystar_pinko_meter
-				value = -1
-			}
-			clamp_variable = {
-				var = HIP_skystar_pinko_meter
-				min = 0
-				max = 20
-			}
+		add_power_balance_value = {
+			id = HIP_antifa_bop
+			value = -0.1
 		}
-		custom_effect_tooltip = HIP_subtract_1_pinko_tt
 	}
 }
 country_event = { # Harmonist dinner
@@ -9615,23 +10049,17 @@ country_event = { # Purge the military?
 	option = {#purge them
 		name = antifa.30.a
 		add_ideas = HIP_reorganizing_military
-		retire_character = HIP_typhoon
+		HIP_typhoon = {
+			retire = yes
+		}
 		add_to_variable = {
 			HIP_antifa_army_org_factor = 0.07
 		}
 		custom_effect_tooltip = HIP_antifa_org_up
-		hidden_effect = {
-			add_to_variable = {
-				var = HIP_skystar_pinko_meter
-				value = 1
-			}
-			clamp_variable = {
-				var = HIP_skystar_pinko_meter
-				min = 0
-				max = 20
-			}
+		add_power_balance_value = {
+			id = HIP_antifa_bop
+			value = 0.1
 		}
-		custom_effect_tooltip = HIP_add_1_pinko_tt
 	}
 	option = {#don't purge them
 		name = antifa.30.b
@@ -9639,18 +10067,10 @@ country_event = { # Purge the military?
 			HIP_antifa_breakthrough_factor = 0.1
 		}
 		custom_effect_tooltip = HIP_antifa_breakthrough_up
-		hidden_effect = {
-			add_to_variable = {
-				var = HIP_skystar_pinko_meter
-				value = -1
-			}
-			clamp_variable = {
-				var = HIP_skystar_pinko_meter
-				min = 0
-				max = 20
-			}
+		add_power_balance_value = {
+			id = HIP_antifa_bop
+			value = -0.1
 		}
-		custom_effect_tooltip = HIP_subtract_1_pinko_tt
 	}
 }
 
@@ -9676,6 +10096,8 @@ country_event = {
 				id = commander.11
 				days = 7
 			}
+			delete_unit_template_and_units = {division_template = "Last Warband"}
+			clr_country_flag = HIP_has_last_warband
 		}
 		remove_ideas = HIP_hostage_novo
 		remove_ideas = HIP_royal_line_of_novo_2
@@ -10069,15 +10491,8 @@ country_event = {#
 
 	option = {#ok
 		name = commander.14.a
-		SOL = {
-			HIP_skybolt_spear = {
-				set_nationality = HIP
-			}
-		}
-		random_character = {
-			limit = {
-				is_character = HIP_skybolt_spear
-			}
+		HIP_skybolt_spear = {
+			set_nationality = HIP
 			remove_unit_leader_trait = JAP_communist_sympathizer
 		}
 	}
@@ -10158,6 +10573,7 @@ country_event = { # A speech about the dream of communism at the opening of the 
 					is_core_of = WAR
 					is_core_of = CTH
 					is_core_of = CVA
+					is_core_of = TBK
 					is_core_of = HIE
 					is_core_of = TRO
 					is_core_of = CDR
@@ -10191,7 +10607,9 @@ country_event = { # The worst of the reactionaries, the imperialists who wish to
 		name = hippocommie.3.a
 		add_political_power = 25
 		add_popularity = { ideology = fascism popularity = -0.2 }
-		remove_unit_leader = 20217
+		HIP_razorbeak = {
+			retire = yes
+		}
 		hidden_effect = {
 			modify_country_flag = { flag = posada_sad_level value = 1 }
 			HIP_check_posada_sad = yes
@@ -10199,7 +10617,9 @@ country_event = { # The worst of the reactionaries, the imperialists who wish to
 	}
 	option = { # Life in prison
 		name = hippocommie.3.b
-		remove_unit_leader = 20217
+		HIP_razorbeak = {
+			retire = yes
+		}
 		add_popularity = { ideology = fascism popularity = -0.2 }
 		set_country_flag = HIP_razorbeak_in_prison
 	}
@@ -10217,6 +10637,12 @@ country_event = { # Skystar joins the party, Posada makes a friend
 		add_popularity = {
 			ideology = communism
 			popularity = 0.001
+		}
+		hidden_effect = {
+			country_event = {
+				id = hippocommie.126
+				days = 11
+			}
 		}
 	}
 }
@@ -10535,6 +10961,7 @@ country_event = { # Failure on new rifle
 	option = { # Unfortunate
 		name = hippocommie.9.a
 		add_political_power = -25
+		set_country_flag = HIP_project_salvo_failed
 	}
 	option = { # Pour even more resources into this project (flechette)!
 		name = hippocommie.9.b
@@ -10587,13 +11014,16 @@ country_event = { # Mixed success on gigantic tank
 				ahead_reduction = 2
 			}
 		}
+		set_country_flag = HIP_project_shatter_partially_succeeded
 	}
 	option = { # It has to be amphibious, even if that slows development!
 		name = hippocommie.10.b
 		set_technology = {
 			HIP_amphibious_super_heavies = 1
+			popup = no
 		}
 		custom_effect_tooltip = HIP_amphibious_super_heavies_effect
+		set_country_flag = HIP_project_shatter_partially_succeeded
 	}
 }
 
@@ -10622,10 +11052,12 @@ country_event = { # The new rifle actually works!
 		}
 		set_technology = {
 			HIP_flechette_rifle = 1
+			popup = no
 		}
 		custom_effect_tooltip = HIP_flechette_rifles_effect
 		set_country_flag = HIP_making_flechette_rifles
 		add_ideas = HIP_exotic_weapons_division
+		set_country_flag = HIP_project_salvo_succeeded
 	}
 	option = { # Finally!
 		trigger = {
@@ -10634,10 +11066,12 @@ country_event = { # The new rifle actually works!
 		name = hippocommie.11.b
 		set_technology = {
 			HIP_caseless_rifle = 1
+			popup = no
 		}
 		custom_effect_tooltip = HIP_caseless_rifles_effect
 		set_country_flag = HIP_making_caseless_rifles
 		add_ideas = HIP_exotic_weapons_division_0
+		set_country_flag = HIP_project_salvo_succeeded
 	}
 }
 
@@ -10661,6 +11095,7 @@ country_event = { # Partial success on long range bomber
 		name = hippocommie.12.b 
 		set_technology = {
 			HIP_conventional_advanced_bombers = 1
+			popup = no
 		}
 		custom_effect_tooltip = HIP_conventional_advanced_bombers_effect
 	}
@@ -10759,6 +11194,14 @@ country_event = { # Nazbols form a party wing!?
 				}
 			}
 		}
+		HIP_crack_lightning = {			
+			set_portraits={
+				civilian = {
+					large="gfx/leaders/HIP/crack_lightning_commie.tga"
+					small="gfx/interface/ideas/Advisors/HIP/idea_crack_commie.tga"
+				}
+			}
+		}
 		add_popularity = {
 			ideology = fascism
 			popularity = 0.01
@@ -10835,6 +11278,7 @@ country_event = { #Depleted uranium is being used throughout our armies
 		name = hippocommie.20.a
 		set_technology = {
 			HIP_depleted_uranium_tech = 1
+			popup = no
 		}
 		custom_effect_tooltip = HIP_depleted_uranium_effect
 
@@ -10848,10 +11292,23 @@ country_event = { # Nuclear air to air missiles
 	is_triggered_only = yes
 	option = { #Epic
 		name = hippocommie.21.a
-		set_technology = {
-			HIP_nuclear_air_to_air_missiles_tech = 1
+		if = {
+			limit = {
+				has_dlc = "By Blood Alone"
+			}
+			set_technology = {
+				HIP_nuclear_air_to_air_missiles_tech_bba = 1
+			}
 		}
-		custom_effect_tooltip = HIP_nuclear_air_to_air_missiles_effect
+		else = {
+			set_technology = {
+				HIP_nuclear_air_to_air_missiles_tech = 1
+				popup = no
+			}
+			custom_effect_tooltip = HIP_nuclear_air_to_air_missiles_effect
+		}
+		custom_effect_tooltip = HIP_one_nuke_a_month
+		set_country_flag = HIP_project_fallout_partially_succeeded
 	}
 }
 country_event = { # Nuclear depth charges
@@ -10864,8 +11321,11 @@ country_event = { # Nuclear depth charges
 		name = hippocommie.22.a
 		set_technology = {
 			HIP_nuclear_depth_charges_aironly = 1
+			popup = no
 		}
 		custom_effect_tooltip = HIP_nuclear_depth_charges_aironly_effect
+		custom_effect_tooltip = HIP_one_nuke_a_month	
+		set_country_flag = HIP_project_bottomfeeder_succeeded
 	}
 	option = { # Destroyers should use em too!
 		trigger = {
@@ -10874,8 +11334,11 @@ country_event = { # Nuclear depth charges
 		name = hippocommie.22.b
 		set_technology = {
 			HIP_nuclear_depth_charges_full = 1
+			popup = no
 		}
 		custom_effect_tooltip = HIP_nuclear_depth_charges_full_effect
+		custom_effect_tooltip = HIP_one_nuke_a_month
+		set_country_flag = HIP_project_bottomfeeder_succeeded
 	}
 	option = { # Destroyers should use em too!
 		trigger = {
@@ -10886,8 +11349,11 @@ country_event = { # Nuclear depth charges
 		name = hippocommie.22.c
 		set_technology = {
 			HIP_nuclear_depth_charges_full_nomtg = 1
+			popup = no
 		}
 		custom_effect_tooltip = HIP_nuclear_depth_charges_full_nomtg_effect
+		custom_effect_tooltip = HIP_one_nuke_a_month
+		set_country_flag = HIP_project_bottomfeeder_succeeded
 	}
 }
 country_event = { # Nuclear land mines
@@ -10900,8 +11366,11 @@ country_event = { # Nuclear land mines
 		name = hippocommie.23.a
 		set_technology = {
 			HIP_nuclear_land_mines_tech = 1
+			popup = no
 		}
 		custom_effect_tooltip = HIP_nuclear_land_mines_effect
+		custom_effect_tooltip = HIP_one_nuke_a_month
+		set_country_flag = HIP_project_tatzlwurm_succeeded
 	}
 }
 country_event = { # Nuclear naval mines
@@ -10914,8 +11383,11 @@ country_event = { # Nuclear naval mines
 		name = hippocommie.24.a
 		set_technology = {
 			HIP_nuclear_naval_mines_tech = 1
+			popup = no
 		}
 		custom_effect_tooltip = HIP_nuclear_naval_mines_effect
+		custom_effect_tooltip = HIP_one_nuke_a_month
+		set_country_flag = HIP_project_barnacle_succeeded
 	}
 }
 country_event = { # Nuclear torpedos
@@ -10928,8 +11400,11 @@ country_event = { # Nuclear torpedos
 		name = hippocommie.25.a
 		set_technology = {
 			HIP_nuclear_torpedos_tech = 1
+			popup = no
 		}
 		custom_effect_tooltip = HIP_nuclear_torpedos_effect
+		custom_effect_tooltip = HIP_one_nuke_a_month
+		set_country_flag = HIP_project_barracuda_succeeded
 	}
 }
 country_event = { # Posada denounces Dark Wing (supremacist)
@@ -11064,7 +11539,10 @@ country_event = { # Nuclear rocket artillery
 		name = hippocommie.34.a
 		set_technology = {
 			HIP_nuclear_rocket_artillery_tech = 1
+			popup = no
 		}
+		custom_effect_tooltip = HIP_one_nuke_a_month
+		set_country_flag = HIP_project_tankbuster_partially_succeeded
 	}
 }
 country_event = { # The Committee for Extranormal Affairs
@@ -11280,14 +11758,6 @@ country_event = { # New gensec
 				}
 			}
 		}
-		HIP_crack_lightning = {
-			set_portraits = {
-				civilian = {
-					large="gfx/leaders/HIP/crack_lightning_commie.tga"
-					small="gfx/interface/ideas/HIP/HIP_lightning_advisor.tga"
-				}
-			}
-		}
 		set_country_flag = HIP_gensec_crack
 		mark_focus_tree_layout_dirty = yes ## refreshes the tree ##
 		country_event = {
@@ -11416,7 +11886,32 @@ country_event = { # Anarchists in power
 				}
 			}
 		}
+		set_country_flag = HIP_anarchist_flag
+		every_state = {
+			limit = {
+				OR = {
+					is_core_of = BAT
+					is_core_of = ZUM
+					is_core_of = WAR
+					is_core_of = CTH
+					is_core_of = CVA
+					is_core_of = TBK
+					is_core_of = HIE
+					is_core_of = TRO
+					is_core_of = CDR
+					is_core_of = BKH
+					is_core_of = CGI
+					is_core_of = ZAR
+					is_core_of = MCW
+				}
+			}
+			remove_claim_by = ROOT
+		}
 		load_focus_tree = HIP_anarchist_tree
+		hidden_effect = {
+			delete_unit_template_and_units = {division_template = "Last Warband"}
+			clr_country_flag = HIP_has_last_warband
+		}
 	}
 }
 country_event = { # advanced hypertech of old?
@@ -11519,6 +12014,55 @@ country_event = { # Posada denounces Povner
 		name = hippocommie.48.b
 	}
 }
+
+country_event = { # Posada supports???? FEA
+	id = hippocommie.481
+	title = hippocommie.481.t
+	
+	desc = {
+		text = hippocommie.481.d1
+		trigger = {
+			NOT = {
+				OR = {
+					has_global_flag = GRI_grover_vi_dead
+					has_country_leader = {
+						ruling_only = yes
+						character = GRI_emperor_grover_vi
+					}
+				}
+			}
+		}
+	}
+
+	desc = {
+		text = hippocommie.481.d2
+		trigger = {
+			OR = {
+				has_global_flag = GRI_grover_vi_dead
+				has_country_leader = {
+					ruling_only = yes
+					character = GRI_emperor_grover_vi
+				}
+			}
+		}
+	}
+
+	picture = GFX_event_HIP_posada_hydrogen_atom
+	is_triggered_only = yes
+	option = { #Thanks I guess???
+		trigger = {
+			original_tag = FEA
+		}
+		name = hippocommie.481.a
+	}
+	option = { #They don't get it
+		trigger = {
+			original_tag = HIP
+		}
+		name = hippocommie.481.b
+	}
+}
+
 country_event = { # Posada denounces MARESOC
 	id = hippocommie.49
 	title = hippocommie.49.t
@@ -11679,9 +12223,20 @@ country_event = { # XB-70
 	is_triggered_only = yes
 	option = { #Zoom!
 		name = hippocommie.56.a
-		set_technology = {
-			jet_strat_bomber_ab = 1
+		if = {
+			limit = {
+				has_dlc = "By Blood Alone"
+			}
+			set_technology = {
+				jet_strat_bomber_ab_bba = 1
+			}
 		}
+		else = {
+			set_technology = {
+				jet_strat_bomber_ab = 1
+			}
+		}
+		set_country_flag = HIP_project_starfire_partially_succeeded
 	}
 }
 
@@ -11869,6 +12424,22 @@ country_event = { # Posada proposes a preemptive invasion of every supremacist i
 		}
 	}
 }
+
+country_event = {#Are we seriously about to glass [FROM]?
+	id = hippocommie.641
+	title = hippocommie.641.t
+	desc = hippocommie.641.d
+	picture = GFX_event_waste
+	is_triggered_only = yes
+
+	option = {#call it off!
+		name = hippocommie.641.a
+		set_country_flag = HIP_cancelled_strike
+	}
+	option = {#lol get glassed
+		name = hippocommie.641.b
+	}
+}
 country_event = { # Shot down p2
 	id = hippocommie.65
 	title = hippocommie.65.t
@@ -11946,6 +12517,7 @@ country_event = { # Invitation to RNZ's faction
 		}
 		HIP = {
 			add_opinion_modifier = { target = FROM modifier = friendship_refused }
+			country_event = hippocommie.101
 		}
 	}
 }
@@ -12133,6 +12705,49 @@ country_event = { # Mission accomplished
 				days = 21
 			}
 		}
+	}
+}
+
+country_event = { # Mission accomplished?
+	id = hippocommie.741
+	title = hippocommie.741.t
+	desc = hippocommie.741.d
+	picture = GFX_event_posada_poster
+    is_triggered_only = yes
+	
+	option = { #Wow this sucks
+		name = hippocommie.741.a
+		swap_ideas = {
+			remove_idea = HIP_workers_paradise_idea_3
+			add_idea = HIP_workers_paradise_idea
+		}
+		remove_ideas = HIP_welfare_aids
+		if = {
+			limit = {
+				has_idea = HIP_extranormal_affairs_committee_4
+			}
+			remove_ideas = HIP_extranormal_affairs_committee_4
+		}
+		else_if = {
+			limit = {
+				has_idea = HIP_extranormal_affairs_committee_3
+			}
+			remove_ideas = HIP_extranormal_affairs_committee_3
+		}
+		else_if = {
+			limit = {
+				has_idea = HIP_extranormal_affairs_committee_2
+			}
+			remove_ideas = HIP_extranormal_affairs_committee_2
+		}
+		else_if = {
+			limit = {
+				has_idea = HIP_extranormal_affairs_committee
+			}
+			remove_ideas = HIP_extranormal_affairs_committee
+		}
+		remove_ideas = HIP_global_liberation_4
+		custom_effect_tooltip = HIP_thank_you_for_playing_posada
 	}
 }
 
@@ -12435,6 +13050,25 @@ country_event = { #Vote of no confidence
 				}
 			}
 		}
+		every_state = {
+			limit = {
+				OR = {
+					is_core_of = BAT
+					is_core_of = ZUM
+					is_core_of = WAR
+					is_core_of = CTH
+					is_core_of = CVA
+					is_core_of = HIE
+					is_core_of = TRO
+					is_core_of = CDR
+					is_core_of = BKH
+					is_core_of = CGI
+					is_core_of = ZAR
+					is_core_of = MCW
+				}
+			}
+			remove_claim_by = ROOT
+		}
 		load_focus_tree = HIP_SLPA_tree
 		set_country_flag = HIP_coalition_government
 	}
@@ -12613,6 +13247,16 @@ country_event = { # Endsieg
 			add_idea = HIP_global_liberation_4
 		}
 		custom_effect_tooltip = HIP_no_more_fascists
+	}
+}
+country_event = { # Zesh wants no war
+	id = hippocommie.101
+	title = hippocommie.101.t
+	desc = hippocommie.101.d
+	picture = GFX_event_HIP_posada_hydrogen_atom
+	is_triggered_only = yes
+	option = { #Ok
+		name = hippocommie.101.a
 	}
 }
 country_event = { # We wanna join your faction
@@ -12823,6 +13467,7 @@ country_event = { # partial success on helicopter
 				category = helicopter_tech
 			}
 		}
+		set_country_flag = HIP_project_shooting_star_partially_succeeded
 	}
 }
 country_event = { # discovery of einsteinium and fermium
@@ -12948,8 +13593,10 @@ country_event = { # ALCM
 		name = hippocommie.118.a
 		set_technology = {
 			HIP_air_launched_cruise_missiles_tech = 1
+			popup = no
 		}
 		custom_effect_tooltip = HIP_air_launched_cruise_missiles_effect
+		set_country_flag = HIP_project_standoff_failed
 	}
 }
 
@@ -12963,8 +13610,10 @@ country_event = { # GEV
 		name = hippocommie.119.a
 		set_technology = {
 			HIP_ground_effect_vehicle_tech = 1
+			popup = no
 		}
-		custom_effect_tooltip = HIP_ground_effect_vehicle_tech
+		custom_effect_tooltip = HIP_ground_effect_vehicle_effect
+		set_country_flag = HIP_project_tidalwave_failed
 	}
 }
 
@@ -12977,6 +13626,214 @@ country_event = { # final posadist event (for now)
 	option = { #ok
 		name = hippocommie.120.a
 		custom_effect_tooltip = HIP_thank_you_for_playing_posada
+	}
+}
+
+
+country_event = { # you won, congrats
+	id = hippocommie.121
+	immediate = {log = "[GetDateText]: [Root.GetName]: event hippocommie.121"}
+	title = hippocommie.121.t
+	desc = hippocommie.121.d
+	picture = GFX_event_HIP_posada_flag
+	is_triggered_only = yes
+	option = { # yay
+		name = hippocommie.121.a
+		ROOT = {
+			transfer_state = 1092
+		}
+	}
+}
+
+country_event = { # you lost lmao
+	id = hippocommie.122
+	immediate = {log = "[GetDateText]: [Root.GetName]: event hippocommie.122"}
+	title = hippocommie.122.t
+	desc = hippocommie.122.d
+	picture = GFX_event_HIP_posada_flag
+	is_triggered_only = yes
+	option = { # fat boof
+		name = hippocommie.122.a
+		add_political_power = -25
+	}
+}
+
+country_event = { # you won (other side edition)
+	id = hippocommie.123
+	immediate = {log = "[GetDateText]: [Root.GetName]: event hippocommie.123"}
+	title = hippocommie.123.t
+	desc = hippocommie.123.d
+	picture = GFX_event_HIP_posada_flag
+	is_triggered_only = yes
+	option = { # take that nukefish
+		name = hippocommie.123.a
+		add_stability = 0.05
+		add_war_support = 0.05
+		add_political_power = 50
+	}
+}
+
+country_event = { # you lost (other side edition)
+	id = hippocommie.124
+	immediate = {log = "[GetDateText]: [Root.GetName]: event hippocommie.124"}
+	title = hippocommie.124.t
+	desc = hippocommie.124.d
+	picture = GFX_event_HIP_posada_flag
+	is_triggered_only = yes
+	option = { # ouchie
+		name = hippocommie.124.a
+		add_political_power = -50
+		add_stability = -0.05
+	}
+}
+
+country_event = { # reduntant? tie event
+	id = hippocommie.125
+	immediate = {log = "[GetDateText]: [Root.GetName]: event hippocommie.125"}
+	title = hippocommie.125.t
+	desc = hippocommie.125.d
+	picture = GFX_event_HIP_posada_flag
+	is_triggered_only = yes
+	option = { # welp guess I report this now
+		name = hippocommie.125.a
+	}
+}
+country_event = { # zamni flees RNZ
+	id = hippocommie.126
+	immediate = {log = "[GetDateText]: [Root.GetName]: event hippocommie.126"}
+	title = hippocommie.126.t
+	desc = hippocommie.126.d
+	picture = GFX_event_HIP_posada_flag
+	is_triggered_only = yes
+	option = { # :(
+		name = hippocommie.126.a
+		every_state = {
+			limit = {
+				is_core_of = ZUM
+			}
+			add_compliance = -5
+			add_resistance = 5
+		}
+	}
+}
+country_event = { # zarishat bad
+	id = hippocommie.127
+	immediate = {log = "[GetDateText]: [Root.GetName]: event hippocommie.127"}
+	title = hippocommie.127.t
+	desc = hippocommie.127.d
+	picture = GFX_event_HIP_posada_flag
+	is_triggered_only = yes
+	option = { # yes
+		trigger = {
+			original_tag = HIP
+		}
+		name = hippocommie.127.a
+		create_wargoal = {
+			target = CVA
+			type = annex_everything
+		}
+	}
+	option = { # no
+		trigger = {
+			original_tag = CVA
+		}
+		name = hippocommie.127.b
+	}
+}
+country_event = { # reactionary zarantias  bad
+	id = hippocommie.128
+	immediate = {log = "[GetDateText]: [Root.GetName]: event hippocommie.128"}
+	title = hippocommie.128.t
+	desc = hippocommie.128.d
+	picture = GFX_event_HIP_posada_flag
+	is_triggered_only = yes
+	option = { # yes
+		trigger = {
+			original_tag = HIP
+		}
+		name = hippocommie.128.a
+		create_wargoal = {
+			target = ZAR
+			type = annex_everything
+		}
+	}
+	option = { # no
+		trigger = {
+			original_tag = ZAR
+		}
+		name = hippocommie.128.b
+	}
+}
+country_event = { # M79
+	id = hippocommie.129
+	title = hippocommie.129.t
+	desc = hippocommie.129.d
+	picture = GFX_event_HIP_posada_hydrogen_atom
+	is_triggered_only = yes
+	option = { #ok
+		name = hippocommie.129.a
+		set_technology = {
+			HIP_personal_grenade_launcher_tech = 1
+			popup = no
+		}
+		custom_effect_tooltip = HIP_personal_grenade_launcher_effect
+		set_country_flag = HIP_project_bombthrower_succeeded
+	}
+}
+country_event = { # Wholesome Proletarino
+	id = hippocommie.130
+	title = hippocommie.130.t
+	desc = hippocommie.130.d
+	picture = GFX_event_HIP_posada_hydrogen_atom
+	is_triggered_only = yes
+	option = { #ok :)
+	
+		name = hippocommie.130.a
+		if = {
+			limit = {
+				original_tag = WNG
+			}
+			add_opinion_modifier = { target = HIP modifier = friendly_government }
+		}
+		else = {
+			add_opinion_modifier = { target = WNG modifier = friendly_government }
+		}
+	}
+}
+country_event = { # Evil Proletarino
+	id = hippocommie.131
+	title = hippocommie.131.t
+	desc = hippocommie.131.d
+	picture = GFX_event_HIP_posada_hydrogen_atom
+	is_triggered_only = yes
+	option = { #return him
+		trigger = {
+			NOT = {
+				has_country_flag = WNG_bordiclaw_actually_dead
+			}
+		}
+		name = hippocommie.131.a
+		HIP = {
+			country_event = hippocommie.132
+		}
+	}
+	option = { #don't lol
+		name = hippocommie.131.b
+		reverse_add_opinion_modifier = {
+			target = HIP
+			modifier = TUR_traitors_of_the_revolution
+		}
+	}
+}
+
+country_event = { # Bordiclaw arrives in RNZ
+	id = hippocommie.132
+	title = hippocommie.132.t
+	desc = hippocommie.132.d
+	picture = GFX_event_HIP_posada_hydrogen_atom
+	is_triggered_only = yes
+	option = { #welcome
+		name = hippocommie.132.b
 	}
 }
 
@@ -13197,6 +14054,7 @@ country_event = { # Popular march
 				}
 			}
 		}
+		add_ideas = HIP_seapony_antipathy
 		every_country = {
 			limit = {
 				has_government = fascism
@@ -13218,7 +14076,12 @@ country_event = { # Popular march
 				modifier = mortal_enemies
 			}
 		}
-		retire_character = HIP_stratus_skyranger
+		HIP_stratus_skyranger = {
+			retire = yes
+		}
+		HIP_lucy_duskfeather = {
+			retire = yes
+		}
 	}
 }
 country_event = { # The Leftist Programme
@@ -14083,9 +14946,9 @@ country_event = { #Hippogriff civil war
 					priority = 1
 					is_locked = yes
 					regiments = {
-						infantry = { x = 0 y = 0 }
-						infantry = { x = 0 y = 1 }
-						infantry = { x = 0 y = 2 }
+						militia = { x = 0 y = 0 }
+						militia = { x = 0 y = 1 }
+						militia = { x = 0 y = 2 }
 					}
 				}
 				every_owned_state = {
@@ -14117,9 +14980,9 @@ country_event = { #Hippogriff civil war
 			priority = 1
 			is_locked = yes
 			regiments = {
-				infantry = { x = 0 y = 0 }
-				infantry = { x = 0 y = 1 }
-				infantry = { x = 0 y = 2 }
+				militia = { x = 0 y = 0 }
+				militia = { x = 0 y = 1 }
+				militia = { x = 0 y = 2 }
 			}
 		}
 		every_owned_state = {
@@ -15107,11 +15970,21 @@ country_event = { # yo so who are we getting Moonfeather to press-gang into serv
 		add_stability = -0.05
 		add_political_power = -50
 		add_manpower = 20000
-		event_target:CTH_Bezelshazzar_Zerutra_target = {
-			set_nationality = HIP
+		every_possible_country = {
+			limit = {
+				has_character = CTH_bezelshazzar_zerutra
+			}
+			CTH_bezelshazzar_zerutra = {
+				set_nationality = HIP
+			}
 		}
-		event_target:CTH_Jebzel_Zoblos_target = {
-			set_nationality = HIP
+		every_possible_country = {
+			limit = {
+				has_character = CTH_jebzel_zoblos
+			}
+			CTH_jebzel_zoblos = {
+				set_nationality = HIP
+			}
 		}
 		add_to_variable = { HIP_SIR_colthage_warlords_level = 1 }
 		custom_effect_tooltip = HIP_SIR_warlords_influence_up
@@ -15261,6 +16134,13 @@ country_event = { # LMRD research - MAKE SURE TO ADD EFFECTS TO THIS DUMBASS
 			set_country_flag = kamikaze_flag
 		}
 		custom_effect_tooltip = kamikaze_focus_tooltip
+		if = {
+			limit = {
+				has_dlc = "By Blood Alone"
+			}
+			custom_effect_tooltip = JAP_strengthen_the_divine_wind_effect_bba
+			hidden_effect = { set_technology = { suicide_charge = 1 popup = no} }
+		}
 	}
 	option = { # yeah no thanks lmao
 		name = hippogriff_abyss.38.c
@@ -17299,8 +18179,13 @@ country_event = { # Dealing with the Mane Six
 	fire_only_once = yes
 	option = { # This is the end of your little games, oh also we're stealing your FM
 		name = hippogriff_abyss.71.a
-		event_target:EQS_sunset_shimmer_target = {
-			set_nationality = HIP
+		every_possible_country = {
+			limit = {
+				has_character = EQS_sunset_shimmer
+			}
+			EQS_sunset_shimmer = {
+				set_nationality = ROOT
+			}
 		}
 		set_country_flag = EQS_sunset_shimmer_arrived
 		EQS_sunset_shimmer = {
@@ -18856,7 +19741,6 @@ news_event = { # Thermonuclear test on Sunset Atoll
 			tag = HIP
 		}
 	}
-
 }
 
 
@@ -19138,7 +20022,7 @@ news_event = {#Siren takeover
 	immediate = {log = "[GetDateText]: [Root.GetName]: event hippogriff_news.6"}
 	title = hippogriff_news.6.t
 	desc = hippogriff_news.6.d
-	picture = GFX_news_event_mt_aris
+	picture = GFX_news_sirens
 
 	is_triggered_only = yes
 
@@ -19401,6 +20285,72 @@ news_event = {#Mountain Awakes
 		name = hippogriff_news.7.f
 		trigger = {
 			original_tag = HIP
+		}
+	}
+}
+
+news_event = { # Day of the Second Sun
+
+	id = hippogriff_news.8
+	immediate = {log = "[GetDateText]: [Root.GetName]: event hippogriff_news.8"}
+	title = hippogriff_news.8.t
+	desc = hippogriff_news.8.d
+	picture = GFX_news_celestia_nuke
+
+	is_triggered_only = yes
+
+	major = yes
+
+
+	option = {
+		name = hippogriff_news.8.a
+		trigger = {
+			NOT = { tag = HIP }
+			OR = {
+				NOT = { has_government = communism }
+				has_country_leader_ideology = democratic_socialism
+				has_country_leader_ideology = syndicalism
+				has_country_leader_ideology = anarchist_communism
+				has_country_leader_ideology = socialist_monarchism
+			}
+			NOT = {has_war_with = HIP}
+		}
+		add_opinion_modifier = {
+			target = HIP
+			modifier = absolute_madfish
+		}
+	}
+
+	option = {
+		name = hippogriff_news.8.b
+		trigger = {
+			NOT = { tag = HIP }
+			has_government = communism
+			NOT = {has_war_with = HIP}
+			NOT = {
+				OR = {
+					has_country_leader_ideology = democratic_socialism
+					has_country_leader_ideology = syndicalism
+					has_country_leader_ideology = anarchist_communism
+					has_country_leader_ideology = socialist_monarchism
+				}
+			}
+		}
+	}
+	option = {
+		name = hippogriff_news.8.c
+		trigger = {
+			tag = HIP
+		}
+	}
+	option = {
+		name = hippogriff_news.8.e
+		trigger = {
+			has_war_with = HIP
+		}
+		add_opinion_modifier = {
+			target = HIP
+			modifier = absolute_madfish
 		}
 	}
 }
