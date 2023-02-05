@@ -7,7 +7,8 @@ NDefines.NDiplomacy.VOLUNTEERS_DIVISIONS_REQUIRED = 10
 NDefines.NDiplomacy.MAX_OPINION_VALUE = 200							-- Max opinion value cap.
 NDefines.NDiplomacy.MIN_OPINION_VALUE = -200						-- Min opinion value cap.
 NDefines.NDiplomacy.TENSION_PUPPET = 0
-NDefines.NDiplomacy.TENSION_DECAY = 0.25 -- default 0.1
+NDefines.NDiplomacy.PEACE_SCORE_DISTRIBUTION = { 0.2, 0.2, 0.2, 0.2, 0.2, 0.2, 0.2, 0.2, 0.2, 0.2, 0.2, 0.2, 0.2, 0.2, 0.2, 0.2, 0.2, 0.2, 0.2, 0.2, 0.2, 0.2, 0.2, 0.2, 0.2 } -- How much of the total peace conference score you get during the first n turns.
+NDefines.NDiplomacy.PEACE_CONTEST_REFUND_FACTOR = { 1.0, 0.90, 0.80, 0.70, 0.60, 0.50 } -- How much of the spent peace conference score that gets refunded in a contest. First element applies for the first round of conflicts, second element for the second round of conflicts, etc. The final element is used for each consecutive turn, so setting that to e.g. 0.7 means you get 70 % of the spent score back for every turn thereafter.
 
 NDefines.NCountry.SPECIAL_FORCES_CAP_BASE = 0.1					-- Max ammount of special forces battalions is total number of non-special forces battalions multiplied by this and modified by a country modifier
 NDefines.NCountry.SPECIAL_FORCES_CAP_MIN = 32					-- You can have a minimum of this many special forces battalions, regardless of the number of non-special forces battalions you have, this can also be modified by a country modifier
@@ -24,8 +25,8 @@ NDefines.NCountry.FEMALE_UNIT_LEADER_BASE_CHANCE = {
 }
 
 NDefines.NResistance.GARRISON_MANPOWER_LOST_BY_ATTACK = 0.01 	-- Ratio of manpower lost by garrison at each attack on garrison (this number will be reduced by the hardness of garrison template)
-NDefines.NResistance.GARRISON_TEMPLATE_SCORE_IC_FACTOR = 0.7		-- ai uses these defines while calculating garrison template score of a template.
-NDefines.NResistance.GARRISON_TEMPLATE_SCORE_MANPOWER_FACTOR = 0.2  -- formula is (template_ic * ic_factor + template_manpower * manpower_factor ) / template_supression (lower is better)
+NDefines.NResistance.GARRISON_TEMPLATE_SCORE_IC_FACTOR = 1.4		-- ai uses these defines while calculating garrison template score of a template.
+NDefines.NResistance.GARRISON_TEMPLATE_SCORE_MANPOWER_FACTOR = 0.4  -- formula is (template_ic * ic_factor + template_manpower * manpower_factor ) / template_supression (lower is better)
 
 
 NDefines.NProduction.BASE_FACTORY_SPEED_NAV = 3.5 -- vanilla is 2.5
@@ -37,6 +38,7 @@ NDefines.NMilitary.UNIT_EXP_LEVELS = {0.02,	0.04,	0.06,	0.08,	0.1,	0.14,	0.18,	0
 NDefines.NMilitary.EXPERIENCE_COMBAT_FACTOR = 0.05
 NDefines.NMilitary.ARMY_EXP_BASE_LEVEL = 5
 NDefines.NMilitary.BASE_CAPTURE_EQUIPMENT_RATIO = 0.02
+NDefines.NMilitary.BASE_FEMALE_DIVISIONAL_COMMANDER_CHANCE = 0.5 -- 50% of time by default, female_divisional_commander_chance modifier is additive
 
 NDefines.NNavy.SHORE_BOMBARDMENT_CAP = 0.3 -- Vanilla is 0.25
 NDefines.NNavy.SCREENS_TO_CAPITAL_RATIO = 3.0 -- Vanilla is 4.0, mostly AI stuff
@@ -89,8 +91,6 @@ NDefines.NAI.DIPLOMACY_ACCEPT_VOLUNTEERS_BASE = 100
 NDefines.NAI.RESEARCH_AHEAD_OF_TIME_FACTOR = 4.5 		-- To which extent AI should care about ahead of time penalties to research
 NDefines.NAI.RESEARCH_AHEAD_BONUS_FACTOR = 2.5          -- To which extent AI should care about ahead of time bonuses to research
 NDefines.NAI.RESEARCH_BONUS_FACTOR = 2.0 				-- To which extent AI should care about bonuses to research
-NDefines.NAI.AIR_WING_REINFORCEMENT_LIMIT = 50
-NDefines.NAI.AIR_WING_SCOUT_REINFORCEMENT_LIMIT = 20
 
 NDefines.NOperatives.AGENCY_CREATION_FACTORIES = 3
 NDefines.NOperatives.AGENCY_UPGRADE_PER_OPERATIVE_SLOT = 4			-- Number of upgrade needed to unlock an additional operative slot

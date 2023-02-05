@@ -35,7 +35,14 @@ apply_cosmetic_tags_on_puppet_PREV_is_overlord = {
 		}
 		else_if = {
 			limit = { original_tag = EQC }
-			event_target:EQS_SOL_arcane_nova_target = { set_nationality = EQC }
+			every_possible_country = {
+				limit = {
+					has_character = EQS_SOL_arcane_nova
+				}
+				EQS_SOL_arcane_nova = {
+					retire = yes
+				}
+			}
 			promote_character = EQS_SOL_arcane_nova
 			set_party_name = { ideology = fascism long_name = EQC_SOL_fascism_party_long name = EQC_SOL_fascism_party }
 			if = {
@@ -215,14 +222,29 @@ apply_cosmetic_tags_on_puppet_PREV_is_overlord = {
 					provisional
 				}
 			}
-			event_target:CRY_Reese = {
-				set_nationality = SOL
+			if = {
+				limit = {
+					has_character = CRY_reese
+				}
+				CRY_reese = {
+					set_nationality = SOL
+				}
 			}
-			event_target:CRY_Cloudie = {
-				set_nationality = SOL
+			if = {
+				limit = {
+					has_character = CRY_cloudie
+				}
+				CRY_cloudie = {
+					set_nationality = SOL
+				}
 			}
-			event_target:CRY_Wondermane = {
-				set_nationality = SOL
+			if = {
+				limit = {
+					has_character = CRY_wondermane
+				}
+				CRY_wondermane = {
+					set_nationality = SOL
+				}
 			}
 		}
 		else_if = {
@@ -1025,14 +1047,29 @@ CTH_load_ideology_focus = {
 				set_variable = { CTH_constitutionalist_loyalty = 100 } #out of 100
 				set_variable = { CTH_constitutionalist_economy_cost_factor_var = -0.5 }
 				set_variable = { CTH_constitutionalist_mobilization_laws_cost_factor_var = -0.5 }
-				event_target:CTH_Zarvad_Orzagid = {
-					set_nationality = ROOT
+				every_possible_country = {
+					limit = {
+						has_character = CTH_zarvad_orzagid
+					}
+					CTH_zarvad_orzagid = {
+						set_nationality = ROOT
+					}
 				}
-				event_target:CTH_Zasdrubal_Zalvarado_target = {
-					set_nationality = ROOT
+				every_possible_country = {
+					limit = {
+						has_character = CTH_zasdrubal_zalvarado
+					}
+					CTH_zasdrubal_zalvarado = {
+						set_nationality = ROOT
+					}
 				}
-				event_target:CTH_Ziliad_Annizalid = {
-					set_nationality = ROOT
+				every_possible_country = {
+					limit = {
+						has_character = CTH_ziliad_annizalid
+					}
+					CTH_ziliad_annizalid = {
+						set_nationality = ROOT
+					}
 				}
 				add_country_leader_role = {
 					character = CTH_zarvad_orzagid
@@ -1080,8 +1117,13 @@ CTH_load_ideology_focus = {
 						CTH_zaphod_sufrit
 						CTH_zarvad_sufrit
 					}
-					event_target:CTH_Zalathel_Zarca_target = {
-						set_nationality = SOL
+					if = {
+						limit = {
+							has_character = CTH_zalathel_zarca
+						}
+						CTH_zalathel_zarca = {
+							set_nationality = SOL
+						}
 					}
 					every_character = {
 						limit = {
@@ -1234,8 +1276,13 @@ CTH_load_ideology_focus = {
 					add_ideas = CTH_no_co_sufrit
 				}
 				hidden_effect = {
-					event_target:CTH_Zalathel_Zarca_target = {
-						set_nationality = SOL
+					if = {
+						limit = {
+							has_character = CTH_zalathel_zarca
+						}
+						CTH_zalathel_zarca = {
+							set_nationality = SOL
+						}
 					}
 					every_character = {
 						limit = {
@@ -2729,6 +2776,120 @@ FRN_reduce_tarrin_resistance = {
 		}
 		FRN = {
 			set_variable = { FRN_tarrin_resistance_variable = 0.15 }
+		}
+	}
+}
+
+transfer_impassible_states_back = {
+	for_each_scope_loop = {
+		array = global.stolen_impassables
+		# Calculate the best owner
+		set_temp_variable = { impassable_former_owner_temp = impassable_former_owner }
+		set_temp_variable = { impassable_best_owner = 0 }
+		# 1 - original owner
+		# 2 - original tag of original owner
+		# 3 - root (winner in peace deal)
+		# 4 - country with a core allied with root
+		# 5 - country with a core
+		# fallback - current owner (PDX logic)
+		set_temp_variable = { impassable_best_owner_type = 0 }
+
+		if = {
+			limit = {
+				owner = {
+					NOT = { tag = temp_var:impassable_former_owner_temp }
+				}
+			}
+			log = "[GetDateText]: Impassable [This.GetName] was stolen from [?impassable_former_owner.GetTag] by [?owner.GetTag]"
+
+			every_neighbor_state = {
+				limit = {
+					impassable = no
+					owner = {
+						NOT = {
+							has_war_with = ROOT
+							has_war_with = FROM
+						}
+					}
+				}
+				owner = {
+					if = {
+						limit = {
+							NOT = {
+								check_variable = { impassable_best_owner_type > 1 }
+							}
+							tag = temp_var:impassable_former_owner_temp
+						}
+						log = "[GetDateText]: Setting best owner as previous owner [?this.GetTag]"
+						set_temp_variable = { impassable_best_owner = THIS }
+						set_temp_variable = { impassable_best_owner_type = 1 }
+					}
+					else_if = {
+						limit = {
+							check_variable = { impassable_best_owner_type > 2 }
+							original_tag = temp_var:impassable_former_owner_temp
+						}
+						log = "[GetDateText]: Setting best owner as same original tag as previous owner [?this.GetTag]"
+						set_temp_variable = { impassable_best_owner = THIS }
+						set_temp_variable = { impassable_best_owner_type = 2 }
+					}
+					else_if = {
+						limit = {
+							check_variable = { impassable_best_owner_type > 3 }
+							tag = ROOT
+						}
+						log = "[GetDateText]: Setting best owner as root (winner) [?this.GetTag]"
+						set_temp_variable = { impassable_best_owner = THIS }
+						set_temp_variable = { impassable_best_owner_type = 3 }
+					}
+					else_if = {
+						limit = {
+							check_variable = { impassable_best_owner_type > 4 }
+							PREV = { is_core_of = PREV }
+							is_ally_with = ROOT
+						}
+						log = "[GetDateText]: Setting best owner as core owner allied to root [?this.GetTag]"
+						set_temp_variable = { impassable_best_owner = THIS }
+						set_temp_variable = { impassable_best_owner_type = 4 }
+					}
+					else_if = {
+						limit = {
+							check_variable = { impassable_best_owner_type > 5 }
+							PREV = { is_core_of = PREV }
+						}
+						log = "[GetDateText]: Setting best owner as core owner [?this.GetTag]"
+						set_temp_variable = { impassable_best_owner = THIS }
+						set_temp_variable = { impassable_best_owner_type = 5 }
+					}
+				}
+			}
+			if = {
+				limit = {
+					NOT = {
+						check_variable = { impassable_best_owner = 0 }
+					}
+				}
+				log = "[GetDateText]: Impassable [This.GetName] transferring to [?impassable_best_owner.GetTag]"
+				transfer_state_to = temp_var:impassable_best_owner
+			}
+		}
+		clear_variable = impassable_former_owner
+	}
+	clear_array = global.stolen_impassables
+}
+
+save_owner_of_impassible_states = {
+	FROM = {
+		every_owned_state = {
+			limit = {
+				impassable = yes
+			}
+			set_variable = {
+				impassable_former_owner = FROM
+			}
+			add_to_array = {
+				global.stolen_impassables = THIS
+			}
 		}
 	}
 }
