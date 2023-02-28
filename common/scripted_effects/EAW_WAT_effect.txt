@@ -1,0 +1,275 @@
+WAT_calculate_religion_secularism_balance = {
+	#Clamp religous lean, 0 is religious and 100 is secular
+	clamp_variable = {
+		var = WAT_secular_religious_lean
+		min = 0
+		max = 100
+	}
+	#Calculates difference from balanced aka 50 then multiplies using the scale to get the right value
+	#For higher than 50 aka Secular
+	if = {
+		limit = { 
+			check_variable = {
+				var = WAT_secular_religious_lean
+				value = 50
+				compare = greater_than
+			}
+		}
+		set_temp_variable = { diff_from_balanced = -50 }
+		add_to_temp_variable = { diff_from_balanced = WAT_secular_religious_lean }
+		#Research speed calculation, scale 30/50 (=0.6)
+		set_variable = { WAT_religion_secularism_balance_research_var = diff_from_balanced }
+		multiply_variable = { WAT_religion_secularism_balance_research_var = 0.6 }
+		#Factory output calculation, scale 15/50  (=0.3)
+		set_variable = { WAT_religion_secularism_balance_fac_output_var = diff_from_balanced }
+		multiply_variable = { WAT_religion_secularism_balance_fac_output_var = 0.3 }
+		#Reset other modifiers to 0
+		set_variable = { WAT_religion_secularism_balance_pop_var = 0 }
+		set_variable = { WAT_religion_secularism_balance_conscription_var = 0 }
+		set_variable = { WAT_religion_secularism_balance_attack_defence_var = 0 }
+	}
+	#For lower than 50 aka Religious
+	else = {
+		set_temp_variable = { diff_from_balanced = 50 }
+		subtract_from_temp_variable = { diff_from_balanced = WAT_secular_religious_lean }
+		#Pop growth calculation, scale 75/50 (=1.5)
+		set_variable = { WAT_religion_secularism_balance_pop_var = diff_from_balanced }
+		multiply_variable = { WAT_religion_secularism_balance_pop_var = 1.5 }
+		#Recruitable pop modifier calculation, scale 10/50 (=0.2)
+		set_variable = { WAT_religion_secularism_balance_conscription_var = diff_from_balanced }
+		multiply_variable = { WAT_religion_secularism_balance_conscription_var = 0.2 }
+		#Attack/defence modifier, scale 15/50  (=0.3)
+		set_variable = { WAT_religion_secularism_balance_attack_defence_var = diff_from_balanced }
+		multiply_variable = { WAT_religion_secularism_balance_attack_defence_var = 0.3 }
+		#Reset other modifiers to 0
+		set_variable = { WAT_religion_secularism_balance_research_var = 0 }
+		set_variable = { WAT_religion_secularism_balance_fac_output_var = 0 }
+	}
+	#Stability calculation don't add any more calculations after this, scale abs(diff-50)
+	multiply_temp_variable = { diff_from_balanced = -1 }
+	add_to_temp_variable = { diff_from_balanced = 15}
+	clamp_temp_variable = {
+		var = diff_from_balanced
+		min = 0
+		max = 15
+	}
+	set_variable = { WAT_religion_secularism_balance_stab_var = diff_from_balanced }
+	#Divide by 100 to scale to modifiers
+	divide_variable = { WAT_religion_secularism_balance_research_var = 100 }
+	divide_variable = { WAT_religion_secularism_balance_fac_output_var = 100 }
+	divide_variable = { WAT_religion_secularism_balance_stab_var = 100 }
+	divide_variable = { WAT_religion_secularism_balance_pop_var = 100 }
+	divide_variable = { WAT_religion_secularism_balance_conscription_var = 100 }
+	divide_variable = { WAT_religion_secularism_balance_attack_defence_var = 100 }
+	#Update dynamic modifier with new values
+	force_update_dynamic_modifier = yes
+}
+
+WAT_religion_secularism_change = {
+	add_to_variable = { WAT_secular_religious_lean = WAT_secular_religious_lean_change_temp }
+	custom_effect_tooltip = WAT_religion_secularism_change_tt
+	WAT_calculate_religion_balance = yes
+	
+	
+}
+
+WAT_calculate_religion_balance = {
+	#Clamp support of factions, 0 no support, 100 full support
+	clamp_variable = {
+		var = rodo_support
+		min = 0
+		max = 100
+	}
+	clamp_variable = {
+		var = wudu_support
+		min = 0
+		max = 100
+	}
+	clamp_variable = {
+		var = uhtal_support
+		min = 0
+		max = 100
+	}
+
+	#Rodorgoddites start
+	#Positives
+	#Stability calculation
+	set_temp_variable = { WAT_rodo_stability = rodo_support }
+	multiply_temp_variable = { WAT_rodo_stability = 0.1 }
+	#War support calculation
+	set_temp_variable = { WAT_rodo_war_support = rodo_support }
+	multiply_temp_variable = { WAT_rodo_war_support = 0.1 }
+	#Consumer goods calculation
+	set_temp_variable = { WAT_rodo_consumer_goods = rodo_support }
+	multiply_temp_variable = { WAT_rodo_consumer_goods = -0.05 }
+	#Division recovery rate calculation
+	set_temp_variable = { WAT_rodo_recovery_rate = rodo_support }
+	multiply_temp_variable = { WAT_rodo_recovery_rate = 0.1 }
+	#Core terrain defense calculation
+	set_temp_variable = { WAT_rodo_defense = rodo_support }
+	multiply_temp_variable = { WAT_rodo_defense = 0.1 }
+	#Training time calculation
+	set_temp_variable = { WAT_rodo_training_time = rodo_support }
+	multiply_temp_variable = { WAT_rodo_training_time = -0.1 }
+	#Negatives
+	#Civilian construction speed calculation
+	set_temp_variable = { WAT_rodo_civ_construction = rodo_support }
+	multiply_temp_variable = { WAT_rodo_civ_construction = -0.25 }
+	#Infrastructure construction speed calculation
+	set_temp_variable = { WAT_rodo_infra_construction = rodo_support }
+	multiply_temp_variable = { WAT_rodo_infra_construction = -0.25 }
+	#Rodorgoddites end
+	
+	#Wudubeorgi start
+	#Positives
+	#Improve relation speed calculation
+	set_temp_variable = { WAT_wudu_improve_relations = wudu_support }
+	multiply_temp_variable = { WAT_wudu_improve_relations = 0.2 }
+	#Research rate calculation
+	set_temp_variable = { WAT_wudu_research = wudu_support }
+	multiply_temp_variable = { WAT_wudu_research = 0.15 }
+	#Civilian/infrastructure construction speed calculation
+	set_temp_variable = { WAT_wudu_civ_construction = wudu_support }
+	set_temp_variable = { WAT_wudu_infra_construction = wudu_support }
+	multiply_temp_variable = { WAT_wudu_civ_construction = 0.1 }
+	multiply_temp_variable = { WAT_wudu_infra_construction = 0.1 }
+	#Negatives
+	#Stability calculation
+	set_temp_variable = { WAT_wudu_stability = diff_from_balanced_wudu }
+	multiply_temp_variable = { WAT_wudu_stability = -0.2 }
+	#War support calculation
+	set_temp_variable = { WAT_wudu_war_support = diff_from_balanced_wudu }
+	multiply_temp_variable = { WAT_wudu_war_support = -0.2 }
+	#Wudubeorgi end
+
+	#Uhtaltheow start
+	#Positives
+	#Organisation calculation
+	set_temp_variable = { WAT_uhtal_org = uhtal_support }
+	multiply_temp_variable = { WAT_uhtal_org = 0.1 }
+	#Division recovery rate calculation
+	set_temp_variable = { WAT_uhtal_recovery_rate = uhtal_support }
+	multiply_temp_variable = { WAT_uhtal_recovery_rate = 0.1 }
+	#Fort build construction calculation
+	set_temp_variable = { WAT_uhtal_fort_construction = uhtal_support }
+	multiply_temp_variable = { WAT_uhtal_fort_construction = 0.25 }	
+	#Training time calculation
+	set_temp_variable = { WAT_uhtal_training_time = uhtal_support }
+	multiply_temp_variable = { WAT_uhtal_training_time = -0.1 }
+	#War support calculation
+	set_temp_variable = { WAT_uhtal_war_support = uhtal_support }
+	multiply_temp_variable = { WAT_uhtal_war_support = 0.25 }
+	#Military factory construction speed calculation
+	set_temp_variable = { WAT_uhtal_mil_construction = uhtal_support }
+	multiply_temp_variable = { WAT_uhtal_mil_construction = 0.15 }
+	#Negatives
+	#Air base construction speed calculation
+	set_temp_variable = { WAT_uhtal_air_construction = uhtal_support }
+	multiply_temp_variable = { WAT_uhtal_air_construction = -0.75 }
+	#Research rate calculation
+	set_temp_variable = { WAT_uhtal_research = uhtal_support }
+	multiply_temp_variable = { WAT_uhtal_research = -0.1 }
+	#Improve relations speed calculation
+	set_temp_variable = { WAT_uhtal_improve_relations = uhtal_support }
+	multiply_temp_variable = { WAT_uhtal_improve_relations = -0.5 }	
+	#Stability calculation
+	set_temp_variable = { WAT_uhtal_stability = uhtal_support }
+	multiply_temp_variable = { WAT_uhtal_stability = -0.25 }
+	#Civilian construction speed calculation
+	set_temp_variable = { WAT_uhtal_civ_construction = uhtal_support }
+	multiply_temp_variable = { WAT_uhtal_civ_construction = -0.2 }
+	#Infrastructure construction speed calculation
+	set_temp_variable = { WAT_uhtal_infra_construction = uhtal_support }
+	multiply_temp_variable = { WAT_uhtal_infra_construction = -0.25 }
+	#Uhtaltheow end
+
+	#Count the values up and set them
+	set_variable = { WAT_religion_secularism_balance_stab_var = WAT_rodo_stability }
+	add_to_variable = { WAT_religion_secularism_balance_stab_var = WAT_wudu_stability }
+	add_to_variable = { WAT_religion_secularism_balance_stab_var = WAT_uhtal_stability }
+
+	set_variable = { WAT_religion_balance_war_suport_var = WAT_rodo_war_support }
+	add_to_variable = { WAT_religion_balance_war_suport_var = WAT_wudu_war_support }
+	add_to_variable = { WAT_religion_balance_war_suport_var = WAT_uhtal_war_support }
+
+	set_variable = { WAT_religion_balance_consumer_goods_var = WAT_rodo_consumer_goods }
+
+	set_variable = { WAT_religion_balance_morale_recovery_var = WAT_rodo_recovery_rate }
+	add_to_variable = { WAT_religion_balance_morale_recovery_var = WAT_uhtal_recovery_rate}
+
+	set_variable = { WAT_religion_balance_core_defence_var = WAT_rodo_defense }
+
+	set_variable = { WAT_religion_balance_training_time_var = WAT_rodo_training_time }
+	add_to_variable = { WAT_religion_balance_training_time_var = WAT_uhtal_training_time }
+
+	set_variable = { WAT_religion_balance_civ_speed_var = WAT_rodo_civ_construction }
+	add_to_variable = { WAT_religion_balance_civ_speed_var = WAT_wudu_civ_construction }
+	add_to_variable = { WAT_religion_balance_civ_speed_var = WAT_uhtal_civ_construction }
+
+	set_variable = { WAT_religion_balance_infra_speed_var = WAT_rodo_infra_construction }
+	add_to_variable = { WAT_religion_balance_infra_speed_var = WAT_wudu_infra_construction }
+	add_to_variable = { WAT_religion_balance_infra_speed_var = WAT_uhtal_infra_construction }
+
+	set_variable = { WAT_religion_balance_opinion_factor_var = WAT_wudu_improve_relations }
+	add_to_variable = { WAT_religion_balance_opinion_factor_var = WAT_uhtal_improve_relations }
+
+	set_variable = { WAT_religion_balance_research_var = WAT_wudu_research }
+	add_to_variable = { WAT_religion_balance_research_var = WAT_uhtal_research }
+
+	set_variable = { WAT_religion_balance_org_var = WAT_uhtal_org }
+
+	set_variable = { WAT_religion_balance_fort_construction_var = WAT_uhtal_fort_construction }
+
+	set_variable = { WAT_religion_balance_mil_construction_var = WAT_uhtal_mil_construction }
+
+	set_variable = { WAT_religion_balance_air_construction_var = WAT_uhtal_air_construction }
+
+	#Divide by 100 to scale to modifiers
+	divide_variable = { WAT_religion_secularism_balance_stab_var = 100 }
+	divide_variable = { WAT_religion_balance_war_suport_var = 100 }
+	divide_variable = { WAT_religion_balance_consumer_goods_var = 100 }
+	divide_variable = { WAT_religion_balance_morale_recovery_var = 100 }
+	divide_variable = { WAT_religion_balance_core_defence_var = 100 }
+	divide_variable = { WAT_religion_balance_training_time_var = 100 }
+	divide_variable = { WAT_religion_balance_civ_speed_var = 100 }
+	divide_variable = { WAT_religion_balance_infra_speed_var = 100 }
+	divide_variable = { WAT_religion_balance_opinion_factor_var = 100 }
+	divide_variable = { WAT_religion_balance_research_var = 100 }
+	divide_variable = { WAT_religion_balance_org_var = 100 }
+	divide_variable = { WAT_religion_balance_fort_construction_var = 100 }
+	divide_variable = { WAT_religion_balance_mil_construction_var = 100 }
+	divide_variable = { WAT_religion_balance_air_construction_var = 100 }
+
+	#Update dynamic modifier with new values
+	force_update_dynamic_modifier = yes
+}
+
+WAT_religion_rodo_add_x = {
+	add_to_variable = { rodo_support = WAT_religion_rodo_change }
+	set_temp_variable = { WAT_religion_rodo_change_temp = WAT_religion_rodo_change }
+	multiply_temp_variable = { WAT_religion_rodo_change_temp = 0.5 }
+	subtract_from_variable = { wudu_support = WAT_religion_rodo_change_temp }
+	subtract_from_variable = { uhtal_support = WAT_religion_rodo_change_temp }
+	custom_effect_tooltip = WAT_religion_rodo_add_x_tt
+	WAT_calculate_religion_balance = yes
+}
+
+WAT_religion_wudu_add_x = {
+	add_to_variable = { wudu_support = WAT_religion_wudu_change }	
+	set_temp_variable = { WAT_religion_wudu_change_temp = WAT_religion_wudu_change }
+	multiply_temp_variable = { WAT_religion_wudu_change_temp = 0.5 }
+	subtract_from_variable = { rodo_support = WAT_religion_wudu_change_temp }
+	subtract_from_variable = { uhtal_support = WAT_religion_wudu_change_temp }
+	custom_effect_tooltip = WAT_religion_wudu_add_x_tt
+	WAT_calculate_religion_balance = yes
+}
+
+WAT_religion_uhtal_add_x = {
+	add_to_variable = { uhtal_support = WAT_religion_uhtal_change }	
+	set_temp_variable = { WAT_religion_uhtal_change_temp = WAT_religion_uhtal_change }
+	multiply_temp_variable = { WAT_religion_uhtal_change_temp = 0.5 }
+	subtract_from_variable = { rodo_support = WAT_religion_uhtal_change_temp }
+	subtract_from_variable = { wudu_support = WAT_religion_uhtal_change_temp }
+	custom_effect_tooltip = WAT_religion_uhtal_add_x_tt
+	WAT_calculate_religion_balance = yes
+}
