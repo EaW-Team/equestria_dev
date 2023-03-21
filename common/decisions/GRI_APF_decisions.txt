@@ -1,5 +1,6 @@
 GRI_AP_sc_inquisition_cat = {
 	GRI_AP_sc_start_inquisition_target_country = {
+		cost = 40
 		allowed = {
 			OR = {
 				original_tag = GRI
@@ -12,20 +13,13 @@ GRI_AP_sc_inquisition_cat = {
 
 		visible = {
 			has_completed_focus = GRI_AF_sc_territory_integration
-			FROM = {
-				exists = no
+			FROM = { exists = no }
+			check_variable = {
+				ROOT.GRI_AF_inquisitors_available > 0
 			}
-			NOT = {
-				meta_trigger = {
-					text = {
-						is_in_array = {
-							array = GRI_AF_under_inquisition_cores
-							value = GRI_AF_[TAG_COUNTRY]_inquisition_state
-						}
-					}
-
-					TAG_COUNTRY = "[FROM.GetTag]"
-				}
+			is_in_array = {
+				array = ROOT.GRI_AF_inquisitionable_cores
+				value = FROM
 			}
 		}
 		available = {
@@ -44,17 +38,28 @@ GRI_AP_sc_inquisition_cat = {
 
 		complete_effect = {
 			log = "[GetDateText]: [Root.GetName]: Decision GRI_AP_sc_inquisition_target_country target: [From.GetName]"
+			
 			meta_effect = {
 				text = {
-					add_to_array = {
-						array = GRI_AF_under_inquisition_cores
-						value = GRI_AF_[TAG_COUNTRY]_inquisition_state
+					var:GRI_AF_[TAG_COUNTRY]_inquisition_state = {
+						add_to_array = {
+							array = ROOT.GRI_AF_under_inquisition_cores
+							value = id
+						}
 					}
 				}
 
 				TAG_COUNTRY = "[FROM.GetTag]"
 			}
 
+			log = "[FROM.GetName]"
+
+			add_to_array = { GRI_AF_under_inquisition_tags = FROM }
+			remove_from_array = {
+				array = ROOT.GRI_AF_inquisitionable_cores
+				value = FROM
+			}
+			subtract_from_variable = { ROOT.GRI_AF_inquisitors_available = 1 }
 		}
 	}
 
@@ -69,27 +74,67 @@ GRI_AP_sc_inquisition_cat = {
 		target_array = ROOT.GRI_AF_under_inquisition_cores
 		state_target = yes
 		on_map_mode = map_and_decisions_view
+		days_remove = 4
 
 		visible = {
 			has_completed_focus = GRI_AF_sc_territory_integration
+			is_in_array = {
+				array = ROOT.GRI_AF_under_inquisition_cores
+				value = FROM
+			}
 		}
 		available = {
-			always = yes
+			FROM = {
+				any_state_division = {
+					division_has_majority_template = griffon_inquisitors
+				}
+				is_fully_controlled_by = ROOT
+			}
 		}
 
-		complete_effect = {
-			log = "[GetDateText]: [Root.GetName]: Decision GRI_AP_sc_dispatch_inquisitors_target_state target: [From.GetName]"
+		cancel_trigger = {
+			NOT = {
+				FROM = {
+					any_state_division = {
+						division_has_majority_template = griffon_inquisitors
+					}
+					is_fully_controlled_by = ROOT
+				}
+			}
+		}
 
-			if = {
-				limit = {
-					is_in_array = {
-						array = GRI_AF_inquisition_events
-						value = state_original_cores^0
+		remove_effect = {
+			log = "[GetDateText]: [Root.GetName]: Decision GRI_AP_sc_dispatch_inquisitors_target_state target: [From.GetName]"
+			
+			FROM = {
+				# Find which tag need to be cored
+				set_temp_variable = { temp_core_tag = -1 }
+				for_each_loop = {
+					array = state_original_cores
+					value = state_core_tag
+
+					if = {
+						limit = {
+							is_in_array = {
+								array = ROOT.GRI_AF_under_inquisition_tags
+								value = state_core_tag
+							}
+						}
+
+						set_temp_variable = { temp_core_tag = state_core_tag }
+						set_temp_variable = { break = 1 }
 					}
 				}
+				
+				if = {
+					limit = {
+						is_in_array = {
+							array = ROOT.GRI_AF_inquisition_events
+							value = temp_core_tag
+						}
+					}
 
-				# Special state event for certain countries
-				FROM = {
+					# Special state event for certain countries
 					meta_effect = {
 						text = {
 							set_variable = { title_event_inquisition  = token:imperium_4002_[TAG]_t }
@@ -98,8 +143,7 @@ GRI_AP_sc_inquisition_cat = {
 							set_variable = { effect_event_inquisition = token:imperium_4002_[TAG]_e }
 						}
 						
-						# The hardcoded index (0) is not very modular here.
-						TAG = "[?state_original_cores^0.GetTag]"
+						TAG = "[?temp_core_tag.GetTag]"
 					}
 					state_event = {
 						id = imperium.4002
@@ -109,41 +153,19 @@ GRI_AP_sc_inquisition_cat = {
 			}
 
 			remove_from_array = {
-				array = ROOT.GRI_AF_inquisitionable_cores
-				value = state_original_cores^0
+				array = ROOT.GRI_AF_under_inquisition_tags
+				value = temp_core_tag
+			}
+			remove_from_array = {
+				array = ROOT.GRI_AF_under_inquisition_cores
+				value = FROM
 			}
 			add_to_array = {
 				array = ROOT.GRI_AF_purified_cores
-				value = state_original_cores^0
-			}
-		}
-	}
-
-	GRI_AP_add_inquisitor = {
-		allowed = {
-			original_tag = GRI
-		}
-		visible = {
-			is_debug = yes
-		}
-
-		complete_effect = {
-			meta_effect = {
-				text = {
-					set_temp_variable = { temp_var = GRI_AF_[TAG_COUNTRY]_inquisition_state}
-				}
-
-				TAG_COUNTRY = "[STW.GetTag]"
-			}
-			log = "[?temp_var]"
-			log = "[?GRI_AF_STW_inquisition_state]"
-			var:temp_var = {
-				log = "[THIS.GetName]"
+				value = temp_core_tag
 			}
 
-			add_to_variable = {
-				ROOT.GRI_AF_inquisitors_available = 1
-			}
+			add_to_variable = { ROOT.GRI_AF_inquisitors_available = 1 }
 		}
 	}
 }
@@ -225,15 +247,11 @@ GRI_AP_debug_cat = {
 				ROOT = { end_puppet = PREV }
 				if = {
 					limit = {
-						NOT = {
-							tag = MNC
-							tag = ROU
-						}
-					}
-
-					every_state = {
-						limit = { is_core_of = PREV }
-						add_core_of = ROOT
+						#NOT = {
+						#	tag = MNC
+						#	tag = ROU
+						#}
+						always = yes
 					}
 
 					ROOT = {
