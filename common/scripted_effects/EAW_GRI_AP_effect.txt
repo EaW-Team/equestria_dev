@@ -5,3 +5,63 @@ GRI_AF_inquisition_empty_effect = {}
 GRI_AF_inquisition_debug_effect = {
 	add_political_power = 100
 }
+
+# Function : GRI_AP_inquisition_coreable_f
+# Is used to add a list of coreable country to the inquisition system
+# Input : GRI_AP_inquisition_coreable_input_tag   - Array of tags to add
+# Input : GRI_AP_inquisition_coreable_input_state - Array of states id
+GRI_AP_inquisition_coreable_f = {
+	for_each_loop = {
+		array = GRI_AP_inquisition_coreable_input_tag
+		value = target_tag
+		index = index_tag
+		
+		set_temp_variable = { temp_id_state = GRI_AP_inquisition_coreable_input_state^index_tag }
+		ROOT = {
+			meta_effect = {
+				text = {
+					set_variable = {
+						GRI_AF_[TAG_COUNTRY]_inquisition_state = temp_id_state
+					}
+				}
+
+				TAG_COUNTRY = "[?target_tag.GetTag]"
+			}
+		}
+		var:target_tag = {
+			GRI_AF_add_to_ROOT_inquisition_cores = yes
+		}
+
+		if = {
+			limit = {
+				ROOT = {
+					NOT = { has_war_with = PREV }
+				}
+			}
+
+			ROOT = {
+				declare_war_on = {
+					target = PREV
+					type = annex_everything
+				}
+			}
+		}
+
+		var:temp_id_state = {
+			if = {
+				limit = {
+					ROOT = {
+						NOT = { has_war_with = PREV.controller }
+					}
+				}
+
+				ROOT = {
+					declare_war_on = {
+						target = PREV.controller
+						type = annex_everything
+					}
+				}
+			}
+		}
+	}
+}
