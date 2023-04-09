@@ -365,7 +365,41 @@ MSH_Influences_re_render = {
 				add_to_temp_variable = { population_total = state_population_k }
 			}
 		}
-		set_variable = { MSH_total_pop_eligible_for_GUI = population_total }
+		set_variable = { population_total_permanent = population_total }
+		set_temp_variable = { population_total_check = 0 }
+		for_each_scope_loop = {
+			array = MSH_Influences_States
+			
+			if = {
+				limit = {
+					is_owned_by = MSH
+				}
+				set_variable = { population_factor = state_population_k }
+				divide_variable = { population_factor = population_total }
+				add_to_temp_variable = { population_total_check = population_factor }
+			}
+		}
+		
+		if = {
+			limit = {
+				check_variable = { population_total_check < 1 }
+			}
+			set_temp_variable = { population_correction = 100 }
+			multiply_temp_variable = { population_total_check = 100 }
+			divide_temp_variable = { population_correction = population_total_check }
+			log = "population_correction = [?population_correction]"
+			for_each_loop = {
+				array = MSH_Influences_States
+				var:v = {
+					if = {
+						limit = {
+							is_owned_by = MSH
+						}
+						multiply_variable = { population_factor = population_correction }
+					}
+				}
+			}
+		}
 		
 		resize_temp_array = { temp_peasants = 3 }
 		resize_temp_array = { temp_soldiers = 3 }
@@ -381,8 +415,6 @@ MSH_Influences_re_render = {
 					limit = {
 						is_owned_by = MSH
 					}
-					
-					add_to_temp_variable = { states_amt = 1 }
 					
 					## Set local progressbar variables to be called for in local view
 
@@ -448,9 +480,6 @@ MSH_Influences_re_render = {
 					else = {
 						set_variable = { MSH_Influences_Frame = 1 }
 					}
-					
-					set_variable = { population_factor = state_population_k }
-					divide_variable = { population_factor = population_total }
 					
 					# Piety
 					set_temp_variable = { local_piety = MSH_influence_average_local^0 }
