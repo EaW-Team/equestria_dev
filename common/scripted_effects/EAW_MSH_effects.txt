@@ -376,28 +376,6 @@ MSH_Influences_re_render = {
 				}
 				set_variable = { population_factor = state_population_k }
 				divide_variable = { population_factor = population_total }
-				add_to_temp_variable = { population_total_check = population_factor }
-			}
-		}
-		
-		if = {
-			limit = {
-				check_variable = { population_total_check < 1 }
-			}
-			set_temp_variable = { population_correction = 100 }
-			multiply_temp_variable = { population_total_check = 100 }
-			divide_temp_variable = { population_correction = population_total_check }
-			log = "population_correction = [?population_correction]"
-			for_each_loop = {
-				array = MSH_Influences_States
-				var:v = {
-					if = {
-						limit = {
-							is_owned_by = MSH
-						}
-						multiply_variable = { population_factor = population_correction }
-					}
-				}
 			}
 		}
 		
@@ -484,7 +462,6 @@ MSH_Influences_re_render = {
 					# Piety
 					set_temp_variable = { local_piety = MSH_influence_average_local^0 }
 					multiply_temp_variable = { local_piety = population_factor }
-					add_to_variable = { MSH.MSH_piety = local_piety }
 					set_variable = { MSH_local_piety_contribution = local_piety }
 					
 					## Count each group's averages
@@ -539,6 +516,22 @@ MSH_Influences_re_render = {
 			}
 		}
 		
+		clear_array = MSH_influence_average_national
+		set_temp_variable = { total_average_check = 100 }
+		set_temp_variable = { total_average_check_v = 0 }
+		for_each_loop = {
+			array = temp_influence_average
+			add_to_array = { MSH_influence_average_national = temp_influence_average^i }
+			add_to_temp_variable = { total_average_check_v = v }
+		}
+		subtract_from_temp_variable = { total_average_check = total_average_check_v }
+		divide_temp_variable = { total_average_check = 3 }
+		for_each_loop = {
+			array = MSH_influence_average_national
+			add_to_variable = { MSH_influence_average_national^i = total_average_check }
+		}
+		set_variable = { MSH_piety = MSH_influence_average_national^0 }
+		
 		clear_array = MSH_Influences_Peasants_Average
 		clear_array = MSH_Influences_Soldiers_Average
 		clear_array = MSH_Influences_Intelligentsia_Average
@@ -559,13 +552,6 @@ MSH_Influences_re_render = {
 		for_each_loop = {
 			array = temp_leadership
 			add_to_array = { MSH_Influences_Leadership_Average = temp_leadership^i }
-		}
-		
-		clear_array = MSH_influence_average_national
-		
-		for_each_loop = {
-			array = temp_influence_average
-			add_to_array = { MSH_influence_average_national = temp_influence_average^i }
 		}
 
 		set_variable = { MSH_peasants_national_display = 100 }
