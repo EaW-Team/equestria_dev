@@ -1,0 +1,117 @@
+add_namespace = alert_test
+
+country_event = {
+	id = alert_test.1
+	title = "Alert Test"
+	is_triggered_only = yes
+	desc = ""
+	option = { 
+		name = "Add Alerts"
+		if = {
+			limit = { 
+				is_ai = no #No alerts for AI, saves processing
+				NOT = { is_in_array = { SOL_alerticon_hidden_array = 3 } } #Alert has been disabled by player and won't appear
+			}
+			add_to_array = { SOL_alert_type_array = 3 } #Alert type
+			add_to_array = { SOL_alert_location_array = 1.id } #Place to store data for alert. Typically location, but can store other things if need be
+			add_to_array = { SOL_alert_special_array = 0 } #Miscellaneous data. Unused in this case, but must be defined for each alert. Just make it zero. There is way to bypass the two data limit/array, but it's complex. Ping me if you need it
+			if = {
+				limit = { NOT = { has_country_flag = SOL_has_disabled_alerts } } #Alert still appears if alerts hidden, but doesn't play sound
+				sound_effect = "alert_naval_combat_sound"
+			}
+			if = {
+				limit = { has_variable = SOL_alert_dummy_var }
+				clear_variable = SOL_alert_dummy_var
+			}
+			else = {
+				set_variable = { SOL_alert_dummy_var = 1 }
+			}
+		}
+	}
+}
+country_event = {
+	id = alert_test.2
+	title = "Alert Pos"
+	is_triggered_only = yes
+	desc = ""
+	option = { 
+		name = "Add Pos"
+		if = {
+			limit = { has_dlc = "La Resistance" }
+			set_variable = { SOL_gui_dlc_array^0 = 56 }
+		}
+		else = {
+			set_variable = { SOL_gui_dlc_array^0 = 0 }
+		}
+		set_variable = { SOL_gui_dlc_array^1 = SOL_gui_dlc_array^0 }
+		add_to_variable = { SOL_gui_dlc_array^1 = 14 }
+		set_variable = { SOL_gui_dlc_array^2 = SOL_gui_dlc_array^1 }
+		add_to_variable = { SOL_gui_dlc_array^2 = 28 }
+		set_variable = { SOL_gui_dlc_array^3 = SOL_gui_dlc_array^2 }
+		add_to_variable = { SOL_gui_dlc_array^3 = 28 }
+		set_variable = { SOL_gui_dlc_array^4 = SOL_gui_dlc_array^3 }
+		add_to_variable = { SOL_gui_dlc_array^4 = 28 }
+		while_loop_effect = {
+			limit = { check_variable = { SOL_gui_dlc_alert_array_temp < 9 } }
+			set_variable = { SOL_gui_dlc_alert_array^SOL_gui_dlc_alert_array_temp = 48 }
+			multiply_variable = { SOL_gui_dlc_alert_array^SOL_gui_dlc_alert_array_temp = SOL_gui_dlc_alert_array_temp }
+			add_to_variable = { SOL_gui_dlc_alert_array^SOL_gui_dlc_alert_array_temp = SOL_gui_dlc_array^0 }
+			add_to_temp_variable = { SOL_gui_dlc_alert_array_temp = 1 }
+		}
+		if = {
+			limit = { has_variable = SOL_alert_dummy_var }
+			clear_variable = SOL_alert_dummy_var
+		}
+		else = {
+			set_variable = { SOL_alert_dummy_var = 1 }
+		}
+	}
+}
+country_event = {
+	id = alert_test.3
+	title = "Special Alert Test"
+	is_triggered_only = yes
+	desc = ""
+	option = { 
+		name = "Add Special Alert"
+		if = {
+			limit = { 
+				is_ai = no #No alerts for AI, saves processing
+				NOT = { is_in_array = { SOL_alerticon_hidden_array = 1 } } #ID of multi-dimensional alert
+			}
+			set_temp_variable = { SOL_current_alert = 0 }
+			while_loop_effect = {
+				limit = { check_variable = { SOL_current_alert < SOL_alert_type_array^num } }
+				if = {
+					limit = { check_variable = { SOL_alert_type_array^SOL_current_alert = 1 } } #Checks alert array for existing alerts of this type
+					set_temp_variable = { break = 1 } #Alert type found, breaks loop
+				}
+				else = {
+					add_to_temp_variable = { SOL_current_alert = 1 }
+				}
+			}
+			if = {
+				limit = { check_variable = { SOL_current_alert = SOL_alert_type_array^num } } #No alert type found
+				add_to_array = { SOL_alert_type_array = 1 }
+				random_state = {
+					limit = { NOT = { has_state_flag = SOL_alert_location_array_scope } }
+					set_state_flag = SOL_alert_location_array_scope
+					add_to_array = { PREV.SOL_alert_location_array = THIS.id }
+				}
+				add_to_array = { SOL_alert_special_array = 0 }
+			}
+			var:SOL_alert_location_array^SOL_current_alert = { add_to_array = { SOL_alert_location_array_inner = 75.id } } #The state you desire to add to the alert
+			if = {
+				limit = { NOT = { has_country_flag = SOL_has_disabled_alerts } } #Alert still appears if alerts hidden, but doesn't play sound
+				sound_effect = "alert_naval_combat_sound"
+			}
+			if = {
+				limit = { has_variable = SOL_alert_dummy_var }
+				clear_variable = SOL_alert_dummy_var
+			}
+			else = {
+				set_variable = { SOL_alert_dummy_var = 1 }
+			}
+		}
+	}
+}
