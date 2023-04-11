@@ -1002,39 +1002,74 @@ LCT_resistance_change_mp = {
 	add_to_variable = { LCT_resistance_dirty = 0.01 }
 }
 
-LCT_resistance_calculate = {
-	for_each_loop = {
+# Accepted values:
+#	temp_state: State ID
+#	temp_group:	ID of group
+#		- 0 -> The Government
+#		- 1 -> PPS (Harmonites)
+#		- 2 -> SSO (Non-aligned)
+#		- 3 -> JIS (Communist)
+#		- 4 -> UGS (Supremacists)
+#	temp_value: Change of control value
+LCT_resistance_change_control = {
+	random_scope_in_array = {
 		array = LCT_resistance_map_array
-		var:v = {
-			set_temp_variable = { total = 0 }
-			for_each_loop = {
-				array = LCT_resistance_control
-				index = o
-				value = b
-				add_to_temp_variable = { total = b }
+		limit = { state = temp_state }
+		add_to_variable = { LCT_resistance_control^temp_group = temp_value }
+		clamp_variable = { var = LCT_resistance_control^temp_group min = 0 max = 100 }
+		meta_effect = {
+			text = {
+				set_temp_variable = { temp_group_token = token:LCT_resistance_group_[GROUP] } # Going to hell for this
+				custom_effect_tooltip = LCT_resistance_change_control_CET
 			}
-			divide_temp_variable = { total = 100 }
-			for_each_loop = {
-				array = LCT_resistance_control
-				index = o
-				value = b
-				divide_variable = { LCT_resistance_control^o = total }
+			GROUP = "[?temp_group]"
+		}
+	LCT_resistance_calculate =  yes
+	}
+}
+
+LCT_resistance_calculate = {
+	set_temp_variable = { total_value_check = 100 }
+	subtract_from_temp_variable = { total_value_check = LCT_resistance_control^temp_group }
+	set_temp_variable = { total = 0 }
+	for_each_loop = {
+		array = LCT_resistance_control
+		index = o
+		value = b
+		if = {
+			limit = {
+				NOT = { check_variable = { temp_group = o } }
 			}
-			
-			find_highest_in_array = {
-				array = LCT_resistance_control
-				index = most_powerful_index
-			}
-			set_variable = { LCT_resistance_control_ruling_id = most_powerful_index }
-			meta_effect = {
-				text = {
-					set_variable = { LCT_resistance_control_ruling = token:LCT_resistance_group_[GROUP] }
-				}
-				GROUP = "[?most_powerful_index]"
-			}
+			add_to_temp_variable = { total = b }
 		}
 	}
-	LCT_resistance_update_gui = yes
+	divide_temp_variable = { total = total_value_check }
+	for_each_loop = {
+		array = LCT_resistance_control
+		index = o
+		value = b
+		if = {
+			limit = {
+				NOT = { check_variable = { temp_group = o } }
+			}
+			divide_variable = { LCT_resistance_control^o = total }
+		}
+	}
+	
+	find_highest_in_array = {
+		array = LCT_resistance_control
+		index = most_powerful_index
+	}
+	set_variable = { LCT_resistance_control_ruling_id = most_powerful_index }
+	meta_effect = {
+		text = {
+			set_variable = { LCT_resistance_control_ruling = token:LCT_resistance_group_[GROUP] }
+		}
+		GROUP = "[?most_powerful_index]"
+	}
+	ROOT = {
+		LCT_resistance_update_gui = yes
+	}
 }
 
 LCT_resistance_update_gui = {
