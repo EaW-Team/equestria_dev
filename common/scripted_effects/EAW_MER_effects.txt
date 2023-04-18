@@ -135,10 +135,11 @@ MER_initiate_balance_of_power = {
 		right_side = MER_radicals_side
 		set_default = yes 
 	}
-	add_to_array = {
-		array = MER_oppo_events_array
-		value = 
-	}
+	MER_oppo_events_setup = yes
+	# add_to_array = {
+	# 	array = MER_oppo_events_array
+	# 	value = 2
+	# }
 }
 MER_activate_warhawk_drift = {
 	hidden_effect = {
@@ -196,6 +197,66 @@ MER_get_party_pop_values = {
 ###################################
 ### Opposition Mechanic Effects ###
 ###################################
+MER_oppo_events_setup = {
+	# Number of unique events
+	set_variable = { MER_unique_oppo_events_nb = 8 }
+	# Number of generic opposition events
+	set_variable = { MER_generic_oppo_events_nb = 8 }
+	# Total number of events = generics + uniques
+	set_variable = { MER_total_oppo_events_nb = MER_unique_oppo_events_nb }
+	add_to_variable = { MER_total_oppo_events_nb = MER_generic_oppo_events_nb }
+
+	# Variable to track the number of events fired
+	set_variable = { MER_oppo_events_fired = 0 }
+
+	for_loop_effect = {
+		value = event_id
+		start = MER_unique_oppo_events_nb
+		end = MER_total_oppo_events_nb
+
+		add_to_temp_array = { temp_unique_oppo_events_array = event_id }
+	}
+
+	clear_array = MER_unique_oppo_events_array
+	for_loop_effect = {
+		value = suffling_stage 
+		start = 0
+		end = MER_unique_oppo_events_nb
+
+		set_temp_variable_to_random = {
+			var = temp_random_index
+			min = 0
+			max = temp_unique_oppo_events_array^num 
+			integer = yes 
+		}
+		set_temp_variable = {
+			temp_unique_event_id_shuffled = temp_unique_oppo_events_array^temp_random_index
+		}
+		add_to_array = { MER_unique_oppo_events_array = temp_unique_event_id_shuffled }
+		remove_from_temp_array = {
+			array = temp_unique_oppo_events_array
+			index = temp_random_index
+		}
+	}
+}
+MER_get_oppo_event_id = {
+	if = {
+		limit = {
+			check_variable = { MER_oppo_events_fired = MER_unique_oppo_events_array^num }
+		}
+		set_variable_to_random = {
+			var = MER_oppo_event_id
+			min = 0
+			max = MER_generic_oppo_events_nb
+			integer = yes
+		}
+	}
+	else = {
+		# All the unique opposition events have not all been fired
+		set_variable = { MER_oppo_event_id = MER_unique_oppo_events_array^MER_oppo_events_fired }
+		add_to_variable = { MER_oppo_events_fired = 1 }
+	}
+}
 MER_get_opposition_warhawks_event_pp = {
 	#Small
 	if = { 
