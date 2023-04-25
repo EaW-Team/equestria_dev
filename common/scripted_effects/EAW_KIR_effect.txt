@@ -41,6 +41,7 @@ KIR_KIS_transfer_civil_war_provinces = {
 # Function : KIR_unlock_entry_effect
 # Description : Popup diary and new entry notification
 # Input : temp_KIR_diary_protag - The protagonist ID to switch to
+#         temp_KIR_diary_entry  - The entry ID to activate
 KIR_unlock_entry_effect = {
 	if = {
 		limit = {
@@ -59,14 +60,11 @@ KIR_unlock_entry_effect = {
 # Function : KIR_diary_set_active_protagonist
 # Description : Set the active protagonist
 # Input : temp_KIR_diary_protag - The protagonist ID to switch to
+#         temp_KIR_diary_entry  - The entry ID to activate
+#         temp_KIR_diary_entry_token - The entry token to activate
 KIR_diary_set_active_protagonist = {
 	set_variable = { KIR_active_protagonist = temp_KIR_diary_protag }
-	set_variable = {
-		KIR_diary_entry_content = token:KIR_diary_SG_ENTRY_TEXTS_blank
-	}
-	set_variable = {
-		KIT_diary_active_entry = -1
-	}
+
 	clear_array = KIR_current_entries
 
 	meta_effect = {
@@ -82,9 +80,42 @@ KIR_diary_set_active_protagonist = {
 					value = entry_value
 				}
 			}
+
+			if = {
+				limit = {
+					check_variable = { temp_KIR_diary_entry > -1 }
+				}
+
+				set_variable = {
+					KIR_diary_active_entry = KIR_protag_[ID_PROTAG]_entries^num
+				}
+				subtract_from_variable = { KIR_diary_active_entry = 1 }
+			} else = {
+				set_variable = { KIR_diary_active_entry = -1 }
+			}
 		}
 
+
 		ID_PROTAG = "[?temp_KIR_diary_protag]"
+	}
+
+	set_temp_variable = { temp_KIR_diary_content = token:KIR_diary_SG_ENTRY_TEXTS_blank }
+	if = {
+		limit = {
+			check_variable = { temp_KIR_diary_entry > -1 }
+		}
+
+		set_temp_variable = { temp_KIR_diary_content = temp_KIR_diary_entry_token }
+	}
+
+	meta_effect = {
+		text = {
+			set_variable = {
+				KIR_diary_entry_content = token:[ENTRY_TOKEN]_CONTENT
+			}
+		}
+		
+		ENTRY_TOKEN = "[?temp_KIR_diary_content.GetTokenKey]"
 	}
 
 	set_temp_variable = { temp_KIR_diary_protag_to_activate = temp_KIR_diary_protag }
@@ -95,8 +126,9 @@ KIR_diary_set_active_protagonist = {
 
 # Function : KIR_diary_add_entry_to_protagonist
 # Description : Add an entry to the protagonist
-# Input : temp_KIR_diary_protag - The protagonist ID
-#         temp_KIR_diary_entry  - The entry ID to add
+# Input :  temp_KIR_diary_protag - The protagonist ID
+#          temp_KIR_diary_entry  - The entry ID to add
+# Output : temp_KIR_diary_entry_token - Variable containing the token added
 KIR_diary_add_entry_to_protagonist = {
 	if = {
 		limit = {
@@ -123,6 +155,7 @@ KIR_diary_add_entry_to_protagonist = {
 			add_to_array = {
 				KIR_protag_[ID_PROTAG]_entries = token:KIR_diary_SG_ENTRY_TEXTS_protag_[ID_PROTAG]_entry_[ID_ENTRY]
 			}
+			set_temp_variable = { temp_KIR_diary_entry_token = token:KIR_diary_SG_ENTRY_TEXTS_protag_[ID_PROTAG]_entry_[ID_ENTRY] }
 		}
 
 		ID_PROTAG = "[?temp_KIR_diary_protag]"
