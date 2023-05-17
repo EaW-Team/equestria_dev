@@ -17182,14 +17182,41 @@ CFR_infiltration_category = {
 		visible = {
 			ROOT = {
 				has_country_flag = CHN_FRV_flag
-				#has_country_flag = CFR_just_fuck_my_shit_up_darling_available
-				#has_country_flag = CFR_incite_civil_war_visible
+				has_country_flag = CFR_just_fuck_my_shit_up_darling_available
+				has_country_flag = CFR_incite_civil_war_visible
 			}
 		}
+		
+		available = {
+			FROM = {
+				has_stability < 0.5
+				custom_trigger_tooltip = {
+					tooltip = CFR_incite_civil_war_party_popularity_req_tt
+					check_variable = { party_popularity_100@ruling_party < 50 }
+				}
+			}
+			custom_trigger_tooltip = {
+				tooltip = CFR_incite_civil_war_party_popularity_req1_tt
+				check_variable = { FROM.CFR_deep_state_infiltration_var > 0 }
+			}
+			custom_trigger_tooltip = {
+				tooltip = CFR_incite_civil_war_party_popularity_req2_tt
+				check_variable = { FROM.CFR_black_bag_operation_var > 0 }
+			}
+		}
+
+		war_with_target_on_remove = yes
+
+		war_with_target_on_complete = yes
+
+		war_with_target_on_timeout = yes
 		
 		target_array = CFR_infiltrated_countries_array
 		target_trigger = {
 			FROM = {
+				is_major = no
+				num_of_controlled_states > 1
+				NOT = { is_ally_with = CFR }
 			}
 		}
 		
@@ -17199,11 +17226,11 @@ CFR_infiltration_category = {
 		}
 		
 		custom_cost_trigger = {
-			check_variable = { ROOT.infiltrators_var > 24 }
-			command_power > 14
+			check_variable = { ROOT.infiltrators_var > 29 }
+			command_power > 24
 		}
 		
-		custom_cost_text = CFR_take_over_pirates_cost
+		custom_cost_text = CFR_civil_war_cost
 		
 		days_remove = 60
 		fire_only_once = yes
@@ -17211,13 +17238,106 @@ CFR_infiltration_category = {
 		complete_effect = {
 			log = "[GetDateText]: [Root.GetName]: Decision CFR_incite_civil_war"
 			hidden_effect = {
-				add_command_power = -15
-				subtract_from_variable = { ROOT.infiltrators_var = 25 }
+				add_command_power = -25
+				subtract_from_variable = { ROOT.infiltrators_var = 30 }
 			}
 		}
 		
 		remove_effect = {
 			log = "[GetDateText]: [Root.GetName]: Decision remove CFR_incite_civil_war"
+			custom_effect_tooltip = CFR_incite_civil_war_tt
+			hidden_effect = {
+				if = {
+					limit = {
+						check_variable = { FROM.highest_party_popularity@exclude_ruling_party = FROM.party_popularity@democratic }
+					}
+					set_temp_variable = { CFR_incite_civil_war_puppet_ideology = 1 }
+				}
+				else_if = {
+					limit = {
+						check_variable = { FROM.highest_party_popularity@exclude_ruling_party = FROM.party_popularity@neutrality }
+					}
+					set_temp_variable = { CFR_incite_civil_war_puppet_ideology = 2 }
+				}
+				else_if = {
+					limit = {
+						check_variable = { FROM.highest_party_popularity@exclude_ruling_party = FROM.party_popularity@communism }
+					}
+					set_temp_variable = { CFR_incite_civil_war_puppet_ideology = 3 }
+				}
+				else_if = {
+					limit = {
+						check_variable = { FROM.highest_party_popularity@exclude_ruling_party = FROM.party_popularity@fascism }
+					}
+					set_temp_variable = { CFR_incite_civil_war_puppet_ideology = 4 }
+				}
+				FROM = {
+					start_civil_war = {
+						ideology = fascism
+						keep_all_characters = yes
+						CFR = {
+							add_to_war = {
+								targeted_alliance = PREV
+								enemy = PREV.PREV
+							}
+							puppet = PREV
+						}
+						set_cosmetic_tag = CFR_PUPPET
+						if = {
+							limit = {
+								check_variable = { CFR_incite_civil_war_puppet_ideology = 1 }
+							}
+							set_politics = {
+								ruling_party = democratic
+								elections_allowed = no
+							}
+							add_popularity = {
+								ideology = democratic
+								popularity = 0.3
+							}
+						}
+						else_if = {
+							limit = {
+								check_variable = { CFR_incite_civil_war_puppet_ideology = 2 }
+							}
+							set_politics = {
+								ruling_party = neutrality
+								elections_allowed = no
+							}
+							add_popularity = {
+								ideology = neutrality
+								popularity = 0.3
+							}
+						}
+						else_if = {
+							limit = {
+								check_variable = { CFR_incite_civil_war_puppet_ideology = 3 }
+							}
+							set_politics = {
+								ruling_party = communism
+								elections_allowed = no
+							}
+							add_popularity = {
+								ideology = communism
+								popularity = 0.3
+							}
+						}
+						else_if = {
+							limit = {
+								check_variable = { CFR_incite_civil_war_puppet_ideology = 4 }
+							}
+							set_politics = {
+								ruling_party = fascism
+								elections_allowed = no
+							}
+							add_popularity = {
+								ideology = fascism
+								popularity = 0.3
+							}
+						}
+					}
+				}
+			}
 		}
 	}
 	CFR_provoke_army_defections = {
@@ -17248,6 +17368,7 @@ CFR_infiltration_category = {
 					}
 				}
 				NOT = { has_country_flag = CFR_provoke_army_defections_flag }
+				NOT = { is_ally_with = CFR }
 			}
 		}
 		
@@ -17601,7 +17722,7 @@ CFR_infiltration_category = {
 		target_array = CFR_infiltrated_countries_array
 		target_trigger = {
 			FROM = {
-				check_variable = { CFR_deep_state_infiltration_var < 4 }
+				check_variable = { CFR_deep_state_infiltration_var < 6 }
 			}
 		}
 		
@@ -17660,7 +17781,7 @@ CFR_infiltration_category = {
 		target_array = CFR_infiltrated_countries_array
 		target_trigger = {
 			FROM = {
-				check_variable = { CFR_black_bag_operation_var < 4 }
+				check_variable = { CFR_black_bag_operation_var < 6 }
 			}
 		}
 		
@@ -20142,6 +20263,12 @@ KIR_guardian_of_zebrica = {
 				subtract_from_temp_variable = { num_non_core_states = FROM.num_core_states }
 			}
 		}
+
+		war_with_target_on_remove = yes
+
+		war_with_target_on_complete = yes
+
+		war_with_target_on_timeout = yes
 		
 		target_array = KIR.enemies_of_harmony
 		
@@ -20378,6 +20505,12 @@ foreign_politics = {
 		days_mission_timeout = 90
 		war_with_on_timeout = yes
 		is_good = no
+		
+		war_with_on_remove = KIR
+
+		war_with_on_complete = KIR
+
+		war_with_on_timeout = KIR
 		
 		available = {
 			custom_trigger_tooltip = {
