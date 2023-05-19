@@ -6,8 +6,138 @@ scripted_gui = {
 		#dirty = HYE_underworld_tunnels_dirty
 
 		visible = {
-			always = no
+			always = yes
 		}
 
+		dynamic_lists = {
+            HYE_underground_node_gridbox_gui = {
+                array = HYE_underground_node_frame_array
+                change_scope = no
+                index = node_index
+                value = node_value
+                entry_container = HYE_underground_node_gridbox_cell_gui
+            }
+            HYE_underground_link_gridbox_gui = {
+                array = HYE_underground_link_frame_array
+                change_scope = no
+                index = link_index
+                value = link_value
+                entry_container = HYE_underground_link_gridbox_cell_gui
+            }
+        }
+
+		triggers = {
+            HYE_underground_link_visible = {
+                set_temp_variable = { temp_frame_link = HYE_underground_link_rotation_array^link_index }
+                multiply_temp_variable = { temp_frame_link = 128 }
+                add_to_temp_variable = { temp_frame_link = HYE_underground_link_size_array^link_index }
+                add_to_temp_variable = { temp_frame_link = 1 }
+
+                check_variable = { HYE_underground_link_frame_array^link_index > 0 }
+            }
+            HYE_underground_link_click_enabled = {
+                check_variable = { HYE_underground_link_frame_array^link_index < 2 }
+            }
+
+            HYE_underground_node_visible = {
+                set_temp_variable = { temp_node_frame = HYE_underground_node_max_link_size_array^node_index }
+                add_to_temp_variable = { temp_node_frame = 1 }
+                check_variable = { HYE_underground_node_frame_array^node_index > 0 }
+            }
+            HYE_underground_node_click_enabled = {
+                check_variable = { HYE_underground_node_frame_array^node_index < 2 }
+            }
+
+        }
+		
+        properties = {
+            HYE_underground_node = {
+                x = HYE_underground_node_pos_x_array^node_index
+                y = HYE_underground_node_pos_y_array^node_index
+                frame = temp_node_frame
+            }
+            HYE_underground_link = {
+                x = HYE_underground_link_pos_x_array^link_index
+                y = HYE_underground_link_pos_y_array^link_index
+                frame = temp_frame_link
+            }
+        }
+
+		
+        effects = {
+            HYE_underground_node_click = {
+                log = "click node [?node_index]"
+                set_variable = { HYE_underground_node_frame_array^node_index = 2 }
+                # Make all links from that node visible
+                meta_effect = {
+                    text = {
+                        for_each_loop = {
+                            array = HYE_underground_node_[ID_NODE]_links_from_node_array
+                            index = from_links_index
+                            value = links_value
+
+                            set_variable = { HYE_underground_link_frame_array^links_value = 1 }
+                        }
+                    }
+
+                    ID_NODE = "[?node_index]"
+                }
+                # Start animation for all links to this node
+                meta_effect = {
+                    text = {
+                        for_each_loop = {
+                            array = HYE_underground_node_[ID_NODE]_links_to_node_array
+                            index = to_links_index
+                            value = links_value
+
+                            set_variable = { HYE_underground_link_frame_array^links_value = 2 }
+                        }
+                    }
+
+                    ID_NODE = "[?node_index]"
+                }
+                
+                # For each to_node of the clicked node, set visibility to 1 if all links are visible
+                meta_effect = {
+                    text = {
+                        for_each_loop = {
+                            array = HYE_underground_node_[ID_NODE]_to_node_array
+                            index = to_node_index
+                            value = to_node_id
+
+                            add_to_temp_array = { temp_to_node_array = to_node_id }
+                        }
+                    }
+
+                    ID_NODE = "[?node_index]"
+                }
+
+                for_each_loop = {
+                    array = temp_to_node_array
+                    index = to_node_index
+                    value = to_node_id
+                    
+                    if = {
+                        limit = {
+                            meta_trigger = {
+                                text = {
+                                    all_of = {
+                                        array = HYE_underground_node_[TO_NODE_ID]_links_to_node_array
+                                        index = to_node_links_index
+                                        value = to_node_links_id
+
+                                        check_variable = { HYE_underground_link_frame_array^to_node_links_id = 1 }
+                                    }
+                                }
+
+                                TO_NODE_ID = "[?to_node_id]"
+                            }
+                        }
+
+                        set_variable = { HYE_underground_node_frame_array^to_node_id = 1 }
+                    }
+                }
+            }
+        }
 	}
 }
