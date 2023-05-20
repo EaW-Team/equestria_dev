@@ -1,6 +1,94 @@
+@HYE_UNDERGROUND_DIGGING_TEAM_NB = 2
+
+HYE_underground_startup = {
+    clear_array = HYE_underground_digging_overlay_array
+    resize_array = {
+        array = HYE_underground_digging_overlay_array
+        size = @HYE_UNDERGROUND_DIGGING_TEAM_NB
+        value = -1
+    }
+    set_variable = { HYE_underground_selected_node_id = -1 }
+    set_variable = { HYE_underground_next_digging_team = 0 }
+    set_variable = { HYE_underground_digging_time = 3 }
+    set_variable = { HYE_underground_digging_team_nb = @HYE_UNDERGROUND_DIGGING_TEAM_NB }
+    HYE_underground_array_init = yes
+}
+
+HYE_underground_discover_node = {
+    set_variable = { HYE_underground_node_frame_array^temp_dug_node_index = 2 }
+    # Make all links from that node visible
+    meta_effect = {
+        text = {
+            for_each_loop = {
+                array = HYE_underground_node_[ID_NODE]_links_from_node_array
+                index = from_links_index
+                value = links_value
+
+                set_variable = { HYE_underground_link_frame_array^links_value = 1 }
+            }
+        }
+
+        ID_NODE = "[?temp_dug_node_index]"
+    }
+    # Start animation for all links to this node
+    meta_effect = {
+        text = {
+            for_each_loop = {
+                array = HYE_underground_node_[ID_NODE]_links_to_node_array
+                index = to_links_index
+                value = links_value
+
+                set_variable = { HYE_underground_link_frame_array^links_value = 2 }
+            }
+        }
+
+        ID_NODE = "[?temp_dug_node_index]"
+    }
+    
+    # For each to_node of the clicked node, set visibility to 1 if all links are visible
+    meta_effect = {
+        text = {
+            for_each_loop = {
+                array = HYE_underground_node_[ID_NODE]_to_node_array
+                index = to_node_index
+                value = to_node_id
+
+                add_to_temp_array = { temp_to_node_array = to_node_id }
+            }
+        }
+
+        ID_NODE = "[?temp_dug_node_index]"
+    }
+
+    for_each_loop = {
+        array = temp_to_node_array
+        index = to_node_index
+        value = to_node_id
+        
+        if = {
+            limit = {
+                meta_trigger = {
+                    text = {
+                        all_of = {
+                            array = HYE_underground_node_[TO_NODE_ID]_links_to_node_array
+                            index = to_node_links_index
+                            value = to_node_links_id
+
+                            check_variable = { HYE_underground_link_frame_array^to_node_links_id = 1 }
+                        }
+                    }
+
+                    TO_NODE_ID = "[?to_node_id]"
+                }
+            }
+
+            set_variable = { HYE_underground_node_frame_array^to_node_id = 1 }
+        }
+    }
+}
+
 # File automaticaly generated the 2023-05-19 23:17:11.297626
 # Contains the array initialisation for the scripted gui HYE_underground
-
 HYE_underground_array_init = {
     # Frame displayed for each node, used as dynamic list
     clear_array = HYE_underground_node_frame_array
