@@ -17232,7 +17232,7 @@ CFR_infiltration_category = {
 		
 		custom_cost_text = CFR_civil_war_cost
 		
-		days_remove = 60
+		days_remove = 70
 		fire_only_once = yes
 		
 		complete_effect = {
@@ -17240,6 +17240,29 @@ CFR_infiltration_category = {
 			hidden_effect = {
 				add_command_power = -25
 				subtract_from_variable = { ROOT.infiltrators_var = 30 }
+				FROM = {
+					clear_variable = CFR_TARGET_STATE_WILL_FLIP_UPON_CIVIL_WAR_NUM
+					clear_variable = CFR_TARGET_STATE_WILL_FLIP_UPON_CIVIL_WAR_NUM_PRIOR
+					every_owned_state = {
+						add_to_array = {
+							array = CFR.CFR_incite_civil_war_subvert_states_array
+							value = THIS
+						}
+					}
+				}
+			}
+			if = {
+				limit = {
+					FROM = {
+						has_navy_size = {
+							size > 1
+						}
+					}
+				}
+				custom_effect_tooltip = CFR_incite_civil_war_complete_effect_navy_tt
+			}
+			else = {
+				custom_effect_tooltip = CFR_incite_civil_war_complete_effect_tt
 			}
 		}
 		
@@ -17272,9 +17295,46 @@ CFR_infiltration_category = {
 					set_temp_variable = { CFR_incite_civil_war_puppet_ideology = 4 }
 				}
 				FROM = {
+					set_country_flag = CFR_civil_war_incited_here
+					set_variable = { CFR_civil_war_transfer_units_fraction_var = CFR_TARGET_STATE_WILL_FLIP_UPON_CIVIL_WAR_NUM }
+					divide_variable = { CFR_civil_war_transfer_units_fraction_var = num_owned_controlled_states }
 					start_civil_war = {
 						ideology = fascism
 						keep_all_characters = yes
+						PREV = {
+							meta_effect = {
+								text = {
+									transfer_units_fraction = {
+										target = PREV
+										size = [CFR_civil_war_transfer_units_fraction]
+									}
+								}
+								CFR_civil_war_transfer_units_fraction = "[?CFR_civil_war_transfer_units_fraction_var]"
+							}
+						}
+						for_each_scope_loop = {
+							array = PREV.owned_controlled_states
+							if = {
+								limit = {
+									has_state_flag = CFR_TARGET_STATE_WILL_FLIP_UPON_CIVIL_WAR
+								}
+								teleport_armies = {
+									limit = {
+									}
+								}
+								PREV = {
+									transfer_state = PREV
+								}
+							}
+							remove_from_array = { CFR.CFR_incite_civil_war_subvert_states_array = THIS }
+						}
+						for_each_scope_loop = {
+							array = owned_controlled_states
+							remove_from_array = { CFR.CFR_incite_civil_war_subvert_states_array = THIS }
+						}
+						clear_variable = CFR_civil_war_transfer_units_fraction_var
+						clear_variable = CFR_TARGET_STATE_WILL_FLIP_UPON_CIVIL_WAR_NUM
+						clear_variable = CFR_TARGET_STATE_WILL_FLIP_UPON_CIVIL_WAR_NUM_PRIOR
 						CFR = {
 							add_to_war = {
 								targeted_alliance = PREV
@@ -17340,6 +17400,83 @@ CFR_infiltration_category = {
 			}
 		}
 	}
+	
+	CFR_subvert_state_operation = {
+		icon = border_war
+		allowed = {
+			original_tag = CHN
+		}
+		ai_will_do = {
+			factor = 15
+		}
+		visible = {
+			ROOT = {
+				has_country_flag = CFR_incite_civil_war_visible
+			}
+			FROM = {
+				OWNER = {
+					set_temp_variable = { CFR_TARGET_FROM_STATES_NUM = num_owned_controlled_states }
+					divide_temp_variable = { CFR_TARGET_FROM_STATES_NUM = 2 }
+					check_variable = { CFR_TARGET_STATE_WILL_FLIP_UPON_CIVIL_WAR_NUM_PRIOR < CFR_TARGET_FROM_STATES_NUM }
+				}
+			}
+		}
+		
+		state_target = yes
+		on_map_mode = map_only
+		target_array = CFR_incite_civil_war_subvert_states_array
+		target_trigger = {
+			FROM = {
+				NOT = {
+					has_state_flag = CFR_TARGET_STATE_WILL_FLIP_UPON_CIVIL_WAR
+				}
+				OWNER = {
+					NOT = {
+						has_country_flag = CFR_civil_war_incited_here
+						is_ally_with = CFR
+					}
+				}
+			}
+		}
+		
+		custom_cost_trigger = {
+			check_variable = { ROOT.infiltrators_var > 4 }
+			command_power > 4
+		}
+		
+		custom_cost_text = CFR_subvert_state_cost
+		
+		days_remove = 15
+		fire_only_once = yes
+		
+		complete_effect = {
+			log = "[GetDateText]: [Root.GetName]: Decision CFR_subvert_state_operation"
+			hidden_effect = {
+				add_command_power = -5
+				subtract_from_variable = { ROOT.infiltrators_var = 5 }
+				FROM = {
+					OWNER = {
+						add_to_variable = { CFR_TARGET_STATE_WILL_FLIP_UPON_CIVIL_WAR_NUM_PRIOR = 1 }
+					}
+				}
+			}
+		}
+		
+		remove_effect = {
+			log = "[GetDateText]: [Root.GetName]: Decision remove CFR_subvert_state_operation"
+			custom_effect_tooltip = CFR_subvert_state_operation_tt
+			hidden_effect = {
+				FROM = {
+					OWNER = {
+						add_to_variable = { CFR_TARGET_STATE_WILL_FLIP_UPON_CIVIL_WAR_NUM = 1 }
+					}
+					set_state_flag = CFR_TARGET_STATE_WILL_FLIP_UPON_CIVIL_WAR
+					remove_from_array = { CFR.CFR_incite_civil_war_subvert_states_array = THIS }
+				}
+			}
+		}
+	}
+	
 	CFR_provoke_army_defections = {
 		icon = generic_independence
 		allowed = {
