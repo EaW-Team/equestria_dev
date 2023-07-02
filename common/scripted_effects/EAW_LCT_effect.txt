@@ -1058,10 +1058,15 @@ LCT_resistance_change_mp = {
 #	temp_value: Change of control value
 LCT_resistance_change_control = {
 	random_scope_in_array = {
-		array = LCT_resistance_map_array
+	
+		array = LCT_resistance_map_array	#Find temp_state in the array
 		limit = { state = temp_state }
-		add_to_variable = { LCT_resistance_control^temp_group = temp_value }
-		clamp_variable = { var = LCT_resistance_control^temp_group min = 0 max = 100 }
+		
+		add_to_variable = { LCT_resistance_control^temp_group = temp_value }	#Add temp_value to the resistance level of temp_group
+		
+		clamp_variable = { var = LCT_resistance_control^temp_group min = 0 max = 100 }	#Clamp resistance value between 0 and 100
+		
+		### Create tooltip ###
 		meta_effect = {
 			text = {
 				set_temp_variable = { temp_group_token = token:LCT_resistance_group_[GROUP] } # Going to hell for this
@@ -1069,6 +1074,8 @@ LCT_resistance_change_control = {
 			}
 			GROUP = "[?temp_group]"
 		}
+		###
+		
 		LCT_resistance_calculate =  yes
 	}
 }
@@ -1096,10 +1103,13 @@ LCT_resistance_change_relations = {
 }
 
 LCT_resistance_calculate = {
-	set_temp_variable = { total_value_check = 100 }
-	subtract_from_temp_variable = { total_value_check = LCT_resistance_control^temp_group }
+	set_temp_variable = { total_value_check = 100 }	
+	
+	subtract_from_temp_variable = { total_value_check = LCT_resistance_control^temp_group }	#Set total_value_check to 100 - temp_group resistance value
+	
 	set_temp_variable = { total = 0 }
-	for_each_loop = {
+	
+	for_each_loop = {	#Loop over all other resistance groups in state
 		array = LCT_resistance_control
 		index = o
 		value = b
@@ -1107,11 +1117,12 @@ LCT_resistance_calculate = {
 			limit = {
 				NOT = { check_variable = { temp_group = o } }
 			}
-			add_to_temp_variable = { total = b }
+			add_to_temp_variable = { total = b }	#Set total to the sum of all other resistance groups
 		}
 	}
-	divide_temp_variable = { total = total_value_check }
-	for_each_loop = {
+	divide_temp_variable = { total = total_value_check }	#divide total by total_value_check
+	
+	for_each_loop = {	#Loop over all other resistance groups in state
 		array = LCT_resistance_control
 		index = o
 		value = b
@@ -1119,20 +1130,24 @@ LCT_resistance_calculate = {
 			limit = {
 				NOT = { check_variable = { temp_group = o } }
 			}
-			divide_variable = { LCT_resistance_control^o = total }
+			divide_variable = { LCT_resistance_control^o = total }	#divide resistance level of each other group by total to appropriately scale them to the changed value
 		}
 	}
-	find_highest_in_array = {
+	
+	find_highest_in_array = {	#Find the most powerful faction 
 		array = LCT_resistance_control
 		index = most_powerful_index
 	}
-	set_variable = { LCT_resistance_control_ruling_id = most_powerful_index }
-	meta_effect = {
+	
+	set_variable = { LCT_resistance_control_ruling_id = most_powerful_index }	#Set state ruling faction ID
+	
+	meta_effect = {		#Set token variable for GUI
 		text = {
 			set_variable = { LCT_resistance_control_ruling = token:LCT_resistance_group_[GROUP] }
 		}
 		GROUP = "[?most_powerful_index]"
 	}
+	
 	ROOT = {
 		LCT_resistance_update_gui = yes
 	}
