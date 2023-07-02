@@ -749,6 +749,25 @@ decrease_illiteracy = {
 	}
 }
 
+decrease_illiteracy_by_two_levels = {
+	if = {
+		limit = { has_idea = lack_of_scientists }
+		swap_ideas = { add_idea = lack_of_scientists2 remove_idea = lack_of_scientists }
+	}
+	else_if = {
+		limit = { has_idea = lack_of_scientists1 }
+		swap_ideas = { add_idea = lack_of_scientists3 remove_idea = lack_of_scientists1 }
+	}
+	else_if = {
+		limit = { has_idea = lack_of_scientists2 }
+		swap_ideas = { add_idea = no_lack_of_scientists remove_idea = lack_of_scientists2 }
+	}
+	else_if = {
+		limit = { has_idea = lack_of_scientists3 }
+		swap_ideas = { add_idea = no_lack_of_scientists remove_idea = lack_of_scientists3 }
+	}
+}
+
 remove_illiteracy = {
 	remove_ideas = lack_of_scientists
 	remove_ideas = lack_of_scientists1
@@ -2275,15 +2294,8 @@ restore_previous_manpower_function = {
 
 fix_weapon_techs = {
 	hidden_effect = {
-		if = {
-			limit = { 
-				OR = {
-					is_ai = no
-					NOT = { has_country_flag = recently_fixed_weapons }
-				}
-			}
-			country_event = eaw_debug.1
-		}
+		actually_fix_weapon_techs = yes
+		country_event = eaw_debug.1
 		set_country_flag = { flag = recently_fixed_weapons days = 1 value = 1 }
 	}
 }
@@ -2855,7 +2867,7 @@ disband_units_fraction = {
 		event_target:disband_state_owner = { set_state_owner = PREV }
 	}
 	annex_country = {
-		target = SOL
+		target = SOL transfer_troops = yes
 	}
 }
 
@@ -3158,22 +3170,6 @@ pony_tech_removal = {
 		tech_pony_unicorns3 = 0
 		tech_pony_unicorns4 = 0
 		tech_pony_unicorns5 = 0
-	}
-}
-
-test = {
-	transfer_units_fraction = {
-		target = ERI          # the recipient
-		target_organization = 1
-		source_organization = 1
-		size = -1            # [0,1] Default value for the ratio below if they are not specified
-		#stockpile_ratio = 0.25  # [0,1] Overrides size modifier for the stockpiled equipment and fuel
-		#army_ratio = 0.001       # [0,1] Overrides size modifier for army
-		navy_ratio = 0.1       # [0,1] Overrides size modifier for navy
-		#air_ratio = 0        # [0,1] Overrides size modifier for air
-		keep_unit_leaders_trigger = { # Trigger for unit leaders to remain with the original country
-			always = yes
-		}
 	}
 }
 
@@ -3561,6 +3557,9 @@ STG_EQS_all_ponies_front = {
 }
 
 STG_EQS_all_ponies_front_end = {
+	EQS = {
+		set_faction_name = "All_ponies_front"
+	}
 	if = {
 		limit = {
 			STG = {
@@ -3586,45 +3585,47 @@ STG_EQS_all_ponies_front_end = {
 					is_subject = no
 				}
 				leave_faction = yes
-				create_faction = "Socialist_Union"
 			}
 		}
-		every_country = {
-			limit = {
-				OR = {
-					has_country_flag = was_in_STG_faction 
-					is_subject_of = STG
-				}
+	}
+}
+
+STG_EQS_all_ponies_front_end_2 = {
+	STG = {
+		create_faction = "Socialist_Union"
+	}
+	every_country = {
+		limit = {
+			OR = {
+				has_country_flag = was_in_STG_faction 
+				is_subject_of = STG
 			}
-			if = {
-				limit = {
-					has_country_flag = was_in_STG_faction 
-				}
-				clr_country_flag = was_in_STG_faction
+		}
+		if = {
+			limit = {
+				has_country_flag = was_in_STG_faction 
+			}
+			clr_country_flag = was_in_STG_faction
+			add_ai_strategy = {
+				type = alliance
+				id = EQS
+				value = -200
+			}
+			EQS = {
 				add_ai_strategy = {
 					type = alliance
-					id = EQS
+					id = PREV
 					value = -200
 				}
-				EQS = {
-					add_ai_strategy = {
-						type = alliance
-						id = PREV
-						value = -200
-					}
-				}
-			}
-			if = {
-				limit = {
-					is_in_faction_with = EQS
-					STG = { is_faction_leader = yes }
-				}
-				leave_faction = yes
-				STG = { add_to_faction = PREV }
 			}
 		}
-		EQS = {
-			set_faction_name = "All_ponies_front"
+		if = {
+			limit = {
+				is_in_faction_with = EQS
+				STG = { is_faction_leader = yes }
+			}
+			leave_faction = yes
+			STG = { add_to_faction = PREV }
 		}
 	}
 }
