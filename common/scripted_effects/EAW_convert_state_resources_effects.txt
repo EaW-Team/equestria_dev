@@ -1,0 +1,85 @@
+### HOW TO USE
+## IDs
+# 1 - oil
+# 2 - aluminium
+# 3 - rubber
+# 4 - tungsten
+# 5 - steel
+# 6 - chromium
+# 7 - crystals
+
+## IN THE EFFECTS FILE
+
+# 700 = {
+#	set_temp_variable = { temp_res_input = 1 }
+#	set_temp_variable = { temp_res_output = 3 }
+#	convert_state_resource_effect = yes
+# }
+
+# This will transform 700's Oil(id 1) resource production to rubber(id 3)
+
+# Scripted loc for meta effects in `common/scripted_localisation/EAW_convert_state_resources_scripted_localisation.txt`
+
+convert_state_resource_effect = {
+	hidden_effect = {
+		set_temp_variable = { syn_ref = building_level@synthetic_refinery }
+		remove_building = { # opts synrefs out of the equation
+			type = synthetic_refinery
+			level = building_level@synthetic_refinery
+		}
+		meta_effect = {
+			text = {
+				set_temp_variable = { res = resource@[RESOURCE_1] }
+				subtract_from_temp_variable = { res = state_resource_[RESOURCE_1] }
+			}
+			RESOURCE_1 = "[Get_Convert_RES_input]"
+		}
+		
+		# Infrastructure
+		set_temp_variable = { infra = infrastructure_level }
+		multiply_temp_variable = { infra = 0.2 }
+		add_to_temp_variable = { infra = 1 }
+		divide_temp_variable = { res = infra }
+		
+		# Supply hubs
+		if = {
+			limit = {
+				supply_node > 0
+			}
+			divide_temp_variable = { res = 1.2 }
+		}
+		
+		meta_effect = {
+			text = {
+				add_resource = {
+					type = [RESOURCE_2]
+					amount = res
+				}
+			}
+			RESOURCE_2 = "[Get_Convert_RES_output]"
+		}
+		set_temp_variable = { neg_res = res }
+		multiply_temp_variable = { neg_res = -1 }
+		meta_effect = {
+			text = {
+				add_resource = {
+					type = [RESOURCE_1]
+					amount = neg_res
+				}
+			}
+			RESOURCE_1 = "[Get_Convert_RES_input]"
+		}
+		add_building_construction = { # adds back any synrefs
+			type = synthetic_refinery
+			level = syn_ref
+			instant_build = yes
+		}
+	}
+	custom_effect_tooltip = EAW_convert_state_resources_tooltip
+}
+
+d_convert_state_resources_effect = {
+	set_temp_variable = { temp_res_input = args^0 }
+	set_temp_variable = { temp_res_output = args^1 }
+	convert_state_resource_effect = yes
+}

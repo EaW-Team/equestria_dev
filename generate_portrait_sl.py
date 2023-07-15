@@ -85,7 +85,7 @@ def generate_sl(clean_dict):
     ''' % (len(types), tag)
         for idx, name in enumerate(types):
             entry += '''    text = {
-            trigger = { check_variable = { THIS = %d } }
+            trigger = { state = %d }
             localization_key = "GFX_%s_portrait"
         }
     ''' % (idx+1, re.search(r"([^/\.]+)\.", name).group(1))

@@ -8,9 +8,9 @@ import collections
 import io
 dct = {
     "Pony": {
-        "MaleName": ["Thunder", "Cloud", "Duke", "Star", "Mister", "Brisk", "Steel", "Comet", "Flash", "Midnight", "Wild", "Moonshadow", "Platinum", "Rapid", "Velvet", "Moonlight"],
-        "FemaleName": ["Cherry", "Amber", "Scarlet", "Twilight", "Starry", "Ebony", "Dew", "Emerald", "Mythic", "Lucky", "Cinnamon"],
-        "Surname": ["Wings", "Fashion", "Colt", "Cinnamon", "Twirl", "Scarlet", "Harmony", "Little", "Snowflake", "Bubblegum", "Mythic", "Star", "Amethyst", "Lilly", "Solar", "Wings", "Emerald", "Fashion", "Dew", "Smooch"]},
+        "MaleName": ["Thunder", "Duke", "Star", "Mister", "Brisk", "Steel", "Comet", "Flash", "Wild", "Platinum", "Rapid", "Sunshine", "Blue", "Butter", "Amity", "Hoofer", "Lighthoof", "Ebony", "Torch", "Big", "Braeburn", "Burnt", "Cheese", "Double", "Feather", "Filthy", "Glad", "Hard", "Cream", "Carrot", "Foam", "Piles", "Quibble", "Rusty", "Silver", "Trouble", "Twisty", "Caramel", "Lavender", "Bright", "Pokey", "Golden", "Wensley", "Tough", "Ace", "Black", "Brindle", "Bush", "Chocolate", "Cobalt", "Emerald", "Evening", "Fine", "Full", "Ginger", "Grape", "Hammer", "Hay", "Iron", "Lapis", "Lead", "Lime", "Lucky", "Parcel", "Perfect", "Pine", "Prance", "Rough", "Sealed", "Shiny", "Tall", "Vermilion", "Cloudy", "White", "Crafty", "Sand", "Stellar", "Storm", "Warm", "Midnight", "Moonshadow", "Moonlight", "Starry", "Stars", "Moon", "Night"],
+        "FemaleName": ["Cherry", "Amber", "Scarlet", "Twilight", "Emerald", "Mythic", "Lucky", "Twinkle", "Lotus", "Pink", "Cup", "Charity", "Rarity", "Starlight", "Velvet", "Coco", "Orange", "Prim", "Sapphire", "Shimmy", "Spoiled", "Suri", "Tree", "Marble", "Limestone", "Caramel", "Candy", "Florina", "Gala", "Jonagold", "Lavender", "Peachy", "Perfect", "Red", "Azure", "Beauty", "Blueberry", "Strawberry", "Corn", "Crimson", "Daisy", "Flurry", "Green", "Grape", "Jasmine", "Lilac", "Lily", "Minty", "Snowy", "Ocean", "Flutter", "Rainbow", "Sunset", "Purple", "Raspberry", "Raven", "Soft", "Spring", "Sun", "Sweetie", "Winter", "Lemon", "Lyra", "Merry", "Pearly", "Sea", "Sprinkle", "Twist", "Midnight" , "Moonshadow", "Velvet", "Moonlight"],
+        "Surname": ["Shine", "Kindheart", "Apple", "Blossom", "Cake", "Glimmer", "Cinnamon", "Cloud", "Dew", "Pommel", "Steps", "Tea", "Peach", "Pear", "Shores", "Shake", "Rich", "Milk", "Polomare", "Song", "Hugger", "Trotsworth", "Bucks", "McColt", "Oak", "Breadwinner", "Sandwich", "Diamond", "Amethyst", "Hooffield", "Hat", "Stream", "Stripes", "Nut", "Pants", "Bucket", "Shoes", "Pie", "Cider", "Bumpkin", "Cobbler", "Leaves", "Honey", "Fritter", "Berry", "Core", "Split", "Delicious", "Bottom", "Apricot", "Brass", "Belle", "Frost", "Icicle", "Hoof", "Mane", "Curls", "Spurs", "Twirl", "Swirl", "Punch", "Flower", "Dust", "Dough", "Wheat", "Trot", "Gallop", "Whinny", "Heart", "Rock", "Glamour", "Delight", "Jewel", "Harvest", "Tide", "Leaf", "Bloom", "Valley", "Spray", "Dawn", "Sparkle", "Dash", "Shy", "Melody", "Glow", "Shimmer", "Pearl", "Haze", "Wave", "Glaze", "Ruby", "Splash", "Water", "Ice", "Drops", "Love", "Sap", "Swoon", "Point", "Bread", "Stone", "Saddle", "Neigh", "Trotter", "Light", "Clover", "Dusk", "Sky", "Rose", "Tiara"]},
     "Dragon": {
         "MaleName": ["Gold", "Geode", "Coral", "Diamond", "Amarant", "Baff", "Ballista", "Basil", "Blacktip", "Burnferno", "Clump", "Crackle", "Fizzle", "Flashfire", "Fume", "Gnash", "Knuckerbocker", "Mina", "Prominence", "Rex", "Scales", "Scakui", "Scubtukka", "Scirchy", "Sergio", "Viverno", "Whip"],
         "FemaleName": ["Ruby", "Amber", "Ember", "Garnet", "Amethyst", "Opal", "Diamond", "Sapphire", "Emerald", "Jasper", "Topaz", "Vex", "Jade", "Turquoise", "Lapis", "Quartz", "Spinel", "Tourmaline", "Agate", "Onyx", "Peridot", "Malachite"],
@@ -97,7 +97,23 @@ dct = {
     "DiamondDog": {
         "MaleName": ["Rover", "Fido", "Spot", "Barnaby", "Bernard", "Nipper", "Paddington", "Banjo", "Ace", "Beasley", "Ben", "Bingo", "Blair", "Buddy", "Buck", "Cosmo", "Lady", "Max", "Clifford", "Pal", "Pete", "Moonie", "Skippy", "Terry", "Zip", "Beauregard", "Beejay", "Blaze", "Buck", "Happy", "Bullet", "Leo", "Shep", "Tiger", "Theo", "Bobbie", "Digger", "Smoky", "Spike"],
         "FemaleName": ["Molly", "Rosey", "Bella", "Lassie", "Laika", "Blondi", "Anna", "Bo"],
-        "Surname": ["Goodboy", "the Old", "the Brown", "the Boneless", "Swift", "of Diamond Mountain", "of Kaza-ar-Bark", "of Var-Woolth", "of Barkara-Var", "of Bar-Underdog", "of Azar-Fetch", "of Azar-Gutboi", "of Kara-Hound", "of Khew-Gazar", "of High-Paw", "of Broken-Bone", "the Rich", "the Fat", "the Harsh", "Biter", "the Scared", "the Wild", "the Bloody", "Gemhorder"]}
+        "Surname": ["Goodboy", "the Old", "the Brown", "the Boneless", "Swift", "of Diamond Mountain", "of Kaza-ar-Bark", "of Var-Woolth", "of Barkara-Var", "of Bar-Underdog", "of Azar-Fetch", "of Azar-Gutboi", "of Kara-Hound", "of Khew-Gazar", "of High-Paw", "of Broken-Bone", "the Rich", "the Fat", "the Harsh", "Biter", "the Scared", "the Wild", "the Bloody", "Gemhorder"]},
+    "Hippogriff": {
+        "MaleName": ["Sky", "Ocean", "Terra", "Silver", "Flash", "Sea", "Stratus", "Arrow", "Bubble", "Cerulean", "Coral", "Golden", "Foam", "Blue", "Jelly", "Salt", "Solar", "Cirrus", "Cumulus", "Alto", "Teal", "Spear", "Trident", "Nova", "Thunder", "Mountain", "Zephyr"],
+        "FemaleName": ["Sky", "Ocean", "Silver", "Flash", "Flutter", "Sea", "Vetera", "Haven", "Salina", "Arrow", "Bubble", "Coral", "Coralita", "Electra", "Golden", "Jelly", "Jewel", "Lilly", "Marina", "Salt", "Sun", "Sunny", "Teal", "Redfin", "Whirlwind", "Swift", "Stormwind"],
+        "Surname": ["Mar", "Meer", "Splash", "Rose", "Pearl", "Tide", "Fin", "Bay", "Bee", "Drop", "Flow", "Gem", "Azure", "Air", "Poppy", "Star", "Twist", "Stream", "Bell", "Feather", "Cloud", "Spray", "Beak", "Ranger", "Hunter", "Azul", "Talon", "Claw", "Nimbus", "Cumulus", "Cirrus", "Stratus", "Striker", "Gale", "Soar", "Breeze", "Diver", "Wing"]},
+    "Kirin": {
+        "MaleName": ["Fennel", "Cinnabar", "Persimon", "Cornsilk", "Hawthorn", "Celadon", "Citrus", "Blaze", "Mahogany", "Timber", "Oak", "Cedar", "Birch", "Camphor", "Dewy", "Tinder", "Cinder", "Banyan", "Pine", "Cerulean", "Smoky", "Cobalt", "Almond", "Cocoa", "Copper", "Walnut", "Umber", "Fern", "Quartz", "Vermilion", "Garnet", "Dusk", "Arctic", "Bracken"],
+        "FemaleName": ["Hemlock", "Willow", "Cornsilk", "Sweetfern", "Lilac", "Peony", "Tinder", "Cinnamon", "Carmin", "Citrine", "Lavender", "Winter", "Summer", "Ember", "Cinder", "Autumn", "Berry", "Clementine", "Lemony", "Scarlet", "Sunshine", "Orchid", "Maple", "Sundew", "Dewy", "Windy", "Ivy", "Tulip", "Cornflower", "Azure", "Sapphire", "Violet", "Ebony", "Indigo", "Turquoise", "Almond", "Sienna", "Cocoa", "Myrtle", "Honeydew", "Fern", "Emerald", "Minty", "Amaranth", "Apricot", "Saffron", "Cherry", "Amethyst", "Chiffon", "Amber", "Vanilla", "Lotus", "Crystal", "Spring", "Juniper", "Acacia", "Dawn", "Aurora", "Arctic", "Lustre", "Holly", "Primrose"],
+        "Surname": ["Flame", "Flash", "Blossom", "Fir", "Floret", "Pekoe", "Woodrose", "Flaxseed", "Snow", "Leaf", "Glow", "Brook", "Creek", "Shade", "Bright", "Flare", "Spark", "Zest", "Glimmer", "Ray", "Gleam", "Shimmer", "Flicker", "Seed", "Spruce", "Sprout", "Canopy", "Breeze", "Moss", "Thorn", "Petal", "Glacier", "Meadow", "Gem", "Ice", "Thistle", "Gold", "Straw", "Scale", "Sleet", "Storm", "Scorch", "Char", "Pyre", "Hearth", "Singe", "Chill", "Mist", "Aura", "Glint", "Burn", "Hue", "Shine", "Smoke", "Fade", "Root"]},
+    "Horse": {
+        "MaleName": ["Faisal", "Mutraqa", "Aleem", "Ajzil", "Asar", "Marah", "Sadim", "Ha'feer", "Sadl'han", "Ho'faria", "Iha'rup", "Hofyan", "Stirr'aad", "Hoo'fran", "Say'dle", "Haakim", "Hoo'far"],
+        "FemaleName": ["Zahra", "Warda", "Raghad", "Rybian", "Hay'fra", "Siddala", "Haifa", "Shafaq", "Fahifa", "Sahia", "Tay'faa", "Amira"],
+        "Surname": ["Hakim", "Hej'ran", "Sahif", "Hay'dle", "Nueman", "Ghazran"]},
+    "NorthernZebra": {
+        "MaleName": ["Zabbar", "Zabdmelqart", "Zadonibaal", "Zagbal", "Zhirom", "Azimilik", "Zaal", "Zaalhanno", "Zodashtart", "Zodmelqart", "Zomilcar", "Zostar", "Zoulomenus", "Zarthalo", "Zhelbes", "Eshzaal", "Zeugoras", "Zermelqart", "Zamilcar", "Zannibal", "Zanno", "Hasdruzal", "Zimilco", "Ziram", "Zago", "Maharzal", "Zattan", "Zetallo", "Zilkherem", "Zilkiram", "Paltizaal", "Zhilosir", "Zoodes", "Zomical", "Zisgo", "Zalchus", "Zabdhamon", "Abizaal", "Zabirami", "Zahumm", "Zeshmounhilles", "Zeshmouniaton", "Itthozaal", "Paltizaal", "Zummashtart", "Zelqartshama", "Zatnoam", "Zurumilki", "Zehomilk", "Zadamilk", "Zaaliaton", "Barekzaal", "Gerzaal", "Zerimilki", "Khiletzzaal", "Zabnit", "Zutpan", "Zimrida", "Danzel", "Zanmi", "Maharzaal", "Zilkpilles", "Zelqartpilles", "Zilkyaton", "Zassinissa", "Ziempsal", "Zuba"],
+        "FemaleName": ["Zabdosir", "Zarishat", "Zastarte", "Zatnoam", "Zido", "Zhayna", "Sophonisza", "Zamar", "Zadiya", "Zabua", "Yapa", "Ytab", "Zuhaima", "Zuldu", "Zashah", "Zamila", "Zasherah", "Izavel", "Iezazel", "Zarishat", "Zelissa", "Muttunzaal"],
+        "Surname": ["Zabbarid", "Adonizaal", "Zahirom", "Zaalhannid", "Zarca", "Zostara", "Chelzesid", "Eshzaalid", "Zeugorid", "Zannid", "Ziramid", "Zago", "Zattanid", "Zetallid", "Zilkiramid", "Zilosirid", "Zisgo", "Gerzalid", "Zammid", "Zugarid", "Zashhid", "Zummashid"]}
 }
 out = []
 
@@ -109,10 +125,10 @@ for tag, types in dct.items():
         name = Get%s%s
         ''' % (len(tpe), tag, cat)
         for idx, name in enumerate(tpe):
-            entry += '''            text = {
-                trigger = { check_variable = { THIS = %d } }
-                localization_key = "%s"
-            }
+            entry += '''text = {
+            trigger = { state = %d }
+            localization_key = "%s"
+        }
         ''' % (idx+1, name)
         entry += "}"
         out.append(entry)

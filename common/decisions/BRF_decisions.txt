@@ -470,6 +470,7 @@ BRF_masonic_decisions = {
 	BRF_move_to_white_flower = {
 		icon = modern_city
 		available = {
+			has_war = no
 			owns_state = 605
 			has_completed_focus = BRF_assume_direct_control
 		}
@@ -481,12 +482,13 @@ BRF_masonic_decisions = {
 			has_government = democratic
 		}
 		cost = 25
+		fire_only_once = yes
 		ai_will_do = {
 			factor = 80
 		}
 		complete_effect = {
 			log = "[GetDateText]: [Root.GetName]: Decision BRF_move_to_white_flower"
-			set_capital = 605
+			set_capital = { state = 605 }
 			add_political_power = 150
 		}
 	}
@@ -638,6 +640,15 @@ BRF_masonic_decisions = {
 			FROM = {
 				has_country_flag = BRF_masonic_infiltration3
 			}
+			NOT = {
+				AND = {
+					is_subject = yes
+					is_ai = yes
+					FROM = {
+						is_major = yes
+					}
+				}
+			}
 		}
 		cost = 200
 		fire_only_once = yes
@@ -657,7 +668,7 @@ political_actions = {
 	BRF_rename_redgladin = {
 		icon = griffon
 		allowed = {
-			is_griffon_continent_griffon_country = yes
+			is_griffon_continent_griffon_country_tag = yes
 		}
 		visible = {
 			has_war = no
@@ -667,11 +678,13 @@ political_actions = {
 			}
 			has_global_flag = GRW_renamed_kivessin
 		}
-		highlight_state_targets = {
-			state = 508
-		}
-		highlight_provinces = {
-			10377
+		highlight_states = {
+			highlight_state_targets = {
+				state = 508
+			}
+			highlight_provinces = {
+				10377
+			}
 		}
 		cost = 5
 		fire_only_once = yes
@@ -682,9 +695,114 @@ political_actions = {
 			log = "[GetDateText]: [Root.GetName]: Decision BRF_rename_redgladin"
 			add_political_power = 15
 			508 = {
-				set_state_name = "Kivessin"
+				set_state_name = STATE_508
 			}
 			clr_global_flag = GRW_renamed_kivessin
+		}
+	}
+}
+foreign_politics = {
+	BRF_anti_communist_war = {
+		icon = generic_ignite_civil_war
+		allowed = {
+		    original_tag = BRF
+		}
+		available = {
+			is_subject = no
+			has_war = no
+			FROM = {
+				has_government = communism
+			}
+		}
+		target_array = neighbors
+		target_trigger = { 
+			FROM = {
+				is_neighbor_of = ROOT 
+			}
+		}
+		target_root_trigger = {
+		    has_completed_focus = BRF_curve_future
+		}
+		visible = {
+			has_completed_focus = BRF_curve_future
+			FROM = {
+				exists = yes
+				is_subject = no
+				NOT = {
+					has_war_with = ROOT 
+					is_in_faction_with = ROOT
+					has_idea = detached_country
+				}
+			}
+		}
+		cancel_trigger = {
+			OR = {
+				is_subject = yes
+				FROM = {
+					OR = {
+						exists = no
+						is_subject = yes
+						has_war_with = ROOT
+						NOT = {
+							has_government = communism
+						}
+					}
+				}
+			}
+		}
+		
+		cost = 50
+		fire_only_once = yes
+		
+		days_remove = 30
+		war_with_target_on_remove = yes
+		
+		ai_will_do = {
+			factor = 10
+			modifier = {
+				factor = 0
+				has_war = yes
+			}
+			modifier = {
+				factor = 0
+				strength_ratio = {
+					tag = FROM
+					ratio > 1
+				}
+			}
+			modifier = {
+				factor = 0
+				is_in_faction = no
+				FROM = {
+					is_in_faction = yes
+				}
+			}
+		}
+		
+		complete_effect = {
+			log = "[GetDateText]: [Root.GetName]: Decision BRF_anti_communist_war target: [From.GetName]"
+			FROM = {
+                add_ai_strategy = {
+                    type = prepare_for_war
+                    id = ROOT
+                    value = 1000
+                }
+            }
+		    add_threat = 3
+		}
+		remove_effect = {
+			log = "[GetDateText]: [Root.GetName]: Decision remove BRF_anti_communist_war target: [From.GetName]"
+			FROM = {
+                add_ai_strategy = {
+                    type = prepare_for_war
+                    id = ROOT
+                    value = -1000
+                }
+            }
+			create_wargoal = {
+				type = puppet_wargoal_focus 
+				target = FROM
+			}
 		}
 	}
 }

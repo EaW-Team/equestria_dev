@@ -391,7 +391,7 @@ focus_tree = {
 	}
 	focus = {
 		id = LUS_expand_military_branch
-		icon = GFX_goal_ideology_national_populist
+		icon = GFX_goal_LUS_expand_military_branch
 		cost = 9
 		x = 2
 		y = 1
@@ -433,7 +433,7 @@ focus_tree = {
 	}
 	focus = {
 		id = LUS_predict_the_revolution
-		icon = GFX_goal_liberty
+		icon = GFX_goal_generic_liberty_statue
 		cost = 10
 		x = 0
 		y = 2
@@ -686,12 +686,20 @@ focus_tree = {
 			focus = LUS_invite_scientists
 		}
 		relative_position_id = LUS_invite_scientists
+		bypass = {
+			amount_research_slots > 4
+		}
 		ai_will_do = {
 			factor = 25
 		}
 		completion_reward = {
 			log = "[GetDateText]: [Root.GetName]: Focus LUS_open_high_schools"
-			add_research_slot = 1
+			if = {
+				limit = {
+					amount_research_slots < 5
+				}
+				add_research_slot = 1
+			}
 		}
 		search_filters = { FOCUS_FILTER_RESEARCH }
 	}
@@ -760,7 +768,12 @@ focus_tree = {
 		}
 		completion_reward = {
 			log = "[GetDateText]: [Root.GetName]: Focus LUS_state_funded_science"
-			add_research_slot = 1
+			if = {
+				limit = {
+					amount_research_slots < 5
+				}
+				add_research_slot = 1
+			}
 			decrease_illiteracy = yes
 			increase_society_development_gradually_with_tt = yes
 		}
@@ -827,12 +840,39 @@ focus_tree = {
 		ai_will_do = {
 			factor = 14
 		}
+		available = {
+			608 = { is_owned_and_controlled_by = ROOT }
+			607 = { is_owned_and_controlled_by = ROOT }
+			591 = { is_owned_and_controlled_by = ROOT }
+			593 = { is_owned_and_controlled_by = ROOT }
+		}
 		completion_reward = {
 			log = "[GetDateText]: [Root.GetName]: Focus LUS_build_the_railines"
 			add_stability = 0.03
-			one_random_infrastructure = yes
-			one_random_infrastructure = yes
-			one_random_infrastructure = yes
+			build_railway = {
+				level = 2
+				start_state = 608
+				target_state = 607
+				build_only_on_allied = yes
+			}
+			build_railway = {
+				level = 2
+				start_state = 608
+				target_state = 591
+				build_only_on_allied = yes
+			}
+			build_railway = {
+				level = 2
+				start_state = 608
+				target_state = 632
+				build_only_on_allied = yes
+			}
+			build_railway = {
+				level = 2
+				start_state = 608
+				target_state = 593
+				build_only_on_allied = yes
+			}
 			increase_society_development_gradually_with_tt = yes
 		}
 		search_filters = { FOCUS_FILTER_STABILITY }
@@ -913,10 +953,17 @@ focus_tree = {
 		}
 		completion_reward = {
 			log = "[GetDateText]: [Root.GetName]: Focus LUS_rubber_program"
-			add_resource = {
-				type = rubber
-				amount = 14
-				state = 593
+			if = {
+				limit = { NOT = { has_tech = synth_oil_experiments } }
+				set_technology = { synth_oil_experiments = 1 }
+			}
+			random_owned_state = {
+				add_extra_state_shared_building_slots = 2
+				add_building_construction = {
+					type = synthetic_refinery
+					level = 2
+					instant_build = yes
+				}
 			}
 		}
 		search_filters = { FOCUS_FILTER_INDUSTRY }
@@ -1066,18 +1113,11 @@ focus_tree = {
 			log = "[GetDateText]: [Root.GetName]: Focus LUS_crown_the_king"
 			add_stability = 0.035
 			hidden_effect = {
-				retire_country_leader = yes
 				set_cosmetic_tag = LUS_kingdom
 				set_country_flag = LUS_kingdom_flag
 			}
-			create_country_leader = {
-				name = "King Elias I Whitecrest"
-				desc = POLITICS_PRINCE_ELIAS
-				picture = "Elias.tga"
-				expire = "1965.1.1"
-				ideology = conservatism
-				traits = {
-				}
+			LUS_prince_elias_whitecrest = {
+				set_character_name = LUS_king_elias_i_whitecrest
 			}
 			add_ideas = LUS_capitalist_relations_idea
 		}
@@ -1278,6 +1318,9 @@ focus_tree = {
 					is_subject_of = ROOT
 					has_war_with = ROOT
 					is_subject_of = GRW
+					NOT = {
+						has_government = fascism
+					}
 				}
 			}
 		}
@@ -1386,10 +1429,17 @@ focus_tree = {
 		}
 		available = {
 			GRW = { exists = yes }
-			any_other_country = {
-				NOT = { original_tag = GRW }
-				is_justifying_wargoal_against = ROOT
-				has_offensive_war_with = ROOT
+			custom_trigger_tooltip = {
+				tooltip = any_of_potential_and_current_enemies_justifying_or_has_wargoal_on_THIS
+				any_of_scopes = {
+					array = potential_and_current_enemies
+					tooltip = TRIGGER_ANY_COUNTRY_STARTS
+					NOT = { original_tag = GRW }
+					OR = {
+						has_wargoal_against = ROOT
+						is_justifying_wargoal_against = ROOT
+					}
+				}
 			}
 			NOT = {
 				OR = {
@@ -1645,26 +1695,25 @@ focus_tree = {
 		available = {
 			OR = {
 				any_owned_state = {
-					is_core_of = GRW
+					is_core_of = BRF
 				}
-				GRW = { is_subject_of = ROOT }
+				BRF = { is_subject_of = ROOT }
 			}
 		}
 		completion_reward = {
 			log = "[GetDateText]: [Root.GetName]: Focus LUS_apropriate_prywhen_lands"
 			one_random_industrial_complex = yes
-			GRW = { add_to_ROOT_potential_cores = yes }
 			every_owned_state = {
 				limit = {
-					is_core_of = GRW
+					is_core_of = BRF
 				}
 				add_extra_state_shared_building_slots = 1
 			}
 			if = {
 				limit = {
-					GRW = { is_subject_of = ROOT }
+					BRF = { is_subject_of = ROOT }
 				}
-				GRW = { one_random_industrial_complex = yes }
+				BRF = { one_random_industrial_complex = yes }
 			}
 		}
 		search_filters = { FOCUS_FILTER_INDUSTRY }
@@ -1690,9 +1739,9 @@ focus_tree = {
 		}
 		completion_reward = {
 			log = "[GetDateText]: [Root.GetName]: Focus LUS_extensive_doctrine_research"
-			add_tech_bonus = {
+			add_doctrine_cost_reduction = {
 				name = land_doc_bonus
-				bonus = 2
+				cost_reduction = 0.66
 				uses = 2
 				category = land_doctrine
 			}
@@ -1717,9 +1766,9 @@ focus_tree = {
 		}
 		completion_reward = {
 			log = "[GetDateText]: [Root.GetName]: Focus LUS_intensive_doctrine_research"
-			add_tech_bonus = {
+			add_doctrine_cost_reduction = {
 				name = land_doc_bonus
-				bonus = 4
+				cost_reduction = 0.8
 				uses = 1
 				category = land_doctrine
 			}
@@ -1888,9 +1937,9 @@ focus_tree = {
 		}
 		completion_reward = {
 			log = "[GetDateText]: [Root.GetName]: Focus LUS_the_great_plan"
-			add_tech_bonus = {
+			add_doctrine_cost_reduction = {
 				name = cat_grand_battle_plan
-				bonus = 1.0
+				cost_reduction = 0.5
 				uses = 2
 				category = cat_grand_battle_plan
 			}
@@ -1919,9 +1968,9 @@ focus_tree = {
 		}
 		completion_reward = {
 			log = "[GetDateText]: [Root.GetName]: Focus LUS_the_massive_army"
-			add_tech_bonus = {
+			add_doctrine_cost_reduction = {
 				name = cat_mass_assault
-				bonus = 1.0
+				cost_reduction = 0.5
 				uses = 2
 				category = cat_mass_assault
 			}
@@ -1997,9 +2046,9 @@ focus_tree = {
 		}
 		completion_reward = {
 			log = "[GetDateText]: [Root.GetName]: Focus LUS_new_mobile_doctrine"
-			add_tech_bonus = {
-				name = land_doc_bonus
-				bonus = 1.0
+			add_doctrine_cost_reduction = {
+				name = cat_mobile_warfare
+				cost_reduction = 0.5
 				uses = 2
 				category = cat_mobile_warfare
 			}
@@ -2053,9 +2102,9 @@ focus_tree = {
 		}
 		completion_reward = {
 			log = "[GetDateText]: [Root.GetName]: Focus LUS_new_infantry_doctrine"
-			add_tech_bonus = {
+			add_doctrine_cost_reduction = {
 				name = cat_superior_firepower
-				bonus = 1.0
+				cost_reduction = 0.5
 				uses = 2
 				category = cat_superior_firepower
 			}
@@ -2153,12 +2202,20 @@ focus_tree = {
 			591 = { is_owned_and_controlled_by = ROOT }
 		}
 		relative_position_id = LUS_create_lord_council
+		bypass = {
+			amount_research_slots > 4
+		}
 		ai_will_do = {
 			factor = 15
 		}
 		completion_reward = {
 			log = "[GetDateText]: [Root.GetName]: Focus LUS_talvona_institute_of_industrial_research"
-			add_research_slot = 1
+			if = {
+				limit = {
+					amount_research_slots < 5
+				}
+				add_research_slot = 1
+			}
 		}
 		search_filters = { FOCUS_FILTER_RESEARCH }
 	}
@@ -2286,7 +2343,7 @@ focus_tree = {
 	}
 	focus = {
 		id = LUS_keep_them_busy
-		icon = GFX_goal_generic_construct_mil_factory
+		icon = GFX_goal_LUS_keep_them_busy
 		cost = 10
 		x = -1
 		y = 1
@@ -2706,18 +2763,21 @@ focus_tree = {
 			log = "[GetDateText]: [Root.GetName]: Focus LUS_proclaim_new_kingdom"
 			add_stability = 0.035
 			hidden_effect = {
-				retire_country_leader = yes
 				drop_cosmetic_tag = yes
 				set_cosmetic_tag = LUS_kingdom
 				set_country_flag = LUS_kingdom_flag
 			}
-			create_country_leader = {
-				name = "King Gerar II Whitecrest"
-				desc = POLITICS_PRINCE_GERAR
-				picture = "Gerar.tga"
-				expire = "1965.1.1"
-				ideology = fascism_ideology
-				traits = {
+			LUS_prince_gerar_whitecrest = {
+				set_character_name = LUS_king_gerar_ii_whitecrest
+				add_country_leader_role = {
+					promote_leader = yes
+
+					country_leader = {
+						desc = POLITICS_PRINCE_GERAR
+						expire = "1965.1.1"
+						ideology = fascism_ideology
+						traits = { }
+					}
 				}
 			}
 			set_politics = { ruling_party = fascism elections_allowed = no }
@@ -2743,6 +2803,10 @@ focus_tree = {
 		completion_reward = {
 			log = "[GetDateText]: [Root.GetName]: Focus LUS_new_lands"
 			add_political_power = 50
+			create_wargoal = { target = BRF type = annex_everything }
+			create_wargoal = { target = GRW type = annex_everything }
+			create_wargoal = { target = GRY type = annex_everything }
+			create_wargoal = { target = GRU type = annex_everything }
 			every_state = {
 				limit = {
 					OR = {
@@ -2827,37 +2891,11 @@ focus_tree = {
 		}
 		completion_reward = {
 			log = "[GetDateText]: [Root.GetName]: Focus LUS_lumium_kivessin_railroad"
-			508 = {
-				add_extra_state_shared_building_slots = 1
-				add_building_construction = {
-					type = infrastructure
-					level = 2
-					instant_build = yes
-				}
-			}
-			588 = {
-				add_extra_state_shared_building_slots = 1
-				add_building_construction = {
-					type = infrastructure
-					level = 2
-					instant_build = yes
-				}
-			}
-			593 = {
-				add_extra_state_shared_building_slots = 1
-				add_building_construction = {
-					type = infrastructure
-					level = 2
-					instant_build = yes
-				}
-			}
-			608 = {
-				add_extra_state_shared_building_slots = 1
-				add_building_construction = {
-					type = infrastructure
-					level = 2
-					instant_build = yes
-				}
+			build_railway = {
+				level = 2
+				start_state = 608
+				target_state = 508
+				build_only_on_allied = yes
 			}
 		}
 		search_filters = { FOCUS_FILTER_INDUSTRY }
@@ -3195,7 +3233,7 @@ focus_tree = {
 			log = "[GetDateText]: [Root.GetName]: Focus LUS_empire_realized"
 			add_stability = 0.15
 			drop_cosmetic_tag = yes
-			hidden_effect = { set_cosmetic_tag = LUS_supremacy }
+            set_cosmetic_tag = LUS_supremacy
 			set_country_flag = LUS_supremacy
 		}
 		search_filters = { FOCUS_FILTER_STABILITY }
@@ -3226,9 +3264,9 @@ focus_tree = {
 					instant_build = yes
 				}
 			}
-			add_tech_bonus = {
+			add_doctrine_cost_reduction = {
 				name = air_doc_bonus
-				bonus = 1.0
+				cost_reduction = 0.5
 				uses = 1
 				category = air_doctrine
 			}
@@ -3282,9 +3320,9 @@ focus_tree = {
 					ROOT = { set_country_flag = aviation_effort_AB }
 				}
 			}
-			add_tech_bonus = {
+			add_doctrine_cost_reduction = {
 				name = air_doc_bonus
-				bonus = 1.0
+				cost_reduction = 0.5
 				uses = 1
 				category = air_doctrine
 			}
@@ -3308,17 +3346,24 @@ focus_tree = {
 
 		completion_reward = {
 			log = "[GetDateText]: [Root.GetName]: Focus LUS_griffon_fighter_focus"
-			add_tech_bonus = {
-				name = fighter_bonus
-				bonus = 1.0
-				uses = 1
-				technology = early_fighter
-				technology = fighter1
-				technology = fighter2
-				technology = fighter3
-				technology = heavy_fighter1
-				technology = heavy_fighter2
-				technology = heavy_fighter3
+			if = {
+     	       limit = {
+    	            has_dlc = "By Blood Alone"
+     	       }
+				add_tech_bonus = {
+					name = fighter_bonus
+					bonus = 1.0
+					uses = 1
+					category = light_air
+				}
+			}
+			else = {
+				add_tech_bonus = {
+					name = fighter_bonus
+					bonus = 1.0
+					uses = 1
+					category = light_fighter
+				}
 			}
 		}
 		search_filters = { FOCUS_FILTER_RESEARCH }
@@ -3339,17 +3384,24 @@ focus_tree = {
 
 		completion_reward = {
 			log = "[GetDateText]: [Root.GetName]: Focus LUS_griffon_fighter_focus_2"
-			add_tech_bonus = {
-				name = fighter_bonus
-				bonus = 1.0
-				uses = 1
-				technology = early_fighter
-				technology = fighter1
-				technology = fighter2
-				technology = fighter3
-				technology = heavy_fighter1
-				technology = heavy_fighter2
-				technology = heavy_fighter3
+			if = {
+     	       limit = {
+    	            has_dlc = "By Blood Alone"
+     	       }
+				add_tech_bonus = {
+					name = fighter_bonus
+					bonus = 1.0
+					uses = 1
+					category = light_air
+				}
+			}
+			else = {
+				add_tech_bonus = {
+					name = fighter_bonus
+					bonus = 1.0
+					uses = 1
+					category = light_fighter
+				}
 			}
 		}
 		search_filters = { FOCUS_FILTER_RESEARCH }
@@ -3372,14 +3424,26 @@ focus_tree = {
 
 		completion_reward = {
 			log = "[GetDateText]: [Root.GetName]: Focus LUS_griffon_bomber_focus"
-			add_tech_bonus = {
-				name = bomber_bonus
-				bonus = 1.0
-				uses = 1
-				technology = strategic_bomber1
-				technology = strategic_bomber2
-				technology = strategic_bomber3
-				category = tactical_bomber
+			if = {
+    	        limit = {
+     	           has_dlc = "By Blood Alone"
+     	       }
+				add_tech_bonus = {
+					name = bomber_bonus
+					bonus = 1.0
+					uses = 1
+					category = medium_air
+					category = heavy_air
+				}
+			}
+			else = {
+				add_tech_bonus = {
+					name = bomber_bonus
+					bonus = 1.0
+					uses = 1
+					category = tactical_bomber
+					category = cat_strategic_bomber
+				}
 			}
 		}
 		search_filters = { FOCUS_FILTER_RESEARCH }
@@ -3400,15 +3464,26 @@ focus_tree = {
 
 		completion_reward = {
 			log = "[GetDateText]: [Root.GetName]: Focus LUS_griffon_bomber_focus_2"
-			add_tech_bonus = {
-				name = bomber_bonus
-				bonus = 1.0
-				uses = 1
-				technology = strategic_bomber1
-				technology = strategic_bomber2
-				technology = strategic_bomber3
-				category = tactical_bomber
-				category = cas_bomber
+			if = {
+    	        limit = {
+     	           has_dlc = "By Blood Alone"
+     	       }
+				add_tech_bonus = {
+					name = bomber_bonus
+					bonus = 1.0
+					uses = 1
+					category = medium_air
+					category = heavy_air
+				}
+			}
+			else = {
+				add_tech_bonus = {
+					name = bomber_bonus
+					bonus = 1.0
+					uses = 1
+					category = tactical_bomber
+					category = cat_strategic_bomber
+				}
 			}
 		}
 		search_filters = { FOCUS_FILTER_RESEARCH }
@@ -3436,9 +3511,9 @@ focus_tree = {
 					instant_build = yes
 				}
 			}
-			add_tech_bonus = {
-				name =  air_doc_bonus
-				bonus = 1.0
+			add_doctrine_cost_reduction = {
+				name = air_doc_bonus
+				cost_reduction = 0.5
 				uses = 1
 				category = air_doctrine
 			}
@@ -3494,9 +3569,9 @@ focus_tree = {
 					ROOT = { set_country_flag = aviation_effort_2_AB }
 				}
 			}
-			add_tech_bonus = {
-				name =  air_doc_bonus
-				bonus = 1.0
+			add_doctrine_cost_reduction = {
+				name = air_doc_bonus
+				cost_reduction = 0.5
 				uses = 1
 				category = air_doctrine
 			}
@@ -3669,6 +3744,7 @@ focus_tree = {
 	}
 	focus = {
 		id = LUS_what_are_we_doing_now
+		icon = GFX_goal_red_eagle
 		cost = 9
 		x = 0
 		y = 3
@@ -3720,7 +3796,7 @@ focus_tree = {
 	}
 	focus = {
 		id = LUS_griffon_militia
-		icon = GFX_goal_rich_focus
+		icon = GFX_goal_conscription
 		cost = 10
 		x = 0
 		y = 5
@@ -4172,9 +4248,17 @@ focus_tree = {
 			focus = LUS_education_campaigns4
 		}
 		relative_position_id = LUS_com_industrialization
+		bypass = {
+			amount_research_slots > 4
+		}
 		completion_reward = {
 			log = "[GetDateText]: [Root.GetName]: Focus LUS_lumium_university"
-			add_research_slot = 1
+			if = {
+				limit = {
+					amount_research_slots < 5
+				}
+				add_research_slot = 1
+			}
 		}
 		search_filters = { FOCUS_FILTER_RESEARCH }
 	}

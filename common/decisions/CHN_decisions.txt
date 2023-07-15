@@ -12,7 +12,6 @@ foreign_politics = {
 		visible = {
 			is_subject = yes
 			overlord = {
-				original_tag = EQS
 				has_government = democratic
 			}
 			OR = {
@@ -32,6 +31,17 @@ foreign_politics = {
 
 		ai_will_do = {
 			factor = 0
+			modifier = {
+				has_autonomy_state = autonomy_demilitarized_colony
+				overlord = {
+					has_war = yes
+					OR = {
+						surrender_progress > 0.1
+						enemies_strength_ratio > 0.6
+					}
+				}
+				add = 25
+			}
 			modifier = {
 				overlord = {
 					has_war = yes
@@ -332,8 +342,321 @@ CHN_Attache = {
 				}
 				country_event = { id = changelingattache.1 days = 10 }
 			}
+			if = {
+				limit = {
+					NOT = {
+						has_template = "Panzergrenadier Division"
+					}
+				}
+				division_template = {
+					name = "Panzergrenadier Division"
+					is_locked = no
+					regiments = {
+						light_armor = { x = 0 y = 0 }
+						light_armor = { x = 0 y = 1 }
+						light_armor = { x = 0 y = 2 }
+						motorized = { x = 1 y = 0 }
+						motorized = { x = 1 y = 1 }
+						motorized = { x = 2 y = 0 }
+						motorized = { x = 2 y = 1 }
+					}
+					support = {
+						engineer = { x = 0 y = 0 }
+						artillery = { x = 0 y = 1 }
+						mot_recon = { x = 0 y = 2 }
+					}
+				}
+			}
+			create_unit = { 
+				division = "name = \"Leichte-Division 'Synovial'\" division_template = \"Panzergrenadier Division\" start_experience_factor = 0.5" 
+				owner = CHN 
+				prioritize_location = 11045 
+				allow_spawning_on_enemy_provs = no 
+		   }
 		}
 	}
+}
+
+CHN_kriegsmarine = {
+	CHN_rehire_recina = {
+		icon = GFX_decision_chn_Carrier
+
+		available = {
+			has_idea = chn_queen_helvia
+		}
+		custom_cost_trigger = {
+			has_navy_experience > 49
+			has_air_experience > 4
+			has_political_power > 14
+		}
+		custom_cost_text = decision_cost_navy_xp_50_air_xp_5_pp_15
+		
+		fire_only_once = yes
+
+		ai_will_do = {
+			factor = 10
+		}
+
+		days_remove = 12
+
+		complete_effect = {
+			log = "[GetDateText]: [Root.GetName]: Decision remove CHN_rehire_recina"
+			hidden_effect = {
+				navy_experience = -50
+				air_experience = -5
+				add_political_power = -15
+				set_country_flag = Carrier_CHN
+			}
+			add_naval_commander_role = {
+				character = CHN_recina
+
+				desc = CHN_DESC_RECINA
+				traits = { navy_career_officer superior_tactician changeling_race_trait lone_wolf air_controller }
+				skill = 4
+				attack_skill = 5
+				defense_skill = 2
+				maneuvering_skill = 3
+				coordination_skill = 3
+				legacy_id = 612
+			}
+			custom_effect_tooltip = CHN_RECINA_stats_tp
+			set_country_flag = Carrier_CHN
+		}
+	}
+	
+	CHN_get_panzerschiffe = {
+
+		icon = GFX_decision_chn_Carrier #GFX_decision_generic_naval
+
+		custom_cost_trigger = {
+			has_navy_experience > 49
+			has_political_power > 29
+		}
+
+		custom_cost_text = decision_cost_navy_xp_50_pp_30
+
+		available = {
+			OR = {
+				has_completed_focus = chn_navylysander
+				has_completed_focus = chn_navymimic
+			}
+		}
+
+		cost = 25
+		ai_will_do = {
+			factor = 10
+		}
+		days_remove = 90
+
+		fire_only_once = yes
+
+
+		remove_effect = {
+			log = "[GetDateText]: [Root.GetName]: Decision remove CHN_get_panzerschiffe"
+			if = { 
+				limit = {
+					has_dlc = "Man the Guns"
+				}
+				set_technology = {
+					panzerschiffe = 1
+				}
+			}
+			else = {
+				set_technology = {
+					panzerschiffe_nomtg = 1
+				}
+			}
+		}
+		complete_effect = {
+			log = "[GetDateText]: [Root.GetName]: Decision CHN_get_panzerschiffe"
+			hidden_effect = { navy_experience = -50 add_political_power = -30 }
+		}
+	}
+
+	CHN_WNG_Alliance = {
+
+		icon = GFX_decision_chn_Carrier
+
+		visible = {
+			AND = { 
+				has_war_together_with = WNG
+			    has_war_with = EQC
+			}
+		}
+		
+		available = {
+			OR = {
+				AND = {
+					has_government = fascism
+					WNG = {
+						has_government = fascism
+					}
+				}
+				AND = {
+					has_government = democratic
+					WNG = {
+						has_government = democratic
+					}
+				}
+			}
+		}
+
+		cost = 25
+		ai_will_do = {
+			factor = 80
+		}
+		days_remove = 10
+
+		fire_only_once = yes
+
+
+		remove_effect = {
+			log = "[GetDateText]: [Root.GetName]: Decision remove CHN_WNG_Alliance"
+			
+			diplomatic_relation = {
+				country = WNG
+				relation = docking_rights
+				active = yes
+			}
+			WNG = {
+				diplomatic_relation = {
+					country = CHN
+					relation = docking_rights
+					active = yes
+				}
+			}
+		}
+	}
+
+	CHN_Secret_Carrier = {
+		icon = GFX_decision_chn_Carrier
+
+		visible = {
+			OR = {
+				has_completed_focus = chn_navylysander
+				has_completed_focus = chn_navymimic
+				has_country_flag = Carrier_CHN
+		      }
+		}
+
+		available = {
+			has_idea = chn_queen_helvia
+		}
+
+		fire_only_once = yes
+
+		ai_will_do = {
+			factor = 70
+		}
+
+		days_remove = 2
+
+		complete_effect = {
+			log = "[GetDateText]: [Root.GetName]: Decision remove CHN_Secret_Carrier"
+			hidden_effect = { 
+				if = {
+					limit = {
+						has_dlc = "By Blood Alone"
+					}	
+					create_equipment_variant = {
+						name = "KLAB.168"
+						type = cv_small_plane_airframe_0
+						modules = {
+							fixed_main_weapon_slot = light_mg_2x
+							engine_type_slot = engine_1_1x
+							special_type_slot_1 = empty
+						}
+					}
+					create_equipment_variant = {
+						name = "KLAB.167" #
+						type = cv_small_plane_naval_bomber_airframe_0
+						modules = {
+							fixed_main_weapon_slot = torpedo_mounting
+							engine_type_slot = engine_1_1x
+							special_type_slot_1 = empty
+						}
+					}
+					create_equipment_variant = {
+						name = "KLAB.22" #
+						type = small_plane_naval_bomber_airframe_0
+						modules = {
+							fixed_main_weapon_slot = torpedo_mounting
+							engine_type_slot = engine_1_1x
+							special_type_slot_1 = empty
+						}
+					}
+					add_equipment_to_stockpile = {
+						type = cv_small_plane_airframe_0
+						amount = 22
+						variant_name = "KLAB.168"
+						producer = CHN
+					}
+					add_equipment_to_stockpile = {
+						type = cv_small_plane_naval_bomber_airframe_0
+						variant_name = "KLAB.167"
+						amount = 22
+						producer = CHN
+					}
+				}
+				if = {
+					limit = {
+						NOT = {
+							has_dlc = "By Blood Alone"
+						}
+					}
+					set_technology = { cv_early_fighter = 1 } 
+					set_technology = { cv_fighter1 = 1 } 
+					set_technology = { cv_naval_bomber1 = 1 }
+					add_equipment_to_stockpile = {
+						type = cv_fighter_equipment_1
+						amount = 22
+					}
+					add_equipment_to_stockpile = {
+						type = cv_nav_bomber_equipment_1
+						amount = 22
+					}
+				}
+				if = {
+					limit = { has_dlc = "Man the Guns" }
+					set_technology = {basic_ship_hull_carrier = 1 }
+					create_equipment_variant = {
+						name = "Helvia Class"
+						type = ship_hull_carrier_conversion_ca
+						name_group = CHN_CV_HISTORICAL
+						parent_version = 0
+						modules = {
+							fixed_ship_deck_slot_1 = ship_deck_space
+							fixed_ship_deck_slot_2 = ship_deck_space
+							fixed_ship_anti_air_slot = ship_anti_air_2
+							fixed_ship_radar_slot = empty
+							fixed_ship_engine_slot = cruiser_ship_engine_2
+							fixed_ship_secondaries_slot = ship_secondaries_2
+						}
+					}
+				    create_ship = {
+						name = "CNS Helvia" 
+						type = ship_hull_carrier_conversion_ca
+						equipment_variant = "Helvia Class"
+						creator = CHN
+					}
+				}
+
+            	if = {
+					limit = { not = { has_dlc = "Man the Guns" }}
+					set_technology = {basic_carrier = 1 }
+					add_equipment_production = {
+						equipment = {
+							type = carrier_1
+							creator = "CHN" 
+						}
+						requested_factories = 1
+						progress = 1
+						amount = 1
+					}
+				}
+		    }
+		}
+	}		
 }
 
 CHN_war_time_actions = {
@@ -537,6 +860,8 @@ CHN_protectorates = {
 				}
 			}
 			BAL = { exists = no }
+			CES = { exists = no }
+			NMS = { exists = no }
 		}
 
 		cost = 25
@@ -566,110 +891,6 @@ CHN_protectorates = {
 		remove_effect = {
 			log = "[GetDateText]: [Root.GetName]: Decision remove CHN_baltimare_protectorate"
 			custom_effect_tooltip = release_baltimare_protectorate
-			hidden_effect = {
-				BAL = {
-				set_country_flag = is_changeling_puppet
-				set_cosmetic_tag = BAL_CHN
-				set_stability = 0.55
-				set_war_support = 0.55
-				create_country_leader = {
-					name = "Protector Larynx"
-					desc = ""
-					picture = "Larynx_BAL.tga"
-					expire = "1965.1.1"
-					ideology = nazism
-				}
-				create_country_leader = {
-	                name = "Unknown"
-					picture = "Governor.tga"
-	                expire = "1965.1.1"
-	                ideology = despotism
-                }
-				create_country_leader = {
-	                name = "Daring Do"
-					picture = "Daring Do.tga"
-	                expire = "1965.1.1"
-	                ideology = liberalism
-                }
-				create_country_leader = {
-	                name = "Diamond Chaffer"
-					picture = "Chafer.tga"
-	                expire = "1965.1.1"
-	                ideology = leninism
-                }
-				set_party_name = { 
-				    ideology = democratic 
-				    name = BAL_protectorate_dem
-				    long_name = BAL_protectorate_dem_long 
-				}
-				set_party_name = { 
-				    ideology = fascism 
-				    name = BAL_protectorate_fas 
-				    long_name = BAL_protectorate_fas_long 
-				}
-				set_party_name = { 
-				    ideology = communism 
-				    name = BAL_protectorate_com 
-				    long_name = BAL_protectorate_com_long 
-				}
-				set_party_name = { 
-				    ideology = neutrality 
-				    name = BAL_protectorate_neu 
-				    long_name = BAL_protectorate_neu_long 
-				}
-				remove_ideas = {
-				    eqs_civil_war
-				    disrupted_communications
-				    pony_race
-				}
-				add_ideas = {
-				    changeling_race
-					BAL_PRO_no_recruits_0
-				}
-				add_manpower = 10000
-				set_technology = {
-					popup = no
-				    pony_race = 0
-					changeling_race = 1
-				}
-				set_variable = {
-			        var = BAL_changeling_garrison
-		 	        value = 15
-		        }
-				clamp_variable = {
-                    var = BAL_changeling_garrison
-                    min = 1
-                    max = 100
-                }
-				set_variable = {
-			        var = BAL_resistance
-		 	        value = 27
-		        }
-				clamp_variable = {
-                    var = BAL_resistance
-                    min = 1
-                    max = 100
-                }
-				set_variable = {
-			        var = BAL_natives
-		 	        value = 10
-		        }
-				clamp_variable = {
-                    var = BAL_natives
-                    min = 1
-                    max = 100
-                }
-				set_variable = {
-			        var = BAL_stress
-		 	        value = 7
-		        }
-				clamp_variable = {
-                    var = BAL_stress
-                    min = 1
-                    max = 100
-					}
-                }
-			}
 			hidden_effect = {
 				release_puppet = BAL
 				CHN = {
@@ -731,22 +952,6 @@ CHN_protectorates = {
 					}
 					country_event = { days = 90 id = bal_pro.0 }
 					country_event = { days = 120 id = bal_pro.1 }
-					if = {
-			            limit = { has_unit_leader = 24601 }
-			            remove_unit_leader = 24601
-					}
-				    if = {
-			            limit = { has_unit_leader = 24666 }
-			            remove_unit_leader = 24666
-		            }
-				    if = {
-			            limit = { has_unit_leader = 24667 }
-			            remove_unit_leader = 24667
-		            }
-				    if = {
-			            limit = { has_unit_leader = 24668 }
-			            remove_unit_leader = 24668
-		            }
 				}
 				50 = {
 				    add_core_of = BAL
@@ -856,6 +1061,207 @@ CHN_protectorates = {
 				116 = {
 				    add_core_of = BAL
 				}
+				350 = {
+					add_core_of = BAL
+				}
+				221 = {
+					add_core_of = BAL
+				}
+				every_possible_country = {
+					limit = {
+						has_character = CHN_larynx
+					}
+					CHN_larynx = {
+						set_nationality = BAL 
+					}
+				}
+				every_possible_country = {
+					limit = {
+						has_character = CES_daring_do
+					}
+					CES_daring_do = {
+						if = {
+							limit = { is_unit_leader = yes }
+							remove_unit_leader_role = yes
+						}
+						set_nationality = BAL
+					}
+				}
+				every_possible_country = {
+					limit = {
+						has_character = JUN_doctor_caballeron
+					}
+					JUN_doctor_caballeron = {
+						if = {
+							limit = { is_unit_leader = yes }
+							remove_unit_leader_role = yes
+						}
+						set_nationality = BAL
+					}
+				}
+				every_possible_country = {
+					limit = {
+						has_character = BAL_cricket_chafer
+					}
+					BAL_cricket_chafer = {
+						if = {
+							limit = { is_unit_leader = yes }
+							remove_unit_leader_role = yes
+						}
+						set_nationality = BAL
+					}
+				}
+				BAL = {
+					CHN_larynx = {
+						set_character_name = CHN_protector_larynx
+						set_portraits = {
+							civilian = {
+								large = "gfx/leaders/BAL/Larynx_BAL.tga"
+							}
+						}
+						add_country_leader_role = {
+							promote_leader = yes
+
+							country_leader = {
+								desc = ""
+								expire = "1965.1.1"
+								ideology = nazism
+							}
+						}
+					}
+					CES_daring_do = {
+						promote_character = yes
+					}
+					JUN_doctor_caballeron = {
+						promote_character = despotism
+					}
+					if = {
+						limit = {
+							BAL_cricket_chafer = {
+								can_be_country_leader = yes
+							}
+						}
+						BAL_cricket_chafer = {
+							promote_character = leninism
+						}
+					}
+					else = {
+						add_country_leader_role = {
+							character = BAL_cricket_chafer
+							country_leader = {
+								expire = "1965.1.1"
+								desc = BAL_corn_lord
+								ideology = leninism
+								traits = { corn_lord }
+							}
+							promote_leader = yes
+						}
+					}
+					if = {
+			            limit = { has_character = BAL_golden_delicious }
+						BAL_golden_delicious = {
+							retire = yes
+						}
+					}
+				    if = {
+			            limit = { has_character = BAL_silver_mane }
+						BAL_silver_mane = {
+							retire = yes
+						}
+		            }
+				    if = {
+			            limit = { has_character = BAL_lime_pearl }
+						BAL_lime_pearl = {
+							retire = yes
+						}
+		            }
+				    if = {
+			            limit = { has_character = BAL_stylus_pen }
+						BAL_stylus_pen = {
+							retire = yes
+						}
+		            }
+				    if = {
+			            limit = { has_character = BAL_boreal_bloom }
+						BAL_boreal_bloom = {
+							retire = yes
+						}
+		            }
+					set_country_flag = is_changeling_puppet
+					drop_cosmetic_tag = yes
+					set_cosmetic_tag = BAL_CHN
+					set_stability = 0.55
+					set_war_support = 0.55
+					set_party_name = { 
+						ideology = democratic 
+						name = BAL_protectorate_dem
+						long_name = BAL_protectorate_dem_long 
+					}
+					set_party_name = { 
+						ideology = fascism 
+						name = BAL_protectorate_fas 
+						long_name = BAL_protectorate_fas_long 
+					}
+					set_party_name = { 
+						ideology = communism 
+						name = BAL_protectorate_com 
+						long_name = BAL_protectorate_com_long 
+					}
+					set_party_name = { 
+						ideology = neutrality 
+						name = BAL_protectorate_neu 
+						long_name = BAL_protectorate_neu_long 
+					}
+					remove_ideas = {
+						pony_race
+					}
+					add_ideas = {
+						changeling_race
+						BAL_PRO_no_recruits_0
+					}
+					add_manpower = 10000
+					set_technology = {
+						popup = no
+						pony_race = 0
+						changeling_race = 1
+					}
+					set_variable = {
+						var = BAL_changeling_garrison
+						value = 15
+					}
+					clamp_variable = {
+						var = BAL_changeling_garrison
+						min = 1
+						max = 100
+					}
+					set_variable = {
+						var = BAL_resistance
+						value = 27
+					}
+					clamp_variable = {
+						var = BAL_resistance
+						min = 1
+						max = 100
+					}
+					set_variable = {
+						var = BAL_natives
+						value = 10
+					}
+					clamp_variable = {
+						var = BAL_natives
+						min = 1
+						max = 100
+					}
+					set_variable = {
+						var = BAL_stress
+						value = 7
+					}
+					clamp_variable = {
+						var = BAL_stress
+						min = 1
+						max = 100
+					}
+                }
 			}
 		}
 		complete_effect = {
@@ -948,13 +1354,17 @@ CHN_protectorates = {
 			SCS = {
 				hidden_effect = {
 					set_country_flag = is_changeling_puppet
+					drop_cosmetic_tag = yes
 					set_cosmetic_tag = SCS_CHN
-					create_country_leader = {
-						name = "Governor-Protector"
-						desc = ""
-						picture = "GovernorBrew.tga"
-						expire = "1965.1.1"
-						ideology = nazism
+					add_country_leader_role = {
+						character = SCS_danaus_plexippus
+						promote_leader = yes
+
+						country_leader = {
+							desc = ""
+							expire = "1965.1.1"
+							ideology = nazism
+						}
 					}
 				}
 				every_state = {
@@ -1089,9 +1499,10 @@ CHN_protectorates = {
 			log = "[GetDateText]: [Root.GetName]: Decision remove CHN_crystal_protectorate_decision"
 			release_puppet = CRY
 			CRY = {
+				drop_cosmetic_tag = yes
 				set_cosmetic_tag = CRY_CHN
 				hidden_effect = {
-					clr_country_flag = is_changeling_puppet
+					set_country_flag = is_changeling_puppet
 					country_event = crystalemp.23
 				}
 			}
@@ -1115,8 +1526,22 @@ CHN_protectorates = {
 	CHN_one_jak_protectorate = {
 		visible = {
 			has_government = fascism
-			JAK = { is_subject_of = ROOT }
-			YAK = { is_subject_of = ROOT }
+			OR = {
+				JAK = { is_subject_of = ROOT }
+				JAK = { exists = no }
+			}
+			OR = {
+				YAK = { is_subject_of = ROOT }
+				YAK = { exists = no }
+			}
+		}
+		available = {
+			JAK = {
+				all_cores_owned_by_ROOT_or_subject = yes
+			}
+			YAK = {
+				all_cores_owned_by_ROOT_or_subject = yes
+			}
 		}
 		fire_only_once = yes
 		ai_will_do = {
@@ -1124,18 +1549,45 @@ CHN_protectorates = {
 		}
 		complete_effect = {
 			log = "[GetDateText]: [Root.GetName]: Decision CHN_one_jak_protectorate"
+			if = {
+				limit = {
+					JAK = {
+						exists = no
+					}
+				}
+				release_autonomy = {
+					target = JAK
+					autonomy_state = autonomy_reichsprotectorate
+					freedom_level = 0.5
+					release_non_owned_controlled = yes
+				}
+			}
 			JAK = {
 				annex_country = { target = YAK transfer_troops = yes }
 				drop_cosmetic_tag = yes
-				set_cosmetic_tag = YAK_CHN
+				set_cosmetic_tag = JAK_CHN
 			}
 		}
 	}
 	CHN_one_yak_protectorate = {
 		visible = {
 			has_government = fascism
-			JAK = { is_subject_of = ROOT }
-			YAK = { is_subject_of = ROOT }
+			OR = {
+				JAK = { is_subject_of = ROOT }
+				JAK = { exists = no }
+			}
+			OR = {
+				YAK = { is_subject_of = ROOT }
+				YAK = { exists = no }
+			}
+		}
+		available = {
+			JAK = {
+				all_cores_owned_by_ROOT_or_subject = yes
+			}
+			YAK = {
+				all_cores_owned_by_ROOT_or_subject = yes
+			}
 		}
 		ai_will_do = {
 			factor = 1
@@ -1143,36 +1595,24 @@ CHN_protectorates = {
 		fire_only_once = yes
 		complete_effect = {
 			log = "[GetDateText]: [Root.GetName]: Decision CHN_one_yak_protectorate"
-			YAK = { annex_country = { target = JAK transfer_troops = yes } }
-		}
-	}
-	CHN_reform_jak_protectorate = {
-		visible = {
-			has_government = fascism
-			JAK = { is_subject_of = ROOT }
-		}
-		available = {
-			276 = { owner = { OR = { tag = ROOT is_subject_of = ROOT } controls_state = PREV } }
-			337 = { owner = { OR = { tag = ROOT is_subject_of = ROOT } controls_state = PREV } }
-			339 = { owner = { OR = { tag = ROOT is_subject_of = ROOT } controls_state = PREV } }
-			347 = { owner = { OR = { tag = ROOT is_subject_of = ROOT } controls_state = PREV } }
-		}
-		fire_only_once = yes
-		ai_will_do = {
-			factor = 10
-		}
-		complete_effect = {
-			log = "[GetDateText]: [Root.GetName]: Decision CHN_one_jak_protectorate"
-			JAK = {
-				transfer_state = 276
-				transfer_state = 337
-				transfer_state = 339
-				transfer_state = 347
+			if = {
+				limit = {
+					YAK = {
+						exists = no
+					}
+				}
+				release_autonomy = {
+					target = YAK
+					autonomy_state = autonomy_reichsprotectorate
+					freedom_level = 0.5
+					release_non_owned_controlled = yes
+				}
 			}
-			276 = { add_core_of = JAK }
-			337 = { add_core_of = JAK }
-			339 = { add_core_of = JAK }
-			347 = { add_core_of = JAK }
+			YAK = {
+				annex_country = { target = JAK transfer_troops = yes }
+				drop_cosmetic_tag = yes
+				set_cosmetic_tag = YAK_CHN
+			}
 		}
 	}
 	CHN_olenia_protectorate = {
@@ -1200,19 +1640,21 @@ CHN_protectorates = {
 		fire_only_once = yes
 
         ai_will_do = {
-			factor = 1
+			factor = 10
+			modifier = {
+				factor = 2
+				has_completed_focus = offer_puppet
+			}
 			modifier = {
 				factor = 0
-				is_historical_focus_on = yes
-				EQS = {
-					exists = yes
-					NOT = { is_subject_of = ROOT }
-				}
+				has_completed_focus = conquest
+				NOT = { has_country_flag = CHN_pax_chrysalia_begun }
 			}
         }
 
 		visible = {
 			has_government = fascism
+			NOT = { has_global_flag = OLE_agreed_on_puppet }
 			OR = {
 				OLE = { is_subject_of = ROOT }
 				AND = {
@@ -1240,6 +1682,7 @@ CHN_protectorates = {
 					set_state_flag = chn_claim
 				}
 			}
+			set_variable = { collaboration_formed@OLE = 1 }
 			if = {
 				limit = {
 					NOT = { country_exists = OLE }
@@ -1258,7 +1701,7 @@ CHN_protectorates = {
 					else = {
 						release_autonomy = {
 							target = OLE
-							autonomy_state = autonomy_reichsprotectorate
+							autonomy_state = autonomy_reichskommissariat
 							freedom_level = 0.5
 							release_non_owned_controlled = yes
 						}
@@ -1278,7 +1721,7 @@ CHN_protectorates = {
 				else = {
 					set_autonomy = {
 						target = OLE
-						autonomy_state = autonomy_reichsprotectorate
+						autonomy_state = autonomy_reichskommissariat
 					}
 				}
 			}
@@ -1300,23 +1743,27 @@ CHN_protectorates = {
 				    set_cosmetic_tag = OLE_CHN
 					#load_focus_tree = generic_focus
 				    set_party_name = { ideology = fascism long_name = OLE_chn_collaborators_long name = OLE_chn_collaborators }
-					create_country_leader = {
-					    name = "Vidkun Hjortsling"
-					    picture = "Hjortsling.dds"
-					    expire = "1965.1.1"
-					    ideology = rexism
+					add_country_leader_role = {
+						character = OLE_Vidkun_Hjortsling
+						promote_leader = yes
+
+						country_leader = {
+							expire = "1965.1.1"
+							ideology = ultranationalism
+						}
     				}
     	        }
     	    }
         }
     }
 	CHN_severyana_protectorate = {
-		available = {
-			has_government = fascism
-		}
+        available = {
+            has_government = fascism
+            country_exists = MAN
+            NOT = { country_exists = ELF }
+        }
 
 		cost = 15
-
 		days_remove = 5
 
 		fire_only_once = yes
@@ -1324,9 +1771,8 @@ CHN_protectorates = {
 		visible = {
 			has_government = fascism
 			NOT = { country_exists = STG }
-			any_occupied_country = {
-				tag = STG
-			}
+			NOT = { country_exists = STL }
+			57 = { owner = { OR = { tag = ROOT is_subject_of = ROOT } controls_state = PREV } }
 			153 = { owner = { OR = { tag = ROOT is_subject_of = ROOT } controls_state = PREV } }
 		}
 
@@ -1338,6 +1784,29 @@ CHN_protectorates = {
 		}
 		complete_effect = {
 			log = "[GetDateText]: [Root.GetName]: Decision CHN_severyana_protectorate"
+			if = {
+				limit = {
+					NOT = { country_exists = STL }
+				}
+				release_autonomy = {
+					target = STL
+					autonomy_state = autonomy_reichsprotectorate
+					freedom_level = 0.5
+					release_non_owned_controlled = yes
+				}
+			}
+			else = {
+				set_autonomy = {
+					target = STL
+					autonomy_state = autonomy_reichsprotectorate
+				}
+			}
+			hidden_effect = {
+				STL = {
+					set_cosmetic_tag = STL_CHN
+					country_event = changelings.903
+				}
+			}			
 			if = {
 				limit = {
 					NOT = { country_exists = STG }
@@ -1355,12 +1824,31 @@ CHN_protectorates = {
 					autonomy_state = autonomy_reichsprotectorate
 				}
 			}
-			STG = {
-				drop_cosmetic_tag = yes
-				set_cosmetic_tag = STG_CHN
-				load_focus_tree = generic_focus ## to stop their focus tree triggering undesirable things ##
-    	    }
-        }
+            hidden_effect = {
+				STG = {
+					set_cosmetic_tag = STG_CHN
+					country_event = stalliongrad.98
+				}
+			}
+			
+            hidden_effect = { #gib lands to Manehetten
+                STG = {
+                    every_owned_state = {
+                        limit = { is_core_of = MAN }
+                        MAN = { transfer_state = PREV }
+                    }
+                }
+            }
+			153 = {
+				set_state_name = CHN_vp_chrysalisstadt
+			}
+			235 = { set_state_name = EQS_vp_ladimir }
+			hidden_effect = {
+				168 = {
+					reset_state_name = yes
+				}
+			}
+		}
     }
 	CHN_northern_protectorate = {
 		available = {
@@ -1446,6 +1934,91 @@ CHN_protectorates = {
     	        }
     	    }
         }
+	}
+	CHN_nova_protectorate = {
+		available = {
+			has_government = fascism
+		}
+
+		cost = 15
+
+		days_remove = 5
+
+		fire_only_once = yes
+
+        ai_will_do = {
+			factor = 1
+			modifier = {
+				factor = 0
+				is_historical_focus_on = yes
+				EQS = {
+					exists = yes
+					NOT = { is_subject_of = ROOT }
+				}
+			}
+        }
+
+		visible = {
+			has_government = fascism
+			NOT = { country_exists = GRF }
+			any_occupied_country = {
+				tag = GRF
+			}
+		}
+
+		modifier = {
+			political_power_gain = -0.15
+		}
+		remove_effect = {
+			log = "[GetDateText]: [Root.GetName]: Decision remove CHN_nova_protectorate"
+		}
+		complete_effect = {
+			log = "[GetDateText]: [Root.GetName]: Decision CHN_nova_protectorate"
+			hidden_effect = {
+				every_state = {
+					limit = {
+						is_claimed_by = CHN
+					}
+					set_state_flag = chn_claim
+				}
+			}
+			if = {
+				limit = {
+					NOT = { country_exists = GRF }
+				}
+				release_autonomy = {
+					target = GRF
+					autonomy_state = autonomy_reichsprotectorate
+					freedom_level = 0.5
+					release_non_owned_controlled = yes
+				}
+			}
+			else = {
+				set_autonomy = {
+					target = GRF
+					autonomy_state = autonomy_reichsprotectorate
+				}
+			}
+
+			GRF = {
+				hidden_effect = {
+					every_owned_state = {
+						limit = { has_state_flag = chn_claim }
+						CHN = { transfer_state = PREV }
+					}
+					every_state = {
+						limit = {
+							has_state_flag = chn_claim
+						}
+						clr_state_flag = chn_claim
+					}
+				    set_country_flag = GRF_CHN_puppet
+					drop_cosmetic_tag = yes
+				    set_cosmetic_tag = GRF_CHN
+					#load_focus_tree = generic_focus
+    	        }
+    	    }
+        }
     }
 	CHN_reform_boreal_decision = {
 		icon = generic_form_nation
@@ -1459,6 +2032,9 @@ CHN_protectorates = {
 							tag = CHN
 							is_subject_of = CHN
 						}
+						NOT = {
+							tag = PLB
+						}
 						PREV = { is_fully_controlled_by = PREV }
 					}
 				}
@@ -1468,6 +2044,9 @@ CHN_protectorates = {
 							tag = CHN
 							is_subject_of = CHN
 						}
+						NOT = {
+							tag = PLB
+						}
 						PREV = { is_fully_controlled_by = PREV }
 					}
 				}
@@ -1476,6 +2055,9 @@ CHN_protectorates = {
 						OR = {
 							tag = CHN
 							is_subject_of = CHN
+						}
+						NOT = {
+							tag = PLB
 						}
 						PREV = { is_fully_controlled_by = PREV }
 					}
@@ -1495,6 +2077,9 @@ CHN_protectorates = {
 							tag = CHN
 							is_subject_of = CHN
 						}
+						NOT = {
+							tag = PLB
+						}
 						PREV = { is_fully_controlled_by = PREV }
 					}
 				}
@@ -1503,6 +2088,9 @@ CHN_protectorates = {
 						OR = {
 							tag = CHN
 							is_subject_of = CHN
+						}
+						NOT = {
+							tag = PLB
 						}
 						PREV = { is_fully_controlled_by = PREV }
 					}
@@ -1513,6 +2101,9 @@ CHN_protectorates = {
 							tag = CHN
 							is_subject_of = CHN
 						}
+						NOT = {
+							tag = PLB
+						}
 						PREV = { is_fully_controlled_by = PREV }
 					}
 				}
@@ -1521,6 +2112,9 @@ CHN_protectorates = {
 						OR = {
 							tag = CHN
 							is_subject_of = CHN
+						}
+						NOT = {
+							tag = PLB
 						}
 						PREV = { is_fully_controlled_by = PREV }
 					}
@@ -1531,6 +2125,9 @@ CHN_protectorates = {
 							tag = CHN
 							is_subject_of = CHN
 						}
+						NOT = {
+							tag = PLB
+						}
 						PREV = { is_fully_controlled_by = PREV }
 					}
 				}
@@ -1539,6 +2136,9 @@ CHN_protectorates = {
 						OR = {
 							tag = CHN
 							is_subject_of = CHN
+						}
+						NOT = {
+							tag = PLB
 						}
 						PREV = { is_fully_controlled_by = PREV }
 					}
@@ -1549,6 +2149,9 @@ CHN_protectorates = {
 							tag = CHN
 							is_subject_of = CHN
 						}
+						NOT = {
+							tag = PLB
+						}
 						PREV = { is_fully_controlled_by = PREV }
 					}
 				}
@@ -1557,6 +2160,9 @@ CHN_protectorates = {
 						OR = {
 							tag = CHN
 							is_subject_of = CHN
+						}
+						NOT = {
+							tag = PLB
 						}
 						PREV = { is_fully_controlled_by = PREV }
 					}
@@ -1623,12 +2229,12 @@ CHN_protectorates = {
 					282 = { add_core_of = PNG }
 					283 = { add_core_of = PNG }
 					284 = { add_core_of = PNG }
-					385 = { add_core_of = PNG }
+					285 = { add_core_of = PNG }
 					286 = { add_core_of = PNG }
 					287 = { add_core_of = PNG }
 					288 = { add_core_of = PNG }
 				}
-				set_capital = 325
+				set_capital = { state = 325 }
 			}
 		}
 		complete_effect = {
@@ -2089,7 +2695,7 @@ CHN_protectorates = {
 				set_cosmetic_tag = EVI_REP_CHN
 				load_focus_tree = generic_griffon_focus
 				add_ideas = CHN_puppet_economic_control
-				set_capital = 508
+				set_capital = { state = 508 }
 			}
 			every_state = {
 				limit = {
@@ -2170,6 +2776,16 @@ CHN_protectorates = {
 					}
 				}
 				all_of_scopes = {
+					array = JES.core_states
+					owner = {
+						OR = {
+							tag = CHN
+							is_subject_of = CHN
+						}
+						PREV = { is_fully_controlled_by = PREV }
+					}
+				}
+				all_of_scopes = {
 					array = TAL.core_states
 					owner = {
 						OR = {
@@ -2239,7 +2855,7 @@ CHN_protectorates = {
 				set_cosmetic_tag = KARTHIN_CHN
 				load_focus_tree = generic_griffon_focus
 				add_ideas = CHN_puppet_economic_control
-				set_capital = 371
+				set_capital = { state = 371 }
 			}
 			every_state = {
 				limit = {
@@ -2256,6 +2872,7 @@ CHN_protectorates = {
 						is_core_of = FAL
 						is_core_of = FRN
 						is_core_of = TAL
+						is_core_of = JES
 						is_core_of = ARA
 					}
 				}
@@ -2361,7 +2978,7 @@ CHN_protectorates = {
 				set_cosmetic_tag = VER_STAT_CHN
 				load_focus_tree = generic_griffon_focus
 				add_ideas = CHN_puppet_economic_control
-				set_capital = 391
+				set_capital = { state = 391 }
 			}
 			every_state = {
 				limit = {
@@ -2480,7 +3097,7 @@ CHN_protectorates = {
 				set_cosmetic_tag = BOI_PRO_CHN
 				load_focus_tree = generic_griffon_focus
 				add_ideas = CHN_puppet_economic_control
-				set_capital = 389
+				set_capital = { state = 389 }
 			}
 			every_state = {
 				limit = {
@@ -2599,7 +3216,7 @@ CHN_protectorates = {
 				set_cosmetic_tag = SOU_GRI_CHN
 				load_focus_tree = generic_griffon_focus
 				add_ideas = CHN_puppet_economic_control
-				set_capital = 671
+				set_capital = { state = 671 }
 			}
 			every_state = {
 				limit = {
@@ -2677,8 +3294,10 @@ operations = {
 
 		fire_only_once = yes
 
-		highlight_state_targets = {
-			state = 289
+		highlight_states = {
+			highlight_state_targets = {
+				state = 289
+			}
 		}
 
 		complete_effect = {
@@ -2716,9 +3335,11 @@ operations = {
 			323 = { has_border_war = no }
 			289 = { has_border_war = no }
 		}
-		highlight_state_targets = {
-			state = 289
-			state = 323
+		highlight_states = {
+			highlight_state_targets = {
+				state = 289
+				state = 323
+			}
 		}
 		ai_will_do = {
 			base = 0
@@ -2768,8 +3389,10 @@ operations = {
 
 		fire_only_once = yes
 
-		highlight_state_targets = {
-			state = 263
+		highlight_states = {
+			highlight_state_targets = {
+				state = 263
+			}
 		}
 
 		complete_effect = {
@@ -2807,9 +3430,11 @@ operations = {
 			315 = { has_border_war = no }
 			263 = { has_border_war = no }
 		}
-		highlight_state_targets = {
-			state = 263
-			state = 315
+		highlight_states = {
+			highlight_state_targets = {
+				state = 263
+				state = 315
+			}
 		}
 		ai_will_do = {
 			base = 0
@@ -3449,7 +4074,16 @@ CHN_superweapon = {
 			original_tag = CHN
 		}
 		available = { 
-			has_tech = super_heavy_art 
+			if = {
+				limit = {
+					has_dlc = "No Step Back"
+				}
+				has_tech = artillery_b
+				has_tech = super_heavy_tank_chassis
+			} 
+			else = {
+				has_tech = super_heavy_art
+			}
 			has_completed_focus = CHN_post_war_A
 		}
 		fire_only_once = yes
@@ -3487,12 +4121,25 @@ CHN_superweapon = {
 			log = "[GetDateText]: [Root.GetName]: Decision remove CHN_railway_gun_build"
 			##### RAILWAY GUN BEEP BEEP #####
 			custom_effect_tooltip = MAN_field_a_division_with_rail_gun
-				hidden_effect = {
-				set_technology = { popup = yes CHN_manehattan_protectorate_railway_gun_tech = 1 }
-				add_equipment_to_stockpile = {
-					type = CHN_manehattan_protectorate_railway_gun
-					amount = 1
-					producer = CHN
+			hidden_effect = {
+				if = {
+					limit = {
+						has_dlc = "No Step Back"
+					}
+					set_technology = { popup = yes railway_gun = 1 }
+					create_railway_gun = {
+						equipment = railway_gun_equipment_2
+						name = CHN_railway_gun_name
+						location = 11045
+					}
+				}
+				else = {
+					set_technology = { popup = yes CHN_manehattan_protectorate_railway_gun_tech = 1 }
+					add_equipment_to_stockpile = {
+						type = CHN_manehattan_protectorate_railway_gun
+						amount = 1
+						producer = CHN
+					}
 				}
 			}
 			###### RAILWAY GUN #####
@@ -4250,7 +4897,7 @@ CHN_equestrian_insurgency_category = {
 				division_template = {
 					name = "Jagdkommando Einsatzgruppe"
 					division_names_group = CHN_LTINF_01
-					template_counter = 65
+					template_counter = 71
 					is_locked = yes
 					regiments = {
 						jager = { x = 0 y = 0 }
@@ -4332,7 +4979,7 @@ CHN_settlement_plan_cat = {
 		}
 		
 		highlight_states = {
-			state = 136
+			highlight_state_targets = { state = 136 }
 		}
 		
 		available = {
@@ -4390,7 +5037,7 @@ CHN_settlement_plan_cat = {
 		}
 		
 		highlight_states = {
-			state = 14
+			highlight_state_targets = { state = 14 }
 		}
 		
 		available = {
@@ -4422,10 +5069,13 @@ CHN_settlement_plan_cat = {
 			original_tag = CHN
 		}
 
-		visible = {
+		target_root_trigger = {
 			ROOT = {
 				has_completed_focus = CHN_post_war_4_c
 			}
+		}
+
+		visible = {
 			FROM = {
 				NOT = { 
 					has_dynamic_modifier = { modifier = CHN_settler_colony_modifier } 
@@ -4458,28 +5108,12 @@ CHN_settlement_plan_cat = {
 		
 		state_target = yes
 
+		targets = {
+			14 45 72 73 136 137 138 172 173 174 175 318 77 139 140 343 143
+		}
+
 		target_trigger = {
 			FROM = {
-				OR = {
-					state = 14
-					state = 45
-					state = 72
-					state = 73
-					state = 136
-					state = 137
-					state = 138
-					state = 172
-					state = 173
-					state = 174
-					state = 175
-					state = 318
-					## CRY border states ##
-					state = 77
-					state = 139
-					state = 140
-					state = 343
-					state = 143
-				}
 				NOT = { 
 					has_dynamic_modifier = { modifier = CHN_settler_colony_modifier } 
 					has_state_flag = CHN_instated_settler_colony_here_state_flag
@@ -4637,7 +5271,7 @@ CHN_chaos_in_the_everfree = {
 						producer = CHN
 					}
 					add_equipment_to_stockpile = {
-						type = light_tank_equipment
+						type = light_tank_chassis
 						amount = 50
 						producer = CHN
 					}
@@ -4650,10 +5284,29 @@ CHN_chaos_in_the_everfree = {
 			custom_effect_tooltip = CHN_ZRS_everfree_failure_tt
 			clr_global_flag = ZRS_uprising_has_happened
 			hidden_effect = {
+				SCS = {
+					if = {
+						limit = {
+							has_war_with = ZRS
+						}
+						set_country_flag = { flag = bypass_on_peaceconference_ended value = 1 days = 1 }
+						ZRS = { white_peace = PREV }
+					}
+				}
+				BAL = {
+					if = {
+						limit = {
+							has_war_with = ZRS
+						}
+						set_country_flag = { flag = bypass_on_peaceconference_ended value = 1 days = 1 }
+						ZRS = { white_peace = PREV }
+					}
+				}
 				for_each_scope_loop = {
 					array = global.countries
 					if = {
 						limit = {
+							has_war_with = ZRS
 							OR = {
 								original_tag = CHN
 								is_in_faction_with = CHN
@@ -4668,7 +5321,7 @@ CHN_chaos_in_the_everfree = {
 				}
 				ZRS = {
 					drop_cosmetic_tag = yes
-					set_capital = 1
+					set_capital = { state = 1 }
 					set_popularities = {
 						democratic = 0
 						fascism = 0
@@ -4822,7 +5475,7 @@ CHN_resource_exploitation_cat = {
 					}
 				}
 				FROM = {
-					set_temp_variable = CHN_resource_exploitation_decision_dynamic_cost_var
+					set_temp_variable = { temp = CHN_resource_exploitation_decision_dynamic_cost_var }
 					add_to_temp_variable = { CHN_resource_exploitation_decision_dynamic_cost_var = FROM.resource@crystals }
 					add_to_temp_variable = { CHN_resource_exploitation_decision_dynamic_cost_var = FROM.resource@chromium }
 					add_to_temp_variable = { CHN_resource_exploitation_decision_dynamic_cost_var = FROM.resource@steel }

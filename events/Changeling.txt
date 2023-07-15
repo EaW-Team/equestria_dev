@@ -68,6 +68,7 @@ country_event = { ################ states ceded ############
 		add_political_power = 50
 		transfer_state = 300
 		transfer_state = 292
+		transfer_state = 302
 		ai_chance = { factor = 100 }
 	}
 }
@@ -110,24 +111,41 @@ country_event = { ################ Puppet success ############
 			}
 		}
 		puppet = FROM
+		if = {
+			limit = { has_dlc = "La Resistance" }
+			FROM = { set_variable = { collaboration_formed_by = PREV } }
+			set_autonomy = {
+				target = FROM
+				autonomy_state = autonomy_collaboration_government
+			}
+		}
+		else = {
+			set_autonomy = {
+				target = FROM
+				autonomy_state = autonomy_reichskommissariat
+			}
+		}
 		hidden_effect = {
 			FROM = {
 				set_country_flag = OLE_CHN_puppet
-				set_party_name = { ideology = fascism long_name = OLE_chn_collaborators_long name = OLE_chn_collaborators }
-				create_country_leader = {
-					name = "Vidkun Hjortsling"
-					picture = "Hjortsling.dds"
-					expire = "1965.1.1"
-					ideology = rexism
-					traits = {
-					}
-				}
 				drop_cosmetic_tag = yes
 				set_cosmetic_tag = OLE_CHN
+				set_party_name = { ideology = fascism long_name = OLE_chn_collaborators_long name = OLE_chn_collaborators }
+				add_country_leader_role = {
+					character = OLE_Vidkun_Hjortsling
+					promote_leader = yes
+
+					country_leader = {
+						expire = "1965.1.1"
+						ideology = ultranationalism
+					}
+				}
 			}
+			set_global_flag = OLE_agreed_on_puppet
 		}
 		transfer_state = 300
 		transfer_state = 292
+		transfer_state = 302
 		ai_chance = { factor = 100 }
 	}
 }
@@ -175,15 +193,208 @@ country_event = { ################ Ole surrenderrs ############
 			set_global_flag = fall_of_hjortland_CHN
 			set_global_flag = fall_of_cervus_CHN
 			set_country_flag = { flag = bypass_on_peaceconference_ended days = 1 value = 1 }
-			white_peace = {
-				tag = FROM
-				message = OLE_agree_peace_annex
+			if = {
+				limit = {
+					has_completed_focus = offer_puppet
+				}
+				white_peace = {
+					tag = FROM
+					message = OLE_agree_peace_puppet
+				}
+			}
+			else = {
+				white_peace = {
+					tag = FROM
+					message = OLE_agree_peace_annex
+				}
 			}
 		}
 		FROM = {
-			set_variable = { specific_annex_compliance = 20 }
+			set_variable = { specific_annex_compliance = 0 }
 		}
-		annex_country = { target = FROM }
+		if = {
+			limit = {
+				has_completed_focus = offer_puppet
+			}
+			effect_tooltip = {
+				puppet = FROM
+				if = {
+					limit = { has_dlc = "La Resistance" }
+					FROM = { set_variable = { collaboration_formed_by = PREV } }
+					set_autonomy = {
+						target = FROM
+						autonomy_state = autonomy_collaboration_government
+					}
+				}
+				else = {
+					set_autonomy = {
+						target = FROM
+						autonomy_state = autonomy_reichskommissariat
+					}
+				}
+			}
+			hidden_effect = {
+				# This is a workaround for transfer_units_fraction overriding recipient's graphical culture.
+				# We first transfer to SOL (has to be on the map) to override its graphical culture with CHN's,
+				# then do the actual transfer from OLE, and finally transfer from SOL, resetting the CHN
+				# graphical culture.
+				random_owned_controlled_state = {
+					SOL = {
+						set_state_owner = PREV
+						ROOT = {
+							transfer_units_fraction = {
+								target = PREV          # the recipient
+								target_organization = 1
+								source_organization = 1
+								size = 0             # [0,1] Default value for the ratio below if they are not specified
+								keep_unit_leaders_trigger = {
+									always = yes
+								}
+							}
+						}
+						delete_unit_template_and_units = { division_template = "Infanterie Division" }
+						delete_unit_template_and_units = { division_template = "Queen's Guard" }
+						delete_unit_template_and_units = { division_template = "Jager Division" }
+						delete_unit_template_and_units = { division_template = "Grenzinfanterie" }
+						delete_unit_template_and_units = { division_template = "Panzer Division" }
+						delete_unit_template_and_units = { division_template = "Motorisierte Infanterie" }
+					}
+					FROM = {
+						transfer_units_fraction = {
+							target = ROOT          # the recipient
+							target_organization = 1
+							source_organization = 1
+							size = 0             # [0,1] Default value for the ratio below if they are not specified
+							stockpile_ratio = 0.5  # [0,1] Overrides size modifier for the stockpiled equipment and fuel
+							army_ratio = 0       # [0,1] Overrides size modifier for army
+							navy_ratio = 0.75       # [0,1] Overrides size modifier for navy
+							air_ratio = 0.5        # [0,1] Overrides size modifier for air
+							keep_unit_leaders_trigger = {
+								always = yes
+							}
+						}
+					}
+					SOL = {
+						transfer_units_fraction = {
+							target = ROOT          # the recipient
+							target_organization = 1
+							source_organization = 1
+							size = 0             # [0,1] Default value for the ratio below if they are not specified
+							keep_unit_leaders_trigger = {
+								always = yes
+							}
+						}
+					}
+					ROOT = {
+						set_state_owner = PREV
+						annex_country = {
+							target = SOL
+						}
+					}
+				}
+				annex_country = { target = FROM }
+				if = {
+					limit = { has_dlc = "La Resistance" }
+					FROM = { set_variable = { collaboration_formed_by = PREV } }
+					release_autonomy = {
+						target = FROM
+						autonomy_state = autonomy_collaboration_government
+						freedom_level = 0.5
+						release_non_owned_controlled = yes
+					}
+				}
+				else = {
+					release_autonomy = {
+						target = FROM
+						autonomy_state = autonomy_reichskommissariat
+						freedom_level = 0.5
+						release_non_owned_controlled = yes
+					}
+				}
+				FROM = {
+					set_country_flag = OLE_CHN_puppet
+					drop_cosmetic_tag = yes
+					set_cosmetic_tag = OLE_CHN
+					set_party_name = { ideology = fascism long_name = OLE_chn_collaborators_long name = OLE_chn_collaborators }
+					add_country_leader_role = {
+						character = OLE_Vidkun_Hjortsling
+						promote_leader = yes
+	
+						country_leader = {
+							expire = "1965.1.1"
+							ideology = ultranationalism
+						}
+					}
+				}
+				set_global_flag = OLE_agreed_on_puppet
+			}
+			transfer_state = 300
+			transfer_state = 292
+			transfer_state = 302
+		}
+		else = {
+			hidden_effect = {
+				# This is a workaround for transfer_units_fraction overriding recipient's graphical culture.
+				# We first transfer to SOL (has to be on the map) to override its graphical culture with CHN's,
+				# then do the actual transfer from OLE, and finally transfer from SOL, resetting the CHN
+				# graphical culture.
+				random_owned_controlled_state = {
+					SOL = {
+						set_state_owner = PREV
+						ROOT = {
+							transfer_units_fraction = {
+								target = PREV          # the recipient
+								target_organization = 1
+								source_organization = 1
+								size = 0             # [0,1] Default value for the ratio below if they are not specified
+								keep_unit_leaders_trigger = {
+									always = yes
+								}
+							}
+						}
+						delete_unit_template_and_units = { division_template = "Infanterie Division" }
+						delete_unit_template_and_units = { division_template = "Queen's Guard" }
+						delete_unit_template_and_units = { division_template = "Jager Division" }
+						delete_unit_template_and_units = { division_template = "Grenzinfanterie" }
+						delete_unit_template_and_units = { division_template = "Panzer Division" }
+						delete_unit_template_and_units = { division_template = "Motorisierte Infanterie" }
+					}
+					FROM = {
+						transfer_units_fraction = {
+							target = ROOT          # the recipient
+							target_organization = 1
+							source_organization = 1
+							size = 0             # [0,1] Default value for the ratio below if they are not specified
+							stockpile_ratio = 0.5  # [0,1] Overrides size modifier for the stockpiled equipment and fuel
+							army_ratio = 0       # [0,1] Overrides size modifier for army
+							navy_ratio = 0.75       # [0,1] Overrides size modifier for navy
+							air_ratio = 0.5        # [0,1] Overrides size modifier for air
+							keep_unit_leaders_trigger = {
+								always = yes
+							}
+						}
+					}
+					SOL = {
+						transfer_units_fraction = {
+							target = ROOT          # the recipient
+							target_organization = 1
+							source_organization = 1
+							size = 0             # [0,1] Default value for the ratio below if they are not specified
+							keep_unit_leaders_trigger = {
+								always = yes
+							}
+						}
+					}
+					ROOT = {
+						set_state_owner = PREV
+						annex_country = {
+							target = SOL
+						}
+					}
+				}
+			}
+			annex_country = { target = FROM }
+		}
 		set_country_flag = CHN_annexed_olenia_by_event
 		hidden_effect = { news_event = { days = 2 id = news.15 } }
 		add_threat = 5
@@ -211,7 +422,7 @@ country_event = { ################ Ole surrenderrs ############
 					#					name = "Vidkun Hjortsling"
 					#					picture = "Hjortsling.dds"
 					#					expire = "1965.1.1"
-					#					ideology = rexism
+					#					ideology = ultranationalism
 					#					traits = {
 						#					}
 					#				}
@@ -236,6 +447,11 @@ country_event = {
 	is_triggered_only = yes
 	option = {
 		name = changelings.10.a
+		hidden_effect = {
+			create_wargoal = {
+				target = VAN type = annex_everything
+			}
+		}
 		create_wargoal = {
 			target = VAN type = annex_everything
 		}
@@ -393,13 +609,29 @@ country_event = {  ## War on Equestria HERE
 		name = changelings.20.a
 		if = {
 			limit = { country_exists = EQS }
-			create_wargoal = { type = annex_everything target = EQS }
+			hidden_effect = {
+				create_wargoal = {
+					target = EQS type = annex_everything
+				}
+			}
+			declare_war_on = {
+				type = annex_everything
+				target = EQS
+			}
 		}
 		hidden_effect = {
 			every_country_with_original_tag = {
 				original_tag_to_check = EQS
 				limit = { NOT = { tag = EQS } }
-				ROOT = { create_wargoal = { type = annex_everything target = PREV } }
+				ROOT = { 
+					create_wargoal = {
+						target = PREV type = annex_everything
+					}
+					declare_war_on = {
+						type = annex_everything
+						target = PREV
+					}
+				}
 			}
 			#if = {
 			#	limit = {
@@ -415,29 +647,45 @@ country_event = {  ## War on Equestria HERE
 				}
 				CRY = { has_government = fascism }
 			}
-			if = {
-				limit = { is_ai = no }
-				effect_tooltip = {
-					create_wargoal = { type = annex_everything target = CRY }
-				}
-				hidden_effect = {
-					every_country_with_original_tag = {
-						original_tag_to_check = CRY
-						ROOT = { create_wargoal = { type = annex_everything target = PREV } }
+			effect_tooltip = {
+				declare_war_on = {
+					type = annex_everything
+					target = CRY
+				}			
+			}
+			hidden_effect = {
+				every_country_with_original_tag = {
+					original_tag_to_check = CRY
+					ROOT = {
+						create_wargoal = {
+							target = PREV type = annex_everything
+						}
+						declare_war_on = {
+							type = annex_everything
+							target = PREV
+						}
 					}
 				}
 			}
-			else_if = {
-				limit = {
-					CRY = { 
-						exists = yes
-						NOT = { 
-							has_government = fascism 
-							has_completed_focus = CRY_chgconquest
-						}
-					} 
+		}
+		else_if = {
+			limit = {
+				CRY = { 
+					exists = yes
+					NOT = { 
+						has_government = fascism 
+						has_completed_focus = CRY_chgconquest
+					}
+				} 
+			}
+			hidden_effect = {
+				create_wargoal = {
+					target = CRY type = annex_everything
 				}
-				create_wargoal = { type = annex_everything target = CRY }
+			}
+			declare_war_on = {
+				type = annex_everything
+				target = CRY
 			}
 		}
 		if = {
@@ -450,7 +698,15 @@ country_event = {  ## War on Equestria HERE
 					}
 				}
 			}
-			create_wargoal = { type = annex_everything target = NLR }
+			hidden_effect = {
+				create_wargoal = {
+					target = NLR type = annex_everything
+				}
+			}
+			declare_war_on = {
+				type = annex_everything
+				target = NLR
+			}
 		}
 		if = {
 			limit = {
@@ -460,50 +716,107 @@ country_event = {  ## War on Equestria HERE
 		}
 		if = {
 			limit = { country_exists = SCS NOT = { has_war_with = SCS } NOT = { has_country_flag = agreed_not_to_attack_SCS }}
-			create_wargoal = {
-				target = SCS type = annex_everything
+			hidden_effect = {
+				create_wargoal = {
+					target = SCS type = annex_everything
+				}
+			}
+			declare_war_on = {
+				type = annex_everything
+				target = SCS
 			}
 		}
 		if = {
 			limit = { country_exists = BAL NOT = { has_war_with = BAL } }
-			create_wargoal = {
-				target = BAL type = annex_everything
+			hidden_effect = {
+				create_wargoal = {
+					target = BAL type = annex_everything
+				}
+			}
+			declare_war_on = {
+				type = annex_everything
+				target = BAL
 			}
 		}
 		if = {
 			limit = { country_exists = CES NOT = { has_war_with = CES } }
-			create_wargoal = {
-				target = CES type = annex_everything
+			hidden_effect = {
+				create_wargoal = {
+					target = CES type = annex_everything
+				}
+			}
+			declare_war_on = {
+				type = annex_everything
+				target = CES
 			}
 		}
 		if = {
-			limit = { country_exists = NMS NOT = { has_war_with = NMS } }
-			create_wargoal = {
-				target = NMS type = annex_everything
+			limit = { 
+				country_exists = NMS
+				NOT = { has_war_with = NMS }
+				NOT = { 
+					AND = {
+						has_global_flag = CHN_for_gray_pact
+						has_global_flag = NLR_for_gray_pact
+					}
+				}
+			}
+			hidden_effect = {
+				create_wargoal = {
+					target = NMS type = annex_everything
+				}
+			}
+			declare_war_on = {
+				type = annex_everything
+				target = NMS
 			}
 		}
 		if = {
 			limit = { country_exists = JUN NOT = { has_war_with = JUN } }
-			create_wargoal = {
-				target = JUN type = annex_everything
+			hidden_effect = {
+				create_wargoal = {
+					target = JUN type = annex_everything
+				}
+			}
+			declare_war_on = {
+				type = annex_everything
+				target = JUN
 			}
 		}
 		if = {
 			limit = { country_exists = TEM NOT = { has_war_with = TEM } }
-			create_wargoal = {
-				target = TEM type = annex_everything
+			hidden_effect = {
+				create_wargoal = {
+					target = TEM type = annex_everything
+				}
+			}
+			declare_war_on = {
+				type = annex_everything
+				target = TEM
 			}
 		}
 		if = {
 			limit = { country_exists = LSP NOT = { has_war_with = LSP } NOT = { LSP ={ is_subject_of = CHN } } }
-			create_wargoal = {
-				target = LSP type = annex_everything
+			hidden_effect = {
+				create_wargoal = {
+					target = LSP type = annex_everything
+				}
+			}
+			declare_war_on = {
+				type = annex_everything
+				target = LSP
 			}
 		}
 		if = {
 			limit = { country_exists = BUF NOT = { has_war_with = BUF } NOT = { BUF ={ is_subject_of = CHN } } }
-			create_wargoal = {
-				target = BUF type = annex_everything
+			hidden_effect = {
+				create_wargoal = {
+					target = BUF type = annex_everything
+				}
+			}
+			declare_war_on = {
+				type = annex_everything
+				target = BUF
 			}
 		}
 	}
@@ -557,12 +870,14 @@ country_event = {  ## Jungle nation offers puppet
 				ruling_party = fascism
 				elections_allowed = no
 			}
-			create_country_leader = {
-				name = "Magistrate Caballeron"
-				picture = "Caballeron.tga"
-				expire = "1965.1.1"
-				ideology = nazism
-				traits = {}
+			add_country_leader_role = {
+				character = JUN_doctor_caballeron
+				country_leader = {
+					expire = "1965.1.1"
+					ideology = nazism
+					traits = {  }
+				}
+				promote_leader = yes
 			}
 		}
 		ai_chance = { factor = 90 }
@@ -592,12 +907,14 @@ country_event = {  ## Jungle nation offers puppet
 				ruling_party = fascism
 				elections_allowed = no
 			}
-			create_country_leader = {
-				name = "Magistrate Caballeron"
-				picture = "Caballeron.tga"
-				expire = "1965.1.1"
-				ideology = nazism
-				traits = {}
+			add_country_leader_role = {
+				character = JUN_doctor_caballeron
+				country_leader = {
+					expire = "1965.1.1"
+					ideology = nazism
+					traits = {  }
+				}
+				promote_leader = yes
 			}
 			hidden_effect = {
 				set_country_flag = JUN_CHN_puppet
@@ -654,7 +971,7 @@ country_event = { # Zecora Resistance
 		exists = yes
 		has_country_flag = CHN_pax_chrysalia_begun
 		is_subject = no
-		has_country_leader = { ruling_only = yes name = "Queen Chrysalis" }
+		has_country_leader = { ruling_only = yes character = CHN_queen_chrysalis }
 		EQS = {
 			OR = {
 				is_subject_of = ROOT
@@ -706,7 +1023,7 @@ country_event = { # Zecora Resistance
 		ZRS = {
 			transfer_state = 1
 			transfer_state = 5
-			set_capital = 5
+			set_capital = { state = 5 }
 			add_political_power = 600
 			add_manpower = 100000
 			add_equipment_to_stockpile = {
@@ -715,27 +1032,19 @@ country_event = { # Zecora Resistance
 				producer = EQS
 			}
 			if = {
-				limit = { has_global_flag = EQS_pinkie_pie_created }
-				event_target:EQS_pinkie_pie = { set_nationality = PREV }
-				else = {
-					create_corps_commander = {
-						name = "Pinkamena Diana Pie"
-						portrait_path = "gfx/leaders/EQS/PinkiePie.tga"
-						traits = { pinkie_pie_bae pony_race_trait }
-						skill = 3
-						id = 9
-						female = yes
-						attack_skill = 3
-						defense_skill = 4
-						planning_skill = 2
-						logistics_skill = 3
-					} custom_effect_tooltip = pinkamena_diana_pie_stats_tp_1
-					set_global_flag = EQS_pinkie_pie_created
-					random_unit_leader = {
-						limit = { has_id = 9 }
-						save_global_event_target_as = EQS_pinkie_pie
+				limit = {
+					EQS = {
+						has_character = EQS_pinkie_pie
 					}
 				}
+				EQS = {
+					set_portraits = {
+						character = EQS_pinkie_pie 
+						army = { large ="gfx/leaders/ZRS/PInkiePie.tga" }
+					}
+					EQS_pinkie_pie = { set_nationality = ZRS }
+				}
+				set_country_flag = EQS_create_new_commanders_flag
 			}
 			add_ideas = everfree_resistance
 			add_ideas = everfree_resistance_HIDDEN
@@ -817,12 +1126,12 @@ country_event = {
 	option = {
 		name = changelings.37.a
 		ai_chance = { factor = 0 }
-		add_timed_idea = { idea = chn_vraks_military_effort days = 80 }
+		add_timed_idea = { idea = CHN_vraks_military_effort days = 80 }
 	}
 	option = {
 		name = changelings.37.b
 		ai_chance = { factor = 100 }
-		add_timed_idea = { idea = chn_vraks_military_effort_2 days = 80 }
+		add_timed_idea = { idea = CHN_vraks_military_effort_2 days = 80 }
 	}
 }
 
@@ -853,12 +1162,98 @@ country_event = {
 	fire_only_once = yes
 	is_triggered_only = yes
 
+	trigger = {
+		CHN = {
+			NOT = { has_country_flag = demilitarized }
+		}
+	}
+
 	option = {
 		name = changelings.39.a
 		hidden_effect = {
 			CHN = {
 				set_country_flag = demilitarized
 				add_manpower = -99999999
+
+				# This is a workaround for transfer_units_fraction overriding recipient's graphical culture.
+				# We first transfer to SOL (has to be on the map) to override its graphical culture with EQS's,
+				# then do the actual transfer from CHN, and finally transfer from SOL, resetting the EQS
+				# graphical culture.
+				random_owned_controlled_state = {
+					SOL = {
+						set_state_owner = PREV
+						ROOT = {
+							transfer_units_fraction = {
+								target = PREV          # the recipient
+								target_organization = 1
+								source_organization = 1
+								size = 0             # [0,1] Default value for the ratio below if they are not specified
+								keep_unit_leaders_trigger = {
+									always = yes
+								}
+							}
+						}
+						delete_unit_template_and_units = { division_template = "Onhooves Division" }
+						delete_unit_template_and_units = { division_template = "Royal Guards" }
+						delete_unit_template_and_units = { division_template = "Garrison Regiment" }
+						delete_unit_template_and_units = { division_template = "Pegasi Division" }
+						delete_unit_template_and_units = { division_template = "Royal Armour" }
+						delete_unit_template_and_units = { division_template = "Militia Division" }
+					}
+					CHN = {
+						transfer_units_fraction = {
+							target = ROOT          # the recipient
+							target_organization = 1
+							source_organization = 1
+							size = 0             # [0,1] Default value for the ratio below if they are not specified
+							stockpile_ratio = 0.85  # [0,1] Overrides size modifier for the stockpiled equipment and fuel
+							army_ratio = 0       # [0,1] Overrides size modifier for army
+							navy_ratio = 0.75       # [0,1] Overrides size modifier for navy
+							air_ratio = 0.95        # [0,1] Overrides size modifier for air
+							keep_unit_leaders_trigger = {
+								always = yes
+							}
+						}
+					}
+					SOL = {
+						transfer_units_fraction = {
+							target = ROOT          # the recipient
+							target_organization = 1
+							source_organization = 1
+							size = 0             # [0,1] Default value for the ratio below if they are not specified
+							keep_unit_leaders_trigger = {
+								always = yes
+							}
+						}
+					}
+					ROOT = {
+						set_state_owner = PREV
+						annex_country = {
+							target = SOL
+						}
+					}
+				}
+				# Additionally, transfer anything bigger than a light cruiser
+				for_loop_effect = {
+					start = 0
+					end = 50
+					transfer_ship = {
+						type = heavy_cruiser
+						target = ROOT
+					}
+					transfer_ship = {
+						type = battle_cruiser
+						target = ROOT
+					}
+					transfer_ship = {
+						type = battleship
+						target = ROOT
+					}
+					transfer_ship = {
+						type = carrier
+						target = ROOT
+					}
+				}
 			}
 		}
 		set_autonomy = {
@@ -869,6 +1264,18 @@ country_event = {
 			add_ideas = {
 				civilian_economy
 				disarmed_nation
+				free_trade
+			}
+			hidden_effect = {
+				replace_arms_with_civ_factories = yes
+				replace_arms_with_civ_factories = yes
+				replace_arms_with_civ_factories = yes
+				replace_arms_with_civ_factories = yes
+				replace_arms_with_civ_factories = yes
+				add_timed_idea = {
+					idea = CHN_rapid_demobilization
+					days = 7
+				}
 			}
 		}
 	}
@@ -934,6 +1341,17 @@ country_event = {
 		}
 		ai_chance = {
 			factor = 0
+			modifier = {
+				has_war = yes
+				FROM = {
+					has_autonomy_state = autonomy_demilitarized_colony
+				}
+				OR = {
+					surrender_progress > 0.1
+					enemies_strength_ratio > 0.6
+				}
+				add = 25
+			}
 			modifier = {
 				has_war = yes
 				OR = {
@@ -1052,7 +1470,7 @@ country_event = {
 			}
 		}
 		ai_chance = {
-			factor = 100
+			factor = 0
 		}
 	}
 	option = { ## resources
@@ -1068,7 +1486,7 @@ country_event = {
 			factor = 0
 		}
 	}
-	option = { ## gold and states
+	option = { ## oil
 		name = changelings.44.c
 		custom_effect_tooltip = changelings_demand_land_and_gold_tt
 		hidden_effect = {
@@ -1078,10 +1496,10 @@ country_event = {
 			}
 		}
 		ai_chance = {
-			factor = 0
+			factor = 100
 		}
 	}
-	option = { ## resources and states
+	option = { ## all three
 		name = changelings.44.e
 		custom_effect_tooltip = changelings_demand_land_and_resources_tt
 		hidden_effect = {
@@ -1136,11 +1554,11 @@ country_event = {
 		ai_chance = {
 			factor = 1
 			modifier = {
-				OR = {
-					has_country_flag = changelings_demand_land_and_gold
+				is_historical_focus_on = yes
+				NOT = {
 					has_country_flag = changelings_demand_land_and_resources
 				}
-				factor = 3
+				factor = 0
 			}
 			modifier = {
 				divisions_in_state = { state = 323 size > 3 }
@@ -1156,16 +1574,29 @@ country_event = {
 		ai_chance = {
 			factor = 1
 			modifier = {
-				has_country_flag = changelings_demand_gold
-				factor = 2
+				has_country_flag = changelings_demand_land_and_resources
+				factor = 0
 			}
 			modifier = {
-				has_country_flag = changelings_demand_resources
-				factor = 2
+				is_historical_focus_on = yes
+				factor = 100
 			}
 		}
+		custom_effect_tooltip = PLB_become_puppet
 		hidden_effect = {
 			set_country_flag = PLB_deal_CHN
+			CHN = { country_event = { id = changelings.46 days = 15 } }
+		}
+	}
+	option = { ## provide but don't submit ##
+		name = changelings.45.c
+		add_stability = -0.1
+		add_war_support = -0.1
+		ai_chance = {
+			factor = 0
+		}
+		hidden_effect = {
+			set_country_flag = PLB_half_deal
 			CHN = { country_event = { id = changelings.46 days = 15 } }
 		}
 	}
@@ -1193,6 +1624,14 @@ country_event = {
 		text = changelings.46.d_no_deal
 		trigger = { PLB = { has_country_flag = PLB_no_deal } }
 	}
+	title = {
+		text = changelings.46.t_half_deal
+		trigger = { PLB = { has_country_flag = PLB_half_deal } }
+	}
+	desc = {
+		text = changelings.46.d_half_deal
+		trigger = { PLB = { has_country_flag = PLB_half_deal } }
+	}
 	picture = GFX_event_forest_depression
 
 	is_triggered_only = yes
@@ -1213,6 +1652,79 @@ country_event = {
 			}
 		}
 		country_event = { id = changelings.54 days = 1 }
+	}
+	option = {
+		name = changelings.46.e
+		trigger = {
+			PLB = {
+				has_country_flag = PLB_half_deal
+			}
+		}
+		ai_chance = {
+			factor = 0
+		}
+	}
+	option = {
+		name = changelings.46.f
+		trigger = {
+			PLB = {
+				has_country_flag = PLB_half_deal
+			}
+		}
+		ai_chance = {
+			factor = 10
+		}
+		if = {
+			limit = {
+				PLB = { has_country_flag = changelings_demand_gold }
+			}
+			PLB = {
+				add_timed_idea = { idea = CHN_PLB_gold_PLB days = 1000 }
+			}
+		}
+		else_if = {
+			limit = {
+				PLB = { has_country_flag = changelings_demand_resources }
+			}			
+			add_resource = {
+				type = steel
+				amount = 15
+				state = 323
+			}
+			PLB = {
+				add_timed_idea = { idea = CHN_PLB_resources_PLB days = 1000 }
+			}
+		}
+		else_if = {
+			limit = {
+				PLB = { has_country_flag = changelings_demand_land_and_gold }
+			}
+			add_resource = {
+				type = oil
+				amount = 15
+				state = 323
+			}
+		}
+		else = {
+			add_resource = {
+				type = steel
+				amount = 15
+				state = 323
+			}
+			add_resource = {
+				type = oil
+				amount = 15
+				state = 323
+			}
+			PLB = {
+				add_timed_idea = { idea = CHN_PLB_resources_PLB days = 500 }
+				add_timed_idea = { idea = CHN_PLB_gold_PLB days = 500 }
+			}
+		}
+		diplomatic_relation = {
+			country = FROM
+			relation = non_aggression_pact 
+		}
 	}
 }
 news_event = {
@@ -1283,23 +1795,16 @@ country_event = {
 
 	option = {
 		name = changelings.49.a
-
 	}
 	option = {
 		name = changelings.49.b
-		if = {
-			limit = {
-				289 = { has_border_war = yes }
-				323 = { has_border_war = yes }
+		complete_national_focus = CHN_attack_PLB
+		ai_chance = {
+			factor = 0
+			modifier = {
+				has_country_flag = flag_chn_won_border_wars
+				add = 100
 			}
-			activate_decision = CHN_PLB_border_war_2
-		}
-		else_if = {
-			limit = {
-				263 = { has_border_war = yes }
-				315 = { has_border_war = yes }
-			}
-			activate_decision = CHN_PLB_border_war
 		}
 	}
 }
@@ -1314,7 +1819,17 @@ country_event = {
 
 	option = {
 		name = changelings.50.a
-
+	}
+	option = {
+		name = changelings.50.b
+		complete_national_focus = CHN_attack_PLB
+		ai_chance = {
+			factor = 0
+			modifier = {
+				has_country_flag = flag_chn_won_border_wars
+				add = 100
+			}
+		}
 	}
 }
 country_event = {
@@ -1412,7 +1927,21 @@ country_event = {
 	option = {
 		name = changelings.54.a
 		trigger = { PLB = { has_country_flag = changelings_demand_gold } }
+		hidden_effect = {
+			PLB = { 
+				get_current_government_type = yes
+			}
+		}
 		puppet = PLB
+		hidden_effect = {
+			PLB = { 
+				restore_previous_government_type = yes
+			}
+			set_politics = {
+				ruling_party = fascism
+				elections_allowed = no
+			}
+		}
 		PLB = {
 			country_event = {
 				id = changelings.900
@@ -1451,7 +1980,21 @@ country_event = {
 	option = {
 		name = changelings.54.b
 		trigger = { PLB = { has_country_flag = changelings_demand_resources } }
+		hidden_effect = {
+			PLB = { 
+				get_current_government_type = yes
+			}
+		}
 		puppet = PLB
+		hidden_effect = {
+			PLB = { 
+				restore_previous_government_type = yes
+			}
+			set_politics = {
+				ruling_party = fascism
+				elections_allowed = no
+			}
+		}
 		PLB = {
 			country_event = {
 				id = changelings.900
@@ -1494,8 +2037,22 @@ country_event = {
 	}
 	option = {
 		name = changelings.54.c
-		trigger = { PLB = { has_country_flag = changelings_demand_land_and_resources } }
+		trigger = { PLB = { has_country_flag = changelings_demand_land_and_gold } }
+		hidden_effect = {
+			PLB = { 
+				get_current_government_type = yes
+			}
+		}
 		puppet = PLB
+		hidden_effect = {
+			PLB = { 
+				restore_previous_government_type = yes
+			}
+			set_politics = {
+				ruling_party = fascism
+				elections_allowed = no
+			}
+		}
 		PLB = {
 			country_event = {
 				id = changelings.900
@@ -1509,12 +2066,10 @@ country_event = {
 			}
 		}
 		add_resource = {
-			type = steel
-			amount = 7
+			type = oil
+			amount = 15
 			state = 323
 		}
-		transfer_state = 263
-		transfer_state = 289
 		hidden_effect = {
 			news_event = { id = changelings.47 hours = 12 }
 			for_each_scope_loop = {
@@ -1539,8 +2094,22 @@ country_event = {
 	}
 	option = {
 		name = changelings.54.e
-		trigger = { PLB = { has_country_flag = changelings_demand_land_and_gold } }
+		trigger = { PLB = { has_country_flag = changelings_demand_land_and_resources } }
+		hidden_effect = {
+			PLB = { 
+				get_current_government_type = yes
+			}
+		}
 		puppet = PLB
+		hidden_effect = {
+			PLB = { 
+				restore_previous_government_type = yes
+			}
+			set_politics = {
+				ruling_party = fascism
+				elections_allowed = no
+			}
+		}
 		PLB = {
 			country_event = {
 				id = changelings.900
@@ -1555,8 +2124,16 @@ country_event = {
 				set_cosmetic_tag = PLB_CHN
 			}
 		}
-		transfer_state = 263
-		transfer_state = 289
+		add_resource = {
+			type = steel
+			amount = 15
+			state = 323
+		}
+		add_resource = {
+			type = oil
+			amount = 15
+			state = 323
+		}
 		hidden_effect = {
 			news_event = { id = changelings.47 hours = 12 }
 			for_each_scope_loop = {
@@ -1659,21 +2236,28 @@ country_event = { # Removal of cosmetic for PLB
 	option = {
 		name = changelings.58.a
 		end_puppet_this = yes
-		drop_cosmetic_tag = yes
 		leave_faction = yes
+		load_focus_tree = PLB_protectorate_betrayal
 		every_other_country = {
 			limit = {
 				NOT = { tag = DED }
 				has_war_with = ROOT
 			}
+			add_opinion_modifier = {
+				target = PLB
+				modifier = hostility
+			}
 			set_country_flag = { flag = bypass_on_peaceconference_ended days = 1 value = 1 }
 			white_peace = ROOT
 		}
-		add_popularity = { ideology = neutrality popularity = 0.5 }
-		set_politics = { ruling_party = neutrality }
+		#add_popularity = { ideology = neutrality popularity = 0.5 }
+		#set_politics = { ruling_party = neutrality }
 		declare_war_on = { target = CHN type = puppet_wargoal_focus }
+		add_political_power = 110
+		clr_country_flag = is_changeling_puppet
 		hidden_effect = {
-			country_event = { id = changelings.900 hours = 1 }
+			#country_event = { id = changelings.910 hours = 1 }
+			news_event = { id = plb_news.4 hours = 1 }
 		}
 		ai_chance = { factor = 3 }
 	}
@@ -1879,6 +2463,7 @@ country_event = { # Changeling Puppet
 		drop_cosmetic_tag = yes
 		set_cosmetic_tag = PLB_CHN
 		set_country_flag = is_changeling_puppet
+		country_event = northern_protectorate.99
 	}
 }
 country_event = { # Changeling Puppet
@@ -1891,14 +2476,15 @@ country_event = { # Changeling Puppet
 	is_triggered_only = yes
 	option = {
 		name = changelings.902.a
-		retire_country_leader = yes
-		create_country_leader = {
-			name = "Protector Kute"
-			desc = "PROTECTOR_KUTE_DESC"
-			picture = "GovernorKute.tga"
-			expire = "1965.1.1"
-			ideology = nazism
-			traits = {
+		add_country_leader_role = {
+			character = GRF_protector_kute
+			promote_leader = yes
+
+			country_leader = {
+				desc = "PROTECTOR_KUTE_DESC"
+				expire = "1965.1.1"
+				ideology = nazism
+				traits = { }
 			}
 		}
 		drop_cosmetic_tag = yes
@@ -1936,6 +2522,33 @@ country_event = { # Changeling Puppet
 		set_cosmetic_tag = STL_CHN
 		set_country_flag = is_changeling_puppet
 		load_focus_tree = generic_focus
+		if = {
+			limit = {
+				has_dlc = "La Resistance"
+			}
+			add_country_leader_role = {
+				character = STL_spymaster_trochanter
+				promote_leader = yes
+	
+				country_leader = {
+					expire = "1965.1.1"
+					ideology = surveillance_state
+					traits = { cryptologic_genius_lar }
+				}
+			}
+		}
+		else = {
+			add_country_leader_role = {
+				character = STL_spymaster_trochanter
+				promote_leader = yes
+	
+				country_leader = {
+					expire = "1965.1.1"
+					ideology = surveillance_state
+					traits = { cryptologic_genius }
+				}
+			}
+		}
 	}
 }
 country_event = { # Changeling Puppet Buffalo
@@ -1994,8 +2607,12 @@ country_event = { # Removal of cosmetic
 	picture = GFX_event_canterlot
 
 	trigger = {
-		has_country_flag = is_changeling_puppet
+		OR = {
+			has_country_flag = is_changeling_puppet
+			has_cosmetic_tag = PLB_CHN
+		}
 		is_subject = no
+		NOT = { is_in_faction_with = CHN }
 		NOT = { original_tag = EQS }
 		NOT = { original_tag = MAN }
 	}
@@ -2009,40 +2626,9 @@ country_event = { # Removal of cosmetic
 		hidden_effect = {
 			if = {
 				limit = { original_tag = GRF }
-				if = {
-					limit = { has_country_flag = GRF_highhill_emperor_set }
-					drop_cosmetic_tag = yes
-					set_cosmetic_tag = GRF_EMP
-					create_country_leader = {
-						name = "Imperator Highhill"
-						picture = "Highhill.tga"
-						expire = "1965.1.1"
-						ideology = nazism
-						traits = {}
-					}
-				}
-				else_if = {
-					limit = { has_country_flag = GRF_ironclaw_emperor_set }
-					drop_cosmetic_tag = yes
-					set_cosmetic_tag = GRF_EMP
-					create_country_leader = {
-						name = "Imperator Ironclaw"
-						picture = "Ironclaw.tga"
-						expire = "1965.1.1"
-						ideology = nazism
-						traits = {}
-					}
-				}
-				else = {
-					create_country_leader = {
-						name = "Reynhard Ironclaw"
-
-						picture = "Ironclaw.tga"
-						expire = "1965.1.1"
-						ideology = fascism_ideology
-						traits = {
-						}
-					}
+				promote_character = {
+					character = GRF_reyhard_ironclaw
+					ideology = nazism
 				}
 			}
 			if = {
@@ -2052,6 +2638,12 @@ country_event = { # Removal of cosmetic
 					is_subject = no
 				}
 				load_focus_tree = stalliongrad
+			}
+			if = {
+				limit = {
+					original_tag = PLB
+				}
+				
 			}
 		}
 	}
@@ -2101,7 +2693,7 @@ country_event = {   ######### Informing GRI of Recall ######
 	is_triggered_only = yes
 
 	trigger = {
-		has_unit_leader = 621
+		has_character = GRI_synovial
 	}
 
 	option = { ###Okay then I guess
@@ -2110,8 +2702,16 @@ country_event = {   ######### Informing GRI of Recall ######
 		hidden_effect =  {
 			FROM = { remove_ideas = CHN_GRI_Attache_For_CHN }
 		}
-		event_target:CHN_Thranx = { set_nationality = CHN }
-		event_target:CHN_Synovial = { set_nationality = CHN }
+		GRI_thranx = {
+			set_nationality = CHN
+		}
+		set_portraits = {
+			character = GRI_synovial 
+			army = { large ="GFX_Synovial_CHN_cap" }
+		}
+		GRI_synovial = {
+			set_nationality = CHN
+		}
 		delete_unit_template_and_units = {
 		    division_template = "Panzergrenadier Division"
 		}
@@ -2151,13 +2751,19 @@ country_event = {   ######### Farewell Party ######
 	is_triggered_only = yes
 
 	trigger = {
-		has_unit_leader = 621
+		has_character = GRI_synovial
 	}
 
 	option = { ####A good Farewell
 		name = changelingattache.2.a
 		hidden_effect = { country_event = changelingattache.4 }
-		event_target:CHN_Synovial = { set_nationality = CHN }
+		set_portraits = {
+			character = GRI_synovial 
+			army = { large ="GFX_Synovial_CHN_cap" }
+		}
+		GRI_synovial = {
+			set_nationality = CHN
+		}
 	}
 }
 
@@ -2171,13 +2777,19 @@ country_event = {   ######### Farewell Party CHN At War ######
 	is_triggered_only = yes
 
 	trigger = {
-		has_unit_leader = 621
+		has_character = GRI_synovial
 	}
 
 	option = { ####A good Farewell
 		name = changelingattache.3.a
 		hidden_effect = { country_event = changelingattache.4 }
-		event_target:CHN_Synovial = { set_nationality = CHN }
+		set_portraits = {
+			character = GRI_synovial 
+			army = { large ="GFX_Synovial_CHN_cap" }
+		}
+		GRI_synovial = {
+			set_nationality = CHN
+		}
 	}
 }
 
@@ -2191,7 +2803,7 @@ country_event = {   ######### General Thranx begs to stay in GRI ######
 	is_triggered_only = yes
 
 	trigger = {
-		has_unit_leader = 622
+		has_character = GRI_thranx
 	}
 
 	option = { #Im sure he can stay
@@ -2200,7 +2812,9 @@ country_event = {   ######### General Thranx begs to stay in GRI ######
 	}
 	option = { #Send him back to his Homeland
 		name = changelingattache.4.b
-		event_target:CHN_Thranx = { set_nationality = CHN }
+		GRI_thranx = {
+			set_nationality = CHN
+		}
 	}
 }
 
@@ -2214,7 +2828,7 @@ country_event = {   ######### General Thranx for CHN ######
 	is_triggered_only = yes
 
 	trigger = {
-		GRI = { has_unit_leader = 622 }
+		GRI = { has_character = GRI_thranx }
 	}
 
 	option = { #Demand he be returned in chains to Vesalipolis!
@@ -2233,7 +2847,7 @@ country_event = {   ######### Angry Bugs demand Thranx Back ######
 	is_triggered_only = yes
 
 	trigger = {
-		has_unit_leader = 622
+		has_character = GRI_thranx
 	}
 
 	option = { #Keep him
@@ -2242,7 +2856,9 @@ country_event = {   ######### Angry Bugs demand Thranx Back ######
 	}
 	option = { #On second thought we should definitely send him back
 		name = changelingattache.6.b
-		ROOT = { remove_unit_leader = 622 }
+		GRI_thranx = {
+			set_nationality = CHN
+		}
 		CHN = {
 			country_event = changelingattache.7
 		}
@@ -2260,7 +2876,9 @@ country_event = {   ######### Thranx executed by firing Squad in Vesalipolis ###
 
 	option = { #Thus sates the Queen
 		name = changelingattache.7.a
-		add_political_power = 25
+		GRI_thranx = {
+			retire = yes
+		}
 	}
 }
 
@@ -2293,7 +2911,7 @@ country_event = {   ######### Chrysalis Swears Revenge #########
 	is_triggered_only = yes
 
 	trigger = {
-		GRI = { has_unit_leader = 622 }
+		GRI = { has_character = GRI_thranx }
 	}
 
 	option = { #Oh dear
@@ -2305,7 +2923,7 @@ country_event = {   ######### Chrysalis Swears Revenge #########
 			}
 		}
 		hidden_effect = {
-			CHN = { country_event = { id = changelingattache.11 days = 200 } }
+			CHN = { country_event = { id = changelingattache.11 days = 199 } }
 			ROOT = { country_event = { id = changelingattache.10 days = 200 } }
 		}
 	}
@@ -2322,13 +2940,15 @@ country_event = {   ######### Poison Thranx for GRI #########
 			exists = yes
 			has_government = fascism
 		}
-		GRI = { has_unit_leader = 622 }
+		GRI = { has_character = GRI_thranx }
 	}
 	is_triggered_only = yes
 
 	option = { #Ouch
 		name = changelingattache.10.a
-		ROOT = { remove_unit_leader = 622 }
+		GRI_thranx = {
+			retire = yes
+		}
 		add_political_power = -1
 	}
 }
@@ -2344,7 +2964,7 @@ country_event = {   ######### Poison Thranx for CHN #########
 			exists = yes
 			has_government = fascism
 		}
-		GRI = { has_unit_leader = 622 }
+		GRI = { has_character = GRI_thranx }
 	}
 	is_triggered_only = yes
 
@@ -2380,7 +3000,7 @@ country_event = {   ######### Synovial/Thranx returns to CHN after the changelin
 			CHN = {
 				exists = yes
 				has_country_leader = {
-					name = "Queen Chrysalis"
+					character = CHN_queen_chrysalis
 					ruling_only = yes
 				}
 			}
@@ -2392,7 +3012,7 @@ country_event = {   ######### Synovial/Thranx returns to CHN after the changelin
 			CHN = {
 				exists = yes
 				has_country_leader = {
-					name = "Queen Chrysalis"
+					character = CHN_queen_chrysalis
 					ruling_only = yes
 				}
 			}
@@ -2406,7 +3026,7 @@ country_event = {   ######### Synovial/Thranx returns to CHN after the changelin
 					exists = no
 					NOT = {
 						has_country_leader = {
-							name = "Queen Chrysalis"
+							character = CHN_queen_chrysalis
 							ruling_only = yes
 						}
 					}
@@ -2422,7 +3042,7 @@ country_event = {   ######### Synovial/Thranx returns to CHN after the changelin
 					exists = no
 					NOT = {
 						has_country_leader = {
-							name = "Queen Chrysalis"
+							character = CHN_queen_chrysalis
 							ruling_only = yes
 						}
 					}
@@ -2433,7 +3053,7 @@ country_event = {   ######### Synovial/Thranx returns to CHN after the changelin
 	picture = GFX_event_griffon_back
 
 	trigger = {
-		has_unit_leader = 621
+		has_character = GRI_synovial
 	}
 
 	is_triggered_only = yes
@@ -2445,13 +3065,21 @@ country_event = {   ######### Synovial/Thranx returns to CHN after the changelin
 			CHN = {
 				exists = yes
 				has_country_leader = {
-					name = "Queen Chrysalis"
+					character = CHN_queen_chrysalis
 					ruling_only = yes
 				}
 			}
 		}
-		event_target:CHN_Synovial = { set_nationality = CHN }
-		event_target:CHN_Thranx = { set_nationality = CHN }
+		GRI_thranx = {
+			set_nationality = CHN
+		}
+		set_portraits = {
+			character = GRI_synovial 
+			army = { large ="GFX_Synovial_CHN_cap" }
+		}
+		GRI_synovial = {
+			set_nationality = CHN
+		}
 		delete_unit_template_and_units = {
 		    division_template = "Panzergrenadier Division"
 		}
@@ -2490,26 +3118,22 @@ country_event = {   ######### Synovial/Thranx returns to CHN after the changelin
 					exists = no
 					NOT = {
 						has_country_leader = {
-							name = "Queen Chrysalis"
+							character = CHN_queen_chrysalis
 							ruling_only = yes
 						}
 					}
 				}
 			}
 		}
-		event_target:CHN_Synovial = { 
-			effect_tooltip = { retire = yes }
-		}
+		effect_tooltip = { retire_character = GRI_synovial }
 		hidden_effect = {
-			event_target:CHN_Synovial = { 
+			GRI_synovial = { 
 				set_nationality = SOL
 			}
 		}
-		event_target:CHN_Thranx = {
-			effect_tooltip = { retire = yes }
-		}
+		effect_tooltip = { retire_character = GRI_thranx }
 		hidden_effect = {
-			event_target:CHN_Thranx = { 
+			GRI_thranx = { 
 				set_nationality = SOL
 			}
 		}
@@ -2814,7 +3438,7 @@ country_event = {
 	trigger = {
 		original_tag = CHN
 		has_government = fascism
-		has_country_leader = { ruling_only = yes name = "Queen Chrysalis" }
+		has_country_leader = { ruling_only = yes character = CHN_queen_chrysalis }
 		is_subject = no
 		EQS = {
 			OR = {
@@ -2866,6 +3490,15 @@ country_event = {
 				}
 			}
 		}
+		if = {
+			limit = {
+				HIP = {
+					is_in_faction_with = CHN
+					has_country_flag = HIP_siren_takeover
+				}
+			}
+			has_country_flag = HIP_CHN_negotiations_ended
+		}
 	}
 	
 	option = {
@@ -2907,6 +3540,28 @@ news_event = {
 	is_triggered_only = yes
 	option = {
 		name = changelings_paxchrysalia.1002.a
+	}
+}
+
+country_event = {
+	id = changelings_paxchrysalia.543
+	immediate = {log = "[GetDateText]: [Root.GetName]: event changelings_paxchrysalia.543"}
+	title = changelings_paxchrysalia.543.t
+	desc = changelings_paxchrysalia.543.d
+	picture = GFX_event_canterlonian_jachs
+
+	fire_only_once = yes
+	trigger = {
+		original_tag = CHN
+		has_completed_focus = CHN_post_war_5
+		check_variable = { CHN_excess_battalions_cost > 0 }
+		check_variable = { CHN_amount_of_allowed_battalions < CHN.num_battalions }
+		check_variable = { CHN_love_variable < 0 }
+	}
+	
+	option = {
+		name = changelings_paxchrysalia.543.a
+		custom_effect_tooltip = CHN_event_543_tt
 	}
 }
 
@@ -4120,8 +4775,7 @@ country_event = {
 		name = changelings_paxchrysalia.53.a
 		add_command_power = -20
 		add_political_power = -70
-		every_army_leader = {
-			limit = { has_id = 3758 }
+		CHN_glossus_sicarus = {
 			add_timed_unit_leader_trait = {
 				trait = on_probation
 				days = 90				
@@ -5346,7 +6000,7 @@ country_event = {
 					communism = 0
 					neutrality = 0
 				}
-				set_capital = 5
+				set_capital = { state = 5 }
 				add_ideas = everfree_resistance
 				add_ideas = everfree_resistance_HIDDEN
 				add_ideas = everfree_resistance_org_supply_HIDDEN
@@ -5361,19 +6015,94 @@ country_event = {
 					}
 					declare_war_on = { target = MAN type = puppet_wargoal_focus }
 				}
+				if = {
+					limit = {
+						BAL = {
+							exists = yes
+							is_subject_of = CHN
+						}
+					}
+					declare_war_on = { target = BAL type = puppet_wargoal_focus }
+				}
+				if = {
+					limit = {
+						SCS = {
+							exists = yes
+							is_subject_of = CHN
+						}
+					}
+					declare_war_on = { target = SCS type = puppet_wargoal_focus }
+				}
 				army_experience = 30
-				EQS = { ZRS = { transfer_technology = yes } }
-				CHN = { ZRS = { transfer_technology = yes } }
 				set_rule = { can_join_factions = no }
+				set_technology = { TEM_ursas = 1 }
+				set_technology = { dragons_light = 1 }
+				set_technology = { dragons_heavy = 1 }
+				set_technology = { tatzlwurms = 1 }
+				set_technology = { BAT_hydras = 1 }
+				set_technology = { tech_unicorn = 1 }
+				fix_weapon_techs = yes
 				division_template = {
 					name = "Zecora's Partisans"
 					regiments = {
 						infantry = { x = 0 y = 0 }
 						infantry = { x = 0 y = 1 }
 						infantry = { x = 0 y = 2 }
+						infantry = { x = 0 y = 3 }
+						infantry = { x = 1 y = 0 }
+						infantry = { x = 1 y = 1 }
+						infantry = { x = 1 y = 2 }
+						infantry = { x = 1 y = 3 }
 					}
 					support = {
 						recon = { x = 0 y = 0 }
+						unicorn_company = { x = 0 y = 1 }
+						ursas = { x = 0 y = 2 }
+						hydras = { x = 0 y = 3 }
+					}
+				}
+				division_template = {
+					name = "Tatzlwurm Warriors"
+					regiments = {		
+						infantry = { x = 0 y = 0 }
+						infantry = { x = 0 y = 1 }
+						infantry = { x = 0 y = 2 }
+						infantry = { x = 0 y = 3 }
+						tatzlwurm = { x = 1 y = 0 }
+						tatzlwurm = { x = 1 y = 1 }
+						tatzlwurm = { x = 1 y = 2 }
+						tatzlwurm = { x = 1 y = 3 }
+					}
+					support = {
+					}
+				}
+				division_template = {
+					name = "Everfree Dragons"
+					regiments = {				
+						light_dragons = { x = 0 y = 0 }
+						light_dragons = { x = 0 y = 1 }
+						light_dragons = { x = 0 y = 2 }
+						light_dragons = { x = 0 y = 3 }
+						light_dragons = { x = 0 y = 4 }
+						light_dragons = { x = 1 y = 0 }
+						light_dragons = { x = 1 y = 1 }
+						light_dragons = { x = 1 y = 2 }
+						light_dragons = { x = 1 y = 3 }
+						light_dragons = { x = 1 y = 4 }
+					}
+					support = {
+					}
+				}
+				division_template = {
+					name = "Everfree Elder Dragons"
+					regiments = {				
+						heavy_dragons = { x = 0 y = 0 }
+						heavy_dragons = { x = 0 y = 1 }
+						heavy_dragons = { x = 0 y = 2 }
+						heavy_dragons = { x = 0 y = 3 }
+						heavy_dragons = { x = 0 y = 4 }
+					}
+					support = {
 					}
 				}
 				division_template = {
@@ -5381,28 +6110,57 @@ country_event = {
 					regiments = {
 						infantry = { x = 0 y = 0 }
 						infantry = { x = 0 y = 1 }
-						light_armor = { x = 1 y = 0 }
+						infantry = { x = 1 y = 0 }
+						infantry = { x = 1 y = 1 }
+						light_armor = { x = 2 y = 0 }
+						light_armor = { x = 2 y = 1 }
 					}
 					support = {
-						recon = { x = 0 y = 0 }
+						light_tank_recon = { x = 0 y = 0 }
+						unicorn_company = { x = 0 y = 1 }
+						ursas = { x = 0 y = 2 }
+						hydras = { x = 0 y = 3 }
 					}
 				}
 				1 = {
-					create_unit = { division = "name = \"'Maulwurf' Brigade\" division_template = \"Zecora's Partisans\" start_experience_factor = 0.5" owner = ZRS }
-					create_unit = { division = "name = \"'Jackalope' Brigade\" division_template = \"Zecora's Partisans\" start_experience_factor = 0.55" owner = ZRS }
+					create_unit = { division = "name = \"'Maulwurf' Brigade\" division_template = \"Tatzlwurm Warriors\" start_experience_factor = 0.5" owner = ZRS }
+					create_unit = { division = "name = \"'Jackalope' Brigade\" division_template = \"Tatzlwurm Warriors\" start_experience_factor = 0.55" owner = ZRS }
 					create_unit = { division = "name = \"'Tree Huggers' Brigade\" division_template = \"Zecora's Partisans\" start_experience_factor = 0.55" owner = ZRS }
-					create_unit = { division = "name = \"'Roc' Brigade\" division_template = \"Zecora's Partisans\" start_experience_factor = 0.55" owner = ZRS }
+					create_unit = { division = "name = \"'Roc' Brigade\" division_template = \"Everfree Dragons\" start_experience_factor = 0.55" owner = ZRS }
+					create_unit = { division = "name = \"'Cave Dwellers' Brigade\" division_template = \"Everfree Elder Dragons\" start_experience_factor = 0.6" owner = ZRS }
 					create_unit = { division = "name = \"'Harmony' Brigade\" division_template = \"Zecora's Partisans\" start_experience_factor = 0.6" owner = ZRS }
 					create_unit = { division = "name = \"'Golden Oak' Brigade\" division_template = \"Zecora's Partisans\" start_experience_factor = 0.6" owner = ZRS }
 					create_unit = { division = "name = \"'Hunter-Gatherer' Brigade\" division_template = \"Zecora's Partisans\" start_experience_factor = 0.7" owner = ZRS }
 					create_unit = { division = "name = \"Everfree Armoured Brigade\" division_template = \"Armoured Brigade\" start_experience_factor = 0.5" owner = ZRS }
 				}
+				add_equipment_to_stockpile = {
+					type = dragon_equipment
+					amount = 400
+				}
+				add_equipment_to_stockpile = {
+					type = tatzelwurm_equipment
+					amount = 100
+				}
+				add_equipment_to_stockpile = {
+					type = tatzelwurm_armor_equipment
+					amount = 100
+				}
+				add_equipment_to_stockpile = {
+					type = infantry_equipment
+					amount = 600
+				}
+				add_equipment_to_stockpile = {
+					type = support_equipment
+					amount = 200
+				}
+				add_equipment_to_stockpile = {
+					type = light_tank_chassis
+					amount = 100
+				}
 			}
 			every_state = {
-				if = {
-					limit = { is_core_of = EQS }
-					add_core_of = ZRS
-				}
+				limit = { is_core_of = EQS }
+				add_core_of = ZRS
 			}
 			1 = {
 				add_manpower = 5618
@@ -5694,6 +6452,7 @@ news_event = {
 				goto_state = 5
 				launch_nuke = {
 					province = 3534
+					controller = CHN
 					state = 5
 					use_nuke = no
 				}
@@ -5703,6 +6462,7 @@ news_event = {
 				goto_state = 1
 				launch_nuke = {
 					state = 1
+					controller = CHN
 					use_nuke = no
 				}
 			}
@@ -7294,6 +8054,12 @@ country_event = {
 	option = {
 		name = changelings_paxchrysalia.612.a
 		country_event = { id = changelings_paxchrysalia.1615 days = 7 }
+		hidden_effect = {
+			3 = {
+				remove_dynamic_modifier = { modifier = CHN_canterlot_commissariat_modifier_finicus }
+			}
+			clr_country_flag = CHN_unlocked_Finicus
+		}
 	}
 }
 
@@ -7555,15 +8321,16 @@ country_event = {
 	immediate = {log = "[GetDateText]: [Root.GetName]: event changelings_paxchrysalia.702"}
 	immediate = {
 		hidden_effect = {
-			goto_state = 1
 			country_event = { id = changelings_paxchrysalia.400 days = 70 }
 			ZRS = {
 				transfer_state = 1
 				transfer_state = 5
 				every_owned_state = { add_core_of = ZRS }
-				set_capital = 5
+				set_capital = { state = 5 }
 				add_political_power = 750
 				add_manpower = 150000
+				EQS = { ZRS = { transfer_technology = yes } }
+				CHN = { ZRS = { transfer_technology = yes } }
 				add_equipment_to_stockpile = {
 					type = infantry_equipment
 					amount = 2000
@@ -7585,37 +8352,29 @@ country_event = {
 					producer = CHN
 				}
 				add_equipment_to_stockpile = {
-					type = light_tank_equipment
+					type = light_tank_chassis
 					amount = 220
 					producer = EQS
 				}
 				add_equipment_to_stockpile = {
-					type = light_tank_equipment
+					type = light_tank_chassis
 					amount = 100
 					producer = CHN
 				}
 				if = {
-					limit = { has_global_flag = EQS_pinkie_pie_created }
-					event_target:EQS_pinkie_pie = { set_nationality = PREV }
-					else = {
-						create_corps_commander = {
-							name = "Pinkamena Diana Pie"
-							portrait_path = "gfx/leaders/EQS/PinkiePie.tga"
-							traits = { pinkie_pie_bae pony_race_trait }
-							skill = 3
-							id = 9
-							female = yes
-							attack_skill = 3
-							defense_skill = 4
-							planning_skill = 2
-							logistics_skill = 3
-						}
-						set_global_flag = EQS_pinkie_pie_created
-						random_unit_leader = {
-							limit = { has_id = 9 }
-							save_global_event_target_as = EQS_pinkie_pie
+					limit = {
+						EQS = {
+							has_character = EQS_pinkie_pie
 						}
 					}
+					EQS = {
+						set_portraits = {
+							character = EQS_pinkie_pie 
+							army = { large ="gfx/leaders/ZRS/PInkiePie.tga" }
+						}
+						EQS_pinkie_pie = { set_nationality = ZRS }
+					}
+					set_country_flag = EQS_create_new_commanders_flag
 				}
 				set_technology = { ELF_equipment_capture = 1 }
 			}
@@ -7629,7 +8388,7 @@ country_event = {
 		exists = yes
 		has_country_flag = CHN_pax_chrysalia_begun
 		is_subject = no
-		has_country_leader = { ruling_only = yes name = "Queen Chrysalis" }
+		has_country_leader = { ruling_only = yes character = CHN_queen_chrysalis }
 		ELF = {
 			exists = no
 		}
@@ -7679,6 +8438,7 @@ country_event = {
 	is_triggered_only = yes
 	option = {
 		name = changelings_paxchrysalia.702.a
+		goto_state = 1
 		set_country_flag = CHN_ZRS_has_spawned_not_uprising
 		custom_effect_tooltip = CHN_event_702_unlock_focus_tt
 	}

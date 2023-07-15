@@ -753,10 +753,93 @@ country_event = {
 			}
 			hidden_effect = {
 				NTR = {
+					set_country_flag = demilitarized
 					add_manpower = -99999999
+					# This is a workaround for transfer_units_fraction overriding recipient's graphical culture.
+					# We first transfer to SOL (has to be on the map) to override its graphical culture with SRS's,
+					# then do the actual transfer from NTR, and finally transfer from SOL, resetting the SRS
+					# graphical culture.
+					random_owned_controlled_state = {
+						SOL = {
+							set_state_owner = PREV
+							ROOT = {
+								transfer_units_fraction = {
+									target = PREV          # the recipient
+									target_organization = 1
+									source_organization = 1
+									size = 0             # [0,1] Default value for the ratio below if they are not specified
+									keep_unit_leaders_trigger = {
+										always = yes
+									}
+								}
+							}
+							delete_unit_template_and_units = { division_template = "Guards Brigade" }
+							delete_unit_template_and_units = { division_template = "Militia Reserves" }
+							delete_unit_template_and_units = { division_template = "Mountaineer Brigade" }
+						}
+						NTR = {
+							transfer_units_fraction = {
+								target = ROOT          # the recipient
+								target_organization = 1
+								source_organization = 1
+								size = 0             # [0,1] Default value for the ratio below if they are not specified
+								stockpile_ratio = 0.85  # [0,1] Overrides size modifier for the stockpiled equipment and fuel
+								army_ratio = 0       # [0,1] Overrides size modifier for army
+								navy_ratio = 0.75       # [0,1] Overrides size modifier for navy
+								air_ratio = 0.95        # [0,1] Overrides size modifier for air
+								keep_unit_leaders_trigger = {
+									always = yes
+								}
+							}
+						}
+						SOL = {
+							transfer_units_fraction = {
+								target = ROOT          # the recipient
+								target_organization = 1
+								source_organization = 1
+								size = 0             # [0,1] Default value for the ratio below if they are not specified
+								keep_unit_leaders_trigger = {
+									always = yes
+								}
+							}
+						}
+						ROOT = {
+							set_state_owner = PREV
+							annex_country = {
+								target = SOL
+							}
+						}
+					}
+					# Additionally, transfer anything bigger than a light cruiser
+					for_loop_effect = {
+						start = 0
+						end = 50
+						transfer_ship = {
+							type = heavy_cruiser
+							target = ROOT
+						}
+						transfer_ship = {
+							type = battle_cruiser
+							target = ROOT
+						}
+						transfer_ship = {
+							type = battleship
+							target = ROOT
+						}
+						transfer_ship = {
+							type = carrier
+							target = ROOT
+						}
+					}
 					add_ideas = {
 						civilian_economy
 						disarmed_nation
+					}
+					hidden_effect = {
+						add_timed_idea = {
+							idea = CHN_rapid_demobilization
+							days = 7
+						}
 					}
 				}
 			}
@@ -785,14 +868,17 @@ country_event = {
 			add_ideas = SRS_the_general_congress_1
 			clr_country_flag = removed_idea_SRS_the_general_congress_1 
 		}
-		create_country_leader = {
-			name = "Skynavian General Congress"
-			desc = ""
-			picture = "GeneralCongress.tga"
-			expire = "1965.1.1"
-			ideology = democratic_socialism
-			traits = { }
+		add_country_leader_role = {
+			character = SRS_skynavian_general_congress
+			promote_leader = yes
+
+			country_leader = {
+				expire = "1965.1.1"
+				ideology = democratic_socialism
+				traits = { stalin_architect_of_communism }
+			}
 		}
+
 		clr_country_flag = SRS_suspended_the_general_congress 
 	}
 
@@ -816,13 +902,15 @@ country_event = {
 	option = {
 		name = socrep_grif.31.a 
 		add_ideas = SRS_the_general_congress
-		create_country_leader = {
-			name = "Skynavian General Congress"
-			desc = ""
-			picture = "GeneralCongress.tga"
-			expire = "1965.1.1"
-			ideology = democratic_socialism
-			traits = { }
+		add_country_leader_role = {
+			character = SRS_skynavian_general_congress
+			promote_leader = yes
+
+			country_leader = {
+				expire = "1965.1.1"
+				ideology = democratic_socialism
+				traits = { stalin_architect_of_communism }
+			}
 		}
 	}
 
@@ -849,13 +937,21 @@ country_event = {
 		}
 		set_country_flag = SRS_republic_of_skynavia
 		set_cosmetic_tag = SRS_republic_of_skynavia
-		create_country_leader = {
-			name = "Asper Sickleclaw"
-			desc = ""
-			picture = "provisional_sickleclaw.tga"
-			expire = "1965.1.1"
-			ideology = despotism
-			traits = { dictator generallissimo }
+		SRS_asper_sickleclaw = {
+			set_portraits = {
+				civilian={
+					large="gfx/leaders/SRS/provisional_sickleclaw.tga"
+				}
+			}
+			add_country_leader_role = {
+				promote_leader = yes
+
+				country_leader = {
+					expire = "1965.1.1"
+					ideology = despotism
+					traits = { dictator generallissimo }
+				}
+			}
 		}
 		add_popularity = {
 			ideology = neutrality
@@ -902,23 +998,48 @@ country_event = {
 				has_civil_war = yes
 			}
 			save_event_target_as = SRS_socialist_loyalists_in_the_civil_war_against_asper
-			create_country_leader = {
-				name = "Skynavian General Congress"
-				desc = ""
-				picture = "GeneralCongress.tga"
-				expire = "1965.1.1"
-				ideology = democratic_socialism
-				traits = { }
-			}
-			random_unit_leader = {
+			every_possible_country = {
 				limit = {
-					OR = {
-						has_id = 9874
-						has_id = 9873
-						has_id = 9872
+					has_character = SRS_skynavian_general_congress
+				}
+				SRS_skynavian_general_congress = {
+					set_nationality = event_target:SRS_socialist_loyalists_in_the_civil_war_against_asper
+				}
+			}
+			SRS_skynavian_general_congress = {
+				add_country_leader_role = {
+					promote_leader = yes
+
+					country_leader = {
+						expire = "1965.1.1"
+						ideology = democratic_socialism
+						traits = { stalin_architect_of_communism }
 					}
 				}
-				set_nationality = event_target:SRS_socialist_loyalists_in_the_civil_war_against_asper
+			}
+			every_possible_country = {
+				limit = {
+					has_character = SRS_emma_goldgriff
+				}
+				SRS_emma_goldgriff = {
+					set_nationality = event_target:SRS_socialist_loyalists_in_the_civil_war_against_asper
+				}
+			}
+			every_possible_country = {
+				limit = {
+					has_character = SRS_pierre_ponehon
+				}
+				SRS_pierre_ponehon = {
+					set_nationality = event_target:SRS_socialist_loyalists_in_the_civil_war_against_asper
+				}
+			}
+			every_possible_country = {
+				limit = {
+					has_character = SRS_mikhail_beakunin
+				}
+				SRS_mikhail_beakunin = {
+					set_nationality = event_target:SRS_socialist_loyalists_in_the_civil_war_against_asper
+				}
 			}
 			hidden_effect = {
 				create_wargoal = { 
@@ -929,6 +1050,24 @@ country_event = {
 			declare_war_on = {
 				target = event_target:SRS_is_at_war_with_skynavia
 				type = annex_everything
+			}
+		}
+		every_possible_country = {
+			limit = {
+				has_character = SRS_asper_sickleclaw
+			}
+			SRS_asper_sickleclaw = {
+				set_nationality = SRS
+			}
+		}
+		if = {
+			limit = {
+				NOT = { has_country_leader = { character = SRS_asper_sickleclaw ruling_only = yes } }
+			}
+
+			SRS_asper_sickleclaw = {
+				promote_character = despotism
+				promote_character = democratic_socialism
 			}
 		}
 	}
@@ -1312,10 +1451,10 @@ country_event = {
 		name = socrep_grif.43.a 
 		start_civil_war = {
 			ideology = communism
-			size = party_popularity@communism
+			size = 0.3
 			# only_own_territory = yes #seems to have broken in LR 
-			##capital = 485##
-			##states = { 485 432 557 556 548 582 }##
+			capital = 485
+			states = { 485 432 557 556 548 582 }
 		}
 		random_other_country = {
 			limit = { 
@@ -1323,7 +1462,7 @@ country_event = {
 			        original_tag = FAT 
 			        original_tag = FAW
 			    }
-			  }
+			}
 			set_cosmetic_tag = SRS_FAT_republic_of_cloudsbury
 			SRS = { puppet = PREV }
 			load_focus_tree = fatass_skynavia_puppet_focus
@@ -1344,10 +1483,10 @@ country_event = {
 		name = socrep_grif.44.a 
 		start_civil_war = {
 			ideology = communism
-			size = party_popularity@communism
+			size = 0.3
 			# only_own_territory = yes #seems to have broken in LR
-			##capital = 429##
-			##states = { 429 431 576 584 403 404 }##
+			capital = 429
+			states = { 429 431 576 584 403 404 }
 		}
 		random_other_country = {
 			limit = { original_tag = VED }
@@ -1422,18 +1561,17 @@ country_event = { ## emma goldman ##
 	
 	option = {
 		name = socrep_grif.47.a
-		create_corps_commander = {
-			name = "Emma Goldgriff"
+		add_corps_commander_role = {
+			character = SRS_emma_goldgriff
+			
 			desc = "GOLDGRIFF_NAME_DESC"
-			picture = "Emma.tga"
 			traits = { organizer skilled_staffer griffon_race_trait }
-			skill = 1
-			id = 9874
+			skill = 2
+			legacy_id = 9874
 			attack_skill = 1
 			defense_skill = 1
 			planning_skill = 1
-			logistics_skill = 3
-			female = yes
+			logistics_skill = 4
 		} custom_effect_tooltip = emma_goldgriff_stats_tp
 	}
 }
@@ -1449,15 +1587,15 @@ country_event = {
 	
 	option = {
 		name = socrep_grif.48.a
-		create_corps_commander = {
-			name = "Pierre Ponehon"
+		add_corps_commander_role = {
+			character = SRS_pierre_ponehon
+			
 			desc = "PROUDPONE_NAME_DESC"
-			picture = "Proudpone.tga"
 			traits = { adaptable commando pony_race_trait }
 			skill = 2
-			id = 9873
+			legacy_id = 9873
 			attack_skill = 3
-			defense_skill = 2
+			defense_skill = 1
 			planning_skill = 2
 			logistics_skill = 1
 		} custom_effect_tooltip = pierre_ponehon_stats_tp
@@ -1475,17 +1613,16 @@ country_event = {
 	
 	option = {
 		name = socrep_grif.49.a
-		create_corps_commander = {
-			name = "Mikhail Beakunin"
+		add_corps_commander_role = {
+			character = SRS_mikhail_beakunin
+			
 			desc = "BEAKUNIN_NAME_DESC"
-			picture = "Beakunin.tga"
 			traits = { trait_mountaineer trait_engineer griffon_race_trait }
-			skill = 2
-			id = 9872
+			skill = 3
+			legacy_id = 9872
 			attack_skill = 2
 			defense_skill = 3
-			planning_skill = 2
-			logistics_skill = 2
+			planning_skill = 3
 		} custom_effect_tooltip = mikhail_beakunin_stats_tp
 	}
 }
@@ -1522,9 +1659,10 @@ country_event = {
 	option = {
 		name = socrep_grif.51.a
 		load_focus_tree = commune_of_skynavia
-		kill_country_leader = yes
+		SRS_asper_sickleclaw = {
+			retire = yes
+		}
 		hidden_effect = {
-			remove_unit_leader = 9876
 			add_popularity = {
 				ideology = communism
 				popularity = 1
@@ -1535,13 +1673,18 @@ country_event = {
 				name = SRS_communism_communal_league
 			}
 			set_politics = { ruling_party = communism }
-			create_country_leader = {
-				name = "Reorganised General Congress of Skynavia"
-				desc = ""
-				picture = "GeneralCongress.tga"
-				expire = "1965.1.1"
-				ideology = democratic_socialism
-				traits = { }
+			SRS_skynavian_general_congress = {
+				set_character_name = SRS_reorganised_general_congress_of_skynavia
+
+				add_country_leader_role = {
+					promote_leader = yes
+
+					country_leader = {
+						expire = "1965.1.1"
+						ideology = democratic_socialism
+						traits = { stalin_architect_of_communism }
+					}
+				}
 			}
 		}
 	}
@@ -1658,7 +1801,9 @@ country_event = {
 	
 	option = {
 		name = socrep_grif.58.a
-		remove_unit_leader = 9875
+		SRS_malcolm_granger = {
+			set_nationality = GRF
+		}
 	}
 }
 
@@ -1857,7 +2002,7 @@ country_event = {  ## socialist uprising in NTR ##
 		name = socrep_grif.63.a 
 		start_civil_war = {
 			ideology = communism
-			size = party_popularity@communism
+			size = 0.3
 			# only_own_territory = yes #seems to have broken in LR
 		}
 		random_other_country = {
@@ -1881,18 +2026,23 @@ country_event = { ## pan-griffonian socialist commonwealth ##
 		name = socrep_grif.64.a 
 		set_country_flag = SRS_PGSC
 		set_cosmetic_tag = SRS_PGSC
-		set_capital = 382 ## rmb to have focus renaming this to The People's City ##
+		set_capital = { state = 382 } ## rmb to have focus renaming this to The People's City ##
 		every_owned_state = { add_core_of = ROOT }
 		load_focus_tree = { tree = pan_griffonian_socialist_commonwealth }
-		create_country_leader = {
-			name = "Pan-Griffonian People's Assembly"
-			desc = ""
-			picture = "PanGriffonianAssembly.tga"
-			expire = "1965.1.1"
-			ideology = democratic_socialism
-			traits = { nationalist_symbol }
+		SRS_pan_griffonian_peoples_assembly = {
+			set_character_name = SRS_reorganised_general_congress_of_skynavia
+
+			add_country_leader_role = {
+				promote_leader = yes
+
+				country_leader = {
+					expire = "1965.1.1"
+					ideology = democratic_socialism
+					traits = { stalin_architect_of_communism nationalist_symbol }
+				}
+			}
 		}
-		hidden_effect = { 
+		hidden_effect = {
 			remove_mission = SRS_elections_timer
 			set_country_flag = SRS_turned_into_the_PGSC
 		}
@@ -1936,7 +2086,7 @@ country_event = { ## the petition? ##
 	option = {
 		name = socrep_grif.66.a 
 		add_political_power = 50
-		382 = { set_state_name = "The People's City" }
+		382 = { set_state_name = "SRS_vp_the_peoples_city" }
 	}
 }
 
@@ -2411,13 +2561,16 @@ country_event = {
 		name = socrep_grif.88.a 
 		ai_chance = { factor = 95 }
 		add_political_power = 50
-		create_country_leader = {
-			name = "Skynavian General Congress"
-			desc = "SKYNAVIAN_GENERAL_CONGRESS_NAME_DESC"
-			picture = "GeneralCongress.tga"
-			expire = "1965.1.1"
-			ideology = democratic_socialism
-			traits = { }
+		add_country_leader_role = {
+			character = SRS_skynavian_general_congress
+			promote_leader = yes
+
+			country_leader = {
+				desc = "SKYNAVIAN_GENERAL_CONGRESS_NAME_DESC"
+				expire = "1965.1.1"
+				ideology = democratic_socialism
+				traits = { stalin_architect_of_communism }
+			}
 		}
 		load_focus_tree = { tree = socialist_republic_of_free_griffons }
 		activate_mission = SRS_elections_timer
@@ -2444,13 +2597,16 @@ country_event = {
 	option = { ## ok I'll step down ##
 		name = socrep_grif.89.a 
 		ai_chance = { factor = 95 }
-		create_country_leader = {
-			name = "Skynavian General Congress"
-			desc = "SKYNAVIAN_GENERAL_CONGRESS_NAME_DESC"
-			picture = "GeneralCongress.tga"
-			expire = "1965.1.1"
-			ideology = democratic_socialism
-			traits = { }
+		add_country_leader_role = {
+			character = SRS_skynavian_general_congress
+			promote_leader = yes
+
+			country_leader = {
+				desc = "SKYNAVIAN_GENERAL_CONGRESS_NAME_DESC"
+				expire = "1965.1.1"
+				ideology = democratic_socialism
+				traits = { stalin_architect_of_communism }
+			}
 		}
 		load_focus_tree = { tree = socialist_republic_of_free_griffons }
 		activate_mission = SRS_elections_timer
@@ -2507,13 +2663,16 @@ country_event = {
 			transfer_state = 522
 			transfer_state = 542
 		}
-		create_country_leader = {
-			name = "Skynavian General Congress"
-			desc = "SKYNAVIAN_GENERAL_CONGRESS_NAME_DESC"
-			picture = "GeneralCongress.tga"
-			expire = "1965.1.1"
-			ideology = democratic_socialism
-			traits = { }
+		add_country_leader_role = {
+			character = SRS_skynavian_general_congress
+			promote_leader = yes
+
+			country_leader = {
+				desc = "SKYNAVIAN_GENERAL_CONGRESS_NAME_DESC"
+				expire = "1965.1.1"
+				ideology = democratic_socialism
+				traits = { stalin_architect_of_communism }
+			}
 		}
 		add_stability = -0.20
 		set_country_flag = SRS_republic_of_skynavia
@@ -2545,13 +2704,29 @@ country_event = {
 				long_name = SRS_sickleclaws_clique
 				name = SRS_sickleclaws_clique 
 			}
-			create_country_leader = {
-				name = "Asper Sickleclaw"
-				desc = ""
-				picture = "provisional_sickleclaw.tga"
-				expire = "1965.1.1"
-				ideology = despotism
-				traits = { dictator generallissimo }
+			every_possible_country = {
+				limit = {
+					has_character = SRS_asper_sickleclaw
+				}
+				SRS_asper_sickleclaw = {
+					set_nationality = PREV.PREV
+				}
+			}
+			SRS_asper_sickleclaw = {
+				set_portraits = {
+					civilian={
+						large="gfx/leaders/SRS/provisional_sickleclaw.tga"
+					}
+				}
+				add_country_leader_role = {
+					promote_leader = yes
+
+					country_leader = {
+						expire = "1965.1.1"
+						ideology = despotism
+						traits = { dictator generallissimo }
+					}
+				}
 			}
 			transfer_state = 561
 			transfer_state = 585
@@ -2570,13 +2745,25 @@ country_event = {
 			keep_unit_leaders = { 9876 9875 }
 		}
 		set_country_flag = SRS_has_triggered_civilwar_in_themselves
-		create_country_leader = {
-			name = "Asper Sickleclaw"
-			desc = ""
-			picture = "provisional_sickleclaw.tga"
-			expire = "1965.1.1"
-			ideology = despotism
-			traits = { dictator generallissimo }
+		SRS_asper_sickleclaw = {
+			set_portraits = {
+				civilian={
+					large="gfx/leaders/SRS/provisional_sickleclaw.tga"
+				}
+			}
+			add_country_leader_role = {
+				promote_leader = yes
+
+				country_leader = {
+					expire = "1965.1.1"
+					ideology = despotism
+					traits = { dictator generallissimo }
+				}
+			}
+		}
+		add_popularity = {
+			ideology = neutrality
+			popularity = 1
 		}
 		add_stability = -0.60
 		load_focus_tree = { tree = republic_of_skynavia }
@@ -2610,13 +2797,25 @@ country_event = {
 			limit = {
 				original_tag = SRS
 			}
-			create_country_leader = {
-				name = "Skynavian General Congress"
-				desc = "SKYNAVIAN_GENERAL_CONGRESS_NAME_DESC"
-				picture = "GeneralCongress.tga"
-				expire = "1965.1.1"
-				ideology = democratic_socialism
-				traits = { }
+			every_possible_country = {
+				limit = {
+					has_character = SRS_skynavian_general_congress
+				}
+				SRS_skynavian_general_congress = {
+					set_nationality = PREV.PREV
+				}
+			}
+			SRS_skynavian_general_congress = {
+				add_country_leader_role = {
+					promote_leader = yes
+
+					country_leader = {
+						desc = "SKYNAVIAN_GENERAL_CONGRESS_NAME_DESC"
+						expire = "1965.1.1"
+						ideology = democratic_socialism
+						traits = { stalin_architect_of_communism }
+					}
+				}
 			}
 			add_popularity = {
 				ideology = communism
@@ -2624,6 +2823,24 @@ country_event = {
 			}
 			set_country_flag = SRS_republic_of_skynavia
 			set_cosmetic_tag = SRS_republic_of_skynavia
+		}
+		every_possible_country = {
+			limit = {
+				has_character = SRS_asper_sickleclaw
+			}
+			SRS_asper_sickleclaw = {
+				set_nationality = SRS
+			}
+		}
+		if = {
+			limit = {
+				NOT = { has_country_leader = { character = SRS_asper_sickleclaw ruling_only = yes } }
+			}
+
+			SRS_asper_sickleclaw = {
+				promote_character = despotism
+				promote_character = democratic_socialism
+			}
 		}
 	}
 }
@@ -2646,13 +2863,21 @@ country_event = {
 		set_politics = {
 			ruling_party = neutrality
 		}
-		create_country_leader = {
-			name = "Asper Sickleclaw"
-			desc = ""
-			picture = "provisional_sickleclaw.tga"
-			expire = "1965.1.1"
-			ideology = despotism
-			traits = { dictator generallissimo }
+		SRS_asper_sickleclaw = {
+			set_portraits = {
+				civilian={
+					large="gfx/leaders/SRS/provisional_sickleclaw.tga"
+				}
+			}
+			add_country_leader_role = {
+				promote_leader = yes
+
+				country_leader = {
+					expire = "1965.1.1"
+					ideology = despotism
+					traits = { dictator generallissimo }
+				}
+			}
 		}
 		set_country_flag = SRS_republic_of_skynavia
 		set_cosmetic_tag = SRS_republic_of_skynavia
@@ -2691,12 +2916,23 @@ country_event = {
 
 	option = {
 		name = socrep_grif.93.a 
-		every_state = { 
+		if = {
 			limit = {
-				NOT = { is_core_of = ROOT }
-				is_core_of = FROM
+				FROM = {
+					OR = {
+						is_griffon_continent_country = yes
+						original_tag = GRF
+						original_tag = GFF
+					}
+				}
 			}
-			add_core_of = ROOT
+			every_state = { 
+				limit = {
+					NOT = { is_core_of = ROOT }
+					is_core_of = FROM
+				}
+				add_core_of = ROOT
+			}
 		}
 		annex_country = {
 			target = FROM
