@@ -1350,8 +1350,7 @@
 		}
 		relative_position_id = NCH_adapting_modern_doctrines
 		prerequisite = { focus = NCH_adapting_modern_doctrines }
-		prerequisite = { focus = NCH_refitting_the_ships }
-		prerequisite = { focus = NCH_instil_a_shipbuilding_tradition }
+		prerequisite = { focus = NCH_refitting_the_ships  focus = NCH_instil_a_shipbuilding_tradition } 
 	}
 	
 	shared_focus = {
@@ -1492,6 +1491,7 @@
 				}
 			}
 			custom_effect_tooltip = NCH_vespaex_tt
+			set_country_flag = NCH_pardon_the_exiles_completed
 		}
 		relative_position_id = NCH_continue_the_army_reforms
 		prerequisite = { focus = NCH_continue_the_army_reforms }
@@ -2985,23 +2985,23 @@
 		}
 		prerequisite = { focus = NCH_aerial_theory }
 		mutually_exclusive = { focus = NCH_true_landair_warfare }
-		relative_position_id = NCH_aerial_theory
-		prerequisite = { focus = NCH_aerial_theory }
+		relative_position_id = NCH_aerial_theory 
 	}
 	
 	shared_focus = {
 		id = NCH_cas_integration
 		icon = GFX_goal_nch_cas_doctrine
 		cost = 2
-		x = -1
+		x = -3
 		y = 1
 		completion_reward = {
 			log = "[GetDateText]: [Root.GetName]: Focus NCH_cas_integration"
 			add_ideas = NCH_cas_integration_idea
 		}
-		relative_position_id = NCH_true_landair_warfare
+		relative_position_id = NCH_a_truly_independent_force
 		prerequisite = { focus = NCH_true_landair_warfare }
 		mutually_exclusive = { focus = NCH_tactical_operations }
+		mutually_exclusive = { focus = NCH_air_superiority }
 	}
 	
 	shared_focus = {
@@ -3017,6 +3017,7 @@
 		relative_position_id = NCH_a_truly_independent_force
 		prerequisite = { focus = NCH_a_truly_independent_force }
 		mutually_exclusive = { focus = NCH_tactical_operations }
+		mutually_exclusive = { focus = NCH_cas_integration }
 	}
 	
 	shared_focus = {
@@ -3213,15 +3214,44 @@
 	shared_focus = {
 		id = NCH_adressing_firtree
 		icon = GFX_goal_unknown
+		dynamic = yes
 		cost = 2
 		x = -2
 		y = 1
+
 		completion_reward = {
 			log = "[GetDateText]: [Root.GetName]: Focus NCH_adressing_firtree"
-			FIR = {
-				add_opinion_modifier = {
-					target = NCH
-					modifier = NCH_adressing_FIR_WAT_modifier
+			if = {
+				limit = {
+					FIR = { has_government = fascism }
+				}
+				custom_effect_tooltip = NCH_BEG_preparing_to_liberate_FIR_WAT_tt
+				set_country_flag = NCH_BEG_FIR_foci_decisions
+			}
+			if = { 
+				limit = {
+					OR = {
+						NOT = { country_exists = FIR }
+						AND = {
+							FIR = { is_subject = yes }
+							NOT = { is_subject_of = NCH }
+						}
+					}
+				}
+				custom_effect_tooltip = NCH_BEG_FIR_foci_available_later_tt
+				set_country_flag = NCH_BEG_FIR_foci_decisions
+			}
+			if = {
+				limit = {
+					NOT = { FIR = { has_government = fascism } }
+					FIR = { is_subject = no }
+					country_exists = FIR 
+				}
+				FIR = {
+					add_opinion_modifier = {
+						target = NCH
+						modifier = NCH_adressing_FIR_WAT_modifier
+					}
 				}
 			}
 		}
@@ -3232,15 +3262,45 @@
 	shared_focus = {
 		id = NCH_approaching_the_watertown_commune
 		icon = GFX_goal_unknown
+		dynamic = yes
 		cost = 2
 		x = 2
 		y = 1
+
 		completion_reward = {
 			log = "[GetDateText]: [Root.GetName]: Focus NCH_approaching_the_watertown_commune"
-			WAT = {
-				add_opinion_modifier = {
-					target = NCH
-					modifier = NCH_adressing_FIR_WAT_modifier
+			if = {
+				limit = {
+					WAT = { has_government = fascism }
+					country_exists = WAT
+				}
+				custom_effect_tooltip = NCH_BEG_preparing_to_liberate_FIR_WAT_tt
+				set_country_flag = NCH_BEG_WAT_foci_decisions
+			}
+			if = {
+				limit = {
+					OR = {
+						NOT = { country_exists = WAT }
+						AND = {
+							WAT = { is_subject = yes }
+							NOT = { is_subject_of = NCH }
+						}
+					}
+				}
+				custom_effect_tooltip = NCH_BEG_WAT_foci_available_later_tt
+				set_country_flag = NCH_BEG_WAT_foci_decisions
+			}
+			if = {
+				limit = {
+					NOT = { WAT = { has_government = fascism } }
+					WAT = { is_subject = no }
+					country_exists = WAT 
+				}
+				WAT = {
+					add_opinion_modifier = {
+						target = NCH
+						modifier = NCH_adressing_FIR_WAT_modifier
+					}
 				}
 			}
 		}
@@ -3254,8 +3314,11 @@
 		cost = 2
 		x = 2
 		y = 1
+
 		completion_reward = {
 			log = "[GetDateText]: [Root.GetName]: Focus NCH_building_roads"
+			set_country_flag = NCH_laying_down_railroads_decisions
+			custom_effect_tooltip = NCH_WAT_road_construction_tt
 		}
 		relative_position_id = NCH_approaching_the_watertown_commune
 		prerequisite = { focus = NCH_approaching_the_watertown_commune }
@@ -3267,9 +3330,103 @@
 		cost = 2
 		x = 0
 		y = 1
+
+		bypass = {
+			NOT = { country_exists = FIR }
+			NOT = { country_exists = WAT }
+		}
+
 		completion_reward = {
 			log = "[GetDateText]: [Root.GetName]: Focus NCH_delineate_new_borders"
-			set_global_flag = NCH_new_borders
+			set_global_flag = NCH_check_WAT_FIR_neighbours
+
+			WAT = {
+					every_neighbor_country = {
+						if = {
+							limit = {
+								NOT = {
+									has_opinion_modifier = NCH_new_borders_fascist_modifier
+									has_opinion_modifier = NCH_new_borders_modifier
+									has_government = fascism
+									tag = NCH
+									tag = FBK
+									tag = DED
+									AND = {
+										tag = HLQ
+										has_government = fascism
+									}
+								}
+							}
+							add_opinion_modifier = {
+								target = WAT
+								modifier = NCH_new_borders_modifier
+							}
+						}
+						else_if = {
+							limit = {
+								NOT = {
+									has_opinion_modifier = NCH_new_borders_fascist_modifier
+									has_opinion_modifier = NCH_new_borders_modifier
+									tag = NCH
+									tag = FBK
+									tag = DED
+									AND = {
+										tag = HLQ
+										has_government = fascism
+									}
+								}
+							}
+							add_opinion_modifier = {
+								target = WAT
+								modifier = NCH_new_borders_fascist_modifier
+							}
+						}
+					}
+				}
+	
+				FIR = {
+					every_neighbor_country = {
+						if = {
+							limit = {
+								NOT = {
+									has_opinion_modifier = NCH_new_borders_fascist_modifier
+									has_opinion_modifier = NCH_new_borders_modifier
+									has_government = fascism
+									tag = NCH
+									tag = FBK
+									tag = DED
+									AND = {
+										tag = HLQ
+										has_government = fascism
+									}
+								}
+							}
+							add_opinion_modifier = {
+								target = FIR
+								modifier = NCH_new_borders_modifier
+							}
+						}
+						else_if = {
+							limit = {
+								NOT = {
+									has_opinion_modifier = NCH_new_borders_fascist_modifier
+									has_opinion_modifier = NCH_new_borders_modifier
+									tag = NCH
+									tag = FBK
+									tag = DED
+									AND = {
+										tag = HLQ
+										has_government = fascism
+									}
+								}
+							}
+							add_opinion_modifier = {
+								target = FIR
+								modifier = NCH_new_borders_fascist_modifier
+							}
+						}
+					}
+				}
 		}
 		relative_position_id = NCH_the_new_charter
 		prerequisite = { focus = NCH_the_new_charter }
@@ -3281,8 +3438,11 @@
 		cost = 2
 		x = -2
 		y = 1
+
 		completion_reward = {
 			log = "[GetDateText]: [Root.GetName]: Focus NCH_laying_down_railroads"
+			set_country_flag = NCH_laying_down_railroads_decisions
+			custom_effect_tooltip = NCH_FIR_road_construction_tt
 		}
 		relative_position_id = NCH_adressing_firtree
 		prerequisite = { focus = NCH_adressing_firtree }
@@ -3294,8 +3454,11 @@
 		cost = 2
 		x = 0
 		y = 1
+
 		completion_reward = {
 			log = "[GetDateText]: [Root.GetName]: Focus NCH_bringing_our_railways_to_them"
+			set_country_flag = NCH_laying_down_railroads_decisions
+			custom_effect_tooltip = NCH_FIR_WAT_railroad_construction_tt
 		}
 		relative_position_id = NCH_delineate_new_borders
 		prerequisite = { focus = NCH_delineate_new_borders }
@@ -3307,8 +3470,32 @@
 		cost = 2
 		x = -2
 		y = 1
+
+		bypass = {
+			OR = {
+				FIR = { has_government = fascism }
+				NOT = { country_exists = FIR }
+			}
+		}
+
 		completion_reward = {
 			log = "[GetDateText]: [Root.GetName]: Focus NCH_subsidise_the_cottage_industry"
+			636 = {
+				add_building_construction = {
+					type = industrial_complex
+					level = 1
+					instant_build = yes
+				}
+				add_extra_state_shared_building_slots = 1
+			}
+			644 = {
+				add_building_construction = {
+					type = industrial_complex
+					level = 1
+					instant_build = yes
+				}
+				add_extra_state_shared_building_slots = 1
+			}
 		}
 		relative_position_id = NCH_laying_down_railroads
 		prerequisite = { focus = NCH_laying_down_railroads }
@@ -3320,8 +3507,36 @@
 		cost = 2
 		x = 0
 		y = 1
+
+		bypass = {
+			OR = {
+				FIR = { has_government = fascism }
+				NOT = { country_exists = FIR }
+			}
+		}
+
 		completion_reward = {
 			log = "[GetDateText]: [Root.GetName]: Focus NCH_invest_in_the_mineral_wealth"
+			add_resource = {
+				type = steel
+				amount = 23
+				state = 454
+			}
+			add_resource = {
+				type = steel
+				amount = 7
+				state = 453
+			}
+			add_resource = {
+				type = chromium
+				amount = 11
+				state = 453
+			}
+			add_resource = {
+				type = tungsten
+				amount = 8
+				state = 478
+			}
 		}
 		relative_position_id = NCH_laying_down_railroads
 		prerequisite = { focus = NCH_laying_down_railroads }
@@ -3330,11 +3545,508 @@
 	shared_focus = {
 		id = NCH_encourage_emigration
 		icon = GFX_goal_unknown
+		dynamic = yes
 		cost = 2
 		x = 0
 		y = 1
-		completion_reward = {
+
+		bypass = {
+			NOT = { country_exists = FIR }
+			NOT = { country_exists = WAT }
+		}
+
+		completion_reward = { #migrating pop script, courtesy of cofido for making the foundation, yuri fixed up the math that was off
 			log = "[GetDateText]: [Root.GetName]: Focus NCH_encourage_emigration"
+			if = {
+				limit = {
+					FIR = { has_government = fascism }
+					NOT = { WAT = { has_government = fascism } }
+				}
+				hidden_effect = {
+					set_temp_variable = { state_migration_pop = 0 }
+					669 = {
+						add_to_temp_variable = { state_migration_pop_offset = state_population_k }
+						add_to_temp_variable = { state_migration_pop = state_migration_pop_offset }
+						set_temp_variable = { population_percentage_change = -0.05 }
+						population_change_custom = yes
+						set_temp_variable = { state_pop_removed_offset = state_population_k }
+						set_temp_variable = { state_pop_removed = state_pop_removed_offset }
+						multiply_variable = { state_pop_removed = -1 }
+						add_to_temp_variable = { state_migration_pop = state_pop_removed }
+					}
+					set_temp_variable = { state_migration_pop_offset = 0 }
+					set_temp_variable = { state_pop_removed_offset = 0 }
+					set_temp_variable = { state_pop_removed = 0 }
+					668 = {
+						add_to_temp_variable = { state_migration_pop_offset = state_population_k }
+						add_to_temp_variable = { state_migration_pop = state_migration_pop_offset }
+						set_temp_variable = { population_percentage_change = -0.05 }
+						population_change_custom = yes
+						set_temp_variable = { state_pop_removed_offset = state_population_k }
+						set_temp_variable = { state_pop_removed = state_pop_removed_offset }
+						multiply_variable = { state_pop_removed = -1 }
+						add_to_temp_variable = { state_migration_pop = state_pop_removed }
+					}
+					set_temp_variable = { state_migration_pop_offset = 0 }
+					set_temp_variable = { state_pop_removed_offset = 0 }
+					set_temp_variable = { state_pop_removed = 0 }
+					639 = {
+						add_to_temp_variable = { state_migration_pop_offset = state_population_k }
+						add_to_temp_variable = { state_migration_pop = state_migration_pop_offset }
+						set_temp_variable = { population_percentage_change = -0.05 }
+						population_change_custom = yes
+						set_temp_variable = { state_pop_removed_offset = state_population_k }
+						set_temp_variable = { state_pop_removed = state_pop_removed_offset }
+						multiply_variable = { state_pop_removed = -1 }
+						add_to_temp_variable = { state_migration_pop = state_pop_removed }
+					}
+					set_temp_variable = { state_migration_pop_offset = 0 }
+					set_temp_variable = { state_pop_removed_offset = 0 }
+					set_temp_variable = { state_pop_removed = 0 }
+					569 = {
+						add_to_temp_variable = { state_migration_pop_offset = state_population_k }
+						add_to_temp_variable = { state_migration_pop = state_migration_pop_offset }
+						set_temp_variable = { population_percentage_change = -0.05 }
+						population_change_custom = yes
+						set_temp_variable = { state_pop_removed_offset = state_population_k }
+						set_temp_variable = { state_pop_removed = state_pop_removed_offset }
+						multiply_variable = { state_pop_removed = -1 }
+						add_to_temp_variable = { state_migration_pop = state_pop_removed }
+					}
+					set_temp_variable = { state_migration_pop_offset = 0 }
+					set_temp_variable = { state_pop_removed_offset = 0 }
+					set_temp_variable = { state_pop_removed = 0 }
+					572 = {
+						add_to_temp_variable = { state_migration_pop_offset = state_population_k }
+						add_to_temp_variable = { state_migration_pop = state_migration_pop_offset }
+						set_temp_variable = { population_percentage_change = -0.05 }
+						population_change_custom = yes
+						set_temp_variable = { state_pop_removed_offset = state_population_k }
+						set_temp_variable = { state_pop_removed = state_pop_removed_offset }
+						multiply_variable = { state_pop_removed = -1 }
+						add_to_temp_variable = { state_migration_pop = state_pop_removed }	
+					}
+					set_temp_variable = { state_migration_pop_offset = 0 }
+					set_temp_variable = { state_pop_removed_offset = 0 }
+					set_temp_variable = { state_pop_removed = 0 }
+					571 = {
+						add_to_temp_variable = { state_migration_pop_offset = state_population_k }
+						add_to_temp_variable = { state_migration_pop = state_migration_pop_offset }
+						set_temp_variable = { population_percentage_change = -0.05 }
+						population_change_custom = yes
+						set_temp_variable = { state_pop_removed_offset = state_population_k }
+						set_temp_variable = { state_pop_removed = state_pop_removed_offset }
+						multiply_variable = { state_pop_removed = -1 }
+						add_to_temp_variable = { state_migration_pop = state_pop_removed }			
+					}
+					set_temp_variable = { state_migration_pop_offset = 0 }
+					set_temp_variable = { state_pop_removed_offset = 0 }
+					set_temp_variable = { state_pop_removed = 0 }
+					455 = {
+						add_to_temp_variable = { state_migration_pop_offset = state_population_k }
+						add_to_temp_variable = { state_migration_pop = state_migration_pop_offset }
+						set_temp_variable = { population_percentage_change = -0.05 }
+						population_change_custom = yes
+						set_temp_variable = { state_pop_removed_offset = state_population_k }
+						set_temp_variable = { state_pop_removed = state_pop_removed_offset }
+						multiply_variable = { state_pop_removed = -1 }
+						add_to_temp_variable = { state_migration_pop = state_pop_removed }			
+					}
+					set_temp_variable = { state_migration_pop_offset = 0 }
+					set_temp_variable = { state_pop_removed_offset = 0 }
+					set_temp_variable = { state_pop_removed = 0 }
+					603 = {
+						add_to_temp_variable = { state_migration_pop_offset = state_population_k }
+						add_to_temp_variable = { state_migration_pop = state_migration_pop_offset }
+						set_temp_variable = { population_percentage_change = -0.05 }
+						population_change_custom = yes
+						set_temp_variable = { state_pop_removed_offset = state_population_k }
+						set_temp_variable = { state_pop_removed = state_pop_removed_offset }
+						multiply_variable = { state_pop_removed = -1 }
+						add_to_temp_variable = { state_migration_pop = state_pop_removed }
+					}
+					add_to_temp_variable = { state_migration_pop = -1 }
+					WAT = {
+						every_owned_state = {
+							limit = {
+								OR = {
+									state = 640
+									state = 641
+									state = 642
+									state = 643
+								}
+							}
+							add_manpower = state_migration_pop
+						}
+					}
+				}
+				effect_tooltip = {
+					if = {
+						limit = {
+							WAT = { exists = yes }
+						}
+						NCH = {
+							every_owned_state = {
+								custom_effect_tooltip = NCH_migrating_pops_tt
+							}
+						}
+						WAT = {
+							every_owned_state = {
+								custom_effect_tooltip = NCH_migrating_pops_02_target_tt
+							}
+						}
+					}
+				}
+				FIR = {
+					add_timed_idea = {
+						idea = NCH_BEG_WAT_FIR_pops_leaving
+						days = 60
+					}
+				}
+				add_timed_idea = {
+					idea = NCH_BEG_refugees_WAT_FIR
+					days = 60
+				}
+			}
+			if = {
+				limit = {
+					WAT = { has_government = fascism }
+					country_exists = FIR
+					NOT = { FIR = { has_government = fascism } }
+				}
+				hidden_effect = {
+					set_temp_variable = { state_migration_pop = 0 }
+					669 = {
+						add_to_temp_variable = { state_migration_pop_offset = state_population_k }
+						add_to_temp_variable = { state_migration_pop = state_migration_pop_offset }
+						set_temp_variable = { population_percentage_change = -0.05 }
+						population_change_custom = yes
+						set_temp_variable = { state_pop_removed_offset = state_population_k }
+						set_temp_variable = { state_pop_removed = state_pop_removed_offset }
+						multiply_variable = { state_pop_removed = -1 }
+						add_to_temp_variable = { state_migration_pop = state_pop_removed }
+					}
+					set_temp_variable = { state_migration_pop_offset = 0 }
+					set_temp_variable = { state_pop_removed_offset = 0 }
+					set_temp_variable = { state_pop_removed = 0 }
+					668 = {
+						add_to_temp_variable = { state_migration_pop_offset = state_population_k }
+						add_to_temp_variable = { state_migration_pop = state_migration_pop_offset }
+						set_temp_variable = { population_percentage_change = -0.05 }
+						population_change_custom = yes
+						set_temp_variable = { state_pop_removed_offset = state_population_k }
+						set_temp_variable = { state_pop_removed = state_pop_removed_offset }
+						multiply_variable = { state_pop_removed = -1 }
+						add_to_temp_variable = { state_migration_pop = state_pop_removed }
+					}
+					set_temp_variable = { state_migration_pop_offset = 0 }
+					set_temp_variable = { state_pop_removed_offset = 0 }
+					set_temp_variable = { state_pop_removed = 0 }
+					639 = {
+						add_to_temp_variable = { state_migration_pop_offset = state_population_k }
+						add_to_temp_variable = { state_migration_pop = state_migration_pop_offset }
+						set_temp_variable = { population_percentage_change = -0.05 }
+						population_change_custom = yes
+						set_temp_variable = { state_pop_removed_offset = state_population_k }
+						set_temp_variable = { state_pop_removed = state_pop_removed_offset }
+						multiply_variable = { state_pop_removed = -1 }
+						add_to_temp_variable = { state_migration_pop = state_pop_removed }
+					}
+					set_temp_variable = { state_migration_pop_offset = 0 }
+					set_temp_variable = { state_pop_removed_offset = 0 }
+					set_temp_variable = { state_pop_removed = 0 }
+					569 = {
+						add_to_temp_variable = { state_migration_pop_offset = state_population_k }
+						add_to_temp_variable = { state_migration_pop = state_migration_pop_offset }
+						set_temp_variable = { population_percentage_change = -0.05 }
+						population_change_custom = yes
+						set_temp_variable = { state_pop_removed_offset = state_population_k }
+						set_temp_variable = { state_pop_removed = state_pop_removed_offset }
+						multiply_variable = { state_pop_removed = -1 }
+						add_to_temp_variable = { state_migration_pop = state_pop_removed }
+					}
+					set_temp_variable = { state_migration_pop_offset = 0 }
+					set_temp_variable = { state_pop_removed_offset = 0 }
+					set_temp_variable = { state_pop_removed = 0 }
+					572 = {
+						add_to_temp_variable = { state_migration_pop_offset = state_population_k }
+						add_to_temp_variable = { state_migration_pop = state_migration_pop_offset }
+						set_temp_variable = { population_percentage_change = -0.05 }
+						population_change_custom = yes
+						set_temp_variable = { state_pop_removed_offset = state_population_k }
+						set_temp_variable = { state_pop_removed = state_pop_removed_offset }
+						multiply_variable = { state_pop_removed = -1 }
+						add_to_temp_variable = { state_migration_pop = state_pop_removed }	
+					}
+					set_temp_variable = { state_migration_pop_offset = 0 }
+					set_temp_variable = { state_pop_removed_offset = 0 }
+					set_temp_variable = { state_pop_removed = 0 }
+					571 = {
+						add_to_temp_variable = { state_migration_pop_offset = state_population_k }
+						add_to_temp_variable = { state_migration_pop = state_migration_pop_offset }
+						set_temp_variable = { population_percentage_change = -0.05 }
+						population_change_custom = yes
+						set_temp_variable = { state_pop_removed_offset = state_population_k }
+						set_temp_variable = { state_pop_removed = state_pop_removed_offset }
+						multiply_variable = { state_pop_removed = -1 }
+						add_to_temp_variable = { state_migration_pop = state_pop_removed }			
+					}
+					set_temp_variable = { state_migration_pop_offset = 0 }
+					set_temp_variable = { state_pop_removed_offset = 0 }
+					set_temp_variable = { state_pop_removed = 0 }
+					455 = {
+						add_to_temp_variable = { state_migration_pop_offset = state_population_k }
+						add_to_temp_variable = { state_migration_pop = state_migration_pop_offset }
+						set_temp_variable = { population_percentage_change = -0.05 }
+						population_change_custom = yes
+						set_temp_variable = { state_pop_removed_offset = state_population_k }
+						set_temp_variable = { state_pop_removed = state_pop_removed_offset }
+						multiply_variable = { state_pop_removed = -1 }
+						add_to_temp_variable = { state_migration_pop = state_pop_removed }			
+					}
+					set_temp_variable = { state_migration_pop_offset = 0 }
+					set_temp_variable = { state_pop_removed_offset = 0 }
+					set_temp_variable = { state_pop_removed = 0 }
+					603 = {
+						add_to_temp_variable = { state_migration_pop_offset = state_population_k }
+						add_to_temp_variable = { state_migration_pop = state_migration_pop_offset }
+						set_temp_variable = { population_percentage_change = -0.05 }
+						population_change_custom = yes
+						set_temp_variable = { state_pop_removed_offset = state_population_k }
+						set_temp_variable = { state_pop_removed = state_pop_removed_offset }
+						multiply_variable = { state_pop_removed = -1 }
+						add_to_temp_variable = { state_migration_pop = state_pop_removed }
+					}
+					add_to_temp_variable = { state_migration_pop = -1 }
+					FIR = {
+						every_owned_state = {
+							limit = {
+								OR = {
+									state = 644
+									state = 604
+									state = 453
+									state = 650
+									state = 478
+									state = 636
+								}
+							}
+							add_manpower = state_migration_pop
+						}
+					}
+				}
+				effect_tooltip = {
+					if = {
+						limit = {
+							country_exists = FIR
+						}
+						NCH = {
+							every_owned_state = {
+								custom_effect_tooltip = NCH_migrating_pops_tt
+							}
+						}
+						FIR = {
+							every_owned_state = {
+								custom_effect_tooltip = NCH_migrating_pops_02_target_tt
+							}
+						}
+					}
+				}
+				WAT = {
+					add_timed_idea = {
+						idea = NCH_BEG_WAT_FIR_pops_leaving
+						days = 60
+					}
+				}
+				add_timed_idea = {
+					idea = NCH_BEG_refugees_WAT_FIR
+					days = 60
+				}
+			}
+			if = {
+				limit = {
+					NOT = { WAT = { has_government = fascism } }
+					NOT = { FIR = { has_government = fascism } }
+				}
+				hidden_effect = {
+					set_temp_variable = { state_migration_pop = 0 }
+					669 = {
+						add_to_temp_variable = { state_migration_pop_offset = state_population_k }
+						add_to_temp_variable = { state_migration_pop = state_migration_pop_offset }
+						set_temp_variable = { population_percentage_change = -0.05 }
+						population_change_custom = yes
+						set_temp_variable = { state_pop_removed_offset = state_population_k }
+						set_temp_variable = { state_pop_removed = state_pop_removed_offset }
+						multiply_variable = { state_pop_removed = -1 }
+						add_to_temp_variable = { state_migration_pop = state_pop_removed }
+					}
+					set_temp_variable = { state_migration_pop_offset = 0 }
+					set_temp_variable = { state_pop_removed_offset = 0 }
+					set_temp_variable = { state_pop_removed = 0 }
+					668 = {
+						add_to_temp_variable = { state_migration_pop_offset = state_population_k }
+						add_to_temp_variable = { state_migration_pop = state_migration_pop_offset }
+						set_temp_variable = { population_percentage_change = -0.05 }
+						population_change_custom = yes
+						set_temp_variable = { state_pop_removed_offset = state_population_k }
+						set_temp_variable = { state_pop_removed = state_pop_removed_offset }
+						multiply_variable = { state_pop_removed = -1 }
+						add_to_temp_variable = { state_migration_pop = state_pop_removed }
+					}
+					set_temp_variable = { state_migration_pop_offset = 0 }
+					set_temp_variable = { state_pop_removed_offset = 0 }
+					set_temp_variable = { state_pop_removed = 0 }
+					639 = {
+						add_to_temp_variable = { state_migration_pop_offset = state_population_k }
+						add_to_temp_variable = { state_migration_pop = state_migration_pop_offset }
+						set_temp_variable = { population_percentage_change = -0.05 }
+						population_change_custom = yes
+						set_temp_variable = { state_pop_removed_offset = state_population_k }
+						set_temp_variable = { state_pop_removed = state_pop_removed_offset }
+						multiply_variable = { state_pop_removed = -1 }
+						add_to_temp_variable = { state_migration_pop = state_pop_removed }
+					}
+					set_temp_variable = { state_migration_pop_offset = 0 }
+					set_temp_variable = { state_pop_removed_offset = 0 }
+					set_temp_variable = { state_pop_removed = 0 }
+					569 = {
+						add_to_temp_variable = { state_migration_pop_offset = state_population_k }
+						add_to_temp_variable = { state_migration_pop = state_migration_pop_offset }
+						set_temp_variable = { population_percentage_change = -0.05 }
+						population_change_custom = yes
+						set_temp_variable = { state_pop_removed_offset = state_population_k }
+						set_temp_variable = { state_pop_removed = state_pop_removed_offset }
+						multiply_variable = { state_pop_removed = -1 }
+						add_to_temp_variable = { state_migration_pop = state_pop_removed }
+					}
+					set_temp_variable = { state_migration_pop_offset = 0 }
+					set_temp_variable = { state_pop_removed_offset = 0 }
+					set_temp_variable = { state_pop_removed = 0 }
+					572 = {
+						add_to_temp_variable = { state_migration_pop_offset = state_population_k }
+						add_to_temp_variable = { state_migration_pop = state_migration_pop_offset }
+						set_temp_variable = { population_percentage_change = -0.05 }
+						population_change_custom = yes
+						set_temp_variable = { state_pop_removed_offset = state_population_k }
+						set_temp_variable = { state_pop_removed = state_pop_removed_offset }
+						multiply_variable = { state_pop_removed = -1 }
+						add_to_temp_variable = { state_migration_pop = state_pop_removed }	
+					}
+					set_temp_variable = { state_migration_pop_offset = 0 }
+					set_temp_variable = { state_pop_removed_offset = 0 }
+					set_temp_variable = { state_pop_removed = 0 }
+					571 = {
+						add_to_temp_variable = { state_migration_pop_offset = state_population_k }
+						add_to_temp_variable = { state_migration_pop = state_migration_pop_offset }
+						set_temp_variable = { population_percentage_change = -0.05 }
+						population_change_custom = yes
+						set_temp_variable = { state_pop_removed_offset = state_population_k }
+						set_temp_variable = { state_pop_removed = state_pop_removed_offset }
+						multiply_variable = { state_pop_removed = -1 }
+						add_to_temp_variable = { state_migration_pop = state_pop_removed }			
+					}
+					set_temp_variable = { state_migration_pop_offset = 0 }
+					set_temp_variable = { state_pop_removed_offset = 0 }
+					set_temp_variable = { state_pop_removed = 0 }
+					455 = {
+						add_to_temp_variable = { state_migration_pop_offset = state_population_k }
+						add_to_temp_variable = { state_migration_pop = state_migration_pop_offset }
+						set_temp_variable = { population_percentage_change = -0.05 }
+						population_change_custom = yes
+						set_temp_variable = { state_pop_removed_offset = state_population_k }
+						set_temp_variable = { state_pop_removed = state_pop_removed_offset }
+						multiply_variable = { state_pop_removed = -1 }
+						add_to_temp_variable = { state_migration_pop = state_pop_removed }			
+					}
+					set_temp_variable = { state_migration_pop_offset = 0 }
+					set_temp_variable = { state_pop_removed_offset = 0 }
+					set_temp_variable = { state_pop_removed = 0 }
+					603 = {
+						add_to_temp_variable = { state_migration_pop_offset = state_population_k }
+						add_to_temp_variable = { state_migration_pop = state_migration_pop_offset }
+						set_temp_variable = { population_percentage_change = -0.05 }
+						population_change_custom = yes
+						set_temp_variable = { state_pop_removed_offset = state_population_k }
+						set_temp_variable = { state_pop_removed = state_pop_removed_offset }
+						multiply_variable = { state_pop_removed = -1 }
+						add_to_temp_variable = { state_migration_pop = state_pop_removed }
+					}
+					multiply_variable = { state_migration_pop = 0.1 }
+					add_to_temp_variable = { state_migration_pop = -1 }
+					WAT = {
+						every_owned_state = {
+							limit = {
+								OR = {
+									state = 640
+									state = 641
+									state = 642
+									state = 643
+								}
+							}
+							add_manpower = state_migration_pop
+						}
+					}
+					FIR = {
+						every_owned_state = {
+							limit = {
+								OR = {
+									state = 644
+									state = 604
+									state = 453
+									state = 650
+									state = 478
+									state = 636
+								}
+							}
+							add_manpower = state_migration_pop
+						}
+					}
+				}
+				effect_tooltip = {
+					if = {
+						limit = {
+							country_exists = WAT
+							country_exists = FIR
+						}
+						NCH = {
+							every_owned_state = {
+								custom_effect_tooltip = NCH_migrating_pops_tt
+							}
+						}
+					}
+					WAT = {
+						every_owned_state = {
+							custom_effect_tooltip = NCH_migrating_pops_target_tt
+						}
+					}
+					FIR = {
+						every_owned_state = {
+							custom_effect_tooltip = NCH_migrating_pops_target_tt
+						}
+					}
+				}
+			}
+			if = {
+				limit = {
+					WAT = { has_government = fascism }
+					FIR = { has_government = fascism } 
+				}
+				WAT = {
+					add_timed_idea = {
+						idea = NCH_BEG_WAT_FIR_pops_leaving
+						days = 60
+					}
+				}
+				FIR = {
+					add_timed_idea = {
+						idea = NCH_BEG_WAT_FIR_pops_leaving
+						days = 60
+					}
+				}
+				add_timed_idea = {
+					idea = NCH_BEG_refugees_WAT_FIR_b
+					days = 60
+				}
+			}
 		}
 		relative_position_id = NCH_bringing_our_railways_to_them
 		prerequisite = { focus = NCH_bringing_our_railways_to_them }
@@ -3346,8 +4058,26 @@
 		cost = 2
 		x = 0
 		y = 1
+
+		bypass = {
+			OR = {
+				WAT = { has_government = fascism }
+				NOT = { country_exists = WAT }
+			}
+		}
+
 		completion_reward = {
 			log = "[GetDateText]: [Root.GetName]: Focus NCH_oil_wells_in_watertowns"
+			add_resource = {
+				type = oil
+				amount = 14
+				state = 643
+			}
+			add_resource = {
+				type = oil
+				amount = 6
+				state = 641
+			}
 		}
 		relative_position_id = NCH_building_roads
 		prerequisite = { focus = NCH_building_roads }
@@ -3359,8 +4089,24 @@
 		cost = 2
 		x = 2
 		y = 1
+
+		bypass = {
+			OR = {
+				WAT = { has_government = fascism }
+				NOT = { country_exists = WAT }
+			}
+		}
+
 		completion_reward = {
 			log = "[GetDateText]: [Root.GetName]: Focus NCH_educate_artisans"
+			642 = {
+				add_building_construction = {
+					type = industrial_complex
+					level = 2
+					instant_build = yes
+				}
+				add_extra_state_shared_building_slots = 2
+			}
 		}
 		relative_position_id = NCH_building_roads
 		prerequisite = { focus = NCH_building_roads }
@@ -3370,57 +4116,85 @@
 		id = NCH_reclaiming_the_title_of_protector
 		icon = GFX_goal_unknown
 		cost = 2
-		x = 2
+		x = 0
 		y = 1
+
+		available = {
+			has_completed_focus = NCH_conditional_investments
+			has_completed_focus = NCH_a_quid_pro_quo
+		}
+
 		completion_reward = {
 			log = "[GetDateText]: [Root.GetName]: Focus NCH_reclaiming_the_title_of_protector"
+			ROOT = {
+				country_event = {
+					id = greneclyf.103
+					days = 1
+				}
+			}
 		}
-		relative_position_id = NCH_encourage_an_open_mind
-		prerequisite = { focus = NCH_encourage_an_open_mind }
+		relative_position_id = NCH_direct_foreign_trade
 		prerequisite = { focus = NCH_direct_foreign_trade }
-		prerequisite = { focus = NCH_expand_their_horizons }
 	}
 	
 	shared_focus = {
 		id = NCH_conditional_investments
 		icon = GFX_goal_unknown
 		cost = 2
-		x = 3
-		y = 1
+		x = 0
+		y = 2
 		completion_reward = {
 			log = "[GetDateText]: [Root.GetName]: Focus NCH_conditional_investments"
+			ROOT = {
+				country_event = {
+					id = greneclyf.102
+					days = 1
+				}
+			}
 		}
-		relative_position_id = NCH_bonedrifts_first_coal_plant
+		relative_position_id = NCH_encourage_an_open_mind
 		prerequisite = { focus = NCH_bonedrifts_first_coal_plant }
 		prerequisite = { focus = NCH_aluminum_plants }
+		prerequisite = { focus = NCH_encourage_an_open_mind }
 	}
 	
 	shared_focus = {
 		id = NCH_a_quid_pro_quo
 		icon = GFX_goal_unknown
 		cost = 2
-		x = -1
-		y = 1
+		x = 0
+		y = 2
 		completion_reward = {
 			log = "[GetDateText]: [Root.GetName]: Focus NCH_a_quid_pro_quo"
+			ROOT = {
+				country_event = {
+					id = greneclyf.104
+					days = 1
+				}
+			}
 		}
-		relative_position_id = NCH_build_the_watertown_steel_mills
+		relative_position_id = NCH_expand_their_horizons
 		prerequisite = { focus = NCH_build_the_watertown_steel_mills }
 		prerequisite = { focus = NCH_incentives_for_innovative_workers }
+		prerequisite = { focus = NCH_expand_their_horizons }
 	}
 	
 	shared_focus = {
 		id = NCH_unite_beorgfordas
 		icon = GFX_goal_unknown
-		cost = 2
-		x = 1
+		cost = 0
+		x = 2
 		y = 1
+
+		available = {
+			unlocked_by_event = yes
+		}
+
 		completion_reward = {
 			log = "[GetDateText]: [Root.GetName]: Focus NCH_unite_beorgfordas"
 		}
 		relative_position_id = NCH_reclaiming_the_title_of_protector
 		prerequisite = { focus = NCH_reclaiming_the_title_of_protector }
-		prerequisite = { focus = NCH_a_quid_pro_quo }
 		mutually_exclusive = { focus = NCH_offer_protection }
 	}
 	
@@ -3428,10 +4202,81 @@
 		id = NCH_home_rule
 		icon = GFX_goal_unknown
 		cost = 2
-		x = 2
+		x = 1
 		y = 1
+
+		available = {
+			NOT = {
+				AND = {
+					FIR = { has_government = fascism }
+					WAT = { has_government = fascism }
+				}
+			}
+			NOT = { FIR = { is_subject = yes } }
+			NOT = { WAT = { is_subject = yes } }
+			FIR = { exists = yes }
+			WAT = { exists = yes }
+		}
+
 		completion_reward = {
 			log = "[GetDateText]: [Root.GetName]: Focus NCH_home_rule"
+			if = {
+				limit = {
+					NOT = { WAT = { has_government = fascism } }
+					FIR = { has_government = fascism }
+				}
+				WAT = {
+					country_event = {
+						id = greneclyf_integration.2
+						days = 1
+					}
+				}
+				create_wargoal = {
+					type = puppet_wargoal_focus
+					target = FIR
+				}
+			}
+			if = {
+				limit = {
+					NOT = { FIR = { has_government = fascism } }
+					WAT = { has_government = fascism }
+				}
+				FIR = {
+					country_event = {
+						id = greneclyf_integration.2
+						days = 1
+					}
+				}
+				create_wargoal = {
+					type = puppet_wargoal_focus
+					target = WAT
+				}
+			}
+			if = {
+				limit = {
+					NOT = { WAT = { has_government = fascism } }
+					NOT = { FIR = { has_government = fascism } }
+				}
+				WAT = {
+					country_event = {
+						id = greneclyf_integration.2
+						days = 1
+					}
+				}
+				FIR = {
+					country_event = {
+						id = greneclyf_integration.2
+						days = 1
+					}
+				}
+			}
+			if = {
+				limit = {
+					WAT = { has_government = fascism }
+					FIR = { has_government = fascism }
+				}
+				custom_effect_tooltip = NCH_BEG_unite_beorgfordas_locked_tt
+			}
 		}
 		relative_position_id = NCH_unite_beorgfordas
 		prerequisite = { focus = NCH_unite_beorgfordas }
@@ -3442,10 +4287,197 @@
 		id = NCH_a_singular_entity
 		icon = GFX_goal_unknown
 		cost = 2
-		x = 0
+		x = -1
 		y = 1
 		completion_reward = {
 			log = "[GetDateText]: [Root.GetName]: Focus NCH_a_singular_entity"
+			if = {
+				limit = {
+					WAT = { exists = yes }
+					NOT = { WAT = { has_government = fascism } }
+					NOT = { WAT = { is_subject = yes } }
+				}
+				WAT = {
+					country_event = {
+						id = greneclyf_integration.3
+						days = 1
+					}
+				}
+			}
+			if = {
+				limit = {
+					FIR = { exists = yes }
+					NOT = { FIR = { has_government = fascism } }
+					NOT = { FIR = { is_subject = yes } }
+				}
+				FIR = {
+					country_event = {
+						id = greneclyf_integration.3
+						days = 1
+					}
+				}
+			}
+			if = {
+				limit = {
+					WAT = { exists = yes }
+					WAT = { has_government = fascism }
+					NOT = { WAT = { is_subject = yes } }
+				}
+				create_wargoal = {
+					type = puppet_wargoal_focus
+					target = WAT
+				}
+			}
+			if = {
+				limit = {
+					FIR = { exists = yes }
+					FIR = { has_government = fascism }
+					NOT = { FIR = { is_subject = yes } }
+				}
+				create_wargoal = {
+					type = puppet_wargoal_focus
+					target = FIR
+				}
+			}
+			if = {
+				limit = {
+					OR = {
+						AND = {
+							WAT = { exists = no }
+							any_country = { 
+								owns_state = 640
+								owns_state = 641
+								owns_state = 642
+								owns_state = 643
+							}
+						}
+						AND = {
+							WAT = { exists = yes }
+							WAT = { is_subject = yes }
+							NOT = { WAT = { is_subject_of = NCH } }
+						}
+					}
+				}
+				if = {
+					limit = {
+						NOT = {
+							NCH = {
+								owns_state = 640
+								owns_state = 641
+								owns_state = 642
+								owns_state = 643
+							}
+						}
+						NOT = {
+							WAT = {
+								owns_state = 640
+								owns_state = 641
+								owns_state = 642
+								owns_state = 643
+							}
+						}
+					}
+					642 = {
+						owner = {
+							ROOT = {
+								create_wargoal = {
+									target = PREV
+									type = liberate_wargoal
+								}
+							}
+						}
+					}
+				}
+				if = {
+					limit = {
+						WAT = { exists = yes }
+						WAT = { is_subject = yes }
+						NOT = { WAT = { is_subject_of = NCH } }
+					}
+					WAT = {
+						ROOT = {
+							create_wargoal = {
+								type = puppet_wargoal_focus
+								target = PREV
+							}
+						}
+					}
+				}
+			}
+			if = {
+				limit = {
+					OR = {
+						AND = {
+							FIR = { exists = no }
+							any_country = { 
+								owns_state = 453
+								owns_state = 644
+								owns_state = 604
+								owns_state = 454
+								owns_state = 650
+								owns_state = 478
+								owns_state = 636
+							}
+						}
+						AND = {
+							FIR = { exists = yes }
+							FIR = { is_subject = yes }
+							NOT = { FIR = { is_subject_of = NCH } }
+						}
+					}
+				}
+				if = {
+					limit = {
+						NOT = {
+							NCH = {
+								owns_state = 453
+								owns_state = 644
+								owns_state = 604
+								owns_state = 454
+								owns_state = 650
+								owns_state = 478
+								owns_state = 636
+							}
+						}
+						NOT = {
+							FIR = {
+								owns_state = 453
+								owns_state = 644
+								owns_state = 604
+								owns_state = 454
+								owns_state = 650
+								owns_state = 478
+								owns_state = 636
+							}
+						}
+					}
+					454 = {
+						owner = {
+							ROOT = {
+								create_wargoal = {
+									target = PREV
+									type = liberate_wargoal
+								}
+							}
+						}
+					}
+				}
+				if = {
+					limit = {
+						FIR = { exists = yes }
+						FIR = { is_subject = yes }
+						NOT = { FIR = { is_subject_of = NCH } }
+					}
+					FIR = {
+						ROOT = {
+							create_wargoal = {
+								type = puppet_wargoal_focus
+								target = PREV
+							}
+						}
+					}
+				}
+			}
 		}
 		relative_position_id = NCH_unite_beorgfordas
 		prerequisite = { focus = NCH_unite_beorgfordas }
@@ -3455,15 +4487,19 @@
 	shared_focus = {
 		id = NCH_offer_protection
 		icon = GFX_goal_unknown
-		cost = 2
-		x = -1
+		cost = 0
+		x = 0
 		y = 1
+
+		available = {
+			unlocked_by_event = yes
+		}
+
 		completion_reward = {
 			log = "[GetDateText]: [Root.GetName]: Focus NCH_offer_protection"
 		}
-		relative_position_id = NCH_reclaiming_the_title_of_protector
+		relative_position_id = NCH_conditional_investments
 		prerequisite = { focus = NCH_reclaiming_the_title_of_protector }
-		prerequisite = { focus = NCH_conditional_investments }
 		mutually_exclusive = { focus = NCH_unite_beorgfordas }
 	}
 	
@@ -3471,10 +4507,112 @@
 		id = NCH_beorgfordas_together
 		icon = GFX_goal_unknown
 		cost = 2
-		x = 0
+		x = 1
 		y = 1
+
+		available = {
+			NOT = {
+				AND = { 
+					WAT = { has_government = fascism }
+					FIR = { has_government = fascism }
+				}
+			}
+		}
+
 		completion_reward = {
 			log = "[GetDateText]: [Root.GetName]: Focus NCH_beorgfordas_together"
+			if = { 
+				limit = {
+					OR = {
+						AND = {
+							limit = {
+								WAT = { has_government = fascism }
+								NOT = { FIR = { has_government = fascism } }
+							}
+						}
+						AND = {
+							limit = {
+								FIR = { has_government = fascism }
+								NOT = { WAT = { has_government = fascism } }
+							}
+						}
+					}
+					NOT = {
+						AND = {
+							WAT = { has_government = fascism }
+							FIR = { has_government = fascism }
+						}
+					}
+				}
+				effect_tooltip = {
+					create_faction = NCH_BEG_faction
+				}
+			}
+			if = {
+				limit = {
+					NOT = { WAT = { has_government = fascism } }
+				}
+				hidden_effect = {
+					if = {
+						limit = {
+							NCH = { is_faction_leader = no }
+						}
+						create_faction = NCH_BEG_faction
+					}
+				}
+				WAT = {
+					country_event = {
+						id = greneclyf_integration.1
+						days = 1
+					}
+				}
+			}
+			if = {
+				limit = {
+					NOT = { FIR = { has_government = fascism } }
+				}
+				hidden_effect = {
+					if = {
+						limit = {
+							NCH = { is_faction_leader = no }
+						}
+						create_faction = NCH_BEG_faction
+					}
+				}
+				FIR = {
+					country_event = {
+						id = greneclyf_integration.1
+						days = 1
+					}
+				}
+			}
+			if = {
+				limit = {
+					WAT = { has_government = fascism }
+					NOT = { FIR = { has_government = fascism } }
+				}
+				create_wargoal = {
+					type = puppet_wargoal_focus
+					target = WAT
+				}
+			}
+			if = {
+				limit = {
+					FIR = { has_government = fascism }
+					NOT = { WAT = { has_government = fascism } }
+				}
+				create_wargoal = {
+					type = puppet_wargoal_focus
+					target = FIR
+				}
+			}
+			if = {
+				limit = {
+					FIR = { has_government = fascism }
+					WAT = { has_government = fascism }
+				}
+				custom_effect_tooltip = NCH_BEG_unite_beorgfordas_locked_tt
+			}
 		}
 		relative_position_id = NCH_offer_protection
 		prerequisite = { focus = NCH_offer_protection }
@@ -3485,10 +4623,57 @@
 		id = NCH_the_northeastern_warden
 		icon = GFX_goal_unknown
 		cost = 2
-		x = -2
+		x = -1
 		y = 1
 		completion_reward = {
 			log = "[GetDateText]: [Root.GetName]: Focus NCH_the_northeastern_warden"
+			if = {
+				limit = {
+					NOT = { WAT = { has_government = fascism } }
+				}
+				give_guarantee = WAT
+			}
+			if = {
+				limit = {
+					NOT = { FIR = { has_government = fascism } }
+				}
+				give_guarantee = FIR
+			}
+			if = {
+				limit = {
+					WAT = { has_government = fascism }
+					NOT = { FIR = { has_government = fascism } }
+				}
+				create_wargoal = {
+					type = puppet_wargoal_focus
+					target = WAT
+				}
+			}
+			if = {
+				limit = {
+					FIR = { has_government = fascism }
+					NOT = { WAT = { has_government = fascism } }
+				}
+				create_wargoal = {
+					type = puppet_wargoal_focus
+					target = FIR
+				}
+			}
+			if = {
+				limit = {
+					FIR = { has_government = fascism }
+					WAT = { has_government = fascism }
+				}
+				custom_effect_tooltip = NCH_BEG_north_eastern_warden_liberation_tt
+				create_wargoal = {
+					type = puppet_wargoal_focus
+					target = WAT
+				}
+				create_wargoal = {
+					type = puppet_wargoal_focus
+					target = FIR
+				}
+			}
 		}
 		relative_position_id = NCH_offer_protection
 		prerequisite = { focus = NCH_offer_protection }
@@ -3501,24 +4686,31 @@
 		cost = 2
 		x = 0
 		y = 1
+	
+		bypass = { 
+			OR = {
+				FIR = { has_government = fascism }
+				NOT = { country_exists = FIR }
+			}
+		}
+
 		completion_reward = {
 			log = "[GetDateText]: [Root.GetName]: Focus NCH_academic_exchange_program"
+			if = {
+				limit = {
+					NOT = {
+						NCH = {
+							has_country_flag = NCH_tech_sharing_group_flag
+						}
+					}
+				}
+				set_country_flag = NCH_tech_sharing_group_flag
+				NCH = { add_to_tech_sharing_group = NCH_BEG_tech_sharing }
+			}
+			FIR = { add_to_tech_sharing_group = NCH_BEG_tech_sharing }
 		}
 		relative_position_id = NCH_adressing_firtree
 		prerequisite = { focus = NCH_adressing_firtree }
-	}
-	
-	shared_focus = {
-		id = NCH_art_exhibitions
-		icon = GFX_goal_unknown
-		cost = 2
-		x = 0
-		y = 1
-		completion_reward = {
-			log = "[GetDateText]: [Root.GetName]: Focus NCH_art_exhibitions"
-		}
-		relative_position_id = NCH_approaching_the_watertown_commune
-		prerequisite = { focus = NCH_approaching_the_watertown_commune }
 	}
 	
 	shared_focus = {
@@ -3527,11 +4719,31 @@
 		cost = 2
 		x = 0
 		y = 1
+
+		bypass = { 
+			OR = {
+				WAT = { has_government = fascism }
+				NOT = { country_exists = WAT }
+			}
+		}
+
 		completion_reward = {
 			log = "[GetDateText]: [Root.GetName]: Focus NCH_language_programs"
+			if = {
+				limit = {
+					NOT = {
+						NCH = {
+							has_country_flag = NCH_tech_sharing_group_flag
+						}
+					}
+				}
+				set_country_flag = NCH_tech_sharing_group_flag
+				NCH = { add_to_tech_sharing_group = NCH_BEG_tech_sharing }
+			}
+			WAT = { add_to_tech_sharing_group = NCH_BEG_tech_sharing }
 		}
-		relative_position_id = NCH_art_exhibitions
-		prerequisite = { focus = NCH_art_exhibitions }
+		relative_position_id = NCH_approaching_the_watertown_commune
+		prerequisite = { focus = NCH_approaching_the_watertown_commune }
 	}
 	
 	shared_focus = {
@@ -3540,8 +4752,31 @@
 		cost = 2
 		x = 0
 		y = 1
+
+		bypass = { 
+			OR = {
+				FIR = { has_government = fascism }
+				NOT = { country_exists = FIR }
+			}
+		}
+
 		completion_reward = {
 			log = "[GetDateText]: [Root.GetName]: Focus NCH_encourage_an_open_mind"
+			FIR = {
+				add_ideas = NCH_BEG_science_buff_WAT_FIR_idea
+			}
+			if = {
+				limit = {
+					has_idea = NCH_BEG_pp_buff_WAT_FIR_idea_a
+				}
+				swap_ideas = {
+					remove_idea = NCH_BEG_pp_buff_WAT_FIR_idea_a
+					add_idea = NCH_BEG_pp_buff_WAT_FIR_idea_b
+				}
+			}
+			else = {
+				add_ideas = NCH_BEG_pp_buff_WAT_FIR_idea_a
+			}
 		}
 		relative_position_id = NCH_academic_exchange_program
 		prerequisite = { focus = NCH_academic_exchange_program }
@@ -3553,11 +4788,35 @@
 		cost = 2
 		x = 0
 		y = 1
+
+		bypass = { 
+			OR = {
+				WAT = { has_government = fascism }
+				NOT = { country_exists = WAT }
+			}
+		}
+
 		completion_reward = {
 			log = "[GetDateText]: [Root.GetName]: Focus NCH_expand_their_horizons"
+			WAT = {
+				add_ideas = NCH_BEG_science_buff_WAT_FIR_idea
+			}
+			if = {
+				limit = {
+					has_idea = NCH_BEG_pp_buff_WAT_FIR_idea_a
+				}
+				swap_ideas = {
+					remove_idea = NCH_BEG_pp_buff_WAT_FIR_idea_a
+					add_idea = NCH_BEG_pp_buff_WAT_FIR_idea_b
+				}
+			}
+			else = {
+				add_ideas = NCH_BEG_pp_buff_WAT_FIR_idea_a
+			}
 		}
 		relative_position_id = NCH_language_programs
 		prerequisite = { focus = NCH_language_programs }
+		
 	}
 	
 	shared_focus = {
@@ -3566,8 +4825,21 @@
 		cost = 2
 		x = 0
 		y = 1
+
+		bypass = {
+			NOT = { country_exists = FIR }
+			NOT = { country_exists = WAT }
+		}
+
 		completion_reward = {
 			log = "[GetDateText]: [Root.GetName]: Focus NCH_direct_foreign_trade"
+			add_ideas = NCH_direct_foreign_trade_BEG_idea
+			WAT = {
+				add_ideas = NCH_direct_foreign_trade_WAT_FIR_idea
+			}
+			FIR = {
+				add_ideas = NCH_direct_foreign_trade_WAT_FIR_idea
+			}
 		}
 		relative_position_id = NCH_encourage_emigration
 		prerequisite = { focus = NCH_encourage_emigration }
@@ -3579,8 +4851,24 @@
 		cost = 2
 		x = 0
 		y = 1
+
+		bypass = {
+			OR = {
+				FIR = { has_government = fascism }
+				NOT = { country_exists = FIR }
+			}
+		}
+
 		completion_reward = {
 			log = "[GetDateText]: [Root.GetName]: Focus NCH_bonedrifts_first_coal_plant"
+			454 = {
+				add_building_construction = {
+					type = industrial_complex
+					level = 3
+					instant_build = yes
+				}
+				add_extra_state_shared_building_slots = 3
+			}
 		}
 		relative_position_id = NCH_subsidise_the_cottage_industry
 		prerequisite = { focus = NCH_subsidise_the_cottage_industry }
@@ -3592,8 +4880,21 @@
 		cost = 2
 		x = 0
 		y = 1
+
+		bypass = {
+			OR = {
+				FIR = { has_government = fascism }
+				NOT = { country_exists = FIR }
+			}
+		}
+
 		completion_reward = {
 			log = "[GetDateText]: [Root.GetName]: Focus NCH_aluminum_plants"
+			add_resource = {
+				type = aluminium
+				amount = 13
+				state = 454
+			}
 		}
 		relative_position_id = NCH_invest_in_the_mineral_wealth
 		prerequisite = { focus = NCH_invest_in_the_mineral_wealth }
@@ -3605,8 +4906,29 @@
 		cost = 2
 		x = 0
 		y = 1
+
+		bypass = {
+			OR = {
+				WAT = { has_government = fascism }
+				NOT = { country_exists = WAT }
+			}
+		}
+
 		completion_reward = {
 			log = "[GetDateText]: [Root.GetName]: Focus NCH_build_the_watertown_steel_mills"
+			640 = {
+				add_building_construction = {
+					type = synthetic_refinery
+					level = 2
+					instant_build = yes
+				}
+				add_building_construction = {
+					type = fuel_silo
+					level = 2
+					instant_build = yes
+				}
+				add_extra_state_shared_building_slots = 4
+			}
 		}
 		relative_position_id = NCH_oil_wells_in_watertowns
 		prerequisite = { focus = NCH_oil_wells_in_watertowns }
@@ -3618,8 +4940,21 @@
 		cost = 2
 		x = 0
 		y = 1
+
+		bypass = {
+			OR = {
+				WAT = { has_government = fascism }
+				NOT = { country_exists = WAT }
+			}
+		}
+
 		completion_reward = {
 			log = "[GetDateText]: [Root.GetName]: Focus NCH_incentives_for_innovative_workers"
+			add_resource = {
+				type = steel
+				amount = 19
+				state = 642
+			}
 		}
 		relative_position_id = NCH_educate_artisans
 		prerequisite = { focus = NCH_educate_artisans }
@@ -4634,6 +5969,7 @@
 				remove_ideas = NCH_blindfold_angry
 			}
 			set_country_leader_ideology = harmonic_constitutionalism
+			set_country_flag = NCH_democratic_monarchist
 			custom_effect_tooltip = NCH_democratic_monarchism_tt
 		}
 		relative_position_id = NCH_reform_the_bureaucracy
