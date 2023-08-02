@@ -212,14 +212,15 @@ apply_cosmetic_tags_on_puppet_PREV_is_overlord = {
 			set_stability = 0.3
 			set_war_support = 0.3
 			load_focus_tree = crystal_empire_lunar_focus
-			set_party_name = { ideology = fascism name = NLR_fascism_party long_name = NLR_fascism_party }
-			create_country_leader = {
-				name = "Nightmare Moon"
-				picture = GFX_NightmareMoonPortrait
-				expire = "1965.1.1"
-				ideology = nazism
-				traits = {
-					provisional
+			set_party_name = { ideology = fascism name = NLR_fascism_party long_name = NLR_fascism_party_long }
+			add_country_leader_role = {
+				character = CRY_nightmare_moon
+				promote_leader = yes
+
+				country_leader = {
+					expire = "1965.1.1"
+					ideology = nazism
+					traits = { provisional }
 				}
 			}
 			if = {
@@ -354,7 +355,12 @@ apply_cosmetic_tags_on_puppet_PREV_is_overlord = {
 			country_event = { id = olenia.718 }
 		}
 		else_if = {
-			limit = { original_tag = PLB }
+			limit = {
+				original_tag = PLB 
+				NOT = {
+					has_country_flag = is_changeling_puppet
+				}
+			}
 			country_event = { id = changelings.900 }
 		}
 		else_if = {
@@ -626,7 +632,7 @@ CRY_check_for_Sombra_when_released = {
 					has_government = democratic
 				}
 			}
-			country_event = crysom.40
+			CRY_restore_establishment = yes
 		}
 		if = {
 			limit = {
@@ -679,30 +685,10 @@ CRY_process_when_puppeted_by_EQS = {
 CRY_restore_establishment = {
 	if = {
 		limit = {
+			original_tag = CRY
 			has_government = democratic
-
-			NOT = {
-				has_country_leader = { character = CRY_princess_mi_amore_cadenza ruling_only = yes }
-				has_country_leader = { character = CRY_flurry_heart ruling_only = yes }
-				has_country_leader = { character = EQS_twilight_sparkle ruling_only = yes }
-			}
-
-			OR = {
-				AND = {
-					OR = {
-						has_global_flag = free_the_old_royalty
-						has_global_flag = continue_imprisonment
-					}
-				}
-				AND = {
-					has_global_flag = royalty_executed
-					NOT = { country_exists = event_target:solar_empire }
-					NOT = { has_global_flag = SOL_twilight_converted }
-				}
-			}
-			has_global_flag = sombra_returned
 		}
-		country_event = { id = crysom.40 days = 1 }
+		country_event = { id = crysom.40 hours = 1 }
 	}
 }
 
@@ -934,12 +920,32 @@ WIT_load_ideology_focus = {
 					}
 				}
 				ROOT = {
-					set_politics = {
-						ruling_party = communism
-					}
 					set_country_flag = have_regular_puppets
 					drop_cosmetic_tag = yes
 					set_cosmetic_tag = WIT_republic_tag
+					#Just to make sure they're leaders
+					add_country_leader_role = {
+						character = WIT_sigeweard_spellshield
+						promote_leader = yes
+
+						country_leader = {
+							desc = "POLITICS_SIGEWEARD_DESC"
+							expire = "1965.1.1"
+							ideology = liberalism
+							traits = { FBK_anti_extremist }
+						}
+					}
+					add_country_leader_role = {
+						character = WIT_eadberhta_featherwing
+						promote_leader = yes
+
+						country_leader = {
+							desc = "POLITICS_EADBERHT_DESC"
+							expire = "1965.1.1"
+							ideology = libertarianism
+							traits = { smooth_talking_charmer }
+						}
+					}
 					load_focus_tree = { tree = WIT_focus_tree_volaire keep_completed = yes }
 				}
 			}
@@ -1165,7 +1171,12 @@ CTH_load_ideology_focus = {
 							has_idea = CTH_no_co_sufrit
 						}
 					}
-					add_ideas = CTH_no_co_sufrit
+					remove_ideas = {
+						CTH_batrun_zaryes
+						CTH_baltazar_zakbar
+						CTH_zaron_zorrel
+					}
+					activate_advisor = CTH_no_co_sufrit
 				}
 				if = {
 					limit = {
@@ -1273,7 +1284,12 @@ CTH_load_ideology_focus = {
 							has_idea = CTH_no_co_sufrit
 						}
 					}
-					add_ideas = CTH_no_co_sufrit
+					remove_ideas = {
+						CTH_batrun_zaryes
+						CTH_baltazar_zakbar
+						CTH_zaron_zorrel
+					}
+					activate_advisor = CTH_no_co_sufrit
 				}
 				hidden_effect = {
 					if = {
@@ -2579,7 +2595,7 @@ GRI_give_released_puppet_special_cosmetic_tags = {
 				original_tag = TRD
 			}
 			set_cosmetic_tag = TRD_GRI_conquered_puppet ## Justification: Unlikely that GRI will reinstate the Free City of Skyfall after what they did; better to marginalise the city and reduce its power ##
-			set_capital = { state = 380 }
+			set_capital = { state = 380 remember_old_capital = no }
 			load_focus_tree = generic_griffon_focus
 		}
 	}
@@ -2776,6 +2792,120 @@ FRN_reduce_tarrin_resistance = {
 		}
 		FRN = {
 			set_variable = { FRN_tarrin_resistance_variable = 0.15 }
+		}
+	}
+}
+
+transfer_impassible_states_back = {
+	for_each_scope_loop = {
+		array = global.stolen_impassables
+		# Calculate the best owner
+		set_temp_variable = { impassable_former_owner_temp = impassable_former_owner }
+		set_temp_variable = { impassable_best_owner = 0 }
+		# 1 - original owner
+		# 2 - original tag of original owner
+		# 3 - root (winner in peace deal)
+		# 4 - country with a core allied with root
+		# 5 - country with a core
+		# fallback - current owner (PDX logic)
+		set_temp_variable = { impassable_best_owner_type = 0 }
+
+		if = {
+			limit = {
+				owner = {
+					NOT = { tag = temp_var:impassable_former_owner_temp }
+				}
+			}
+			log = "[GetDateText]: Impassable [This.GetName] was stolen from [?impassable_former_owner.GetTag] by [?owner.GetTag]"
+
+			every_neighbor_state = {
+				limit = {
+					impassable = no
+					owner = {
+						NOT = {
+							has_war_with = ROOT
+							has_war_with = FROM
+						}
+					}
+				}
+				owner = {
+					if = {
+						limit = {
+							NOT = {
+								check_variable = { impassable_best_owner_type > 1 }
+							}
+							tag = temp_var:impassable_former_owner_temp
+						}
+						log = "[GetDateText]: Setting best owner as previous owner [?this.GetTag]"
+						set_temp_variable = { impassable_best_owner = THIS }
+						set_temp_variable = { impassable_best_owner_type = 1 }
+					}
+					else_if = {
+						limit = {
+							check_variable = { impassable_best_owner_type > 2 }
+							original_tag = temp_var:impassable_former_owner_temp
+						}
+						log = "[GetDateText]: Setting best owner as same original tag as previous owner [?this.GetTag]"
+						set_temp_variable = { impassable_best_owner = THIS }
+						set_temp_variable = { impassable_best_owner_type = 2 }
+					}
+					else_if = {
+						limit = {
+							check_variable = { impassable_best_owner_type > 3 }
+							tag = ROOT
+						}
+						log = "[GetDateText]: Setting best owner as root (winner) [?this.GetTag]"
+						set_temp_variable = { impassable_best_owner = THIS }
+						set_temp_variable = { impassable_best_owner_type = 3 }
+					}
+					else_if = {
+						limit = {
+							check_variable = { impassable_best_owner_type > 4 }
+							PREV = { is_core_of = PREV }
+							is_ally_with = ROOT
+						}
+						log = "[GetDateText]: Setting best owner as core owner allied to root [?this.GetTag]"
+						set_temp_variable = { impassable_best_owner = THIS }
+						set_temp_variable = { impassable_best_owner_type = 4 }
+					}
+					else_if = {
+						limit = {
+							check_variable = { impassable_best_owner_type > 5 }
+							PREV = { is_core_of = PREV }
+						}
+						log = "[GetDateText]: Setting best owner as core owner [?this.GetTag]"
+						set_temp_variable = { impassable_best_owner = THIS }
+						set_temp_variable = { impassable_best_owner_type = 5 }
+					}
+				}
+			}
+			if = {
+				limit = {
+					NOT = {
+						check_variable = { impassable_best_owner = 0 }
+					}
+				}
+				log = "[GetDateText]: Impassable [This.GetName] transferring to [?impassable_best_owner.GetTag]"
+				transfer_state_to = temp_var:impassable_best_owner
+			}
+		}
+		clear_variable = impassable_former_owner
+	}
+	clear_array = global.stolen_impassables
+}
+
+save_owner_of_impassible_states = {
+	FROM = {
+		every_owned_state = {
+			limit = {
+				impassable = yes
+			}
+			set_variable = {
+				impassable_former_owner = FROM
+			}
+			add_to_array = {
+				global.stolen_impassables = THIS
+			}
 		}
 	}
 }
