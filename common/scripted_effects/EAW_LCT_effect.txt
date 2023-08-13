@@ -1062,21 +1062,45 @@ LCT_resistance_change_control = {
 		array = LCT_resistance_map_array	#Find temp_state in the array
 		limit = { state = temp_state }
 		
-		add_to_variable = { LCT_resistance_control^temp_group = temp_value }	#Add temp_value to the resistance level of temp_group
-		
-		clamp_variable = { var = LCT_resistance_control^temp_group min = 0 max = 100 }	#Clamp resistance value between 0 and 100
-		
-		### Create tooltip ###
-		meta_effect = {
-			text = {
-				set_temp_variable = { temp_group_token = token:LCT_resistance_group_[GROUP] } # Going to hell for this
-				custom_effect_tooltip = LCT_resistance_change_control_CET
+		if = {
+			limit = {
+				NOT = {
+					AND = {
+						check_variable = { temp_group = 1 }
+						PREV = { has_country_flag = LCT_harmony_defeated }
+					}
+					AND = {
+						check_variable = { temp_group = 2 }
+						PREV = { has_country_flag = LCT_neutrality_defeated }
+					}
+					AND = {
+						check_variable = { temp_group = 3 }
+						PREV = { has_country_flag = LCT_communism_defeated }
+					}
+					AND = {
+						check_variable = { temp_group = 4 }
+						PREV = { has_country_flag = LCT_supremacy_defeated }
+					}
+				}
 			}
-			GROUP = "[?temp_group]"
-		}
-		###
+			
+			add_to_variable = { LCT_resistance_control^temp_group = temp_value }	#Add temp_value to the resistance level of temp_group
+			
+			clamp_variable = { var = LCT_resistance_control^temp_group min = 0 max = 100 }	#Clamp resistance value between 0 and 100
+			
+			### Create tooltip ###
+			meta_effect = {
+				text = {
+					set_temp_variable = { temp_group_token = token:LCT_resistance_group_[GROUP] } # Going to hell for this
+					custom_effect_tooltip = LCT_resistance_change_control_CET
+				}
+				GROUP = "[?temp_group]"
+			}
+			###
+			
+			LCT_resistance_calculate =  yes
 		
-		LCT_resistance_calculate =  yes
+		}
 	}
 }
 
@@ -1115,7 +1139,25 @@ LCT_resistance_calculate = {
 		value = b
 		if = {
 			limit = {
-				NOT = { check_variable = { temp_group = o } }
+				NOT = {
+					check_variable = { temp_group = o }
+					AND = {
+						check_variable = { o = 1 }
+						has_country_flag = LCT_harmony_defeated
+					}
+					AND = {
+						check_variable = { o = 2 }
+						has_country_flag = LCT_neutrality_defeated
+					}
+					AND = {
+						check_variable = { o = 3 }
+						has_country_flag = LCT_communism_defeated
+					}
+					AND = {
+						check_variable = { o = 4 }
+						has_country_flag = LCT_supremacy_defeated
+					}
+				}
 			}
 			add_to_temp_variable = { total = b }	#Set total to the sum of all other resistance groups
 		}
@@ -1128,7 +1170,25 @@ LCT_resistance_calculate = {
 		value = b
 		if = {
 			limit = {
-				NOT = { check_variable = { temp_group = o } }
+				NOT = {
+					check_variable = { temp_group = o }
+					AND = {
+						check_variable = { o = 1 }
+						has_country_flag = LCT_harmony_defeated
+					}
+					AND = {
+						check_variable = { o = 2 }
+						has_country_flag = LCT_neutrality_defeated
+					}
+					AND = {
+						check_variable = { o = 3 }
+						has_country_flag = LCT_communism_defeated
+					}
+					AND = {
+						check_variable = { o = 4 }
+						has_country_flag = LCT_supremacy_defeated
+					}
+				}
 			}
 			divide_variable = { LCT_resistance_control^o = total }	#divide resistance level of each other group by total to appropriately scale them to the changed value
 		}
@@ -1343,21 +1403,21 @@ LCT_add_home_resistance_modifiers = {
 LCT_reduce_home_resistance_social_modifier = {
 	custom_effect_tooltip = LCT_reduce_home_resistance_social_modifier_tooltip
 
-	add_to_variable = { LCT_six_lords_home_resistance_edition_social_var = 0.07 }
+	add_to_variable = { LCT_six_lords_home_resistance_edition_social_var = 0.1s }
 }
 
-LCT_reduce_home_resistance_social_industrial = {
+LCT_reduce_home_resistance_industrial_modifier = {
 	custom_effect_tooltip = LCT_reduce_home_resistance_social_industrial_tooltip
 	
-	add_to_variable = { LCT_six_lords_home_resistance_edition_industrial_var = 0.2 }
-	subtract_from_variable = { LCT_six_lords_home_resistance_edition_industrial_inv_var = 0.2 }
+	add_to_variable = { LCT_six_lords_home_resistance_edition_industrial_var = 0.225 }
+	subtract_from_variable = { LCT_six_lords_home_resistance_edition_industrial_inv_var = 0.225 }
 }
 
-LCT_reduce_home_resistance_social_military = {
+LCT_reduce_home_resistance_military_modifier = {
 	custom_effect_tooltip = LCT_reduce_home_resistance_social_military_tooltip
 
-	add_to_variable = { LCT_six_lords_home_resistance_edition_military_var = 0.2 }
-	subtract_from_variable = { LCT_six_lords_home_resistance_edition_military_inv_var = 0.2 }
+	add_to_variable = { LCT_six_lords_home_resistance_edition_military_var = 0.225 }
+	subtract_from_variable = { LCT_six_lords_home_resistance_edition_military_inv_var = 0.225 }
 }
 
 LCT_resistance_events_selection = {
@@ -1834,5 +1894,73 @@ LCT_resistance_events_selection = {
 				}
 			}
 		}
+	}
+}
+
+LCT_deactivate_harmony = {
+	set_country_flag = LCT_harmony_defeated
+	for_each_scope_loop = {
+		array = LCT_resistance_map_array_id
+	
+		set_variable = { LCT_resistance_control^1 = 0 }
+	}
+	for_each_loop = {
+		array = LCT_resistance_map_array_id
+		value = v
+		set_temp_variable = { temp_state = v }
+		set_temp_variable = { temp_group = 0 }
+		set_temp_variable = { temp_value = 0 }
+		LCT_resistance_change_control = yes
+	}
+}
+
+LCT_deactivate_neutrality = {
+	set_country_flag = LCT_neutrality_defeated
+	for_each_scope_loop = {
+		array = LCT_resistance_map_array_id
+	
+		set_variable = { LCT_resistance_control^2 = 0 }
+	}
+	for_each_loop = {
+		array = LCT_resistance_map_array_id
+		value = v
+		set_temp_variable = { temp_state = v }
+		set_temp_variable = { temp_group = 0 }
+		set_temp_variable = { temp_value = 0 }
+		LCT_resistance_change_control = yes
+	}
+}
+
+LCT_deactivate_comunism = {
+	set_country_flag = LCT_communism_defeated
+	for_each_scope_loop = {
+		array = LCT_resistance_map_array_id
+	
+		set_variable = { LCT_resistance_control^3 = 0 }
+	}
+	for_each_loop = {
+		array = LCT_resistance_map_array_id
+		value = v
+		set_temp_variable = { temp_state = v }
+		set_temp_variable = { temp_group = 0 }
+		set_temp_variable = { temp_value = 0 }
+		LCT_resistance_change_control = yes
+	}
+}
+
+LCT_deactivate_supremacy = {
+	set_country_flag = LCT_supremacy_defeated
+	for_each_scope_loop = {
+		array = LCT_resistance_map_array_id
+	
+		set_variable = { LCT_resistance_control^4 = 0 }
+	}
+	for_each_loop = {
+		array = LCT_resistance_map_array_id
+		value = v
+		set_temp_variable = { temp_state = v }
+		set_temp_variable = { temp_group = 0 }
+		set_temp_variable = { temp_value = 0 }
+		LCT_resistance_change_control = yes
 	}
 }
