@@ -1,4 +1,4 @@
-name="Equestria at War"
+name="Equestria at War - Secret"
 replace_path="common/ai_equipment"
 replace_path="common/ai_focuses"
 replace_path="common/ai_peace"
@@ -37,6 +37,5 @@ tags={
 	"Map"
 }
 picture="equestria.jpg"
-remote_file_id="1826643372"
 supported_version="1.12.*"
-path="mod/equestria"
+path="mod/eaw-secret"
