@@ -4998,10 +4998,26 @@ on_actions = {
 			}
 		}
 	}
+
 	# ROOT is capitulated country, FROM is winner
-	on_capitulation = {
+	# This is processed by the game BEFORE peace conference
+	# If you have any effects that annex/change state ownership, put them here
+	on_capitulation_immediate = {
 		effect = {
-			log = "[GetDateText]: ROOT: [Root.GetName] FROM: [From.GetName] on_capitulation"
+			log = "[GetDateText]: ROOT: [Root.GetName] FROM: [From.GetName] on_capitulation_immediate"
+			if = {
+				limit = {
+					tag = JES
+					has_war_with = FRN
+				}
+				# Fire this here, otherwise it will be processed during peace conference,
+				# and cause a CTD (loser state cannot be owned by non-loser, and this
+				# event transfers states from loser)
+				FRN = {
+					country_event = francistria.82
+				}
+			}
+
 			if = {
 				limit = {
 					is_in_faction = yes
@@ -5013,6 +5029,41 @@ on_actions = {
 				}
 				leave_faction = yes
 			}
+
+			if = {
+				limit = {
+					NOT = { has_global_flag = river_federation_founded }
+					OR = {
+						AND = {
+							is_river_fed_member = yes
+							var:faction_leader = {
+								is_river_fed_member = yes
+							}
+						}
+						FROM = {
+							AND = {
+								is_river_fed_member = yes
+								var:faction_leader = {
+									is_river_fed_member = yes
+								}
+							}
+						}
+					}
+				}
+				set_country_flag = RIV_cannot_be_leader
+				RIV_find_new_leader = yes
+				clr_country_flag = RIV_cannot_be_leader
+			}
+		}
+	}
+
+	# ROOT is capitulated country, FROM is winner
+	# This is processed by the game DURING peace conference
+	# If you have any effects that annex/change state ownership, DO NOT put them here
+	# as that will crash the peace conference
+	on_capitulation = {
+		effect = {
+			log = "[GetDateText]: ROOT: [Root.GetName] FROM: [From.GetName] on_capitulation"
 			if = {
 				limit = {
 					tag = CHN
@@ -5588,17 +5639,6 @@ on_actions = {
 					annex_country = {
 						target = ZAR
 					}
-				}
-			}
-			if = {
-				limit = {
-					tag = JES
-					FROM = {
-						tag = FRN
-					}
-				}
-				FROM = {
-					country_event = francistria.82
 				}
 			}
 			#if = {
@@ -6547,29 +6587,6 @@ on_actions = {
 						}
 					}
 					annex_country = { target = FROM }
-				}
-
-				if = {
-					limit = {
-						NOT = { has_global_flag = river_federation_founded }
-						OR = {
-							AND = {
-								is_river_fed_member = yes
-								var:faction_leader = {
-									is_river_fed_member = yes
-								}
-							}
-							FROM = {
-								AND = {
-									is_river_fed_member = yes
-									var:faction_leader = {
-										is_river_fed_member = yes
-									}
-								}
-							}
-						}
-					}
-					RIV_find_new_leader = yes
 				}
 
 
