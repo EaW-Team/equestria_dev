@@ -92,6 +92,17 @@ on_actions = {
 			add_to_array = { global.river_coalition_members = FRE }
 			add_to_array = { global.river_coalition_members = DMT }
 
+			#Using the land_indexes we can determine land connection. Any state with a land connection to these states will NOT be considered an island in is_state_considered_an_island
+			add_to_array = { global.is_defined_as_continental_landmass_capital = 3.id } #Canterlot - Equus
+			add_to_array = { global.is_defined_as_continental_landmass_capital = 875.id } #Colthage - Zebrica
+			add_to_array = { global.is_defined_as_continental_landmass_capital = 382.id } #Griffenheim - Griffonia
+			add_to_array = { global.is_defined_as_continental_landmass_capital = 360.id } #Southern Cross - Cross Island belonging to New Mareland
+			add_to_array = { global.is_defined_as_continental_landmass_capital = 1165.id } #Mount Aris - Hippogriffia
+			add_to_array = { global.is_defined_as_continental_landmass_capital = 721.id } #Sao Penario - Macawia
+			add_to_array = { global.is_defined_as_continental_landmass_capital = 715.id } #Espiritio forte - Ornithia
+			add_to_array = { global.is_defined_as_continental_landmass_capital = 726.id } #Sri Cervidae - Tanikama
+			add_to_array = { global.is_defined_as_continental_landmass_capital = 1137.id } #Sokatramaraina - Sambovato
+
 			#SOL is used here as a random country selector
 			#Thanks to Delincious from KR team for the idea <3
 			SOL = {
@@ -898,7 +909,7 @@ on_actions = {
 							any_owned_state = {
 								OR = {
 									is_coastal = yes
-									is_island_state = yes
+									is_state_considered_an_island = yes
 								}
 							}
 						}
@@ -5030,10 +5041,36 @@ on_actions = {
 			}
 		}
 	}
+
 	# ROOT is capitulated country, FROM is winner
-	on_capitulation = {
+	# This is processed by the game BEFORE peace conference
+	# If you have any effects that annex/change state ownership, put them here
+	on_capitulation_immediate = {
 		effect = {
-			log = "[GetDateText]: ROOT: [Root.GetName] FROM: [From.GetName] on_capitulation"
+			log = "[GetDateText]: ROOT: [Root.GetName] FROM: [From.GetName] on_capitulation_immediate"
+			if = {
+				limit = {
+					tag = JES
+					has_war_with = FRN
+				}
+				# Fire this here, otherwise it will be processed during peace conference,
+				# and cause a CTD (loser state cannot be owned by non-loser, and this
+				# event transfers states from loser)
+				FRN = {
+					country_event = francistria.82
+				}
+			}
+			if = {
+				limit = {
+					original_tag = MDL
+					FROM = {
+						original_tag = ABY
+					}
+				}
+				FROM = {
+					country_event = abyssinia.49
+				}
+			}
 			if = {
 				limit = {
 					is_in_faction = yes
@@ -5045,6 +5082,41 @@ on_actions = {
 				}
 				leave_faction = yes
 			}
+
+			if = {
+				limit = {
+					NOT = { has_global_flag = river_federation_founded }
+					OR = {
+						AND = {
+							is_river_fed_member = yes
+							var:faction_leader = {
+								is_river_fed_member = yes
+							}
+						}
+						FROM = {
+							AND = {
+								is_river_fed_member = yes
+								var:faction_leader = {
+									is_river_fed_member = yes
+								}
+							}
+						}
+					}
+				}
+				set_country_flag = RIV_cannot_be_leader
+				RIV_find_new_leader = yes
+				clr_country_flag = RIV_cannot_be_leader
+			}
+		}
+	}
+
+	# ROOT is capitulated country, FROM is winner
+	# This is processed by the game DURING peace conference
+	# If you have any effects that annex/change state ownership, DO NOT put them here
+	# as that will crash the peace conference
+	on_capitulation = {
+		effect = {
+			log = "[GetDateText]: ROOT: [Root.GetName] FROM: [From.GetName] on_capitulation"
 			if = {
 				limit = {
 					tag = CHN
@@ -5572,7 +5644,14 @@ on_actions = {
 			}
 			if = {
 				limit = {
-					FROM = {tag = BAT}
+					FROM = {
+						AND = {
+							original_tag = BAT
+							NOT = {
+								has_country_flag = BAT_national_catastrophe
+							}
+						}
+					}
 					ROOT = {
 						AND = {
 							tag = TBK
@@ -5591,7 +5670,14 @@ on_actions = {
 			}
 			if = {
 				limit = {
-					FROM = {tag = BAT}
+					FROM = {
+						AND = {
+							original_tag = BAT
+							NOT = {
+								has_country_flag = BAT_national_catastrophe
+							}
+						}
+					}
 					ROOT = {
 						AND = {
 							tag = ZAR
@@ -5606,28 +5692,6 @@ on_actions = {
 					annex_country = {
 						target = ZAR
 					}
-				}
-			}
-			if = {
-				limit = {
-					tag = JES
-					FROM = {
-						tag = FRN
-					}
-				}
-				FROM = {
-					country_event = francistria.82
-				}
-			}
-			if = {
-				limit = {
-					original_tag = MDL
-					FROM = {
-						original_tag = ABY
-					}
-				}
-				FROM = {
-					country_event = abyssinia.49
 				}
 			}
 			#if = {
@@ -6584,29 +6648,6 @@ on_actions = {
 					annex_country = { target = FROM }
 				}
 
-				if = {
-					limit = {
-						NOT = { has_global_flag = river_federation_founded }
-						OR = {
-							AND = {
-								is_river_fed_member = yes
-								var:faction_leader = {
-									is_river_fed_member = yes
-								}
-							}
-							FROM = {
-								AND = {
-									is_river_fed_member = yes
-									var:faction_leader = {
-										is_river_fed_member = yes
-									}
-								}
-							}
-						}
-					}
-					RIV_find_new_leader = yes
-				}
-
 
 				if = {
 					limit = {
@@ -6788,6 +6829,18 @@ on_actions = {
 						}
 						country_event = { id = news.2101 days = 1 }
 						country_event = { id = equestriadem.8 days = 60 }
+						if = {
+							limit = {
+								is_ai = yes
+								FROM = { is_subject_of = ROOT }
+							}
+							every_owned_state = {
+								limit = {
+									is_core_of = FROM
+								}
+								transfer_state_to = FROM
+							}
+						}
 					}
 					if = {
 						limit = {
@@ -8346,13 +8399,13 @@ on_actions = {
 				}
 				FROM.FROM = {
 					set_temp_variable = { temp_damage_mils = non_damaged_building_level@arms_factory }
-					divide_temp_variable = { temp_damage_mils = 2 }
+					divide_temp_variable = { temp_damage_mils = 3 }
 					set_temp_variable = { temp_damage_civs = non_damaged_building_level@industrial_complex }
-					divide_temp_variable = { temp_damage_civs = 3 }
+					divide_temp_variable = { temp_damage_civs = 4 }
 					set_temp_variable = { temp_damage_docs = non_damaged_building_level@dockyard }
-					divide_temp_variable = { temp_damage_docs = 2 }
+					divide_temp_variable = { temp_damage_docs = 3 }
 					set_temp_variable = { temp_damage_syns = non_damaged_building_level@synthetic_refinery }
-					divide_temp_variable = { temp_damage_syns = 2 }
+					divide_temp_variable = { temp_damage_syns = 3 }
 
 					meta_effect = {
 						text = {
