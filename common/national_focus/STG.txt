@@ -1077,7 +1077,7 @@ focus_tree = {
 	focus = {
 		id = griffon_colony_worst_case
 		icon = GFX_goal_stg_worst_case
-		cost = 5
+		cost = 2
 		prerequisite = {
 			focus = griffon_colony
 		}
@@ -1102,8 +1102,18 @@ focus_tree = {
 		}
 		available = {
 			GRF = { has_country_flag = GRF_teafeather_dead }
-			has_country_flag = stalliongradians_arrested
+			OR = {
+				has_country_flag = stalliongradians_arrested
+				has_country_flag = GRF_junta
+			}
+			NOT = {
+				GRF = {
+					has_country_flag = GRF_civil_war_flag
+				}
+			}
 		}
+		continue_if_invalid = no
+		cancel_if_invalid = yes
 		x = 11
 		y = 8
 		completion_reward = {
@@ -1255,10 +1265,19 @@ focus_tree = {
 		icon = GFX_goal_stg_com_civil_war
 		cost = 3
 		ai_will_do = {
-			factor = 10
+			factor = 15
 			modifier = {
-				factor = 15
-				EQS = { has_war = yes }
+				factor = 0
+				OR = {
+					EQS = { 
+						exists = yes
+						has_war = no 
+					}
+					NLR = { 
+						exists = yes
+						has_war = no 
+					}
+				}
 			}
 			modifier = {
 				factor = 0
@@ -1280,6 +1299,8 @@ focus_tree = {
 				EQS = { exists = no }
 			}
 		}
+		will_lead_to_war_with = EQS
+		will_lead_to_war_with = NLR
 		available = {
 			has_government = communism
 		}
@@ -2695,23 +2716,34 @@ focus_tree = {
 		id = strike_GRF
 		icon = GFX_goal_generic_consumer_goods
 		cost = 10
+		available = {
+			has_war = no
+			NOT = {
+				GRF = {
+					has_country_flag = GRF_civil_war_flag
+				}
+			}
+		}
 		prerequisite = {
 			focus = take_down_STL
 		}
         ai_will_do = {
 			factor = 25
 			modifier = {
-				factor = 0
-				has_war = yes
-			}
-			modifier = {
 				factor = 100
 				GRF = { has_war = yes }
+			}
+			modifier = {
+				factor = 0.01
+				date < 1009.06.5
 			}
 		}
 		bypass = {
 			GRF = { exists = no }
 		}
+		continue_if_invalid = no
+		cancel_if_invalid = yes
+		will_lead_to_war_with = GRF
 		x = 30
 		y = 5
 		completion_reward = {
@@ -2772,11 +2804,10 @@ focus_tree = {
 		ai_will_do = {
 			factor = 7
 		}
-
 		x = 31
 		y = 6
 		completion_reward = {
-			log = "[GetDateText]: [Root.GetName]: Focus sinister_line"
+		log = "[GetDateText]: [Root.GetName]: Focus sinister_line"
 		237 = {
 				add_building_construction = {
 					type = bunker
@@ -3307,15 +3338,14 @@ focus_tree = {
 		id = STG_attack_yaks
 		icon = GFX_goal_stg_yak
 		cost = 5
+		available = {
+			has_war = no
+		}
 		prerequisite = {
 			focus = sinister_line
 		}
 		ai_will_do = {
 			factor = 25
-			modifier = {
-				factor = 0
-				has_war = yes
-			}
 			modifier = {
 				factor = 100
 				OR = { 
@@ -3324,7 +3354,7 @@ focus_tree = {
 				}
 			}
 		}
-
+		cancel_if_invalid = yes
 		x = 31
 		y = 7
 		will_lead_to_war_with = YAK
@@ -3374,16 +3404,16 @@ focus_tree = {
 		id = STG_attack_PNG
 		icon = GFX_goal_support_communism
 		cost = 6
+		available = {
+			has_war = no
+		}
+		cancel_if_invalid = yes
 		will_lead_to_war_with = PNG
 		prerequisite = {
 			focus = STG_attack_yaks
 		}
 		ai_will_do = {
 			factor = 25
-			modifier = {
-				factor = 0
-				has_war = yes
-			}
 			modifier = {
 				factor = 15
 				AND = {
@@ -3454,24 +3484,27 @@ focus_tree = {
 		id = changeling_liberation
 		icon = GFX_goal_stg_chn
 		cost = 8
+		available = {
+			has_war = no
+			OR = {
+				CHN = { is_subject = no }
+				CCN = { is_subject = no }
+			}
+		}
 		prerequisite = {
 			focus = prepare_for_the_crusade
 		}
 		ai_will_do = {
 			factor = 10
 			modifier = {
-				factor = 0
-				has_war = yes
-			}
-			modifier = {
-				factor = 100
-				NOT = { has_war = yes }
+				factor = 5
 				OR = { 
 				    CHN = { has_war = yes }
 				    CCN = { has_war = yes } 
 				}
 			}
 		}
+		cancel_if_invalid = yes
 		x = 33
 		y = 9
 		bypass = {
@@ -3509,6 +3542,9 @@ focus_tree = {
 		id = the_war_to_end_disorder
 		icon = GFX_goal_stg_sinister_war_on_eqs
 		cost = 10
+		available = {
+			has_war = no
+		}
 		prerequisite = {
 			focus = prepare_for_the_crusade
 			focus = STG_attack_PNG
@@ -3516,25 +3552,28 @@ focus_tree = {
 		ai_will_do = {
 			factor = 20
 			modifier = {
-				factor = 0
-				has_war = yes
-			}
-			modifier = {
-				factor = 2
+				factor = 1.5
 				EQS = {	has_war = yes }
 			}
 			modifier = {
 				factor = 100
 				OR = {
 					AND = { 
-						OR = { EQS = { has_war = yes } NLR = { has_war = yes } }
 						event_target:equestria = { has_war = yes }
-						CHN = { surrender_progress > 0.15 }
+						CHN = { surrender_progress > 0.10 }
 					}
 					AND = { 
-						OR = { EQS = { has_war = yes } NLR = { has_war = yes } }
+						OR = { 
+							EQS = { 
+								has_war = yes
+								surrender_progress > 0.15
+							} 
+							NLR = { 
+								has_war = yes
+								surrender_progress > 0.15
+							} 
+						}
 						event_target:equestria = { has_war = yes }
-						EQS = { surrender_progress > 0.25 }
 					}
 				}
 			}
@@ -3576,6 +3615,7 @@ focus_tree = {
 		}
 		x = 31
 		y = 9
+		cancel_if_invalid = yes
 		will_lead_to_war_with = EQS
 		will_lead_to_war_with = ELF
 		will_lead_to_war_with = NLR
