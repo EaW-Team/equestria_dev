@@ -1,0 +1,188 @@
+# trigger to check wherever hch value's id is the same as given id
+is_same_id_for_value_trigger = {
+	# hch_value -- value to check
+	# id_to_check -- id to check the value to
+
+	## get the id from value
+	# find the rounded value
+	set_temp_variable = { hch_value_rounded = hch_value }
+	round_temp_variable = var:hch_value_rounded
+	# get the id by subracting rounded value from value
+	set_temp_variable = { hch_value_id = var:hch_value }
+	subtract_from_temp_variable = { hch_value_id = var:hch_value_rounded }
+
+	# actual trigger
+	check_variable = { hch_value_id = id_to_check }
+}
+
+# true if a slot is selected
+is_hch_slot_selected_trigger = {
+	has_variable = selected_hch_value
+}
+
+# true if there is a hch selected
+is_hch_id_selected_trigger = {
+	NOT = {
+		check_variable = { selected_hch_id = 0 }
+	}
+}
+
+# trigger checks wherever current_hch_id can be assigned to the selected level
+can_assign_current_hch_to_level_trigger = {
+	meta_trigger = {
+		text = {
+			can_assign_current_hch_to_level_[HCH_LEVEL_TXT]_trigger = yes
+		}
+		HCH_LEVEL_TXT = "[?selected_hch_level|0]"
+	}
+}
+
+can_assign_current_hch_to_level_1_trigger = {
+	is_in_array = { kir_hchs_level_1_array = current_hch_id }
+}
+
+can_assign_current_hch_to_level_2_trigger = {
+	is_in_array = { kir_hchs_level_2_array = current_hch_id }
+}
+
+can_assign_current_hch_to_level_3_trigger = {
+	is_in_array = { kir_hchs_level_3_array = current_hch_id }
+}
+
+can_assign_current_hch_to_level_4_trigger = {
+	is_in_array = { kir_hchs_level_4_array = current_hch_id }
+}
+
+can_assign_current_hch_to_level_5_trigger = {
+	is_in_array = { kir_hchs_level_5_array = current_hch_id }
+}
+
+kir_hch_can_promote_trigger = {
+	OR = {
+		check_variable = { selected_hch_level = 2 }
+		check_variable = { selected_hch_level = 3 }
+		check_variable = { selected_hch_level = 4 }
+		check_variable = { selected_hch_level = 5 }
+	}
+	if = {
+		limit = {
+			OR = {
+				check_variable = { selected_hch_level = 3 }
+				check_variable = { selected_hch_level = 4 }
+				check_variable = { selected_hch_level = 5 }
+			}
+		}
+		NOT = {
+			is_in_array = { kir_hchs_level_2_array = selected_hch_id }
+		}
+	}
+	NOT = {
+		is_in_array = { kir_hchs_level_1_array = selected_hch_id }
+	}
+}
+
+kir_hch_can_demote_trigger = {
+	OR = {
+		AND = {
+			check_variable = { selected_hch_level = 1 }
+			is_in_array = { kir_hchs_level_1_array = selected_hch_id }
+		}
+		AND = {
+			check_variable = { selected_hch_level = 2 }
+			is_in_array = { kir_hchs_level_2_array = selected_hch_id }
+		}
+	}
+}
+
+kir_hch_has_pp_trigger = {
+	if = {
+		limit = {
+			check_variable = { selected_hch_level = 1 }
+		}
+		has_political_power > 49
+	}
+	else_if = {
+		limit = {
+			check_variable = { selected_hch_level = 2 }
+		}
+		has_political_power > 24
+	}
+	else_if = {
+		limit = {
+			OR = {
+				check_variable = { selected_hch_level = 3 }
+				check_variable = { selected_hch_level = 4 }
+				check_variable = { selected_hch_level = 5 }
+			}
+		}
+		has_political_power > 9
+	}
+}
+
+kir_hch_has_pp_resign_trigger = {
+	if = {
+		limit = {
+			check_variable = { selected_hch_level = 1 }
+		}
+		has_political_power > 24
+	}
+	else_if = {
+		limit = {
+			check_variable = { selected_hch_level = 2 }
+		}
+		has_political_power > 14
+	}
+	else_if = {
+		limit = {
+			OR = {
+				check_variable = { selected_hch_level = 3 }
+				check_variable = { selected_hch_level = 4 }
+				check_variable = { selected_hch_level = 5 }
+			}
+		}
+		has_political_power > 9
+	}
+}
+
+kir_hch_has_pp_promote_trigger = {
+	if = {
+		limit = {
+			has_country_flag = kir_hierarchy_reduce_promotion_cost
+		}
+		has_political_power > 49
+	}
+	else = {
+		has_political_power > 74
+	}
+}
+
+kir_hch_promotion_cap_trigger = {
+	if = {
+		limit = {
+			check_variable = { selected_hch_level = 2 }
+		}
+		check_variable = { kir_hchs_level_1_promoted < 12 }
+	}
+	else_if = {
+		limit = {
+			OR = {
+				check_variable = { selected_hch_level = 3 }
+				check_variable = { selected_hch_level = 4 }
+				check_variable = { selected_hch_level = 5 }
+			}
+		}
+		check_variable = { kir_hchs_level_2_promoted < 12 }
+	}
+}
+
+kir_hch_has_pp_demote_trigger = {
+	if = {
+		limit = {
+			has_country_flag = kir_hierarchy_reduce_promotion_cost
+		}
+		has_political_power > 24
+	}
+	else = {
+		has_political_power > 49
+	}
+}
