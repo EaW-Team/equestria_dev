@@ -1236,6 +1236,11 @@ KIR_great_leap_forward_category = {
 		allowed = { original_tag = KIR } 
 		visible = {
 			has_completed_focus = KIR_focus_5f
+			EQS = {
+				exists = yes
+				has_capitulated = no
+				NOT = { has_war_with = ROOT }
+			}
 		}
 		cost = KIR_mil_decision_2_cost_var
 		days_remove = 30
@@ -1256,6 +1261,11 @@ KIR_great_leap_forward_category = {
 		allowed = { original_tag = KIR } 
 		visible = {
 			has_completed_focus = KIR_focus_5f
+			EQS = {
+				exists = yes
+				has_capitulated = no
+				NOT = { has_war_with = ROOT }
+			}
 		}
 		cost = KIR_mil_decision_3_cost_var
 		days_remove = 30
@@ -6278,6 +6288,227 @@ foreign_politics = {
 }
 
 operations = {
+	Kiria_Offensive_Decisions = {
+		icon = hol_draw_up_staff_plans
+
+		allowed = {
+			OR = {
+				original_tag = KIR
+				original_tag = KIS
+				original_tag = KIC
+			}
+		}
+
+		available = {
+			NOT = { has_country_flag = Kiria_Planned_Offensive_Flag }
+			FROM = {
+				custom_trigger_tooltip = {
+					tooltip = Kiria_Offensive_Decisions_req
+					has_dynamic_modifier = { modifier = unplanned_offensive }
+				}
+				OR = {
+					is_controlled_by = ROOT
+					any_neighbor_state = {
+						is_controlled_by = ROOT
+					}
+				}
+			}
+		}
+
+		visible = {
+			has_country_flag = KIR_bipartite_war_started_flag
+			OR = {
+				has_war_with = KIR
+				has_war_with = KIS
+				has_war_with = KIC
+			}
+			NOT = { 
+				has_country_flag = KIR_national_focus_title_2_flag 
+				has_country_flag = KIR_unlock_post_war_focus_tree 
+				has_country_flag = KIS_unlock_empire_focus_tree 
+				has_country_flag = KIC_unlock_postwar_focus_tree 
+			}
+			FROM = {
+				has_dynamic_modifier = { modifier = unplanned_offensive }
+			}
+		}
+		
+		state_target = yes
+		on_map_mode = map_only
+		target_trigger = {
+			FROM = {
+				OR = {
+					region = 283
+					region = 31
+					region = 82
+					region = 79
+					state = 926
+				}
+				has_dynamic_modifier = { modifier = unplanned_offensive }
+			}
+		}
+
+		custom_cost_trigger = {
+			has_political_power > ROOT.KIRIA_OFFENSIVE_PP_COST
+			command_power > ROOT.KIRIA_OFFENSIVE_CP_COST
+		}
+		
+		custom_cost_text = decision_cost_KIRIA_OFFENSIVE
+		fire_only_once = yes
+		days_remove = ROOT.KIRIA_OFFENSIVE_DAYS
+
+		complete_effect = {
+			hidden_effect = {
+				add_political_power = ROOT.KIRIA_OFFENSIVE_PP_COST_NEGATIVE
+				add_command_power = ROOT.KIRIA_OFFENSIVE_CP_COST_NEGATIVE
+				set_country_flag = { flag = Kiria_Planned_Offensive_Flag days = 60 value = 1 }
+			}
+		}
+
+		remove_effect = {
+			FROM = {
+				remove_dynamic_modifier = {
+					modifier = unplanned_offensive
+				}
+				custom_effect_tooltip = KIR_line_break
+			}
+		}
+
+		ai_will_do = {
+			base = 0.1
+			modifier = {
+				factor = 0
+				has_full_control_of_state = FROM
+			}
+			modifier = {
+				factor = 5
+				divisions_in_state = {
+					state = FROM
+					size > 0
+				}
+				NOT = {
+					has_full_control_of_state = FROM
+				}
+			}
+		}
+	}
+	FRV_sound_the_call = {
+		icon = megaphone
+		allowed = {
+			original_tag = KIS
+		}
+		ai_will_do = {
+			factor = 0
+		}
+		
+		visible = {
+			has_country_flag = KIS_FRV_flag
+		}
+		
+		available = {
+			hidden_trigger = {
+				has_country_flag = KIS_FRV_flag
+			}
+			has_war_with = KIC
+			has_completed_focus = FRV_Focus_16
+			custom_trigger_tooltip = {
+				tooltip = FRV_sound_the_call_req
+				OR = {
+					check_variable = { FRV.num_core_states > 2 }
+					check_variable = { FRV.FRV_agitated_states > 4 }
+				}
+			}
+		}
+		
+		cost = 25
+		fire_only_once = yes
+		
+		complete_effect = {
+			log = "[GetDateText]: [Root.GetName]: Decision FRV_sound_the_call"
+			custom_effect_tooltip = FRV_sound_the_call_tt
+			set_global_flag = FRV_has_sounded_the_call_of_revolution
+		}
+	}
+	FRV_reconcile_with_contumacy = {
+		icon = generic_nationalism
+		allowed = {
+			original_tag = KIS
+		}
+		ai_will_do = {
+			factor = 365
+		}
+		
+		visible = {
+			has_country_flag = KIS_FRV_flag
+			has_global_flag = KIC_contumacy_revolt_happened_flag
+			UMC = {
+				exists = yes
+				has_capitulated = no
+				is_subject = no
+				NOT = {
+					has_war_with = ROOT
+				}
+			}
+			KIC = {
+				NOT = {
+					has_war_with = ROOT
+					has_war_with = UMC
+				}
+			}
+		}
+		
+		available = {
+			hidden_trigger = {
+				has_country_flag = KIS_FRV_flag
+			}
+			ROOT = {
+				any_owned_state = {
+					is_controlled_by = PREV
+					any_neighbor_state = {
+						is_owned_by = UMC
+						is_controlled_by = UMC
+					}
+				}
+			}
+		}
+		
+		cost = 25
+		days_remove = 30
+		fire_only_once = yes
+		
+		modifier = {
+			political_power_factor = -0.25
+			stability_weekly = -0.05
+		}
+		
+		remove_effect = {
+			log = "[GetDateText]: [Root.GetName]: Decision remove FRV_reconcile_with_contumacy"		
+			hidden_effect = {
+				if = {
+					limit = {
+						any_country = {
+							is_subject_of = UMC
+						}
+					}
+					every_other_country = {
+						limit = {
+							is_subject_of = UMC
+						}
+						ROOT = {
+							annex_country = {
+								target = PREV
+								transfer_troops = no
+							}
+						}
+					}
+				}
+			}
+			annex_country = {
+				target = UMC
+				transfer_troops = no
+			}
+		}
+	}
 	KIS_unify_kiria_decision = {
 		icon = generic_nationalism
 		allowed = {
@@ -7288,8 +7519,10 @@ operations = {
 		available = {
 			ROOT = {
 				any_owned_state = {
+					is_controlled_by = PREV
 					any_neighbor_state = {
 						is_owned_by = FROM
+						is_controlled_by = FROM
 					}
 				}
 			}
@@ -9542,7 +9775,7 @@ operations = {
 			original_tag = KIC
 		}
 		ai_will_do = {
-			factor = 0
+			base = 0
 		}
 		
 		visible = {
@@ -12207,12 +12440,19 @@ KIS_protectorates_and_commanderies_category = {
 				tooltip = KIS_LMB_viceroyalty_req_tt
 				all_of_scopes = {
 					array = LMB.core_states
-					owner = {
-						OR = {
-							tag = ROOT
-							is_subject_of = ROOT
+					if = {
+						limit = {
+							NOT = {
+								state = 1092
+							}
 						}
-						PREV = { is_fully_controlled_by = PREV }
+						owner = {
+							OR = {
+								tag = ROOT
+								is_subject_of = ROOT
+							}
+							PREV = { is_fully_controlled_by = PREV }
+						}
 					}
 				}
 			}
@@ -12634,6 +12874,95 @@ operations = {
 			add_to_variable = { FRV_agitated_states = 1 }
 		}
 	}
+	FRV_raise_militias = {
+		icon = generic_prepare_civil_war
+		allowed = {
+			original_tag = KIS
+		}
+
+		visible = {
+			has_war = yes
+			has_country_flag = KIS_FRV_flag
+			FROM = {
+				is_controlled_by = ROOT
+				OR = {
+					region = 283
+					region = 316
+					region = 94
+					region = 85
+					region = 82
+					region = 79
+					region = 31
+				}
+				NOT = { state = 1071 }
+			}
+		}
+		
+		state_target = yes
+		on_map_mode = map_only
+		fire_only_once = yes
+		
+		custom_cost_trigger = {
+			command_power > 9
+			has_political_power > 9
+		}
+		
+		custom_cost_text = CFR_decision_cost_CP_10_pp_10
+		days_remove = 30
+
+		complete_effect = {
+			log = "[GetDateText]: [Root.GetName]: Decision FRV_raise_militias target: [From.GetName]"
+			hidden_effect = {
+				add_political_power = -10
+				add_command_power = -10
+			}
+		}
+		remove_effect = {
+			log = "[GetDateText]: [Root.GetName]: Decision remove FRV_raise_militias target: [From.GetName]"
+			custom_effect_tooltip = FRV_raise_militias_tt
+			hidden_effect = {
+				if = {
+					limit = {
+						NOT = {
+							has_country_flag = FRV_formed_volunteer_militia
+						}
+					}
+					division_template = {
+						name = "Volunteer Militia"
+						is_locked = yes
+						regiments = {
+							militia = { x = 0 y = 0 }
+							militia = { x = 0 y = 1 }
+							militia = { x = 1 y = 0 }
+							militia = { x = 1 y = 1 }
+							militia = { x = 2 y = 0 }
+							militia = { x = 2 y = 1 }
+							militia = { x = 3 y = 0 }
+							militia = { x = 3 y = 1 }
+							militia = { x = 4 y = 0 }
+							militia = { x = 4 y = 1 }
+						}
+						support = {
+							artillery = { x = 0 y = 0 }
+						}
+					}
+					set_country_flag = FRV_formed_volunteer_militia
+				}
+				meta_effect = {
+					text = {
+						FROM = {
+							create_unit = {
+								division = "name = \"[FRV_STATE_NAME] Volunteer Militia\" division_template = \"Volunteer Militia\" start_experience_factor = 0.2 start_equipment_factor = 1" 
+								owner = FRV
+								count = 2
+							}
+						}
+					}
+					FRV_STATE_NAME = "[FROM.GetName]"
+				}
+			}
+		}
+	}
 	FRV_add_core_decision = {
 		icon = SOV_place_hq
 		allowed = {
@@ -12953,6 +13282,10 @@ KIC_moving_capital_category = {
 			FROM = {
 				is_controlled_by = KIC
 				is_capital = yes
+				OR = {
+					has_dynamic_modifier = { modifier = KIC_rising_sun_headquarters_core_state_REAL }
+					has_dynamic_modifier = { modifier = KIC_rising_sun_headquarters_non_core_state_REAL }
+				}
 			}
 		}
 		
@@ -12971,25 +13304,30 @@ KIC_moving_capital_category = {
 			KIC = {
 				has_political_power > 49
 				has_equipment = {
-					motorized_equipment > 599
+					motorized_equipment > 149
 				}
 			}
 		}
 		
-		custom_cost_text = KIC_pp_50_truck_600
+		custom_cost_text = KIC_pp_50_truck_150
 		modifier = {
 			political_power_factor = -0.05
+		}
+		complete_effect = {
+			log = "[GetDateText]: [Root.GetName]: Decision KIC_truck_pp_reduce_duration"
+			hidden_effect = {
+				add_political_power = -50
+				add_equipment_to_stockpile = {
+					type = motorized_equipment
+					amount = -150
+				}
+			}
 		}
 		remove_effect = {
 			log = "[GetDateText]: [Root.GetName]: Decision remove KIC_truck_pp_reduce_duration"
 			custom_effect_tooltip = KIC_truck_pp_reduce_duration_tt
 			hidden_effect = {
 				set_variable = { KIC_move_capital_duration_var = 30 }
-				add_political_power = -50
-				add_equipment_to_stockpile = {
-					type = motorized_equipment
-					amount = -600
-				}
 			}
 		}
 	}
@@ -13600,7 +13938,7 @@ KIC_roaring_fire_category = {
 				random_list = {
 					1 = {
 						modifier = {
-							factor = 1.05
+							factor = 1.25
 							has_tech = tech_kirin_astrology
 						}
 					}
@@ -16988,7 +17326,9 @@ KIC_hundred_days_campaigns_category = {
 						check_variable = { KIC_famine_local_supplies_var < 0 }
 					}
 					effect_tooltip = {
-						swap_ideas = { add_idea = KIC_famine_dummy_tt1 remove_idea = KIC_famine_dummy_tt }
+						ROOT = {
+							swap_ideas = { add_idea = KIC_famine_dummy_tt1 remove_idea = KIC_famine_dummy_tt }
+						}
 					}
 					add_to_variable = { KIC_famine_local_manpower_var = 0.25 }
 					add_to_variable = { KIC_famine_monthly_population_var = 0.25 }
@@ -17001,7 +17341,9 @@ KIC_hundred_days_campaigns_category = {
 						check_variable = { KIC_famine_local_manpower_var < 0 }
 					}
 					effect_tooltip = {
-						swap_ideas = { add_idea = KIC_famine_dummy_tt2 remove_idea = KIC_famine_dummy_tt }
+						ROOT = {
+							swap_ideas = { add_idea = KIC_famine_dummy_tt2 remove_idea = KIC_famine_dummy_tt }
+						}
 					}
 					add_to_variable = { KIC_famine_local_manpower_var = 0.25 }
 					add_to_variable = { KIC_famine_monthly_population_var = 0.25 }
@@ -22951,7 +23293,6 @@ foreign_politics = {
         activation = { always = no }
 		
 		days_mission_timeout = 90
-		war_with_on_timeout = yes
 		is_good = no
 		
 		war_with_on_remove = KIR
@@ -24324,6 +24665,15 @@ KIR_FS_WAR_TITLE = {
 				has_dynamic_modifier = {
 					modifier = KIR_DEL_War_Limit_A
 				}
+			}
+		}
+		
+		available = {
+			if = {
+				limit = {
+					has_idea = KIR_DEL_War_RaHP_Revolt_Idea
+				}
+				NOT = { has_idea = KIR_DEL_War_RaHP_Revolt_Idea }
 			}
 		}
 		
