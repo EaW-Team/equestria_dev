@@ -134,70 +134,48 @@ country_event = {
 				hours = 6
 			}
 		}
+
+		58  = { add_to_temp_array = { temp_state_rebels_state_array = id } }
+		222 = { add_to_temp_array = { temp_state_rebels_state_array = id } }
+		238 = { add_to_temp_array = { temp_state_rebels_state_array = id } }
+		239 = { add_to_temp_array = { temp_state_rebels_state_array = id } }
+		244 = { add_to_temp_array = { temp_state_rebels_state_array = id } }
+		271 = { add_to_temp_array = { temp_state_rebels_state_array = id } }
+		279 = { add_to_temp_array = { temp_state_rebels_state_array = id } }
+		286 = { add_to_temp_array = { temp_state_rebels_state_array = id } }
+		287 = { add_to_temp_array = { temp_state_rebels_state_array = id } }
+		288 = { add_to_temp_array = { temp_state_rebels_state_array = id } }
+		335 = { add_to_temp_array = { temp_state_rebels_state_array = id } }
+		336 = { add_to_temp_array = { temp_state_rebels_state_array = id } }
+		337 = { add_to_temp_array = { temp_state_rebels_state_array = id } }
+		338 = { add_to_temp_array = { temp_state_rebels_state_array = id } }
 		if = {
-			limit = { 
-				GFF = { exists = yes }
-			}
-			start_civil_war = {
-				ideology = communism
-				keep_unit_leaders = {
-					10101
-				}
-				size = 0.5
-				capital = 271
-				states = { 58 222 238 239 244 245 271 279 286 287 288 335 336 337 338 }
-			}
+			limit = { NOT = { country_exists = GFF } }
+			277 = { add_to_temp_array = { temp_state_rebels_state_array = id } }
+			278 = { add_to_temp_array = { temp_state_rebels_state_array = id } }
+			281 = { add_to_temp_array = { temp_state_rebels_state_array = id } }
+			283 = { add_to_temp_array = { temp_state_rebels_state_array = id } }
 		}
-		else = {
-			start_civil_war = {
-				ideology = communism
-				keep_unit_leaders = {
-					10101
-				}
-				size = 0.5
-				capital = 271
-				states = { 58 222 238 239 244 245 271 279 286 287 288 335 336 337 338 277 278 281 283 }
+
+		set_temp_variable = { temp_rebels_spawned_troop_nb = 30 }
+		set_temp_variable = { temp_loyals_spawned_troop_nb = 30 }
+
+		start_civil_war = {
+			ideology = communism
+			keep_unit_leaders = {
+				10101
 			}
-		}
-		division_template = {
-			name = "National Militia Division"
-			is_locked = yes
-			division_cap = 40 
-			#division_names_group = USA_INF_01
-			priority = 0
-			template_counter = 0
-			regiments = {
-				infantry = { x = 0 y = 0 }
-				infantry = { x = 0 y = 1 }
-				infantry = { x = 0 y = 2 }
-				infantry = { x = 1 y = 0 }
-				infantry = { x = 1 y = 1 }
-				infantry = { x = 1 y = 2 }
-			}
-			support = {
-				military_police = { x = 0 y = 0 }
-			}
-		}
-		for_loop_effect = {
-			start = 0
-			end = 30
-			random_owned_state = {
-				limit = {
-					any_neighbor_state = {
-						owner = GRB
-					}
-				}
-				create_unit = {
-					division = "name = \"National Militia Division\" division_template = \"National Militia Division\" start_experience_factor = 0.1 start_equipment_factor = 0.5"
-					owner = ROOT
+			size = 0.5
+			capital = 271
+			states = all
+			states_filter = {
+				is_in_array = {
+					array = temp_state_rebels_state_array
+					value = id
 				}
 			}
-		}
-		random_other_country = {
-			limit = {
-				original_tag = GRF
-				has_government = communism
-			}
+
+			# Troop spawning
 			division_template = {
 				name = "Revolutinary Militia Division"
 				is_locked = yes
@@ -217,21 +195,60 @@ country_event = {
 					military_police = { x = 0 y = 0 }
 				}
 			}
+
 			for_loop_effect = {
-				start = 0
-				end = 30
-				random_owned_state = {
+				end = temp_rebels_spawned_troop_nb
+
+				random_owned_controlled_state = {
 					limit = {
+						impassable = no
 						any_neighbor_state = {
-							owner = {
-								original_tag = GRF
-								has_government = neutrality
-							}
+							is_owned_and_controlled_by = ROOT
 						}
 					}
+
 					create_unit = {
 						division = "name = \"Revolutinary Militia Division\" division_template = \"Revolutinary Militia Division\" start_experience_factor = 0.1 start_equipment_factor = 0.5"
-						owner = GRA
+						owner = PREV
+					}
+				}
+			}
+
+			ROOT = {
+				division_template = {
+					name = "National Militia Division"
+					is_locked = yes
+					division_cap = 30
+
+					priority = 0
+					template_counter = 0
+					regiments = {
+						infantry = { x = 0 y = 0 }
+						infantry = { x = 0 y = 1 }
+						infantry = { x = 0 y = 2 }
+						infantry = { x = 1 y = 0 }
+						infantry = { x = 1 y = 1 }
+						infantry = { x = 1 y = 2 }
+					}
+					support = {
+						military_police = { x = 0 y = 0 }
+					}
+				}
+				for_loop_effect = {
+					end = temp_loyals_spawned_troop_nb
+
+					random_owned_controlled_state = {
+						limit = {
+							impassable = no
+							any_neighbor_state = {
+								is_owned_and_controlled_by = PREV.PREV.PREV
+							}
+						}
+
+						create_unit = {
+							division = "name = \"National Militia Division\" division_template = \"National Militia Division\" start_experience_factor = 0.1 start_equipment_factor = 0.5"
+							owner = ROOT
+						}
 					}
 				}
 			}
