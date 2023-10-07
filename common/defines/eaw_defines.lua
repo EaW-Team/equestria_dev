@@ -123,3 +123,6 @@ NDefines.NTechnology.BASE_YEAR_AHEAD_PENALTY_FACTOR = 2.25	-- Base year ahead pe
 
 NDefines.NAI.DEFAULT_MODULE_VARIANT_CREATION_XP_CUTOFF_LAND = 30
 NDefines.NAI.DEFAULT_MODULE_VARIANT_CREATION_XP_CUTOFF_NAVY = 50
+
+NDefines.NIndustrialOrganisation.ENABLE_TASK_CAPACITY = true,					-- Enable limited task capacity for MIOs
+NDefines.NIndustrialOrganisation.DEFAULT_INITIAL_TASK_CAPACITY = 50,				-- Default start task capacity for each MIO (may be overriden in DB)
