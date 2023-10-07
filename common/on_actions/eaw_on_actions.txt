@@ -92,6 +92,17 @@ on_actions = {
 			add_to_array = { global.river_coalition_members = FRE }
 			add_to_array = { global.river_coalition_members = DMT }
 
+			#Using the land_indexes we can determine land connection. Any state with a land connection to these states will NOT be considered an island in is_state_considered_an_island
+			add_to_array = { global.is_defined_as_continental_landmass_capital = 3.id } #Canterlot - Equus
+			add_to_array = { global.is_defined_as_continental_landmass_capital = 875.id } #Colthage - Zebrica
+			add_to_array = { global.is_defined_as_continental_landmass_capital = 382.id } #Griffenheim - Griffonia
+			add_to_array = { global.is_defined_as_continental_landmass_capital = 360.id } #Southern Cross - Cross Island belonging to New Mareland
+			add_to_array = { global.is_defined_as_continental_landmass_capital = 1165.id } #Mount Aris - Hippogriffia
+			add_to_array = { global.is_defined_as_continental_landmass_capital = 721.id } #Sao Penario - Macawia
+			add_to_array = { global.is_defined_as_continental_landmass_capital = 715.id } #Espiritio forte - Ornithia
+			add_to_array = { global.is_defined_as_continental_landmass_capital = 726.id } #Sri Cervidae - Tanikama
+			add_to_array = { global.is_defined_as_continental_landmass_capital = 1137.id } #Sokatramaraina - Sambovato
+
 			#SOL is used here as a random country selector
 			#Thanks to Delincious from KR team for the idea <3
 			SOL = {
@@ -625,6 +636,12 @@ on_actions = {
 					add_ideas = diamond_dog_race
 				}
 				else_if = {
+					limit = { is_kirin_race = yes }
+					#add_ideas = mare_society_hidden
+					add_ideas = kirin_race
+					set_technology = { popup = no tech_kirin_nirik = 1 }
+				}
+				else_if = {
 					limit = { is_donkey_race = yes }
 					add_ideas = donkey_race
 				}
@@ -643,11 +660,6 @@ on_actions = {
 				else_if = {
 					limit = { is_zebra_race = yes }
 					add_ideas = zebra_race
-				}
-				else_if = {
-					limit = { is_kirin_race = yes }
-					add_ideas = kirin_race
-					#add_ideas = mare_society_hidden
 				}
 				else_if = {
 					limit = { is_llama_race = yes }
@@ -850,6 +862,9 @@ on_actions = {
 						is_ai = no
 						NOT = {
 							tag = DED
+							original_tag = KIR
+							original_tag = KIC
+							original_tag = KIS
 						}
 					}
 					if = {
@@ -893,7 +908,7 @@ on_actions = {
 							any_owned_state = {
 								OR = {
 									is_coastal = yes
-									is_island_state = yes
+									is_state_considered_an_island = yes
 								}
 							}
 						}
@@ -1239,6 +1254,12 @@ on_actions = {
 			EQS = {
 				country_lock_all_division_template = yes
 			}
+			HEL = {
+      			country_lock_all_division_template = yes
+   			}
+			PLB = {
+				country_lock_all_division_template = yes
+			}
 			1 = {
 				add_dynamic_modifier = { modifier = everfree_forest_resistance_to_occupation_modifier }
 				add_province_modifier = { ## Everfree Forest modifiers ##
@@ -1268,20 +1289,14 @@ on_actions = {
 			CTH = {
 				give_resource_rights = { receiver = WNG state = 703 }
 				give_resource_rights = { receiver = SIC state = 706 }
-				random_list = {
-					99 = {
-					
-					}
-					1 = {
-						set_portraits = {
-							character = CTH_zalathel_zarca 
-							civilian = { large ="gfx/leaders/CTH/the_cooler_zalathel.tga" }
-						}
-					}
-				}
 			}
 			WNG = {
 				setup_WNG_parliament = yes
+			}
+			KIR = {
+				remove_ideas = { KIR_the_silence_dummy }
+				add_offsite_building = { type = industrial_complex level = 2 }
+				country_event = { id = kirin.34 days = 365 }
 			}
 			# this extra loop is intentional
 			# adjust_research_modifier needs to be fired again after force_update_dynamic_modifier for the value to work correctly
@@ -1429,7 +1444,6 @@ on_actions = {
 			}
 			log = "[GetDateText] Equestria at War main on_startup end"
 		}
-		
 	}
 
 	on_war_relation_added = {
@@ -1656,6 +1670,39 @@ on_actions = {
 					ROOT = {
 						add_ideas = HIP_sunset_atoll_terror
 					}
+				}
+				if = {
+					limit = {
+						original_tag = PLB
+						has_completed_focus = PLB_reach_out_to_the_eccentric
+					}
+					FROM = {
+						add_ideas = PLB_biological_warfare
+					}
+				}
+				if = {
+					limit = {
+						FROM = {
+							original_tag = PLB
+							has_completed_focus = PLB_reach_out_to_the_eccentric
+						}
+					}
+					ROOT = {
+						add_ideas = PLB_biological_warfare
+					}
+				}
+				if = {
+					limit = {
+						original_tag = CHN
+						NOT = {
+							has_government = democratic
+						}
+						PLB = {
+							has_defensive_war_with = CHN
+						}
+					}
+					set_global_flag = CHN_great_northern_war
+					news_event = { id = plb_news.1 days = 1 }
 				}
 			}
 		}
@@ -2258,6 +2305,7 @@ on_actions = {
 						save_global_event_target_as = LCT_pact_war_starter
 					}
 				}
+				
 
 
 				if = {#If someone goes to war with Nova Whirl while they're infiltrated with her partisans
@@ -2322,6 +2370,7 @@ on_actions = {
 						set_country_flag = FRE_Scotts_arrived_already
 					}
 				}
+				
 
 
 				#Civil war transfer society/science ideas
@@ -2686,6 +2735,18 @@ on_actions = {
 					}
 				}
 			}
+			if = {
+				limit = {
+					OR = {
+						FROM = { original_tag = KIR }
+						ROOT = { original_tag = KIR }
+					}
+					has_completed_focus = KIR_CONSCRIPTION
+				}
+				KIR = {
+					add_ideas = KIR_VaKA_wartime_conscription
+				}
+			}
 		}
 	}
 
@@ -2887,6 +2948,24 @@ on_actions = {
 				set_global_flag = new_ayacachtli_nuked
 				news_event = { id = nuke_dropped.113 hours = 3 }
 			}
+			if = {
+				limit = {
+					FROM = { state = 817 }
+					817 = { has_state_flag = KIR_KirCorWar_817_nuking }
+					NOT = { has_global_flag = KirCorWar_radiance_nuked }
+				}
+				set_global_flag = KirCorWar_radiance_nuked
+				news_event = { id = nuke_dropped.114 hours = 3 }
+			}
+			if = {
+				limit = {
+					FROM = { state = 1139 }
+					1139 = { has_state_flag = S1139_thunder_tiger_nuking }
+					NOT = { has_global_flag = thunder_tiger_nuked }
+				}
+				set_global_flag = thunder_tiger_nuked
+				news_event = { id = nuke_dropped.115 hours = 3 }
+			}
 		}
 	}
 
@@ -2904,6 +2983,13 @@ on_actions = {
 			FRN_load_ideology_focus = yes
 			CTH_load_ideology_focus = yes
 			set_AI_strategies_on_every_possible_country_delayed = yes
+			if = {
+				limit = {
+					has_country_flag = is_changeling_puppet
+					NOT = { tag = EQS }
+				}
+				country_event = changelings.910
+			}
 			if = {
 				limit = {
 					FROM = {
@@ -2966,6 +3052,7 @@ on_actions = {
 						country_exists = MAN
 					}
 					MAN = {
+						set_country_flag = { flag = bypass_annex_compliance days = 1 value = 1 }
 						annex_country = {
 							target = ELF
 							transfer_troops = no
@@ -2974,12 +3061,14 @@ on_actions = {
 				}
 				else = {
 					CHN = {
+						set_country_flag = { flag = bypass_annex_compliance days = 1 value = 1 }
 						annex_country = {
 							target = ELF
 							transfer_troops = no
 						}
 					}
 					CHN = {
+						set_country_flag = { flag = bypass_annex_compliance days = 1 value = 1 }
 						annex_country = {
 							target = MAN
 							transfer_troops = yes
@@ -3109,6 +3198,17 @@ on_actions = {
 					}
 					FROM = {
 						country_event = { id = news.2101 days = 1 }
+						if = {
+							limit = {
+								is_ai = yes
+							}
+							every_owned_state = {
+								limit = {
+									is_core_of = CHN
+								}
+								transfer_state_to = CHN
+							}
+						}
 					}
 					CHN = {
 						drop_cosmetic_tag = yes
@@ -3393,6 +3493,7 @@ on_actions = {
 					ROOT = { original_tag = EQS }
 				}
 				FROM = {
+					set_country_flag = { flag = bypass_annex_compliance days = 1 value = 1 }
 					annex_country = { target = ROOT  }
 				}
 			}
@@ -3404,6 +3505,7 @@ on_actions = {
 					ROOT = { original_tag = BAT }
 				}
 				FROM = {
+					set_country_flag = { flag = bypass_annex_compliance days = 1 value = 1 }
 					annex_country = { target = ROOT  }
 				}
 			}
@@ -3415,6 +3517,7 @@ on_actions = {
 					ROOT = { original_tag = CTH }
 				}
 				FROM = {
+					set_country_flag = { flag = bypass_annex_compliance days = 1 value = 1 }
 					annex_country = { target = ROOT  }
 				}
 			}
@@ -3426,6 +3529,7 @@ on_actions = {
 					ROOT = { original_tag = CDR }
 				}
 				FROM = {
+					set_country_flag = { flag = bypass_annex_compliance days = 1 value = 1 }
 					annex_country = { target = ROOT  }
 				}
 			}
@@ -3437,6 +3541,7 @@ on_actions = {
 					ROOT = { original_tag = CTC }
 				}
 				FROM = {
+					set_country_flag = { flag = bypass_annex_compliance days = 1 value = 1 }
 					annex_country = { target = ROOT  }
 				}
 			}
@@ -3458,6 +3563,7 @@ on_actions = {
 					ROOT = { original_tag = EQS }
 				}
 				FROM = {
+					set_country_flag = { flag = bypass_annex_compliance days = 1 value = 1 }
 					annex_country = { target = ROOT  }
 				}
 			}
@@ -3475,6 +3581,218 @@ on_actions = {
 				ROOT = {
 					load_focus_tree = generic_focus
 				}
+			}
+			if = {
+				limit = {
+					FROM = { 
+						OR = {
+							original_tag = KIR 
+							original_tag = KIS
+						}
+					}
+					ROOT = { original_tag = NVA }
+				}
+				ROOT = { set_cosmetic_tag = NVA_KIR }
+			}
+			if = {
+				limit = {
+					FROM = { 
+						OR = {
+							original_tag = KIR 
+							original_tag = KIS
+						}
+					}
+					ROOT = { original_tag = ZOO }
+				}
+				ROOT = { set_cosmetic_tag = ZOO_KIR }
+			}
+			if = {
+				limit = {
+					FROM = { 
+						OR = {
+							original_tag = KIR 
+							original_tag = KIS
+						}
+					}
+					ROOT = { original_tag = ROA }
+				}
+				ROOT = { set_cosmetic_tag = ROA_KIR }
+			}
+			if = {
+				limit = {
+					FROM = { 
+						OR = {
+							original_tag = KIR 
+							original_tag = KIS
+						}
+					}
+					ROOT = { original_tag = KXN }
+				}
+				ROOT = { set_cosmetic_tag = KXN_KIR }
+			}
+			if = {
+				limit = {
+					FROM = { 
+						OR = {
+							original_tag = KIR 
+							original_tag = KIS
+						}
+					}
+					ROOT = { original_tag = YAN }
+				}
+				ROOT = { set_cosmetic_tag = YAN_KIR }
+			}
+			if = {
+				limit = {
+					FROM = { 
+						OR = {
+							original_tag = KIR 
+							original_tag = KIS
+						}
+					}
+					ROOT = { original_tag = DEL }
+				}
+				ROOT = { set_cosmetic_tag = DEL_KIR }
+			}
+			if = {
+				limit = {
+					FROM = { 
+						OR = {
+							original_tag = KIR 
+							original_tag = KIS
+						}
+					}
+					ROOT = { original_tag = GFS }
+				}
+				ROOT = { set_cosmetic_tag = GFS_KIR }
+			}
+			if = {
+				limit = {
+					FROM = { 
+						OR = {
+							original_tag = KIR 
+							original_tag = KIS
+						}
+					}
+					ROOT = { original_tag = TSV }
+				}
+				ROOT = { set_cosmetic_tag = TSV_KIR }
+			}
+			if = {
+				limit = {
+					FROM = { 
+						OR = {
+							original_tag = KIR 
+							original_tag = KIS
+						}
+					}
+					ROOT = { original_tag = BRS }
+				}
+				ROOT = { set_cosmetic_tag = BRS_KIR }
+			}
+			if = {
+				limit = {
+					FROM = { 
+						OR = {
+							original_tag = KIR 
+							original_tag = KIS
+						}
+					}
+					ROOT = { original_tag = GAZ }
+				}
+				ROOT = { set_cosmetic_tag = GAZ_KIR }
+			}
+			if = {
+				limit = {
+					FROM = { 
+						OR = {
+							original_tag = KIR 
+							original_tag = KIS
+						}
+					}
+					ROOT = { original_tag = ZLU }
+				}
+				ROOT = { set_cosmetic_tag = ZLU_KIR }
+			}
+			if = {
+				limit = {
+					FROM = { 
+						OR = {
+							original_tag = KIR 
+							original_tag = KIS
+						}
+					}
+					ROOT = { original_tag = MQA }
+				}
+				ROOT = { set_cosmetic_tag = MQA_KIR }
+			}
+			if = {
+				limit = {
+					FROM = { 
+						OR = {
+							original_tag = KIR 
+							original_tag = KIS
+						}
+					}
+					ROOT = {
+						NOT = {
+							original_tag = NVA
+							original_tag = ZOO
+							original_tag = ROA
+							original_tag = KXN
+							original_tag = YAN
+							original_tag = DEL
+							original_tag = GFS
+							original_tag = TSV
+							original_tag = BRS
+							original_tag = GAZ
+							original_tag = ZLU
+							original_tag = MQA
+						}
+					}
+				}
+				ROOT = { set_cosmetic_tag = KIR_PUPPET }
+			}
+			if = {
+				limit = {
+					FROM = { 
+						original_tag = KIC
+					}
+					ROOT = { original_tag = GAZ }
+				}
+				ROOT = { set_cosmetic_tag = GAZ_KIC }
+			}
+			if = {
+				limit = {
+					FROM = {
+						original_tag = KIC
+					}
+					ROOT = { original_tag = YAN }
+				}
+				ROOT = { set_cosmetic_tag = YAN_KIC }
+			}
+			if = {
+				limit = {
+					FROM = { 
+						original_tag = KIC
+					}
+					ROOT = {
+						NOT = {
+							original_tag = GAZ
+							original_tag = YAN
+						}
+					}
+				}
+				ROOT = { set_cosmetic_tag = KIC_PUPPET }
+			}
+			if = {
+				limit = {
+					FROM = {
+						original_tag = CHN
+						has_country_flag = CHN_FRV_flag
+					}
+				}
+				ROOT = { set_cosmetic_tag = CFR_PUPPET }
 			}
 			if = {
 				limit = {
@@ -3496,6 +3814,7 @@ on_actions = {
 					}
 				}
 				FROM = {
+					set_country_flag = { flag = bypass_annex_compliance days = 1 value = 1 }
 					annex_country = {
 						target = ROOT
 						transfer_troops = no
@@ -3510,6 +3829,7 @@ on_actions = {
 					}
 				}
 				FROM = {
+					set_country_flag = { flag = bypass_annex_compliance days = 1 value = 1 }
 					annex_country = {
 						target = ROOT
 						transfer_troops = no
@@ -3531,6 +3851,41 @@ on_actions = {
 						transfer_state_to = ROOT
 					}
 				}
+			}
+			if = {
+				limit = { 
+					ROOT = { 
+						OR = {
+							original_tag = JER
+							original_tag = JEB
+							original_tag = JFT
+							original_tag = JRR
+							original_tag = VIN
+						}
+					}
+					FROM = {
+						original_tag = JES
+						NOT = {
+							has_government = fascism
+						}
+					}
+				}
+				FROM = {
+					set_country_flag = { flag = bypass_annex_compliance days = 1 value = 1 }
+					annex_country = {
+						target = ROOT
+						transfer_troops = no
+					}
+				}
+			}
+			if = {
+				limit = {
+					FROM = {
+						original_tag = PLB
+						has_completed_focus = PLB_under_bear_protection
+					}
+				}
+				add_ideas = PLB_economic_exploitation_idea
 			}
 
 			FROM = { ROOT = { apply_cosmetic_tags_on_puppet_PREV_is_overlord = yes } }
@@ -3557,14 +3912,22 @@ on_actions = {
 					FROM = { original_tag = GRW }
 					ROOT = { original_tag = BRF }
 				}
-				FROM = { annex_country = { target = ROOT } }
+				FROM = { 
+					set_country_flag = { flag = bypass_annex_compliance days = 1 value = 1 }
+					annex_country = { target = ROOT } 
+				}
 			}
 			else_if = {
 				limit = {
 					FROM = { original_tag = BRF }
 					ROOT = { original_tag = GRW }
 				}
-				FROM = { annex_country = { target = ROOT } }
+				FROM = { 
+					set_country_flag = { flag = bypass_annex_compliance days = 1 value = 1 }
+					annex_country = { 
+						target = ROOT 
+					} 
+				}
 			}
 			if = {
 				limit = {
@@ -3674,12 +4037,14 @@ on_actions = {
 			if = {
 				limit = { tag = DED }
 				FROM = {
+					set_country_flag = { flag = bypass_annex_compliance days = 1 value = 1 }
 					annex_country = { target = ROOT  }
 					country_event = { id = deadempire.29 days = 1 }
 				}
 			}
 			if = {
 				limit = { FROM = { tag = DED } }
+				set_country_flag = { flag = bypass_annex_compliance days = 1 value = 1 }
 				annex_country = { target = FROM  }
 			}
 			set_AI_strategies_on_every_possible_country_delayed = yes
@@ -3763,7 +4128,12 @@ on_actions = {
 
 			if = {
 				limit = { FROM = { original_tag = NLR } original_tag = EQS }
-				FROM = { annex_country = { target = ROOT } }
+				FROM = { 
+					set_country_flag = { flag = bypass_annex_compliance days = 1 value = 1 }
+					annex_country = { 
+						target = ROOT 
+					} 
+				}
 			}
 
 			if = {
@@ -3796,7 +4166,12 @@ on_actions = {
 				}
 				if = {
 					limit = { original_tag = NLR }
-					FROM = { annex_country = { target = ROOT } }
+					FROM = { 
+						set_country_flag = { flag = bypass_annex_compliance days = 1 value = 1 }
+						annex_country = { 
+							target = ROOT 
+						} 
+					}
 				}
 				CRY_process_when_puppeted_by_EQS = yes
 				CHN_remove_pony_opinion_maluses = yes
@@ -3931,6 +4306,7 @@ on_actions = {
 					ROOT = { original_tag = EQS }
 				}
 				FROM = {
+					set_country_flag = { flag = bypass_annex_compliance days = 1 value = 1 }
 					annex_country = { target = ROOT  }
 				}
 			}
@@ -3962,6 +4338,226 @@ on_actions = {
 			if = {
 				limit = {
 					FROM = { 
+						OR = {
+							original_tag = KIR 
+							original_tag = KIS
+						}
+					}
+					ROOT = { original_tag = NVA }
+				}
+				ROOT = { set_cosmetic_tag = NVA_KIR }
+				if = {
+					limit = {
+						ROOT = {
+							has_full_control_of_state = 1058
+						}
+					}
+					FROM = { transfer_state = 1058 }
+				}
+			}
+			if = {
+				limit = {
+					FROM = { 
+						OR = {
+							original_tag = KIR 
+							original_tag = KIS
+						}
+					}
+					ROOT = { original_tag = ZOO }
+				}
+				ROOT = { set_cosmetic_tag = ZOO_KIR }
+			}
+			if = {
+				limit = {
+					FROM = { 
+						OR = {
+							original_tag = KIR 
+							original_tag = KIS
+						}
+					}
+					ROOT = { original_tag = ROA }
+				}
+				ROOT = { set_cosmetic_tag = ROA_KIR }
+			}
+			if = {
+				limit = {
+					FROM = { 
+						OR = {
+							original_tag = KIR 
+							original_tag = KIS
+						}
+					}
+					ROOT = { original_tag = KXN }
+				}
+				ROOT = { set_cosmetic_tag = KXN_KIR }
+			}
+			if = {
+				limit = {
+					FROM = { 
+						OR = {
+							original_tag = KIR 
+							original_tag = KIS
+						}
+					}
+					ROOT = { original_tag = YAN }
+				}
+				ROOT = { set_cosmetic_tag = YAN_KIR }
+			}
+			if = {
+				limit = {
+					FROM = { 
+						OR = {
+							original_tag = KIR 
+							original_tag = KIS
+						}
+					}
+					ROOT = { original_tag = DEL }
+				}
+				ROOT = { set_cosmetic_tag = DEL_KIR }
+			}
+			if = {
+				limit = {
+					FROM = { 
+						OR = {
+							original_tag = KIR 
+							original_tag = KIS
+						}
+					}
+					ROOT = { original_tag = GFS }
+				}
+				ROOT = { set_cosmetic_tag = GFS_KIR }
+			}
+			if = {
+				limit = {
+					FROM = { 
+						OR = {
+							original_tag = KIR 
+							original_tag = KIS
+						}
+					}
+					ROOT = { original_tag = TSV }
+				}
+				ROOT = { set_cosmetic_tag = TSV_KIR }
+			}
+			if = {
+				limit = {
+					FROM = { 
+						OR = {
+							original_tag = KIR 
+							original_tag = KIS
+						}
+					}
+					ROOT = { original_tag = BRS }
+				}
+				ROOT = { set_cosmetic_tag = BRS_KIR }
+			}
+			if = {
+				limit = {
+					FROM = { 
+						OR = {
+							original_tag = KIR 
+							original_tag = KIS
+						}
+					}
+					ROOT = { original_tag = GAZ }
+				}
+				ROOT = { set_cosmetic_tag = GAZ_KIR }
+			}
+			if = {
+				limit = {
+					FROM = { 
+						OR = {
+							original_tag = KIR 
+							original_tag = KIS
+						}
+					}
+					ROOT = { original_tag = ZLU }
+				}
+				ROOT = { set_cosmetic_tag = ZLU_KIR }
+			}
+			if = {
+				limit = {
+					FROM = { 
+						OR = {
+							original_tag = KIR 
+							original_tag = KIS
+						}
+					}
+					ROOT = { original_tag = MQA }
+				}
+				ROOT = { set_cosmetic_tag = MQA_KIR }
+			}
+			if = {
+				limit = {
+					FROM = { 
+						OR = {
+							original_tag = KIR 
+							original_tag = KIS
+						}
+					}
+					ROOT = {
+						NOT = {
+							original_tag = NVA
+							original_tag = ZOO
+							original_tag = ROA
+							original_tag = KXN
+							original_tag = YAN
+							original_tag = DEL
+							original_tag = GFS
+							original_tag = TSV
+							original_tag = BRS
+							original_tag = GAZ
+							original_tag = ZLU
+							original_tag = MQA
+						}
+					}
+				}
+				ROOT = { set_cosmetic_tag = KIR_PUPPET }
+			}
+			if = {
+				limit = {
+					FROM = { 
+						original_tag = KIC
+					}
+					ROOT = { original_tag = GAZ }
+				}
+				ROOT = { set_cosmetic_tag = GAZ_KIC }
+			}
+			if = {
+				limit = {
+					FROM = {
+						original_tag = KIC
+					}
+					ROOT = { original_tag = YAN }
+				}
+				ROOT = { set_cosmetic_tag = YAN_KIC }
+			}
+			if = {
+				limit = {
+					FROM = { 
+						original_tag = KIC
+					}
+					ROOT = {
+						NOT = {
+							original_tag = GAZ
+							original_tag = YAN
+						}
+					}
+				}
+				ROOT = { set_cosmetic_tag = KIC_PUPPET }
+			}
+			if = {
+				limit = {
+					FROM = {
+						original_tag = CHN
+						has_country_flag = CHN_FRV_flag
+					}
+				}
+				ROOT = { set_cosmetic_tag = CFR_PUPPET }
+			}
+			if = {
+				limit = {
+					FROM = { 
 						original_tag = FRN
 					}
 					ROOT = { original_tag = JES }
@@ -3989,9 +4585,17 @@ on_actions = {
 					}
 				}
 			}
-
+			if = {
+				limit = {
+					FROM = {
+						original_tag = PLB
+						has_completed_focus = PLB_under_bear_protection
+					}
+				}
+				add_ideas = PLB_economic_exploitation_idea
+			}
 			FROM = { ROOT = { apply_cosmetic_tags_on_puppet_PREV_is_overlord = yes } }
-
+			
 			actually_fix_weapon_techs = yes
 			FROM = { actually_fix_weapon_techs = yes }
 		}
@@ -4570,6 +5174,29 @@ on_actions = {
 			}
 			if = {
 				limit = {
+					FROM = {
+						original_tag = CRY
+						OR = {
+							has_character = CRY_princess_mi_amore_cadenza
+							has_character = CRY_shining_armour
+							has_character = CRY_flurry_heart
+							has_character = CRY_flash_sentry
+						}
+					}
+				}
+				FROM = {
+					CRY_princess_mi_amore_cadenza = {
+						set_nationality = SOL
+					}
+					CRY_shining_armour = { set_nationality = SOL }
+					every_character = {
+						set_character_flag = CRY_escapee
+						set_nationality = SOL
+					}
+				}
+			}
+			else_if = {
+				limit = {
 					OR = {
 						original_tag = WNG
 						original_tag = OLE
@@ -4656,7 +5283,7 @@ on_actions = {
 					tag = event_target:equestria
 					FROM = { tag = event_target:solar_empire }
 				}
-				set_capital = { state = 3 }
+				set_capital = { state = 3 remember_old_capital = no }
 				SOL = { save_global_event_target_as = solar_empire }
 			}
 			else_if = {
@@ -4702,27 +5329,27 @@ on_actions = {
 					}
 					news_event = { id = news.cry.1 days = 1 }
 				}
-				set_capital = { state = 344 }
+				set_capital = { state = 344 remember_old_capital = no }
 			}
 			else_if = {
 				limit = {
 					original_tag = OLE
 				}
-				set_capital = { state = 76 }
+				set_capital = { state = 76 remember_old_capital = no }
 				drop_cosmetic_tag = yes
 			}
 			else_if = {
 				limit = {
 					original_tag = RCT
 				}
-				set_capital = { state = 619 }
+				set_capital = { state = 619 remember_old_capital = no }
 			}
 			#End of ideology Civil War
 			else_if = {
 				limit = {
 					original_tag = WNG
 				}
-				set_capital = { state = 371 }
+				set_capital = { state = 371 remember_old_capital = no }
 				# Give back WNG focus tree to Beakolini if he wins the civil war.
 				if = {
 					limit = {
@@ -4820,18 +5447,23 @@ on_actions = {
 						tag = CTC
 						tag = CTB
 					}
+					NOT = {
+						has_country_flag = CTH_dont_trigger_this_twice
+					}
 					FROM = {
 						original_tag = CTH
 						has_country_flag = CTH_colthage_militarists
 					}
 				}
 				CTC = {
+					set_country_flag = CTH_dont_trigger_this_twice
 					country_event = {
 						id = colthage_civil_war.12
 						days = 7
 					}
 				}
 				CTB = {
+					set_country_flag = CTH_dont_trigger_this_twice
 					country_event = {
 						id = colthage_civil_war.12
 						days = 7
@@ -4889,10 +5521,26 @@ on_actions = {
 			}
 		}
 	}
+
 	# ROOT is capitulated country, FROM is winner
-	on_capitulation = {
+	# This is processed by the game BEFORE peace conference
+	# If you have any effects that annex/change state ownership, put them here
+	on_capitulation_immediate = {
 		effect = {
-			log = "[GetDateText]: ROOT: [Root.GetName] FROM: [From.GetName] on_capitulation"
+			log = "[GetDateText]: ROOT: [Root.GetName] FROM: [From.GetName] on_capitulation_immediate"
+			if = {
+				limit = {
+					tag = JES
+					has_war_with = FRN
+				}
+				# Fire this here, otherwise it will be processed during peace conference,
+				# and cause a CTD (loser state cannot be owned by non-loser, and this
+				# event transfers states from loser)
+				FRN = {
+					country_event = francistria.82
+				}
+			}
+
 			if = {
 				limit = {
 					is_in_faction = yes
@@ -4904,6 +5552,355 @@ on_actions = {
 				}
 				leave_faction = yes
 			}
+
+			if = {
+				limit = {
+					NOT = { has_global_flag = river_federation_founded }
+					OR = {
+						AND = {
+							is_river_fed_member = yes
+							var:faction_leader = {
+								is_river_fed_member = yes
+							}
+						}
+						FROM = {
+							AND = {
+								is_river_fed_member = yes
+								var:faction_leader = {
+									is_river_fed_member = yes
+								}
+							}
+						}
+					}
+				}
+				set_country_flag = RIV_cannot_be_leader
+				RIV_find_new_leader = yes
+				clr_country_flag = RIV_cannot_be_leader
+			}
+			
+			if = {
+				limit = {
+					ROOT = {
+						original_tag = KIR
+						has_country_flag = CFR_RRA_breakaway_flag
+					}
+				}
+				if = {
+					limit = {
+						CFR = {
+							OR = {
+								divisions_in_state = {
+									size > 0
+									state = 1060
+								}
+								1060 = {
+									controller = {
+										OR = {
+											original_tag = CHN
+											is_ally_with = CFR
+										}
+									}
+								}
+							}
+						}
+					}
+					CFR = {
+						transfer_state = 1060
+					}
+				}
+				if = {
+					limit = {
+						CFR = {
+							OR = {
+								divisions_in_state = {
+									size > 0
+									state = 1061
+								}
+								1061 = {
+									controller = {
+										OR = {
+											original_tag = CHN
+											is_ally_with = CFR
+										}
+									}
+								}
+							}
+						}
+					}
+					CFR = {
+						transfer_state = 1061
+					}
+				}
+				if = {
+					limit = {
+						CFR = {
+							OR = {
+								divisions_in_state = {
+									size > 0
+									state = 817
+								}
+								817 = {
+									controller = {
+										OR = {
+											original_tag = CHN
+											is_ally_with = CFR
+										}
+									}
+								}
+							}
+						}
+					}
+					CFR = {
+						transfer_state = 817
+					}
+				}
+				if = {
+					limit = {
+						CFR = {
+							OR = {
+								divisions_in_state = {
+									size > 0
+									state = 1066
+								}
+								1066 = {
+									controller = {
+										OR = {
+											original_tag = CHN
+											is_ally_with = CFR
+										}
+									}
+								}
+							}
+						}
+					}
+					CFR = {
+						transfer_state = 1066
+					}
+				}
+				if = {
+					limit = {
+						CFR = {
+							OR = {
+								divisions_in_state = {
+									size > 0
+									state = 1070
+								}
+								1070 = {
+									controller = {
+										OR = {
+											original_tag = CHN
+											is_ally_with = CFR
+										}
+									}
+								}
+							}
+						}
+					}
+					CFR = {
+						transfer_state = 1070
+					}
+				}
+				if = {
+					limit = {
+						CFR = {
+							OR = {
+								divisions_in_state = {
+									size > 0
+									state = 1087
+								}
+								1087 = {
+									controller = {
+										OR = {
+											original_tag = CHN
+											is_ally_with = CFR
+										}
+									}
+								}
+							}
+						}
+					}
+					CFR = {
+						transfer_state = 1087
+					}
+				}
+				if = {
+					limit = {
+						CFR = {
+							OR = {
+								divisions_in_state = {
+									size > 0
+									state = 1088
+								}
+								1088 = {
+									controller = {
+										OR = {
+											original_tag = CHN
+											is_ally_with = CFR
+										}
+									}
+								}
+							}
+						}
+					}
+					CFR = {
+						transfer_state = 1088
+					}
+				}
+			}
+			if = {
+				limit = {
+					tag = CHN
+				}
+				if = {
+					limit = {
+						CFR = {
+							exists = yes
+							has_capitulated = no
+							OR = {
+								is_subject_of = CHN
+								is_in_faction_with = CHN
+							}
+						}
+					}
+					if = {
+						limit = {
+							CFR = {
+								is_subject_of = CHN
+							}
+						}
+						end_puppet = CFR
+					}
+					CFR = {
+						if = {
+							limit = {
+								is_in_faction_with = CHN
+							}
+							leave_faction = yes
+						}
+						every_enemy_country = {
+							limit = {
+								OR = {
+									tag = FROM
+									is_subject_of = FROM
+									has_war_together_with = FROM
+								}
+							}
+							set_country_flag = { flag = bypass_on_peaceconference_ended days = 1 value = 1 }
+							white_peace = PREV
+						}
+					}
+				}
+			}
+			if = {
+				limit = {
+					ROOT = {
+						original_tag = CHN ## CFR
+						has_country_flag = CHN_FRV_flag
+						OR = {
+							is_subject_of = CHN
+							is_in_faction_with = CHN
+							has_war_together_with = CHN
+						}
+					}
+					FROM = {
+						exists = yes
+						is_subject = no
+						has_capitulated = no
+						has_war_with = CHN
+						OR = {
+							original_tag = KIR
+							original_tag = KIC
+							original_tag = KIS
+						}
+					}
+					CHN = {
+						exists = yes
+						is_subject = no
+						has_capitulated = no
+					}
+				}
+				if = {
+					limit = {
+						1071 = {
+							NOT = {
+								is_core_of = CFR
+								is_claimed_by = CFR
+							}
+						}
+					}
+					1071 = {
+						add_claim_by = CFR
+					}
+				}
+				FROM = {
+					set_country_flag = { flag = bypass_on_peaceconference_ended days = 1 value = 1 }
+					white_peace = CHN
+					annex_country = {
+						target = CFR
+						transfer_troops = no
+					}
+				}
+			}
+			if = {
+				limit = {
+					ROOT = { has_country_flag = KIC_UMC_flag }
+					FROM = { tag = KIC }
+				}
+				KIC = { country_event = { id = kirin_republic.73 days = 3 } }
+			}
+			if = {
+				limit = {
+					ROOT = {
+						has_country_flag = KIS_FRV_flag 
+						is_ai = no 
+					}
+					FROM = { tag = KIC }
+				}
+				if = {
+					limit = {
+						NOT = {
+							is_ai = yes
+							has_global_flag = KIR_FRV_END_SCREEN_closed_flag
+						}
+					}
+					set_global_flag = KIR_FRV_END_SCREEN_visible_flag
+				}
+			}
+			if = {
+				limit = {
+					ROOT = {
+						tag = KIC
+					}
+					FROM = {
+						OR = {
+							tag = FRV
+							AND = {
+								original_tag = KIS
+								has_country_flag = KIS_FRV_flag
+							}
+							is_ally_with = FRV
+							has_war_together_with = FRV
+						}
+					}
+					has_global_flag = KIC_FRV_Second_Republic_League_Created
+					NOT = { has_global_flag = FRV_Second_Republic_Created_Flag }
+				}
+				FRV = {
+					transfer_state = 1071
+					set_capital = { state = 1071 }
+					FRV_Capitulate_KIC_Second_Republic = yes
+				}
+			}
+		}
+	}
+
+	# ROOT is capitulated country, FROM is winner
+	# This is processed by the game DURING peace conference
+	# If you have any effects that annex/change state ownership, DO NOT put them here
+	# as that will crash the peace conference
+	on_capitulation = {
+		effect = {
+			log = "[GetDateText]: ROOT: [Root.GetName] FROM: [From.GetName] on_capitulation"
 			if = {
 				limit = {
 					tag = CHN
@@ -4926,10 +5923,69 @@ on_actions = {
 					}
 				}
 			}
+			if = {
+				limit = {
+					ROOT = {
+						original_tag = KIR
+						has_country_flag = CFR_roaring_fire_breakaway_flag
+					}
+				}
+				if = {
+					limit = {
+						CFR = {
+							OR = {
+								divisions_in_state = {
+									size > 0
+									state = 1065
+								}
+								1065 = {
+									controller = {
+										OR = {
+											original_tag = CHN
+											is_ally_with = CFR
+										}
+									}
+								}
+							}
+						}
+					}
+					CFR = {
+						transfer_state = 1065
+					}
+				}
+				if = {
+					limit = {
+						CFR = {
+							OR = {
+								divisions_in_state = {
+									size > 0
+									state = 833
+								}
+								833 = {
+									controller = {
+										OR = {
+											original_tag = CHN
+											is_ally_with = CFR
+										}
+									}
+								}
+							}
+						}
+					}
+					CFR = {
+						transfer_state = 833
+					}
+					833 = {
+						remove_dynamic_modifier = { modifier = unplanned_offensive }
+						remove_dynamic_modifier = { modifier = CFR_infiltrator_invasion_preparations }
+						remove_dynamic_modifier = { modifier = CFR_negate_unplanned_offensive }
+					}
+				}
+			}
 			else_if = {
 				limit = {
 					tag = CCN
-					FROM = { tag = CHN }
+					FROM = { tag = CHN } 
 				}
 				CHN = { country_event = { id = changelings.63 days = 1 } }
 			}
@@ -5141,6 +6197,7 @@ on_actions = {
 					has_war_with = EQS
 				}
 				CES = {
+					set_country_flag = { flag = bypass_annex_compliance days = 1 value = 1 }
 					annex_country = { target = ROOT }
 				}
 			}
@@ -5227,13 +6284,23 @@ on_actions = {
 					limit = {
 						MAN = { exists = yes }
 					}
-					MAN = { annex_country = { target = ROOT } }
+					MAN = { 
+						set_country_flag = { flag = bypass_annex_compliance days = 1 value = 1 }
+						annex_country = { 
+							target = ROOT 
+						} 
+					}
 				}
 				if = {
 					limit = {
 						MAN = { exists = no }
 					}
-					CHN = { annex_country = { target = ROOT } }
+					CHN = { 
+						set_country_flag = { flag = bypass_annex_compliance days = 1 value = 1 }
+						annex_country = { 
+							target = ROOT 
+						} 
+					}
 				}
 			}
 			if = {
@@ -5253,7 +6320,10 @@ on_actions = {
 						}
 						ROOT = { tag = STG }
 					}
-					MAN = { annex_country = { target = STG } }
+					MAN = { 
+						set_country_flag = { flag = bypass_annex_compliance days = 1 value = 1 }
+						annex_country = { target = STG } 
+					}
 				}
 				if = {
 					limit = {
@@ -5262,7 +6332,10 @@ on_actions = {
 						}
 						ROOT = { tag = EQC }
 					}
-					MAN = { annex_country = { target = EQC } }
+					MAN = {
+						set_country_flag = { flag = bypass_annex_compliance days = 1 value = 1 }
+						annex_country = { target = EQC } 
+					}
 				}
 				if = {
 					limit = {
@@ -5271,7 +6344,10 @@ on_actions = {
 						}
 						ROOT = { tag = HAU }
 					}
-					MAN = { annex_country = { target = HAU } }
+					MAN = { 
+						set_country_flag = { flag = bypass_annex_compliance days = 1 value = 1 }
+						annex_country = { target = HAU } 
+					}
 				}
 				if = {
 					limit = {
@@ -5280,7 +6356,10 @@ on_actions = {
 						}
 						ROOT = { tag = DRG }
 					}
-					MAN = { annex_country = { target = DRG } }
+					MAN = { 
+						set_country_flag = { flag = bypass_annex_compliance days = 1 value = 1 }
+						annex_country = { target = DRG } 
+					}
 				}
 				if = {
 					limit = {
@@ -5289,7 +6368,10 @@ on_actions = {
 						}
 						ROOT = { tag = FEZ }
 					}
-					MAN = { annex_country = { target = FEZ } }
+					MAN = { 
+						set_country_flag = { flag = bypass_annex_compliance days = 1 value = 1 }
+						annex_country = { target = FEZ } 
+					}
 				}
 				if = {
 					limit = {
@@ -5298,7 +6380,10 @@ on_actions = {
 						}
 						ROOT = { tag = PNG }
 					}
-					MAN = { annex_country = { target = PNG } }
+					MAN = { 
+						set_country_flag = { flag = bypass_annex_compliance days = 1 value = 1 }
+						annex_country = { target = PNG } 
+					}
 				}
 				if = {
 					limit = {
@@ -5307,7 +6392,10 @@ on_actions = {
 						}
 						ROOT = { tag = VED }
 					}
-					MAN = { annex_country = { target = VED } }
+					MAN = { 
+						set_country_flag = { flag = bypass_annex_compliance days = 1 value = 1 }
+						annex_country = { target = VED } 
+					}
 				}
 			}
 			if = {
@@ -5431,7 +6519,14 @@ on_actions = {
 			}
 			if = {
 				limit = {
-					FROM = {tag = BAT}
+					FROM = {
+						AND = {
+							original_tag = BAT
+							NOT = {
+								has_country_flag = BAT_national_catastrophe
+							}
+						}
+					}
 					ROOT = {
 						AND = {
 							tag = TBK
@@ -5443,6 +6538,7 @@ on_actions = {
 					}
 				}
 				BAT = {
+					set_country_flag = { flag = bypass_annex_compliance days = 1 value = 1 }
 					annex_country = {
 						target = TBK
 					}
@@ -5450,7 +6546,14 @@ on_actions = {
 			}
 			if = {
 				limit = {
-					FROM = {tag = BAT}
+					FROM = {
+						AND = {
+							original_tag = BAT
+							NOT = {
+								has_country_flag = BAT_national_catastrophe
+							}
+						}
+					}
 					ROOT = {
 						AND = {
 							tag = ZAR
@@ -5462,20 +6565,10 @@ on_actions = {
 					}
 				}
 				BAT = {
+					set_country_flag = { flag = bypass_annex_compliance days = 1 value = 1 }
 					annex_country = {
 						target = ZAR
 					}
-				}
-			}
-			if = {
-				limit = {
-					tag = JES
-					FROM = {
-						tag = FRN
-					}
-				}
-				FROM = {
-					country_event = francistria.82
 				}
 			}
 			#if = {
@@ -5511,7 +6604,160 @@ on_actions = {
 					FROM = { original_tag = WNG }
 				}
 				FROM = {
+					set_country_flag = { flag = bypass_annex_compliance days = 1 value = 1 }
 					annex_country = { target = ROOT }
+				}
+			}
+			if = {
+				limit = {
+					OR = {
+						FROM = { tag = KIR }
+						FROM = { tag = KIS }
+					}
+					ROOT = { tag = KIC }
+				}
+				if = {
+					limit = {
+						KIS = { 
+							is_in_faction_with = KIR
+							NOT = {
+								is_subject_of = KIR
+							}
+						}
+					}
+					KIS = {
+						dismantle_faction = yes
+					}
+				}
+			}
+			if = {
+				limit = {
+					tag = KAG
+					FROM = { tag = STH } ##Sycee victory
+				}
+				every_state = {
+					limit = {
+						is_core_of = KAG
+					}
+					remove_core_of = KAG
+				}
+				every_state = {
+					limit = {
+						is_core_of = STH
+					}
+					remove_core_of = STH
+				}
+				KIS = {
+					annex_country = {
+						target = KAG
+						transfer_troops = no
+					}
+					annex_country = {
+						target = STH
+						transfer_troops = no
+					}
+					set_variable = { KIS_SYCEE_state_modifier_var = 0.5 }
+					set_variable = { KIS_GUILD_state_modifier_varA = 0.05 }
+					set_variable = { KIS_GUILD_state_modifier_varB = 0.10 }
+					add_timed_idea = {
+						idea = KIS_sycee_victory_idea
+						days = 900
+					}
+				}
+				every_country = {
+					limit = {
+						is_kiria_country = yes
+					}
+					news_event = { id = kirin_news.28 hours = 6 }
+				}
+				1068 = {
+					remove_province_modifier = { 
+						static_modifiers = { unplanned_offensive }
+						province = {
+							all_provinces = yes
+						}
+					}
+				}
+				833 = {
+					remove_province_modifier = { 
+						static_modifiers = { unplanned_offensive }
+						province = {
+							all_provinces = yes
+						}
+					}
+				}
+				1063 = {
+					remove_province_modifier = { 
+						static_modifiers = { unplanned_offensive }
+						province = {
+							all_provinces = yes
+						}
+					}
+				}
+			}
+			if = {
+				limit = {
+					tag = STH
+					FROM = { tag = KAG } ##Guild victory
+				}
+				every_state = {
+					limit = {
+						is_core_of = KAG
+					}
+					remove_core_of = KAG
+				}
+				every_state = {
+					limit = {
+						is_core_of = STH
+					}
+					remove_core_of = STH
+				}
+				KIS = {
+					annex_country = {
+						target = KAG
+						transfer_troops = no
+					}
+					annex_country = {
+						target = STH
+						transfer_troops = no
+					}
+					set_variable = { KIS_SYCEE_state_modifier_var = 0.05 }
+					set_variable = { KIS_GUILD_state_modifier_varA = 0.5 }
+					set_variable = { KIS_GUILD_state_modifier_varB = 0.75 }
+					add_timed_idea = {
+						idea = KIS_guild_victory_idea
+						days = 900
+					}
+				}
+				every_country = {
+					limit = {
+						is_kiria_country = yes
+					}
+					news_event = { id = kirin_news.29 hours = 6 }
+				}
+				1068 = {
+					remove_province_modifier = { 
+						static_modifiers = { unplanned_offensive }
+						province = {
+							all_provinces = yes
+						}
+					}
+				}
+				833 = {
+					remove_province_modifier = { 
+						static_modifiers = { unplanned_offensive }
+						province = {
+							all_provinces = yes
+						}
+					}
+				}
+				1063 = {
+					remove_province_modifier = { 
+						static_modifiers = { unplanned_offensive }
+						province = {
+							all_provinces = yes
+						}
+					}
 				}
 			}
 			if = {
@@ -5531,6 +6777,52 @@ on_actions = {
 					country_event = { id = tobuck_baragzen.12 }
 				}
 			}
+			IF = {
+				limit = {
+					has_global_flag = CHN_great_northern_war
+					OR = {
+						tag = CHN
+						tag = PLB
+					}
+				}
+				PLB_end_the_great_northern_war = yes
+			}
+			if = {
+				limit = {
+					FROM = {
+						OR = {
+							tag = ROA
+							tag = TSV
+							tag = KXN
+						}
+					}
+					ROOT = {
+						OR = {
+							tag = KIR
+							tag = KIS
+							tag = KIC
+						}
+					}
+				}
+				every_country = {
+					limit = {
+						OR = {
+							tag = KIR
+							tag = KIS
+							tag = KIC
+						}
+						has_non_aggression_pact_with = FROM
+						FROM = {
+							has_wargoal_against = PREV
+						}
+					}
+					diplomatic_relation = {
+						country = FROM
+						relation = non_aggression_pact
+						active = no
+					}
+				}
+			}
 		}
 	}
 	#ROOT is free nation FROM is releaser
@@ -5542,14 +6834,20 @@ on_actions = {
 					FROM = { original_tag = GRW }
 					ROOT = { original_tag = BRF }
 				}
-				FROM = { annex_country = { target = ROOT } }
+				FROM = { 
+					set_country_flag = { flag = bypass_annex_compliance days = 1 value = 1 }
+					annex_country = { target = ROOT } 
+				}
 			}
 			else_if = {
 				limit = {
 					FROM = { original_tag = BRF }
 					ROOT = { original_tag = GRW }
 				}
-				FROM = { annex_country = { target = ROOT } }
+				FROM = { 
+					set_country_flag = { flag = bypass_annex_compliance days = 1 value = 1 }
+					annex_country = { target = ROOT } 
+				}
 			}
 			if = {
 				limit = {
@@ -5609,6 +6907,7 @@ on_actions = {
 			if = {
 				limit = { tag = DED }
 				FROM = {
+					set_country_flag = { flag = bypass_annex_compliance days = 1 value = 1 }
 					annex_country = { target = ROOT  }
 					if = {
 						limit = {
@@ -5797,6 +7096,7 @@ on_actions = {
 					ROOT = { original_tag = EQS }
 				}
 				FROM = {
+					set_country_flag = { flag = bypass_annex_compliance days = 1 value = 1 }
 					annex_country = { target = ROOT  }
 				}
 			}
@@ -5830,7 +7130,10 @@ on_actions = {
 					}
 					ROOT = { original_tag = JES }
 				}
-				FROM = { annex_country = { target = ROOT } }
+				FROM = { 
+					set_country_flag = { flag = bypass_annex_compliance days = 1 value = 1 }
+					annex_country = { target = ROOT } 
+				}
 			}
 			if = {
 				limit = {
@@ -6327,6 +7630,7 @@ on_actions = {
 						GRF = { is_subject_of = ROOT }
 					}
 					GRF = {
+						set_country_flag = { flag = bypass_annex_compliance days = 1 value = 1 }
 						annex_country = { target = FROM }
 					}
 				}
@@ -6337,6 +7641,7 @@ on_actions = {
 							tag = CCN
 						}
 					}
+					set_country_flag = { flag = bypass_annex_compliance days = 1 value = 1 }
 					annex_country = { target = FROM }
 				}
 				else_if = {
@@ -6346,6 +7651,7 @@ on_actions = {
 							tag = CHN
 						}
 					}
+					set_country_flag = { flag = bypass_annex_compliance days = 1 value = 1 }
 					annex_country = { target = FROM }
 				}
 				else_if = {
@@ -6380,6 +7686,7 @@ on_actions = {
 							is_eqs_civil_war_tag = yes
 						}
 					}
+					set_country_flag = { flag = bypass_annex_compliance days = 1 value = 1 }
 					annex_country = { target = FROM }
 				}
 				else_if = {
@@ -6394,6 +7701,7 @@ on_actions = {
 							is_subject_of = ROOT
 						}
 					}
+					set_country_flag = { flag = bypass_annex_compliance days = 1 value = 1 }
 					annex_country = { target = FROM }
 				}
 				else_if = {
@@ -6413,30 +7721,8 @@ on_actions = {
 							is_subject_of = ROOT
 						}
 					}
+					set_country_flag = { flag = bypass_annex_compliance days = 1 value = 1 }
 					annex_country = { target = FROM }
-				}
-
-				if = {
-					limit = {
-						NOT = { has_global_flag = river_federation_founded }
-						OR = {
-							AND = {
-								is_river_fed_member = yes
-								var:faction_leader = {
-									is_river_fed_member = yes
-								}
-							}
-							FROM = {
-								AND = {
-									is_river_fed_member = yes
-									var:faction_leader = {
-										is_river_fed_member = yes
-									}
-								}
-							}
-						}
-					}
-					RIV_find_new_leader = yes
 				}
 
 
@@ -6620,6 +7906,18 @@ on_actions = {
 						}
 						country_event = { id = news.2101 days = 1 }
 						country_event = { id = equestriadem.8 days = 60 }
+						if = {
+							limit = {
+								is_ai = yes
+								FROM = { is_subject_of = ROOT }
+							}
+							every_owned_state = {
+								limit = {
+									is_core_of = FROM
+								}
+								transfer_state_to = FROM
+							}
+						}
 					}
 					if = {
 						limit = {
@@ -7495,8 +8793,15 @@ on_actions = {
 							original_tag = EQS
 						}
 					}
-					BAT = {
-						country_event = bat.18
+					if = {
+						limit = {
+							BAT = {
+								NOT = {has_country_flag = BAT_national_catastrophe}
+							}
+						}
+						BAT = {
+							country_event = bat.18
+						}
 					}
 				}
 				if = {
@@ -7508,6 +8813,7 @@ on_actions = {
 							tag = WAR
 						}
 					}
+					set_country_flag = { flag = bypass_annex_compliance days = 1 value = 1 }
 					annex_country = { target = FROM }
 				}
 				if = {
@@ -7661,6 +8967,7 @@ on_actions = {
 						}
 						if = {
 							limit = { country_exists = FROM }
+							set_country_flag = { flag = bypass_annex_compliance days = 1 value = 1 }
 							annex_country = { target = FROM }
 						}
 						country_event = { 
@@ -7699,6 +9006,7 @@ on_actions = {
 						}
 						if = {
 							limit = { country_exists = FROM }
+							set_country_flag = { flag = bypass_annex_compliance days = 1 value = 1 }
 							annex_country = { target = FROM }
 						}
 						country_event = { 
@@ -7720,6 +9028,7 @@ on_actions = {
 						}
 						if = {
 							limit = { country_exists = FROM }
+							set_country_flag = { flag = bypass_annex_compliance days = 1 value = 1 }
 							annex_country = { target = FROM }
 						}
 						country_event = { 
@@ -7750,6 +9059,7 @@ on_actions = {
 						}
 						if = {
 							limit = { country_exists = FROM }
+							set_country_flag = { flag = bypass_annex_compliance days = 1 value = 1 }
 							annex_country = { target = FROM }
 						}
 						country_event = { 
@@ -7780,6 +9090,7 @@ on_actions = {
 						}
 						if = {
 							limit = { country_exists = FROM }
+							set_country_flag = { flag = bypass_annex_compliance days = 1 value = 1 }
 							annex_country = { target = FROM }
 						}
 						country_event = { 
@@ -7814,6 +9125,7 @@ on_actions = {
 								}
 							}
 							TBK = { 
+								set_country_flag = { flag = bypass_annex_compliance days = 1 value = 1 }
 								annex_country = { 
 									target = BAT 
 									transfer_troops = no
@@ -7850,6 +9162,7 @@ on_actions = {
 								}
 							}
 							ZAR = { 
+								set_country_flag = { flag = bypass_annex_compliance days = 1 value = 1 }
 								annex_country = { 
 									target = BAT 
 									transfer_troops = no
@@ -8015,12 +9328,100 @@ on_actions = {
 						clr_state_flag = eqs_bat_state
 					}
 				}
+				if = {
+					limit = {
+						original_tag = WNG
+						FROM = {
+							original_tag = FRN
+							exists = yes
+							OR = {
+								is_in_faction_with = ROOT
+								is_subject_of = ROOT
+							}
+						}
+					}
+					every_owned_state = {
+						limit = {
+							is_core_of = JES
+						}
+						transfer_state_to = FROM
+					}
+				}
 				every_owned_state = {
 					limit = {
 						has_state_flag = eqs_bat_state
 					}
 					add_core_of = EQS
 					clr_state_flag = eqs_bat_state
+				}
+				if = {
+					limit = {
+						tag = KXN
+						is_subject = no
+						has_government = fascism
+						count_triggers = {
+							amount = 3
+							has_full_control_of_state = 1059 #Vermilion
+							has_full_control_of_state = 1060 #Rhapsody
+							has_full_control_of_state = 1064 #Massicot
+							has_full_control_of_state = 1069 #Sorghum
+							has_full_control_of_state = 1073 #Verdant
+							has_full_control_of_state = 1081 #Chrysanthemum
+							has_full_control_of_state = 817 #Radiance
+							has_full_control_of_state = 1071 #Fragrance
+						}
+						FROM = {
+							OR = {
+								original_tag = KIR
+								original_tag = KIC
+								original_tag = KIS
+							}
+						}
+					}
+					set_cosmetic_tag = Great_Kirin_Militarchy
+				}
+				if = {
+					limit = {
+						OR = {
+							FROM = { original_tag = KIR }
+							FROM = { original_tag = KIS }
+						}
+						ROOT = { 
+							tag = KIC
+							has_country_flag = KIC_fled_to_taungpau
+							KIR_controls_all_kiria_proper = yes
+						}
+					}
+					drop_cosmetic_tag = yes
+					set_cosmetic_tag = KIC_communism
+				}
+				if = {
+					limit = {
+						ROOT = {
+							tag = KXN
+							is_subject = no
+							has_government = fascism
+							count_triggers = {
+								amount = 3
+								has_full_control_of_state = 1059 #Vermilion
+								has_full_control_of_state = 1060 #Rhapsody
+								has_full_control_of_state = 1064 #Massicot
+								has_full_control_of_state = 1069 #Sorghum
+								has_full_control_of_state = 1073 #Verdant
+								has_full_control_of_state = 1081 #Chrysanthemum
+								has_full_control_of_state = 817 #Radiance
+								has_full_control_of_state = 1071 #Fragrance
+							}
+						}
+						FROM = {
+							OR = {
+								original_tag = KIR
+								original_tag = KIS
+								original_tag = KIC
+							}
+						}
+					}
+					FROM = { add_to_ROOT_potential_cores = yes }
 				}
 
 				# if a country is an AI puppet with only one state and surrounded by another country, annex them to reduce bordergore
@@ -8155,6 +9556,42 @@ on_actions = {
 					FROM.FROM = {
 						is_owned_by = FROM
 						NOT = { has_state_flag = state_has_fallen }
+					}
+				}
+				FROM.FROM = {
+					set_temp_variable = { temp_damage_mils = non_damaged_building_level@arms_factory }
+					divide_temp_variable = { temp_damage_mils = 3 }
+					set_temp_variable = { temp_damage_civs = non_damaged_building_level@industrial_complex }
+					divide_temp_variable = { temp_damage_civs = 4 }
+					set_temp_variable = { temp_damage_docs = non_damaged_building_level@dockyard }
+					divide_temp_variable = { temp_damage_docs = 3 }
+					set_temp_variable = { temp_damage_syns = non_damaged_building_level@synthetic_refinery }
+					divide_temp_variable = { temp_damage_syns = 3 }
+
+					meta_effect = {
+						text = {
+							damage_building = {
+								type = arms_factory
+								damage = [DAMAGE_ARMS]
+							}
+							damage_building = {
+								type = industrial_complex
+								damage = [DAMAGE_CIVS]
+							}
+							damage_building = {
+								type = dockyard
+								damage = [DAMAGE_DOCS]
+							}
+							damage_building = {
+								type = synthetic_refinery
+								damage = [DAMAGE_SYNS]
+							}
+						}
+
+						DAMAGE_ARMS = "[?temp_damage_mils]"
+						DAMAGE_CIVS = "[?temp_damage_civs]"
+						DAMAGE_DOCS = "[?temp_damage_docs]"
+						DAMAGE_SYNS = "[?temp_damage_syns]"
 					}
 				}
 				if = {
@@ -8715,7 +10152,73 @@ on_actions = {
 					}
 					news_event = cityfall.50
 				}
-				else_if = {#Fragrance
+				else_if = {#FRV
+					limit = {
+						FROM = { 
+							original_tag = KIS
+							has_country_flag = KIS_FRV_flag
+						}
+						ROOT = { original_tag = KIC }
+						FROM.FROM = { state = 1071 }
+						NOT = { has_global_flag = death_of_FRV }
+					}
+					ROOT = { country_event = { id = kirin_republic.96 } }
+					FROM = { country_event = { id = kirin_republic.96 } }
+					set_global_flag = death_of_FRV
+				}
+				else_if = {#Fragrance - CFR
+					limit = {
+						FROM = {
+							original_tag = KIS
+							NOT = { has_country_flag = KIS_FRV_flag }
+						}
+						OR = {
+							FROM = {
+								has_country_flag = KIS_chose_changeling_investors_flag
+							}
+							CHN = {
+								has_country_flag = KIS_chose_changeling_investors_flag
+							}
+						}
+						CHN = {
+							exists = yes
+							is_subject = no
+							has_government = fascism
+						}
+						ROOT = {
+							OR = {
+								original_tag = KIR
+								original_tag = KIC
+							}
+						}
+						FROM.FROM = { state = 1071 }
+						NOT = { has_global_flag = changelings_takeover_fragrance }
+					}
+					news_event = cityfall.510
+					FROM = {
+						if = {
+							limit = {
+								is_ai = no
+							}
+							country_event = { id = kirin_council.721 }
+						}
+					}
+					ROOT = {
+						country_event = { id = kirin_council.73 days = 7 }
+					}
+				}
+				else_if = {#Fragrance - fall of CFR
+					limit = {
+						FROM = {
+							original_tag = CHN
+							has_country_flag = CHN_FRV_flag
+						}
+						FROM.FROM = { state = 1071 }
+						NOT = { has_global_flag = changeling_fragrance_falls }
+					}
+					news_event = cityfall.511
+				}
+				else_if = {#Fragrance - Normal
 					limit = {
 						FROM.FROM = { state = 1071 }
 						NOT = { has_global_flag = fall_of_fragrance }
@@ -8728,6 +10231,66 @@ on_actions = {
 						NOT = { has_global_flag = fall_of_verdant }
 					}
 					news_event = cityfall.52
+				}
+				else_if = {#Golden City
+					limit = {
+						FROM.FROM = { state = 1139 }
+						NOT = { has_global_flag = fall_of_golden_city }
+					}
+					news_event = cityfall.53
+				}
+			}
+			if = {
+				limit = {
+					ROOT = {
+						tag = KIC
+						NOT = { has_country_flag = KIC_UMC_flag }
+					}
+					FROM = {
+						tag = UMC
+					}
+				}
+				FROM.FROM = {
+					force_enable_resistance = KIC
+					start_resistance = KIC
+					add_resistance = 10
+					add_resistance_target = 5
+					add_compliance = -5
+				}
+			}
+			if = {
+				limit = {
+					ROOT = {
+						OR = {
+							tag = COC
+							AND = {
+								original_tag = KIC
+								has_country_flag = KIC_children_of_concord_flag
+							}
+						}
+					}
+					FROM = {
+						OR = {
+							original_tag = KIS
+							is_subject_of = KIS
+						}
+					}
+					FROM.FROM = {
+						OR = {
+							is_core_of = ROOT
+							state = 816
+							state = 1067
+							state = 1069
+							state = 1073
+							state = 1076
+							state = 1077
+							state = 1078
+							state = 1081
+						}
+					}
+				}
+				FROM.FROM = {
+					set_state_owner_to = ROOT
 				}
 			}
 		}
@@ -10621,6 +12184,57 @@ on_actions = {
 					add_ideas = JER_bind_the_economies_idea
 				}
 			}
+			if = {
+				limit = {
+					has_country_flag = KIS_FRV_flag
+				}
+				if = {
+					limit = {
+						check_variable = { KIR_FRV_uprising_modifier_duration > 0 }
+					}
+					subtract_from_variable = { var = KIR_FRV_uprising_modifier_duration value = 1 }
+				}
+				if = {
+					limit = {
+						OR = {
+							has_idea = KIS_continuous_army_research_idea
+							has_idea = KIS_continuous_navy_research_idea
+							has_idea = KIS_continuous_air_research_idea
+							has_idea = KIS_continuous_industry_research_idea
+						}
+					}
+					subtract_from_variable = { 
+						var = TreasuryWealth
+						value = KIS_continuous_research_foci_cost
+					}
+				}
+			}
+			if = {
+				limit = {
+					original_tag = KIC
+					check_variable = { FRV_war_devastation_duration > 0 }
+				}
+				subtract_from_variable = { var = FRV_war_devastation_duration value = 1 }
+			}
+			if = {
+				limit = {
+					has_country_flag = KIS_FRV_flag
+					NOT = {
+						has_dynamic_modifier = {
+							modifier = KIR_FRV_uprising_modifier
+						}
+					}
+				}
+				1071 = {
+					set_building_level = {
+						type = bunker
+						level = 2
+						province = {
+							all_provinces = yes
+						}
+					}
+				}
+			}
 			else_if = {
                 limit = { 
 					EQC = {
@@ -10759,6 +12373,12 @@ on_actions = {
 			set_AI_strategies_on_every_possible_country_delayed = yes
 			if = {
 				limit = {
+					tag = STG
+				}
+				country_event = { id = stalliongrad.151 hours = 1 }
+			}
+			if = {
+				limit = {
 					is_river_fed_member = yes
 				}
 				RIV_leave_fed_no_ally = yes
@@ -10892,6 +12512,51 @@ on_actions = {
 				}
 				retire = yes
 				unit_leader_event = { id = wingbardy.1 }
+			}
+			if = {
+				limit = {
+					FROM = {
+						OR = {
+							original_tag = KIC
+							original_tag = KIS
+						}
+					}
+					set_temp_variable = { chance = 0.15 }
+					check_variable = { random < chance }
+					KIR = {
+						has_template_containing_unit = bar_weak_clockwerk
+					}
+				}
+				FROM = {
+					if = {
+						limit = {
+							original_tag = KIC
+						}
+						country_event = { id = kirin_utility.25 }
+					}
+					if = {
+						limit = {
+							original_tag = KIS
+						}
+						country_event = { id = kirin_utility.26 }
+					}
+				}
+			}
+			if = {
+				limit = {
+					FROM = {
+						original_tag = KIR
+					}
+					set_temp_variable = { chance = 0.15 }
+					check_variable = { random < chance }
+					KIS = {
+						has_country_flag = KIS_hired_changeling_expedition
+						has_template_containing_unit = jager
+					}
+				}
+				FROM = {
+					country_event = { id = kirin_utility.27 }
+				}
 			}
 		}
 	}
@@ -11035,6 +12700,7 @@ on_actions = {
 		effect = {
 			log = "[GetDateText]: ROOT: [Root.GetName] on_ruling_party_change"
 			ZES_oppressive_countries_calculate = yes
+			CRY_restore_establishment = yes
 			if = {
 				limit = {
 					original_tag = YAL
@@ -11117,6 +12783,13 @@ on_actions = {
 			set_AI_strategies_on_every_possible_country_delayed = yes
 			if = {
 				limit = {
+					has_country_flag = is_changeling_puppet
+					NOT = { tag = EQS }
+				}
+				country_event = changelings.910
+			}
+			if = {
+				limit = {
 					ROOT = {
 						original_tag = BAR
 					}
@@ -11139,8 +12812,24 @@ on_actions = {
 	}
 
 	on_peace = {
-		effect = {
+		effect = {		
 			log = "[GetDateText]: ROOT: [Root.GetName] on_peace"
+			if = {
+				limit = {
+					tag = STG
+				}
+				country_event = { id = stalliongrad.151 hours = 1 }
+			}
+			IF = {
+				limit = {
+					has_global_flag = CHN_great_northern_war
+					OR = {
+						tag = CHN
+						tag = PLB
+					}
+				}
+				PLB_end_the_great_northern_war = yes
+			}
 			if = {
 				limit = {
 					has_variable = inflicted_casualties
