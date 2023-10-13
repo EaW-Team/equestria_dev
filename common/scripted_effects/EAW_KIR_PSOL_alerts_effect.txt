@@ -1,0 +1,449 @@
+KIR_PSOL_alerticon_click_effect = {
+	if = {
+		limit = { 
+			OR = {
+				check_variable = { KIR_PSOL_alert_type_array^KIR_PSOL_alerticon_index_select_var = 1 }
+				check_variable = { KIR_PSOL_alert_type_array^KIR_PSOL_alerticon_index_select_var = 2 }
+				check_variable = { KIR_PSOL_alert_type_array^KIR_PSOL_alerticon_index_select_var = 3 }
+				check_variable = { KIR_PSOL_alert_type_array^KIR_PSOL_alerticon_index_select_var = 4 }
+				check_variable = { KIR_PSOL_alert_type_array^KIR_PSOL_alerticon_index_select_var = 5 }
+			}
+		}
+		var:KIR_PSOL_alert_location_array^KIR_PSOL_alerticon_index_select_var = { 
+			var:KIR_PSOL_alert_location_array_inner^KIR_PSOL_alert_location_array_index_var = { KIR = { goto_state = PREV } }
+			add_to_variable = { KIR_PSOL_alert_location_array_index_var = 1 }
+			if = {
+				limit = { check_variable = { KIR_PSOL_alert_location_array_index_var = KIR_PSOL_alert_location_array_inner^num } }
+				set_variable = { KIR_PSOL_alert_location_array_index_var = 0 }
+			}
+		}
+	}
+	else_if = {
+		limit = { 
+			OR = {
+				check_variable = { KIR_PSOL_alert_type_array^KIR_PSOL_alerticon_index_select_var = 6 }
+				## Unused
+			}
+		}
+		var:KIR_PSOL_alert_location_array^KIR_PSOL_alerticon_index_select_var = { KIR = { goto_state = PREV } }
+	}
+	if = {
+		limit = { has_variable = KIR_PSOL_alert_dummy_var }
+		clear_variable = KIR_PSOL_alert_dummy_var
+	}
+	else = {
+		set_variable = { KIR_PSOL_alert_dummy_var = 1 }
+	}
+}
+KIR_PSOL_alerticon_right_click_effect = {
+	if = {
+		limit = {
+			OR = {
+				check_variable = { KIR_PSOL_alert_type_array^KIR_PSOL_alert_to_remove = 1 }
+				check_variable = { KIR_PSOL_alert_type_array^KIR_PSOL_alert_to_remove = 2 } #Add alerts with recursive state loc here
+				check_variable = { KIR_PSOL_alert_type_array^KIR_PSOL_alert_to_remove = 3 }
+				check_variable = { KIR_PSOL_alert_type_array^KIR_PSOL_alert_to_remove = 4 }
+				check_variable = { KIR_PSOL_alert_type_array^KIR_PSOL_alert_to_remove = 5 }
+			}
+		}
+		var:KIR_PSOL_alert_location_array^KIR_PSOL_alert_to_remove = { #Clears data stored in state
+			clr_state_flag = KIR_PSOL_alert_location_array_scope
+			clear_array = KIR_PSOL_alert_location_array_inner
+			clear_variable = KIR_PSOL_alert_location_array_index_var
+		}
+	}
+	remove_from_array = { array = KIR_PSOL_alert_type_array index = KIR_PSOL_alert_to_remove }
+	remove_from_array = { array = KIR_PSOL_alert_location_array index = KIR_PSOL_alert_to_remove }
+	remove_from_array = { array = KIR_PSOL_alert_special_array index = KIR_PSOL_alert_to_remove }
+	if = {
+		limit = { has_variable = KIR_PSOL_alert_dummy_var }
+		clear_variable = KIR_PSOL_alert_dummy_var
+	}
+	else = {
+		set_variable = { KIR_PSOL_alert_dummy_var = 1 }
+	}
+}
+KIR_PSOL_alerticon_clear_all = {
+	set_temp_variable = { KIR_PSOL_alert_to_remove = KIR_PSOL_alert_type_array^num }
+	while_loop_effect = {
+		limit = { check_variable = { KIR_PSOL_alert_to_remove > 0 } }
+		subtract_from_temp_variable = { KIR_PSOL_alert_to_remove = 1 }
+		KIR_PSOL_alerticon_right_click_effect = yes
+	}
+}
+
+KIR_STATE_PALACE_CALL_ALERT = {
+	hidden_effect = {
+		KIR_PSOL_alerticon_clear_all = yes
+		country_event = { id = kirin_test.101 }
+	}
+}
+
+KIR_STATE_PALACE_NO_DIET_UPDATE = {
+	if = {
+		limit = {
+			is_ai = no #No alerts for AI, saves processing
+		}
+		set_temp_variable = { KIR_PSOL_current_alert = 0 }
+		while_loop_effect = {
+			limit = { check_variable = { KIR_PSOL_current_alert < KIR_PSOL_alert_type_array^num } }
+			if = {
+				limit = { check_variable = { KIR_PSOL_alert_type_array^KIR_PSOL_current_alert = 1 } } #Checks alert array for existing alerts of this type
+				set_temp_variable = { break = 1 } #Alert type found, breaks loop
+			}
+			else = {
+				add_to_temp_variable = { KIR_PSOL_current_alert = 1 }
+			}
+		}
+		if = {
+			limit = { check_variable = { KIR_PSOL_current_alert = KIR_PSOL_alert_type_array^num } } #No alert type found
+			add_to_array = { KIR_PSOL_alert_type_array = 1 }
+			random_state = {
+				limit = { NOT = { has_state_flag = KIR_PSOL_alert_location_array_scope } }
+				set_state_flag = KIR_PSOL_alert_location_array_scope
+				add_to_array = { PREV.KIR_PSOL_alert_location_array = THIS.id }
+			}
+			add_to_array = { KIR_PSOL_alert_special_array = 0 }
+		}
+		var:KIR_PSOL_alert_location_array^KIR_PSOL_current_alert = { #Clears data stored in state
+			clr_state_flag = KIR_PSOL_alert_location_array_scope
+			clear_array = KIR_PSOL_alert_location_array_inner
+			clear_variable = KIR_PSOL_alert_location_array_index_var
+		}
+		for_each_scope_loop = { #The state you desire to add to the alert
+			array = ROOT.controlled_states
+			if = {
+				limit = {
+					THIS = {
+						is_core_of = KIR
+						is_fully_controlled_by = KIR
+						NOT = {
+							has_state_flag = KIR_STATE_HAS_H1_PALACE
+							has_state_flag = KIR_STATE_HAS_H2_PALACE
+							has_state_flag = KIR_STATE_HAS_H3_PALACE
+							has_state_flag = KIR_STATE_HAS_N1_PALACE
+							has_state_flag = KIR_STATE_HAS_N2_PALACE
+							has_state_flag = KIR_STATE_HAS_N3_PALACE
+							has_state_flag = KIR_STATE_HAS_N4_PALACE
+							has_state_flag = KIR_STATE_HAS_N5_PALACE
+							has_state_flag = KIR_STATE_HAS_C1_PALACE
+							has_state_flag = KIR_STATE_HAS_C2_PALACE
+							has_state_flag = KIR_STATE_HAS_C3_PALACE
+						}
+					}
+					if = {
+						limit = {
+							KIR = { 
+								has_country_flag = KIR_national_focus_title_2_flag
+								NOT = { has_country_flag = KIR_north_kiria_enfranchised_flag }
+							}
+						}
+						THIS = {
+							NOT = {
+								state = 1060
+								state = 1061
+								state = 1066
+								state = 1070
+								state = 1071
+								state = 1087
+								state = 1088
+							}
+						}
+					}
+				}
+				PREV = {
+					var:KIR_PSOL_alert_location_array^KIR_PSOL_current_alert = { add_to_array = { KIR_PSOL_alert_location_array_inner = PREV.PREV.id } }
+				}
+			}
+		}
+		if = {
+			limit = { NOT = { has_country_flag = KIR_PSOL_has_disabled_alerts } } #Alert still appears if alerts hidden, but doesn't play sound
+			sound_effect = "alert_naval_combat_sound"
+		}
+		if = {
+			limit = { has_variable = KIR_PSOL_alert_dummy_var }
+			clear_variable = KIR_PSOL_alert_dummy_var
+		}
+		else = {
+			set_variable = { KIR_PSOL_alert_dummy_var = 1 }
+		}
+	}
+}
+
+KIR_STATE_PALACE_REPLACE_DIET_UPDATE = {
+	if = {
+		limit = { 
+			is_ai = no #No alerts for AI, saves processing
+		}
+		set_temp_variable = { KIR_PSOL_current_alert = 0 }
+		while_loop_effect = {
+			limit = { check_variable = { KIR_PSOL_current_alert < KIR_PSOL_alert_type_array^num } }
+			if = {
+				limit = { check_variable = { KIR_PSOL_alert_type_array^KIR_PSOL_current_alert = 2 } } #Checks alert array for existing alerts of this type
+				set_temp_variable = { break = 1 } #Alert type found, breaks loop
+			}
+			else = {
+				add_to_temp_variable = { KIR_PSOL_current_alert = 1 }
+			}
+		}
+		if = {
+			limit = { check_variable = { KIR_PSOL_current_alert = KIR_PSOL_alert_type_array^num } } #No alert type found
+			add_to_array = { KIR_PSOL_alert_type_array = 2 }
+			random_state = {
+				limit = { NOT = { has_state_flag = KIR_PSOL_alert_location_array_scope } }
+				set_state_flag = KIR_PSOL_alert_location_array_scope
+				add_to_array = { PREV.KIR_PSOL_alert_location_array = THIS.id }
+			}
+			add_to_array = { KIR_PSOL_alert_special_array = 0 }
+		}
+		var:KIR_PSOL_alert_location_array^KIR_PSOL_current_alert = { #Clears data stored in state
+			clr_state_flag = KIR_PSOL_alert_location_array_scope
+			clear_array = KIR_PSOL_alert_location_array_inner
+			clear_variable = KIR_PSOL_alert_location_array_index_var
+		}
+		for_each_scope_loop = { #The state you desire to add to the alert
+			array = ROOT.controlled_states
+			if = {
+				limit = {
+					THIS = {
+						is_core_of = KIR
+						is_fully_controlled_by = KIR
+						check_variable = { KIR_STATE_SGUI_PALACE_TERM_TIMER < 1 }
+						OR = {
+							has_state_flag = KIR_STATE_HAS_H1_PALACE
+							has_state_flag = KIR_STATE_HAS_H2_PALACE
+							has_state_flag = KIR_STATE_HAS_H3_PALACE
+							has_state_flag = KIR_STATE_HAS_N1_PALACE
+							has_state_flag = KIR_STATE_HAS_N2_PALACE
+							has_state_flag = KIR_STATE_HAS_N3_PALACE
+							has_state_flag = KIR_STATE_HAS_N4_PALACE
+							has_state_flag = KIR_STATE_HAS_N5_PALACE
+							has_state_flag = KIR_STATE_HAS_C1_PALACE
+							has_state_flag = KIR_STATE_HAS_C2_PALACE
+							has_state_flag = KIR_STATE_HAS_C3_PALACE
+						}
+					}
+				}
+				PREV = {
+					var:KIR_PSOL_alert_location_array^KIR_PSOL_current_alert = { add_to_array = { KIR_PSOL_alert_location_array_inner = PREV.PREV.id } }
+				}
+			}
+		}
+		if = {
+			limit = { NOT = { has_country_flag = KIR_PSOL_has_disabled_alerts } } #Alert still appears if alerts hidden, but doesn't play sound
+			sound_effect = "alert_naval_combat_sound"
+		}
+		if = {
+			limit = { has_variable = KIR_PSOL_alert_dummy_var }
+			clear_variable = KIR_PSOL_alert_dummy_var
+		}
+		else = {
+			set_variable = { KIR_PSOL_alert_dummy_var = 1 }
+		}
+	}
+}
+
+KIR_STATE_PALACE_RIOTS_UPDATE = {
+	if = {
+		limit = { 
+			is_ai = no #No alerts for AI, saves processing
+		}
+		set_temp_variable = { KIR_PSOL_current_alert = 0 }
+		while_loop_effect = {
+			limit = { check_variable = { KIR_PSOL_current_alert < KIR_PSOL_alert_type_array^num } }
+			if = {
+				limit = { check_variable = { KIR_PSOL_alert_type_array^KIR_PSOL_current_alert = 3 } } #Checks alert array for existing alerts of this type
+				set_temp_variable = { break = 1 } #Alert type found, breaks loop
+			}
+			else = {
+				add_to_temp_variable = { KIR_PSOL_current_alert = 1 }
+			}
+		}
+		if = {
+			limit = { check_variable = { KIR_PSOL_current_alert = KIR_PSOL_alert_type_array^num } } #No alert type found
+			add_to_array = { KIR_PSOL_alert_type_array = 3 }
+			random_state = {
+				limit = { NOT = { has_state_flag = KIR_PSOL_alert_location_array_scope } }
+				set_state_flag = KIR_PSOL_alert_location_array_scope
+				add_to_array = { PREV.KIR_PSOL_alert_location_array = THIS.id }
+			}
+			add_to_array = { KIR_PSOL_alert_special_array = 0 }
+		}
+		var:KIR_PSOL_alert_location_array^KIR_PSOL_current_alert = { #Clears data stored in state
+			clr_state_flag = KIR_PSOL_alert_location_array_scope
+			clear_array = KIR_PSOL_alert_location_array_inner
+			clear_variable = KIR_PSOL_alert_location_array_index_var
+		}
+		for_each_scope_loop = { #The state you desire to add to the alert
+			array = ROOT.controlled_states
+			if = {
+				limit = {
+					THIS = {
+						has_dynamic_modifier = { modifier = KIR_PJD_SGUI_No_Democracy }
+					}
+				}
+				PREV = {
+					var:KIR_PSOL_alert_location_array^KIR_PSOL_current_alert = { add_to_array = { KIR_PSOL_alert_location_array_inner = PREV.PREV.id } }
+				}
+			}
+		}
+		if = {
+			limit = { NOT = { has_country_flag = KIR_PSOL_has_disabled_alerts } } #Alert still appears if alerts hidden, but doesn't play sound
+			sound_effect = "alert_naval_combat_sound"
+		}
+		if = {
+			limit = { has_variable = KIR_PSOL_alert_dummy_var }
+			clear_variable = KIR_PSOL_alert_dummy_var
+		}
+		else = {
+			set_variable = { KIR_PSOL_alert_dummy_var = 1 }
+		}
+	}
+}
+
+KIR_STATE_PALACE_NO_MAYORALTY_UPDATE = {
+	if = {
+		limit = {
+			is_ai = no #No alerts for AI, saves processing
+		}
+		set_temp_variable = { KIR_PSOL_current_alert = 0 }
+		while_loop_effect = {
+			limit = { check_variable = { KIR_PSOL_current_alert < KIR_PSOL_alert_type_array^num } }
+			if = {
+				limit = { check_variable = { KIR_PSOL_alert_type_array^KIR_PSOL_current_alert = 4 } } #Checks alert array for existing alerts of this type
+				set_temp_variable = { break = 1 } #Alert type found, breaks loop
+			}
+			else = {
+				add_to_temp_variable = { KIR_PSOL_current_alert = 1 }
+			}
+		}
+		if = {
+			limit = { check_variable = { KIR_PSOL_current_alert = KIR_PSOL_alert_type_array^num } } #No alert type found
+			add_to_array = { KIR_PSOL_alert_type_array = 4 }
+			random_state = {
+				limit = { NOT = { has_state_flag = KIR_PSOL_alert_location_array_scope } }
+				set_state_flag = KIR_PSOL_alert_location_array_scope
+				add_to_array = { PREV.KIR_PSOL_alert_location_array = THIS.id }
+			}
+			add_to_array = { KIR_PSOL_alert_special_array = 0 }
+		}
+		var:KIR_PSOL_alert_location_array^KIR_PSOL_current_alert = { #Clears data stored in state
+			clr_state_flag = KIR_PSOL_alert_location_array_scope
+			clear_array = KIR_PSOL_alert_location_array_inner
+			clear_variable = KIR_PSOL_alert_location_array_index_var
+		}
+		for_each_scope_loop = { #The state you desire to add to the alert
+			array = ROOT.controlled_states
+			if = {
+				limit = {
+					THIS = {
+						is_core_of = KIR
+						is_fully_controlled_by = KIR
+						has_state_flag = KIR_STATE_HAS_YAMEN
+						NOT = {
+							has_state_flag = KIR_STATE_HAS_H1_YAMEN
+							has_state_flag = KIR_STATE_HAS_H2_YAMEN
+							has_state_flag = KIR_STATE_HAS_H3_YAMEN
+							has_state_flag = KIR_STATE_HAS_N1_YAMEN
+							has_state_flag = KIR_STATE_HAS_N2_YAMEN
+							has_state_flag = KIR_STATE_HAS_N3_YAMEN
+							has_state_flag = KIR_STATE_HAS_N4_YAMEN
+							has_state_flag = KIR_STATE_HAS_N5_YAMEN
+							has_state_flag = KIR_STATE_HAS_C1_YAMEN
+							has_state_flag = KIR_STATE_HAS_C2_YAMEN
+							has_state_flag = KIR_STATE_HAS_C3_YAMEN
+						}
+					}
+				}
+				PREV = {
+					var:KIR_PSOL_alert_location_array^KIR_PSOL_current_alert = { add_to_array = { KIR_PSOL_alert_location_array_inner = PREV.PREV.id } }
+				}
+			}
+		}
+		if = {
+			limit = { NOT = { has_country_flag = KIR_PSOL_has_disabled_alerts } } #Alert still appears if alerts hidden, but doesn't play sound
+			sound_effect = "alert_naval_combat_sound"
+		}
+		if = {
+			limit = { has_variable = KIR_PSOL_alert_dummy_var }
+			clear_variable = KIR_PSOL_alert_dummy_var
+		}
+		else = {
+			set_variable = { KIR_PSOL_alert_dummy_var = 1 }
+		}
+	}
+}
+
+KIR_STATE_PALACE_REPLACE_MAYORALTY_UPDATE = {
+	if = {
+		limit = { 
+			is_ai = no #No alerts for AI, saves processing
+		}
+		set_temp_variable = { KIR_PSOL_current_alert = 0 }
+		while_loop_effect = {
+			limit = { check_variable = { KIR_PSOL_current_alert < KIR_PSOL_alert_type_array^num } }
+			if = {
+				limit = { check_variable = { KIR_PSOL_alert_type_array^KIR_PSOL_current_alert = 5 } } #Checks alert array for existing alerts of this type
+				set_temp_variable = { break = 1 } #Alert type found, breaks loop
+			}
+			else = {
+				add_to_temp_variable = { KIR_PSOL_current_alert = 1 }
+			}
+		}
+		if = {
+			limit = { check_variable = { KIR_PSOL_current_alert = KIR_PSOL_alert_type_array^num } } #No alert type found
+			add_to_array = { KIR_PSOL_alert_type_array = 5 }
+			random_state = {
+				limit = { NOT = { has_state_flag = KIR_PSOL_alert_location_array_scope } }
+				set_state_flag = KIR_PSOL_alert_location_array_scope
+				add_to_array = { PREV.KIR_PSOL_alert_location_array = THIS.id }
+			}
+			add_to_array = { KIR_PSOL_alert_special_array = 0 }
+		}
+		var:KIR_PSOL_alert_location_array^KIR_PSOL_current_alert = { #Clears data stored in state
+			clr_state_flag = KIR_PSOL_alert_location_array_scope
+			clear_array = KIR_PSOL_alert_location_array_inner
+			clear_variable = KIR_PSOL_alert_location_array_index_var
+		}
+		for_each_scope_loop = { #The state you desire to add to the alert
+			array = ROOT.controlled_states
+			if = {
+				limit = {
+					THIS = {
+						is_core_of = KIR
+						is_fully_controlled_by = KIR
+						has_state_flag = KIR_STATE_HAS_YAMEN
+						check_variable = { KIR_STATE_SGUI_PALACE_TERM_TIMER < 1 }
+						OR = {
+							has_state_flag = KIR_STATE_HAS_H1_YAMEN
+							has_state_flag = KIR_STATE_HAS_H2_YAMEN
+							has_state_flag = KIR_STATE_HAS_H3_YAMEN
+							has_state_flag = KIR_STATE_HAS_N1_YAMEN
+							has_state_flag = KIR_STATE_HAS_N2_YAMEN
+							has_state_flag = KIR_STATE_HAS_N3_YAMEN
+							has_state_flag = KIR_STATE_HAS_N4_YAMEN
+							has_state_flag = KIR_STATE_HAS_N5_YAMEN
+							has_state_flag = KIR_STATE_HAS_C1_YAMEN
+							has_state_flag = KIR_STATE_HAS_C2_YAMEN
+							has_state_flag = KIR_STATE_HAS_C3_YAMEN
+						}
+					}
+				}
+				PREV = {
+					var:KIR_PSOL_alert_location_array^KIR_PSOL_current_alert = { add_to_array = { KIR_PSOL_alert_location_array_inner = PREV.PREV.id } }
+				}
+			}
+		}
+		if = {
+			limit = { NOT = { has_country_flag = KIR_PSOL_has_disabled_alerts } } #Alert still appears if alerts hidden, but doesn't play sound
+			sound_effect = "alert_naval_combat_sound"
+		}
+		if = {
+			limit = { has_variable = KIR_PSOL_alert_dummy_var }
+			clear_variable = KIR_PSOL_alert_dummy_var
+		}
+		else = {
+			set_variable = { KIR_PSOL_alert_dummy_var = 1 }
+		}
+	}
+}
