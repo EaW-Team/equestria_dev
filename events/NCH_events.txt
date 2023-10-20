@@ -635,11 +635,11 @@ country_event = { #You skipped, now you reap the consequences
 			id = greneclyf.28
 			days = 1
 		}
-		set_variable = {
-			var = NCH_Crisis_Resolve_Points
-			value = 0
-		}
-		retire_country_leader = yes
+		#set_variable = {
+		#	var = NCH_Crisis_Resolve_Points #Where is this even checked??? -Knife
+		#	value = 0
+		#}
+		#retire_country_leader = yes
 		set_party_name = {
 			ideology = democratic
 			long_name = NCH_council_of_royals_party_long
@@ -911,8 +911,10 @@ country_event = { #Gytha Steps down
 	option = {
 		name = greneclyf_spy_game.9.a
 		if = {
-			NCH_cara = {
-				advisor_can_be_fired = no
+			limit = {
+				NCH_cara = {
+					advisor_can_be_fired = no
+				}
 			}
 			set_can_be_fired_in_advisor_role = {
 				character = BHR_important_advisor
@@ -1186,9 +1188,9 @@ country_event = { #BAK Response
 			OR = {
 				AND = {
 					is_ai = yes
-					check_variable = { NCH_spylevel < 2 } #Fuck it, I give up. They still keep refusing despite having massive AI factors.
-				}
+					check_variable = { NCH_spylevel < 2 }
 				is_ai = no
+				}
 			}
 		}
 		ai_chance = { 
@@ -1681,11 +1683,12 @@ country_event = { #DMT Response
 		hidden_effect = {
 			NCH = { country_event = { days = 1 id = greneclyf_trade.23 } }
 		}
-		ai_chance = { factor = 70 }
+		ai_chance = { factor = 70 
 		modifier = { #just because you're this persistent about refusing in my tests -knife
 				check_variable = { NCH_spylevel > 2 }
 				add = 999
 			}
+		}
 
 	}
 	option = { #Refuse
@@ -1809,11 +1812,12 @@ country_event = { #DEP Response
 		hidden_effect = {
 			NCH = { country_event = { days = 1 id = greneclyf_trade.26 } }
 		}
-		ai_chance = { factor = 80 }
+		ai_chance = { factor = 80 
 		modifier = { 
 				check_variable = { NCH_spylevel > 1 }
 				add = -9999
 			}
+		}
 	}
 	option = { #Refuse
 		name = greneclyf_trade.25.b
@@ -1946,7 +1950,7 @@ country_event = { #WIT Response
 			OR = {
 				AND = {
 					is_ai = yes
-					check_variable = { NCH_spylevel < 2 } #Fuck it, I give up. They still keep refusing despite having massive AI factors.
+					check_variable = { NCH_spylevel < 2 }
 				}
 				is_ai = no
 			}
@@ -2177,8 +2181,15 @@ country_event = { #Trade timeout
 		name = greneclyf_trade.34.a
 		
 		hidden_effect = {
-			NCH = { 
-				country_event = {id = greneclyf.69 days = 1}
+			NCH = {
+				if = {
+					limit = {
+						NOT = { has_country_flag = NCH_FBK_accepted_us } #Farbrook either rejects you due to gamerule or you didn't even bother with this focus.
+						NOT = { has_country_flag = NCH_attempted_to_trade_with_river_fed } #Even doing one focus and TRYING prevents Gytha from offing herself. 
+					}
+					country_event = {id = greneclyf.69 days = 9} #Gytha necks herself
+				}
+				country_event = {id = greneclyf.28 days = 1} #Fires .28 if it times out
 			}	
 		}
 	}
@@ -2275,28 +2286,43 @@ country_event = { #Event telling if trade was a success or not leading into othe
 	fire_only_once = yes
 	is_triggered_only = yes
 
-	option = { #Crisis begins
+	option = { #Partial Success, Farbrook accepted but others said no. Due to how the tree is structured, you NEED to have had FBK accept.
 		name = greneclyf.28.a
 		trigger = {
 			check_variable = { NCH_trade_refusals > 1 }
+			has_country_flag = NCH_FBK_accepted_us
+			NOT = { has_country_flag = NCH_trade_bypassed }
 		}
-		set_variable = {
-			var = NCH_Crisis_Resolve_Points
-			value = 1
-		}
-		country_event = greneclyf.29
+		#set_variable = {
+		#	var = NCH_Crisis_Resolve_Points #These aren't checked anywhere
+		#	value = 1
+		#}
+		country_event = greneclyf_trade_crisis.9 #Partial Success
 	}
 
-	option = { #Crisis avoided
+	option = { #Full Success
 		name = greneclyf.28.b
 		trigger = {
 			check_variable = { NCH_trade_refusals < 2 }
+			has_country_flag = NCH_FBK_accepted_us
+			NOT = { has_country_flag = NCH_trade_bypassed }
 		}	
-		country_event = greneclyf_trade_crisis.25
+		country_event = greneclyf_trade_crisis.25 #Beogfordas
+	}
+	
+	option = { #Absolute Failure
+		name = greneclyf.28.c
+		trigger = {
+			OR = {
+				NOT = { has_country_flag = NCH_FBK_accepted_us } #FBK has either rejected the offer...
+				has_country_flag = NCH_trade_bypassed #or you didn't even fucking bother. Gytha Stays alive.
+			}
+		}
+		country_event = greneclyf.29 #Oiren/Sunderer
 	}
 }
 
-country_event = { #Crazy Gytha Crisis will begin POSSIBLY REMOVE IT?
+country_event = { #Oiren/Sunderer, results from Failure of Trade totally OR you botched the crisis.
 	id = greneclyf.29
 	immediate = {log = "[GetDateText]: [Root.GetName]: event greneclyf.29"}
 	title = greneclyf.29.t
@@ -2321,7 +2347,7 @@ country_event = { #Crazy Gytha Crisis will begin POSSIBLY REMOVE IT?
 						is_country_leader = yes
 					}
 				}
-				retire_country_leader = yes
+				#retire_country_leader = yes
 				add_country_leader_role = {
 					character = NCH_feilean
 					promote_leader = yes
@@ -2329,21 +2355,28 @@ country_event = { #Crazy Gytha Crisis will begin POSSIBLY REMOVE IT?
 						ideology = conservatism
 					}
 				}
-			}
-			add_country_leader_role = {
-				character = NCH_oiren_of_oir
-				promote_leader = yes
-				country_leader = {
-					ideology = nazism
+				add_country_leader_role = {
+					character = NCH_oiren_of_oir
+					promote_leader = yes
+					country_leader = {
+						ideology = nazism
+					}
+				}
+				add_popularity = {
+					ideology = neutrality
+					popularity = 0.35
+				}
+				set_politics = {
+					ruling_party = neutrality
 				}
 			}
-			add_popularity = {
-				ideology = neutrality
-				popularity = 0.35
+			else = {
+				add_popularity = {
+					ideology = neutrality
+					popularity = 0.05
+				}
 			}
-			set_politics = {
-				ruling_party = neutrality
-			}
+				
 			hidden_effect = {
 				remove_ideas = {
 					NCH_trade_1
@@ -2377,8 +2410,8 @@ country_event = { #Council Convenes
 	}
 }
 
-country_event = { #Gytha's new necktie
-	id = greneclyf.69
+country_event = { #Gytha offs herself via Chandelier (not a necktie). Unless you want to make it one.
+	id = greneclyf.69 #Fired from greneclyf_trade.34 if you literally did fucking nothing in the trade minigame. Or Farbrook rejected.
 	immediate = {log = "[GetDateText]: [Root.GetName]: event greneclyf.69"}
 	title = greneclyf.69.t
 	desc = greneclyf.69.d
@@ -2389,14 +2422,15 @@ country_event = { #Gytha's new necktie
 	option = {
 		name = greneclyf.69.a
 		set_country_flag = NCH_gytha_dead
-		kill_country_leader = yes
+		hidden_effect = { retire_character = NCH_queen_gytha }
+		custom_effect_tooltip = NCH_gytha_offs_herself_tt
 		add_stability = -0.10
-		set_politics = {
-			ruling_party = neutrality
-		}
+		#set_politics = {
+		#	ruling_party = neutrality
+		#}
 		add_popularity = {
 			ideology = neutrality 
-			popularity = 0.10
+			popularity = 0.01
 		}
 	}
 }
@@ -3125,7 +3159,7 @@ country_event = { #Tractor Factories idea swap
 		}
 		else = {
 			swap_ideas = {
-				remove_idea = NCH_tractor_factories_idea_b
+				remove_idea = NCH_tractor_factories_idea_b 
 				add_idea = NCH_tractor_factories_idea_c
 			}
 		}
@@ -3411,7 +3445,7 @@ country_event = { #The tank event
 	is_triggered_only = yes
 	immediate = {
 		hidden_effect = {
-			add_country_flag = NCH_tank_company_unlocked
+			set_country_flag = NCH_tank_company_unlocked
 			log = "[GetDateText]: [Root.GetName]: event greneclyf.105"
 		}
 	}
@@ -4648,7 +4682,7 @@ country_event = { #TIME UP
 		name = greneclyf_trade_crisis.10.a
 		hidden_effect = {
 			country_event = {
-				id = greneclyf_trade_crisis.11
+				id = greneclyf.29 #crisis.11 is a duplicate of greneclyf.29
 				days = 5
 			}
 		}
@@ -4676,7 +4710,7 @@ country_event = { #CRISIS FAILURE
 						is_country_leader = yes
 					}
 				}
-				retire_country_leader = yes
+				#retire_country_leader = yes
 				add_country_leader_role = {
 					character = NCH_feilean
 					promote_leader = yes
@@ -5234,7 +5268,7 @@ country_event = { #
 				limit = {
 					is_trading_with_NCH = yes
 				}
-				remove_opinion_modifier = { modifier = NCH_negative_trading target = NCH }
+				#remove_opinion_modifier = { target = NCH modifier = NCH_negative_trading  } #This Causes an error. I'm not sure where this event is even fired.
 			}
 			load_focus_tree = { 
 				tree = greneclyf_constitution
@@ -5806,8 +5840,8 @@ country_event = { #5k casualties
 		swap_ideas = {
 			remove_idea = NCH_FBK_war_casualties_idea_a
 			add_idea = NCH_FBK_war_casualties_idea_b
-			set_global_flag = NCH_casualties_5k
 		}
+		set_global_flag = NCH_casualties_5k
 	}
 }
 
@@ -5848,31 +5882,31 @@ country_event = { #FBK defeated in time
 			limit = {
 				has_idea = NCH_FBK_war_casualties_idea_a
 			}
-			remove_idea = NCH_FBK_war_casualties_idea_a
+			remove_ideas = NCH_FBK_war_casualties_idea_a
 		}
 		if = {
 			limit = {
 				has_idea = NCH_FBK_war_casualties_idea_b
 			}
-			remove_idea = NCH_FBK_war_casualties_idea_b
+			remove_ideas = NCH_FBK_war_casualties_idea_b
 		}
 		if = {
 			limit = {
 				has_idea = NCH_FBK_war_casualties_idea_c
 			}
-			remove_idea = NCH_FBK_war_casualties_idea_c
+			remove_ideas = NCH_FBK_war_casualties_idea_c
 		}
 		if = {
 			limit = {
 				has_idea = NCH_FBK_war_timer_idea_a
 			}
-			remove_idea = NCH_FBK_war_timer_idea_a
+			remove_ideas = NCH_FBK_war_timer_idea_a
 		}
 		if = {
 			limit = {
 				has_idea = NCH_FBK_war_timer_idea_b
 			}
-			remove_idea = NCH_FBK_war_timer_idea_b
+			remove_ideas = NCH_FBK_war_timer_idea_b
 		}
 		if = {
 			limit = {
