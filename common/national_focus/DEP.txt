@@ -13,11 +13,53 @@ focus_tree = {
 	continuous_focus_position = { x = 550 y = 1800 }
 
 	shared_focus = DEP_the_returned_empire ### shows if DEP becomes LCT subject
+	shared_focus = DEP_war_against_LCT ### shows if DEP is attacked by LCT
 
 	shared_focus = DEP_update_peasantry_ledgers
 	shared_focus = DEP_agrarian_idyll_decree
 	shared_focus = RIV_dreams_of_a_federation
 
+}
+
+### Agrarian Idyll 
+
+shared_focus = {
+	id = DEP_agrarian_idyll_decree
+	icon = GFX_goal_unknown
+	cost = 5
+	ai_will_do = { factor = 100 }
+	available = {
+		always = no
+	}
+	x = 18
+	y = 0
+	completion_reward = {
+		log = "[GetDateText]: [Root.GetName]: Focus DEP_agrarian_idyll_decree"
+		
+	}
+	search_filters = { FOCUS_FILTER_POLITICAL }
+}
+
+shared_focus = {
+	id = DEP_machine_wonders
+	icon = GFX_goal_unknown
+	cost = 2
+	relative_position_id = DEP_agrarian_idyll_decree
+	prerequisite = { focus = DEP_agrarian_idyll_decree }
+	available = {
+		has_civil_war = no
+	}
+	x = -6
+	y = 1
+	available_if_capitulated = yes
+	ai_will_do = {
+    	factor = 10
+    }
+	completion_reward = {
+		log = "[GetDateText]: [Root.GetName]: Focus DEP_machine_wonders"
+		
+	}
+	search_filters = { FOCUS_FILTER_POLITICAL }
 }
 
 ### Lake Principality Subject Tree
@@ -29,7 +71,7 @@ shared_focus = {
 	ai_will_do = { factor = 100 }
 	allow_branch = {
 		hidden_trigger = {
-	#		has_country_flag = DEP_agreed_to_LCT_vassalage
+			has_country_flag = DEP_agreed_to_LCT_vassalage
 		}
 	}
 	available = {
@@ -161,11 +203,17 @@ shared_focus = {
 		add_equipment_to_stockpile = {
 			type = motorized_equipment
 			amount = 250
+			producer = LCT
 		}
 		if = {
 			limit = {
 				has_dlc = "Arms Against Tyranny"
-			}    
+			}
+			add_equipment_subsidy = {
+				cic = 500
+				equipment_type = motorized_equipment
+				seller_tags = { LCT }
+			}
 			custom_effect_tooltip = available_mio_tt
 			show_mio_tooltip = DEP_LCT_truck_organization
 			mio:DEP_LCT_truck_organization = {
@@ -719,6 +767,17 @@ shared_focus = {
 		add_equipment_to_stockpile = {
 			type = train_equipment
 			amount = 10
+			producer = LCT
+		}
+		if = {
+			limit = {
+				has_dlc = "Arms Against Tyranny"
+			}
+			add_equipment_subsidy = {
+				cic = 500
+				equipment_type = train_equipment
+				seller_tags = { LCT }
+			}
 		}
 		hidden_effect = {
 			country_event = { id = deponya_princely.7 days = 5 random_hours = 4 }
@@ -791,28 +850,213 @@ shared_focus = {
 
 shared_focus = {
 	id = DEP_war_against_LCT
-	icon = GFX_goal_generic_military_deal_pony
-	cost = 3
+	icon = GFX_goal_generic_defence
+	cost = 1
 	ai_will_do = { factor = 100 }
 	allow_branch = {
 		hidden_trigger = {
-			has_country_flag = DEP_refused_LCT_alliance
+		#	has_country_flag = DEP_refused_LCT_alliance
 		}
 	}
 	available = {
 		has_war_with = LCT
 	}
 	bypass = {
-		NOT = {
-			has_war_with = LCT
+		LCT = {
+			OR = {
+				exists = no
+				is_subject_of = DEP
+			}
 		}
 	}
 	x = -8
 	y = 0
 	completion_reward = {
 		log = "[GetDateText]: [Root.GetName]: Focus DEP_war_against_LCT"
+		if = {
+			limit = {
+				has_idea = disarmed_nation
+			}
+			swap_ideas = {
+				remove_idea = disarmed_nation
+				add_idea = limited_conscription
+			}
+		}
+		else = {
+			EAW_raise_conscription_law = yes
+		}
+		add_ideas = DEP_emergency_war_measures
 	}
-	search_filters = { FOCUS_FILTER_POLITICAL }
+	search_filters = { FOCUS_FILTER_POLITICAL FOCUS_FILTER_ARMY_BONUS }
+}
+
+shared_focus = {
+	id = DEP_call_upon_keepers
+	icon = GFX_goal_DEP_spider_warfare
+	cost = 2
+	ai_will_do = { factor = 100 }
+	available = {
+		has_war_with = LCT
+	}
+	bypass = {
+		LCT = {
+			OR = {
+				exists = no
+				is_subject_of = DEP
+			}
+		}
+	}
+	relative_position_id = DEP_war_against_LCT
+	prerequisite = { focus = DEP_war_against_LCT }
+	x = -3
+	y = 1
+	completion_reward = {
+		log = "[GetDateText]: [Root.GetName]: Focus GFX_goal_conscription_pony"
+		custom_effect_tooltip = DEP_deploy_emergency_keepers_tp
+	}
+	search_filters = { FOCUS_FILTER_MANPOWER }
+}
+
+shared_focus = {
+	id = DEP_mobilize_ponies
+	icon = GFX_goal_conscription_pony
+	cost = 2
+	ai_will_do = { factor = 100 }
+	available = {
+		has_war_with = LCT
+	}
+	bypass = {
+		LCT = {
+			OR = {
+				exists = no
+				is_subject_of = DEP
+			}
+		}
+	}
+	relative_position_id = DEP_war_against_LCT
+	prerequisite = { focus = DEP_war_against_LCT }
+	x = -1
+	y = 1
+	completion_reward = {
+		log = "[GetDateText]: [Root.GetName]: Focus DEP_mobilize_ponies"
+		custom_effect_tooltip = DEP_deploy_emergency_militias_tp
+	}
+	search_filters = { FOCUS_FILTER_MANPOWER }
+}
+
+shared_focus = {
+	id = DEP_emergency_arms_factory
+	icon = GFX_goal_revolution_pony
+	cost = 2
+	ai_will_do = { factor = 100 }
+	available = {
+		has_war_with = LCT
+	}
+	bypass = {
+		LCT = {
+			OR = {
+				exists = no
+				is_subject_of = DEP
+			}
+		}
+	}
+	relative_position_id = DEP_war_against_LCT
+	prerequisite = { focus = DEP_war_against_LCT }
+	x = 1
+	y = 1
+	completion_reward = {
+		log = "[GetDateText]: [Root.GetName]: Focus DEP_emergency_arms_factory"
+		add_equipment_to_stockpile = {
+			type = infantry_equipment
+			amount = 500
+		}
+		add_offsite_building = {
+			type = arms_factory
+			level = 1
+		}
+	}
+	search_filters = { FOCUS_FILTER_INDUSTRY }
+}
+
+shared_focus = {
+	id = DEP_purchase_all_guns
+	icon = GFX_goal_arms_sales
+	cost = 2
+	ai_will_do = { factor = 100 }
+	available = {
+		has_war_with = LCT
+	}
+	bypass = {
+		LCT = {
+			OR = {
+				exists = no
+				is_subject_of = DEP
+			}
+		}
+	}
+	relative_position_id = DEP_war_against_LCT
+	prerequisite = { focus = DEP_war_against_LCT }
+	x = 3
+	y = 1
+	completion_reward = {
+		log = "[GetDateText]: [Root.GetName]: Focus DEP_purchase_all_guns"
+		add_equipment_to_stockpile = {
+			type = infantry_equipment_0
+			amount = 1000
+			producer = BAK
+		}
+		if = {
+			limit = {
+				has_dlc = "Arms Against Tyranny"
+			}
+			add_equipment_subsidy = {
+				cic = 500
+				equipment_type = infantry_equipment
+				seller_tags = { BAK RCT NIM DMT }
+			}
+		}
+		add_equipment_to_stockpile = {
+			type = support_equipment
+			amount = 750
+			producer = RCT
+		}
+		if = {
+			limit = {
+				has_dlc = "Arms Against Tyranny"
+			}
+			add_equipment_subsidy = {
+				cic = 500
+				equipment_type = support_equipment
+				seller_tags = { BAK RCT NIM DMT }
+			}
+		}
+	}
+	search_filters = { FOCUS_FILTER_INDUSTRY }
+}
+
+shared_focus = {
+	id = DEP_victory_over_LCT
+	icon = GFX_goal_generic_liberty_statue
+	cost = 2
+	ai_will_do = { factor = 100 }
+	available = {
+		LCT = {
+			OR = {
+				exists = no
+				is_subject_of = DEP
+				is_in_faction_with = DEP
+			}
+		}
+	}
+	relative_position_id = DEP_war_against_LCT
+	prerequisite = { focus = DEP_war_against_LCT }
+	x = 0
+	y = 2
+	completion_reward = {
+		log = "[GetDateText]: [Root.GetName]: Focus DEP_victory_over_LCT"
+		LCT = { add_to_ROOT_potential_original_cores = yes }
+	}
+	search_filters = { FOCUS_FILTER_MANPOWER }
 }
 
 ### Military Tree
@@ -889,7 +1133,7 @@ shared_focus = {
 		log = "[GetDateText]: [Root.GetName]: Focus DEP_study_old_muskets"
 		add_tech_bonus = {
 			name = infantry_bonus
-			bonus = 1
+			bonus = 2
 			uses = 1
 			category = infantry_weapons
 		}
@@ -2060,45 +2304,4 @@ shared_focus = {
 		}
 	}
 	search_filters = { FOCUS_FILTER_ARMY_BONUS }
-}
-
-### Agrarian Idyll 
-
-shared_focus = {
-	id = DEP_agrarian_idyll_decree
-	icon = GFX_goal_unknown
-	cost = 5
-	ai_will_do = { factor = 100 }
-	available = {
-		always = no
-	}
-	x = 18
-	y = 0
-	completion_reward = {
-		log = "[GetDateText]: [Root.GetName]: Focus DEP_agrarian_idyll_decree"
-		
-	}
-	search_filters = { FOCUS_FILTER_POLITICAL }
-}
-
-shared_focus = {
-	id = DEP_machine_wonders
-	icon = GFX_goal_unknown
-	cost = 2
-	relative_position_id = DEP_agrarian_idyll_decree
-	prerequisite = { focus = DEP_agrarian_idyll_decree }
-	available = {
-		has_civil_war = no
-	}
-	x = -6
-	y = 1
-	available_if_capitulated = yes
-	ai_will_do = {
-    	factor = 10
-    }
-	completion_reward = {
-		log = "[GetDateText]: [Root.GetName]: Focus DEP_machine_wonders"
-		
-	}
-	search_filters = { FOCUS_FILTER_POLITICAL }
 }
