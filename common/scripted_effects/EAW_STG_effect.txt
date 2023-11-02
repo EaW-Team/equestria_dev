@@ -829,7 +829,8 @@ STG_expand_counterreforms_progress = {
 	STG_check_needle_and_value_reforms = yes 
 }
 	
-# COMECON effects
+# COMECON effects #
+
 # Function    : STG_add_scope_to_comecon
 # Description : Add the current scope to the COMECON. Exemple : EQS = { STG_add_scope_to_comecon }
 # Inputs      : None
@@ -840,27 +841,35 @@ STG_add_scope_to_comecon = {
 		limit = {
 			NOT = {
 				is_in_array = { STG.STG_COMECON_majors_array = THIS }
+				is_in_array = { STG.STG_COMECON_minors_array = THIS }
 			}
 		}
 		# Update the COMECON SGUI
-		add_to_array = {
-			array = STG.STG_COMECON_majors_array
-			value = THIS
+		if = {
+			limit = {
+				STG_is_major_comecon = yes
+			}
+
+			add_to_array = {
+				array = STG.STG_COMECON_majors_array
+				value = THIS
+			}
+		} else = {
+			add_to_array = {
+				array = STG.STG_COMECON_minors_array
+				value = THIS
+			}
 		}
-		# Compute the new effects of the COMECON
-		# this variable will be multiplied in calculations
-		add_to_variable = {
-			var = STG.STG_comicon_contribution_level 
-			value = 1
-		}
-		# Update the COMECON leader dynamic modifier if necessary
+
+		# Update the COMECON modifier
+		STG_update_comecon_modifier = yes
 
 		# Add the dynamic modifier for the nex member of the COMECON
 		#STG_add_comecon_dynamic_variable = yes
 	}
 }
 
-# COMECON effects
+
 # Function    : STG_remove_scope_to_comecon
 # Description : Remove the current scope from the COMECON. Exemple : EQS = { STG_remove_scope_to_comecon }
 # Inputs      : None
@@ -869,28 +878,120 @@ STG_remove_scope_to_comecon = {
 	# Sanity check - The country is in the COMECON
 	if = {
 		limit = {
-			is_in_array = { global.STG_comecon_member = THIS }
+			OR = {
+				is_in_array = { STG.STG_COMECON_majors_array = THIS }
+				is_in_array = { STG.STG_COMECON_minors_array = THIS }
+			}
 		}
-	# Update the COMECON SGUI
-		remove_from_array = {
-			array = global.STG_comecon_member
-			value = THIS
+		
+		# Update the COMECON SGUI
+		if = {
+			limit = {
+				is_in_array = { STG.STG_COMECON_majors_array = THIS }
+			}
+
+			remove_from_array = {
+				array = STG.STG_COMECON_majors_array
+				value = THIS
+			}
+		} else = {
+			remove_from_array = {
+				array = STG.STG_COMECON_minors_array
+				value = THIS
+			}
 		}
-		# Compute the new effects of the COMECON
-		# this variable will be multiplied in calculations
-		add_to_variable = {
-			var = STG.STG_comicon_contribution_level 
-			value = -1
-		}
+
 		# Update the COMECON leader dynamic modifier if necessary
+		STG_update_comecon_modifier = yes
 
 		# Remove the COMECON member dynamic modifier for the current scope
 		STG_remove_comecon_dynamic_variable = yes
 	}
 }
 
+# Function    : STG_update_comecon_modifier
+# Description : Update the contribution and the comecon modifier
+# Inputs      : None
+# Outputs     : None
+STG_update_comecon_modifier = {
+	STG_get_total_comecon_strength = yes
+	STG_update_comecon_modifier_values = yes
+	force_update_dynamic_modifier = yes
+}
 
-# COMECON effects
+@COMECON_CONTRIB_MAX_MULT    = 2
+@COMECON_CONTRIB_FORM_FACTOR = 0.05
+
+# Function    : STG_scope_comecon_contribution
+# Description : Compute the contribution to the Comecon for the current scope. It is between 1 and @COMECON_CONTRIB_MAX_MULT
+#                A hyperbol : f(x) = (1 + a*b*x) / (1 + b*x) with x the number of civilian factory
+#                                                                 a the maximum contribution
+#                                                                 b the form factor (How fast the function clim to the a value)
+# Inputs      : None
+# Outputs     : o_contribution - The current scope contribution
+STG_scope_comecon_contribution = {
+	set_temp_variable = { temp_den = num_of_civilian_factories }
+	multiply_temp_variable = { temp_den = @COMECON_CONTRIB_FORM_FACTOR }
+	add_to_temp_variable = { temp_den = 1 }
+
+	set_temp_variable = { o_contribution = num_of_civilian_factories }
+	multiply_temp_variable = { o_contribution = @COMECON_CONTRIB_MAX_MULT }
+	multiply_temp_variable = { o_contribution = @COMECON_CONTRIB_FORM_FACTOR }
+	add_to_temp_variable = { o_contribution = 1 }
+
+	divide_temp_variable = { o_contribution = temp_den }
+}
+
+# Function    : STG_get_total_comecon_strength
+# Description : Return the current Comecon strength
+# Inputs      : None
+# Outputs     : STG.STG_comecon_strength - The current Comecon strength
+STG_get_total_comecon_strength = {
+	# Get STG contribution
+	STG = { STG_scope_comecon_contribution = yes }
+	set_variable = { STG.STG_comecon_strength = o_contribution }
+
+	# Get the majors contribution
+	for_each_scope_loop = {
+		array = STG.STG_COMECON_majors_array
+
+		STG_scope_comecon_contribution = yes
+		add_to_variable = { STG.STG_comecon_strength = o_contribution }
+	}
+	# Get the minors contribution
+	for_each_scope_loop = {
+		array = STG.STG_COMECON_minors_array
+
+		STG_scope_comecon_contribution = yes
+		add_to_variable = { STG.STG_comecon_strength = o_contribution }
+	}
+}
+
+@COMECON_CONTRIBUTION_FOR_MAX_BONUS = 8
+
+@COMECON_FACTORY_OUTPUT_MIN   = 0.05
+@COMECON_FACTORY_OUTPUT_BONUS = 0.15 # Max bonus 20% (Min + Bonus)
+
+# Function    : STG_update_comecon_modifier_values
+# Description : Compute the dynamic modifier value depending on the current Comecon value
+# Inputs      : None
+# Outputs     : None
+STG_update_comecon_modifier_values = {
+	# Compute the current contribution factor
+	set_temp_variable = { temp_factor = STG.STG_comecon_strength }
+	clamp_temp_variable = {
+		var = temp_factor
+		min = 1
+		max = @COMECON_CONTRIBUTION_FOR_MAX_BONUS
+	}
+	divide_temp_variable = { temp_factor = @COMECON_CONTRIBUTION_FOR_MAX_BONUS }
+
+	# Factory output
+	set_variable = { STG.STG_comecon_factory_output = @COMECON_FACTORY_OUTPUT_BONUS }
+	multiply_variable = { STG.STG_comecon_factory_output = temp_factor }
+	add_to_variable = { STG.STG_comecon_factory_output = @COMECON_FACTORY_OUTPUT_MIN }
+}
+
 # Function    : STG_add_comecon_dynamic_variable
 # Description : Adds the correct dynamic variable to the current scope
 # Inputs      : None
@@ -950,8 +1051,6 @@ STG_add_comecon_dynamic_variable = {
 	}
 }
 
-
-# COMECON effects
 # Function    : STG_remove_comecon_dynamic_variable
 # Description : Adds the correct dynamic variable to the current scope
 # Inputs      : None
