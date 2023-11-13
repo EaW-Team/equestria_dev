@@ -34,8 +34,6 @@ replace_path="history/general"
 replace_path="map/strategicregions"
 replace_path="map/supplyareas"
 replace_path="gfx/posteffect_volumes.txt"
-
-path="D:/GitHub/1"
 tags={
 	"Alternative History"
 	"Events"
