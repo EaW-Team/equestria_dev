@@ -1,6 +1,7 @@
 # This file contain the effect to interact with the diary GUI
 
 @DIARY_NB_CATEGORIES = 4
+@MAX_QUEST_ENTRY_NB = 256
 
 # Function    : f_VED_refresh_diary_gui
 # Description : Refresh the diary GUI
@@ -51,6 +52,11 @@ f_VED_open_diary = {
 	f_VED_refresh_diary_gui = yes
 }
 
+# Adventure log functions
+
+@QUEST_ENTRY_BASE_HEIGHT = 30
+@QUEST_ENTRY_LINE_HEIGHT = 12
+
 # Function    : f_VED_log_entries_database_setup
 # Description : Setup the number of quests and their number of entries
 # Inputs      : i_diary_category - Indicate which content will be displayed when the diary is opened
@@ -62,4 +68,99 @@ f_VED_log_entries_database_setup = {
 	add_to_array = { VED_diary_quest_log_entries_array = 3 }
 	add_to_array = { VED_diary_quest_log_entries_array = 1 }
 	add_to_array = { VED_diary_quest_log_entries_array = 5 }
+}
+
+# Function    : f_VED_refresh_adventure_log_display
+# Description : Refresh the display of the adventure log
+# Inputs      : i_page_nb : The page number
+# Outputs     : None
+f_VED_refresh_adventure_log_display = {
+
+	# Reset the display arrays
+	# Left page
+	clear_array = VED_quest_diary_tab_3_left_log_array
+	clear_array = VED_quest_diary_tab_3_left_log_date_array
+	clear_array = VED_quest_diary_tab_3_left_log_location_array
+	clear_array = VED_quest_diary_tab_3_left_log_offsets_array
+	# Right page
+	clear_array = VED_quest_diary_tab_3_right_log_array
+	clear_array = VED_quest_diary_tab_3_right_log_date_array
+	clear_array = VED_quest_diary_tab_3_right_log_location_array
+	clear_array = VED_quest_diary_tab_3_right_log_offsets_array
+
+	# Sanity checks
+	round_temp_variable = i_page_nb
+	set_temp_variable = { t_max_page_nb = VED_quest_diary_adventure_log_page_index }
+	add_to_temp_variable = { t_max_page_nb = -1 }
+	if = {
+		limit = { check_variable = { t_max_page_nb > -1 } }
+
+		clamp_temp_variable = {
+			var = i_page_nb
+			min = 0
+			max = t_max_page_nb
+		}
+
+		f_VED_refresh_adventure_log_display_private = yes
+	}
+}
+
+# Function    : f_VED_refresh_adventure_log_display_private
+f_VED_refresh_adventure_log_display_private = {
+
+	#@QUEST_ENTRY_BASE_HEIGHT = 30
+	#@QUEST_ENTRY_LINE_HEIGHT = 12
+
+	# Fill left page
+	set_temp_variable = { t_start_index = VED_quest_diary_adventure_log_page_index^i_page_nb }
+	add_to_temp_variable = { i_page_nb = 1 }
+	if = {
+		limit = { check_variable = { i_page_nb > t_max_page_nb } }
+		
+		set_temp_variable = { t_stop_index = VED_quest_diary_adventure_log_entries_content^num }
+	} else = {
+		set_temp_variable = { t_stop_index = VED_quest_diary_adventure_log_page_index^i_page_nb }
+	}
+	set_temp_variable = { t_index = 0 }
+	while_loop_effect = {
+		limit = { check_variable = { t_start_index < t_stop_index } }
+
+		set_temp_variable = { t_entry_id = VED_quest_diary_adventure_log_entries_content^t_start_index }
+		modulo_temp_variable = { t_entry_id = @MAX_QUEST_ENTRY_NB }
+		set_temp_variable = { t_quest_id = VED_quest_diary_adventure_log_entries_content^t_start_index }
+		subtract_from_temp_variable = { t_quest_id = t_entry_id }
+		divide_temp_variable = { t_quest_id = @MAX_QUEST_ENTRY_NB }
+
+		add_to_temp_variable = { t_index = 1 }
+		add_to_temp_variable = { t_start_index = 1 }
+	}
+
+
+	# Fill right page
+	add_to_temp_variable = { i_page_nb = 1 }
+	set_temp_variable = { t_start_index = t_stop_index }
+	add_to_temp_variable = { t_start_index = 1 }
+	if = {
+		limit = { check_variable = { i_page_nb < VED_quest_diary_adventure_log_page_index^num } }
+	}
+}
+
+# Function    : f_VED_reset_adventure_log
+# Description : Reset the adventure log
+# Inputs      : None
+# Outputs     : None
+f_VED_reset_adventure_log = {
+	# Entries information arrays
+	# Entry token array - Contain entry tokens
+	clear_array = VED_quest_diary_adventure_log_entries_content
+	# Date array - Contain the date of the entry
+	clear_array = VED_quest_diary_adventure_log_entries_date
+	# Date array - Contain the location of the entry
+	clear_array = VED_quest_diary_adventure_log_entries_location
+
+	# Metadata used for the display
+	# Entries offset array
+	clear_array = VED_quest_diary_adventure_log_offset
+	# Page index array
+	clear_array = VED_quest_diary_adventure_log_page_index
 }
