@@ -57,6 +57,35 @@ f_VED_open_diary = {
 @QUEST_ENTRY_BASE_HEIGHT = 30
 @QUEST_ENTRY_LINE_HEIGHT = 12
 
+# Function    : f_VED_log_value_to_quest_entry_id
+# Description : Convert a log value to the corresponding quest and entry id
+# 				Used to store in the same variable all the information of the entry
+# Inputs      : i_log_id   - The log calue to convert
+# Outputs     : o_quest_id - The quest id
+#             : o_entry_id - The entry id
+f_VED_log_value_to_quest_entry_id = {
+	set_temp_variable = { o_entry_id = i_log_id }
+	modulo_temp_variable = { o_entry_id = @MAX_QUEST_ENTRY_NB }
+	set_temp_variable = { o_quest_id = i_log_id }
+	subtract_from_temp_variable = { o_quest_id = o_entry_id }
+	divide_temp_variable = { o_quest_id = @MAX_QUEST_ENTRY_NB }
+}
+
+# Function    : f_VED_quest_entry_id_to_log_value
+# Description : Convert a quest and entry id to a unique log value
+# 				Used to store in the same variable all the information of the entry
+# Inputs      : i_quest_id - The quest id to convert
+#             : i_entry_id - The entry id to convert
+# Outputs     : o_log_id   - The resulting log value
+
+f_VED_quest_entry_id_to_log_value = {
+	set_temp_variable = { o_entry_id = i_log_id }
+	modulo_temp_variable = { o_entry_id = @MAX_QUEST_ENTRY_NB }
+	set_temp_variable = { o_quest_id = i_log_id }
+	subtract_from_temp_variable = { o_quest_id = o_entry_id }
+	divide_temp_variable = { o_quest_id = @MAX_QUEST_ENTRY_NB }
+}
+
 # Function    : f_VED_log_entries_database_setup
 # Description : Setup the number of quests and their number of entries
 # Inputs      : i_diary_category - Indicate which content will be displayed when the diary is opened
@@ -72,10 +101,9 @@ f_VED_log_entries_database_setup = {
 
 # Function    : f_VED_refresh_adventure_log_display
 # Description : Refresh the display of the adventure log
-# Inputs      : i_page_nb : The page number
+# Inputs      : i_page_nb : The left page number
 # Outputs     : None
 f_VED_refresh_adventure_log_display = {
-
 	# Reset the display arrays
 	# Left page
 	clear_array = VED_quest_diary_tab_3_left_log_array
@@ -90,7 +118,7 @@ f_VED_refresh_adventure_log_display = {
 
 	# Sanity checks
 	round_temp_variable = i_page_nb
-	set_temp_variable = { t_max_page_nb = VED_quest_diary_adventure_log_page_index }
+	set_temp_variable = { t_max_page_nb = VED_quest_diary_adventure_log_page_index^num }
 	add_to_temp_variable = { t_max_page_nb = -1 }
 	if = {
 		limit = { check_variable = { t_max_page_nb > -1 } }
@@ -107,10 +135,6 @@ f_VED_refresh_adventure_log_display = {
 
 # Function    : f_VED_refresh_adventure_log_display_private
 f_VED_refresh_adventure_log_display_private = {
-
-	#@QUEST_ENTRY_BASE_HEIGHT = 30
-	#@QUEST_ENTRY_LINE_HEIGHT = 12
-
 	# Fill left page
 	set_temp_variable = { t_start_index = VED_quest_diary_adventure_log_page_index^i_page_nb }
 	add_to_temp_variable = { i_page_nb = 1 }
@@ -125,13 +149,31 @@ f_VED_refresh_adventure_log_display_private = {
 	while_loop_effect = {
 		limit = { check_variable = { t_start_index < t_stop_index } }
 
-		set_temp_variable = { t_entry_id = VED_quest_diary_adventure_log_entries_content^t_start_index }
-		modulo_temp_variable = { t_entry_id = @MAX_QUEST_ENTRY_NB }
-		set_temp_variable = { t_quest_id = VED_quest_diary_adventure_log_entries_content^t_start_index }
-		subtract_from_temp_variable = { t_quest_id = t_entry_id }
-		divide_temp_variable = { t_quest_id = @MAX_QUEST_ENTRY_NB }
+		# Get the correct elements from the data base
+		set_temp_variable = { i_log_id = VED_quest_diary_adventure_log_entries_content^t_start_index }
+		f_VED_log_value_to_quest_entry_id = yes # Get the quest and entry id
+		meta_effect = {
+			text = {
+				set_temp_variable = { t_content = token:VED_diary_log_entry_[QUEST_ID]_[ENTRY_ID]_text }
+				set_temp_variable = { t_line_nb = token:VED_diary_log_entry_[QUEST_ID]_[ENTRY_ID]_line_nb }
+			}
 
-		add_to_temp_variable = { t_index = 1 }
+			QUEST_ID = "[?o_quest_id]"
+			ENTRY_ID = "[?o_entry_id]"
+		}
+		
+		# Update the left array
+		add_to_array = { VED_quest_diary_tab_3_left_log_array = t_content }
+		add_to_array = { VED_quest_diary_tab_3_left_log_date_array = VED_quest_diary_adventure_log_entries_date^t_start_index }
+		add_to_array = { VED_quest_diary_tab_3_left_log_location_array = VED_quest_diary_adventure_log_entries_location }
+		add_to_array = { VED_quest_diary_tab_3_left_log_offsets_array = t_index }
+
+		# Update index
+		add_to_temp_variable = { t_index = @QUEST_ENTRY_BASE_HEIGHT }
+		set_temp_variable = { t_entry_height = t_line_nb }
+		multiply_temp_variable = { t_entry_height = @QUEST_ENTRY_LINE_HEIGHT }
+		add_to_temp_variable = { t_index = t_entry_height }
+
 		add_to_temp_variable = { t_start_index = 1 }
 	}
 
@@ -142,6 +184,46 @@ f_VED_refresh_adventure_log_display_private = {
 	add_to_temp_variable = { t_start_index = 1 }
 	if = {
 		limit = { check_variable = { i_page_nb < VED_quest_diary_adventure_log_page_index^num } }
+
+		# As for the left page, fill the right page
+		if = {
+			limit = { check_variable = { i_page_nb > t_max_page_nb } }
+			
+			set_temp_variable = { t_stop_index = VED_quest_diary_adventure_log_entries_content^num }
+		} else = {
+			set_temp_variable = { t_stop_index = VED_quest_diary_adventure_log_page_index^i_page_nb }
+		}
+		set_temp_variable = { t_index = 0 }
+		while_loop_effect = {
+			limit = { check_variable = { t_start_index < t_stop_index } }
+	
+			# Get the correct elements from the data base
+			set_temp_variable = { i_log_id = VED_quest_diary_adventure_log_entries_content^t_start_index }
+			f_VED_log_value_to_quest_entry_id = yes # Get the quest and entry id
+			meta_effect = {
+				text = {
+					set_temp_variable = { t_content = token:VED_diary_log_entry_[QUEST_ID]_[ENTRY_ID]_text }
+					set_temp_variable = { t_line_nb = token:VED_diary_log_entry_[QUEST_ID]_[ENTRY_ID]_line_nb }
+				}
+	
+				QUEST_ID = "[?o_quest_id]"
+				ENTRY_ID = "[?o_entry_id]"
+			}
+			
+			# Update the left array
+			add_to_array = { VED_quest_diary_tab_3_right_log_array = t_content }
+			add_to_array = { VED_quest_diary_tab_3_right_log_date_array = VED_quest_diary_adventure_log_entries_date^t_start_index }
+			add_to_array = { VED_quest_diary_tab_3_right_log_location_array = VED_quest_diary_adventure_log_entries_location }
+			add_to_array = { VED_quest_diary_tab_3_right_log_offsets_array = t_index }
+	
+			# Update index
+			add_to_temp_variable = { t_index = @QUEST_ENTRY_BASE_HEIGHT }
+			set_temp_variable = { t_entry_height = t_line_nb }
+			multiply_temp_variable = { t_entry_height = @QUEST_ENTRY_LINE_HEIGHT }
+			add_to_temp_variable = { t_index = t_entry_height }
+	
+			add_to_temp_variable = { t_start_index = 1 }
+		}
 	}
 }
 
@@ -155,7 +237,7 @@ f_VED_reset_adventure_log = {
 	clear_array = VED_quest_diary_adventure_log_entries_content
 	# Date array - Contain the date of the entry
 	clear_array = VED_quest_diary_adventure_log_entries_date
-	# Date array - Contain the location of the entry
+	# Location array - Contain the location of the entry
 	clear_array = VED_quest_diary_adventure_log_entries_location
 
 	# Metadata used for the display
