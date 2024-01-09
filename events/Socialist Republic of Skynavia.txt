@@ -755,17 +755,59 @@ country_event = {
 				NTR = {
 					set_country_flag = demilitarized
 					add_manpower = -99999999
-					transfer_units_fraction = {
-						target = ROOT          # the recipient
-						target_organization = 1
-						source_organization = 1
-						size = 0             # [0,1] Default value for the ratio below if they are not specified
-						stockpile_ratio = 0.85  # [0,1] Overrides size modifier for the stockpiled equipment and fuel
-						army_ratio = 0       # [0,1] Overrides size modifier for army
-						navy_ratio = 0.75       # [0,1] Overrides size modifier for navy
-						air_ratio = 0.95        # [0,1] Overrides size modifier for air
-						keep_unit_leaders_trigger = {
-							always = yes
+					# This is a workaround for transfer_units_fraction overriding recipient's graphical culture.
+					# We first transfer to SOL (has to be on the map) to override its graphical culture with SRS's,
+					# then do the actual transfer from NTR, and finally transfer from SOL, resetting the SRS
+					# graphical culture.
+					random_owned_controlled_state = {
+						SOL = {
+							set_state_owner = PREV
+							ROOT = {
+								transfer_units_fraction = {
+									target = PREV          # the recipient
+									target_organization = 1
+									source_organization = 1
+									size = 0             # [0,1] Default value for the ratio below if they are not specified
+									keep_unit_leaders_trigger = {
+										always = yes
+									}
+								}
+							}
+							delete_unit_template_and_units = { division_template = "Guards Brigade" }
+							delete_unit_template_and_units = { division_template = "Militia Reserves" }
+							delete_unit_template_and_units = { division_template = "Mountaineer Brigade" }
+						}
+						NTR = {
+							transfer_units_fraction = {
+								target = ROOT          # the recipient
+								target_organization = 1
+								source_organization = 1
+								size = 0             # [0,1] Default value for the ratio below if they are not specified
+								stockpile_ratio = 0.85  # [0,1] Overrides size modifier for the stockpiled equipment and fuel
+								army_ratio = 0       # [0,1] Overrides size modifier for army
+								navy_ratio = 0.75       # [0,1] Overrides size modifier for navy
+								air_ratio = 0.95        # [0,1] Overrides size modifier for air
+								keep_unit_leaders_trigger = {
+									always = yes
+								}
+							}
+						}
+						SOL = {
+							transfer_units_fraction = {
+								target = ROOT          # the recipient
+								target_organization = 1
+								source_organization = 1
+								size = 0             # [0,1] Default value for the ratio below if they are not specified
+								keep_unit_leaders_trigger = {
+									always = yes
+								}
+							}
+						}
+						ROOT = {
+							set_state_owner = PREV
+							annex_country = {
+								target = SOL
+							}
 						}
 					}
 					# Additionally, transfer anything bigger than a light cruiser
@@ -833,7 +875,7 @@ country_event = {
 			country_leader = {
 				expire = "1965.1.1"
 				ideology = democratic_socialism
-				traits = { }
+				traits = { stalin_architect_of_communism }
 			}
 		}
 
@@ -867,7 +909,7 @@ country_event = {
 			country_leader = {
 				expire = "1965.1.1"
 				ideology = democratic_socialism
-				traits = { }
+				traits = { stalin_architect_of_communism }
 			}
 		}
 	}
@@ -956,8 +998,13 @@ country_event = {
 				has_civil_war = yes
 			}
 			save_event_target_as = SRS_socialist_loyalists_in_the_civil_war_against_asper
-			event_target:SRS_skynavian_general_congress_target = {
-				set_nationality = event_target:SRS_socialist_loyalists_in_the_civil_war_against_asper
+			every_possible_country = {
+				limit = {
+					has_character = SRS_skynavian_general_congress
+				}
+				SRS_skynavian_general_congress = {
+					set_nationality = event_target:SRS_socialist_loyalists_in_the_civil_war_against_asper
+				}
 			}
 			SRS_skynavian_general_congress = {
 				add_country_leader_role = {
@@ -966,18 +1013,33 @@ country_event = {
 					country_leader = {
 						expire = "1965.1.1"
 						ideology = democratic_socialism
-						traits = { }
+						traits = { stalin_architect_of_communism }
 					}
 				}
 			}
-			event_target:SRS_emma_goldgriff_target = {
-				set_nationality = event_target:SRS_socialist_loyalists_in_the_civil_war_against_asper
+			every_possible_country = {
+				limit = {
+					has_character = SRS_emma_goldgriff
+				}
+				SRS_emma_goldgriff = {
+					set_nationality = event_target:SRS_socialist_loyalists_in_the_civil_war_against_asper
+				}
 			}
-			event_target:SRS_pierre_ponehon_target = {
-				set_nationality = event_target:SRS_socialist_loyalists_in_the_civil_war_against_asper
+			every_possible_country = {
+				limit = {
+					has_character = SRS_pierre_ponehon
+				}
+				SRS_pierre_ponehon = {
+					set_nationality = event_target:SRS_socialist_loyalists_in_the_civil_war_against_asper
+				}
 			}
-			event_target:SRS_mikhail_beakunin_target = {
-				set_nationality = event_target:SRS_socialist_loyalists_in_the_civil_war_against_asper
+			every_possible_country = {
+				limit = {
+					has_character = SRS_mikhail_beakunin
+				}
+				SRS_mikhail_beakunin = {
+					set_nationality = event_target:SRS_socialist_loyalists_in_the_civil_war_against_asper
+				}
 			}
 			hidden_effect = {
 				create_wargoal = { 
@@ -990,8 +1052,13 @@ country_event = {
 				type = annex_everything
 			}
 		}
-		event_target:SRS_asper_sickleclaw_target = {
-			set_nationality = SRS
+		every_possible_country = {
+			limit = {
+				has_character = SRS_asper_sickleclaw
+			}
+			SRS_asper_sickleclaw = {
+				set_nationality = SRS
+			}
 		}
 		if = {
 			limit = {
@@ -1556,6 +1623,7 @@ country_event = {
 			attack_skill = 2
 			defense_skill = 3
 			planning_skill = 3
+			logistics_skill = 2
 		} custom_effect_tooltip = mikhail_beakunin_stats_tp
 	}
 }
@@ -1615,7 +1683,7 @@ country_event = {
 					country_leader = {
 						expire = "1965.1.1"
 						ideology = democratic_socialism
-						traits = { }
+						traits = { stalin_architect_of_communism }
 					}
 				}
 			}
@@ -1959,8 +2027,12 @@ country_event = { ## pan-griffonian socialist commonwealth ##
 		name = socrep_grif.64.a 
 		set_country_flag = SRS_PGSC
 		set_cosmetic_tag = SRS_PGSC
-		set_capital = { state = 382 } ## rmb to have focus renaming this to The People's City ##
-		every_owned_state = { add_core_of = ROOT }
+		set_capital = { 
+			state = 382 
+			remember_old_capital = no
+		} ## rmb to have focus renaming this to The People's City ##
+		#bruh
+		#every_owned_state = { add_core_of = ROOT }
 		load_focus_tree = { tree = pan_griffonian_socialist_commonwealth }
 		SRS_pan_griffonian_peoples_assembly = {
 			set_character_name = SRS_reorganised_general_congress_of_skynavia
@@ -1971,7 +2043,7 @@ country_event = { ## pan-griffonian socialist commonwealth ##
 				country_leader = {
 					expire = "1965.1.1"
 					ideology = democratic_socialism
-					traits = { nationalist_symbol }
+					traits = { stalin_architect_of_communism nationalist_symbol }
 				}
 			}
 		}
@@ -2502,7 +2574,7 @@ country_event = {
 				desc = "SKYNAVIAN_GENERAL_CONGRESS_NAME_DESC"
 				expire = "1965.1.1"
 				ideology = democratic_socialism
-				traits = { }
+				traits = { stalin_architect_of_communism }
 			}
 		}
 		load_focus_tree = { tree = socialist_republic_of_free_griffons }
@@ -2538,7 +2610,7 @@ country_event = {
 				desc = "SKYNAVIAN_GENERAL_CONGRESS_NAME_DESC"
 				expire = "1965.1.1"
 				ideology = democratic_socialism
-				traits = { }
+				traits = { stalin_architect_of_communism }
 			}
 		}
 		load_focus_tree = { tree = socialist_republic_of_free_griffons }
@@ -2604,7 +2676,7 @@ country_event = {
 				desc = "SKYNAVIAN_GENERAL_CONGRESS_NAME_DESC"
 				expire = "1965.1.1"
 				ideology = democratic_socialism
-				traits = { }
+				traits = { stalin_architect_of_communism }
 			}
 		}
 		add_stability = -0.20
@@ -2637,8 +2709,13 @@ country_event = {
 				long_name = SRS_sickleclaws_clique
 				name = SRS_sickleclaws_clique 
 			}
-			event_target:SRS_asper_sickleclaw_target = {
-				set_nationality = PREV
+			every_possible_country = {
+				limit = {
+					has_character = SRS_asper_sickleclaw
+				}
+				SRS_asper_sickleclaw = {
+					set_nationality = PREV.PREV
+				}
 			}
 			SRS_asper_sickleclaw = {
 				set_portraits = {
@@ -2725,8 +2802,13 @@ country_event = {
 			limit = {
 				original_tag = SRS
 			}
-			event_target:SRS_skynavian_general_congress_target = {
-				set_nationality = PREV
+			every_possible_country = {
+				limit = {
+					has_character = SRS_skynavian_general_congress
+				}
+				SRS_skynavian_general_congress = {
+					set_nationality = PREV.PREV
+				}
 			}
 			SRS_skynavian_general_congress = {
 				add_country_leader_role = {
@@ -2736,7 +2818,7 @@ country_event = {
 						desc = "SKYNAVIAN_GENERAL_CONGRESS_NAME_DESC"
 						expire = "1965.1.1"
 						ideology = democratic_socialism
-						traits = { }
+						traits = { stalin_architect_of_communism }
 					}
 				}
 			}
@@ -2747,8 +2829,13 @@ country_event = {
 			set_country_flag = SRS_republic_of_skynavia
 			set_cosmetic_tag = SRS_republic_of_skynavia
 		}
-		event_target:SRS_asper_sickleclaw_target = {
-			set_nationality = SRS
+		every_possible_country = {
+			limit = {
+				has_character = SRS_asper_sickleclaw
+			}
+			SRS_asper_sickleclaw = {
+				set_nationality = SRS
+			}
 		}
 		if = {
 			limit = {
@@ -2834,12 +2921,23 @@ country_event = {
 
 	option = {
 		name = socrep_grif.93.a 
-		every_state = { 
+		if = {
 			limit = {
-				NOT = { is_core_of = ROOT }
-				is_core_of = FROM
+				FROM = {
+					OR = {
+						is_griffon_continent_country = yes
+						original_tag = GRF
+						original_tag = GFF
+					}
+				}
 			}
-			add_core_of = ROOT
+			every_state = { 
+				limit = {
+					NOT = { is_core_of = ROOT }
+					is_core_of = FROM
+				}
+				add_core_of = ROOT
+			}
 		}
 		annex_country = {
 			target = FROM
