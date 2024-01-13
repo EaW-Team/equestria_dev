@@ -708,6 +708,12 @@ PixelShader =
 		float4 main( VS_OUTPUT_PDXMESHSTANDARD In ) : PDX_COLOR
 		{	
 			float2 vUV0 = In.vUV0;
+
+		#ifdef UV_ANIM
+			const float SPEED_SCALE = 2.0f;
+			float t = frac(vGlobalTime * vUVAnimSpeed * SPEED_SCALE);
+			vUV0.y += t;
+		#endif
 		
 			float4 vDiffuse = tex2D( DiffuseMap, vUV0 );
 		
@@ -1073,6 +1079,14 @@ Effect EaWMeshAlpha
 	PixelShader = "PixelEaWAlpha"
 	BlendState = "BlendStateEaWAlpha"
 	Defines = { "PDX_IMPROVED_BLINN_PHONG" }
+}
+
+Effect EaWMeshAlphaAnim
+{
+	VertexShader = "VertexPdxMeshStandard"
+	PixelShader = "PixelEaWAlpha"
+	BlendState = "BlendStateEaWAlpha"
+	Defines = { "PDX_IMPROVED_BLINN_PHONG" "UV_ANIM" }
 }
 
 Effect EaWMeshShadowOnly
