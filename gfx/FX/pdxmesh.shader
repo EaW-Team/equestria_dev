@@ -439,6 +439,9 @@ PixelShader =
 
 		float4 main( VS_OUTPUT_PDXMESHSTANDARD In ) : PDX_COLOR
 		{
+		#ifdef CULL
+			discard;
+		#endif
 			float2 vUV0 = In.vUV0;
 
 		#ifdef UV_ANIM
@@ -702,7 +705,88 @@ PixelShader =
 
 	MainCode PixelEaWAlpha
 	[[
-		return float4(0, 0, 0, 0.5);
+		float4 main( VS_OUTPUT_PDXMESHSTANDARD In ) : PDX_COLOR
+		{	
+			float2 vUV0 = In.vUV0;
+		
+			float4 vDiffuse = tex2D( DiffuseMap, vUV0 );
+		
+			float3 vPos = In.vPos_Height.xyz;
+		
+			float3 vColor = vDiffuse.rgb;
+			float3 vInNormal = normalize( In.vNormal );
+			float4 vProperties = tex2D( SpecularMap, vUV0 );
+			
+			LightingProperties lightingProperties;
+			
+		#ifdef PDX_IMPROVED_BLINN_PHONG
+			float4 vNormalMap = tex2D( NormalMap, vUV0 );
+			
+			float3 vNormalSample =  UnpackRRxGNormal(vNormalMap);
+			
+			lightingProperties._Glossiness = vProperties.a;
+		#else
+			float3 vNormalSample = UnpackNormal( NormalMap, vUV0 );
+			
+			lightingProperties._SpecularColor = vec3(vProperties.a);
+			lightingProperties._Glossiness = SPECULAR_WIDTH;
+		#endif
+		
+			lightingProperties._NonLinearGlossiness = GetNonLinearGlossiness(lightingProperties._Glossiness);
+		
+			float3x3 TBN = Create3x3( normalize( In.vTangent ), normalize( In.vBitangent ), vInNormal );
+			float3 vNormal = normalize(mul( vNormalSample, TBN ));
+			
+			// self shadowing
+			float fShadowTerm = 1.0f;//CalculateShadowCascaded(vPos, ShadowMap);
+			//fShadowTerm = (1.0f - SHADOW_WEIGHT_MESH) + SHADOW_WEIGHT_MESH * fShadowTerm;
+		
+			lightingProperties._WorldSpacePos = vPos;
+			lightingProperties._ToCameraDir = normalize(vCamPos - vPos);
+			lightingProperties._Normal = vNormal;
+
+		#ifdef PDX_IMPROVED_BLINN_PHONG
+			float SpecRemapped = vProperties.g * vProperties.g * 0.4;
+			float MetalnessRemapped = 1.0 - (1.0 - vProperties.b) * (1.0 - vProperties.b);
+			lightingProperties._Diffuse = MetalnessToDiffuse(MetalnessRemapped, vColor);
+			lightingProperties._SpecularColor = MetalnessToSpec(MetalnessRemapped, vColor, SpecRemapped);
+		#else
+			lightingProperties._Diffuse = vColor;
+		#endif
+			
+			float3 diffuseLight = vec3(0.0);
+			float3 specularLight = vec3(0.0);
+			CalculateSunLight(lightingProperties, fShadowTerm, diffuseLight, specularLight);
+			CalculatePointLights(lightingProperties, LightDataMap, LightIndexMap, diffuseLight, specularLight);
+		
+		#ifdef PDX_IMPROVED_BLINN_PHONG
+			float3 vEyeDir = normalize( vPos - vCamPos.xyz );
+			float3 reflection = reflect( vEyeDir, vNormal );
+			float MipmapIndex = GetEnvmapMipLevel(lightingProperties._Glossiness); 
+			
+			float3 reflectiveColor = texCUBElod( EnvironmentMap, float4(reflection, MipmapIndex) ).rgb * CubemapIntensity;
+			specularLight += reflectiveColor * FresnelGlossy(lightingProperties._SpecularColor, -vEyeDir, lightingProperties._Normal, lightingProperties._Glossiness);
+		#endif
+		
+			float vSnowAlpha = 0;
+			vColor = ComposeLightMesh(lightingProperties, diffuseLight, specularLight, vSnowAlpha);
+
+			float3 vGlobalNormal = CalcGlobeNormal( vPos.xz );
+
+			float alpha = 0.0f;
+		
+			float FogColorFactor = 0.0;
+			float FogAlphaFactor = 0.0;
+			GetFogFactors( FogColorFactor, FogAlphaFactor, vPos, 0.0 /*In.vPos_Height.w * 1.0 + 2.5*/, FOWNoise, FOWHeight, IntelMap);
+			vColor = ApplyFOW( vColor, FogColorFactor, min( FogAlphaFactor, NegFogMultiplier ) );
+
+			vColor.rgb = ApplyDistanceFog( vColor.rgb, vPos );			
+			vColor.rgb = DayNight( vColor.rgb, vGlobalNormal );	
+
+			DebugReturn(vColor, lightingProperties, fShadowTerm);
+
+			return float4(vColor, vDiffuse.a);
+		}
 	]]
 }
 
@@ -986,25 +1070,14 @@ BlendState BlendStateEaWAlpha
 Effect EaWMeshAlpha
 {
 	VertexShader = "VertexPdxMeshStandard"
-	PixelShader = "PixelPdxMeshStandard"
+	PixelShader = "PixelEaWAlpha"
 	BlendState = "BlendStateEaWAlpha"
+	Defines = { "PDX_IMPROVED_BLINN_PHONG" }
 }
 
-Effect EaWMeshAlphaSkinned
+Effect EaWMeshShadowOnly
 {
-	VertexShader = "VertexPdxMeshStandardSkinned"
+	VertexShader = "VertexPdxMeshStandard"
 	PixelShader = "PixelPdxMeshStandard"
-	BlendState = "BlendStateEaWAlpha"
-}
-
-Effect EaWMeshAlphaShadow
-{
-	VertexShader = "VertexPdxMeshStandardShadow"
-	PixelShader = "PixelPdxMeshStandardShadow"
-}
-
-Effect EaWMeshAlphaSkinnedShadow
-{
-	VertexShader = "VertexPdxMeshStandardSkinnedShadow"
-	PixelShader = "PixelPdxMeshStandardShadow"
+	Defines = { "CULL" }
 }
