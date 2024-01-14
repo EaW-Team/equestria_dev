@@ -28,7 +28,9 @@ NDefines.NResistance.GARRISON_MANPOWER_LOST_BY_ATTACK = 0.01 	-- Ratio of manpow
 NDefines.NResistance.GARRISON_TEMPLATE_SCORE_IC_FACTOR = 1.4		-- ai uses these defines while calculating garrison template score of a template.
 NDefines.NResistance.GARRISON_TEMPLATE_SCORE_MANPOWER_FACTOR = 0.4  -- formula is (template_ic * ic_factor + template_manpower * manpower_factor ) / template_supression (lower is better)
 
-
+NDefines.NProduction.FLOATING_HARBOR_MAX_NAV_FACTORIES_PER_LINE = 10 -- vanilla is 5
+NDefines.NProduction.CAPITAL_SHIP_MAX_NAV_FACTORIES_PER_LINE = 10 -- vanilla is 5
+NDefines.NProduction.RAILWAY_GUN_MAX_MIL_FACTORIES_PER_LINE = 10 -- vanilla is 5
 NDefines.NProduction.BASE_FACTORY_SPEED_NAV = 3.5 -- vanilla is 2.5
 
 NDefines.NMilitary.PLAN_EXECUTE_CAREFUL_MAX_FORT = 4
