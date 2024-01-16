@@ -17,18 +17,20 @@ NDefines.NCountry.MAJOR_MIN_FACTORIES = 25 --default 35		-- need at least these 
 NDefines.NCountry.FEMALE_UNIT_LEADER_BASE_CHANCE = { 
     -- applies as a factor to female unit leader randomization
     -- the values needs to be zero if you don't actually have random portraits
-    1.0, -- country leaders
-    1.0, -- army leaders
-    1.0, -- navy leaders
-    1.0, -- air leaders
-    1.0, -- operatives
+    0.5, -- country leaders
+    0.5, -- army leaders
+    0.5, -- navy leaders
+    0.5, -- air leaders
+    0.5, -- operatives
 }
 
 NDefines.NResistance.GARRISON_MANPOWER_LOST_BY_ATTACK = 0.01 	-- Ratio of manpower lost by garrison at each attack on garrison (this number will be reduced by the hardness of garrison template)
 NDefines.NResistance.GARRISON_TEMPLATE_SCORE_IC_FACTOR = 1.4		-- ai uses these defines while calculating garrison template score of a template.
 NDefines.NResistance.GARRISON_TEMPLATE_SCORE_MANPOWER_FACTOR = 0.4  -- formula is (template_ic * ic_factor + template_manpower * manpower_factor ) / template_supression (lower is better)
 
-
+NDefines.NProduction.FLOATING_HARBOR_MAX_NAV_FACTORIES_PER_LINE = 10 -- vanilla is 5
+NDefines.NProduction.CAPITAL_SHIP_MAX_NAV_FACTORIES_PER_LINE = 10 -- vanilla is 5
+NDefines.NProduction.RAILWAY_GUN_MAX_MIL_FACTORIES_PER_LINE = 10 -- vanilla is 5
 NDefines.NProduction.BASE_FACTORY_SPEED_NAV = 3.5 -- vanilla is 2.5
 
 NDefines.NMilitary.PLAN_EXECUTE_CAREFUL_MAX_FORT = 4
