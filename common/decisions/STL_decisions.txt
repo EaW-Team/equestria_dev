@@ -10,8 +10,8 @@ form_equ_stg = {
 			any_owned_state = {
 				is_core_of = STG
 			}
-			OR = {
-				has_government = communism
+			NOT = {
+				has_government = fascism
 			}
 		}
         available = {			
@@ -54,7 +54,7 @@ form_equ_stg = {
 					news_event = { id = ourtown_news.1 hours = 1 }
 				}
 			}
-			if = {
+			else_if = {
 				limit = {
 					has_country_leader = {
 						character = STL_night_glider
@@ -70,7 +70,7 @@ form_equ_stg = {
 					ng_stg_var_stability_factor = -0.3
 				}
 				set_variable = {
-					ng_stg_var_war_support_factor = -0.1
+					ng_stg_var_war_support_factor = -0.15
 				}
 				set_variable = {
 					ng_stg_var_consumer_goods_factor = 0.2
@@ -96,6 +96,18 @@ form_equ_stg = {
 			}
 			else_if = {
 				limit = {
+					has_country_leader = {
+						character = STL_sugar_belle
+						ruling_only = yes
+					}
+				}
+				set_cosmetic_tag = STG_golden_mountain
+				hidden_effect = {
+					news_event = { id = ourtown_news.6 hours = 1 }
+				}
+			}
+			else_if = {
+				limit = {
 					has_government = communism
 					has_country_leader = {
 						character = STL_burlap
@@ -116,11 +128,11 @@ form_equ_stg = {
     				long_name = STL_STG_communism_party_long 
     				name = STL_STG_communism_party
 				}
-			}
-			set_party_name = { 
-    			ideology = democratic 
-			    long_name = STL_STG_democratic_party_long 
-    			name = STL_STG_democratic_party
+				set_party_name = { 
+					ideology = democratic 
+					long_name = STL_STG_democratic_party_long 
+					name = STL_STG_democratic_party
+				}
 			}
 			set_party_name = { 
     			ideology = neutrality 
@@ -147,10 +159,26 @@ form_equ_stg = {
 				166 = {
 					set_state_name = STL_vp_ourhoof 
 				}
-				add_victory_points = {
-					province = 3335
-					value = 10
+			}
+			if = {
+				limit = {
+					NOT = {
+						has_government = communism
+					}
 				}
+				153 = {
+					set_state_name = STL_vp_respulikansk_on_severyana
+				}
+				235 = {
+					set_state_name = STL_vp_kremloyv
+				}
+				166 = {
+					set_state_name = STL_vp_primorsk 
+				}
+			}
+			add_victory_points = {
+				province = 3335
+				value = 10
 			}
 			set_capital = { 
 				state = 153 
@@ -218,6 +246,8 @@ form_equ_stg = {
 			owns_state = 70
 			owns_state = 74
 			owns_state = 12
+			owns_state = 38
+			owns_state = 66
 			}
 			NOT = {
 				country_exists = EQS
@@ -352,9 +382,7 @@ form_equ_stg = {
 		fire_only_once = yes
 		visible = {
 			has_country_flag = formed_eqs_stl
-			OR = {
-				has_government = communism
-			}
+			has_country_leader_ideology = equalism
 		}
         available = {		
 			has_war = no
@@ -1168,4 +1196,511 @@ STL_equalist_power_balance_decisions = {
 
 	}
 	
+}
+
+STL_ng_interventions = {
+	STL_GRF_help_the_republicans = {
+		
+		icon = GFX_decision_rifles
+
+		priority = 99 
+		cost = 25
+
+		allowed = { original_tag = STL }
+		fire_only_once = yes
+		visible = {
+			
+			is_subject = no
+			GRF = {
+				has_civil_war = yes
+			}
+			STG = {
+				has_war_with = GRF
+				NOT = {
+					has_country_leader = {
+						character = STG_sinister_serov
+						ruling_only = yes
+					}
+					
+					has_country_leader = {
+						character = STG_masha_norushkina
+						ruling_only = yes
+					}
+				}
+			}
+		}
+
+		days_remove = 60 	
+
+		war_with_on_remove = GRF
+
+		complete_effect = {
+			log = "[GetDateText]: [Root.GetName]: Decision WNG_join_the_war target: [From.GetName]"
+			GRF = {
+                add_ai_strategy = {
+                    type = prepare_for_war
+                    id = ROOT
+                    value = 1000
+                }
+            }
+		}
+		remove_effect = {
+			log = "[GetDateText]: [Root.GetName]: Decision remove WNG_join_the_war target: [From.GetName]"
+			GRF = {
+                add_ai_strategy = {
+                    type = prepare_for_war
+                    id = ROOT
+                    value = -1000
+                }
+            }
+			# this doesn't actually DO anything yet
+			# it will in the future :)
+		}
+
+	}
+	STL_YAK_assist = {
+		
+		icon = GFX_decision_rifles
+
+		priority = 99 
+		cost = 25
+
+		allowed = { original_tag = STL }
+		fire_only_once = yes
+		visible = {
+			YAK = {
+				has_war_with = JAK
+			}
+		}
+		available = {
+			OR = {
+				is_lend_leasing	= YAK
+				YAK = {
+					
+					has_volunteers_amount_from = {
+						tag = ROOT
+						count > 0
+					}
+				}
+			}
+		}
+		cancel_trigger = { # if you're not helping, no bonus!
+			AND = {
+				YAK = {
+					has_volunteers_amount_from = {
+						tag = ROOT
+						count < 1
+					}
+				}
+				
+				NOT = {
+					is_lend_leasing = YAK
+				}
+				JAK = {
+					exists = yes
+				}
+				
+			}
+		}
+
+		days_remove = 60 	
+
+		complete_effect = {
+			log = "[GetDateText]: [Root.GetName]: Decision STL_YAK_assist"
+			
+		}
+		modifier = {
+			weekly_manpower = 100
+		}
+		remove_effect = {
+			log = "[GetDateText]: [Root.GetName]: Decision remove STL_YAK_assist"
+			add_manpower = 5000
+		}
+
+	}
+	STL_CRY_assist = { # Night Glider will stay neutral in the CRY commie civil war
+		
+		icon = GFX_decision_rifles
+
+		priority = 99 
+		cost = 25
+
+		allowed = { original_tag = STL }
+		fire_only_once = yes
+		visible = {
+			any_other_country = {
+				tag = event_target:dem_CRY
+				has_civil_war = yes
+				has_volunteers_amount_from = {
+					tag = ROOT
+					count > 1
+				}
+			}
+			any_other_country = {
+				has_country_leader = {
+					character = CRY_sombra
+					ruling_only = yes
+				}
+			}
+			has_global_flag = sombra_returned
+		}
+		available = {
+			OR = {
+				is_lend_leasing	= event_target:dem_CRY
+				event_target:dem_CRY = {
+					
+					has_volunteers_amount_from = {
+						tag = ROOT
+						count > 0
+					}
+				}
+			}
+		}
+		cancel_trigger = {
+			AND = {
+				event_target:dem_CRY = {
+					has_volunteers_amount_from = {
+						tag = ROOT
+						count < 1
+					}
+				}
+				event_target:dem_CRY = {
+					has_war = no
+				}
+				NOT = {
+					is_lend_leasing = event_target:dem_CRY
+				}
+			}
+		}
+		modifier = {
+			experience_gain_army = 0.1
+		}
+		days_remove = 60 	
+
+		complete_effect = {
+			log = "[GetDateText]: [Root.GetName]: Decision STL_YAK_assist"
+			
+		}
+		remove_effect = {
+			log = "[GetDateText]: [Root.GetName]: Decision remove STL_YAK_assist"
+			army_experience = 25
+			add_tech_bonus = {
+				name = magical_tech_bonus
+				bonus = 0.75
+				uses = 2
+				category = magical_tech
+			}
+			add_doctrine_cost_reduction = {
+				name = land_doctrine
+				cost_reduction = 0.25
+				uses = 1
+				category = land_doctrine
+			}
+		}
+
+	}
+	STL_PLB_assist = { 
+		
+		icon = GFX_decision_rifles
+
+		priority = 99 
+		cost = 25
+
+		allowed = { original_tag = STL }
+		fire_only_once = yes
+		visible = {
+			OR = {
+				AND = {
+					PLB = {
+						has_government = democratic
+						has_war_with = PNG
+					}
+					PNG = {
+						has_government = fascism
+					}
+				}
+				AND = {
+					PLB = {
+						has_country_leader_ideology = republicanism
+						has_defensive_war_with = PNG
+					}
+					PNG = {
+						has_government = fascism
+					}
+				}
+				PLB = {
+					OR = {
+						has_government = democratic
+						has_government = neutrality
+					}
+					has_defensive_war_with = CHN
+				}
+			}
+		}
+		available = {
+			OR = {
+				is_lend_leasing	= PLB
+				PLB = {
+					
+					has_volunteers_amount_from = {
+						tag = ROOT
+						count > 0
+					}
+				}
+			}
+		}
+		cancel_trigger = {
+			AND = {
+				PLB = {
+					has_volunteers_amount_from = {
+						tag = ROOT
+						count < 1
+					}
+				}
+				PLB = {
+					has_war = no
+				}
+				NOT = {
+					is_lend_leasing = event_target:PLB
+				}
+			}
+		}
+		modifier = {
+			acclimatization_cold_climate_gain_factor = 0.1
+		}
+		days_remove = 60 	
+
+		complete_effect = {
+			log = "[GetDateText]: [Root.GetName]: Decision STL_YAK_assist"
+			
+		}
+		remove_effect = {
+			log = "[GetDateText]: [Root.GetName]: Decision remove STL_YAK_assist"
+			custom_effect_tooltip = SRS_winter_warfare_tech_tt
+			hidden_effect = { set_technology = { popup = no SRS_winter_warfare = 1 } }
+			custom_effect_tooltip = FIN_winter_warfare_battalion_tt
+
+			hidden_effect = {
+				set_technology = {
+					winter_logistics_support_tech = 1
+					popup = no
+				}
+			}
+		}
+
+	}
+	
+	STL_PNG_assist = { 
+		
+		icon = GFX_decision_rifles
+
+		priority = 99 
+		cost = 25
+
+		allowed = { original_tag = STL }
+		fire_only_once = yes
+		visible = {
+			OR = {
+				AND = {
+					PNG = {
+						OR = {
+							has_government = democratic
+							has_government = communism
+						}
+						has_war_with = PLB
+					}
+					PLB = {
+						NOT = {
+							has_government = democratic
+						}
+					}
+				}
+			}
+		}
+		available = {
+			OR = {
+				is_lend_leasing	= PNG
+				PNG = {
+					
+					has_volunteers_amount_from = {
+						tag = ROOT
+						count > 0
+					}
+				}
+			}
+		}
+		cancel_trigger = {
+			AND = {
+				PNG = {
+					has_volunteers_amount_from = {
+						tag = ROOT
+						count < 1
+					}
+				}
+				PNG = {
+					has_war = no
+				}
+				NOT = {
+					is_lend_leasing = event_target:PNG
+				}
+			}
+		}
+		modifier = {
+			acclimatization_cold_climate_gain_factor = 0.1
+		}
+		days_remove = 60 	
+
+		complete_effect = {
+			log = "[GetDateText]: [Root.GetName]: Decision STL_YAK_assist"
+			
+		}
+		remove_effect = {
+			log = "[GetDateText]: [Root.GetName]: Decision remove STL_YAK_assist"
+			custom_effect_tooltip = SRS_winter_warfare_tech_tt
+			hidden_effect = { set_technology = { popup = no SRS_winter_warfare = 1 } }
+			custom_effect_tooltip = FIN_winter_warfare_battalion_tt
+
+			hidden_effect = {
+				set_technology = {
+					winter_logistics_support_tech = 1
+					popup = no
+				}
+			}
+		}
+
+	}
+}
+
+STL_leader_information = { # handled in gui
+
+}
+
+
+prospect_for_resources = {
+    STL_intensify_steel_production = { 
+		icon = steel
+		allowed = {
+            original_tag = STL
+		}
+		highlight_states = {
+			highlight_state_targets = {
+				state = 57
+			}
+		}
+		available = {
+			num_of_civilian_factories_available_for_projects > 1
+			owns_state = 57
+			controls_state = 57
+			has_tech = excavation1
+		}
+		visible = {
+		    has_completed_focus = STL_extract_the_mountain
+			owns_state = 57
+			controls_state = 57
+		}
+		
+		fire_only_once = yes
+		
+		cost = 10
+		days_remove = 60
+		
+		modifier = {
+			civilian_factory_use = 2
+		}
+		ai_will_do = {
+			factor = 5
+		}
+		remove_effect = {
+			log = "[GetDateText]: [Root.GetName]: Decision remove STL_intensify_steel_production"
+			add_resource = {
+				type = steel
+				amount = 12
+				state = 57
+			}
+		}
+	}
+	STL_find_aluminum = { 
+		icon = aluminium
+		allowed = {
+            original_tag = STL
+		}
+		highlight_states = {
+			highlight_state_targets = {
+				state = 57
+			}
+		}
+		available = {
+			num_of_civilian_factories_available_for_projects > 2
+			owns_state = 57
+			controls_state = 57
+			has_tech = excavation2
+		}
+		visible = {
+		    has_completed_focus = STL_extract_the_mountain
+			owns_state = 57
+			controls_state = 57
+		}
+		
+		fire_only_once = yes
+		
+		cost = 10
+		days_remove = 60
+		
+		modifier = {
+			civilian_factory_use = 3
+		}
+		ai_will_do = {
+			factor = 5
+		}
+		remove_effect = {
+			log = "[GetDateText]: [Root.GetName]: Decision remove STL_find_aluminum"
+			add_resource = {
+				type = aluminium
+				amount = 4
+				state = 57
+			}
+		}
+	}
+	STL_find_chromium = { 
+		icon = chromium
+		allowed = {
+            original_tag = STL
+		}
+		highlight_states = {
+			highlight_state_targets = {
+				state = 57
+			}
+		}
+		available = {
+			num_of_civilian_factories_available_for_projects > 3
+			owns_state = 57
+			controls_state = 57
+			has_tech = excavation3
+		}
+		visible = {
+		    has_completed_focus = STL_extract_the_mountain
+			owns_state = 57
+			controls_state = 57
+		}
+		
+		fire_only_once = yes
+		
+		cost = 10
+		days_remove = 60
+		
+		modifier = {
+			civilian_factory_use = 4
+		}
+		ai_will_do = {
+			factor = 5
+		}
+		remove_effect = {
+			log = "[GetDateText]: [Root.GetName]: Decision remove STL_find_chromium"
+			add_resource = {
+				type = chromium
+				amount = 4
+				state = 57
+			}
+		}
+	}
 }
