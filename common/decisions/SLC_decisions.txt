@@ -8033,8 +8033,14 @@ SLC_commie_building_communism_cat = {
 			    array = core_states
 			    add_to_temp_array = { temp_core_states = THIS }
 			}
+
+			set_temp_variable = { root_capital = ROOT.capital:id }
+			set_temp_variable = { temp_leader = temp_occupied_countries^0 }
+			set_temp_variable = { temp_leader_distance = temp_leader:capital:distance_to@var:root_capital }
 			for_each_scope_loop = {
 			    array = temp_occupied_countries
+
+				# Release the country
 			    ROOT = {
 			        release = PREV
 			        declare_war_on = {
@@ -8042,7 +8048,18 @@ SLC_commie_building_communism_cat = {
 			           type = annex_everything
 			        }
 			    }
+
+				# Which country is the farthest from ROOT ?
+				set_temp_variable = { temp_curr_distance = THIS.capital:distance_to@var:root_capital }
+				if = {
+					limit = { check_variable = { temp_leader_distance < temp_curr_distance } }
+
+					set_temp_variable = { temp_leader_distance = temp_curr_distance }
+					set_temp_variable = { temp_leader = THIS }
+				}
+
 			    load_focus_tree = generic_zebra_focus
+
 			    # Add more effects for the released country here ###
 			    division_template = {
 					name = "Rebels"
@@ -8078,6 +8095,22 @@ SLC_commie_building_communism_cat = {
 
 			        add_core_of = ROOT
 			    }
+			}
+
+			# Add all the newly released country to the faction
+			var:temp_leader = {
+				create_faction = SLC_revolt_faction_name
+			}
+			for_each_scope_loop = {
+				array = temp_occupied_countries
+
+				if = {
+					limit = { NOT = {check_variable = { THIS = temp_leader }} }
+
+					var:temp_leader = {
+						add_to_faction = PREV
+					}
+				}
 			}
 		}
 	}
