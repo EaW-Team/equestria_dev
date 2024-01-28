@@ -93,6 +93,79 @@ JAK_looming_civil_war = {
         complete_effect = {
         }
 	}
+	JAK_launch_border_war = {
+			
+		icon = GFX_decision_border_war
+		ai_will_do = {
+			factor = 1
+		}
+		state_target = any_owned_state
+        on_map_mode = map_only
+
+		# allowed = {
+		# 	original_tag = JAK
+		# }
+		target_root_trigger = {
+			has_country_flag = JAK_border_wars_enabled
+			NOT = { 
+				has_country_flag = JAK_border_war_succeeded
+				has_country_flag = JAK_border_war_failed
+				has_country_flag = JAK_border_war_tied
+				has_country_flag = JAK_border_war_in_progress
+				has_global_flag = YAK_peace_talks
+			}
+        }
+		# visible = {
+		# 	FROM = {
+		# 		any_neighbor_state = {
+		# 			is_owned_by = YAK
+		# 		}
+		# 	}
+		# }
+		
+		complete_effect = {
+			ROOT = {
+				set_country_flag = JAK_border_war_in_progress
+				set_variable = { ROOT.attacking_state = FROM }
+				random_state  = {
+					limit = {
+						is_owned_by = YAK
+						any_neighbor_state = {
+							is_owned_by = JAk
+						}
+					}
+					set_variable = { ROOT.defending_state = THIS }
+				}
+				start_border_war = {
+					change_state_after_war = no
+					attacker = {
+						state = ROOT.attacking_state
+						num_provinces = 4
+						on_win = newjaks.13
+						on_lose = newjaks.14
+						on_cancel = newjaks.15
+					}	
+					defender = {
+						state = ROOT.defending_state
+						num_provinces = 4
+						on_win = newjaks.13
+						on_lose = newjaks.14
+						on_cancel = newjaks.15
+					}
+				}			
+				activate_mission = JAK_border_war_countdown
+				YAK = {
+					country_event = newjaks.16
+				}
+				hidden_effect = {
+					YAK = {
+						activate_mission = YAK_border_war_countdown
+					}
+				}
+
+			}
+		}
+	}
 	JAK_border_war_countdown = {
 		
 		allowed = { tag = JAK }
@@ -108,8 +181,8 @@ JAK_looming_civil_war = {
 				country_event = newjaks.15
 			}
 			cancel_border_war = {
-				defender = 268
-				attacker = 274
+				defender = ROOT.defending_state
+				attacker = ROOT.attacking_state
 			}
         }
         complete_effect = {
@@ -129,8 +202,8 @@ JAK_looming_civil_war = {
 			effect_tooltip = {
 				country_event = newjaks.15
 				cancel_border_war = {
-					defender = 268
-					attacker = 274
+					defender = JAK.defending_state
+					attacker = JAK.attacking_state
 				}
 			}
         }
