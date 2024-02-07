@@ -1,0 +1,80 @@
+# Function    : JAK_bop_update_advisors_cost_f
+# Description : Update advisors cost for expansionist / isolasionist
+# Input       : JAK_expansionist_advisor_cost - The new cost in PP for the expansionist advisors
+#               JAK_isolationist_advisor_cost - The new cost in PP for the isolasionist advisors
+# Output      : None
+JAK_bop_update_advisors_cost_f = {
+
+	# Character / trait token arrays
+	# Expansionists
+	add_to_temp_array = { t_characters_a = token:JAK_changeling_commander }
+	add_to_temp_array = { t_trait_a      = token:ICE_german_consul }
+	add_to_temp_array = { t_characters_a = token:JAK_archibald }
+	add_to_temp_array = { t_trait_a      = token:national_propagandist }
+	add_to_temp_array = { t_characters_a = token:JAK_gunnel }
+	add_to_temp_array = { t_trait_a      = token:nationalist_lutheran_priest }
+	# Set the number of expansionist advisors
+	set_temp_variable = { t_nb_expansionist_advisors = 3 }
+	# Isolasionists
+	add_to_temp_array = { t_characters_a = token:JAK_alastair }
+	add_to_temp_array = { t_trait_a      = token:staunch_aristocrat }
+	add_to_temp_array = { t_characters_a = token:JAK_yemina }
+	add_to_temp_array = { t_trait_a      = token:NOR_aristocratic_industrialist }
+
+	# Check if the advisors is currently hired
+	for_each_loop = {
+		array = t_characters_a
+		value = character_token
+
+		meta_effect = {
+			text = {
+				[SCOPE] = {
+					if = {
+						limit = { is_hired_as_advisor = yes }
+
+						add_to_temp_array = { t_activate_a = 1 }
+					} else = {
+						add_to_temp_array = { t_activate_a = 0 }
+					}
+				}
+			}
+
+			SCOPE = "[?character_token.GetTokenKey]"
+		}
+	}
+
+	# Reasign the new advisor cost
+	for_each_loop = {
+		array = t_characters_a
+		value = character_token
+		index = i
+
+		meta_effect = {
+			text = {
+				[SCOPE] = {
+					remove_advisor_role = {
+						slot = political_advisor
+					}
+
+					add_advisor_role = {
+						activate = [ACTIVATE]
+						advisor={
+							slot = political_advisor
+							idea_token = [SCOPE]
+							cost = [COST]
+
+							traits = {
+								[TRAIT]
+							}
+						}
+					}
+				}
+			}
+
+			SCOPE    = "[?character_token.GetTokenKey]"
+			TRAIT    = "[?t_trait_a^i.GetTokenKey]"
+			ACTIVATE = "[JAKBopAdvisorsActivate]"
+			COST     = "[JAKBopAdvisorsCost]"
+		}
+	}
+}
