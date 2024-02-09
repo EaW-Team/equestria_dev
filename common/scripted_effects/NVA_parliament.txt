@@ -1,0 +1,116 @@
+@PARLIAMENT_SEATS = 535
+
+update_NVA_parliament_max = {
+	#根据支持率计算新的席位
+	set_variable = { NVA.communist_max = party_popularity@communism }
+	set_variable = { NVA.democratic_max = party_popularity@democratic }
+	set_variable = { NVA.fascist_max = party_popularity@fascism }
+
+	multiply_variable = { NVA.communist_max = @PARLIAMENT_SEATS }
+	multiply_variable = { NVA.democratic_max = @PARLIAMENT_SEATS }
+	multiply_variable = { NVA.fascist_max = @PARLIAMENT_SEATS }
+	#取整
+	round_variable = NVA.communist_max
+	round_variable = NVA.democratic_max
+	round_variable = NVA.fascist_max
+
+	set_variable = { NVA.neutrality_max = @PARLIAMENT_SEATS }
+	subtract_from_variable = { NVA.neutrality_max = NVA.communist_max }
+	subtract_from_variable = { NVA.neutrality_max = NVA.democratic_max }
+	subtract_from_variable = { NVA.neutrality_max = NVA.fascist_max }
+	#计算支持者
+	if = {
+		limit = { NOT = { has_variable = NVA.communist_support } }
+		set_variable = { NVA.communist_support = NVA.communist_max }
+		set_variable = { NVA.democratic_support = NVA.democratic_max }
+		set_variable = { NVA.fascist_support = NVA.fascist_max }
+		set_variable = { NVA.neutrality_support = NVA.neutrality_max }
+	
+		multiply_variable = { NVA.communist_support = 0.6 }
+		multiply_variable = { NVA.democratic_support = 0.6 }
+		multiply_variable = { NVA.fascist_support = 0.6 }
+		multiply_variable = { NVA.neutrality_support = 0.6 }
+	}
+
+	clamp_variable = { var = NVA.communist_support min = 0 max = NVA.communist_max }
+	clamp_variable = { var = NVA.democratic_support min = 0 max = NVA.democratic_max }
+	clamp_variable = { var = NVA.fascist_support min = 0 max = NVA.fascist_max }
+	clamp_variable = { var = NVA.neutrality_support min = 0 max = NVA.neutrality_max }
+
+	round_variable = NVA.communist_support
+	round_variable = NVA.democratic_support
+	round_variable = NVA.fascist_support
+	round_variable = NVA.neutrality_support
+	#计算总支持数
+	set_variable = { NVA.parliament_max = NVA.communist_support }
+	add_to_variable = { NVA.parliament_max = NVA.democratic_support }
+	add_to_variable = { NVA.parliament_max = NVA.fascist_support }
+	add_to_variable = { NVA.parliament_max = NVA.neutrality_support }
+
+	update_NVA_frame_array = yes
+	set_global_flag = update_NVA_parliament_max_fired
+}
+
+update_NVA_frame_array = {
+	set_variable = { t1 = NVA.communist_max }
+	set_variable = { t2 = NVA.democratic_max }
+	set_variable = { t3 = NVA.neutrality_max }
+	set_variable = { t4 = @PARLIAMENT_SEATS }
+
+	add_to_variable = { t2 = t1 }
+	add_to_variable = { t3 = t2 }
+
+	if = {
+		limit = {
+			NOT = {
+				NVA = { has_variable = z_parliament_decision_ui_dirty_var }
+			}
+		}
+		NVA = {
+			add_to_variable = {
+				z_parliament_decision_ui_dirty_var = 1
+			}
+		}
+	}
+	if = {
+		limit = { 
+			NOT = { check_variable = { NVA.parliament_frame_array^num = @PARLIAMENT_SEATS } }
+		}
+		resize_array = {
+			array = NVA.parliament_frame_array
+			value = 1
+			size = @PARLIAMENT_SEATS
+		}
+	}
+	for_loop_effect = {
+		start = 0
+		end = t1
+		set_variable = {
+			NVA.parliament_frame_array^v = 2
+		}
+	}
+	for_loop_effect = {
+		start = t1
+		end = t2
+		set_variable = {
+			NVA.parliament_frame_array^v = 1
+		}
+	}
+	for_loop_effect = {
+		start = t2
+		end = t3
+		set_variable = {
+			NVA.parliament_frame_array^v = 4
+		}
+	}
+	for_loop_effect = {
+		start = t3
+		end = t4
+		set_variable = {
+			NVA.parliament_frame_array^v = 3
+		}
+	}
+	add_to_variable = {
+		NVA.z_parliament_decision_ui_dirty_var = 1
+	}
+}
