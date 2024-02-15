@@ -11244,10 +11244,22 @@ country_event = {
         	    white_peace = SLC
     		}
     		set_country_flag = SLC_rav_collapse_flag
-			for_each_scope_loop = {
-			    array = occupied_countries
-			    add_to_temp_array = { temp_occupied_countries = THIS }
+
+			get_sorted_scored_countries_temp = {
+				scorer = SLC_nb_of_cores_scorer
+				array = temp_occupied_countries
+				scores = trash
 			}
+			#for_each_loop = {
+			#    array = temp_occupied_countries_t
+			#	index = i
+#
+			#	set_temp_variable = { index = temp_occupied_countries_t^num }
+			#	add_to_temp_variable = { index = -1 }
+			#	subtract_from_temp_variable = { index = i }
+			#    add_to_temp_array = { temp_occupied_countries = temp_occupied_countries_t^index }
+			#}
+
 			for_each_scope_loop = {
 			    array = core_states
 			    add_to_temp_array = { temp_core_states = THIS }
@@ -11259,13 +11271,18 @@ country_event = {
 			for_each_scope_loop = {
 			    array = temp_occupied_countries
 
+				log = "[THIS.GetName]"
+
 				# Release the country
 			    ROOT = {
 			        release = PREV
-			        declare_war_on = {
- 			           target = PREV
-			           type = annex_everything
-			        }
+					if = {
+						limit = { country_exists = PREV }
+						declare_war_on = {
+							target = PREV
+							type = annex_everything
+						}
+					}
 			    }
 
 				# Which country is the farthest from ROOT ?
@@ -11278,41 +11295,45 @@ country_event = {
 				}
 
 				if = {
-					limit = { capital_scope = { is_on_continent = africa }}
+					limit = { country_exists = PREV } # Sometimes there are no more core to free
 
-					load_focus_tree = generic_zebra_focus
-				} else = {
-					load_focus_tree = generic_griffon_focus
-				}
-			    # Add more effects for the released country here ###
-			    division_template = {
-					name = "Rebels"
-					regiments = {
-						infantry = { x = 0 y = 0 }
-						infantry = { x = 0 y = 1 }
-						infantry = { x = 1 y = 0 }
-						infantry = { x = 1 y = 1 }
-						infantry = { x = 1 y = 2 }
-						infantry = { x = 2 y = 0 }
-						infantry = { x = 2 y = 1 }
+					if = {
+						limit = { capital_scope = { is_on_continent = africa }}
+
+						load_focus_tree = generic_zebra_focus
+					} else = {
+						load_focus_tree = generic_griffon_focus
 					}
-					support = {
-						engineer = { x = 0 y = 0 }
-						anti_air = { x = 0 y = 1 }
+					# Add more effects for the released country here ###
+					division_template = {
+						name = "Rebels"
+						regiments = {
+							infantry = { x = 0 y = 0 }
+							infantry = { x = 0 y = 1 }
+							infantry = { x = 1 y = 0 }
+							infantry = { x = 1 y = 1 }
+							infantry = { x = 1 y = 2 }
+							infantry = { x = 2 y = 0 }
+							infantry = { x = 2 y = 1 }
+						}
+						support = {
+							engineer = { x = 0 y = 0 }
+							anti_air = { x = 0 y = 1 }
+						}
 					}
-				}
-				every_controlled_state = {
-				    set_temp_variable = { num_units_to_create = building_level@arms_factory }
-					add_to_temp_variable = { num_units_to_create = building_level@industrial_complex }
-					divide_temp_variable = { num_units_to_create = 3 }
-					add_to_temp_variable = { num_units_to_create = 2 }
-					round_temp_variable = num_units_to_create
-					clamp_temp_variable = { var = num_units_to_create min = 3 max = 100 }
-					for_loop_effect = {
-						end = num_units_to_create
-						create_unit = {
-							division = "division_template = \"Rebels\" start_experience_factor = 1 start_equipment_factor = 1"
-							owner = PREV
+					every_controlled_state = {
+						set_temp_variable = { num_units_to_create = building_level@arms_factory }
+						add_to_temp_variable = { num_units_to_create = building_level@industrial_complex }
+						divide_temp_variable = { num_units_to_create = 3 }
+						add_to_temp_variable = { num_units_to_create = 2 }
+						round_temp_variable = num_units_to_create
+						clamp_temp_variable = { var = num_units_to_create min = 3 max = 100 }
+						for_loop_effect = {
+							end = num_units_to_create
+							create_unit = {
+								division = "division_template = \"Rebels\" start_experience_factor = 1 start_equipment_factor = 1"
+								owner = PREV
+							}
 						}
 					}
 				}
