@@ -11250,15 +11250,20 @@ country_event = {
 				array = temp_occupied_countries
 				scores = trash
 			}
-			#for_each_loop = {
-			#    array = temp_occupied_countries_t
-			#	index = i
-#
-			#	set_temp_variable = { index = temp_occupied_countries_t^num }
-			#	add_to_temp_variable = { index = -1 }
-			#	subtract_from_temp_variable = { index = i }
-			#    add_to_temp_array = { temp_occupied_countries = temp_occupied_countries_t^index }
-			#}
+			if = {
+				# Sometimes, you can occupy yourself
+				limit = {
+					is_in_array = {
+						array = temp_occupied_countries
+						value = SLC
+					}
+				}
+
+				remove_from_temp_array = {
+					array = temp_occupied_countries
+					value = SLC
+				}
+			}
 
 			for_each_scope_loop = {
 			    array = core_states
@@ -11285,18 +11290,19 @@ country_event = {
 					}
 			    }
 
-				# Which country is the farthest from ROOT ?
-				set_temp_variable = { temp_curr_distance = THIS.capital:distance_to@var:root_capital }
 				if = {
-					limit = { check_variable = { temp_leader_distance < temp_curr_distance } }
+					limit = { exists = yes } # Sometimes there are no more core to free
 
-					set_temp_variable = { temp_leader_distance = temp_curr_distance }
-					set_temp_variable = { temp_leader = THIS }
-				}
+					# Which country is the farthest from ROOT ?
+					set_temp_variable = { temp_curr_distance = THIS.capital:distance_to@var:root_capital }
+					if = {
+						limit = { check_variable = { temp_leader_distance < temp_curr_distance } }
 
-				if = {
-					limit = { country_exists = PREV } # Sometimes there are no more core to free
+						set_temp_variable = { temp_leader_distance = temp_curr_distance }
+						set_temp_variable = { temp_leader = THIS }
+					}
 
+					# Focus tree loading
 					if = {
 						limit = { capital_scope = { is_on_continent = africa }}
 
@@ -11304,7 +11310,28 @@ country_event = {
 					} else = {
 						load_focus_tree = generic_griffon_focus
 					}
-					# Add more effects for the released country here ###
+					# Check that the country has the technology for the template
+					if = {
+						limit = {
+							NOT = { has_tech = interwar_antiair }
+						}
+
+						set_technology = {
+							interwar_antiair = 1
+							popup = no
+						}
+					}
+					if = {
+						limit = {
+							NOT = { has_tech = tech_support }
+						}
+
+						set_technology = {
+							tech_support = 1
+							popup = no
+						}
+					}
+					# Spawn the rebels
 					division_template = {
 						name = "Rebels"
 						regiments = {
@@ -11322,6 +11349,8 @@ country_event = {
 						}
 					}
 					every_controlled_state = {
+						limit = { impassable = no }
+
 						set_temp_variable = { num_units_to_create = building_level@arms_factory }
 						add_to_temp_variable = { num_units_to_create = building_level@industrial_complex }
 						divide_temp_variable = { num_units_to_create = 3 }
@@ -11355,10 +11384,80 @@ country_event = {
 				array = temp_occupied_countries
 
 				if = {
-					limit = { NOT = {check_variable = { THIS = temp_leader }} }
+					limit = {
+						exists = yes
+						NOT = { tag = var:temp_leader }
+					}
 
 					var:temp_leader = {
 						add_to_faction = PREV
+					}
+				}
+			}
+
+			# Handle the exclave, states with no core
+			every_owned_state = {
+				limit = {
+					NOT = { is_core_of = ROOT }
+				}
+
+				add_to_temp_array = { temp_coreless_states = THIS.id }
+				log = "Adding coreless state : [?THIS.id] [THIS.GetName]"
+			}
+			set_temp_variable = { assigned_state = 1 }
+			while_loop_effect = {
+				# Loop until all cores are assigned, or no more can be assigned
+				limit = {
+					check_variable = { assigned_state > 0 }
+					check_variable = { temp_coreless_states^num > 0 }
+				}
+
+				set_temp_variable = { assigned_state = 0 }
+				for_each_loop = {
+					array = temp_coreless_states
+					break = break_for
+					index = index
+					value = state_id
+
+					var:state_id = {
+						random_neighbor_state = {
+							limit = {
+								owner = {
+									NOT = { tag = ROOT }
+									has_war_with = ROOT
+								}
+							}
+
+							PREV = {
+								transfer_state_to = var:PREV.owner
+							}
+
+							# Remove the state
+							set_temp_variable = { assigned_state = 1 }
+							remove_from_temp_array = {
+								array = temp_coreless_states
+								index = index
+							}
+							set_temp_variable = { break_for = 1 }
+						}
+					}
+				}
+			}
+
+			# Check that all states has been attributed, else assigned them to the biggest enemy country
+			if = {
+				limit = { check_variable = { temp_coreless_states^num > 0 } }
+
+				for_each_loop = {
+					array = temp_coreless_states
+					value = state_id
+
+					if = {
+						limit = { check_variable = { temp_occupied_countries^num > 0 } }
+
+						var:state_id = {
+							transfer_state_to = var:temp_occupied_countries^0
+						}
 					}
 				}
 			}
