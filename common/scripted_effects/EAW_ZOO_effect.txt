@@ -2,33 +2,59 @@ ZOO_weekly_railroad_construction = {
 	if = {
 		limit = {
 			check_variable = {
-				var = ZOO_weekly_railroad_construction
+				var = ZOO_railway_tiles_stored
 				value = 1
 				compare = greater_than_or_equals
 			}
 		}
-		set_variable = { ZOO_railway_tiles_stored_rounded = ZOO_railway_tiles_stored }
-		modulo_variable = { ZOO_railway_tiles_stored_rounded = 1 }
-		set_temp_variable = { temp_2 = start_index }
+		if = {
+			limit = { has_variable = ZOO_zamu_line_selected }
+			ZOO_construct_zamu_line = yes
+		}
+	}
+}
+
+ZOO_construct_zamu_line = {
+	#Remove the amount of full tiles that are build from stored, save the temp variable of amount build
+	set_temp_variable = { ZOO_railway_tiles_to_be_built = ZOO_railway_tiles_stored }
+	subtract_from_temp_variable = { ZOO_railway_tiles_to_be_built = 0.5 }
+	round_temp_variable = ZOO_railway_tiles_to_be_built
+	subtract_from_variable = { ZOO_railway_tiles_stored = ZOO_railway_tiles_to_be_built }
+
+	#determine the end index, progress + amount build ZOO_railway_tiles_to_be_built
+	set_temp_variable = { ZOO_railway_tiles_end_index = ZOO_railway_zamu_line_progress }
+	add_to_temp_variable = { ZOO_railway_tiles_end_index = ZOO_railway_tiles_to_be_built }
+
+	set_temp_variable = { temp_2 = ZOO_railway_zamu_line_progress }
+	for_loop_effect = {
+		start = ZOO_railway_zamu_line_progress
+		end = ZOO_railway_tiles_end_index
+		value = temp
+		compare = less_than
+		
 		add_to_temp_variable = { temp_2 = 1 }
-		for_loop_effect = {
-			start = start_index
-			end = ZOO_railway_tiles_stored_rounded
-			value = temp
-			
-			add_to_temp_variable = { temp_2 = 1 }
-			meta_effect = {
-				text = {
-					build_railway = {
-						level = 1
-						build_only_on_allied = yes
-						path = { [FIRST_TILE] [SECOND_TILE] }				
-					}
+		meta_effect = {
+			text = {
+				build_railway = {
+					level = 1
+					path = { [FIRST_TILE] [SECOND_TILE] }				
 				}
-				
-				FIRST_TILE = "[?ZOO_railway_tiles_construction^temp]"
-				SECOND_TILE = "[?ZOO_railway_tiles_construction^temp_2]"
+			}
+			
+			FIRST_TILE = "[?ZOO_railway_zamu_line^temp]"
+			SECOND_TILE = "[?ZOO_railway_zamu_line^temp_2]"
+		}
+	}
+	add_to_variable = { ZOO_railway_zamu_line_progress = ZOO_railway_tiles_to_be_built }
+	#End of the line?
+	if = {
+		limit = {
+			check_variable = {
+				var = ZOO_railway_zamu_line_progress
+				value = ZOO_railway_zamu_line_length
+				compare = greater_than_or_equals
 			}
 		}
+		set_variable = { ZOO_railway_zamu_line_progress = 0 }
 	}
 }
