@@ -749,7 +749,27 @@ decrease_illiteracy = {
 	}
 }
 
+decrease_illiteracy_by_two_levels = {
+	if = {
+		limit = { has_idea = lack_of_scientists }
+		swap_ideas = { add_idea = lack_of_scientists2 remove_idea = lack_of_scientists }
+	}
+	else_if = {
+		limit = { has_idea = lack_of_scientists1 }
+		swap_ideas = { add_idea = lack_of_scientists3 remove_idea = lack_of_scientists1 }
+	}
+	else_if = {
+		limit = { has_idea = lack_of_scientists2 }
+		swap_ideas = { add_idea = no_lack_of_scientists remove_idea = lack_of_scientists2 }
+	}
+	else_if = {
+		limit = { has_idea = lack_of_scientists3 }
+		swap_ideas = { add_idea = no_lack_of_scientists remove_idea = lack_of_scientists3 }
+	}
+}
+
 remove_illiteracy = {
+	remove_ideas = lack_of_scientists
 	remove_ideas = lack_of_scientists1
 	remove_ideas = lack_of_scientists2
 	remove_ideas = lack_of_scientists3
@@ -810,6 +830,7 @@ increase_poverty = {
 }
 
 remove_poverty = {
+	remove_ideas = poverty
 	remove_ideas = poverty1
 	remove_ideas = poverty2
 	remove_ideas = poverty3
@@ -1190,6 +1211,15 @@ transfer_society_ideas = {
 		limit = { PREV = { has_idea = outdated_industry2 } }
 		add_ideas = outdated_industry2
 	}
+	else_if = {
+		limit = { PREV = { has_idea = modern_society } }
+		add_ideas = modern_society
+	}
+	else_if = {
+		limit = { PREV = { has_idea = harmony_with_nature } }
+		set_country_flag = harmony_with_nature_flag
+		add_ideas = harmony_with_nature
+	}
 }
 
 #From PREV to THIS
@@ -1205,6 +1235,15 @@ transfer_science_ideas = {
 	else_if = {
 		limit = { PREV = { has_idea = big_science_base } }
 		add_ideas = big_science_base
+	}
+	else_if = {
+		limit = { PREV = { has_idea = proper_science_base } }
+		add_ideas = proper_science_base
+	}
+	else_if = {
+		limit = { PREV = { has_idea = kirin_science } }
+		set_country_flag = kirin_science_flag
+		add_ideas = kirin_science
 	}
 }
 
@@ -1260,13 +1299,23 @@ transfer_illiteracy_ideas = {
 		add_ideas = no_lack_of_scientists
 	}
 	else_if = {
-		limit = { PREV = { has_idea = lack_of_scientists3 } }
-		add_ideas = lack_of_scientists3
+		limit = { PREV = { has_idea = lack_of_scientists_KIC } }
+		# intended
+		add_ideas = no_lack_of_scientists
+	}
+	else_if = {
+		limit = { PREV = { has_idea = lack_of_scientists_KIR } }
+		# intended
+		add_ideas = no_lack_of_scientists
 	}
 	else_if = {
 		limit = { PREV = { has_idea = JER_education_socialist } }
 		# intended
 		add_ideas = no_lack_of_scientists
+	}
+	else_if = {
+		limit = { PREV = { has_idea = lack_of_scientists3 } }
+		add_ideas = lack_of_scientists3
 	}
 	else_if = {
 		limit = { PREV = { has_idea = lack_of_scientists2 } }
@@ -1453,6 +1502,19 @@ get_current_autonomy_level = {
 			limit = { has_autonomy_state = autonomy_nominal_vassal }
 			set_country_flag = former_nominal_vassal
 		}
+		else_if = {
+			limit = { has_autonomy_state = autonomy_supervised_state }
+			set_country_flag = former_supervised_state
+		}
+	}
+}
+
+set_sand_mechanics = {
+	if = {
+		limit = {
+			is_ai = no
+		}
+		country_event = { id = brodfeld_rework.173 days = 649 }
 	}
 }
 
@@ -1553,6 +1615,14 @@ set_previous_autonomy_level = {
 					}
 				}
 			}
+			else_if = {
+				limit = {
+					has_country_flag = former_supervised_state
+				}
+				overlord = {
+					set_autonomy = { target = PREV autonomy_state = autonomy_supervised_state }
+				}
+			}
 		}
 	}
 }
@@ -1573,6 +1643,8 @@ get_current_autonomy_level_of_PREV = {
 		clr_country_flag = former_vassal
 		clr_country_flag = former_autonomous_vassal
 		clr_country_flag = former_nominal_vassal
+		#Other
+		clr_country_flag = former_supervised_state
 		if = {
 			limit = { PREV = { has_autonomy_state = autonomy_integrated_puppet } }
 			set_country_flag = former_integrated_puppet
@@ -1616,6 +1688,10 @@ get_current_autonomy_level_of_PREV = {
 		else_if = {
 			limit = { PREV = { has_autonomy_state = autonomy_nominal_vassal } }
 			set_country_flag = former_nominal_vassal
+		}
+		else_if = {
+			limit = { PREV = { has_autonomy_state = autonomy_supervised_state } }
+			set_country_flag = former_supervised_state
 		}
 	}
 }
@@ -2207,6 +2283,12 @@ NCH_set_trade_in_partner = {
 	}
 }
 
+reset_sand_mechanics = {
+	hidden_effect = {
+		country_event = { id = yale.137 days = 40 }
+	}
+}
+
 #call save_current_manpower = yes before removing manpower from states, call restore_previous_manpower = yes immediately after
 
 #THIS is country, controller of the state
@@ -2255,15 +2337,8 @@ restore_previous_manpower_function = {
 
 fix_weapon_techs = {
 	hidden_effect = {
-		if = {
-			limit = { 
-				OR = {
-					is_ai = no
-					NOT = { has_country_flag = recently_fixed_weapons }
-				}
-			}
-			country_event = eaw_debug.1
-		}
+		actually_fix_weapon_techs = yes
+		country_event = eaw_debug.1
 		set_country_flag = { flag = recently_fixed_weapons days = 1 value = 1 }
 	}
 }
@@ -2307,161 +2382,272 @@ actually_fix_weapon_techs = {
 			infantry_weapons_amphibious_mechanized = 0
 			infantry_weapons_spirit_warriors = 0
 			magical_weapons_spirit_warriors = 0
+			infantry_weapons_kirin_vanguards = 0
+			magical_weapons_kirin_vanguards = 0
+			infantry_weapons_kirin_braves = 0
+			magical_weapons_kirin_braves = 0
 		}
 		if = {
 			limit = {
 				NOT = { has_tech = magical_weapons }
 			}
-			log = "[GetDateText]: THIS: [This.GetName] fix_weapon_techs: doesn't have magical weapons"
+			log = "[GetDateText]: THIS: [This.GetName] [?this.GetTag] fix_weapon_techs: doesn't have magical weapons"
 			clr_country_flag = special_forces_magical_weapons
 			if = {
 				limit = { 
-					has_tech = tech_infiltrators
+					OR = {
+						has_tech = tech_infiltrators
+						has_template_containing_unit = infiltrator_company
+					}
 				}
 				set_technology = { popup = no infantry_weapons_infiltrator_company = 1 }
 			}
 			if = {
 				limit = {
-					has_tech = tech_unicorn
+					OR = {
+						has_tech = tech_unicorn
+						has_tech = tech_horse_unicorn
+						has_template_containing_unit = unicorn_company
+					}
 				}
 				set_technology = { popup = no infantry_weapons_unicorn_company = 1 }
 			}
-
 			if = {
 				limit = {
-					has_tech = tech_military_police
+					OR = {
+						has_tech = tech_kirin_brave
+						has_template_containing_unit = kirin_braves
+					}
+				}
+				set_technology = { popup = no infantry_weapons_kirin_braves = 1 }
+			}
+			if = {
+				limit = {
+					OR = {
+						has_tech = tech_military_police
+						has_template_containing_unit = military_police
+					}
 				}
 				set_technology = { popup = no infantry_weapons_military_police = 1 }
 			}
 		}
 		else = {
-			log = "[GetDateText]: THIS: [This.GetName] fix_weapon_techs: has magical weapons"
+			log = "[GetDateText]: THIS: [This.GetName] [?this.GetTag] fix_weapon_techs: has magical weapons"
 			if = {
 				limit = {
-					has_tech = tech_infiltrators
+					OR = {
+						has_tech = tech_infiltrators
+						has_template_containing_unit = infiltrator_company
+					}
 				}
 				set_technology = { popup = no magical_weapons_infiltrator_company = 1 }
 			}
 			if = {
 				limit = {
-					has_tech = tech_unicorn
+					OR = {
+						has_tech = tech_unicorn
+						has_tech = tech_horse_unicorn
+						has_template_containing_unit = unicorn_company
+					}
 				}
 				set_technology = { popup = no magical_weapons_unicorn_company = 1 }
 			}
-			
 			if = {
 				limit = {
-					has_tech = tech_military_police
+					OR = {
+						has_tech = tech_kirin_brave
+						has_template_containing_unit = kirin_braves
+					}
+				}
+				set_technology = { popup = no magical_weapons_kirin_braves = 1 }
+			}
+			if = {
+				limit = {
+					OR = {
+						has_tech = tech_military_police
+						has_template_containing_unit = military_police
+					}
 				}
 				set_technology = { popup = no magical_weapons_military_police = 1 }
 			}
 		}
 		if = {
 			limit = { has_country_flag = special_forces_magical_weapons }
-			log = "[GetDateText]: THIS: [This.GetName] fix_weapon_techs: set magical weapons for special forces"
+			log = "[GetDateText]: THIS: [This.GetName] [?this.GetTag] fix_weapon_techs: set magical weapons for special forces"
 			if = {
 				limit = {
-					has_tech = marines
+					OR = {
+						has_tech = marines
+						has_template_containing_unit = marine
+					}
 				}
 				set_technology = { popup = no magical_weapons_marine = 1 }
 			}
 			if = {
 				limit = {
-					has_tech = tech_mountaineers
+					OR = {
+						has_tech = tech_mountaineers
+						has_template_containing_unit = mountaineers
+					}
 				}
 				set_technology = { popup = no magical_weapons_mountaineers = 1 }
 			}
 			if = {
 				limit = {
-					has_tech = paratroopers
+					OR = {
+						has_tech = paratroopers
+						has_template_containing_unit = paratrooper
+					}
 				}
 				set_technology = { popup = no magical_weapons_paratrooper = 1 }
 			}
 			if = {
 				limit = {
-					has_tech = tech_jager
+					OR = {
+						has_tech = tech_jager
+						has_template_containing_unit = jager
+					}
 				}
 				set_technology = { popup = no magical_weapons_jager = 1 }
 			}
 			if = {
 				limit = {
-					has_tech = tech_pegasi
+					OR = {
+						has_tech = tech_pegasi
+						has_template_containing_unit = pegasi
+					}
 				}
 				set_technology = { popup = no magical_weapons_pegasi = 1 }
 			}
 			if = {
 				limit = {
-					has_tech = tech_ironpaws
+					OR = {
+						has_tech = tech_ironpaws
+						has_template_containing_unit = ironpaws
+					}
 				}
 				set_technology = { popup = no magical_weapons_ironpaws = 1 }
 			}
 			if = {
 				limit = {
-					has_tech = amphibious_mechanized_infantry
+					OR = {
+						has_tech = amphibious_mechanized_infantry
+						has_template_containing_unit = amphibious_mechanized
+					}
 				}
 				set_technology = { popup = no magical_weapons_amphibious_mechanized = 1 }
 			}
 			if = {
 				limit = {
-					has_tech = tech_spirit_warriors
+					OR = {
+						has_tech = tech_spirit_warriors
+						has_template_containing_unit = spirit_warriors
+					}
 				}
 				set_technology = { popup = no magical_weapons_spirit_warriors = 1 }
 			}
-		}
-		else = {
-			log = "[GetDateText]: THIS: [This.GetName] fix_weapon_techs: set infantry weapons for special forces"
 			if = {
 				limit = {
-					has_tech = marines
+					OR = {
+						has_tech = tech_kirin_vanguard
+						has_template_containing_unit = kirin_vanguards
+					}
+				}
+				set_technology = { popup = no magical_weapons_kirin_vanguards = 1 }
+			}
+		}
+		else = {
+			log = "[GetDateText]: THIS: [This.GetName] [?this.GetTag] fix_weapon_techs: set infantry weapons for special forces"
+			if = {
+				limit = {
+					OR = {
+						has_tech = marines
+						has_template_containing_unit = marine
+					}
 				}
 				set_technology = { popup = no infantry_weapons_marine = 1 }
 			}
 			if = {
 				limit = {
-					has_tech = tech_mountaineers
+					OR = {
+						has_tech = tech_mountaineers
+						has_template_containing_unit = mountaineers
+					}
 				}
 				set_technology = { popup = no infantry_weapons_mountaineers = 1 }
 			}
 			if = {
 				limit = {
-					has_tech = paratroopers
+					OR = {
+						has_tech = paratroopers
+						has_template_containing_unit = paratrooper
+					}
 				}
 				set_technology = { popup = no infantry_weapons_paratrooper = 1 }
 			}
 			if = {
 				limit = {
-					has_tech = tech_jager
+					OR = {
+						has_tech = tech_jager
+						has_template_containing_unit = jager
+					}
 				}
 				set_technology = { popup = no infantry_weapons_jager = 1 }
 			}
 			if = {
 				limit = {
-					has_tech = tech_pegasi
+					OR = {
+						has_tech = tech_pegasi
+						has_template_containing_unit = pegasi
+					}
 				}
 				set_technology = { popup = no infantry_weapons_pegasi = 1 }
 			}
 			if = {
 				limit = {
-					has_tech = tech_ironpaws
+					OR = {
+						has_tech = tech_ironpaws
+						has_template_containing_unit = ironpaws
+					}
 				}
 				set_technology = { popup = no infantry_weapons_ironpaws = 1 }
 			}
 			if = {
 				limit = {
-					has_tech = amphibious_mechanized_infantry
+					OR = {
+						has_tech = amphibious_mechanized_infantry
+						has_template_containing_unit = amphibious_mechanized
+					}
 				}
 				set_technology = { popup = no infantry_weapons_amphibious_mechanized = 1 }
 			}
 			if = {
 				limit = {
-					has_tech = tech_spirit_warriors
+					OR = {
+						has_tech = tech_spirit_warriors
+						has_template_containing_unit = spirit_warriors
+					}
 				}
 				set_technology = { popup = no infantry_weapons_spirit_warriors = 1 }
+			}
+			if = {
+				limit = {
+					OR = {
+						has_tech = tech_kirin_vanguard
+						has_template_containing_unit = kirin_vanguards
+					}
+				}
+				set_technology = { popup = no infantry_weapons_kirin_vanguards = 1 }
 			}
 		}
 
 		if = {
-			limit = { has_tech = tech_knights }
+			limit = {
+				OR = {
+					has_tech = tech_knights
+					has_template_containing_unit = knights
+				}
+			}
 			set_technology = {
 				popup = no
 				magical_weapons_knights = 0
@@ -2675,8 +2861,13 @@ remove_storm_king = {
 }
 
 FAT_kill_kemerskai = {
-	event_target:FAT_alexander_kemerskai_target = {
-		retire = yes
+	every_possible_country = {
+		limit = {
+			has_character = FAT_alexander_kemerskai
+		}
+		FAT_alexander_kemerskai = {
+			retire = yes
+		}
 	}
 	set_global_flag = keremeskai_dead
 }
@@ -2706,6 +2897,8 @@ disband_units_fraction = {
 	transfer_units_fraction = {
 		target = SOL
 		size = 0
+		target_organization = 1
+		source_organization = 1
 		army_ratio = var:disband_fraction
 		keep_unit_leaders_trigger = {
 			always = yes
@@ -2743,6 +2936,8 @@ disband_units_fraction = {
 		transfer_units_fraction = {
 			target = ROOT
 			size = 0
+			target_organization = 1
+			source_organization = 1
 			stockpile_ratio = 1
 			keep_unit_leaders_trigger = {
 				always = yes
@@ -2753,7 +2948,7 @@ disband_units_fraction = {
 		event_target:disband_state_owner = { set_state_owner = PREV }
 	}
 	annex_country = {
-		target = SOL
+		target = SOL transfer_troops = yes
 	}
 }
 
@@ -2841,6 +3036,23 @@ clear_current_inflicted_casualties = {
 			}
 			clear_variable = PREV.current_inflicted_casualties_on_@THIS
 			clear_variable = current_inflicted_casualties_on_@PREV
+		}
+	}
+}
+
+delete_communism = {
+	hidden_effect = {
+		if = {
+			limit = {
+				date > 1008.10.1
+				EQS = {
+					exists = yes
+					has_government = democratic
+					owns_state = 3
+				}
+			}
+			country_event = { id = flowena.129 days = 60 }
+			set_country_flag = eorgodkf
 		}
 	}
 }
@@ -2989,6 +3201,29 @@ set_AI_strategies_on_every_possible_country_delayed = {
 }
 ### Race tech removal effects
 
+generic_tech_removal = {
+	set_technology = {
+		generic_race = 0
+		tech_generic_misc = 0
+		tech_generic_misc2 = 0
+		tech_generic_misc3 = 0
+		tech_generic_misc_a = 0
+		tech_generic_misc_b = 0
+		tech_generic_misc_c = 0
+		tech_generic_misc_c_lar = 0
+		tech_generic_l = 0
+		tech_generic_l2 = 0
+		tech_generic_l3 = 0
+		tech_generic_l4 = 0
+		tech_generic_l5 = 0
+		tech_generic_r = 0
+		tech_generic_r2 = 0
+		tech_generic_r3 = 0
+		tech_generic_r4 = 0
+		tech_generic_r5 = 0
+	}
+}
+
 changeling_tech_removal = {
 	set_technology = {
 		tech_changeling_a = 0
@@ -3021,18 +3256,22 @@ changeling_tech_removal = {
 
 pony_tech_removal = {
 	set_technology = {
-		tech_pony_misc = 0
-		tech_pony_misc3 = 0
-		tech_pony_misc_a = 0
-		tech_pony_misc_a2 = 0
-		tech_pony_misc2 = 0
-		tech_pony_misc_b = 0
-		tech_pony_misc_c = 0
-		tech_pony_misc_c2 = 0
+		tech_earth_pony = 0
+		tech_earth_pony_a1 = 0
+		tech_earth_pony_a2 = 0
+		tech_earth_pony_a3 = 0
+		tech_earth_pony_a4 = 0
+		tech_earth_pony_b1 = 0
+		tech_earth_pony_b2 = 0
+		tech_earth_pony_b3 = 0
+		tech_earth_pony_b4 = 0
 		tech_pegasi = 0
 		tech_pegasi2 = 0
+		tech_pegasi_bonus1 = 0
+		tech_pegasi_bonus2 = 0
 		tech_pegasi3 = 0
 		tech_pegasi_a = 0
+		tech_pegasi_bonus3 = 0
 		tech_pegasi_b = 0
 		tech_pegasi_c = 0
 		tech_unicorn = 0
@@ -3056,6 +3295,462 @@ pony_tech_removal = {
 		tech_pony_unicorns3 = 0
 		tech_pony_unicorns4 = 0
 		tech_pony_unicorns5 = 0
+	}
+}
+
+set_continent_flags_on_every_possible_country = {
+	every_possible_country = {
+		set_global_flag = continent_flags_set
+		if = {
+			limit = { is_griffon_continent_country_tag = yes }
+			set_country_flag = griffon_continent_country
+		}
+		if = {
+			limit = { is_griffon_continent_griffon_country_tag = yes }
+			set_country_flag = griffon_continent_griffon_country
+		}
+		if = {
+			limit = { is_feudal_vassal_tag = yes }
+			set_country_flag = feudal_vassal_country
+		}
+		if = {
+			limit = { is_zebrican_continent_country_tag = yes }
+			set_country_flag = zebrican_continent_country
+		}
+		if = {
+			limit = { is_zebrican_zebra_country_tag = yes }
+			set_country_flag = zebrican_continent_zebra_country
+		}
+		if = {
+			limit = { is_riverlands_country_tag = yes }
+			set_country_flag = riverlands_country
+		}
+		if = {
+			limit = { is_original_riv_fed_country_tag = yes }
+			set_country_flag = original_riv_fed_country
+		}
+		if = {
+			limit = { is_griffon_empire_country_tag = yes }
+			set_country_flag = griffon_empire_country
+		}
+		if = {
+			limit = { is_underdeveloped_country_tag = yes }
+			set_country_flag = underdeveloped_country
+		}
+		if = {
+			limit = { is_eqs_civil_war_tag_tag = yes }
+			set_country_flag = eqs_civil_war_tag
+		}
+	}
+}
+
+# Not perfect, but gets the job done
+build_air_base = {
+	set_temp_variable = { built_airport = 0 }
+	if = {
+		limit = {
+			is_ai = yes
+			num_of_civilian_factories_available_for_projects > 9
+			has_deployed_air_force_size = {
+				size > 0
+			}
+		}
+		set_temp_variable = { air_capacity = 0 }
+		if = {
+			limit = {
+				has_war = yes
+				any_enemy_country = {
+					is_neighbor_of = ROOT
+				}
+			}
+			set_temp_variable = { has_neighbor_war = 1 }
+		}
+		else_if = {
+			limit = {
+				has_war = no
+				any_neighbor_country = {
+					is_in_array = {
+						ROOT.potential_and_current_enemies = THIS
+					}
+				}
+			}
+			set_temp_variable = { has_neighbor_enemy = 1 }
+		}
+		every_controlled_state = {
+			limit = {
+				if = {
+					limit = {
+						ROOT = {
+							check_variable = { has_neighbor_war > 0 }
+						}
+					}
+					any_neighbor_state = {
+						OR = {
+							controller = { has_war_with = ROOT }
+							any_neighbor_state = {
+								controller = { has_war_with = ROOT }
+							}
+						}
+					}
+				}
+				else_if = {
+					limit = {
+						ROOT = {
+							check_variable = { has_neighbor_enemy > 0 }
+						}
+					}
+					any_neighbor_state = {
+						OR = {
+							controller = {
+								is_in_array = {
+									ROOT.potential_and_current_enemies = THIS
+								}
+							}
+							any_neighbor_state = {
+								controller = {
+									is_in_array = {
+										ROOT.potential_and_current_enemies = THIS
+									}
+								}
+							}
+						}
+					}
+				}
+				else = {
+					always = yes
+				}
+			}
+			set_temp_variable = { local_air_capacity = building_level@air_base }
+			multiply_temp_variable = { local_air_capacity = 200 }
+			add_to_temp_variable = { air_capacity = local_air_capacity }
+		}
+		log = "build_air_base: [?Root.GetTag] has air_capacity at [?air_capacity|0]"
+		subtract_from_temp_variable = { air_capacity = 200 }
+		random_list = {
+			5 = {
+				multiply_temp_variable = { air_capacity = 0.5 }
+			}
+			95 = {}
+		}
+		if = {
+			limit = {
+				has_deployed_air_force_size = {
+					size > var:air_capacity
+				}
+			}
+			log = "build_air_base: [?Root.GetTag] Execute build"
+			if = {
+				limit = {
+					has_war = yes
+				}
+				log = "build_air_base: [?Root.GetTag] has_war"
+				random_country = {
+					limit = {
+						has_war_with = ROOT
+					}
+					set_temp_variable = { closest_state = ROOT.closest_state_to@THIS }
+				}
+				random_controlled_state = {
+					limit = {
+						is_fully_controlled_by = ROOT
+						air_base < 10
+						OR = {
+							state = var:closest_state
+							any_neighbor_state = {
+								OR = {
+									state = var:closest_state
+									controller = { has_war_with = ROOT }
+								}
+							}
+						}
+					}
+					log = "build_air_base: [?Root.GetTag] builds in [?this.GetName] ([?this|0)"
+					add_building_construction = {
+						type = air_base
+						level = 1
+						instant_build = no
+					}
+					set_temp_variable = { built_airport = 1 }
+				}
+			}
+			else_if = {
+				limit = {
+					check_variable = { potential_and_current_enemies^num > 0 }
+				}
+				log = "build_air_base: [?Root.GetTag] has potential_and_current_enemies"
+				random_country = {
+					limit = {
+						is_in_array = {
+							ROOT.potential_and_current_enemies = THIS
+						}
+					}
+					set_temp_variable = { closest_state = ROOT.closest_state_to@THIS }
+				}
+				random_controlled_state = {
+					limit = {
+						is_fully_controlled_by = ROOT
+						air_base < 10
+						OR = {
+							state = var:closest_state
+							any_neighbor_state = {
+								OR = {
+									state = var:closest_state
+									controller = {
+										is_in_array = {
+											ROOT.potential_and_current_enemies = THIS
+										}
+									}
+								}
+							}
+						}
+					}
+					log = "build_air_base: [?Root.GetTag] builds in [?this.GetName] ([?this|0)"
+					add_building_construction = {
+						type = air_base
+						level = 1
+						instant_build = no
+					}
+					set_temp_variable = { built_airport = 1 }
+				}
+			}
 		
+			if = {
+				limit = {
+					check_variable = {
+						built_airport = 0
+					}
+				}
+				random_country = {
+					limit = {
+						ROOT = {
+							OR = {
+								check_variable = { ai_strategy_conquer@PREV > 0 }
+								check_variable = { ai_strategy_antagonize@PREV > 0 }
+								check_variable = { ai_strategy_declare_war@PREV > 0 }
+								check_variable = { ai_strategy_prepare_for_war@PREV > 0 }
+							}
+						}
+					}
+					set_temp_variable = { closest_state = ROOT.closest_state_to@THIS }
+					set_temp_variable = { probable_enemy = THIS }
+				}
+				log = "build_air_base: [?Root.GetTag] has strats against [?probable_enemy.GetTag]"
+				random_controlled_state = {
+					limit = {
+						is_fully_controlled_by = ROOT
+						air_base < 10
+						OR = {
+							state = var:closest_state
+							any_neighbor_state = {
+								OR = {
+									state = var:closest_state
+									controller = {
+										tag = var:probable_enemy
+									}
+								}
+							}
+						}
+					}
+					log = "build_air_base: [?Root.GetTag] builds in [?this.GetName] ([?this|0)"
+					add_building_construction = {
+						type = air_base
+						level = 1
+						instant_build = no
+					}
+					set_temp_variable = { built_airport = 1 }
+				}
+			}
+		
+			if = {
+				limit = {
+					check_variable = {
+						built_airport = 0
+					}
+				}
+				log = "build_air_base: [?Root.GetTag] fallback"
+				random_controlled_state = {
+					limit = {
+						is_fully_controlled_by = ROOT
+						air_base > 0
+						air_base < 10
+					}
+					log = "build_air_base: [?Root.GetTag] builds in [?this.GetName] ([?this|0)"
+					add_building_construction = {
+						type = air_base
+						level = 1
+						instant_build = no
+					}
+					set_temp_variable = { built_airport = 1 }
+				}
+			}
+
+			if = {
+				limit = {
+					check_variable = {
+						built_airport = 0
+					}
+				}
+				log = "build_air_base: [?Root.GetTag] fallback 2"
+				random_list = {
+					50 = {
+						capital_scope = {
+							log = "build_air_base: [?Root.GetTag] builds in [?this.GetName] ([?this|0)"
+							add_building_construction = {
+								type = air_base
+								level = 1
+								instant_build = no
+							}
+							set_temp_variable = { built_airport = 1 }
+						}
+						modifier = {
+							factor = 0
+							capital_scope = {
+								OR = {
+									air_base > 9
+									NOT = { is_fully_controlled_by = ROOT }
+								}
+							}
+						}
+					}
+					50 = {
+						random_controlled_state = {
+							limit = {
+								is_fully_controlled_by = ROOT
+								is_in_home_area = yes
+								air_base < 10
+							}
+							log = "build_air_base: [?Root.GetTag] builds in [?this.GetName] ([?this|0)"
+							add_building_construction = {
+								type = air_base
+								level = 1
+								instant_build = no
+							}
+							set_temp_variable = { built_airport = 1 }
+						}
+					}
+				}
+			}
+		}
+	}
+}
+
+STG_EQS_all_ponies_front = {
+	STG = {
+		every_country = {
+			limit = { is_in_faction_with = STG }
+			set_country_flag = was_in_STG_faction
+			leave_faction = yes
+			add_ai_strategy = {
+				type = alliance
+				id = EQS
+				value = 200
+			}
+			EQS = {
+				add_ai_strategy = {
+					type = alliance
+					id = PREV
+					value = 200
+				}
+				add_to_faction = PREV
+			}
+		}
+		set_country_flag = was_in_STG_faction
+		dismantle_faction = yes
+		add_ai_strategy = {
+			type = alliance
+			id = EQS
+			value = 200
+		}
+		EQS = {
+			add_ai_strategy = {
+				type = alliance
+				id = PREV
+				value = 200
+			}
+			add_to_faction = PREV
+		}
+	}
+	EQS = {
+		every_enemy_country = {
+			every_country = {
+				limit = { has_country_flag = was_in_STG_faction }
+				add_to_war = { targeted_alliance = EQS enemy = PREV }
+			}
+		}
+		set_faction_name = "ponies_front"
+	}
+}
+
+STG_EQS_all_ponies_front_end = {
+	EQS = {
+		set_faction_name = "All_ponies_front"
+	}
+	if = {
+		limit = {
+			STG = {
+				has_country_flag = was_in_STG_faction
+			}
+		}
+		STG = {
+			clr_country_flag = was_in_STG_faction
+			add_ai_strategy = {
+				type = alliance
+				id = EQS
+				value = -200
+			}
+			EQS = {
+				add_ai_strategy = {
+					type = alliance
+					id = PREV
+					value = -200
+				}
+			}
+			if = {
+				limit = {
+					is_subject = no
+				}
+				leave_faction = yes
+			}
+		}
+	}
+}
+
+STG_EQS_all_ponies_front_end_2 = {
+	STG = {
+		create_faction = "Socialist_Union"
+	}
+	every_country = {
+		limit = {
+			OR = {
+				has_country_flag = was_in_STG_faction 
+				is_subject_of = STG
+			}
+		}
+		if = {
+			limit = {
+				has_country_flag = was_in_STG_faction 
+			}
+			clr_country_flag = was_in_STG_faction
+			add_ai_strategy = {
+				type = alliance
+				id = EQS
+				value = -200
+			}
+			EQS = {
+				add_ai_strategy = {
+					type = alliance
+					id = PREV
+					value = -200
+				}
+			}
+		}
+		if = {
+			limit = {
+				is_in_faction_with = EQS
+				STG = { is_faction_leader = yes }
+			}
+			leave_faction = yes
+			STG = { add_to_faction = PREV }
+		}
 	}
 }

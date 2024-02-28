@@ -28,11 +28,8 @@ political_actions = {
 						progress > 0
 					}
 				}
-				any_country = {
-					OR = {
-						is_justifying_wargoal_against = TBK
-						is_justifying_wargoal_against = ZAR	
-					}			
+				BAT = {
+					any_of_potential_and_current_enemies_justifying_or_has_wargoal_on_THIS = yes
 				}
 			}
 		}
@@ -57,14 +54,89 @@ political_actions = {
 					country_event = zarantia.43	
 				}
 			}
-			custom_effect_tooltip = ZAR_TBK_mutual_defense_tt
+			if = {
+				limit = {
+					tag = ZAR
+				}
+				custom_effect_tooltip = ZAR_TBK_mutual_defense_tt
+			}
+			else = {
+				custom_effect_tooltip = ZAR_TBK_mutual_defense_TBK_tt
+			}
 		}
 	}
 	
 	
+	ZAR_strike_at_chiropterra = {
+		icon = GFX_decision_gre_hellenic_academy
+		allowed = {
+			original_tag = ZAR
+		}
+		visible = {
+			BAT = {
+				exists = yes
+				NOT = {
+					has_country_flag = BAT_national_catastrophe
+				}
+			}
+			TBK = {
+				exists = no
+			}
+			ZAR = {
+				OR = {
+					has_completed_focus = ZAR_tobuck_reclaimed
+					has_completed_focus = ZAR_mayor_of_tobuck
+				}
+			}
+			#date > 1010.01.01
+		}
+		available = {
+			BAT = {
+				exists = yes
+				NOT = {
+					has_country_flag = BAT_national_catastrophe
+				}
+			}
+			TBK = {
+				exists = no
+			}
+			ZAR = {
+				OR = {
+					has_completed_focus = ZAR_tobuck_reclaimed
+					has_completed_focus = ZAR_mayor_of_tobuck
+				}
+				NOT = { has_war_with = BAT }
+			}
+			date > 1010.01.01
+		}
+		fire_only_once = yes
+		ai_will_do = {
+			factor = 100
+		}
+		war_with_on_remove = BAT
+
+		cost = 25
+		days_remove = 30
+		remove_effect = {
+			log = "[GetDateText]: [Root.GetName]: Decision ZAR_strike_at_chiropterra"
+			hidden_effect = {
+				create_wargoal = {
+					target = BAT
+					type = annex_everything
+				}
+			}
+			declare_war_on = {
+				target = BAT
+				type = annex_everything
+			}
+		}
+	}
 	ZAR_buckhara_peace = {
 		icon = generic_ignite_civil_war
 		targets = { 881.owner }
+		allowed = {
+			original_tag = ZAR
+		}
 		target_trigger = {
 			FROM = {
 				NOT = { tag = ROOT }
@@ -132,11 +204,12 @@ political_actions = {
 		is_good = no
 		days_mission_timeout = 75
 		available = {
-			has_civil_war = no 
+			has_civil_war = no
+
 		}
 		complete_effect = {
 			if = { 
-				limit = { ZAR = { has_country_flag = ZAR_Vasile_fled } } 
+				limit = { has_country_flag = ZAR_Vasile_fled }
 				country_event = {
 					id = zarantia_socialist.4
 					days = 3
@@ -149,13 +222,13 @@ political_actions = {
 				}
 			}
 		}
-		timeout_effect = {
-			log = "[GetDateText]: [Root.GetName]: Decision ZAR_stopping_vasile"
-			country_event = {
-				id = zarantia_socialist.4
-				days = 3
-			}
-		}
+		#timeout_effect = {
+		#	log = "[GetDateText]: [Root.GetName]: Decision ZAR_stopping_vasile"
+		#	country_event = {
+		#		id = zarantia_socialist.4
+		#		days = 3
+		#	}
+		#}
 	}
 	ZAR_releasing_BAT = {
 		icon = GFX_decision_faction_gre_monarchist
@@ -198,6 +271,17 @@ ZAR_trade_cat = {
 				NOT = { has_country_flag = ZAR_wormy }
 				NOT = { has_country_flag = ZAR_disable_trade_mech }
 			}
+			FROM = {
+				NOT = { has_country_flag = ZAR_traded_with }
+				if = {
+					limit = {
+						tag = BAT
+					}
+					has_country_flag = BAT_national_catastrophe
+					owns_state = 815
+					owns_state = 691
+				}
+			}
 		}
 		available = { 
 			NOT = { has_country_flag = ZAR_trading } 
@@ -214,24 +298,35 @@ ZAR_trade_cat = {
 		#fire_only_once = yes
 
 		target_trigger = {
+			FROM = {
+				NOT = { has_country_flag = ZAR_traded_with }
+			}
 			OR = {
 				FROM = {
 					original_tag = HIP
 				}
 				FROM = {
 					is_neighbor_of = ZAR
+					NOT = { tag = BAT }
+				}
+				FROM = {
+					tag = BAT
+					has_country_flag = BAT_national_catastrophe
+					owns_state = 815
+					owns_state = 691
 				}
 			}
-			FROM = {
-				NOT = { has_country_flag = ZAR_traded_with }
-			}
 		}
+		targets = { HIP BAT }
+		target_array = neighbors
 		modifier = {
-			consumer_goods_factor = 0.05
+			consumer_goods_factor = 0.1
 			political_power_factor = -0.1
 		}
 		target_root_trigger = {
 			has_country_flag = ZAR_grand_caravan_flag
+			NOT = { has_country_flag = ZAR_wormy }
+			NOT = { has_country_flag = ZAR_disable_trade_mech }
 		}
 		remove_effect = {
 			clr_country_flag = ZAR_trading
@@ -277,7 +372,14 @@ ZAR_trade_cat = {
 			}
 		}
 		complete_effect = {
-			set_country_flag = ZAR_trading
+			set_country_flag = {
+				flag = ZAR_trading
+				days = 30
+				value = 1
+			} 
+		}
+		cancel_effect = {
+			clr_country_flag = ZAR_trading
 		}
 	}
 }
@@ -625,21 +727,28 @@ ZAR_purging_decisions = {
 }
 
 ZAR_reintegrate_tobuck_decisions = {
-	ZAR_reintegrate_darnaigh = {
+	ZAR_reintegrate_core_state = {
 		icon = GFX_decision_infiltrate_state		
 		allowed = {
 			tag = ZAR
 		}
-		available = {
-			owns_state = 729
-		}
-		state_target = yes
+		state_target = any_owned_state
 		on_map_mode = map_and_decisions_view
 		target_trigger = {
 			FROM = {
-				state = 729
+				NOT = {
+					is_core_of = ROOT
+				}
 			}
 		}
+        visible = {
+            FROM = {
+				NOT = {
+					is_core_of = ROOT
+				}
+            }
+        }
+		targets = { 729 745 728 1205 692 }
 		cost = 25
 		fire_only_once = yes
 		days_remove = 30
@@ -648,111 +757,19 @@ ZAR_reintegrate_tobuck_decisions = {
 		}
 		
 		remove_effect = {	
-			add_state_core = 729
-		}
-	}
-	ZAR_reintegrate_zufra = {
-		icon = GFX_decision_infiltrate_state	
-		allowed = {
-			tag = ZAR
-		}
-		available = {
-			owns_state = 745
-		}
-		state_target = yes
-		on_map_mode = map_and_decisions_view
-		target_trigger = {
 			FROM = {
-				state = 745
+                add_core_of = ROOT
+            }
+			if = {
+				limit = {
+					FROM = {
+						state = 728
+					}
+				}
+				country_event = {
+					id = zarantia.16
+				}
 			}
-		}
-		cost = 25
-		fire_only_once = yes
-		days_remove = 30
-		ai_will_do = {
-			factor = 50
-		}
-		
-		remove_effect = {	
-			add_state_core = 745
-		}
-	}
-	ZAR_reintegrate_tobuck = {
-		icon = GFX_decision_infiltrate_state		
-		allowed = {
-			tag = ZAR
-		}
-		available = {
-			owns_state = 728
-		}
-		state_target = yes
-		on_map_mode = map_and_decisions_view
-		target_trigger = {
-			FROM = {
-				state = 728
-			}
-		}
-		cost = 25
-		fire_only_once = yes
-		days_remove = 30
-		ai_will_do = {
-			factor = 50
-		}
-		remove_effect = {	
-			add_state_core = 728
-			country_event = {
-				id = zarantia.16
-			}
-		}
-	}
-	ZAR_reintegrate_miharzehir = {
-		icon = GFX_decision_infiltrate_state
-		allowed = {
-			tag = ZAR
-		}
-		available = {
-			owns_state = 1205
-		}
-		state_target = yes
-		on_map_mode = map_and_decisions_view
-		target_trigger = {
-			FROM = {
-				state = 1205
-			}
-		}
-		cost = 25
-		fire_only_once = yes
-		days_remove = 30
-		ai_will_do = {
-			factor = 50
-		}
-		remove_effect = {	
-			add_state_core = 1205
-		}
-	}
-	ZAR_reintegrate_manerba = {
-		icon = GFX_decision_infiltrate_state
-		allowed = {
-			tag = ZAR
-		}
-		available = {
-			owns_state = 692
-		}
-		state_target = yes
-		on_map_mode = map_and_decisions_view
-		target_trigger = {
-			FROM = {
-				state = 692
-			}
-		}
-		cost = 25
-		fire_only_once = yes
-		days_remove = 30
-		ai_will_do = {
-			factor = 50
-		}
-		remove_effect = {	
-			add_state_core = 692
 		}
 	}
 }
@@ -1159,6 +1176,10 @@ ZAR_amsisi_coring = {
 		visible = {
 			has_country_flag = ZAR_cored_CVA
 			has_country_flag = ZAR_cored_CGI
+			1092 = { 
+				is_owned_by = ZAR 
+				NOT = { is_core_of = ZAR }
+			}
 		}
 
 		available = {
@@ -1221,13 +1242,16 @@ ZAR_amsisi_luv_harmonists =  {
 				}
 			}
 		}
+		targets_dynamic = yes
+		targets = { CTH CVA HIE TRO ZUM HIP WAR BAT CGI CDR BKH }
 		visible = {
 			FROM = {
 				exists = yes
-				NOT = { is_puppet = yes }
+				is_subject = no
 			}
 		}
 		available = {
+			has_war = no
 			FROM = {
 				has_government = democratic
 				has_war = no
@@ -1235,7 +1259,6 @@ ZAR_amsisi_luv_harmonists =  {
 			not = {
 				has_country_flag = ZAR_doing_diplomatic_alliance
 			}
-			has_war = no
 		}
 		complete_effect = {
 			set_country_flag = ZAR_doing_diplomatic_alliance           
@@ -1273,10 +1296,16 @@ ZAR_amsisi_fuck_supremacists = {
 				}
 			}
 		}
+		targets_dynamic = yes
+		targets = { CTH CVA HIE TRO ZUM HIP WAR BAT CGI CDR BKH }
 		visible = {
 			FROM = {
 				exists = yes
-				NOT = { is_puppet_of = ZAR }
+				NOT = {
+					is_subject_of = ROOT
+					is_in_faction_with = ROOT
+					has_non_aggression_pact_with = ROOT
+				}
 			}
 		}
 		available = {
@@ -1288,12 +1317,9 @@ ZAR_amsisi_fuck_supremacists = {
 						has_government = neutrality
 					}
 				}
-				any_owned_state = {
-					any_neighbor_state = {
-						is_owned_by = ZAR
-					}
-				}
 			}
+			is_neighbor_of = FROM
+			has_war = no
 			not = {
 				has_country_flag = ZAR_doing_wardec
 			}
@@ -1308,8 +1334,15 @@ ZAR_amsisi_fuck_supremacists = {
                 }
             }
 		}
+		war_with_target_on_remove = yes
 		remove_effect = {
 			clr_country_flag = ZAR_doing_wardec
+			hidden_effect = {
+				create_wargoal = {
+					target = FROM
+					type = annex_everything
+				}
+			}
 			declare_war_on = {
 			    target = FROM
 			    type = annex_everything
@@ -1343,30 +1376,33 @@ ZAR_map_painting = {
 				}
 			}
 		}
+		targets_dynamic = yes
+		targets = { CTH CVA HIE TRO ZUM WAR BAT CGI CDR BKH }
 		visible = {
 			FROM = {
 				exists = yes
 				NOT = {
-					is_puppet_of = ZAR
-					is_in_faction_with = ZAR
-					has_non_aggression_pact_with = ZAR
+					is_subject_of = ROOT
+					is_in_faction_with = ROOT
+					has_non_aggression_pact_with = ROOT
 				}
 
 			}
 		}
 		available = {
+			NOT = { has_war_with = FROM }
+			has_war = no
+			NOT = { has_country_flag = ZAR_empire_declaring_war }
+			is_neighbor_of = FROM
 			FROM = {
-				any_owned_state = {
-					any_neighbor_state = {
-						is_owned_by = ZAR
-					}
-				}
 				NOT = {
 					has_country_flag = ZAR_paid_tribute
 				}
 			}
 		}
 		days_remove = 30
+
+		fire_only_once = yes
 		complete_effect = {
 			FROM = {
 				add_ai_strategy = {
@@ -1375,7 +1411,9 @@ ZAR_map_painting = {
 					value = 1000
 				}
 			}
+			set_country_flag = ZAR_empire_declaring_war 
 		}
+		war_with_target_on_remove = yes
 		remove_effect = {
 			hidden_effect = {
 				create_wargoal = {
@@ -1387,6 +1425,7 @@ ZAR_map_painting = {
 				target = FROM
 				type = annex_everything
 			}
+			clr_country_flag = ZAR_empire_declaring_war 
 		}
 	}
 }
@@ -1420,7 +1459,7 @@ ZAR_empire_coring = {
 			political_power_factor = -0.25
 		}
 		cost = 75
-		days_remove = 1#120
+		days_remove = 120
 
 		fire_only_once = yes
 
@@ -1431,7 +1470,7 @@ ZAR_empire_coring = {
 
 			add_to_variable = { ZAR_hegemons_benefits_conscription_factor = 0.02 }
 			add_to_variable = { ZAR_hegemons_benefits_political_power_gain = 0.08 }
-			add_to_variable = { ZAR_hegemons_benefits_consumer_goods_factor = -0.01 }
+			add_to_variable = { ZAR_hegemons_benefits_consumer_goods_factor = -0.02 }
 			add_to_variable = { ZAR_hegemons_benefits_industrial_capacity_factory = 0.02 }
 
 
@@ -1480,7 +1519,7 @@ ZAR_empire_coring = {
 			political_power_factor = -0.15
 		}
 		cost = 50
-		days_remove = 1#80
+		days_remove = 80
 
 		fire_only_once = yes
 
@@ -1491,7 +1530,7 @@ ZAR_empire_coring = {
 
 			add_to_variable = { ZAR_hegemons_benefits_conscription_factor = 0.01 }
 			add_to_variable = { ZAR_hegemons_benefits_political_power_gain = 0.05 }
-			add_to_variable = { ZAR_hegemons_benefits_consumer_goods_factor = -0.005 }
+			add_to_variable = { ZAR_hegemons_benefits_consumer_goods_factor = -0.01 }
 			add_to_variable = { ZAR_hegemons_benefits_industrial_capacity_factory = 0.015 }
 
 
@@ -1557,7 +1596,7 @@ ZAR_empire_coring = {
 
 			add_to_variable = { ZAR_hegemons_benefits_conscription_factor = 0.01 }
 			add_to_variable = { ZAR_hegemons_benefits_political_power_gain = 0.05 }
-			add_to_variable = { ZAR_hegemons_benefits_consumer_goods_factor = -0.005 }
+			add_to_variable = { ZAR_hegemons_benefits_consumer_goods_factor = -0.01 }
 			add_to_variable = { ZAR_hegemons_benefits_industrial_capacity_factory = 0.015 }
 
 
@@ -1623,7 +1662,7 @@ ZAR_empire_coring = {
 
 			add_to_variable = { ZAR_hegemons_benefits_conscription_factor = 0.02 }
 			add_to_variable = { ZAR_hegemons_benefits_political_power_gain = 0.10 }
-			add_to_variable = { ZAR_hegemons_benefits_consumer_goods_factor = -0.01 }
+			add_to_variable = { ZAR_hegemons_benefits_consumer_goods_factor = -0.02 }
 			add_to_variable = { ZAR_hegemons_benefits_industrial_capacity_factory = 0.03 }
 
 			hidden_effect = {
@@ -1662,7 +1701,7 @@ ZAR_empire_coring = {
 
 					add_to_variable = { ZAR_hegemons_benefits_conscription_factor = 0.01 }
 					add_to_variable = { ZAR_hegemons_benefits_political_power_gain = 0.05 }
-					add_to_variable = { ZAR_hegemons_benefits_consumer_goods_factor = -0.005 }
+					add_to_variable = { ZAR_hegemons_benefits_consumer_goods_factor = -0.01 }
 					add_to_variable = { ZAR_hegemons_benefits_industrial_capacity_factory = 0.015 }
 
 				
@@ -1745,7 +1784,7 @@ ZAR_empire_coring = {
 
 			add_to_variable = { ZAR_hegemons_benefits_conscription_factor = 0.02 }
 			add_to_variable = { ZAR_hegemons_benefits_political_power_gain = 0.12 }
-			add_to_variable = { ZAR_hegemons_benefits_consumer_goods_factor = -0.01 }
+			add_to_variable = { ZAR_hegemons_benefits_consumer_goods_factor = -0.02 }
 			add_to_variable = { ZAR_hegemons_benefits_industrial_capacity_factory = 0.04 }
 
 
@@ -1784,7 +1823,7 @@ ZAR_empire_coring = {
 
 					add_to_variable = { ZAR_hegemons_benefits_conscription_factor = 0.01 }
 					add_to_variable = { ZAR_hegemons_benefits_political_power_gain = 0.05 }
-					add_to_variable = { ZAR_hegemons_benefits_consumer_goods_factor = -0.005 }
+					add_to_variable = { ZAR_hegemons_benefits_consumer_goods_factor = -0.01 }
 					add_to_variable = { ZAR_hegemons_benefits_industrial_capacity_factory = 0.015 }
 
 					
@@ -1850,7 +1889,7 @@ ZAR_empire_coring = {
 
 			add_to_variable = { ZAR_hegemons_benefits_conscription_factor = 0.01 }
 			add_to_variable = { ZAR_hegemons_benefits_political_power_gain = 0.05 }
-			add_to_variable = { ZAR_hegemons_benefits_consumer_goods_factor = -0.005 }
+			add_to_variable = { ZAR_hegemons_benefits_consumer_goods_factor = -0.01 }
 			add_to_variable = { ZAR_hegemons_benefits_industrial_capacity_factory = 0.015 }
 
 			
@@ -1882,6 +1921,10 @@ ZAR_empire_coring = {
 		visible = {
 			has_country_flag = ZAR_cored_CVA
 			has_country_flag = ZAR_cored_CGI
+			1092 = { 
+				is_owned_by = ZAR 
+				NOT = { is_core_of = ZAR }
+			}
 		}
 
 		available = {
@@ -1989,7 +2032,7 @@ ZAR_umalez_rituals_deccat = {
 		}
 		modifier = {
 			production_speed_buildings_factor = 0.20
-			consumer_goods_factor = -0.05
+			consumer_goods_factor = -0.1
 		}
 		remove_effect = {
 			clr_country_flag = ZAR_umalez_doing_ritual
@@ -2015,7 +2058,7 @@ ZAR_trans_zebharan_project_cat = {
 			OR = {
 				BKH = { 
 					exists = yes
-					is_puppet_of = ZAR
+					is_subject_of = ZAR
 				}
 				custom_trigger_tooltip = {
 					tooltip = ZAR_owns_BKH_tooltip
@@ -2036,7 +2079,7 @@ ZAR_trans_zebharan_project_cat = {
 		fire_only_once = yes
 
 		modifier = {
-			consumer_goods_factor = 0.05
+			consumer_goods_factor = 0.1
 			political_power_factor = -0.1
 		}
 		remove_effect = {
@@ -2087,7 +2130,7 @@ ZAR_trans_zebharan_project_cat = {
 		fire_only_once = yes
 
 		modifier = {
-			consumer_goods_factor = 0.05
+			consumer_goods_factor = 0.1
 			political_power_factor = -0.1
 		}
 		remove_effect = {
@@ -2116,7 +2159,7 @@ ZAR_trans_zebharan_project_cat = {
 				custom_effect_tooltip = ZAR_trans_zebharan_project_added_modifier_tt
 			}
 			
-			add_to_variable = { ZAR_trans_zebharan_project_consumer_goods_factor = -0.005 }
+			add_to_variable = { ZAR_trans_zebharan_project_consumer_goods_factor = -0.01 }
 			add_to_variable = { ZAR_trans_zebharan_project_industrial_capacity_factory = 0.02 }
 			custom_effect_tooltip = ZAR_trans_zebharan_project_added_new_nation_tt
 			hidden_effect = {
@@ -2165,7 +2208,7 @@ ZAR_trans_zebharan_project_cat = {
 		fire_only_once = yes
 
 		modifier = {
-			consumer_goods_factor = 0.05
+			consumer_goods_factor = 0.1
 			political_power_factor = -0.1
 		}
 		remove_effect = {
@@ -2194,7 +2237,7 @@ ZAR_trans_zebharan_project_cat = {
 				custom_effect_tooltip = ZAR_trans_zebharan_project_added_modifier_tt
 			}
 			
-			add_to_variable = { ZAR_trans_zebharan_project_consumer_goods_factor = -0.005 }
+			add_to_variable = { ZAR_trans_zebharan_project_consumer_goods_factor = -0.01 }
 			add_to_variable = { ZAR_trans_zebharan_project_industrial_capacity_factory = 0.02 }
 			custom_effect_tooltip = ZAR_trans_zebharan_project_added_new_nation_tt
 			hidden_effect = {
@@ -2243,7 +2286,7 @@ ZAR_trans_zebharan_project_cat = {
 		fire_only_once = yes
 
 		modifier = {
-			consumer_goods_factor = 0.05
+			consumer_goods_factor = 0.1
 			political_power_factor = -0.1
 		}
 		remove_effect = {
@@ -2272,7 +2315,7 @@ ZAR_trans_zebharan_project_cat = {
 				custom_effect_tooltip = ZAR_trans_zebharan_project_added_modifier_tt
 			}
 			
-			add_to_variable = { ZAR_trans_zebharan_project_consumer_goods_factor = -0.005 }
+			add_to_variable = { ZAR_trans_zebharan_project_consumer_goods_factor = -0.01 }
 			add_to_variable = { ZAR_trans_zebharan_project_industrial_capacity_factory = 0.02 }
 			custom_effect_tooltip = ZAR_trans_zebharan_project_added_new_nation_tt
 			hidden_effect = {
@@ -2321,7 +2364,7 @@ ZAR_trans_zebharan_project_cat = {
 		fire_only_once = yes
 
 		modifier = {
-			consumer_goods_factor = 0.05
+			consumer_goods_factor = 0.1
 			political_power_factor = -0.1
 		}
 		remove_effect = {
@@ -2350,7 +2393,7 @@ ZAR_trans_zebharan_project_cat = {
 				custom_effect_tooltip = ZAR_trans_zebharan_project_added_modifier_tt
 			}
 			
-			add_to_variable = { ZAR_trans_zebharan_project_consumer_goods_factor = -0.005 }
+			add_to_variable = { ZAR_trans_zebharan_project_consumer_goods_factor = -0.01 }
 			add_to_variable = { ZAR_trans_zebharan_project_industrial_capacity_factory = 0.02 }
 			custom_effect_tooltip = ZAR_trans_zebharan_project_added_new_nation_tt
 			hidden_effect = {
@@ -2399,7 +2442,7 @@ ZAR_trans_zebharan_project_cat = {
 		fire_only_once = yes
 
 		modifier = {
-			consumer_goods_factor = 0.05
+			consumer_goods_factor = 0.1
 			political_power_factor = -0.1
 		}
 		remove_effect = {
@@ -2428,7 +2471,7 @@ ZAR_trans_zebharan_project_cat = {
 				custom_effect_tooltip = ZAR_trans_zebharan_project_added_modifier_tt
 			}
 			
-			add_to_variable = { ZAR_trans_zebharan_project_consumer_goods_factor = -0.005 }
+			add_to_variable = { ZAR_trans_zebharan_project_consumer_goods_factor = -0.01 }
 			add_to_variable = { ZAR_trans_zebharan_project_industrial_capacity_factory = 0.02 }
 			custom_effect_tooltip = ZAR_trans_zebharan_project_added_new_nation_tt
 			hidden_effect = {
@@ -2468,6 +2511,7 @@ ZAR_worm_map_painting = {
 		icon = GFX_decision_faction_tur_kurdish
 		target_trigger = {
 			FROM = {
+				NOT = { tag = ROOT }
 				OR = {
 					original_tag = CTH
 					original_tag = CVA
@@ -2484,26 +2528,27 @@ ZAR_worm_map_painting = {
 				}
 			}
 		}
+		targets_dynamic = yes
+		targets = { CTH CVA HIE TRO HIP ZUM WAR BAT CGI CDR BKH 1092.owner }
 		visible = {
 			FROM = {
 				exists = yes
 				NOT = {
-					is_puppet_of = ZAR
-					is_in_faction_with = ZAR
-					has_non_aggression_pact_with = ZAR
+					is_subject_of = ROOT
+					is_in_faction_with = ROOT
+					has_non_aggression_pact_with = ROOT
 				}
 			}
 		}
 		available = {
-			FROM = {
-				any_owned_state = {
-					any_neighbor_state = {
-						is_owned_by = ZAR
-					}
-				}
-			}
+			is_neighbor_of = FROM
+			NOT = { has_war_with = FROM }
+			has_war = no
+			NOT = { has_country_flag = ZAR_WORM_declaring_war }
 		}
 		days_remove = 30
+
+		fire_only_once = yes
 		complete_effect = {
 			FROM = {
 				add_ai_strategy = {
@@ -2512,7 +2557,9 @@ ZAR_worm_map_painting = {
 					value = 1000
 				}
 			}
+			set_country_flag = ZAR_WORM_declaring_war
 		}
+		war_with_target_on_remove = yes
 		remove_effect = {
 			hidden_effect = {
 				create_wargoal = {
@@ -2524,6 +2571,7 @@ ZAR_worm_map_painting = {
 				target = FROM
 				type = annex_everything
 			}
+			clr_country_flag = ZAR_WORM_declaring_war
 		}
 	}
 }
@@ -2555,7 +2603,7 @@ ZAR_worm_coring = {
 			stability_weekly = -0.005
 		}
 		cost = 50
-		days_remove = 1#70
+		days_remove = 70
 
 		fire_only_once = yes
 
@@ -2619,7 +2667,7 @@ ZAR_worm_coring = {
 			stability_weekly = -0.005
 		}
 		cost = 25
-		days_remove = 1#50
+		days_remove = 50
 
 		fire_only_once = yes
 
@@ -2683,7 +2731,7 @@ ZAR_worm_coring = {
 			stability_weekly = -0.005
 		}
 		cost = 25
-		days_remove = 1#50
+		days_remove = 50
 
 		fire_only_once = yes
 
@@ -2748,7 +2796,7 @@ ZAR_worm_coring = {
 			stability_weekly = -0.005
 		}
 		cost = 100
-		days_remove = 1#200
+		days_remove = 200
 
 		fire_only_once = yes
 
@@ -2894,7 +2942,7 @@ ZAR_worm_coring = {
 			stability_weekly = -0.005
 		}
 		cost = 75
-		days_remove = 1#100
+		days_remove = 100
 
 		fire_only_once = yes
 
@@ -2972,7 +3020,7 @@ ZAR_worm_coring = {
 			stability_weekly = -0.005
 		}
 		cost = 75
-		days_remove = 1#100
+		days_remove = 100
 
 		fire_only_once = yes
 
@@ -3069,7 +3117,7 @@ ZAR_worm_coring = {
 			stability_weekly = -0.005
 		}
 		cost = 25
-		days_remove = 1#50
+		days_remove = 50
 
 		fire_only_once = yes
 
@@ -3108,12 +3156,16 @@ ZAR_worm_coring = {
 		visible = {
 			has_country_flag = ZAR_cored_CVA
 			has_country_flag = ZAR_cored_CGI
+			1092 = { 
+				is_owned_by = ZAR 
+				NOT = { has_dynamic_modifier = { modifier = ZAR_worm_purification }}
+			}
 		}
 
 		available = {
 			1092 = { 
 				is_owned_by = ZAR 
-				NOT = { is_core_of = ZAR }
+				NOT = { has_dynamic_modifier = { modifier = ZAR_worm_purification }}
 			}
 
 			NOT = {
@@ -3128,7 +3180,7 @@ ZAR_worm_coring = {
 			stability_weekly = -0.005
 		}
 		cost = 5
-		days_remove = 1#10
+		days_remove = 15
 
 		fire_only_once = yes
 
@@ -3149,7 +3201,6 @@ ZAR_worm_husbandry = {
 		icon = GFX_decision_faction_tur_kurdish
 		target_trigger = {
 			FROM = {
-				is_owned_by = ZAR
 				OR = {
 					region = 309 #Northern Zebhara
 					region = 296 #Western Zebhara
@@ -3166,9 +3217,10 @@ ZAR_worm_husbandry = {
 				#has_terrain = desert #This doesn't work, PDX pls fix thx
 			}
 		}
-		state_target = yes
+		target_array = owned_states
+		state_target = any_owned_state
 		on_map_mode = map_only
-		available = {
+		target_root_trigger = {
 			has_completed_focus = ZAR_the_eldest_come
 		}
 		visible = {
