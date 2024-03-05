@@ -17,19 +17,23 @@ NDefines.NCountry.MAJOR_MIN_FACTORIES = 25 --default 35		-- need at least these 
 NDefines.NCountry.FEMALE_UNIT_LEADER_BASE_CHANCE = { 
     -- applies as a factor to female unit leader randomization
     -- the values needs to be zero if you don't actually have random portraits
-    1.0, -- country leaders
-    1.0, -- army leaders
-    1.0, -- navy leaders
-    1.0, -- air leaders
-    1.0, -- operatives
+    0.5, -- country leaders
+    0.5, -- army leaders
+    0.5, -- navy leaders
+    0.5, -- air leaders
+    0.5, -- operatives
 }
 
 NDefines.NResistance.GARRISON_MANPOWER_LOST_BY_ATTACK = 0.01 	-- Ratio of manpower lost by garrison at each attack on garrison (this number will be reduced by the hardness of garrison template)
 NDefines.NResistance.GARRISON_TEMPLATE_SCORE_IC_FACTOR = 1.4		-- ai uses these defines while calculating garrison template score of a template.
 NDefines.NResistance.GARRISON_TEMPLATE_SCORE_MANPOWER_FACTOR = 0.4  -- formula is (template_ic * ic_factor + template_manpower * manpower_factor ) / template_supression (lower is better)
 
-
+NDefines.NProduction.FLOATING_HARBOR_MAX_NAV_FACTORIES_PER_LINE = 10 -- vanilla is 5
+NDefines.NProduction.CAPITAL_SHIP_MAX_NAV_FACTORIES_PER_LINE = 10 -- vanilla is 5
+NDefines.NProduction.RAILWAY_GUN_MAX_MIL_FACTORIES_PER_LINE = 10 -- vanilla is 5
 NDefines.NProduction.BASE_FACTORY_SPEED_NAV = 3.5 -- vanilla is 2.5
+NDefines.NProduction.MINIMUM_NUMBER_OF_FACTORIES_TAKEN_BY_CONSUMER_GOODS_PERCENT = 0.05 -- vanilla is 0.1
+
 
 NDefines.NMilitary.PLAN_EXECUTE_CAREFUL_MAX_FORT = 4
 NDefines.NMilitary.TRAINING_MAX_LEVEL = 10
@@ -42,6 +46,10 @@ NDefines.NMilitary.BASE_FEMALE_DIVISIONAL_COMMANDER_CHANCE = 0.5 -- 50% of time 
 
 NDefines.NNavy.SHORE_BOMBARDMENT_CAP = 0.3 -- Vanilla is 0.25
 NDefines.NNavy.SCREENS_TO_CAPITAL_RATIO = 3.0 -- Vanilla is 4.0, mostly AI stuff
+NDefines.NNavy.NAVAL_MINES_NAVAL_SUPREMACY_FACTOR = 0.5 -- Vanilla is 1.0, cut in half
+NDefines.NNavy.NAVAL_MINES_INTEL_DIFF_FACTOR = 0.1 -- Vanilla is 0.5, reverted to pre-AAT value
+NDefines.NNavy.NAVAL_MINES_ACCIDENT_STRENGTH_LOSS = 75.0 -- Vanilla is 50.0, reverted to pre-AAT value
+NDefines.NNavy.NAVAL_MINES_ACCIDENT_ORG_LOSS_FACTOR = 0.6	-- Vanilla is 0.5, reverted to pre-AAT value
 
 NDefines.NAir.NAVAL_COMBAT_EXTERNAL_PLANES_JOIN_RATIO = 0.03 	-- Max planes that can join a combat comparing to the total strength of the ships, vanilla is 0.05
 
@@ -115,7 +123,7 @@ NDefines.NSupply.NAVAL_BASE_ADDED_PENALTY_PER_PROVINCE = 1.1
 
 
 NDefines.NTechnology.BASE_TECH_COST = 80					-- Base cost for a tech. multiplied with tech cost and ahead of time penalties. 100 in vanilla
-NDefines.NTechnology.BASE_YEAR_AHEAD_PENALTY_FACTOR = 2.5	-- Base year ahead penalty. Vanilla is 2
+NDefines.NTechnology.BASE_YEAR_AHEAD_PENALTY_FACTOR = 2.25	-- Base year ahead penalty. Vanilla is 2
 
 NDefines.NAI.DEFAULT_MODULE_VARIANT_CREATION_XP_CUTOFF_LAND = 30
 NDefines.NAI.DEFAULT_MODULE_VARIANT_CREATION_XP_CUTOFF_NAVY = 50
