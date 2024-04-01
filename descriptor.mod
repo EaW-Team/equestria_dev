@@ -40,5 +40,5 @@ tags={
 	"Map"
 }
 picture="equestria.jpg"
-supported_version="1.13.*"
+supported_version="1.14.*"
 path="mod/equestria"
