@@ -1,12 +1,5 @@
 foreign_politics = {
-	#CHN_idea_test = {
-	#	visible = {
-	#		original_tag = CHN
-	#	}
-	#	complete_effect = {
-	#		add_ideas = continous_war_plan_CHN
-	#	}
-	#}
+
 	CHN_demand_remilitarization = {
 		icon = rifles
 		visible = {
@@ -62,6 +55,50 @@ foreign_politics = {
 			log = "[GetDateText]: [Root.GetName]: Decision CHN_demand_remilitarization"
 			overlord = {
 				country_event = { id = changelings.40 days = 5 }
+			}
+		}
+	}
+	
+	CHN_call_GRF_to_arms_for_help = {
+		
+		icon = rifles
+		
+		allowed = { original_tag = CHN }
+		
+		visible = { 
+			has_country_flag = CHN_GRF_anti_equestrian_pact 
+			any_country_with_original_tag = {
+				original_tag_to_check = GRF
+				NOT = { 
+					OR = { 
+						has_government = communism 
+						has_government = democratic
+					}
+				}
+				has_war = no
+			}
+		}
+		available = { 
+			AND = {
+				any_other_country = {
+					AND = {
+						has_war_with = ROOT 
+						is_major = yes 
+					}
+				}
+				OR = {
+					casualties_k  > 500
+					surrender_progress > 0.15
+				}
+			}
+		}
+		
+		cost = 25
+		fire_only_once = no
+		complete_effect = {
+			log = "[GetDateText]: [Root.GetName]: Decision CHN_call_GRF_to_arms_for_help"
+			event_target:GRF_civilwar_nocommie = {
+				country_event = { id = griffons.138 days = 7 }
 			}
 		}
 	}
@@ -702,6 +739,578 @@ CHN_war_time_actions = {
 		complete_effect = {
 			log = "[GetDateText]: [Root.GetName]: Decision CHN_stop_war_plan"
 
+		}
+	}
+	CHN_defence_plan = {
+		visible = {
+			AND = {
+				has_war_with_major = yes
+				has_completed_focus = demand_equestria
+			}
+			NOT = {
+				has_game_rule = {
+					rule = great_war_ai_buffs
+					option = CHN_AI_GW_BUFFS
+				}
+			}
+		}
+		available = {
+			NOT = { has_idea = CHN_plan_east_prep }
+			OR = { 
+				controls_canterlot = no
+				has_war_with = STG
+				casualties_k > 500
+			}
+		}
+		fire_only_once = yes
+		ai_will_do = {
+			base = 100
+		}
+		cost = 20
+		complete_effect = {
+			log = "[GetDateText]: [Root.GetName]: Decision CHN_AI_early_mobilization"
+			add_timed_idea = { idea = CHN_steel_chitin_plan days = 365 }
+			add_war_support = -0.1
+			add_equipment_to_stockpile = {
+				type = infantry_equipment
+				amount = 5000
+				producer = CHN
+			}
+		}
+	}
+	CHN_Soryth_volkssturm = {				#6 divisions
+		icon = changeling_icon
+		available = {
+			262 = { is_owned_and_controlled_by = CHN }
+			is_CHN_losing_war_15 = yes
+			has_completed_focus = death_or_dishonour
+		}
+		#cost = 40
+		ai_will_do = {
+			factor = 50
+		}
+		fire_only_once = yes
+		visible = {
+			any_enemy_country = {
+				is_major = yes
+			}
+		}
+		days_remove = 40
+		complete_effect = {
+			log = "[GetDateText]: [Root.GetName]: Decision complete CHN_Soryth_volkssturm"
+			if = {
+				limit = { NOT = { has_country_flag = militia_division_template } }
+				delete_unit_template_and_units = { division_template = "Dronessturm Division" }
+				division_template = {
+					name = "Dronessturm Division"			#Infantry Division
+					priority = 0
+					is_locked = yes
+					regiments = {
+						militia = { x = 0 y = 0 }
+						militia = { x = 0 y = 1 }
+						militia = { x = 0 y = 2 }
+						militia = { x = 1 y = 0 }
+						militia = { x = 1 y = 1 }
+						militia = { x = 1 y = 2 }
+					}
+				
+					support = {
+						artillery = { x = 0 y = 0 }
+						anti_tank = { x = 0 y = 1 }
+					}
+				}
+				set_country_flag = militia_division_template
+			}
+		}
+		remove_effect = {
+			log = "[GetDateText]: [Root.GetName]: Decision remove CHN_Soryth_volkssturm"
+			custom_effect_tooltip = CHN_soryth_volkssturm_tt
+			hidden_effect = {
+				if = {
+					limit = { 262 = { is_owned_and_controlled_by = CHN } }
+					262 = {
+						create_unit = {
+							division = "division_template = \"Dronessturm Division\" start_experience_factor = 0.001"
+							owner = CHN
+							count = 6
+							allow_spawning_on_enemy_provs = no
+						}
+					}
+				}
+				else = {
+					add_to_variable = { Soryth_militia = 6 }
+				}
+				if = {						#additinal 2 divs for easy difficulty
+					limit = {
+						difficulty < 2 
+						EQS = { is_ai = no }
+					}
+					add_to_variable = { Soryth_militia = 2 }
+				}
+				if = {						#additinal 2 divs for very easy difficulty
+					limit = {
+						difficulty < 1 
+						EQS = { is_ai = no }
+					}
+					add_to_variable = { Soryth_militia = 2 }
+				}
+				capital_scope = {
+					create_unit = {
+						division = "division_template = \"Dronessturm Division\" start_experience_factor = 0.001"
+						owner = CHN
+						count = Soryth_militia
+					}
+				}
+			}
+		}
+		modifier = {
+			political_power_gain = -5.0
+		}
+	}
+	CHN_Volistad_volkssturm = {				#5 divisions
+		icon = changeling_icon
+		available = {
+			316 = { is_owned_and_controlled_by = CHN }
+			is_CHN_losing_war_15 = yes
+			has_completed_focus = death_or_dishonour
+		}
+		#cost = 40
+		ai_will_do = {
+			factor = 40
+		}
+		fire_only_once = yes
+		visible = {
+			any_enemy_country = {
+				is_major = yes
+			}
+		}
+		days_remove = 30
+		complete_effect = {
+			log = "[GetDateText]: [Root.GetName]: Decision complete CHN_Volistad_volkssturm"
+			if = {
+				limit = { NOT = { has_country_flag = militia_division_template } }
+				delete_unit_template_and_units = { division_template = "Dronessturm Division" }
+				division_template = {
+					name = "Dronessturm Division"			#Infantry Division
+					priority = 0
+					is_locked = yes
+					regiments = {
+						militia = { x = 0 y = 0 }
+						militia = { x = 0 y = 1 }
+						militia = { x = 0 y = 2 }
+						militia = { x = 1 y = 0 }
+						militia = { x = 1 y = 1 }
+						militia = { x = 1 y = 2 }
+					}
+				
+					support = {
+						artillery = { x = 0 y = 0 }
+						anti_tank = { x = 0 y = 1 }
+					}
+				}
+				set_country_flag = militia_division_template
+			}
+		}
+		remove_effect = {
+			log = "[GetDateText]: [Root.GetName]: Decision remove CHN_Volistad_volkssturm"
+			custom_effect_tooltip = CHN_Volistad_volkssturm_tt
+			hidden_effect = {
+				if = {
+					limit = { 316 = { is_owned_and_controlled_by = CHN } }
+					316 = {
+						create_unit = {
+							division = "division_template = \"Dronessturm Division\" start_experience_factor = 0.001"
+							owner = CHN
+							count = 5
+							allow_spawning_on_enemy_provs = no
+						}
+					}
+				}
+				else = {
+					add_to_variable = { Volistad_militia = 5 }
+				}
+				if = {						#additinal 2 divs for easy difficulty
+					limit = {
+						difficulty < 2 
+						EQS = { is_ai = no }
+					}
+					add_to_variable = { Volistad_militia = 2 }
+				}
+				if = {						#additinal 2 divs for very easy difficulty
+					limit = {
+						difficulty < 1 
+						EQS = { is_ai = no }
+					}
+					add_to_variable = { Volistad_militia = 2 }
+				}
+				capital_scope = {
+					create_unit = {
+						division = "division_template = \"Dronessturm Division\" start_experience_factor = 0.001"
+						owner = CHN
+						count = Volistad_militia
+					}
+				}
+			}
+		}
+		modifier = {
+			political_power_gain = -5.0
+		}
+	}
+	
+	CHN_Lyctida_volkssturm = {				#6 divisions
+		icon = changeling_icon
+		available = {
+			309 = { is_owned_and_controlled_by = CHN }
+			is_CHN_losing_war_15 = yes
+			has_completed_focus = death_or_dishonour
+		}
+		#cost = 40
+		ai_will_do = {
+			factor = 50
+		}
+		fire_only_once = yes
+		visible = {
+			any_enemy_country = {
+				is_major = yes
+			}
+		}
+		days_remove = 40
+		complete_effect = {
+			log = "[GetDateText]: [Root.GetName]: Decision complete CHN_Lyctida_volkssturm"
+			if = {
+				limit = { NOT = { has_country_flag = militia_division_template } }
+				delete_unit_template_and_units = { division_template = "Dronessturm Division" }
+				division_template = {
+					name = "Dronessturm Division"			#Infantry Division
+					priority = 0
+					is_locked = yes
+					regiments = {
+						militia = { x = 0 y = 0 }
+						militia = { x = 0 y = 1 }
+						militia = { x = 0 y = 2 }
+						militia = { x = 1 y = 0 }
+						militia = { x = 1 y = 1 }
+						militia = { x = 1 y = 2 }
+					}
+				
+					support = {
+						artillery = { x = 0 y = 0 }
+						anti_tank = { x = 0 y = 1 }
+					}
+				}
+				set_country_flag = militia_division_template
+			}
+		}
+		remove_effect = {
+			log = "[GetDateText]: [Root.GetName]: Decision remove CHN_Lyctida_volkssturm"
+			custom_effect_tooltip = CHN_Lyctida_volkssturm_tt
+			hidden_effect = {
+				if = {
+					limit = { 309 = { is_owned_and_controlled_by = CHN } }
+					309 = {
+						create_unit = {
+							division = "division_template = \"Dronessturm Division\" start_experience_factor = 0.001"
+							owner = CHN
+							count = 6
+							allow_spawning_on_enemy_provs = no
+						}
+					}
+				}
+				else = {
+					add_to_variable = { Lyctida_militia = 6 }
+				}
+				if = {						#additinal 2 divs for easy difficulty
+					limit = {
+						difficulty < 2 
+						EQS = { is_ai = no }
+					}
+					add_to_variable = { Lyctida_militia = 2 }
+				}
+				if = {						#additinal 2 divs for very easy difficulty
+					limit = {
+						difficulty < 1 
+						EQS = { is_ai = no }
+					}
+					add_to_variable = { Lyctida_militia = 2 }
+				}
+				capital_scope = {
+					create_unit = {
+						division = "division_template = \"Dronessturm Division\" start_experience_factor = 0.001"
+						owner = CHN
+						count = Lyctida_militia
+					}
+				}
+			}
+		}
+		modifier = {
+			political_power_gain = -5.0
+		}
+	}
+	CHN_Vraks_volkssturm = {				#8 divisions
+		icon = changeling_icon
+		available = {
+			259 = { is_owned_and_controlled_by = CHN }
+			is_CHN_losing_war_15 = yes
+			has_completed_focus = death_or_dishonour
+		}
+		#cost = 40
+		ai_will_do = {
+			factor = 80
+		}
+		fire_only_once = yes
+		visible = {
+			any_enemy_country = {
+				is_major = yes
+			}
+		}
+		days_remove = 50
+		complete_effect = {
+			log = "[GetDateText]: [Root.GetName]: Decision complete CHN_Vraks_volkssturm"
+			if = {
+				limit = { NOT = { has_country_flag = militia_division_template } }
+				delete_unit_template_and_units = { division_template = "Dronessturm Division" }
+				division_template = {
+					name = "Dronessturm Division"			#Infantry Division
+					priority = 0
+					is_locked = yes
+					regiments = {
+						militia = { x = 0 y = 0 }
+						militia = { x = 0 y = 1 }
+						militia = { x = 0 y = 2 }
+						militia = { x = 1 y = 0 }
+						militia = { x = 1 y = 1 }
+						militia = { x = 1 y = 2 }
+					}
+				
+					support = {
+						artillery = { x = 0 y = 0 }
+						anti_tank = { x = 0 y = 1 }
+					}
+				}
+				set_country_flag = militia_division_template
+			}
+		}
+		remove_effect = {
+			log = "[GetDateText]: [Root.GetName]: Decision remove CHN_Vraks_volkssturm"
+			custom_effect_tooltip = CHN_Vraks_volkssturm_tt
+			hidden_effect = {
+				if = {
+					limit = { 259 = { is_owned_and_controlled_by = CHN } }
+					259 = {
+						create_unit = {
+							division = "division_template = \"Dronessturm Division\" start_experience_factor = 0.001"
+							owner = CHN
+							count = 8
+							allow_spawning_on_enemy_provs = no
+						}
+					}
+				}
+				else = {
+					add_to_variable = { Vraks_militia = 8 }
+				}
+				if = {						#additinal 2 divs for easy difficulty
+					limit = {
+						difficulty < 2 
+						EQS = { is_ai = no }
+					}
+					add_to_variable = { Vraks_militia = 2 }
+				}
+				if = {						#additinal 2 divs for very easy difficulty
+					limit = {
+						difficulty < 1 
+						EQS = { is_ai = no }
+					}
+					add_to_variable = { Vraks_militia = 2 }
+				}
+				capital_scope = {
+					create_unit = {
+						division = "division_template = \"Dronessturm Division\" start_experience_factor = 0.001"
+						owner = CHN
+						count = Vraks_militia
+					}
+				}
+			}
+		}
+		modifier = {
+			political_power_gain = -5.0
+		}
+	}
+	CHN_Ditrysium_volkssturm = {				#8 divisions
+		icon = changeling_icon
+		available = {
+			252 = { is_owned_and_controlled_by = CHN }
+			is_CHN_losing_war_15 = yes
+			has_completed_focus = death_or_dishonour
+		}
+		#cost = 40
+		ai_will_do = {
+			factor = 50
+		}
+		fire_only_once = yes
+		visible = {
+			any_enemy_country = {
+				is_major = yes
+			}
+		}
+		days_remove = 60
+		complete_effect = {
+			log = "[GetDateText]: [Root.GetName]: Decision complete CHN_Ditrysium_volkssturm"
+			if = {
+				limit = { NOT = { has_country_flag = militia_division_template } }
+				delete_unit_template_and_units = { division_template = "Dronessturm Division" }
+				division_template = {
+					name = "Dronessturm Division"			#Infantry Division
+					priority = 0
+					is_locked = yes
+					regiments = {
+						militia = { x = 0 y = 0 }
+						militia = { x = 0 y = 1 }
+						militia = { x = 0 y = 2 }
+						militia = { x = 1 y = 0 }
+						militia = { x = 1 y = 1 }
+						militia = { x = 1 y = 2 }
+					}
+				
+					support = {
+						artillery = { x = 0 y = 0 }
+						anti_tank = { x = 0 y = 1 }
+					}
+				}
+				set_country_flag = militia_division_template
+			}
+		}
+		remove_effect = {
+			log = "[GetDateText]: [Root.GetName]: Decision remove CHN_Ditrysium_volkssturm"
+			custom_effect_tooltip = CHN_Ditrysium_volkssturm_tt
+			hidden_effect = {
+				if = {
+					limit = { 252 = { is_owned_and_controlled_by = CHN } }
+					252 = {
+						create_unit = {
+							division = "division_template = \"Dronessturm Division\" start_experience_factor = 0.001"
+							owner = CHN
+							count = 8
+							allow_spawning_on_enemy_provs = no
+						}
+					}
+				}
+				else = {
+					add_to_variable = { Ditrysium_militia = 8 }
+				}
+				if = {						#additinal 2 divs for easy difficulty
+					limit = {
+						difficulty < 2 
+						EQS = { is_ai = no }
+					}
+					add_to_variable = { Ditrysium_militia = 2 }
+				}
+				if = {						#additinal 2 divs for very easy difficulty
+					limit = {
+						difficulty < 1 
+						EQS = { is_ai = no }
+					}
+					add_to_variable = { Ditrysium_militia = 2 }
+				}
+				capital_scope = {
+					create_unit = {
+						division = "division_template = \"Dronessturm Division\" start_experience_factor = 0.001"
+						owner = CHN
+						count = Ditrysium_militia
+					}
+				}
+			}
+		}
+		modifier = {
+			political_power_gain = -5.0
+		}
+	}
+	CHN_Vesalipolis_volkssturm = {				#12 divisions
+		icon = changeling_icon
+		available = {
+			251 = { is_owned_and_controlled_by = CHN }
+			is_CHN_losing_war_15 = yes
+			has_completed_focus = death_or_dishonour
+		}
+		#cost = 40
+		ai_will_do = {
+			factor = 50
+		}
+		fire_only_once = yes
+		visible = {
+			any_enemy_country = {
+				is_major = yes
+			}
+		}
+		days_remove = 75
+		complete_effect = {
+			log = "[GetDateText]: [Root.GetName]: Decision complete CHN_Vesalipolis_volkssturm"
+			if = {
+				limit = { NOT = { has_country_flag = militia_division_template } }
+				delete_unit_template_and_units = { division_template = "Dronessturm Division" }
+				division_template = {
+					name = "Dronessturm Division"			#Infantry Division
+					priority = 0
+					is_locked = yes
+					regiments = {
+						militia = { x = 0 y = 0 }
+						militia = { x = 0 y = 1 }
+						militia = { x = 0 y = 2 }
+						militia = { x = 1 y = 0 }
+						militia = { x = 1 y = 1 }
+						militia = { x = 1 y = 2 }
+					}
+				
+					support = {
+						artillery = { x = 0 y = 0 }
+						anti_tank = { x = 0 y = 1 }
+					}
+				}
+				set_country_flag = militia_division_template
+			}
+		}
+		remove_effect = {
+			log = "[GetDateText]: [Root.GetName]: Decision remove CHN_Vesalipolis_volkssturm"
+			custom_effect_tooltip = CHN_Vesalipolis_volkssturm_tt
+			hidden_effect = {
+				if = {
+					limit = { 251 = { is_owned_and_controlled_by = CHN } }
+					251 = {
+						create_unit = {
+							division = "division_template = \"Dronessturm Division\" start_experience_factor = 0.001"
+							owner = CHN
+							count = 12
+							allow_spawning_on_enemy_provs = no
+						}
+					}
+				}
+				else = {
+					add_to_variable = { Vesalipolis_militia = 12 }
+				}
+				if = {						#additinal 2 divs for easy difficulty
+					limit = {
+						difficulty < 2 
+						EQS = { is_ai = no }
+					}
+					add_to_variable = { Vesalipolis_militia = 2 }
+				}
+				if = {						#additinal 2 divs for very easy difficulty
+					limit = {
+						difficulty < 1 
+						EQS = { is_ai = no }
+					}
+					add_to_variable = { Vesalipolis_militia = 2 }
+				}
+				capital_scope = {
+					create_unit = {
+						division = "division_template = \"Dronessturm Division\" start_experience_factor = 0.001"
+						owner = CHN
+						count = Vesalipolis_militia
+					}
+				}
+			}
+		}
+		modifier = {
+			political_power_gain = -5.0
 		}
 	}
 	CHN_AI_early_mobilization = {
