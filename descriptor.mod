@@ -33,10 +33,12 @@ replace_path="history/units"
 replace_path="history/general"
 replace_path="map/strategicregions"
 replace_path="map/supplyareas"
+replace_path="gfx/posteffect_volumes.txt"
 tags={
 	"Alternative History"
 	"Events"
 	"Map"
 }
 picture="equestria.jpg"
-supported_version="1.13.*"
+supported_version="1.14.*"
+path="mod/equestria"
