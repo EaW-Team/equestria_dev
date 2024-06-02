@@ -6979,19 +6979,106 @@ NCH_republican_menu = {
 }
 
 NCH_sunderer_hatred_menu = {
-	
-	NCH_sunderer_test = {
+
+	NCH_casualty_mission_start = {
 		icon = generic_army_support
-		cost = 150
+		cost = 5
 		allowed = { tag = NCH }
 		fire_only_once = no
+		days_re_enable = NCH_casualty_mission_cd
 
 		visible = {
-			has_country_flag = NCH_hatred_enabled
+			NOT = { has_country_flag = NCH_casualty_mission_active }
+		}
+
+		available = {
+			#has_completed_focus =
 		}
 
 		complete_effect = {
-			add_command_power = 150
+			set_country_flag = NCH_casualty_mission_active
+			every_country = {
+				limit = {
+					NOT = { tag = NCH }
+					has_war_with = NCH
+				}
+				add_to_array = { 
+					array = NCH_opponents_arr
+					value = THIS.id
+				}
+				set_variable = { NCH_casualty_mission_var_control = casualties_k }
+				set_variable = { NCH_casualty_mission_var_offset = casualties_k }
+				clear_variable = { global.NCH_casualty_mission_var = 0 }
+			}
+			clear_variable = { NCH_casualty_mission_var_total = 0 }
+			activate_decision = NCH_casualty_mission
+		}
+	}
+	
+	NCH_casualty_mission = {
+		icon = generic_army_support
+		allowed = { tag = NCH }
+		fire_only_once = no
+		
+		days_remove = 90
+
+		visible = {
+			always = no
+		}
+
+		available = { 
+			always = no
+		}
+
+		remove_effect = {
+			clr_country_flag = NCH_casualty_mission_active
+			if = {
+				limit = {
+					check_variable = { NCH_casualty_mission_var_total > 10 }
+					NOT = { check_variable = { NCH_casualty_mission_var_total > 50 } }
+				}
+				add_to_variable = { NCH_hatred_total = 5 }
+				clamp_variable = {
+					var = NCH_hatred_total
+					min = 0
+					max = 100
+				}
+				custom_effect_tooltip = NCH_casualty_mission_success
+			}
+			if = {
+				limit = {
+					check_variable = { NCH_casualty_mission_var_total > 50 }
+					NOT = { check_variable = { NCH_casualty_mission_var_total > 100 } }
+				}
+				add_to_variable = { NCH_hatred_total = 10 }
+				clamp_variable = {
+					var = NCH_hatred_total
+					max = 100
+				}
+				custom_effect_tooltip = NCH_casualty_mission_success
+			}
+			if = {
+				limit = {
+					check_variable = { NCH_casualty_mission_var_total > 100 }
+				}
+				add_to_variable = { NCH_hatred_total = 15 }
+				clamp_variable = {
+					var = NCH_hatred_total
+					max = 100
+				}
+				custom_effect_tooltip = NCH_casualty_mission_success
+			}
+			set_variable = { NCH_casualty_mission_var_total = 0 }
+			every_country = {
+				limit = {
+					is_in_array = { 
+						array = NCH_opponents_arr
+						value = THIS.id
+					}
+				}
+				clear_variable = global.NCH_casualty_mission_var
+				clear_variable = NCH_casualty_mission_var_offset
+			}
 		}
 	}
 }
