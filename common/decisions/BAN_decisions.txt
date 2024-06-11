@@ -1,7 +1,13 @@
 BAN_mercs_and_blackmarket = {
 	# Disabled for AI due to being a suspected cause for CTDs
+	# Mercs costing loot : 
 	BAN_hire_merc_1 = {
 		icon = rifles
+		visible = {
+			has_country_flag = BAN_mercs_hired
+			NOT = { has_country_flag = BAN_merc_1_hired }
+			NOT ={ has_country_flag = BAN_standardized_pay }
+		}
 		available = {
 			hidden_trigger = {
 				check_variable  = {
@@ -19,10 +25,6 @@ BAN_mercs_and_blackmarket = {
 			}
 		}
 		custom_cost_text = decision_cost_2_loot
-		visible = {
-			has_country_flag = BAN_mercs_hired
-			NOT = { has_country_flag = BAN_merc_1_hired }
-		}
 
 		ai_will_do = {
 			modifier = {
@@ -46,43 +48,55 @@ BAN_mercs_and_blackmarket = {
 			hidden_effect = { 
 				load_oob = "BAN_merc_1"
 				set_country_flag = BAN_merc_1_hired
-				 activate_decision = BAN_fire_merc_1
+				activate_decision = BAN_fire_merc_1
 			}
 		}
 	}
 
 	BAN_fire_merc_1 = {
-   	 icon = rifles
-   	 visible  = {
-   		 has_country_flag = BAN_merc_1_hired
-   	 }
-   	 days_remove = 120
-   	 cancel_if_not_visible = yes
-   	 remove_effect = {
+   		icon = rifles
+   		visible  = {
+   			has_country_flag = BAN_merc_1_hired
+			
+   	 	}
+   	 	days_remove = 120
+   		cancel_if_not_visible = yes
+   		remove_effect = {
+			if = {
+				limit = {
+					NOT ={
+						has_country_flag = BAN_standardized_pay
+					}
+					check_variable = {
+						loot > 1
+					}
+				}
+				subtract_from_variable = {
+					var = loot
+					value = 2
+				}
+				activate_decision = BAN_fire_merc_1 
+			}
+			else_if = {
+				limit = {
+					has_country_flag = BAN_standardized_pay
+					check_variable = {
+						command_power > 19
+					}
+				}
+				add_command_power = -20
+				activate_decision = BAN_fire_merc_1 
+			}
+			else = {
+				delete_unit_template_and_units = { division_template = "Blackhollow Highwaygriffs" }
+				hidden_effect = {
+					clr_country_flag = BAN_merc_1_hired
+				}
+			}
+   		}
+	}
 
-   		 if = {
-   			 limit = {
-   				 check_variable = {
-                    	loot > 1
-                	}
-   			 }
-   			 subtract_from_variable = {
-   				 var = loot
-   				 value = 2
-   			 }
-   			 activate_decision = BAN_fire_merc_1 
-   		 }
-   		 else = {
-					delete_unit_template_and_units = { division_template = "Blackhollow Highwaygriffs" }
-   			 		hidden_effect = {
-   				 	clr_country_flag = BAN_merc_1_hired
-   				 }
-   			 }
-   		 }
-	 }
-	
-
-	 BAN_dismiss_merc_1 = {
+	BAN_dismiss_merc_1 = {
 		icon = griffon_claw
 		visible  = {
 			OR = {
@@ -101,322 +115,559 @@ BAN_mercs_and_blackmarket = {
 				remove_decision = BAN_fire_merc_1
 			}
 			delete_unit_template_and_units = { division_template = "Blackhollow Highwaygriffs" }
+		}
+	}
+
+	BAN_hire_merc_2 = {
+		icon = rifles
+		visible = {
+			has_country_flag = BAN_mercs_hired
+			NOT = { has_country_flag = BAN_merc_2_hired }
+			NOT ={ has_country_flag = BAN_standardized_pay }
+		}
+		available = {
+			hidden_trigger = {
+				check_variable  = {
+					var = loot
+					value = 3
+					compare = greater_than
+				}
 			}
 		}
-		BAN_hire_merc_2 = {
-   		 icon = rifles
-   		 available = {
-   		 hidden_trigger = {
-   			 check_variable  = {
-   				 var = loot
-   				 value = 3
-   				 compare = greater_than
-   			 }
-   		 }
-   	 }
-   	 custom_cost_trigger = {
-   		 check_variable  = {
-   			 var = loot
-   			 value = 3
-   			 compare = greater_than
-   		 }
-   	 }
-   	 custom_cost_text = decision_cost_4_loot
-   	 visible = {
-   		 has_country_flag = BAN_mercs_hired
-   		 NOT = { has_country_flag = BAN_merc_2_hired }
-   	 }
+		custom_cost_trigger = {
+			check_variable  = {
+				var = loot
+				value = 3
+				compare = greater_than
+			}
+		}
+		custom_cost_text = decision_cost_4_loot
+		
 
-   	 ai_will_do = {
-   		 modifier = {
-   			 factor = 0
-   			 has_war = no
-   		 }
-   		 modifier = {
-   			 factor = 80
-   			 enemies_strength_ratio > 0.6
-   			 has_war = yes
-   		 }
-   	 }
-   	 cost = 25
-   	 complete_effect = {
-   		 log = "[GetDateText]: [Root.GetName]: Decision BAN_hire_merc_2"
-   		 subtract_from_variable = {
-   			 var = loot
-   			 value = 4
-   		 }
-   		 custom_effect_tooltip = BAN_merc_2_name
-   		 hidden_effect = {
-   			 load_oob = "BAN_merc_2"
-   			 set_country_flag = BAN_merc_2_hired
-   			  activate_decision = BAN_fire_merc_2
-   		 }
-   	 }
+		ai_will_do = {
+			modifier = {
+				factor = 0
+				has_war = no
+			}
+			modifier = {
+				factor = 80
+				enemies_strength_ratio > 0.6
+				has_war = yes
+			}
+		}
+		cost = 25
+		complete_effect = {
+			log = "[GetDateText]: [Root.GetName]: Decision BAN_hire_merc_2"
+			subtract_from_variable = {
+				var = loot
+				value = 4
+			}
+			custom_effect_tooltip = BAN_merc_2_name
+			hidden_effect = {
+				load_oob = "BAN_merc_2"
+				set_country_flag = BAN_merc_2_hired
+				activate_decision = BAN_fire_merc_2
+			}
+		}
     }
 
     BAN_fire_merc_2 = {
-  	  icon = rifles
-  	  visible  = {
-  		  has_country_flag = BAN_merc_2_hired
-  	  }
-  	  days_remove = 120
-  	  cancel_if_not_visible = yes
-  	  remove_effect = {
+		icon = rifles
+		visible  = {
+			has_country_flag = BAN_merc_2_hired
+		}
+		days_remove = 120
+		cancel_if_not_visible = yes
+		remove_effect = {
 
-  		  if = {
-  			  limit = {
-  				  check_variable = {
-               		 loot > 3
-           		 }
-  			  }
-  			  subtract_from_variable = {
-  				  var = loot
-  				  value = 4
-  			  }
-  			  activate_decision = BAN_fire_merc_2
-  		  }
-  		  else = {
-   				 delete_unit_template_and_units = { division_template = "Sicameon Privateers" }
-  			     	 hidden_effect = {
-  				      clr_country_flag = BAN_merc_2_hired
-  				  }
-  			  }
-  		  }
-     }
-    
+			if = {
+				limit = {
+					NOT ={
+						has_country_flag = BAN_standardized_pay
+					}
+					check_variable = {
+						loot > 3
+					}
+				}
+				subtract_from_variable = {
+					var = loot
+					value = 4
+				}
+				activate_decision = BAN_fire_merc_2
+			}
+			else_if = {
+				limit = {
+					has_country_flag = BAN_standardized_pay
+					check_variable = {
+						command_power > 39
+					}
+				}
+				add_command_power = -40
+				activate_decision = BAN_fire_merc_2
+			}
+			else = {
+				delete_unit_template_and_units = { division_template = "Sicameon Privateers" }
+					hidden_effect = {
+					clr_country_flag = BAN_merc_2_hired
+				}
+			}
+		}
+    }
 
-     BAN_dismiss_merc_2 = {
-   	 icon = griffon_claw
-   	 visible  = {
-   		 OR = {
-   			 has_country_flag = BAN_merc_2_hired
-   		 }
-   	 }
-   	 ai_will_do = {
-   		 factor = 0
-   	 }
-   	 complete_effect = {
-   		 if = {
-   			 limit = {
-   				 has_country_flag = BAN_merc_2_hired
-   			 }
-   			 clr_country_flag = BAN_merc_2_hired
-   			 remove_decision = BAN_fire_merc_2
-   		 }
-   		 delete_unit_template_and_units = { division_template = "Sicameon Privateers" }
-   		 }
-   	 }
+	BAN_dismiss_merc_2 = {
+		icon = griffon_claw
+		visible  = {
+			OR = {
+				has_country_flag = BAN_merc_2_hired
+			}
+		}
+		ai_will_do = {
+			factor = 0
+		}
+		complete_effect = {
+			if = {
+				limit = {
+					has_country_flag = BAN_merc_2_hired
+				}
+				clr_country_flag = BAN_merc_2_hired
+				remove_decision = BAN_fire_merc_2
+			}
+			delete_unit_template_and_units = { division_template = "Sicameon Privateers" }
+		}
+	}
 	
 	BAN_hire_merc_3 = {
-   	 icon = rifles
-   	 available = {
-   		 hidden_trigger = {
-   			 check_variable  = {
-   				 var = loot
-   				 value = 5
-   				 compare = greater_than
-   			 }
-   		 }
-   	 }
-   	 custom_cost_trigger = {
-   		 check_variable  = {
-   			 var = loot
-   			 value = 5
-   			 compare = greater_than
-   		 }
-   	 }
-   	 custom_cost_text = decision_cost_6_loot
-   	 visible = {
-   		 has_country_flag = BAN_mercs_hired
-   		 NOT = { has_country_flag = BAN_merc_3_hired }
-   	 }
+		icon = rifles
+		visible = {
+			has_country_flag = BAN_mercs_hired
+			NOT = { has_country_flag = BAN_merc_3_hired }
+			NOT ={ has_country_flag = BAN_standardized_pay }
+		}
+		available = {
+			hidden_trigger = {
+				check_variable  = {
+					var = loot
+					value = 5
+					compare = greater_than
+				}
+			}
+		}
+		custom_cost_trigger = {
+			check_variable  = {
+				var = loot
+				value = 5
+				compare = greater_than
+			}
+		}
+		custom_cost_text = decision_cost_6_loot
+		visible = {
+		}
 
-   	 ai_will_do = {
-   		 modifier = {
-   			 factor = 0
-   			 has_war = no
-   		 }
-   		 modifier = {
-   			 factor = 80
-   			 enemies_strength_ratio > 0.6
-   			 has_war = yes
-   		 }
-   	 }
-   	 cost = 25
-   	 complete_effect = {
-   		 log = "[GetDateText]: [Root.GetName]: Decision BAN_hire_merc_3"
-   		 subtract_from_variable = {
-   			 var = loot
-   			 value = 5
-   		 }
-   		 custom_effect_tooltip = BAN_merc_3_name
-   		 hidden_effect = {
-   			 load_oob = "BAN_merc_3"
-   			 set_country_flag = BAN_merc_3_hired
-   			  activate_decision = BAN_fire_merc_3
-   		 }
-   	 }
-    }
+		ai_will_do = {
+			modifier = {
+				factor = 0
+				has_war = no
+			}
+			modifier = {
+				factor = 80
+				enemies_strength_ratio > 0.6
+				has_war = yes
+			}
+		}
+		cost = 25
+		complete_effect = {
+			log = "[GetDateText]: [Root.GetName]: Decision BAN_hire_merc_3"
+			subtract_from_variable = {
+				var = loot
+				value = 5
+			}
+			custom_effect_tooltip = BAN_merc_3_name
+			hidden_effect = {
+				load_oob = "BAN_merc_3"
+				set_country_flag = BAN_merc_3_hired
+				activate_decision = BAN_fire_merc_3
+			}
+		}
+	}
 
-    BAN_fire_merc_3 = {
-  	  icon = rifles
-  	  visible  = {
-  		  has_country_flag = BAN_merc_3_hired
-  	  }
-  	  days_remove = 120
-  	  cancel_if_not_visible = yes
-  	  remove_effect = {
+	BAN_fire_merc_3 = {
+		icon = rifles
+		visible  = {
+			has_country_flag = BAN_merc_3_hired
+		}
+		days_remove = 120
+		cancel_if_not_visible = yes
+		remove_effect = {
 
-  		  if = {
-  			  limit = {
-  				  check_variable = {
-               		 loot > 5
-           		 }
-  			  }
-  			  subtract_from_variable = {
-  				  var = loot
-  				  value = 6
-  			  }
-  			  activate_decision = BAN_fire_merc_3
-  		  }
-  		  else = {
-   				 delete_unit_template_and_units = { division_template = "Lushian Hussars" }
-  			     	 hidden_effect = {
-  				      clr_country_flag = BAN_merc_3_hired
-  				  }
-  			  }
-  		  }
-     }
+		if = {
+			limit = {
+				NOT ={
+					has_country_flag = BAN_standardized_pay
+				}
+				check_variable = {
+					loot > 5
+				}
+			}
+			subtract_from_variable = {
+				var = loot
+				value = 6
+			}
+			activate_decision = BAN_fire_merc_3
+		}
+		else_if = {
+			limit = {
+				has_country_flag = BAN_standardized_pay
+				check_variable = {
+					command_power > 59
+				}
+			}
+			add_command_power = -60
+			activate_decision = BAN_fire_merc_3
+		}
+		else = {
+				delete_unit_template_and_units = { division_template = "Lushian Hussars" }
+					hidden_effect = {
+					clr_country_flag = BAN_merc_3_hired
+				}
+			}
+		}
+	}
     
+	BAN_dismiss_merc_3 = {
+		icon = griffon_claw
+		visible  = {
+			OR = {
+				has_country_flag = BAN_merc_3_hired
+			}
+		}
+		ai_will_do = {
+			factor = 0
+		}
+		complete_effect = {
+			if = {
+				limit = {
+					has_country_flag = BAN_merc_3_hired
+				}
+				clr_country_flag = BAN_merc_3_hired
+				remove_decision = BAN_fire_merc_3
+			}
+			delete_unit_template_and_units = { division_template = "Lushian Hussars" }
+		}
+	}
 
-     BAN_dismiss_merc_3 = {
-   	 icon = griffon_claw
-   	 visible  = {
-   		 OR = {
-   			 has_country_flag = BAN_merc_3_hired
-   		 }
-   	 }
-   	 ai_will_do = {
-   		 factor = 0
-   	 }
-   	 complete_effect = {
-   		 if = {
-   			 limit = {
-   				 has_country_flag = BAN_merc_3_hired
-   			 }
-   			 clr_country_flag = BAN_merc_3_hired
-   			 remove_decision = BAN_fire_merc_3
-   		 }
-   		 delete_unit_template_and_units = { division_template = "Lushian Hussars" }
-   		 }
-   	 }
-	
+	BAN_hire_merc_4 = {
+		icon = rifles
+		visible = {
+			has_country_flag = BAN_mercs_hired
+			NOT = { has_country_flag = BAN_merc_4_hired }
+			NOT ={ has_country_flag = BAN_standardized_pay }
+		}
+		available = {
+			hidden_trigger = {
+				check_variable  = {
+					var = loot
+					value = 7
+					compare = greater_than
+				}
+			}
+		}
+		custom_cost_trigger = {
+			check_variable  = {
+				var = loot
+				value = 7
+				compare = greater_than
+			}
+		}
+		custom_cost_text = decision_cost_8_loot
 
-		BAN_hire_merc_4 = {
-   	 icon = rifles
-   	 available = {
-   		 hidden_trigger = {
-   			 check_variable  = {
-   				 var = loot
-   				 value = 7
-   				 compare = greater_than
-   			 }
-   		 }
-   	 }
-   	 custom_cost_trigger = {
-   		 check_variable  = {
-   			 var = loot
-   			 value = 7
-   			 compare = greater_than
-   		 }
-   	 }
-   	 custom_cost_text = decision_cost_8_loot
-   	 visible = {
-   		 has_country_flag = BAN_mercs_hired
-   		 NOT = { has_country_flag = BAN_merc_4_hired }
-   	 }
-
-   	 ai_will_do = {
-   		 modifier = {
-   			 factor = 0
-   			 has_war = no
-   		 }
-   		 modifier = {
-   			 factor = 80
-   			 enemies_strength_ratio > 0.6
-   			 has_war = yes
-   		 }
-   	 }
-   	 cost = 25
-   	 complete_effect = {
-   		 log = "[GetDateText]: [Root.GetName]: Decision BAN_hire_merc_4"
-   		 subtract_from_variable = {
-   			 var = loot
-   			 value = 8
-   		 }
-   		 custom_effect_tooltip = BAN_merc_4_name
-   		 hidden_effect = {
-   			 load_oob = "BAN_merc_4"
-   			 set_country_flag = BAN_merc_4_hired
-   			  activate_decision = BAN_fire_merc_4
-   		 }
-   	 }
-    }
+		ai_will_do = {
+			modifier = {
+				factor = 0
+				has_war = no
+			}
+			modifier = {
+				factor = 80
+				enemies_strength_ratio > 0.6
+				has_war = yes
+			}
+		}
+		cost = 25
+		complete_effect = {
+			log = "[GetDateText]: [Root.GetName]: Decision BAN_hire_merc_4"
+			subtract_from_variable = {
+				var = loot
+				value = 8
+			}
+			custom_effect_tooltip = BAN_merc_4_name
+			hidden_effect = {
+				load_oob = "BAN_merc_4"
+				set_country_flag = BAN_merc_4_hired
+				activate_decision = BAN_fire_merc_4
+			}
+		}
+	}
 
     BAN_fire_merc_4 = {
-  	  icon = rifles
-  	  visible  = {
-  		  has_country_flag = BAN_merc_4_hired
-  	  }
-  	  days_remove = 120
-  	  cancel_if_not_visible = yes
-  	  remove_effect = {
+		icon = rifles
+		visible  = {
+   			has_country_flag = BAN_merc_4_hired
+   	 	}
+		days_remove = 120
+		cancel_if_not_visible = yes
+		remove_effect = {
 
-  		  if = {
-  			  limit = {
-  				  check_variable = {
-               		 loot > 7
-           		 }
-  			  }
-  			  subtract_from_variable = {
-  				  var = loot
-  				  value = 8
-  			  }
-  			  activate_decision = BAN_fire_merc_4
-  		  }
-  		  else = {
-   				 delete_unit_template_and_units = { division_template = "Sons of Arcturius" }
-  			     	 hidden_effect = {
-  				      clr_country_flag = BAN_merc_4_hired
-  				  }
-  			  }
-  		  }
-     }
-    
+			if = {
+				limit = {
+					NOT ={
+						has_country_flag = BAN_standardized_pay
+					}
+					check_variable = {
+						loot > 7
+					}
+				}
+				subtract_from_variable = {
+					var = loot
+					value = 8
+				}
+				activate_decision = BAN_fire_merc_4
+			}
+			else_if = {
+				limit = {
+					has_country_flag = BAN_standardized_pay
+					check_variable = {
+						command_power > 79
+					}
+				}
+				add_command_power = -80
+				activate_decision = BAN_fire_merc_4
+			}
+			else = {
+				delete_unit_template_and_units = { division_template = "Sons of Arcturius" }
+					hidden_effect = {
+					clr_country_flag = BAN_merc_4_hired
+				}
+			}
+		}
+	}
 
-     BAN_dismiss_merc_4 = {
-   	 icon = griffon_claw
-   	 visible  = {
-   		 OR = {
-   			 has_country_flag = BAN_merc_4_hired
-   		 }
-   	 }
-   	 ai_will_do = {
-   		 factor = 0
-   	 }
-   	 complete_effect = {
-   		 if = {
-   			 limit = {
-   				 has_country_flag = BAN_merc_4_hired
-   			 }
-   			 clr_country_flag = BAN_merc_4_hired
-   			 remove_decision = BAN_fire_merc_4
-   		 }
-   		 delete_unit_template_and_units = { division_template = "Sons of Arcturius" }
-   		 }
-   	 }
+	BAN_dismiss_merc_4 = {
+		icon = griffon_claw
+		visible  = {
+			OR = {
+				has_country_flag = BAN_merc_4_hired
+			}
+		}
+		ai_will_do = {
+			factor = 0
+		}
+		complete_effect = {
+			if = {
+				limit = {
+					has_country_flag = BAN_merc_4_hired
+				}
+				clr_country_flag = BAN_merc_4_hired
+				remove_decision = BAN_fire_merc_4
+			}
+			delete_unit_template_and_units = { division_template = "Sons of Arcturius" }
+		}
+	}
+	#Mercs costing CP :
+	BAN_hire_standardized_merc_1 = {
+		icon = rifles
+		visible = {
+			has_country_flag = BAN_mercs_hired
+			NOT = { has_country_flag = BAN_merc_1_hired }
+			has_country_flag = BAN_standardized_pay
+		}
+		available = {
+			hidden_trigger = {
+				check_variable  = {
+					var = command_power
+					value = 20
+					compare = greater_than_or_equals
+				}
+			}
+		}
+		custom_cost_trigger = {
+			check_variable  = {
+				var = command_power
+				value = 20
+				compare = greater_than_or_equals
+			}
+		}
+		custom_cost_text = decision_cost_20_cp
 
+		ai_will_do = {
+			modifier = {
+				factor = 0
+				has_war = no
+			}
+			modifier = {
+				factor = 80
+				enemies_strength_ratio > 0.6
+				has_war = yes
+			}
+		}
+		cost = 25
+		complete_effect = {
+			log = "[GetDateText]: [Root.GetName]: Decision BAN_hire_standardized_merc_1"
+			add_command_power = -20
+			custom_effect_tooltip = BAN_merc_1_name
+			hidden_effect = { 
+				load_oob = "BAN_merc_1"
+				set_country_flag = BAN_merc_1_hired
+				activate_decision = BAN_fire_merc_1
+			}
+		}
+	}
 
+	BAN_hire_standardized_merc_2 = {
+		icon = rifles
+		visible = {
+			has_country_flag = BAN_mercs_hired
+			NOT = { has_country_flag = BAN_merc_2_hired }
+			has_country_flag = BAN_standardized_pay
+
+		}
+		available = {
+			hidden_trigger = {
+				check_variable  = {
+					var = command_power
+					value = 39
+					compare = greater_than
+				}
+			}
+		}
+		custom_cost_trigger = {
+			check_variable  = {
+				var = command_power
+				value = 39
+				compare = greater_than
+			}
+		}
+		custom_cost_text = decision_cost_CP_40
+
+		ai_will_do = {
+			modifier = {
+				factor = 0
+				has_war = no
+			}
+			modifier = {
+				factor = 80
+				enemies_strength_ratio > 0.6
+				has_war = yes
+			}
+		}
+		cost = 25
+		complete_effect = {
+			log = "[GetDateText]: [Root.GetName]: Decision BAN_hire_standardized_merc_2"
+			add_command_power = -40
+			custom_effect_tooltip = BAN_merc_2_name
+			hidden_effect = {
+				load_oob = "BAN_merc_2"
+				set_country_flag = BAN_merc_2_hired
+				activate_decision = BAN_fire_merc_2
+			}
+		}
+    }
+	
+	BAN_hire_standardized_merc_3 = {
+		icon = rifles
+		visible = {
+			has_country_flag = BAN_mercs_hired
+			NOT = { has_country_flag = BAN_merc_3_hired }
+			has_country_flag = BAN_standardized_pay
+
+		}
+		available = {
+			hidden_trigger = {
+				check_variable  = {
+					var = command_power
+					value = 59
+					compare = greater_than
+				}
+			}
+		}
+		custom_cost_trigger = {
+			check_variable  = {
+				var = command_power
+				value = 59
+				compare = greater_than
+			}
+		}
+		custom_cost_text = decision_cost_CP_60
+
+		ai_will_do = {
+			modifier = {
+				factor = 0
+				has_war = no
+			}
+			modifier = {
+				factor = 80
+				enemies_strength_ratio > 0.6
+				has_war = yes
+			}
+		}
+		cost = 25
+		complete_effect = {
+			log = "[GetDateText]: [Root.GetName]: Decision BAN_hire_standardized_merc_3"
+			add_command_power = -60
+			custom_effect_tooltip = BAN_merc_3_name
+			hidden_effect = {
+				load_oob = "BAN_merc_3"
+				set_country_flag = BAN_merc_3_hired
+				activate_decision = BAN_fire_merc_3
+			}
+		}
+	}
+
+	BAN_hire_standardized_merc_4 = {
+		icon = rifles
+		visible = {
+			has_country_flag = BAN_mercs_hired
+			NOT = { has_country_flag = BAN_hire_standardized_merc_4 }
+			has_country_flag = BAN_standardized_pay
+		}
+		available = {
+			hidden_trigger = {
+				check_variable  = {
+					var = command_power
+					value = 79
+					compare = greater_than
+				}
+			}
+		}
+		custom_cost_trigger = {
+			check_variable  = {
+				var = command_power
+				value = 79
+				compare = greater_than
+			}
+		}
+		custom_cost_text = decision_cost_CP_80
+		ai_will_do = {
+			modifier = {
+				factor = 0
+				has_war = no
+			}
+			modifier = {
+				factor = 80
+				enemies_strength_ratio > 0.6
+				has_war = yes
+			}
+		}
+		cost = 25
+		complete_effect = {
+			log = "[GetDateText]: [Root.GetName]: Decision BAN_hire_merc_4"
+			add_command_power = -80
+			custom_effect_tooltip = BAN_merc_4_name
+			hidden_effect = {
+				load_oob = "BAN_merc_4"
+				set_country_flag = BAN_merc_4_hired
+				activate_decision = BAN_fire_merc_4
+			}
+		}
+	}
 	
 
 	BAN_definitely_not_slaves = {
@@ -1297,6 +1548,17 @@ BAN_rework_debug = {
 					}
 				}
 				set_country_flag = BAN_rework_debug_i_hate_trees_blackrock_flag
+			}
+		}
+	}
+	BAN_debug_add_loot = {
+		icon = GFX_decision_griffon_bandits
+		#fire_only_once = yes
+		complete_effect = {
+			custom_effect_tooltip = BAN_add_1000_loot
+			add_to_variable = {
+				var = loot
+				value = 1000
 			}
 		}
 	}
