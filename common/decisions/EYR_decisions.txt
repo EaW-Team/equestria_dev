@@ -71,7 +71,7 @@ EYR_the_conflict = {
 		}
 	}
 	EYR_roman_repeatable = {
-		icon = knight_helm
+		icon = GFX_decision_generic_operation
 		cost = 20
 		days_re_enable = 1
 		days_remove = 30
@@ -457,6 +457,8 @@ EYR_the_conflict = {
 	}
 	EYR_raise_militia = {
 		icon = rifles
+		cost = 10
+		days_remove = 7
 		available = {
 			has_full_control_of_state = FROM
 		}
@@ -470,7 +472,6 @@ EYR_the_conflict = {
 				}
 			}
 		}
-		cost = 10
 		ai_will_do = {
 			base = 50
 			modifier = {
@@ -495,7 +496,6 @@ EYR_the_conflict = {
 				has_war = no
 			}
 		}
-		days_remove = 7
 		remove_effect = {
 			log = "[GetDateText]: [Root.GetName]: Decision remove EYR_raise_militia"
 			custom_effect_tooltip = ERI_raise_militia_tooltip
@@ -779,8 +779,8 @@ EYR_the_conflict = {
 		remove_effect = {
 			log = "[GetDateText]: [Root.GetName]: Decision ERI_roman_decision_3"
 			every_character = {
-			limit = {
-				is_unit_leader = yes
+				limit = {
+					is_unit_leader = yes
 					OR = {
 						has_trait = EYR_guard_commander
 						has_trait = EYR_guardsgriff
@@ -1563,7 +1563,7 @@ EYR_freya_postwar = {
 	}
 	EYR_freya_magicals = {
 		icon = GFX_decision_crystals
-		cost = 40
+		cost = 30
 		fire_only_once = yes
 		ai_will_do = {
 			base = 20
@@ -1623,7 +1623,10 @@ EYR_freya_postwar = {
 			base = 50
 			modifier = {
 				factor = 5
-				has_war = yes
+				OR = {
+					has_war = yes
+					num_divisions < 10
+				}
 			}
 		}
 		available = {
@@ -1653,10 +1656,14 @@ EYR_freya_postwar = {
 	}
 	EYR_freya_business_investment = {
 		icon = GFX_decision_gre_investment_decisions
-		cost = 25
+		cost = 10
 		fire_only_once = yes
 		ai_will_do = {
 			base = 60
+			modifier = {
+				factor = 2
+				num_of_civilian_factories < 15
+			}
 		}
 		available = {
 			FROM = {
@@ -1692,7 +1699,447 @@ EYR_freya_postwar = {
 }
 
 EYR_roman_postwar = {
+	EYR_roman_impressment = {
+		icon = griffon
+		cost = 75
+		days_re_enable = 360
+		days_remove = 140
+		ai_will_do = {
+			base = 50
+			modifier = {
+				factor = 3
+				has_manpower < 5000
+			}
+			modifier = {
+				factor = 0
+				has_stability < 0.35
+			}
+		}
+		available = {
+			has_stability > 0.25
+		}
+		modifier = {
+			weekly_manpower = 250
+			max_training = 0.25
+		}
+		visible = {
+			has_completed_focus = EYR_praise_the_advisor
+			has_country_flag = EYR_Roman_chosen
+		}
+		remove_effect = {
+			log = "[GetDateText]: [Root.GetName]: Decision remove EYR_roman_impressment"
+			add_stability = -0.05
+		}
+	}
+	EYR_roman_reservists = {
+		icon = rifles
+		cost = 50
+		days_re_enable = 150
+		days_remove = 14
+		ai_will_do = {
+			base = 60
+			modifier = {
+				factor = 3
+				surrender_progress > 0
+			}
+		}
+		available = {
+			has_war = yes
+		}
+		visible = {
+			has_completed_focus = EYR_praise_the_advisor
+			has_country_flag = EYR_Roman_chosen
+			NOT = { has_country_flag = EYR_deployed_reserves }
+		}
+		remove_effect = {
+			log = "[GetDateText]: [Root.GetName]: Decision remove EYR_roman_reservists"
+			custom_effect_tooltip = EYR_reservists_rise_up
+			hidden_effect = {
+				set_country_flag = EYR_deployed_reserves
+				division_template = {
+					name = "Verenian Guard Reserves"
+					division_names_group = EYR_GAR_01
+					is_locked = yes
+					regiments = {
+						militia = { x = 0 y = 0 }
+						militia = { x = 0 y = 1 }
+						militia = { x = 0 y = 2 }
+						militia = { x = 0 y = 3 }
+					}
+					priority = 0
+				}
+				every_core_state = {
+					create_unit = {
+						division = "division_template = \"Verenian Guard Reserves\" start_experience_factor = 0.3 start_equipment_factor = 0.8"
+						owner = EYR
+						count = 1
+						allow_spawning_on_enemy_provs = yes
+					}
+				}
+			}
+		}
+	}
+	EYR_disband_reservists = {
+		icon = rifles
+		cost = 5
+		ai_will_do = {
+			base = 0
+		}
+		available = {
+			has_war = no
+		}
+		visible = {
+			has_completed_focus = EYR_praise_the_advisor
+			has_country_flag = EYR_Roman_chosen
+			has_country_flag = EYR_deployed_reserves
+		}
+		complete_effect = {
+			log = "[GetDateText]: [Root.GetName]: Decision EYR_disband_reservists"
+			custom_effect_tooltip = EYR_reservists_disband
+			hidden_effect = {
+				clr_country_flag = EYR_deployed_reserves
+				delete_unit_template_and_units = {
+					division_template = "Verenian Guard Reserves"
+					disband = no
+				}
+			}
+		}
+	}
+	EYR_expand_herzogswerke = {
+		icon = GFX_decision_generic_industry
+		available = {
+			has_full_control_of_state = FROM
+			num_of_civilian_factories_available_for_projects > 0
+			hidden_trigger = {
+				has_manpower > 250
+				has_political_power > 25
+			}
+		}
+		visible = {
+			has_full_control_of_state = FROM
+			has_completed_focus = EYR_build_up_domestic_industry
+			has_country_flag = EYR_Roman_chosen
+			FROM = {
+				NOT = {
+					has_state_flag = EYR_core_office_established
+				}
+			}
+		}
+		modifier = {
+			civilian_factory_use = 1
+		}
+		custom_cost_trigger = {
+			has_manpower > 250
+			has_political_power > 25
+		}
 
+		custom_cost_text = decision_cost_pp_25_manpower_250
+
+		ai_will_do = {
+			base = 75
+		}
+		fire_only_once = yes
+
+		state_target = yes
+        targets = { 400 401 470 500 673 389 532 408 }
+
+		on_map_mode = map_only
+
+		cancel_trigger = {
+				NOT = {
+					has_full_control_of_state = FROM
+				}
+		}
+		days_remove = 30
+		complete_effect = {
+			log = "[GetDateText]: [Root.GetName]: Decision EYR_expand_herzogswerke"
+			FROM = {
+				add_extra_state_shared_building_slots = 1
+			}
+			hidden_effect = {
+				add_manpower = -250
+				add_political_power = -25
+			}
+		}
+		remove_effect = {
+			log = "[GetDateText]: [Root.GetName]: Decision remove EYR_expand_herzogswerke"
+			FROM = {
+				add_dynamic_modifier = {
+					modifier = EYR_herzogswerke_branch
+				}
+			}
+			hidden_effect = {
+				FROM = {
+				    set_state_flag = EYR_core_office_established
+				}
+			}
+		}
+	}
+	EYR_foreign_herzogswerke_office = {
+		icon = GFX_decision_ger_mefo_bills
+		available = {
+			num_of_civilian_factories_available_for_projects > 0
+			hidden_trigger = {
+				has_manpower > 250
+				has_political_power > 25
+			}
+		}
+		visible = {
+			has_full_control_of_state = FROM
+			has_completed_focus = EYR_build_up_domestic_industry
+			has_country_flag = EYR_Roman_chosen
+			FROM = {
+				NOT = {
+					has_state_flag = EYR_foreign_office_established
+					is_core_of = ROOT
+				}
+			}
+		}
+		modifier = {
+			civilian_factory_use = 1
+		}
+		custom_cost_trigger = {
+			has_manpower > 250
+			has_political_power > 25
+		}
+
+		custom_cost_text = decision_cost_pp_25_manpower_250
+
+		ai_will_do = {
+			base = 20
+		}
+		fire_only_once = yes
+
+		state_target = yes
+        targets = { 382 378 520 486 492 423 411 398 674 381 485 429 383 515 366 371 529 530 442 501 494 495 390 435 448 517 376 377 }
+
+		on_map_mode = map_and_decisions_view
+
+		cancel_trigger = {
+				NOT = {
+					has_full_control_of_state = FROM
+				}
+		}
+		days_remove = 30
+		complete_effect = {
+			log = "[GetDateText]: [Root.GetName]: Decision EYR_foreign_herzogswerke_office"
+			hidden_effect = {
+				add_manpower = -250
+				add_political_power = -25
+			}
+		}
+		remove_effect = {
+			log = "[GetDateText]: [Root.GetName]: Decision remove EYR_foreign_herzogswerke_office"
+			FROM = {
+				add_dynamic_modifier = {
+					modifier = EYR_herzogswerke_foreign_office
+				}
+			}
+			hidden_effect = {
+				FROM = {
+				    set_state_flag = EYR_foreign_office_established
+				}
+			}
+		}
+	}
+	EYR_roman_purchase_infantry_eq = {
+		icon = GFX_decision_generic_industry
+		cost = 35
+		days_re_enable = 30
+		ai_will_do = {
+			factor = 40
+		}
+		visible = {
+			has_completed_focus = EYR_foreign_investments
+			has_country_flag = EYR_Roman_chosen
+		}
+		complete_effect = {
+			log = "[GetDateText]: [Root.GetName]: Decision EYR_roman_purchase_infantry_eq"
+			add_equipment_to_stockpile = {
+				type = infantry_equipment
+				amount = 750
+				producer = GRI
+			}
+		}
+	}
+	EYR_roman_purchase_support_eq = {
+		icon = GFX_decision_generic_industry
+		cost = 50
+		days_re_enable = 30
+		ai_will_do = {
+			factor = 20
+		}
+		visible = {
+			has_completed_focus = EYR_foreign_investments
+			has_country_flag = EYR_Roman_chosen
+		}
+		complete_effect = {
+			log = "[GetDateText]: [Root.GetName]: Decision EYR_roman_purchase_support_eq"
+			add_equipment_to_stockpile = {
+				type = support_equipment
+				amount = 100
+				producer = TRD
+			}
+		}
+	}
+	EYR_roman_purchase_artillery_eq = {
+		icon = GFX_decision_ger_military_buildup
+		cost = 60
+		days_re_enable = 30
+		ai_will_do = {
+			factor = 30
+		}
+		visible = {
+			has_completed_focus = EYR_foreign_investments
+			has_country_flag = EYR_Roman_chosen
+		}
+		complete_effect = {
+			log = "[GetDateText]: [Root.GetName]: Decision EYR_roman_purchase_artillery_eq"
+			add_equipment_to_stockpile = {
+				type = artillery_equipment
+				amount = 125
+				producer = FEA
+			}
+		}
+	}
+	EYR_roman_purchase_anti_tank_eq = {
+		icon = GFX_decision_ger_military_buildup
+		cost = 60
+		days_re_enable = 30
+		ai_will_do = {
+			factor = 10
+		}
+		available = {
+			has_tech = interwar_antitank
+		}
+		visible = {
+			has_completed_focus = EYR_foreign_investments
+			has_country_flag = EYR_Roman_chosen
+		}
+		complete_effect = {
+			log = "[GetDateText]: [Root.GetName]: Decision EYR_roman_purchase_anti_tank_eq"
+			add_equipment_to_stockpile = {
+				type = anti_tank_equipment
+				amount = 75
+				producer = STW
+			}
+		}
+	}
+	EYR_roman_purchase_anti_air_eq = {
+		icon = GFX_decision_ger_military_buildup
+		cost = 60
+		days_re_enable = 30
+		ai_will_do = {
+			factor = 10
+		}
+		available = {
+			has_tech = interwar_antiair
+		}
+		visible = {
+			has_completed_focus = EYR_foreign_investments
+			has_country_flag = EYR_Roman_chosen
+		}
+		complete_effect = {
+			log = "[GetDateText]: [Root.GetName]: Decision EYR_roman_purchase_anti_air_eq"
+			add_equipment_to_stockpile = {
+				type = anti_air_equipment
+				amount = 75
+				producer = BRZ
+			}
+		}
+	}
+	EYR_roman_magicals = {
+		icon = GFX_decision_crystals
+		cost = 40
+		fire_only_once = yes
+		ai_will_do = {
+			base = 20
+		}
+		visible = {
+			has_completed_focus = EYR_advisor_doctrine
+			has_country_flag = EYR_Roman_chosen
+		}
+		complete_effect = {
+			log = "[GetDateText]: [Root.GetName]: Decision EYR_roman_magicals"
+			add_tech_bonus = {
+				name = infantry_weapons_bonus
+				bonus = 2.5
+				uses = 1
+				technology = magical_weapons
+				technology = magical_weapons1
+				technology = magical_weapons2
+				technology = magical_weapons3
+			}
+		}
+	}
+	EYR_roman_synthetics = {
+		icon = oil
+		cost = 75
+		fire_only_once = yes
+		days_remove = 60
+		ai_will_do = {
+			base = 50
+		}
+		visible = {
+			has_completed_focus = EYR_advisor_doctrine
+			has_country_flag = EYR_Roman_chosen
+		}
+		complete_effect = {
+			log = "[GetDateText]: [Root.GetName]: Decision EYR_roman_synthetics"
+			add_tech_bonus = {
+				name = synth_bonus
+				bonus = 1.50
+				uses = 1
+				category = synth_resources
+			}
+		}
+		remove_effect = {
+			log = "[GetDateText]: [Root.GetName]: Decision remove EYR_roman_synthetics"
+			modify_building_resources = {
+				building = arms_factory
+				resource = steel
+				amount = 1
+			}
+		}
+	}
+	EYR_roman_training = {
+		icon = GFX_decision_generic_army_support
+		fire_only_once = yes
+		days_remove = 30
+		ai_will_do = {
+			base = 100
+		}
+		custom_cost_trigger = {
+			check_variable = { var = command_power value = 30 compare = greater_than_or_equals }
+		}
+		custom_cost_text = raid_cost_CP_30
+		available = {
+			hidden_trigger = { command_power > 29 }
+		}
+		visible = {
+			has_completed_focus = EYR_imperial_styled_warfare
+			has_country_flag = EYR_Roman_chosen
+		}
+		complete_effect = {
+			log = "[GetDateText]: [Root.GetName]: Decision EYR_roman_training"
+			hidden_effect = {
+				add_command_power = -30
+			}
+		}
+		remove_effect = {
+			log = "[GetDateText]: [Root.GetName]: Decision remove EYR_roman_training"
+			every_character = {
+				limit = {
+					is_unit_leader = yes
+					OR = {
+						has_trait = EYR_guard_commander_postwar
+						has_trait = EYR_guardsgriff_postwar
+					}
+				}
+				add_max_trait = 1
+			}
+		}
+	}
 }
 
 EYR_verena_postwar = {
