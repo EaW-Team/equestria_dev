@@ -2051,3 +2051,170 @@ LCT_failed_demand_effect = {
 	divide_temp_variable = { temp_pentalty_value = -100 }
 	add_stability = temp_pentalty_value
 }
+
+LCT_HPE_balkanize = {
+	hidden_effect = {
+		#Step 1: Gather all occupied tags myself because for some reason the occupied_countries array doesn't have them all.
+		every_owned_state = {
+			limit = {
+				is_fully_controlled_by = ROOT
+			}
+			for_each_scope_loop = {
+				array = core_countries
+				if = {
+					limit = {
+						exists = no
+						NOT = {
+							is_in_array = { temp_countries_to_release = THIS }
+						}
+					}
+					ROOT = {
+						add_to_temp_array = {
+							array = temp_countries_to_release
+							value = PREV
+						}
+					}
+				}
+			}
+		}
+		#Step 2: Release all occupied tags as puppets
+		for_each_scope_loop = {
+			array = temp_countries_to_release
+			if = {
+				limit = {
+					exists = no
+				}
+				for_each_scope_loop = {
+					array = original_cores
+					if = {
+						limit = {
+							OR = {
+								owner = { tag = ROOT }
+								owner = { is_subject_of = ROOT }
+							}
+							LCT_HPE_is_balkanizable = yes
+						}
+						transfer_state_to = PREV
+					}
+				}
+				
+				#This code subdivides large countries into smaller ones. Was removed because power levels were too high. Add back in at your own risk.
+#				if = {
+#					limit = {
+#						num_of_controlled_states > 10
+#					}
+#					
+#					#Chop it up if it is
+#					set_temp_variable = { temp_sub_country_count = num_owned_states }
+#					divide_temp_variable = { temp_sub_country_count = 10 }
+#					round_temp_variable = temp_sub_country_count
+#					
+#					set_temp_variable = { temp_sub_country_state_count = num_owned_states }
+#					divide_temp_variable = { temp_sub_country_state_count = temp_sub_country_count }
+#					round_temp_variable = temp_sub_country_state_count
+#					
+#					set_temp_variable = { temp_while1_counter = 0 }
+#					while_loop_effect = {
+#						limit = {
+#							check_variable = { temp_sub_country_count > temp_while1_counter }
+#						}
+#						random_owned_state = {
+#							PREV = {
+#								set_temp_variable = { temp_sub_country_starting_state = PREV.id }
+#							}
+#						}
+#						
+#						#Create the dynamic country
+#						create_dynamic_country = {
+#							original_tag = THIS
+#							copy_tag = THIS
+#							transfer_state = var:temp_sub_country_starting_state
+#							
+#							set_temp_variable = { temp_while2_counter = 1 }
+#							while_loop_effect = {
+#								limit = {
+#									check_variable = { temp_sub_country_state_count > temp_while2_counter }
+#								}
+#								
+#								PREV = {
+#									random_owned_state = {
+#										limit = {
+#											any_neighbor_state = {
+#												owner = {
+#													tag = PREV.PREV.PREV.PREV
+#												}
+#											}
+#										}
+#										transfer_state_to = PREV.PREV
+#									}
+#								}
+#								
+#								add_to_temp_variable = { temp_while2_counter = 1 }
+#							}
+#							LCT_HPE_make_subject = yes
+#						}
+#						add_to_temp_variable = { temp_while1_counter = 1 }
+#					}
+#				}
+				
+				#Now we set them as a puppet and choose a name for it
+				LCT_HPE_make_subject = yes
+			}
+		}
+	}
+}
+
+LCT_HPE_make_subject = {
+	ROOT = {
+		set_autonomy = {
+			target = PREV
+			autonomous_state = autonomy_vassal
+			end_wars = yes
+			end_civil_wars = yes
+		}
+	}
+	set_politics = {
+		ruling_party = fascism
+		elections_allowed = no
+	}
+	LCT_HPE_choose_name = yes
+}
+
+LCT_HPE_choose_name = {
+	drop_cosmetic_tag = yes
+	fixed_random_seed = no
+	if = {
+		limit = {
+			num_of_controlled_states < 2
+		}
+		set_cosmetic_tag = LCT_HPE_free_city
+	}
+	else = {
+		random_list = {
+			10 = {
+				set_cosmetic_tag = LCT_HPE_generic1
+			}
+			10 = {
+				set_cosmetic_tag = LCT_HPE_generic2
+			}
+			10 = {
+				set_cosmetic_tag = LCT_HPE_generic3
+			}
+			10 = {
+				set_cosmetic_tag = LCT_HPE_generic4
+			}
+			10 = {
+				set_cosmetic_tag = LCT_HPE_generic5
+			}
+			10 = {
+				set_cosmetic_tag = LCT_HPE_generic6
+			}
+			10 = {
+				set_cosmetic_tag = LCT_HPE_generic7
+			}
+			10 = {
+				set_cosmetic_tag = LCT_HPE_generic8
+			}
+		}
+	}
+}
