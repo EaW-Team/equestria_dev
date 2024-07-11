@@ -314,7 +314,6 @@ LCT_clean_up_bill = {
 # Demands thingy #
 
 LCT_do_demand_random = {
-	#log = "[?LCT_active_demands_var]"
 	if = {
 		limit = {
 			check_variable = {
@@ -323,14 +322,171 @@ LCT_do_demand_random = {
 				compare = less_than
 			}
 		}
-		random = {
-			chance = 33
-			LCT_select_demand = yes
+		if = {
+			limit = {
+				NOT = { has_country_flag = LCT_formed_HPE }
+			}
+			random = {
+				chance = 33
+				LCT_select_demand = yes
+			}
+		}
+		else_if = {
+			limit = {
+				has_country_flag = LCT_formed_HPE
+				NOT = { has_country_flag = LCT_won_the_giga_war }
+				has_war = yes
+			}
+			random = {
+				chance = 33
+				LCT_select_gigawar_demand = yes
+			}
 		}
 	}
 	else = {
 		log = "Nothing"
 	}
+}
+
+LCT_select_gigawar_demand = {
+	
+	#Reset Chance To Happen Variables
+	set_variable = { LCT_fh_land_corridor = 0 }
+	set_variable = { LCT_st_war_strategy = 0 }
+	set_variable = { LCT_dd_manpower_request = 0 }
+	set_variable = { LCT_ss_artillery_request = 0 }
+	set_variable = { LCT_bm_factory_relocation = 0 }
+	
+	#Flaming Hot Land Corridor Demand
+	if = {
+		limit = {
+			NOT = {
+				has_country_flag = LCT_fh_land_corridor_demand_in_progress
+			}
+			OR = {
+				controls_state = 489
+				controls_state = 606
+				controls_state = 446
+				controls_state = 511
+				AND = {
+					511.owner = {
+						NOT = {
+							has_war_with = ROOT
+						}
+					}
+					controls_state = 446
+				}
+			}
+		}
+		set_variable = { LCT_fh_land_corridor = 10 }
+	}
+	
+	#Star Talent War Strategy Demand
+	if = {
+		limit = {
+			NOT = {
+				has_country_flag = LCT_st_war_strategy_demand_in_progress
+			}
+		}
+		random_controlled_state = {
+			limit = {
+				any_neighbor_state = {
+					owner = { has_war_with = ROOT }
+					check_variable = { state_population_k > 2000 }
+				}
+			}
+			random_neighbor_state = {
+				limit = {
+					owner = { has_war_with = ROOT }
+					check_variable = { state_population_k > 2000 }
+				}
+				
+				set_variable = { ROOT.LCT_war_target_state_var = THIS.id }
+				set_variable = { ROOT.LCT_st_war_strategy = 10 }
+			}
+		}
+	}
+	
+	#Daring Dream Manpower Demand
+	if = {
+		limit = {
+			NOT = {
+				has_country_flag = LCT_dd_manpower_request_demand_in_progress
+				has_country_flag = LCT_dd_manpower_request_demand_in_recent
+			}
+		}
+		set_variable = { LCT_dd_manpower_request = 10 }
+	}
+	
+	#Smoke Signal Artillery Demand
+	if = {
+		limit = {
+			NOT = {
+				has_country_flag = LCT_ss_artillery_request_demand_in_progress
+				has_country_flag = LCT_ss_artillery_request_demand_in_recent
+			}
+		}
+		set_variable = { LCT_ss_artillery_request = 10 }
+	}
+	
+	#Big Money Factory Relocation Demand
+	if = {
+		limit = {
+			NOT = {
+				has_country_flag = LCT_bm_factory_relocation_demand_in_progress
+			}
+		}
+		random_controlled_state = {
+			limit = {
+				NOT = { is_core_of = ROOT }
+				arms_factory > 3
+				industrial_complex > 3
+			}
+		}
+		set_variable = { LCT_bm_factory_relocation = 10 }
+	}
+	
+	log = "[?LCT_fh_land_corridor]"
+	log = "[?LCT_st_war_strategy]"
+	log = "[?LCT_dd_manpower_request]"
+	log = "[?LCT_ss_artillery_request]"
+	log = "[?LCT_bm_factory_relocation]"
+	
+	#Random Mission List
+	random_list = {
+		LCT_fh_land_corridor = {
+			#country_event = {
+			#	id = LCT_six_lords_demands.1
+			#	days = 5
+			#	random_hours = 24
+			#	random_days = 13
+			#}
+			#set_country_flag = LCT_construction_demand_in_progress
+			#add_to_variable = { LCT_active_demands_var = 1 }
+			log = "Land corridor"
+		}
+		LCT_st_war_strategy = {
+			#country_event = {
+			#	id = LCT_six_lords_demands.1
+			#	days = 5
+			#	random_hours = 24
+			#	random_days = 13
+			#}
+			#set_country_flag = LCT_construction_demand_in_progress
+			#add_to_variable = { LCT_active_demands_var = 1 }
+			log = "ST take city: [?LCT_war_target_state_var.GetName]"
+		}
+		LCT_dd_manpower_request = {
+		
+		}
+		LCT_ss_artillery_request = {
+		
+		}
+		LCT_bm_factory_relocation = {
+		
+		}
+	}
+	
 }
 
 LCT_select_demand = {
@@ -423,9 +579,8 @@ LCT_select_demand = {
 					has_war_with = ROOT
 					has_government = communism
 					tag = BAR
-					tag = NTR
+					#tag = NTR
 				}
-				is_zebrican_continent_country = no
 			}
 			set_variable = { ROOT.LCT_diplomacy_target_var = THIS.id }
 			set_variable = { ROOT.LCT_diplomacy_chance_var = 10 }
@@ -484,27 +639,49 @@ LCT_select_demand = {
 	}
 	
 	#War strategy
-	random_state = {
+	#random_state = {
+	#	limit = {
+	#		any_neighbor_state = {
+	#			NOT = {
+	#				is_controlled_by = LCT
+	#			}
+	#			any_neighbor_state = {
+	#				is_controlled_by = LCT
+	#			}
+	#		}
+	#		controller = {
+	#			has_war_with = LCT
+	#		}
+	#		NOT = {
+	#			LCT = {
+	#				has_country_flag = LCT_strategy_demand_in_progress
+	#			}
+	#		}
+	#	}
+	#	set_variable = { ROOT.LCT_war_strategy_chance_var = 10 }
+	#	set_variable = { ROOT.LCT_war_target_state_var = THIS.id }
+	#}
+	if = {
 		limit = {
-			any_neighbor_state = {
-				NOT = {
-					is_controlled_by = LCT
-				}
-				any_neighbor_state = {
-					is_controlled_by = LCT
-				}
-			}
-			controller = {
-				has_war_with = LCT
-			}
 			NOT = {
-				LCT = {
-					has_country_flag = LCT_strategy_demand_in_progress
-				}
+				has_country_flag = LCT_strategy_demand_in_progress
 			}
 		}
-		set_variable = { ROOT.LCT_war_strategy_chance_var = 10 }
-		set_variable = { ROOT.LCT_war_target_state_var = THIS.id }
+		random_controlled_state = {
+			limit = {
+				any_neighbor_state = {
+					owner = { has_war_with = ROOT }
+				}
+			}
+			random_neighbor_state = {
+				limit = {
+					owner = { has_war_with = ROOT }
+				}
+				
+				set_variable = { ROOT.LCT_war_target_state_var = THIS.id }
+				set_variable = { ROOT.LCT_war_strategy_chance_var = 10 }
+			}
+		}
 	}
 	
 	#log = "New Factories: [?num_new_factories]"
