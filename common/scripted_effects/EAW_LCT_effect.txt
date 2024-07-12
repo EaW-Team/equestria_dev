@@ -369,12 +369,14 @@ LCT_select_gigawar_demand = {
 				controls_state = 446
 				controls_state = 511
 				AND = {
-					511.owner = {
+					var:511.owner = {
 						NOT = {
 							has_war_with = ROOT
 						}
 					}
-					controls_state = 446
+					DOF = {
+						controls_state = 446
+					}
 				}
 			}
 		}
@@ -452,17 +454,45 @@ LCT_select_gigawar_demand = {
 	log = "[?LCT_ss_artillery_request]"
 	log = "[?LCT_bm_factory_relocation]"
 	
+	#set_variable = { LCT_fh_land_corridor = 0 }
+	set_variable = { LCT_st_war_strategy = 0 }
+	set_variable = { LCT_dd_manpower_request = 0 }
+	set_variable = { LCT_ss_artillery_request = 0 }
+	set_variable = { LCT_bm_factory_relocation = 0 }
+	
 	#Random Mission List
 	random_list = {
 		LCT_fh_land_corridor = {
-			#country_event = {
-			#	id = LCT_six_lords_demands.1
-			#	days = 5
-			#	random_hours = 24
-			#	random_days = 13
-			#}
-			#set_country_flag = LCT_construction_demand_in_progress
-			#add_to_variable = { LCT_active_demands_var = 1 }
+			if = {
+				limit = {
+					DOF = {
+						controls_state = 489
+						controls_state = 606
+						controls_state = 446
+					}
+					NOT = {
+						var:511.owner = {
+							has_war_with = ROOT
+						}
+					}
+				}
+				country_event = { #Fire Asterion war event
+					id = LCT_six_lords_demands.15
+					days = 5
+					random_hours = 24
+					random_days = 13
+				}
+			}
+			else = {
+				country_event = { #Fire normal land demand event
+					id = LCT_six_lords_demands.16
+					days = 5
+					random_hours = 24
+					random_days = 13
+				}
+			}
+			set_country_flag = LCT_fh_land_corridor_demand_in_progress
+			add_to_variable = { LCT_active_demands_var = 1 }
 			log = "Land corridor"
 		}
 		LCT_st_war_strategy = {
@@ -2359,7 +2389,6 @@ LCT_HPE_make_subject = {
 
 LCT_HPE_choose_name = {
 	drop_cosmetic_tag = yes
-	fixed_random_seed = no
 	if = {
 		limit = {
 			num_of_controlled_states < 2
@@ -2682,5 +2711,94 @@ LCT_HPE_setup_herzland_puppets = {
 			end_wars = yes
 			end_civil_wars = yes
 		}
+	}
+}
+
+#Makes entire HPE declare war on current scope
+LCT_HPE_declare_war_on_THIS = {
+	custom_effect_tooltip = LCT_HPE_war_declaration_effect_tt
+	hidden_effect = {
+		LCT = {
+			declare_war_on = {
+				type = annex_everything
+				target = PREV
+			}
+			every_subject_country = {
+				declare_war_on = {
+					type = annex_everything
+					target = PREV.PREV
+				}
+			}
+		}
+	}
+}
+
+#Makes current scope declare war on entire HPE
+LCT_declare_war_on_HPE = {
+	custom_effect_tooltip = LCT_declare_war_on_HPE_effect_tt
+	hidden_effect = {
+		declare_war_on = {
+			type = annex_everything
+			target = LCT
+		}
+		LCT = {
+			every_subject_country = {
+				ROOT = {
+					declare_war_on = {
+						type = annex_everything
+						target = PREV
+					}
+				}
+			}
+		}
+	}
+}
+
+LCT_flaming_hot_demand_reward = {
+	if = {
+		limit = {
+			has_idea = LCT_flaming_hot_reward_idea1
+		}
+		swap_ideas = {
+			remove_idea = LCT_flaming_hot_reward_idea1
+			add_idea = LCT_flaming_hot_reward_idea2
+		}
+	}
+	else_if = {
+		limit = {
+			has_idea = LCT_flaming_hot_reward_idea2
+		}
+		swap_ideas = {
+			remove_idea = LCT_flaming_hot_reward_idea2
+			add_idea = LCT_flaming_hot_reward_idea3
+		}
+	}
+	else_if = {
+		limit = {
+			has_idea = LCT_flaming_hot_reward_idea3
+		}
+		swap_ideas = {
+			remove_idea = LCT_flaming_hot_reward_idea3
+			add_idea = LCT_flaming_hot_reward_idea4
+		}
+	}
+	else_if = {
+		limit = {
+			has_idea = LCT_flaming_hot_reward_idea4
+		}
+		swap_ideas = {
+			remove_idea = LCT_flaming_hot_reward_idea4
+			add_idea = LCT_flaming_hot_reward_idea5
+		}
+	}
+	else_if = {
+		limit = {
+			has_idea = LCT_flaming_hot_reward_idea5
+		}
+		add_political_power = 50
+		custom_effect_tooltip = LCT_flaming_hot_happy_tt
+	}
+	else = {
+		add_ideas = LCT_flaming_hot_reward_idea1
 	}
 }
