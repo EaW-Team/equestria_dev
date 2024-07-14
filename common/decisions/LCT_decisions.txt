@@ -1303,6 +1303,361 @@ LCT_six_lords_missions = {
 		}
 	}
 	
+	#Decision to apply modifier while moving factories
+	LCT_big_money_factory_relocation_modifier_demand = {
+
+		icon = generic_decision
+
+		allowed = {
+			tag = LCT
+		}
+		
+		visible = {
+			always = no
+		}
+		
+		available = {
+			always = no
+		}
+		
+		days_remove = 90
+		fire_only_once = no
+		
+		cancel_trigger = {
+			NOT = {
+				var:LCT_bm_factory_relocation_target = {
+					is_fully_controlled_by = ROOT
+				}
+			}
+			has_war = yes
+		}
+		
+		cancel_effect = {
+			subtract_from_variable = { LCT_active_demands_var = 1 }
+			subtract_from_variable = { LCT_six_lords_active_missions = 1 }
+			clr_country_flag = LCT_bm_factory_relocation_demand_in_progress
+		}
+		
+		modifier = {
+			civilian_factory_use = 3
+		}
+		
+		remove_effect = {
+			add_to_variable = { LCT_six_lords_successful_missions = 1 }
+			subtract_from_variable = { LCT_active_demands_var = 1 }
+			subtract_from_variable = { LCT_six_lords_active_missions = 1 }
+			clr_country_flag = LCT_bm_factory_relocation_demand_in_progress
+			add_manpower = 5000
+			var:LCT_bm_factory_relocation_target = {
+				remove_building = {
+					type = industrial_complex
+					level = 2
+				}
+				remove_building = {
+					type = arms_factory
+					level = 2
+				}
+			}
+			HIZ = {
+				random_core_state = {
+					add_extra_state_shared_building_slots = 3
+					add_building_construction = {
+						type = industrial_complex
+						level = 2
+						instant_build = yes
+					}
+					add_building_construction = {
+						type = arms_factory
+						level = 1
+						instant_build = yes
+					}
+				}
+			}
+			random_core_state = {
+				add_extra_state_shared_building_slots = 1
+				add_building_construction = {
+					type = arms_factory
+					level = 1
+					instant_build = yes
+				}
+			}
+		}
+	}
+	
+	#Big Money factory relocation demand
+	LCT_big_money_factory_relocation_demand = {
+
+		icon = generic_decision
+
+		allowed = {
+			always = no
+		}
+		
+		visible = {
+			always = no
+		}
+		
+		available = {
+			num_of_civilian_factories_available_for_projects > 2
+		}
+		
+		days_mission_timeout = 120
+		is_good = no
+		
+		custom_cost_trigger = {
+			has_manpower > 4999
+			has_political_power > 49
+		}
+		
+		custom_cost_text = decision_cost_50_pp_manpower_5000
+		
+		fire_only_once = no
+		selectable_mission = yes
+		
+		cancel_trigger = {
+			NOT = {
+				has_war = yes
+				var:LCT_bm_factory_relocation_target = {
+					is_fully_controlled_by = ROOT
+				}
+			}
+		}
+		
+		cancel_effect = {
+			subtract_from_variable = { LCT_active_demands_var = 1 }
+			subtract_from_variable = { LCT_six_lords_active_missions = 1 }
+			clr_country_flag = LCT_bm_factory_relocation_demand_in_progress
+		}
+
+		complete_effect = {
+			LCT_HPE_decrease_tension_one = yes
+			activate_decision = LCT_big_money_factory_relocation_modifier_demand
+			hidden_effect = {
+				add_manpower = -5000
+				add_political_power = -50
+			}
+		}
+		timeout_effect = {
+			add_to_variable = { LCT_six_lords_failed_missions = 1 }
+			subtract_from_variable = { LCT_active_demands_var = 1 }
+			subtract_from_variable = { LCT_six_lords_active_missions = 1 }
+			clr_country_flag = LCT_ss_artillery_request_demand_in_progress
+			set_country_flag = {
+				flag = LCT_ss_artillery_request_demand_in_progress
+				days = 90
+				value = 1
+			}
+			LCT_HPE_increase_tension_one = yes
+		}
+	}
+	
+	#Smoke Signal artillery demand
+	LCT_smoke_signal_artillery_demand = {
+
+		icon = generic_decision
+
+		allowed = {
+			always = no
+		}
+		
+		visible = {
+			always = no
+		}
+		
+		available = {
+			always = yes
+		}
+		
+		days_mission_timeout = 180
+		is_good = no
+		
+		custom_cost_trigger = {
+			has_equipment = {
+				artillery_equipment > 999
+			}
+		}
+		
+		custom_cost_text = decision_cost_1000_artillery
+		
+		fire_only_once = no
+		selectable_mission = yes
+		
+		cancel_trigger = {
+			has_war = no
+		}
+		
+		cancel_effect = {
+			subtract_from_variable = { LCT_active_demands_var = 1 }
+			subtract_from_variable = { LCT_six_lords_active_missions = 1 }
+			clr_country_flag = LCT_ss_artillery_request_demand_in_progress
+		}
+
+		complete_effect = {
+			add_to_variable = { LCT_six_lords_successful_missions = 1 }
+			subtract_from_variable = { LCT_active_demands_var = 1 }
+			subtract_from_variable = { LCT_six_lords_active_missions = 1 }
+			clr_country_flag = LCT_ss_artillery_request_demand_in_progress
+			set_country_flag = {
+				flag = LCT_ss_artillery_request_demand_in_progress
+				days = 90
+				value = 1
+			}
+			custom_effect_tooltip = LCT_smoke_signal_artillery_barrage_tt
+			hidden_effect = {
+				add_equipment_to_stockpile = {
+					type = artillery_equipment
+					amount = -1000
+					producer = LCT
+				}
+				add_timed_idea = {
+					idea = LCT_rolling_thunder
+					days = 90
+				}
+				every_subject_country = {
+					add_timed_idea = {
+						idea = LCT_rolling_thunder
+						days = 90
+					}
+				}
+			}
+			LCT_HPE_decrease_tension_one = yes
+		}
+		timeout_effect = {
+			add_to_variable = { LCT_six_lords_failed_missions = 1 }
+			subtract_from_variable = { LCT_active_demands_var = 1 }
+			subtract_from_variable = { LCT_six_lords_active_missions = 1 }
+			clr_country_flag = LCT_ss_artillery_request_demand_in_progress
+			set_country_flag = {
+				flag = LCT_ss_artillery_request_demand_in_progress
+				days = 90
+				value = 1
+			}
+			LCT_HPE_increase_tension_one = yes
+		}
+	}
+	
+	#Daring Dream manpower demand
+	LCT_daring_dream_manpower_demand = {
+
+		icon = generic_decision
+
+		allowed = {
+			always = no
+		}
+		
+		visible = {
+			always = no
+		}
+		
+		available = {
+			always = yes
+		}
+		
+		days_mission_timeout = 120
+		is_good = no
+		
+		custom_cost_trigger = {
+			has_manpower > 14999
+			has_equipment = {
+				infantry_equipment > 1249
+			}
+			has_equipment = {
+				artillery_equipment > 179
+			}
+			has_equipment = {
+				support_equipment > 59
+			}
+		}
+		
+		custom_cost_text = decision_cost_15000_manpower_1250_guns_180_artillery_60_support
+		
+		fire_only_once = no
+		selectable_mission = yes
+		
+		cancel_trigger = {
+			has_war = no
+		}
+		
+		cancel_effect = {
+			subtract_from_variable = { LCT_active_demands_var = 1 }
+			subtract_from_variable = { LCT_six_lords_active_missions = 1 }
+			clr_country_flag = LCT_dd_manpower_request_demand_in_progress
+		}
+
+		complete_effect = {
+			add_to_variable = { LCT_six_lords_successful_missions = 1 }
+			subtract_from_variable = { LCT_active_demands_var = 1 }
+			subtract_from_variable = { LCT_six_lords_active_missions = 1 }
+			clr_country_flag = LCT_dd_manpower_request_demand_in_progress
+			custom_effect_tooltip = LCT_daring_dream_division_tt
+			hidden_effect = {
+				add_manpower = -15000
+				add_equipment_to_stockpile = {
+					type = infantry_equipment
+					amount = -1250
+					producer = LCT
+				}
+				add_equipment_to_stockpile = {
+					type = artillery_equipment
+					amount = -180
+					producer = LCT
+				}
+				add_equipment_to_stockpile = {
+					type = support_equipment
+					amount = -60
+					producer = LCT
+				}
+				NOF = {
+					if = {
+						limit = { 
+							NOT = { 
+								has_template = "Shock Division"
+							}
+						}
+						division_template = {
+							name = "Shock Division"
+							is_locked = no
+							regiments = {
+								infantry = { x = 0 y = 0 }
+								infantry = { x = 0 y = 1 }
+								infantry = { x = 0 y = 2 }
+								infantry = { x = 1 y = 0 }
+								infantry = { x = 1 y = 1 }
+								infantry = { x = 1 y = 2 }
+								infantry = { x = 2 y = 0 }
+								infantry = { x = 2 y = 1 }
+								artillery_brigade = { x = 3 y = 0 }
+								artillery_brigade = { x = 3 y = 1 }
+								artillery_brigade = { x = 3 y = 2 }
+							}
+							support = {
+								artillery = { x = 0 y = 0 }
+								engineer = { x = 0 y = 1 }
+								recon = { x = 0 y = 2 }
+							}
+							template_counter = 28
+						}
+					}
+					capital_scope = {
+						create_unit = {
+							division = "name = \"Shock Division\" division_template = \"Shock Division\" start_experience_factor = 0.2 start_equipment_factor = 1.0"
+							owner = PREV
+							count = 3
+						}
+					}
+				}
+			}
+			LCT_HPE_decrease_tension_one = yes
+		}
+		timeout_effect = {
+			add_to_variable = { LCT_six_lords_failed_missions = 1 }
+			subtract_from_variable = { LCT_active_demands_var = 1 }
+			subtract_from_variable = { LCT_six_lords_active_missions = 1 }
+			clr_country_flag = LCT_dd_manpower_request_demand_in_progress
+			LCT_HPE_increase_tension_one = yes
+		}
+	}
+	
 	#Star Talent take city strategy
 	LCT_star_talent_war_strategy_demand = {
 
@@ -1324,10 +1679,21 @@ LCT_six_lords_missions = {
 		is_good = no
 		
 		fire_only_once = no
+		
+		cancel_trigger = {
+			has_war = no
+		}
+		
+		cancel_effect = {
+			subtract_from_variable = { LCT_active_demands_var = 1 }
+			subtract_from_variable = { LCT_six_lords_active_missions = 1 }
+			clr_country_flag = LCT_st_war_strategy_demand_in_progress
+		}
 
 		complete_effect = {
 			add_to_variable = { LCT_six_lords_successful_missions = 1 }
 			subtract_from_variable = { LCT_active_demands_var = 1 }
+			subtract_from_variable = { LCT_six_lords_active_missions = 1 }
 			clr_country_flag = LCT_st_war_strategy_demand_in_progress
 			set_country_flag = {
 				flag = LCT_st_war_strategy_demand_in_progress
@@ -1350,6 +1716,7 @@ LCT_six_lords_missions = {
 		timeout_effect = {
 			add_to_variable = { LCT_six_lords_failed_missions = 1 }
 			subtract_from_variable = { LCT_active_demands_var = 1 }
+			subtract_from_variable = { LCT_six_lords_active_missions = 1 }
 			clr_country_flag = LCT_st_war_strategy_demand_in_progress
 			set_country_flag = {
 				flag = LCT_st_war_strategy_demand_in_progress
@@ -1398,16 +1765,19 @@ LCT_six_lords_missions = {
 		cancel_trigger = {
 			NOT = {
 				controls_state = var:LCT_fh_state_target
+				has_war = yes
 			}
 		}
 		
 		cancel_effect = {
 			subtract_from_variable = { LCT_active_demands_var = 1 }
+			subtract_from_variable = { LCT_six_lords_active_missions = 1 }
 			clr_country_flag = LCT_fh_land_corridor_demand_in_progress
 		}
 
 		complete_effect = {
 			add_to_variable = { LCT_six_lords_successful_missions = 1 }
+			subtract_from_variable = { LCT_six_lords_active_missions = 1 }
 			subtract_from_variable = { LCT_active_demands_var = 1 }
 			clr_country_flag = LCT_fh_land_corridor_demand_in_progress
 			add_state_claim = LCT_fh_state_target
@@ -1432,6 +1802,7 @@ LCT_six_lords_missions = {
 		timeout_effect = {
 			add_to_variable = { LCT_six_lords_failed_missions = 1 }
 			subtract_from_variable = { LCT_active_demands_var = 1 }
+			subtract_from_variable = { LCT_six_lords_active_missions = 1 }
 			clr_country_flag = LCT_fh_land_corridor_demand_in_progress
 			LCT_HPE_increase_tension_one = yes
 		}
@@ -1467,12 +1838,14 @@ LCT_six_lords_missions = {
 		
 		cancel_effect = {
 			subtract_from_variable = { LCT_active_demands_var = 1 }
+			subtract_from_variable = { LCT_six_lords_active_missions = 1 }
 			clr_country_flag = LCT_fh_land_corridor_demand_in_progress
 		}
 
 		complete_effect = {
 			add_to_variable = { LCT_six_lords_successful_missions = 1 }
 			subtract_from_variable = { LCT_active_demands_var = 1 }
+			subtract_from_variable = { LCT_six_lords_active_missions = 1 }
 			clr_country_flag = LCT_fh_land_corridor_demand_in_progress
 			var:511.owner = {
 				LCT_HPE_declare_war_on_THIS = yes
@@ -1483,6 +1856,7 @@ LCT_six_lords_missions = {
 		timeout_effect = {
 			add_to_variable = { LCT_six_lords_failed_missions = 1 }
 			subtract_from_variable = { LCT_active_demands_var = 1 }
+			subtract_from_variable = { LCT_six_lords_active_missions = 1 }
 			clr_country_flag = LCT_fh_land_corridor_demand_in_progress
 			LCT_HPE_increase_tension_one = yes
 		}
@@ -2648,11 +3022,25 @@ debug_decisions = {
 			always = yes
 		}
 		
+		modifier = {
+			civilian_factory_use = 3
+		}
+		
+		remove_effect = {
+			add_to_variable = { LCT_six_lords_successful_missions = 1 }
+			subtract_from_variable = { LCT_active_demands_var = 1 }
+			subtract_from_variable = { LCT_six_lords_active_missions = 1 }
+			clr_country_flag = LCT_bm_factory_relocation_demand_in_progress
+			add_manpower = 5000
+			LCT_HPE_decrease_tension_one = yes
+		}
+		
+		days_remove = 90
+		
 		fire_only_once = no
 		fixed_random_seed = no
 		
 		complete_effect = {
-			LCT_HPE_decrease_tension_one = yes
 		}
 	}
 	LCT_start_giga_war = {
