@@ -62,18 +62,24 @@ CTH_MNZ_civil_war_decisions = {
 CTH_MZN_the_blance_of_liberty_and_democracy = {
 	MZN_SCALE_situation_change = {
 
+	visible = {
+		has_country_flag = MZN_cabinet_formed
+	}
+
 	available = {
 			always = no
 		}
 		activation = {
-			has_country_flag = MZN_blance_visible
+			has_completed_focus = CTH_MZO_la_silla_del_aguila
 		}
-		selectable_mission = yes
+		selectable_mission = no
 		days_mission_timeout = 62
 		is_good = yes
 		days_mission_timeout = 30
 		timeout_effect = {
-			activate_mission = MZN_SCALE_situation_change
+			hidden_effect = {
+				activate_mission = MZN_SCALE_situation_change
+			}
 			MZN_democratic_stability_decrease_corruption = yes
 			MZN_group_of_three_active = yes
 			MZN_constitution_amendment_check = yes
@@ -82,14 +88,718 @@ CTH_MZN_the_blance_of_liberty_and_democracy = {
 		}
 	}
 
-	MZN_TEST_ONE = {
-		complete_effect = {
-			MZN_democratic_stability_decrease_corruption = yes
-			MZN_group_of_three_active = yes
-			MZN_constitution_amendment_check = yes
-			MZN_ACTS_CHECK = yes
-			MZN_SCALE_CKECK = yes
+	MZN_CEDCC_CHECK = {
+
+	visible = {
+		has_completed_focus = CTH_MZO_CEDCC
+	}
+	available = {
+			always = no
+		}
+	activation = {
+		has_completed_focus = CTH_MZO_CEDCC
+	}
+		selectable_mission = no
+		days_mission_timeout = 62
+		is_good = yes
+		days_mission_timeout = 30
+		timeout_effect = {
+			hidden_effect = {
+				activate_mission = MZN_CEDCC_CHECK
+			}
+			MZN_CEDCC_CHECK = YES
+			if = {
+				limit = {
+					has_country_flag = CTH_MZN_output_resource_flag
+				}
+				MZN_recource_output_check = yes
+			}
 		}
 	}
+
+	MZN_SCALE_HIDE_RESOURCE_TRADE_DECISIONS = {
+		#icon = 
+		visible = {
+			has_country_flag = CTH_MZN_output_resource_flag
+		}
+
+		cost = 0
+
+		complete_effect = {
+			if = {
+				limit = {
+					has_country_flag = MZN_RESOURCE_TRADE_DECISIONS_HIDE
+				}
+				clr_country_flag = MZN_RESOURCE_TRADE_DECISIONS_HIDE
+			}
+
+			else = {
+					set_country_flag = MZN_RESOURCE_TRADE_DECISIONS_HIDE
+				}
+			}
+
+	}
+
+	MZN_SCALE_SHOW_HIDE_ECO_DECISIONS = {
+		icon = GFX_CTH_MZN_TEXTICON_Index_eco_freedom_texticon
+		allowed = {
+            original_tag = CTH
+		}
+		visible = {
+			has_completed_focus = CTH_MZO_deep_into_south_plain
+		}
+		available = {
+			
+		}
+
+		complete_effect = {
+			if = {
+				limit = {
+					has_country_flag = MZN_SCALE_HIDE_ECO_DECISIONS
+				}
+				clr_country_flag = MZN_SCALE_HIDE_ECO_DECISIONS
+			}
+
+			else = {
+					set_country_flag = MZN_SCALE_HIDE_ECO_DECISIONS
+				}
+			}
+		}
+
+
+##trade
+
+MZN_RESOURCE_TRADE_DECISIONS = {
+		#icon = 
+		visible = {
+			and = {
+				has_country_flag = CTH_MZN_output_resource_flag
+				not = {
+					has_country_flag = MZN_RESOURCE_TRADE_DECISIONS_HIDE
+				}
+			}
+		}
+
+		target_array = neighbors
+		target_trigger = {
+			FROM = {
+				is_neighbor_of = ROOT
+				NOT = {
+					has_country_flag = MZN_has_traded
+				}
+			}
+		}
+
+		cost = 45
+
+		fire_only_once = no
+
+		complete_effect = {
+			FROM = {
+				add_political_power = 25
+				add_stability = 0.05
+				set_country_flag = MZN_has_traded
+			}
+			ROOT = {
+				add_stability = -0.02
+				add_to_variable = {
+					var = MZN_output_index
+					value = 1
+				}
+			custom_effect_tooltip = MZN_RESOURCE_TRADE_DECISIONS_tt
+			}
+		}
+}
+
+##
+##ECO DECISIONS
+##
+	MZN_SCALE_eco_policy_shift = {
+		icon = GFX_CTH_MZN_TEXTICON_Index_eco_freedom_texticon
+		visible = {
+			AND = {
+					has_completed_focus = CTH_MZO_deep_into_south_plain
+					not = {
+						 has_country_flag = MZN_SCALE_HIDE_ECO_DECISIONS
+					}
+				   
+			}
+		}
+		cost = 20
+		days_remove = 20
+		days_re_enable = 30
+
+		remove_effect  = {
+			country_event = {
+				id = colthage_monzano_post_cw_eco.12
+			}
+		}
+	}
+
+MZN_dam_building = {
+	
+	visible = {
+		and = {
+			CTH = {
+				owns_state = 1094
+				owns_state = 1095
+				owns_state = 1093
+			}
+			has_country_flag = MZN_SCALE_DECISION_UNLOCK_maneake_dam
+			check_variable = { MZN_DAM_VAR < 3 }
+			not = {
+				has_country_flag = MZN_SCALE_HIDE_ECO_DECISIONS
+			}
+		}
+	}
+	cost = 50
+	fire_only_once = no
+	days_remove = 100
+
+	modifier = {
+		civilian_factory_use = 4
+	}
+
+	remove_effect = {
+		add_political_power = 25
+		add_stability = 0.03
+			if = {
+			limit = {
+				check_variable = { MZN_DAM_VAR = 3 }
+			}
+			1093 = {
+				add_dynamic_modifier = { modifier = MZN_CTH_MANEAKE_DAM_MODIFIER }
+				add_building_construction = {
+					type = infrastructure
+					level = 2
+					instant_build = yes
+				}
+				add_extra_state_shared_building_slots = 4
+			}
+			1095 = {
+				add_dynamic_modifier = { modifier = MZN_CTH_MANEAKE_DAM_MODIFIER }
+				add_building_construction = {
+					type = infrastructure
+					level = 2
+					instant_build = yes
+				}
+				add_extra_state_shared_building_slots = 4
+			}
+			1094 = {
+				add_dynamic_modifier = { modifier = MZN_CTH_MANEAKE_DAM_MODIFIER }
+				add_building_construction = {
+					type = infrastructure
+					level = 2
+					instant_build = yes
+				}
+				add_extra_state_shared_building_slots = 4
+			}
+		}
+		add_to_variable = { MZN_DAM_VAR = 1 }
+		custom_effect_tooltip = MZN_dam_building_tt
+	}
+}
+
+##SOUTH DEVELOPMENT
+
+	MZN_south_development1 = {
+		icon = generic_construction
+		visible = {
+			and = {
+				702 = {
+					NOT = {
+						has_state_flag = MZN_702_developed
+					}
+				}
+				has_completed_focus = CTH_MZO_deep_into_south_plain
+				NOT = {
+					has_country_flag = MZN_SCALE_HIDE_ECO_DECISIONS
+				}
+			}
+			
+		}
+		cost = 40
+		days_remove = 45
+
+		highlight_states = {
+			highlight_state_targets = {
+				state = 702
+			}
+		}
+
+		remove_effect = {
+			702 = {
+				set_state_flag = MZN_702_developed
+				add_extra_state_shared_building_slots = 2
+				add_building_construction = {
+					type = industrial_complex
+					level = 1
+					instant_build = yes
+				}
+				set_state_category = city
+				add_manpower = 20000
+			}
+		}
+}
+
+	MZN_south_development2 = {
+		icon = generic_construction
+		visible = {
+			and = {
+				976 = {
+					NOT = {
+						has_state_flag = MZN_976_developed
+					}
+				}
+				has_completed_focus = CTH_MZO_deep_into_south_plain
+				NOT = {
+					has_country_flag = MZN_SCALE_HIDE_ECO_DECISIONS
+				}
+			}
+			
+		}
+		cost = 40
+		days_remove = 45
+
+		highlight_states = {
+			highlight_state_targets = {
+				state = 876
+			}
+		}
+
+		remove_effect = {
+			976 = {
+				set_state_flag = MZN_976_developed
+				add_extra_state_shared_building_slots = 3
+				add_building_construction = {
+					type = industrial_complex
+					level = 1
+					instant_build = yes
+				}
+				add_building_construction = {
+					type = arms_factory
+					level = 1
+					instant_build = yes
+				}
+				add_building_construction = {
+					type = infrastructure
+					level = 1
+					instant_build = yes
+				}
+				set_state_category = city
+				add_manpower = 20000
+			}
+		}
+}
+
+MZN_south_development3 = {
+		icon = generic_construction
+		visible = {
+			and = {
+				709 = {
+					NOT = {
+						has_state_flag = MZN_709_developed
+					}
+				}
+				has_completed_focus = CTH_MZO_deep_into_south_plain
+				NOT = {
+					has_country_flag = MZN_SCALE_HIDE_ECO_DECISIONS
+				}
+			}
+			
+		}
+		cost = 40
+		days_remove = 45
+
+		highlight_states = {
+			highlight_state_targets = {
+				state = 709
+			}
+		}
+
+		remove_effect = {
+			709 = {
+				set_state_flag = MZN_709_developed
+				add_extra_state_shared_building_slots = 4
+				add_building_construction = {
+					type = industrial_complex
+					level = 2
+					instant_build = yes
+				}
+				add_building_construction = {
+					type = infrastructure
+					level = 2
+					instant_build = yes
+				}
+				add_manpower = 10000
+			}
+		}
+}
+
+MZN_south_development4 = {
+		icon = generic_construction
+		visible = {
+			and = {
+				877 = {
+					NOT = {
+						has_state_flag = MZN_877_developed
+					}
+				}
+				has_completed_focus = CTH_MZO_deep_into_south_plain
+				NOT = {
+					has_country_flag = MZN_SCALE_HIDE_ECO_DECISIONS
+				}
+			}
+			
+		}
+		cost = 40
+		days_remove = 45
+
+		highlight_states = {
+			highlight_state_targets = {
+				state = 877
+			}
+		}
+
+		remove_effect = {
+			877 = {
+				set_state_flag = MZN_877_developed
+				add_extra_state_shared_building_slots = 4
+				add_building_construction = {
+					type =	rail_way
+					level = 2
+					instant_build = yes
+				}
+				add_building_construction = {
+					type = industrial_complex
+					level = 1
+					instant_build = yes
+				}
+				add_building_construction = {
+					type = infrastructure
+					level = 2
+					instant_build = yes
+				}
+			}
+		}
+}
+
+##CITY DEVELOPMENT
+
+MZN_city_development1 = {
+	icon = eng_install_government
+	visible = {
+			and = {
+				not = {
+				875 = {
+					has_state_flag = MZN_875_city_developed
+				}	
+				}
+				has_completed_focus = CTH_MZO_CEDCC
+				NOT = {
+					has_country_flag = MZN_SCALE_HIDE_ECO_DECISIONS
+				}
+			}
+		}
+		available = {
+		}
+		cost = 60
+		days_remove = 75
+		highlight_states = {
+			highlight_state_targets = {
+				state = 875
+			}
+		}
+
+		remove_effect = {
+			875 = {
+				set_state_flag = MZN_875_city_developed
+				add_extra_state_shared_building_slots = 5
+				add_building_construction = {
+					type = 	arms_factory
+					level = 3
+					instant_build = yes
+				}
+				add_building_construction = {
+					type = infrastructure
+					level = 2
+					instant_build = yes
+				}
+				add_manpower = 20000
+			}
+		}
+		
+}
+
+MZN_city_development2 = {
+	icon = eng_install_government
+	visible = {
+			and = {
+				not = {
+					699 = {
+						has_state_flag = MZN_699_city_developed
+					}
+					
+				}
+				has_completed_focus = CTH_MZO_CEDCC
+				NOT = {
+					has_country_flag = MZN_SCALE_HIDE_ECO_DECISIONS
+				}
+			}
+		}
+		available = {
+		}
+		cost = 60
+		days_remove = 100
+		highlight_states = {
+			highlight_state_targets = {
+				state = 699
+			}
+		}
+
+		remove_effect = {
+			699 = {
+				set_state_flag = MZN_699_city_developed
+				add_extra_state_shared_building_slots = 6
+				add_building_construction = {
+					type = 	dockyard
+					level = 4
+					instant_build = yes
+				}
+				add_building_construction = {
+					type = 	arms_factory
+					level = 1
+					instant_build = yes
+				}
+				add_building_construction = {
+					type = infrastructure
+					level = 2
+					instant_build = yes
+				}
+				add_manpower = 20000
+			}
+		}
+		
+}
+
+MZN_city_development3 = {
+	icon = eng_install_government
+	visible = {
+			and = {
+				not = {
+					701 = {
+						has_state_flag = MZN_701_city_developed
+					}
+					
+				}
+				has_completed_focus = CTH_MZO_CEDCC
+				NOT = {
+					has_country_flag = MZN_SCALE_HIDE_ECO_DECISIONS
+				}
+			}
+		}
+		available = {
+		}
+		cost = 40
+		days_remove = 50
+		highlight_states = {
+			highlight_state_targets = {
+				state = 701
+			}
+		}
+
+		remove_effect = {
+			701 = {
+				set_state_flag = MZN_701_city_developed
+				add_extra_state_shared_building_slots = 4
+				add_building_construction = {
+					type = 	dockyard
+					level = 3
+					instant_build = yes
+				}
+				add_building_construction = {
+					type = 	rail_way
+					level = 3
+					instant_build = yes
+				}
+				add_building_construction = {
+					type = infrastructure
+					level = 2
+					instant_build = yes
+				}
+				add_manpower = 20000
+			}
+		}
+		
+}
+
+MZN_city_development4 = {
+	icon = eng_install_government
+	visible = {
+			and = {
+				not = {
+					703 = {
+						has_state_flag = MZN_703_city_developed
+					}
+					
+				}
+				has_completed_focus = CTH_MZO_CEDCC
+				NOT = {
+					has_country_flag = MZN_SCALE_HIDE_ECO_DECISIONS
+				}
+			}
+		}
+		available = {
+		}
+		cost = 60
+		days_remove = 75
+		highlight_states = {
+			highlight_state_targets = {
+				state = 703
+			}
+		}
+
+		remove_effect = {
+			703 = {
+				set_state_flag = MZN_703_city_developed
+				add_extra_state_shared_building_slots = 4
+				add_building_construction = {
+					type = 	arms_factory
+					level = 2
+					instant_build = yes
+				}
+				add_building_construction = {
+					type = industrial_complex
+					level = 2
+					instant_build = yes
+				}
+				add_building_construction = {
+					type = infrastructure
+					level = 2
+					instant_build = yes
+				}
+				add_manpower = 20000
+			}
+		}
+		
+}
+
+MZN_city_development5 = {
+	icon = eng_install_government
+	visible = {
+			and = {
+				not = {
+					1093 = {
+						has_state_flag = MZN_1093_city_developed
+					}
+				}
+				has_completed_focus = CTH_MZO_CEDCC
+				owns_state = 1093
+				controls_state = 1093
+				NOT = {
+					has_country_flag = MZN_SCALE_HIDE_ECO_DECISIONS
+				}
+			}
+		}
+		available = {
+			1093 = {
+				IS_CORE_OF = CTH
+			}
+		}
+		cost = 100
+		days_remove = 75
+		highlight_states = {
+			highlight_state_targets = {
+				state = 1093
+			}
+		}
+
+		remove_effect = {
+			1093 = {
+				set_state_flag = MZN_1093_city_developed
+				add_extra_state_shared_building_slots = 4
+				add_building_construction = {
+					type = 	arms_factory
+					level = 3
+					instant_build = yes
+				}
+				add_building_construction = {
+					type = industrial_complex
+					level = 1
+					instant_build = yes
+				}
+				add_building_construction = {
+					type = dockyard
+					level = 2
+					instant_build = yes
+				}
+				add_building_construction = {
+					type = infrastructure
+					level = 2
+					instant_build = yes
+				}
+				add_manpower = 20000
+			}
+		}
+}
+
+MZN_city_development6 = {
+	icon = eng_install_government
+	visible = {
+			and = {
+				not = {
+					1095 = {
+						has_state_flag = MZN_1095_city_developed
+					}
+				}
+				has_completed_focus = CTH_MZO_CEDCC
+				owns_state = 1095
+				controls_state = 1095
+				NOT = {
+					has_country_flag = MZN_SCALE_HIDE_ECO_DECISIONS
+				}
+			}
+		}
+		available = {
+			1095 = {
+				IS_CORE_OF = CTH
+			}
+		}
+		cost = 100
+		days_remove = 75
+		highlight_states = {
+			highlight_state_targets = {
+				state = 1095
+			}
+		}
+
+		remove_effect = {
+			1095 = {
+				set_state_flag = MZN_1095_city_developed
+				add_extra_state_shared_building_slots = 4
+				add_building_construction = {
+					type = 	arms_factory
+					level = 1
+					instant_build = yes
+				}
+				add_building_construction = {
+					type = industrial_complex
+					level = 3
+					instant_build = yes
+				}
+				add_building_construction = {
+					type = dockyard
+					level = 2
+					instant_build = yes
+				}
+				add_building_construction = {
+					type = infrastructure
+					level = 2
+					instant_build = yes
+				}
+				add_manpower = 20000
+			}
+		}
+}
 }
 
