@@ -1,0 +1,293 @@
+# This file define a set of effects used to generate parliament SGUI
+
+# There can be only one parliament per scope
+# The parliament have a number M of seats, a seat represent one deputy
+# A party is a set of deputies represented with the same color
+# A parliament have N party, N being a positive integer that is not 0
+# The party are represented with positive integer, from 0 the most left to N-1 the most right
+
+
+# Variables lists
+# - generic_parliament_seat_a  : Array with the state of each seat
+# - generic_parliament_party_a : Array with the number of deputies allocated to each party
+# - generic_parliament_random_balance_a : Array containing a list of randomly sorted party index
+
+## Functions ##
+
+# Function    : f_eaw_parliament_activate_verbose
+# Description : Activate multiple sanity checks and debug verbose for the parliament interface
+# Inputs      : None
+# Outputs     : None
+f_eaw_parliament_activate_verbose = {
+	set_variable = { generic_parliament_debug_verbose = 1 }
+}
+
+# Function    : f_eaw_parliament_deactivate_verbose
+# Description : Deactivate multiple sanity checks and debug verbose for the parliament interface
+# Inputs      : None
+# Outputs     : None
+f_eaw_parliament_deactivate_verbose = {
+	set_variable = { generic_parliament_debug_verbose = 0 }
+}
+
+# Function    : f_eaw_parliament_set_parliament_state
+# Description : Allocate the seats of the parliament to the different parties
+#               Override the number of party and deputy allocation previously held in the parliament
+# Inputs      : i_parties_a - Array representing the parties
+# Outputs     : None
+f_eaw_parliament_set_parliament_state = {
+	clear_array = generic_parliament_seat_a
+	clear_array = generic_parliament_party_a
+
+	# Sanity checks: number of seat and if it is integers
+	if = {
+		limit = { check_variable = { generic_parliament_debug_verbose > 0 } }
+
+		set_temp_variable = { t_accumulator = 0 }
+		for_each_loop = {
+			array = i_parties_a
+			index = party_index
+			value = party_value
+
+			add_to_temp_variable = { t_accumulator = party_value }
+			set_temp_variable = { t_val = party_value }
+			round_temp_variable = t_val
+			if = {
+				limit = { check_variable = { t_val = party_value } }
+				log = "f_eaw_parliament_set_parliament_state : [THIS.GetName] - Number of seat for the party [?party_index] is not an integer"
+			}
+		}
+		if = {
+			limit = { check_variable = { t_accumulator = i_parties_a } }
+			log = "f_eaw_parliament_set_parliament_state : [THIS.GetName] - Incorrect number of seat in i_parties_a"
+		}
+	}
+
+	for_each_loop = {
+		array = i_parties_a
+		index = party_index
+		value = party_value
+
+		for_loop_effect = {
+			end = party_value
+			value = deputy_index
+
+			add_to_array = { generic_parliament_seat_a = party_index }
+		}
+		add_to_array = { generic_parliament_party_a = party_value }
+	}
+}
+
+# Function    : f_eaw_parliament_add_party
+# Description : Dynamicaly add a new party in the parliament
+# Inputs      : i_party_index - Position of the party to add
+# Outputs     : None
+f_eaw_parliament_add_party = {
+	# Sanity checks: verify the index is an integer in the range of the array
+	if = {
+		limit = { check_variable = { generic_parliament_debug_verbose > 0 } }
+
+		# Integer checks
+		set_temp_variable = { t_val = i_party_index }
+		round_temp_variable = t_val
+		if = {
+			limit = { check_variable = { t_val = i_party_index } }
+			log = "f_eaw_parliament_add_party : [THIS.GetName] - The index of the new party i_party_index is not an integer (i_party_index = [?i_party_index])"
+		}
+
+		# Range checks
+		if = {
+			limit = {
+				OR = {
+					check_variable = { i_party_index < 0 }
+					check_variable = { i_party_index > generic_parliament_party_a^num }
+				}
+			}
+			log = "f_eaw_parliament_add_party : [THIS.GetName] - The index of the new party i_party_index is out of range of the actual party array size ([?generic_parliament_party_a^num])"
+		}
+	}
+
+	# Adding the party to the array
+	add_to_array = {
+		array = generic_parliament_party_a
+		index = i_party_index
+		value = 0
+	}
+}
+
+# Function    : f_eaw_parliament_switch_deputies
+# Description : Deputies switch from one party to the other. The changes is given by an input array
+# Inputs      : i_party_deputy_changes_a - An array containing the changes in deputy.
+#                   The number of entry is equal to the number of parties, and the sum of the elements have to be 0
+#                   Exemple, with 4 parties : [0, -1, 3, -2]. 0 gains 0, 1 loses 1, 2 gains 3 and 3 loses 2
+# Outputs     : i_party_deputy_changes_a - The actual change done by the function. Modify the input array
+f_eaw_parliament_switch_deputies = {
+	# Sanity checks
+	if = {
+		limit = { check_variable = { generic_parliament_debug_verbose > 0 } }
+
+		# Check that the input array has the correct number of party
+		if = {
+			limit = { check_variable = { i_party_deputy_changes_a^num = generic_parliament_party_a^num } }
+
+			log = "f_eaw_parliament_switch_deputies : [THIS.GetName] - The input array length ([?i_party_deputy_changes_a^num]) is different from the number of party ([?generic_parliament_party_a^num]) in the parliament"
+		}
+
+		set_temp_variable = { t_deputy_change = 0 }
+		for_each_loop = {
+			array = i_party_deputy_changes_a
+			value = sw_deputy
+			index = sw_index
+
+			# Check that the number is an integer
+			set_temp_variable = { t_old_change_value = sw_party }
+			round_temp_variable = t_old_change_value
+			if = {
+				limit = {
+					NOT = { check_variable = { t_old_change_value = sw_party } }
+				}
+
+				log = "f_eaw_parliament_switch_deputies : [THIS.GetName] - The value in the input array i_party_deputy_changes_a\[[?sw_index]\] = [?sw_deputy] is not an integer"
+			}
+			set_temp_variable = { i_party_deputy_change_a^sw_index = t_old_change_value }
+
+			add_to_temp_variable = { t_deputy_change = sw_party }
+		}
+
+		# Check that the sum of the elements is zero
+		if = {
+			limit = {
+				NOT = { check_variable = { t_deputy_change = 0 } }
+			}
+
+			log = "f_eaw_parliament_switch_deputies : [THIS.GetName] - The sum of the elements of the input array i_party_deputy_changes_a is not zero"
+		}
+	}
+
+	# Get the defficit of deputy after taking into account the party that doesn't have enough to give
+	set_temp_variable = { t_deputies_to_subtract = 0 }
+	for_each_loop = {
+		array = i_party_deputy_change_a
+		index = party_index
+		value = wished_deputy_change
+
+		if = {
+			limit = { check_variable = { wished_deputy_change < 0 } }
+
+			if = {
+				limit =  {
+					set_temp_variable = { t_cmp = generic_parliament_party_a^party_index }
+					multiply_temp_variable = { t_cmp = -1 }
+					check_variable = { wished_deputy_change < t_cmp }
+				}
+
+				set_temp_variable = { i_party_deputy_change_a^party_index = generic_parliament_party_a^party_index }
+				multiply_temp_variable = { i_party_deputy_change_a^party_index = -1 }
+			}
+
+			add_to_temp_variable = { t_deputies_to_subtract = i_party_deputy_change_a^party_index }
+
+		} else = {
+			add_to_temp_variable = { t_deputies_to_subtract = wished_deputy_change }
+		}
+	}
+
+	# Compute the number of deputy to compensate in the add
+	if = {
+		limit = {
+			check_variable = { t_deputies_to_subtract > 0 }
+		}
+
+		# Loop the positive until all the deputy to substract are compensated
+		set_temp_variable = { t_random_party_index = 0 }
+		for_loop_effect = {
+			max = t_deputies_to_subtract
+			value = update_seat_iterator
+
+			while_loop_effect = {
+				limit = {
+					set_temp_variable = { t_random_party_index = generic_parliament_random_balance_a^t_random_iterator }
+					check_variable = { i_party_deputy_change_a^t_random_party_index < 1 }
+				}
+
+				add_to_temp_variable = { t_random_iterator = 1 }
+				modulo_temp_variable = { t_random_iterator = generic_parliament_random_balance_a^num }
+			}
+
+			add_to_temp_variable = { i_party_deputy_change_a^t_random_party_index = -1 }
+
+			add_to_temp_variable = { t_random_iterator = 1 }
+			modulo_temp_variable = { t_random_iterator = generic_parliament_random_balance_a^num }
+		}
+
+		# Refresh the random party array for compensation
+		f_eaw_parliament_refresh_random_party_list = yes
+	}
+
+	# Apply the seat change
+	f_eaw_parliament_change_seats_priv = yes
+
+}
+
+# Function    : f_eaw_parliament_update_seats
+# Description : Refresh the seats array for the display
+# Inputs      : None
+# Outputs     : None
+f_eaw_parliament_update_seats = {
+	clear_array = generic_parliament_seat_a
+	for_each_loop = {
+		array = generic_parliament_party_a
+		index = party_index
+		value = party_value
+
+		for_loop_effect = {
+			end = party_value
+			value = deputy_index
+
+			add_to_array = { generic_parliament_seat_a = party_index }
+		}
+	}
+}
+
+### Private Functions ###
+
+# Function    : f_eaw_parliament_change_seats_priv
+# Description : Private function - Change without rebalancing or checks the number of deputies for each
+# Inputs      : i_party_deputy_change_a - The changes to apply to the party array
+# Outputs     : None
+f_eaw_parliament_change_seats_priv = {
+	for_each_loop = {
+		array = i_party_deputy_change_a
+		index = party_modif_index
+		value = party_modif_value
+
+		add_to_variable = { generic_parliament_party_a^party_modif_index = party_modif_value }
+	}
+}
+
+# Function    : f_eaw_parliament_refresh_random_party_list
+# Description : Private function - Refresh the list used to randomly balance the deputy for the computation
+# Inputs      : None
+# Outputs     : None
+f_eaw_parliament_refresh_random_party_list = {
+	clear_array = generic_parliament_random_balance_a
+	for_each_loop = {
+		array = generic_parliament_party_a
+		index = party_modif_index
+		value = party_modif_value
+
+		set_temp_variable_to_random = {
+			var = t_random_index
+			min = 0
+			max = generic_parliament_random_balance_a^num
+			integer = yes
+		}
+		set_temp_variable = { t_random_index = t_receiving_party_a^t_random_index }
+
+		add_to_array = {
+			array = generic_parliament_random_balance_a
+			index = t_random_index
+			value = party_modif_index
+		}
+	}
+}
