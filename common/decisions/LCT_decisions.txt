@@ -3547,7 +3547,7 @@ debug_decisions = {
 	}
 	LCT_spawn_new_divisions = {
 		allowed = {
-			tag = LCT
+			always = yes
 		}
 
 		visible = { is_debug = yes }
@@ -3559,18 +3559,41 @@ debug_decisions = {
 		fire_only_once = no
 		
 		complete_effect = {
+			if = {
+				limit = { 
+					NOT = { 
+						has_template = "Shock Division"
+					}
+				}
+				division_template = {
+					name = "Shock Division"
+					is_locked = no
+					regiments = {
+						infantry = { x = 0 y = 0 }
+						infantry = { x = 0 y = 1 }
+						infantry = { x = 0 y = 2 }
+						infantry = { x = 1 y = 0 }
+						infantry = { x = 1 y = 1 }
+						infantry = { x = 1 y = 2 }
+						infantry = { x = 2 y = 0 }
+						infantry = { x = 2 y = 1 }
+						artillery_brigade = { x = 3 y = 0 }
+						artillery_brigade = { x = 3 y = 1 }
+						artillery_brigade = { x = 3 y = 2 }
+					}
+					support = {
+						artillery = { x = 0 y = 0 }
+						engineer = { x = 0 y = 1 }
+						recon = { x = 0 y = 2 }
+					}
+					template_counter = 28
+				}
+			}
 			every_controlled_state = {
 				create_unit = {
-					division = "name = \"New Unit\" division_template = \"Onhooves Division\" start_experience_factor = 1.0 start_equipment_factor = 1.0" 
-					owner = ROOT
-				}
-				create_unit = {
-					division = "name = \"New Unit\" division_template = \"Onhooves Division\" start_experience_factor = 1.0 start_equipment_factor = 1.0" 
-					owner = ROOT
-				}
-				create_unit = {
-					division = "name = \"New Unit\" division_template = \"Onhooves Division\" start_experience_factor = 1.0 start_equipment_factor = 1.0" 
-					owner = ROOT
+					division = "name = \"Shock Division\" division_template = \"Shock Division\" start_experience_factor = 0.2 start_equipment_factor = 1.0"
+					owner = PREV
+					count = 3
 				}
 			}
 		}
@@ -3860,12 +3883,15 @@ LCT_confiscate_noble_estates = {
 }
 
 LCT_six_lords_HPE = {
+	#Test decisions
 	LCT_decision_1 = {
 		allowed = { tag = LCT }
 		visible = {
 			always = yes
 		}
 		complete_effect = {
+			set_temp_variable = { temp_authority_change = 0.14 }
+			LCT_HPE_change_evi_authority= yes
 		}
 	}
 	LCT_decision_2 = {
@@ -3874,6 +3900,10 @@ LCT_six_lords_HPE = {
 			always = yes
 		}
 		complete_effect = {
+			FRN = {
+				set_temp_variable = { LCT_HPE_intra_war_target = JES }
+				LCT_intra_HPE_war = yes
+			}
 		}
 	}
 	LCT_decision_3 = {
@@ -3882,6 +3912,127 @@ LCT_six_lords_HPE = {
 			always = yes
 		}
 		complete_effect = {
+		}
+	}
+	
+	#Francistria-Tarrin send peacekeepers mission
+	LCT_FRN_JES_send_peacekeepers = {
+		icon = generic_decision
+
+		allowed = {
+			always = no
+		}
+		
+		visible = {
+			always = no
+		}
+		
+		available = {
+			divisions_in_state = {
+				size > 1
+				state = 481
+			}
+			divisions_in_state = {
+				size > 1
+				state = 515
+			}
+			divisions_in_state = {
+				size > 1
+				state = 521
+			}
+			divisions_in_state = {
+				size > 1
+				state = 487
+			}
+		}
+		
+		days_mission_timeout = 90
+		is_good = no
+		
+		fire_only_once = no
+		selectable_mission = yes
+		
+		cancel_trigger = {
+			NOT = {
+				country_exists = FRN
+				country_exists = JES
+			}
+		}
+		
+		complete_effect = {
+			activate_mission = LCT_FRN_JES_peacekeeping
+		}
+		
+		timeout_effect = {
+			set_temp_variable = { temp_authority_change = -0.10 }
+			LCT_HPE_change_southern_authority = yes
+			set_temp_variable = { LCT_HPE_intra_war_target = JES }
+			FRN = {
+				LCT_intra_HPE_war = yes
+			}
+		}
+	}
+	
+	LCT_FRN_JES_peacekeeping = {
+		icon = generic_decision
+
+		allowed = {
+			always = no
+		}
+		
+		visible = {
+			always = no
+		}
+		
+		available = {
+			custom_trigger_tooltip = {
+				tooltip = LCT_FRN_JES_peacekeeping_fail_condition_tt
+				OR = {
+					divisions_in_state = {
+						size < 2
+						state = 481
+					}
+					divisions_in_state = {
+						size < 2
+						state = 515
+					}
+					divisions_in_state = {
+						size < 2
+						state = 521
+					}
+					divisions_in_state = {
+						size < 2
+						state = 487
+					}
+				}
+			}
+		}
+		
+		days_mission_timeout = 90
+		is_good = yes
+		
+		fire_only_once = no
+		
+		cancel_trigger = {
+			NOT = {
+				country_exists = FRN
+				country_exists = JES
+			}
+		}
+		
+		complete_effect = {
+			set_temp_variable = { temp_authority_change = -0.10 }
+			LCT_HPE_change_southern_authority = yes
+			set_temp_variable = { LCT_HPE_intra_war_target = JES }
+			FRN = {
+				LCT_intra_HPE_war = yes
+			}
+		}
+		
+		timeout_effect = {
+			set_temp_variable = { temp_authority_change = 0.05 }
+			LCT_HPE_change_southern_authority = yes
+			LCT_HPE_change_aquileia_authority = yes
 		}
 	}
 }
