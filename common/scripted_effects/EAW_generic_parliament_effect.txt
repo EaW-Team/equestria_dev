@@ -93,7 +93,7 @@ f_eaw_parliament_add_party = {
 		set_temp_variable = { t_val = i_party_index }
 		round_temp_variable = t_val
 		if = {
-			limit = { check_variable = { t_val = i_party_index } }
+			limit = { NOT = {check_variable = { t_val = i_party_index }} }
 			log = "f_eaw_parliament_add_party : [THIS.GetName] - The index of the new party i_party_index is not an integer (i_party_index = [?i_party_index])"
 		}
 
@@ -130,8 +130,7 @@ f_eaw_parliament_switch_deputies = {
 
 		# Check that the input array has the correct number of party
 		if = {
-			limit = { check_variable = { i_party_deputy_change_a^num = generic_parliament_party_a^num } }
-
+			limit = { NOT = {check_variable = { i_party_deputy_change_a^num = generic_parliament_party_a^num }} }
 			log = "f_eaw_parliament_switch_deputies : [THIS.GetName] - The input array length ([?i_party_deputy_change_a^num]) is different from the number of party ([?generic_parliament_party_a^num]) in the parliament"
 		}
 
@@ -139,21 +138,18 @@ f_eaw_parliament_switch_deputies = {
 		for_each_loop = {
 			array = i_party_deputy_change_a
 			value = sw_deputy
-			index = sw_index
+			index = sw_party
 
 			# Check that the number is an integer
-			set_temp_variable = { t_old_change_value = sw_party }
+			set_temp_variable = { t_old_change_value = sw_deputy }
 			round_temp_variable = t_old_change_value
 			if = {
-				limit = {
-					NOT = { check_variable = { t_old_change_value = sw_party } }
-				}
-
-				log = "f_eaw_parliament_switch_deputies : [THIS.GetName] - The value in the input array i_party_deputy_change_a([?sw_index]) = [?sw_deputy] is not an integer"
+				limit = { NOT = { check_variable = { t_old_change_value = sw_deputy } } }
+				log = "f_eaw_parliament_switch_deputies : [THIS.GetName] - The value in the input array i_party_deputy_change_a([?sw_party]) = [?sw_deputy] is not an integer"
 			}
-			set_temp_variable = { i_party_deputy_change_a^sw_index = t_old_change_value }
+			set_temp_variable = { i_party_deputy_change_a^sw_party = t_old_change_value }
 
-			add_to_temp_variable = { t_deputy_change = sw_party }
+			add_to_temp_variable = { t_deputy_change = sw_deputy }
 		}
 
 		# Check that the sum of the elements is zero
@@ -229,6 +225,103 @@ f_eaw_parliament_switch_deputies = {
 	# Apply the seat change
 	f_eaw_parliament_change_seats_priv = yes
 
+}
+
+# Function    : f_eaw_parliament_balance_change_deputies
+# Description : Add or substract a certain deputy amount to a party.
+#               The number of deputies being taken / given is balanced between all the others parties.
+#               For example, trying to give 4 deputies to a 3 parties parliament will results with a lose of 2 deputies for each of the other parties
+# Inputs      : i_party     - The party ID that the change will be applied to.
+#               i_deputy_nb - The change in deputies the change will be
+# Outputs     : i_party_deputy_change_a - The actual array of changes done by the function.
+f_eaw_parliament_balance_change_deputies = {
+	# Sanity checks
+	if = {
+		limit = { check_variable = { generic_parliament_debug_verbose > 0 } }
+
+		# Integer checks
+		set_temp_variable = { t_val = i_party }
+		round_temp_variable = t_val
+		if = {
+			limit = { NOT = {check_variable = { t_val = i_party }} }
+			log = "f_eaw_parliament_balance_change_deputies : [THIS.GetName] - The index of the party i_party is not an integer (i_party = [?i_party])"
+		}
+		set_temp_variable = { t_val = i_deputy_nb }
+		round_temp_variable = t_val
+		if = {
+			limit = { NOT = {check_variable = { t_val = i_deputy_nb }} }
+			log = "f_eaw_parliament_balance_change_deputies : [THIS.GetName] - The number of change for the deputies i_deputy_nb is not an integer (i_deputy_nb = [?i_deputy_nb])"
+		}
+
+		# Range check
+		if = {
+			limit = {
+				OR = {
+					check_variable = { i_party < 0 }
+					check_variable = {
+						var = i_party
+						value = generic_parliament_party_a^num
+						compare = greater_than_or_equals
+					}
+				}
+			}
+
+			log = "f_eaw_parliament_balance_change_deputies : [THIS.GetName] - The party index i_party is out of range (i_party = [?i_party])"
+		}
+	}
+
+	# Compute effective deputy change
+	set_temp_variable = { t_effective_deputy_change = i_deputy_nb }
+	add_to_temp_variable = { t_effective_deputy_change = generic_parliament_party_a^i_party }
+	clamp_temp_variable = {
+		var = t_effective_deputy_change
+		min = 0
+		max = generic_parliament_seat_a^num
+	}
+	subtract_from_temp_variable = { t_effective_deputy_change = generic_parliament_party_a^i_party }
+
+	# Number of other parties
+	set_temp_variable = { t_nb_other_parties = generic_parliament_party_a^num }
+	add_to_temp_variable = { t_nb_other_parties = -1 }
+
+	# Get integer part
+	set_temp_variable = { t_integer_change = t_effective_deputy_change }
+	divide_temp_variable = { t_integer_change = t_nb_other_parties }
+	add_to_temp_variable = { t_integer_change = -0.5 }
+	round_temp_variable = t_integer_change
+	multiply_temp_variable = { t_integer_change = -1 }
+
+	# Apply integer changes
+	for_loop_effect = {
+		end = generic_parliament_party_a^num
+		value = party_index
+
+		if = {
+			limit = { NOT = {check_variable = { party_index = i_party }} }
+			add_to_temp_array = { i_party_deputy_change_a = t_integer_change }
+		} else = {
+			add_to_temp_array = { i_party_deputy_change_a = t_effective_deputy_change }
+		}
+	}
+
+	# Get remaining deputy to switch
+	set_temp_variable = { t_remaining_deputies = t_integer_change }
+	multiply_temp_variable = { t_remaining_deputies = t_nb_other_parties }
+	add_to_temp_variable = { t_remaining_deputies = t_effective_deputy_change }
+
+	if = {
+		limit = { NOT = { check_variable = { t_remaining_deputies = 0 }}}
+
+		set_temp_variable = { t_incr = 1 }
+		if = {
+			limit = { check_variable = { t_remaining_deputies > 0 } }
+			set_temp_variable = { t_incr = -1 }
+		}
+
+		while_loop_effect = {
+
+		}
+	}
 }
 
 # Function    : f_eaw_parliament_update_seats
