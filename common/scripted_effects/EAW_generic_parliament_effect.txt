@@ -115,6 +115,8 @@ f_eaw_parliament_add_party = {
 		index = i_party_index
 		value = 0
 	}
+
+	f_eaw_parliament_refresh_random_party_list = yes
 }
 
 # Function    : f_eaw_parliament_switch_deputies
@@ -279,6 +281,7 @@ f_eaw_parliament_balance_change_deputies = {
 		max = generic_parliament_seat_a^num
 	}
 	subtract_from_temp_variable = { t_effective_deputy_change = generic_parliament_party_a^i_party }
+	log = "Effective deputy change [?t_effective_deputy_change]"
 
 	# Number of other parties
 	set_temp_variable = { t_nb_other_parties = generic_parliament_party_a^num }
@@ -287,27 +290,38 @@ f_eaw_parliament_balance_change_deputies = {
 	# Get integer part
 	set_temp_variable = { t_integer_change = t_effective_deputy_change }
 	divide_temp_variable = { t_integer_change = t_nb_other_parties }
-	add_to_temp_variable = { t_integer_change = -0.5 }
+	add_to_temp_variable = { t_integer_change = -0.499 }
 	round_temp_variable = t_integer_change
 	multiply_temp_variable = { t_integer_change = -1 }
+	log = "Integer change for each party [?t_integer_change]"
 
 	# Apply integer changes
+	set_temp_variable = { t_remaining_deputies = t_effective_deputy_change }
 	for_loop_effect = {
 		end = generic_parliament_party_a^num
 		value = party_index
 
 		if = {
 			limit = { NOT = {check_variable = { party_index = i_party }} }
-			add_to_temp_array = { i_party_deputy_change_a = t_integer_change }
+
+			set_temp_variable = { t_deputy_change = t_integer_change }
+			add_to_temp_variable = { t_deputy_change = generic_parliament_party_a^party_index }
+			clamp_temp_variable = {
+				var = t_deputy_change
+				min = 0
+				max = generic_parliament_seat_a^num
+			}
+			subtract_from_temp_variable = { t_deputy_change = generic_parliament_party_a^party_index }
+			add_to_temp_array = { i_party_deputy_change_a = t_deputy_change }
+			add_to_temp_variable = { t_remaining_deputies = t_deputy_change }
+
 		} else = {
 			add_to_temp_array = { i_party_deputy_change_a = t_effective_deputy_change }
 		}
 	}
 
 	# Get remaining deputy to switch
-	set_temp_variable = { t_remaining_deputies = t_integer_change }
-	multiply_temp_variable = { t_remaining_deputies = t_nb_other_parties }
-	add_to_temp_variable = { t_remaining_deputies = t_effective_deputy_change }
+	multiply_temp_variable = { t_remaining_deputies = -1 }
 
 	if = {
 		limit = { NOT = { check_variable = { t_remaining_deputies = 0 }}}
@@ -318,10 +332,43 @@ f_eaw_parliament_balance_change_deputies = {
 			set_temp_variable = { t_incr = -1 }
 		}
 
+		log = "Remaing deputies [?t_remaining_deputies]"
 		while_loop_effect = {
+			limit = { NOT = {check_variable = { t_remaining_deputies = 0 }} }
 
+			while_loop_effect = {
+				limit = {
+					set_temp_variable = { t_random_party_index = generic_parliament_random_balance_a^t_random_iterator }
+
+					set_temp_variable = { t_deputy_number = generic_parliament_party_a^t_random_party_index }
+					subtract_from_temp_variable = { t_deputy_number = t_incr }
+					add_to_temp_variable = { t_deputy_number = i_party_deputy_change_a^t_random_party_index }
+					OR = {
+						check_variable = { t_random_party_index = i_party }
+						check_variable = { t_deputy_number < 0 }
+						check_variable = { t_deputy_number > generic_parliament_seat_a^num }
+					}
+				}
+
+				add_to_temp_variable = { t_random_iterator = 1 }
+				modulo_temp_variable = { t_random_iterator = generic_parliament_random_balance_a^num }
+			}
+
+			log = "Choosen index [?t_random_party_index]"
+
+			subtract_from_temp_variable = { i_party_deputy_change_a^t_random_party_index = t_incr }
+			add_to_temp_variable = { t_remaining_deputies = t_incr }
+
+			add_to_temp_variable = { t_random_iterator = 1 }
+			modulo_temp_variable = { t_random_iterator = generic_parliament_random_balance_a^num }
 		}
+
+		# Refresh the random party array for compensation
+		f_eaw_parliament_refresh_random_party_list = yes
 	}
+
+	# Apply the seat change
+	f_eaw_parliament_change_seats_priv = yes
 }
 
 # Function    : f_eaw_parliament_update_seats
@@ -356,6 +403,7 @@ f_eaw_parliament_change_seats_priv = {
 		index = party_modif_index
 		value = party_modif_value
 
+		log = "Party [?party_modif_index]: [?party_modif_value]"
 		add_to_variable = { generic_parliament_party_a^party_modif_index = party_modif_value }
 	}
 }
@@ -365,11 +413,18 @@ f_eaw_parliament_change_seats_priv = {
 # Inputs      : None
 # Outputs     : None
 f_eaw_parliament_refresh_random_party_list = {
+	if = {
+		limit = {}
+	}
 	clear_array = generic_parliament_random_balance_a
 	for_each_loop = {
 		array = generic_parliament_party_a
 		index = party_modif_index
 		value = party_modif_value
+
+		set_temp_variable = { t_random_index = random }
+		multiply_temp_variable = { t_random_index = generic_parliament_random_balance_a^num }
+		round_temp_variable = t_random_index
 
 		set_temp_variable_to_random = {
 			var = t_random_index
@@ -377,7 +432,6 @@ f_eaw_parliament_refresh_random_party_list = {
 			max = generic_parliament_random_balance_a^num
 			integer = yes
 		}
-		set_temp_variable = { t_random_index = t_receiving_party_a^t_random_index }
 
 		add_to_array = {
 			array = generic_parliament_random_balance_a
