@@ -46,6 +46,7 @@ def read_file(name, ids):
         print("Found ID %s at line %s" % (str(id), str(found_idx)))
 
         split_last_line = lines.pop().split(";", 1)
+        print(split_last_line[0])
         split_found_line = lines[found_idx].split(";", 1)
         split_found_line[1] = split_last_line[1]
         lines[found_idx] = ';'.join(split_found_line)

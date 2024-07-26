@@ -1,12 +1,63 @@
+#!/usr/bin/python3
+import argparse
 import os
 import re
+import glob
+import sys
+
+list1 = []
+
+
+def read_file(name, ids):
+
+    print("Reading file " + name + "...")
+    with open("map\\"+name, "r") as f:
+        lines = f.read().splitlines()
+
+    for id in ids:
+        found_idx = -1
+        for idx, line in enumerate(lines):
+            if line.startswith(str(id) + ";"):
+                found_idx = idx
+                break
+
+        if found_idx < 0:
+            print("ID %s not found!" % str(id))
+            continue
+        print("Found ID %s at line %s" % (str(id), str(found_idx)))
+
+        split_last_line = lines.pop().split(";", 1)
+        list1.append(int(split_last_line[0]))
+        split_found_line = lines[found_idx].split(";", 1)
+        split_found_line[1] = split_last_line[1]
+        lines[found_idx] = ';'.join(split_found_line)
+
+    print("Writing to file " + name + "...")
+    with open("map\\"+name, "w") as f:
+        f.writelines(str(line) + "\n" for line in lines)
+
+
+#############################
+parser = argparse.ArgumentParser(description='Recycle given province IDs in the given definition.csv file.')
+parser.add_argument('definition', metavar='definition',
+                    help='Path to definition.csv file')
+parser.add_argument('ids', nargs='+', type=int,
+                    help='Province IDs to find - space separated list')
+
+args = parser.parse_args()
+
+read_file(args.definition, args.ids)
+list2 = args.ids
 
 # Define the directories to search
 directories_to_search = ['map', 'history\\states', 'history\\units']
 
 # Define the number lists (example data; replace with your actual lists)
-list1 = [20718, 20717, 20716, 20715, 20714, 20713, 20712, 20711, 20710, 20709]  # Numbers to find
-list2 = [2249, 2251, 2260, 2270, 2275, 2277, 2296, 2302, 2303, 2304]  # Corresponding replacement numbers
+#list1 = [20718, 20717, 20716, 20715, 20714, 20713, 20712, 20711, 20710, 20709]  # Numbers to find
+#list2 = [2249, 2251, 2260, 2270, 2275, 2277, 2296, 2302, 2303, 2304]  # Corresponding replacement numbers
+print("Hello?")
+print(list1)
+print(list2)
 
 # Check that the lists are of equal length
 if len(list1) != len(list2):
