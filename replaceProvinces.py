@@ -97,8 +97,9 @@ def replace_numbers_in_file(filepath, replacement_map):
 
         # Special handling for specific files
         filename = os.path.basename(filepath)
-        is_railways_file = filename == 'railways.txt' or filename == 'adjacencies.csv'
+        is_railways_file = filename in ['railways.txt', 'adjacencies.csv']
         is_special_case_file = filename in ['rocketsites.txt', 'airports.txt']
+        is_buildings_file = filename == 'buildings.txt'
 
         modified = False
 
@@ -109,6 +110,19 @@ def replace_numbers_in_file(filepath, replacement_map):
                 if regex.search(content):
                     modified = True
                 content = regex.sub(str(new_number), content)
+        elif is_buildings_file:
+            # Replace last numbers in each line in buildings.txt
+            lines = content.splitlines()
+            new_lines = []
+            for line in lines:
+                parts = line.split(';')
+                if parts:
+                    last_number = parts[-1].strip()
+                    if last_number.isdigit() and int(last_number) in replacement_map:
+                        parts[-1] = str(replacement_map[int(last_number)])
+                        modified = True
+                new_lines.append(';'.join(parts))
+            content = '\n'.join(new_lines)
         else:
             # Replace numbers within 'provinces={...}' blocks
             def replace_in_provinces_block(match):
