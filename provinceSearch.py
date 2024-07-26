@@ -52,15 +52,22 @@ def search_in_directories(directories, number, ignore_words):
 
 if __name__ == "__main__":
     directories = [
+        #'common/scripted_triggers',
+        #'common/scripted_localisation',
+        #'common/scripted_guis',
+        #'common/ai_focuses',
+        #'common/ai_strategy_plans',
+        #'common/ai_strategy'
         'events',
         'common/decisions',
         'common/national_focus',
         'common/on_actions',
-        'common/scripted_effects'
+        'common/scripted_effects',
+        'map'
     ]
     number = float(input("Enter the number to search for: "))
     ignore_words = ['manpower', 'log', 'state_population', 'variable', 'add_fuel', 'random', 'has_unit_leader',
                     'country_event', 'factor', 'remove_unit_leader', 'size', 'value', 'days_remove', 'days', 'amount',
                     'days_mission_timeout', 'BAT_labourers', 'id', 'add_equipment_to_stockpile', 'infantry_equipment',
-                    'option', '#']
+                    'option', '#', 'legacy_id']
     search_in_directories(directories, number, ignore_words)
