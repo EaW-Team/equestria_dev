@@ -41,6 +41,7 @@ if __name__ == "__main__":
         'common/scripted_effects'
     ]
     number = float(input("Enter the number to search for: "))
-    ignore_words = ['legacy_id', 'manpower', 'log', 'state_population', 'variable', 'add_fuel', 'random',
-                    'country_event', 'has_id ', 'factor', 'remove_unit_leader', 'size']
+    ignore_words = ['manpower', 'log', 'state_population', 'variable', 'add_fuel', 'random', 'has_unit_leader',
+                    'country_event', 'factor', 'remove_unit_leader', 'size', 'value', 'days_remove', 'days', 'amount',
+                    'days_mission_timeout', 'BAT_labourers', 'id', 'add_equipment_to_stockpile', 'infantry_equipment']
     search_in_directories(directories, number, ignore_words)
