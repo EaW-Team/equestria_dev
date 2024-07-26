@@ -5,7 +5,7 @@ import re
 import glob
 import sys
 
-#Please don't read this file. It's a horrible frankenstein of Yard1's province recycler, my own code, and ChatGPT (I'm sorry, please forgive me).
+#Please don't look at this file. It's a horrible frankenstein of Yard1's province recycler, my own code, and ChatGPT (I'm sorry, please forgive me).
 #Usage is identical to Yard1's province recycler minus the file name. This script changes province IDs in the history and map folders so they can be recycled.
 #It also updates the victory point loc for both english and russian.
 
