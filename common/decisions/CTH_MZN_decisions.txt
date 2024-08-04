@@ -54,9 +54,6 @@ CTH_MNZ_civil_war_decisions = {
 			custom_effect_tooltip = CTH_MNZ_civil_war_army_remnants_tt
 		}
 	}
-
-
-
 }
 
 CTH_MZN_the_blance_of_liberty_and_democracy = {
@@ -67,7 +64,7 @@ CTH_MZN_the_blance_of_liberty_and_democracy = {
 	}
 
 	available = {
-			always = no
+			has_country_flag = MZN_Junta_flag
 		}
 		activation = {
 			has_completed_focus = CTH_MZO_la_silla_del_aguila
@@ -75,16 +72,73 @@ CTH_MZN_the_blance_of_liberty_and_democracy = {
 		selectable_mission = no
 		days_mission_timeout = 62
 		is_good = yes
+		fire_only_once = yes
 		days_mission_timeout = 30
 		timeout_effect = {
-			hidden_effect = {
-				activate_mission = MZN_SCALE_situation_change
+
+			set_variable = {
+				var = MZN_DIS_lastmonth_change
+				value = MZN_democracy_institution_var
+			}
+
+			set_variable = {
+				var = MZN_IEF_lastmonth_change
+				value = MZN_liberty_of_ecomony_var
+			}
+
+			set_variable = {
+				var = MZN_CORRUPTION_lastmonth_change
+				value = MZN_corruption_var
 			}
 			MZN_democratic_stability_decrease_corruption = yes
-			MZN_group_of_three_active = yes
+			MZN_group_of_three_active_check = yes
 			MZN_constitution_amendment_check = yes
 			MZN_ACTS_CHECK = yes
 			MZN_SCALE_CKECK = yes
+			MZN_IEF_change_DIS = yes
+			MZN_C_change_IEF = yes
+			MZN_anti_c_tactics = yes
+			MZN_C_political_power = yes
+			hidden_effect = {
+				activate_mission = MZN_SCALE_situation_change
+				MZN_high_DIS_idea_check = yes
+			}
+			
+			clamp_variable = {
+				var = MZN_democracy_institution_var
+				max = 100
+			}
+			clamp_variable = {
+				var = MZN_democracy_institution_var
+				min = 0
+			}
+
+			set_variable = {
+				var = MZN_democracy_institution_now
+				value = MZN_democracy_institution_var
+			}
+			subtract_from_variable = {
+				var = MZN_democracy_institution_now
+				value = MZN_DIS_lastmonth_change
+			}
+
+			set_variable = {
+				var = MZN_IEF_now
+				value = MZN_liberty_of_ecomony_var
+			}
+			subtract_from_variable = {
+				var = MZN_IEF_now
+				value = MZN_IEF_lastmonth_change
+			}
+
+			set_variable = {
+				var = MZN_CORRUPTION_now
+				value = MZN_corruption_var
+			}
+			subtract_from_variable = {
+				var = MZN_CORRUPTION_now
+				value = MZN_CORRUPTION_lastmonth_change
+			}
 		}
 	}
 
@@ -106,6 +160,19 @@ CTH_MZN_the_blance_of_liberty_and_democracy = {
 		timeout_effect = {
 			hidden_effect = {
 				activate_mission = MZN_CEDCC_CHECK
+				CTH = {
+				any_state = {
+					limit = {
+						and = {
+						has_country_flag = MZN_SCALE_DECISION_UNLOCK_industrial_city
+						is_fully_controlled_by = PREV
+						arms_factory > 3
+						industrial_complex > 3
+						}
+					}
+					add_dynamic_modifier = { modifier = MZN_CTH_industrial_modifer }
+				}
+			}
 			}
 			MZN_CEDCC_CHECK = YES
 			if = {
@@ -137,7 +204,6 @@ CTH_MZN_the_blance_of_liberty_and_democracy = {
 					set_country_flag = MZN_RESOURCE_TRADE_DECISIONS_HIDE
 				}
 			}
-
 	}
 
 	MZN_SCALE_SHOW_HIDE_ECO_DECISIONS = {
@@ -173,7 +239,7 @@ MZN_RESOURCE_TRADE_DECISIONS = {
 		#icon = 
 		visible = {
 			and = {
-				has_country_flag = CTH_MZN_output_resource_flag
+				has_country_flag = MZN_more_exportation
 				not = {
 					has_country_flag = MZN_RESOURCE_TRADE_DECISIONS_HIDE
 				}
@@ -236,8 +302,91 @@ MZN_RESOURCE_TRADE_DECISIONS = {
 		}
 	}
 
+	MZN_transfer_factories_M_TO_C = {
+		#icon = 
+		visible = {
+			AND = {
+				has_completed_focus = CTH_MZO_industries_diversification
+				not = {
+					has_country_flag = MZN_SCALE_HIDE_ECO_DECISIONS
+				} 
+			}
+		}
+
+		available = {
+			check_variable = { MZN_F_transfer < MZN_F_allow_transfer }
+			in_peace = yes
+		}
+
+		cost = 20
+		complete_effect = {
+			CTH = {
+				add_to_variable = {
+					var = MZN_F_transfer
+					value = 1
+				}
+			random_owned_controlled_state = {
+				limit = {
+				is_fully_controlled_by = PREV
+				arms_factory > 0
+				}
+				remove_building = {
+					type = arms_factory
+					level = 1
+				}
+				add_building_construction = {
+					type = industrial_complex
+					level = 1
+					instant_build = yes
+				}
+			}
+			}
+		}
+	}
+
+	MZN_TRANSFER_FACTORIES_C_to_M = {
+		#icon = 
+		visible = {
+			AND = {
+				has_completed_focus = CTH_MZO_industries_diversification
+				not = {
+					has_country_flag = MZN_SCALE_HIDE_ECO_DECISIONS
+				} 
+			}
+		}
+
+		available = {
+			check_variable = { MZN_F_transfer > 0 }
+		}
+
+		cost = 20
+		complete_effect = {
+			CTH = {
+				add_to_variable = {
+					var = MZN_F_transfer
+					value = -1
+				}
+			random_owned_controlled_state = {
+				limit = {
+				is_fully_controlled_by = PREV
+				industrial_complex > 0
+				}
+				remove_building = {
+					type = industrial_complex
+					level = 1
+				}
+				add_building_construction = {
+					type = arms_factory
+					level = 1
+					instant_build = yes
+				}
+			}
+			}
+		}
+	}
+
 MZN_dam_building = {
-	
+	#icon = 
 	visible = {
 		and = {
 			CTH = {
@@ -246,7 +395,7 @@ MZN_dam_building = {
 				owns_state = 1093
 			}
 			has_country_flag = MZN_SCALE_DECISION_UNLOCK_maneake_dam
-			check_variable = { MZN_DAM_VAR < 3 }
+			check_variable = { MZN_DAM_VAR < 4 }
 			not = {
 				has_country_flag = MZN_SCALE_HIDE_ECO_DECISIONS
 			}
@@ -256,13 +405,58 @@ MZN_dam_building = {
 	fire_only_once = no
 	days_remove = 100
 
+	highlight_states = {
+			highlight_state_targets = {
+				state = 1094
+			}
+		}
 	modifier = {
 		civilian_factory_use = 4
 	}
 
 	remove_effect = {
 		add_political_power = 25
-		add_stability = 0.03
+		add_stability = 0.02
+			if = {
+				limit = {
+					check_variable = { MZN_DAM_VAR = 1 }
+				}
+
+				1093 = {
+					add_building_construction = {
+						type = infrastructure
+						level = 1
+						instant_build = yes
+					}
+				}
+				1095 = {
+					add_building_construction = {
+						type = infrastructure
+						level = 1
+						instant_build = yes
+					}
+				}
+				1094 = {
+					add_building_construction = {
+						type = infrastructure
+						level = 1
+						instant_build = yes
+					}
+				}
+			}
+			if = {
+				limit = {
+					check_variable = { MZN_DAM_VAR = 2 }
+				}
+
+				1093 = {
+					add_building_construction = {
+						type = industrial_complex
+						level = 1
+						instant_build = yes
+					}
+				}
+			}
 			if = {
 			limit = {
 				check_variable = { MZN_DAM_VAR = 3 }
@@ -271,7 +465,7 @@ MZN_dam_building = {
 				add_dynamic_modifier = { modifier = MZN_CTH_MANEAKE_DAM_MODIFIER }
 				add_building_construction = {
 					type = infrastructure
-					level = 2
+					level = 1
 					instant_build = yes
 				}
 				add_extra_state_shared_building_slots = 4
@@ -280,7 +474,7 @@ MZN_dam_building = {
 				add_dynamic_modifier = { modifier = MZN_CTH_MANEAKE_DAM_MODIFIER }
 				add_building_construction = {
 					type = infrastructure
-					level = 2
+					level = 1
 					instant_build = yes
 				}
 				add_extra_state_shared_building_slots = 4
@@ -289,7 +483,7 @@ MZN_dam_building = {
 				add_dynamic_modifier = { modifier = MZN_CTH_MANEAKE_DAM_MODIFIER }
 				add_building_construction = {
 					type = infrastructure
-					level = 2
+					level = 1
 					instant_build = yes
 				}
 				add_extra_state_shared_building_slots = 4
@@ -801,5 +995,831 @@ MZN_city_development6 = {
 			}
 		}
 }
+
+MZN_traffic_net_1 = {
+	icon = GFX_decision_railroad
+	visible = {
+		and = {
+			has_country_flag = MZN_SCALE_DECISION_UNLOCK_traffic_net
+			NOT = {
+				has_country_flag = MZN_SCALE_HIDE_ECO_DECISIONS
+			}
+		}
+	}
+	fire_only_once = yes
+
+	cost = 35
+	days_remove = 75
+	
+	highlight_states = {
+		highlight_state_targets = {
+			state = 701
+			state = 700
+			state = 709
+		}
+	}
+
+	remove_effect = {
+		add_tech_bonus = {
+			name = construction_bonus
+			bonus = 0.5
+			uses = 1
+			category = construction_tech
+		}
+		build_railway = {
+			level = 2
+			path = { 18393 18408 18338 18362 18346 18371 18356 18345 18339 18311 18300 18282 18267}
+		}
+		701 = {
+			add_building_construction = {
+				type = infrastructure
+				level = 1
+				instant_build = yes
+			}
+		}
+		700 = {
+			add_building_construction = {
+				type = infrastructure
+				level = 1
+				instant_build = yes
+			}
+		}
+		709 = {
+			add_building_construction = {
+				type = infrastructure
+				level = 1
+				instant_build = yes
+			}
+		}
+		add_to_variable = { MZN_rail_road_var = 1 }
+	}
+}
+
+MZN_traffic_net_2 = {
+	icon = GFX_decision_railroad
+	visible = {
+		and = {
+			has_country_flag = MZN_SCALE_DECISION_UNLOCK_traffic_net
+			NOT = {
+				has_country_flag = MZN_SCALE_HIDE_ECO_DECISIONS
+			}
+		}
+	}
+	fire_only_once = yes
+
+	cost = 35
+	days_remove = 75
+	
+	highlight_states = {
+		highlight_state_targets = {
+			state = 702
+			state = 875
+			state = 703
+		}
+	}
+
+	remove_effect = {
+		remove_effect = {
+		add_tech_bonus = {
+		name = construction_bonus
+		bonus = 0.5
+		uses = 1
+		category = construction_tech
+	}
+		build_railway = {
+			level = 2
+			path = { 18312 18294 18275 18281 18258 18270 18285 18304 18336 18351 18364 18382 18389 18424 18455}
+		}
+
+		702 = {
+			add_building_construction = {
+				type = infrastructure
+				level = 1
+				instant_build = yes
+			}
+		}
+		875 = {
+			add_building_construction = {
+				type = infrastructure
+				level = 1
+				instant_build = yes
+			}
+		}
+		703 = {
+			add_building_construction = {
+				type = infrastructure
+				level = 1
+				instant_build = yes
+			}
+		}
+		add_to_variable = { MZN_rail_road_var = 1 }
+	}
+}
+}
+MZN_traffic_net_3 = {
+	icon = GFX_decision_railroad
+	visible = {
+		and = {
+			has_country_flag = MZN_SCALE_DECISION_UNLOCK_traffic_net
+			NOT = {
+				has_country_flag = MZN_SCALE_HIDE_ECO_DECISIONS
+			}
+		}
+	}
+	fire_only_once = yes
+
+	cost = 35
+	days_remove = 75
+	
+	highlight_states = {
+		highlight_state_targets = {
+			state = 704
+			state = 706
+		}
+	}
+
+	remove_effect = {
+		build_railway = {
+			level = 2
+			path = { 18365 18372 18360 18350 18361 18384 18410 18439}
+		}
+		704 = {
+			add_building_construction = {
+				type = infrastructure
+				level = 1
+				instant_build = yes
+			}
+		}
+		706 = {
+			add_building_construction = {
+				type = infrastructure
+				level = 1
+				instant_build = yes
+			}
+		}
+		add_to_variable = { MZN_rail_road_var = 1 }
+	}
+}
+
+MZN_traffic_net_4 = {
+	icon = GFX_decision_railroad
+	visible = {
+		and = {
+			has_country_flag = MZN_SCALE_DECISION_UNLOCK_traffic_net
+			NOT = {
+				has_country_flag = MZN_SCALE_HIDE_ECO_DECISIONS
+			}
+		}
+	}
+	fire_only_once = yes
+
+	cost = 35
+	days_remove = 75
+	
+	highlight_states = {
+		highlight_state_targets = {
+			state = 1093
+			state = 1094
+		}
+	}
+
+	remove_effect = {
+		build_railway = {
+			level = 2
+			path = { 18414 18386 18397 18352 18328}
+		}
+		1093 = {
+			add_building_construction = {
+				type = infrastructure
+				level = 1
+				instant_build = yes
+			}
+		}
+		1094 = {
+			add_building_construction = {
+				type = infrastructure
+				level = 1
+				instant_build = yes
+			}
+		}
+		add_to_variable = { MZN_rail_road_var = 1 }
+	}
+}
+}
+
+MZN_bop_category = {
+	MZN_Economic_situation_change_check = {
+		icon = GFX_CTH_MZN_TEXTICON_Index_eco_freedom_texticon
+		visible = {
+			has_completed_focus = CTH_MZO_define_liberal_eco
+		}
+		activation = {
+			has_completed_focus = CTH_MZO_define_liberal_eco
+		}
+		available = {
+			has_country_flag = MZN_Junta_flag
+		}
+		fire_only_once = yes
+		days_mission_timeout = 30
+		is_good = yes
+		timeout_effect = {
+			hidden_effect = {
+				MZN_economic_situation_change_detail_check = yes
+			}
+			custom_effect_tooltip = MZN_economic_bop_change
+		}
+	}
+
+	##general decision
+
+	MZN_grant_freedom_to_company = {
+		#icon = 
+		visible = {
+			has_completed_focus = CTH_MZO_define_liberal_eco
+		}
+		available = {
+
+		}
+		cost = 30
+		days_re_enable = 30
+		days_remove = 30
+		modifier = {
+			industrial_capacity_factory = 0.1
+			military_industrial_organization_research_bonus = 0.15
+		}
+		remove_effect = {
+			MZN_Slightly_increase_C = yes
+			add_power_balance_value = {
+				id = MZN_economy_bop
+    			value = 0.05
+   				tooltip_side = MZN_Market_economy
+			}
+			stability_factor = -0.02
+		}
+	}
+
+	MZN_reduce_the_freedom_of_company = {
+		#icon = 
+		visible = {
+			has_completed_focus = CTH_MZO_define_liberal_eco
+		}
+		available = {
+
+		}
+		cost = 30
+		days_re_enable = 30
+		days_remove = 30
+		modifier = {
+			industrial_capacity_factory = 0.05
+			military_industrial_organization_research_bonus = -0.15
+		}
+		remove_effect = {
+			MZN_Slightly_decrease_C = yes
+			add_power_balance_value = {
+				id = MZN_economy_bop
+    			value = -0.02
+   				tooltip_side = MZN_planned_economy
+			}
+			stability_factor = 0.02
+		}
+	}
+
+	MZN_investigate_political_corruption_with_company = {
+		#icon = 
+		visible = {
+			has_completed_focus = CTH_MZO_define_liberal_eco
+		}
+		available = {
+			not = {
+				has_country_flag = MZN_backroom_C_flag
+			}
+		}
+		cost = 30
+		days_re_enable = 30
+		days_remove = 30
+		modifier = {
+			civilian_factory_use = 2
+			political_power_gain = -0.5
+		}
+		remove_effect = {
+			MZN_decrease_C = yes
+			add_power_balance_value = {
+				id = MZN_economy_bop
+    			value = -0.02
+   				tooltip_side = MZN_planned_economy
+			}
+			stability_factor = 0.05
+		}
+	}
+
+	MZN_propagandize_the_political_effort = {
+		#icon = 
+		visible = {
+			has_completed_focus = CTH_MZO_define_liberal_eco
+		}
+		available = {
+			civilian_factory_use = 2
+		}
+		cost = 30
+		days_re_enable = 30
+		days_remove = 30
+		modifier = {
+			political_power_factor = 0.1
+		}
+
+		remove_effect = {
+			MZN_Slightly_increase_DIS = yes
+			MZN_Slightly_increase_C = yes
+			add_power_balance_value = {
+				id = MZN_economy_bop
+    			value = 0.05
+   				tooltip_side = MZN_Market_economy
+			}
+			add_stability = 0.05
+		}
+	}
+
+	##Planned economy decision
+
+	MZN_push_PE_construction = {
+		#icon = 
+		visible = {
+			has_country_flag = MZN_planned_economy_path_flag
+		}
+		fire_only_once = no
+		cost = 20
+		days_remove = 30
+		days_re_enable = 30
+		modifier = {
+			production_speed_buildings_factor = 0.10
+			civilian_factory_use = 2
+		}
+
+		remove_effect = {
+			add_power_balance_value = {
+				id = MZN_economy_bop
+    			value = -0.02
+   				tooltip_side = MZN_Planned_economy
+			}
+		}
+	}
+
+	MZN_reduce_exportation = {
+		#icon = 
+		visible = {
+			and = {
+				has_country_flag = MZN_planned_economy_path_flag
+				has_country_flag = MZN_less_exportation
+			}
+		}
+
+		available = {
+		}
+
+		fire_only_once = yes
+		cost = 30
+
+		complete_effect = {
+			MZN_reduce_ES_addition = YES
+			add_ideas = limited_exports
+			set_country_flag = trade_laws_blocked 
+			add_power_balance_value = {
+				id = MZN_economy_bop
+    			value = -0.03
+   				tooltip_side = MZN_Planned_economy
+			}
+		}
+	}
+
+	MZN_PE_economic_policy_1 = {
+		#icon = 
+		visible = {
+			and = {
+				has_country_flag = MZN_planned_economy_path_flag
+				has_country_flag = MZN_SCALE_DECISION_UNLOCK_planned_eco
+			}
+		}
+
+		fire_only_once = no
+		cost = 30
+		days_remove = 100
+		days_re_enable = 50
+		modifier = {
+			production_speed_buildings_factor = 0.15
+			industrial_capacity_factory = 0.20
+            industrial_capacity_dockyard = 0.20
+		}
+
+		complete_effect = {
+			set_country_flag = MZN_1_PE_project_in_progress
+		}
+		remove_effect = {
+			clr_country_flag = MZN_1_PE_project_in_progress
+		}
+	}
+	MZN_PE_economic_policy_2 = {
+		#icon = 
+		visible = {
+			and = {
+				has_country_flag = MZN_planned_economy_path_flag
+				has_country_flag = MZN_SCALE_DECISION_UNLOCK_planned_eco
+			}
+		}
+		available = {
+			not = {
+				has_country_flag = MZN_1_PE_project_in_progress
+			}
+		}
+
+		fire_only_once = no
+		cost = 30
+		days_remove = 100
+		days_re_enable = 50
+		
+		complete_effect = {
+			add_timed_idea = {
+				idea = MZN_PE_inf_bonus
+				days = 100
+			}
+			set_country_flag = MZN_1_PE_project_in_progress
+		}
+		remove_effect = {
+			clr_country_flag = MZN_1_PE_project_in_progress
+		}
+	}
+
+	MZN_PE_economic_policy_3 = {
+		#icon = 
+		visible = {
+			and = {
+				has_country_flag = MZN_planned_economy_path_flag
+				has_country_flag = MZN_SCALE_DECISION_UNLOCK_planned_eco
+			}
+		}
+		available = {
+			not = {
+				has_country_flag = MZN_1_PE_project_in_progress
+			}
+		}
+
+		fire_only_once = no
+		cost = 30
+		days_remove = 100
+		days_re_enable = 50
+		
+		complete_effect = {
+			add_timed_idea = {
+				idea = MZN_PE_MEC_bonus
+				days = 100
+			}
+			set_country_flag = MZN_1_PE_project_in_progress
+		}
+		remove_effect = {
+			clr_country_flag = MZN_1_PE_project_in_progress
+		}
+	}
+
+	MZN_PE_economic_policy_4 = {
+		#icon = 
+		visible = {
+			and = {
+				has_country_flag = MZN_planned_economy_path_flag
+				has_completed_focus = CTH_MZO_policies_lead_economy
+			}
+		}
+		available = {
+			not = {
+				has_country_flag = MZN_1_PE_project_in_progress
+			}
+		}
+
+		fire_only_once = no
+		cost = 30
+		days_remove = 100
+		days_re_enable = 50
+		
+		complete_effect = {
+			add_timed_idea = {
+				idea = MZN_PE_air_bonus
+				days = 100
+			}
+			set_country_flag = MZN_1_PE_project_in_progress
+		}
+		remove_effect = {
+			clr_country_flag = MZN_1_PE_project_in_progress
+		}
+	}
+	##Market economy decision
+
+	MZN_fund_companies = {
+		#icon = 
+		visible = {
+			and = {
+				has_country_flag = MZN_market_economy_path_flag
+			}
+		}
+		fire_only_once = no
+		cost = 25
+		days_remove = 45
+		days_re_enable = 20
+
+		modifier = {
+			political_power_factor = 0.15
+		}
+
+		remove_effect = {
+			MZN_Slightly_increase_C = yes
+			add_power_balance_value = {
+				id = MZN_economy_bop
+    			value = 0.05
+   				tooltip_side = MZN_Market_economy
+			}
+		}
+	}
+
+	MZN_increase_exportation = {
+		#icon = 
+		visible = {
+			and = {
+				has_country_flag = MZN_market_economy_path_flag
+				has_country_flag = MZN_more_exportation
+			}
+		}
+
+		available = {
+		}
+		fire_only_once = yes
+		cost = 30
+		complete_effect = {
+			MZN_add_ES_addition = YES
+			add_ideas = export_focus
+			set_country_flag = trade_laws_blocked 
+			add_power_balance_value = {
+				id = MZN_economy_bop
+    			value = 0.10
+   				tooltip_side = MZN_Market_economy
+			}
+		}
+	}
+
+	MZN_invest_in_technologic_company = {
+		#icon = 
+		visible = {
+			and = {
+				has_country_flag = MZN_market_economy_path_flag
+				has_completed_focus = CTH_MZO_market_bring_liberty
+			}
+		}
+		fire_only_once = no
+		cost = 35
+		days_remove = 40
+		days_re_enable = 30
+
+		modifier = {
+			political_power_factor = -0.15
+			civilian_factory_use = 3
+		}
+		remove_effect = {
+			random_list = {
+				25 = {
+					add_tech_bonus = {
+						name = cat_production_bonus
+						bonus = 0.5
+						uses = 1
+						category = cat_production
+					}	
+				}
+				25 = {
+					add_tech_bonus = {
+						name = industry_bonus
+						bonus = 0.5
+						uses = 1
+						category = industry
+					}	
+				}
+				25 = {
+					add_tech_bonus = {
+						name = infantry_weapons_bonus
+						bonus = 0.5
+						uses = 1
+						category = infantry_weapons
+					}	
+				}
+				25 = {
+					add_tech_bonus = {
+						name = artillery_bonus
+						bonus = 0.5
+						uses = 1
+						category = artillery
+					}	
+				}
+			}
+		}
+	}
+
+	MZN_cooperation_with_shipbuilder_company = {
+		#icon = 
+		visible = {
+			and = {
+				has_country_flag = MZN_market_economy_path_flag
+				has_completed_focus = CTH_MZO_market_bring_liberty
+			}
+		}
+		available = {
+			custom_trigger_tooltip = {
+				tooltip = MZN_cooperating_num_less_than_2_text
+				check_variable = { MZN_cooperating_num < 2 }
+			}
+		}
+		fire_only_once = no
+		cost = 30
+		days_remove = 100
+		days_re_enable = 50
+
+		modifier = {
+			political_power_factor = -0.15
+			industrial_capacity_dockyard = 0.25
+		}
+		complete_effect = {
+			add_timed_idea = {
+				idea = MZN_ME_navy_build_bonus
+				days = 100
+			}
+			add_to_variable = {
+				var = MZN_cooperating_num
+				value = 1
+			}
+		}
+		remove_effect = {
+			add_to_variable = {
+				var = MZN_cooperating_num
+				value = -1
+			}
+		}
+	}
+	
+	MZN_cooperation_with_vehicle_company = {
+		#icon = 
+		visible = {
+			and = {
+				has_country_flag = MZN_market_economy_path_flag
+				has_completed_focus = CTH_MZO_market_bring_liberty
+			}
+		}
+		available = {
+			custom_trigger_tooltip = {
+				tooltip = MZN_cooperating_num_less_than_2_text
+				check_variable = { MZN_cooperating_num < 2 }
+			}
+		}
+		fire_only_once = no
+		cost = 30
+		days_remove = 100
+		days_re_enable = 50
+
+		modifier = {
+			political_power_factor = -0.10
+			industrial_capacity_factory = 0.10
+		}
+		complete_effect = {
+			add_timed_idea = {
+				idea = MZN_ME_MEC_build_bonus
+				days = 100
+			}
+			add_to_variable = {
+				var = MZN_cooperating_num
+				value = 1
+			}
+		}
+		remove_effect = {
+			add_to_variable = {
+				var = MZN_cooperating_num
+				value = -1
+			}
+		}
+	}
+
+	MZN_cooperation_with_plane_company = {
+		#icon = 
+		visible = {
+			and = {
+				has_country_flag = MZN_market_economy_path_flag
+				has_completed_focus = CTH_MZO_market_bring_liberty
+			}
+		}
+		available = {
+			custom_trigger_tooltip = {
+				tooltip = MZN_cooperating_num_less_than_2_text
+				check_variable = { MZN_cooperating_num < 2 }
+			}
+		}
+		fire_only_once = no
+		cost = 30
+		days_remove = 100
+		days_re_enable = 50
+
+		modifier = {
+			political_power_factor = -0.10
+			industrial_capacity_factory = 0.10
+		}
+		complete_effect = {
+			add_timed_idea = {
+				idea = MZN_ME_plane_build_bonus
+				days = 100
+			}
+			add_to_variable = {
+				var = MZN_cooperating_num
+				value = 1
+			}
+		}
+		remove_effect = {
+			add_to_variable = {
+				var = MZN_cooperating_num
+				value = -1
+			}
+		}
+	}
+
+	MZN_cooperation_with_building_company = {
+		#icon = 
+		visible = {
+			and = {
+				has_country_flag = MZN_market_economy_path_flag
+				has_completed_focus = CTH_MZO_market_bring_liberty
+			}
+		}
+		available = {
+			custom_trigger_tooltip = {
+				tooltip = MZN_cooperating_num_less_than_2_text
+				check_variable = { MZN_cooperating_num < 2 }
+			}
+		}
+		fire_only_once = no
+		cost = 30
+		days_remove = 100
+		days_re_enable = 50
+
+		modifier = {
+			political_power_factor = -0.15
+			production_speed_infrastructure_factor = 0.5
+			production_speed_air_base_factor = 0.5
+			production_speed_supply_node_factor = 0.75
+			production_speed_synthetic_refinery_factor = 0.3
+			production_speed_fuel_silo_factor = 0.3
+			production_speed_radar_station_factor = 0.3
+		}
+		complete_effect = {
+			add_to_variable = {
+				var = MZN_cooperating_num
+				value = 1
+			}
+		}
+		remove_effect = {
+			add_to_variable = {
+				var = MZN_cooperating_num
+				value = -1
+			}
+		}
+	}
+
+	MZN_cooperation_with_mercenary_company = {
+		#icon = 
+		visible = {
+			and = {
+				has_country_flag = MZN_market_economy_path_flag
+				has_completed_focus = CTH_MZO_market_bring_liberty
+			}
+		}
+		available = {
+			custom_trigger_tooltip = {
+				tooltip = MZN_cooperating_num_less_than_2_text
+				check_variable = { MZN_cooperating_num < 2 }
+			}
+		}
+		fire_only_once = no
+		cost = 30
+		days_remove = 100
+		days_re_enable = 50
+
+		modifier = {
+			political_power_factor = -0.15
+			experience_gain_army_factor = 0.15
+			experience_gain_navy_factor = 0.15
+			experience_gain_air_factor = 0.15
+			command_power_gain = 0.3
+		}
+		complete_effect = {
+			add_to_variable = {
+				var = MZN_cooperating_num
+				value = 1
+			}
+		}
+		remove_effect = {
+			add_to_variable = {
+				var = MZN_cooperating_num
+				value = -1
+			}
+		}
+	}
 }
 
