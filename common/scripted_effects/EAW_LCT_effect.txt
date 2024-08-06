@@ -2367,6 +2367,24 @@ LCT_HPE_balkanize = {
 				limit = {
 					exists = no
 				}
+				
+				#Assign a default focus tree
+				if = {
+					limit = {
+						is_griffon_continent_country = yes
+					}
+					load_focus_tree = generic_griffon_focus
+				}
+				else_if = {
+					limit = {
+						is_zebrican_continent_country = yes
+					}
+					load_focus_tree = generic_zebra_focus
+				}
+				else = {
+					load_focus_tree = generic_focus
+				}
+				
 				for_each_scope_loop = {
 					array = original_cores
 					if = {
@@ -2576,6 +2594,11 @@ LCT_HPE_setup_herzland_puppets = {
 			add_state_core = 492
 			add_state_core = 479
 			
+			set_capital = {
+				state = 382
+				remember_old_capital = no
+			}
+			
 			set_popularities = {
 				democratic = 15
 				neutrality = 30
@@ -2620,6 +2643,11 @@ LCT_HPE_setup_herzland_puppets = {
 			add_state_core = 423
 			add_state_core = 506
 			add_state_core = 554
+			
+			set_capital = {
+				state = 423
+				remember_old_capital = no
+			}
 			
 			set_popularities = {
 				democratic = 15
@@ -2668,6 +2696,11 @@ LCT_HPE_setup_herzland_puppets = {
 			add_state_core = 498
 			add_state_core = 458
 			
+			set_capital = {
+				state = 520
+				remember_old_capital = no
+			}
+			
 			add_ideas = {
 				volunteer_only
 				civilian_economy
@@ -2713,6 +2746,11 @@ LCT_HPE_setup_herzland_puppets = {
 			add_state_core = 497
 			add_state_core = 378
 			add_state_core = 447
+			
+			set_capital = {
+				state = 378
+				remember_old_capital = no
+			}
 			
 			set_popularities = {
 				democratic = 15
@@ -2760,6 +2798,11 @@ LCT_HPE_setup_herzland_puppets = {
 			add_state_core = 568
 			add_state_core = 538
 			add_state_core = 433
+			
+			set_capital = {
+				state = 486
+				remember_old_capital = no
+			}
 			
 			set_popularities = {
 				democratic = 15
@@ -3468,22 +3511,58 @@ LCT_HPE_endgame = {
 LCT_HPE_change_herzland_authority = {
 	custom_effect_tooltip = LCT_HPE_change_herzland_authority_tt
 	add_to_variable = { LCT_HPE_herzland_authority = temp_authority_change }
+	
+	if = {
+		limit = {
+			check_variable = { LCT_HPE_regions_lost > 2 }
+			check_variable = { LCT_HPE_herzland_authority < 0.4 }
+		}
+		LCT_HPE_endgame_rebellion = yes
+	}
 }
 LCT_HPE_change_aquileia_authority = {
 	custom_effect_tooltip = LCT_HPE_change_aquileia_authority_tt
 	add_to_variable = { LCT_HPE_aquileia_authority = temp_authority_change }
+	
+	if = {
+		limit = {
+			check_variable = { LCT_HPE_aquileia_authority < 0.3 }
+		}
+		LCT_HPE_aquileia_break_away = yes
+	}
 }
 LCT_HPE_change_southern_authority = {
 	custom_effect_tooltip = LCT_HPE_change_southern_authority_tt
 	add_to_variable = { LCT_HPE_southern_authority = temp_authority_change }
+	
+	if = {
+		limit = {
+			check_variable = { LCT_HPE_southern_authority < 0.3 }
+		}
+		LCT_HPE_south_break_away = yes
+	}
 }
 LCT_HPE_change_northern_authority = {
 	custom_effect_tooltip = LCT_HPE_change_northern_authority_tt
 	add_to_variable = { LCT_HPE_northern_authority = temp_authority_change }
+	
+	if = {
+		limit = {
+			check_variable = { LCT_HPE_northern_authority < 0.3 }
+		}
+		LCT_HPE_north_break_away = yes
+	}
 }
 LCT_HPE_change_evi_authority = {
 	custom_effect_tooltip = LCT_HPE_change_evi_authority_tt
 	add_to_variable = { LCT_HPE_evi_authority = temp_authority_change }
+	
+	if = {
+		limit = {
+			check_variable = { LCT_HPE_evi_authority < 0.3 }
+		}
+		LCT_HPE_evi_break_away = yes
+	}
 }
 
 #Use in scope of agressor and use LCT_HPE_intra_war_target for the target
@@ -3638,5 +3717,657 @@ LCT_HPE_change_authority_in_region_of_THIS = {
 			has_state_flag = LCT_evi_region
 		}
 		ROOT = { LCT_HPE_change_evi_authority = yes }
+	}
+}
+
+#Removes current scope from the HPE
+LCT_remove_from_HPE = {
+	custom_effect_tooltip = LCT_leaving_HPE_tt
+	hidden_effect = {
+		if = {
+			limit = {
+				has_country_flag = LCT_HPE_member
+			}
+			drop_cosmetic_tag = yes
+			clr_country_flag = LCT_HPE_member
+			leave_faction = yes
+			remove_ideas = LCT_imperial_tithes
+			LCT = {
+				set_autonomy = {
+					target = PREV
+					autonomous_state = autonomy_free
+					end_wars = no
+					end_civil_wars = no
+				}
+			}
+		}
+	}
+}
+
+LCT_HPE_north_break_away = {
+	custom_effect_tooltip = LCT_HPE_north_break_away_tt
+	hidden_effect = {
+		set_country_flag = LCT_HPE_north_lost
+		add_to_variable = { LCT_HPE_regions_lost = 1 }
+		set_variable = { LCT_HPE_northern_authority = 0 }
+		MNC = {
+			LCT_remove_from_HPE = yes
+			for_each_scope_loop = {
+				array = original_cores
+				clr_state_flag = LCT_HPE_highlight
+				ROOT = {
+					remove_from_array = { LCT_HPE_resistance_states = PREV }
+				}
+			}
+		}
+		FAT = {
+			LCT_remove_from_HPE = yes
+			for_each_scope_loop = {
+				array = original_cores
+				clr_state_flag = LCT_HPE_highlight
+				ROOT = {
+					remove_from_array = { LCT_HPE_resistance_states = PREV }
+				}
+			}
+		}
+		VED = {
+			LCT_remove_from_HPE = yes
+			for_each_scope_loop = {
+				array = original_cores
+				clr_state_flag = LCT_HPE_highlight
+				ROOT = {
+					remove_from_array = { LCT_HPE_resistance_states = PREV }
+				}
+			}
+		}
+		SRS = {
+			LCT_remove_from_HPE = yes
+			for_each_scope_loop = {
+				array = original_cores
+				clr_state_flag = LCT_HPE_highlight
+				ROOT = {
+					remove_from_array = { LCT_HPE_resistance_states = PREV }
+				}
+			}
+		}
+		NTR = {
+			LCT_remove_from_HPE = yes
+			for_each_scope_loop = {
+				array = original_cores
+				clr_state_flag = LCT_HPE_highlight
+				ROOT = {
+					remove_from_array = { LCT_HPE_resistance_states = PREV }
+				}
+			}
+		}
+		
+		if = {
+			limit = {
+				check_variable = { LCT_HPE_regions_lost > 2 }
+				check_variable = { LCT_HPE_herzland_authority < 0.4 }
+			}
+			LCT_HPE_endgame_rebellion = yes
+		}
+	}
+}
+
+LCT_HPE_south_break_away = {
+	custom_effect_tooltip = LCT_HPE_south_break_away_tt
+	hidden_effect = {
+		set_country_flag = LCT_HPE_south_lost
+		add_to_variable = { LCT_HPE_regions_lost = 1 }
+		set_variable = { LCT_HPE_southern_authority = 0 }
+		ARA = {
+			LCT_remove_from_HPE = yes
+			for_each_scope_loop = {
+				array = original_cores
+				clr_state_flag = LCT_HPE_highlight
+				ROOT = {
+					remove_from_array = { LCT_HPE_resistance_states = PREV }
+				}
+			}
+		}
+		FRN = {
+			LCT_remove_from_HPE = yes
+			for_each_scope_loop = {
+				array = original_cores
+				clr_state_flag = LCT_HPE_highlight
+				ROOT = {
+					remove_from_array = { LCT_HPE_resistance_states = PREV }
+				}
+			}
+		}
+		TAL = {
+			LCT_remove_from_HPE = yes
+			for_each_scope_loop = {
+				array = original_cores
+				clr_state_flag = LCT_HPE_highlight
+				ROOT = {
+					remove_from_array = { LCT_HPE_resistance_states = PREV }
+				}
+			}
+		}
+		EQC = {
+			LCT_remove_from_HPE = yes
+			for_each_scope_loop = {
+				array = original_cores
+				clr_state_flag = LCT_HPE_highlight
+				ROOT = {
+					remove_from_array = { LCT_HPE_resistance_states = PREV }
+				}
+			}
+		}
+		WNG = {
+			LCT_remove_from_HPE = yes
+			for_each_scope_loop = {
+				array = original_cores
+				clr_state_flag = LCT_HPE_highlight
+				ROOT = {
+					remove_from_array = { LCT_HPE_resistance_states = PREV }
+				}
+			}
+		}
+		FAL = {
+			LCT_remove_from_HPE = yes
+			for_each_scope_loop = {
+				array = original_cores
+				clr_state_flag = LCT_HPE_highlight
+				ROOT = {
+					remove_from_array = { LCT_HPE_resistance_states = PREV }
+				}
+			}
+		}
+		BOI = {
+			LCT_remove_from_HPE = yes
+			for_each_scope_loop = {
+				array = original_cores
+				clr_state_flag = LCT_HPE_highlight
+				ROOT = {
+					remove_from_array = { LCT_HPE_resistance_states = PREV }
+				}
+			}
+		}
+		LAK = {
+			LCT_remove_from_HPE = yes
+			for_each_scope_loop = {
+				array = original_cores
+				clr_state_flag = LCT_HPE_highlight
+				ROOT = {
+					remove_from_array = { LCT_HPE_resistance_states = PREV }
+				}
+			}
+		}
+		SIC = {
+			LCT_remove_from_HPE = yes
+			for_each_scope_loop = {
+				array = original_cores
+				clr_state_flag = LCT_HPE_highlight
+				ROOT = {
+					remove_from_array = { LCT_HPE_resistance_states = PREV }
+				}
+			}
+		}
+		BAN = {
+			LCT_remove_from_HPE = yes
+			for_each_scope_loop = {
+				array = original_cores
+				clr_state_flag = LCT_HPE_highlight
+				ROOT = {
+					remove_from_array = { LCT_HPE_resistance_states = PREV }
+				}
+			}
+		}
+		CYA = {
+			LCT_remove_from_HPE = yes
+			for_each_scope_loop = {
+				array = original_cores
+				clr_state_flag = LCT_HPE_highlight
+				ROOT = {
+					remove_from_array = { LCT_HPE_resistance_states = PREV }
+				}
+			}
+		}
+		
+		if = {
+			limit = {
+				check_variable = { LCT_HPE_regions_lost > 2 }
+				check_variable = { LCT_HPE_herzland_authority < 0.4 }
+			}
+			LCT_HPE_endgame_rebellion = yes
+		}
+	}
+}
+
+LCT_HPE_aquileia_break_away = {
+	custom_effect_tooltip = LCT_HPE_aquileia_break_away_tt
+	hidden_effect = {
+		set_country_flag = LCT_HPE_aquileia_lost
+		add_to_variable = { LCT_HPE_regions_lost = 1 }
+		set_variable = { LCT_HPE_aquileia_authority = 0 }
+		TRD = {
+			LCT_remove_from_HPE = yes
+			for_each_scope_loop = {
+				array = original_cores
+				clr_state_flag = LCT_HPE_highlight
+				ROOT = {
+					remove_from_array = { LCT_HPE_resistance_states = PREV }
+				}
+			}
+		}
+		FEZ = {
+			LCT_remove_from_HPE = yes
+			for_each_scope_loop = {
+				array = original_cores
+				clr_state_flag = LCT_HPE_highlight
+				ROOT = {
+					remove_from_array = { LCT_HPE_resistance_states = PREV }
+				}
+			}
+		}
+		AET = {
+			LCT_remove_from_HPE = yes
+			for_each_scope_loop = {
+				array = original_cores
+				clr_state_flag = LCT_HPE_highlight
+				ROOT = {
+					remove_from_array = { LCT_HPE_resistance_states = PREV }
+				}
+			}
+		}
+		HEL = {
+			LCT_remove_from_HPE = yes
+			for_each_scope_loop = {
+				array = original_cores
+				clr_state_flag = LCT_HPE_highlight
+				ROOT = {
+					remove_from_array = { LCT_HPE_resistance_states = PREV }
+				}
+			}
+		}
+		AVI = {
+			LCT_remove_from_HPE = yes
+			for_each_scope_loop = {
+				array = original_cores
+				clr_state_flag = LCT_HPE_highlight
+				ROOT = {
+					remove_from_array = { LCT_HPE_resistance_states = PREV }
+				}
+			}
+		}
+		FLO = {
+			LCT_remove_from_HPE = yes
+			for_each_scope_loop = {
+				array = original_cores
+				clr_state_flag = LCT_HPE_highlight
+				ROOT = {
+					remove_from_array = { LCT_HPE_resistance_states = PREV }
+				}
+			}
+		}
+		ERI = {
+			LCT_remove_from_HPE = yes
+			for_each_scope_loop = {
+				array = original_cores
+				clr_state_flag = LCT_HPE_highlight
+				ROOT = {
+					remove_from_array = { LCT_HPE_resistance_states = PREV }
+				}
+			}
+		}
+		EYR = {
+			LCT_remove_from_HPE = yes
+			for_each_scope_loop = {
+				array = original_cores
+				clr_state_flag = LCT_HPE_highlight
+				ROOT = {
+					remove_from_array = { LCT_HPE_resistance_states = PREV }
+				}
+			}
+		}
+		POM = {
+			LCT_remove_from_HPE = yes
+			for_each_scope_loop = {
+				array = original_cores
+				clr_state_flag = LCT_HPE_highlight
+				ROOT = {
+					remove_from_array = { LCT_HPE_resistance_states = PREV }
+				}
+			}
+		}
+		JES = {
+			LCT_remove_from_HPE = yes
+			for_each_scope_loop = {
+				array = original_cores
+				clr_state_flag = LCT_HPE_highlight
+				ROOT = {
+					remove_from_array = { LCT_HPE_resistance_states = PREV }
+				}
+			}
+		}
+		VIN = {
+			LCT_remove_from_HPE = yes
+			for_each_scope_loop = {
+				array = original_cores
+				clr_state_flag = LCT_HPE_highlight
+				ROOT = {
+					remove_from_array = { LCT_HPE_resistance_states = PREV }
+				}
+			}
+		}
+		JRR = {
+			LCT_remove_from_HPE = yes
+			for_each_scope_loop = {
+				array = original_cores
+				clr_state_flag = LCT_HPE_highlight
+				ROOT = {
+					remove_from_array = { LCT_HPE_resistance_states = PREV }
+				}
+			}
+		}
+		JEB = {
+			LCT_remove_from_HPE = yes
+			for_each_scope_loop = {
+				array = original_cores
+				clr_state_flag = LCT_HPE_highlight
+				ROOT = {
+					remove_from_array = { LCT_HPE_resistance_states = PREV }
+				}
+			}
+		}
+		JFT = {
+			LCT_remove_from_HPE = yes
+			for_each_scope_loop = {
+				array = original_cores
+				clr_state_flag = LCT_HPE_highlight
+				ROOT = {
+					remove_from_array = { LCT_HPE_resistance_states = PREV }
+				}
+			}
+		}
+		JER = {
+			LCT_remove_from_HPE = yes
+			for_each_scope_loop = {
+				array = original_cores
+				clr_state_flag = LCT_HPE_highlight
+				ROOT = {
+					remove_from_array = { LCT_HPE_resistance_states = PREV }
+				}
+			}
+		}
+		
+		if = {
+			limit = {
+				check_variable = { LCT_HPE_regions_lost > 2 }
+				check_variable = { LCT_HPE_herzland_authority < 0.4 }
+			}
+			LCT_HPE_endgame_rebellion = yes
+		}
+	}
+}
+
+LCT_HPE_evi_break_away = {
+	custom_effect_tooltip = LCT_HPE_evi_break_away_tt
+	hidden_effect = {
+		set_country_flag = LCT_HPE_evi_lost
+		add_to_variable = { LCT_HPE_regions_lost = 1 }
+		set_variable = { LCT_HPE_evi_authority = 0 }
+		GRW = {
+			LCT_remove_from_HPE = yes
+			for_each_scope_loop = {
+				array = original_cores
+				clr_state_flag = LCT_HPE_highlight
+				ROOT = {
+					remove_from_array = { LCT_HPE_resistance_states = PREV }
+				}
+			}
+		}
+		BRF = {
+			LCT_remove_from_HPE = yes
+			for_each_scope_loop = {
+				array = original_cores
+				clr_state_flag = LCT_HPE_highlight
+				ROOT = {
+					remove_from_array = { LCT_HPE_resistance_states = PREV }
+				}
+			}
+		}
+		LUS = {
+			LCT_remove_from_HPE = yes
+			for_each_scope_loop = {
+				array = original_cores
+				clr_state_flag = LCT_HPE_highlight
+				ROOT = {
+					remove_from_array = { LCT_HPE_resistance_states = PREV }
+				}
+			}
+		}
+		GRY = {
+			LCT_remove_from_HPE = yes
+			for_each_scope_loop = {
+				array = original_cores
+				clr_state_flag = LCT_HPE_highlight
+				ROOT = {
+					remove_from_array = { LCT_HPE_resistance_states = PREV }
+				}
+			}
+		}
+		GRU = {
+			LCT_remove_from_HPE = yes
+			for_each_scope_loop = {
+				array = original_cores
+				clr_state_flag = LCT_HPE_highlight
+				ROOT = {
+					remove_from_array = { LCT_HPE_resistance_states = PREV }
+				}
+			}
+		}
+		
+		if = {
+			limit = {
+				check_variable = { LCT_HPE_regions_lost > 2 }
+				check_variable = { LCT_HPE_herzland_authority < 0.4 }
+			}
+			LCT_HPE_endgame_rebellion = yes
+		}
+	}
+}
+
+LCT_HPE_endgame_rebellion = {
+	hidden_effect = {
+		
+		country_event = LCT_six_lords.67
+		
+		for_each_scope_loop = {
+			array = LCT_HPE_resistance_states
+			clr_state_flag = LCT_HPE_highlight
+		}
+		
+		country_lock_all_division_template = no
+		clr_country_flag = LCT_HPE_resistance_active
+		clear_array = LCT_HPE_resistance_states
+		set_variable = { LCT_HPE_herzland_authority = 0 }
+		set_variable = { LCT_HPE_aquileia_authority = 0 }
+		set_variable = { LCT_HPE_southern_authority = 0 }
+		set_variable = { LCT_HPE_northern_authority = 0 }
+		set_variable = { LCT_HPE_evi_authority = 0 }
+		
+		#Tranfer back the border gore
+		HAU = {
+			transfer_state = 659
+			transfer_state = 660
+			transfer_state = 658
+		}
+		472 = {
+			controller = {
+				transfer_state = 435
+				transfer_state = 502
+			}
+		}
+		SUF = {
+			release = FEZ
+			release = TRD
+		}
+		VED = {
+			transfer_state = 403
+			transfer_state = 429
+			transfer_state = 431
+		}
+		FAT = {
+			transfer_state = 432
+		}
+		CYA = {
+			transfer_state = 511
+		}
+		BAN = {
+			transfer_state = 446
+			transfer_state = 606
+			transfer_state = 489
+		}
+		
+		every_possible_country = {
+			limit = {
+				has_country_flag = LCT_HPE_member
+				NOT = {
+					tag = LCT
+					tag = STC
+					tag = DOF
+					tag = HIZ
+					tag = SUF
+					tag = NOF
+				}
+			}
+			LCT_remove_from_HPE = yes
+		}
+		
+		create_dynamic_country = {
+			original_tag = GRI
+			copy_tag = GRI
+			add_ideas = {
+				proper_science_base
+				poverty3
+				modern_society
+				lack_of_scientists3
+				griffon_race
+				war_economy
+				closed_economy
+				service_by_requirement
+			}
+			transfer_state = 433
+			transfer_state = 498
+			transfer_state = 538
+			transfer_state = 434
+			transfer_state = 520
+			transfer_state = 441
+			transfer_state = 440
+			transfer_state = 405
+			transfer_state = 546
+			transfer_state = 545
+			transfer_state = 458
+			transfer_state = 443
+			transfer_state = 439
+			transfer_state = 422
+			transfer_state = 547
+			transfer_state = 479
+			set_province_controller = 10042
+			set_province_controller = 1138
+			set_province_controller = 7274
+			set_province_controller = 4071
+			set_province_controller = 7055
+			set_province_controller = 12561
+			load_focus_tree = generic_griffon_focus
+			set_country_flag = LCT_endgame_rebellion
+			for_each_scope_loop = {
+				array = GRI.original_cores
+				add_core_of = PREV
+			}
+			for_each_scope_loop = {
+				array = KAT.original_cores
+				add_core_of = PREV
+			}
+			for_each_scope_loop = {
+				array = ANG.original_cores
+				add_core_of = PREV
+			}
+			for_each_scope_loop = {
+				array = YAL.original_cores
+				add_core_of = PREV
+			}
+			for_each_scope_loop = {
+				array = BRZ.original_cores
+				add_core_of = PREV
+			}
+			for_each_scope_loop = {
+				array = STW.original_cores
+				add_core_of = PREV
+			}
+			for_each_scope_loop = {
+				array = ROU.original_cores
+				add_core_of = PREV
+			}
+			for_each_scope_loop = {
+				array = PYT.original_cores
+				add_core_of = PREV
+			}
+			for_each_scope_loop = {
+				array = FEA.original_cores
+				add_core_of = PREV
+			}
+			add_state_core = 379
+			add_state_core = 381
+			create_country_leader = {
+				name = HRV_leader
+				picture = "gfx\leaders\GRF\Council.tga"
+				expire = "1965.1.1"
+				ideology = liberation_front
+			}
+			set_cosmetic_tag = HLA_cosmetic
+			set_popularities = {
+				democratic = 68
+				neutrality = 17
+				fascism = 2
+				communism = 13
+			}
+			set_politics = {
+				ruling_party = democratic
+				elections_allowed = no
+			}
+			create_faction = LCT_HLA_faction_name
+			#save_global_event_target_as = HLA_event_target
+			declare_war_on = {
+				target = LCT
+				type = civil_war
+			}
+			declare_war_on = {
+				target = NOF
+				type = civil_war
+			}
+			declare_war_on = {
+				target = SUF
+				type = civil_war
+			}
+			declare_war_on = {
+				target = HIZ
+				type = civil_war
+			}
+			declare_war_on = {
+				target = STC
+				type = civil_war
+			}
+			declare_war_on = {
+				target = DOF
+				type = civil_war
+			}
+			add_civil_war_target = NOF
+			add_civil_war_target = SUF
+			add_civil_war_target = HIZ
+			add_civil_war_target = LCT
+			add_civil_war_target = STC
+			add_civil_war_target = DOF
+			set_technology = {
+				tech_ironpaws = 1
+				popup = no
+			}
+			load_oob = "LCT_HPE_endgame_rebellion"
+		}
 	}
 }
