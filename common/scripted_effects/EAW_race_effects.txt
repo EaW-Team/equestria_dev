@@ -6,12 +6,16 @@
 # 1. In common/scripted_triggers/EAW_race_triggers.txt:
 #    a) Add new main_culture triggers as above
 #    b) Add a is_country_secondary_culture_CULTURE trigger
-# 3. In common/scripted_effects/EAW_race_effects.txt:
+# 2. In common/scripted_effects/EAW_race_effects.txt:
 #    a) operative_add_nationalities_CULTURE (look at existing ones for guidiance, add a new cultures index)
 #    b) add an entry in operative_add_main_nationalities_from_PREV
 #    c) add an entry in operative_add_secondary_nationalities_from_PREV
 #    d) add an entry in operative_add_starting_nationalities_and_race
 #    e) depending on tag, add an entry in operative_add_secondary_nationalities and operative_handle_secondary_cultures_races
+# 3. Update the culture map mode to include the new group by:
+#    a) adding an entry to define the color in common/map_mods/eaw_culture_map_mode.txt
+#    b) adding an entry to define the name of the group on the map in common/scripted_localisation/EAW_map_mode_scripted_localisations.txt
+# 4. In common/decisions/lar_agent_recruitment_decisions, add a new decision for hiring agents for the new culture group
 
 operative_add_nationalities_changeling = {
 	for_each_loop = {
@@ -598,6 +602,21 @@ operative_add_nationalities_hippogriff = {
 	}
 }
 
+operative_add_nationalities_nova_griffonian = {
+	for_each_loop = {
+		array = global.countries
+		if = {
+			limit = {
+				var:v = { is_country_main_culture_nova_griffonian = yes }
+			}
+			add_nationality = var:v
+		}
+	}
+	add_to_array = {
+		cultures = 40
+	}
+}
+
 operative_add_main_nationalities_from_PREV = {
 	if = {
 		limit = {
@@ -823,6 +842,17 @@ operative_add_main_nationalities_from_PREV = {
 				}
 			}
 			operative_add_nationalities_herzlander_colony = yes
+		}
+		if = {
+			limit = {
+				PREV = {
+					OR = {
+						is_country_main_culture_nova_griffonian = yes
+
+					}
+				}
+			}
+			operative_add_nationalities_nova_griffonian = yes
 		}
 		if = {
 			limit = {
@@ -1432,6 +1462,17 @@ operative_add_secondary_nationalities_from_PREV = {
 				}
 			}
 			operative_add_nationalities_herzlander_colony = yes
+		}
+		if = {
+			limit = {
+				PREV = {
+					OR = {
+						is_country_secondary_culture_nova_griffonian = yes
+
+					}
+				}
+			}
+			operative_add_nationalities_nova_griffonian = yes
 		}
 		if = {
 			limit = {
@@ -2660,6 +2701,16 @@ operative_add_starting_nationalities_and_race = {
 		}
 		else_if = {
 			limit = {
+				is_operative_main_culture_nova_griffonian = yes
+			}
+			log = "operative_add_starting_nationalities_and_race: ROOT: [Root.GetName] is_operative_main_culture_nova_griffonian = yes"
+			add_unit_leader_trait = griffon_race_trait
+			set_unit_leader_flag = griffon_race_flag
+			log = "operative_add_starting_nationalities_and_race: ROOT: [Root.GetName] Griffon race added"
+			operative_add_nationalities_nova_griffonian = yes
+		}
+		else_if = {
+			limit = {
 				is_operative_main_culture_horse = yes
 			}
 			log = "operative_add_starting_nationalities_and_race: ROOT: [Root.GetName] is_operative_main_culture_horse = yes"
@@ -3115,6 +3166,49 @@ set_operative_to_diamond_dog = {
 	add_unit_leader_trait = diamond_dog_race_trait
 	set_unit_leader_flag = diamond_dog_race_flag
 	operative_add_nationalities_diamond_dog = yes
+}
+
+set_operative_to_hyena = {
+	if = {
+		limit = {
+			is_female = yes
+		}
+		set_temp_variable = {
+			name_idx = 14
+		}
+		get_random_name_idx = yes
+		set_leader_name = "[?name_idx.GetHyenaFemaleName]"
+		set_temp_variable = {
+			name_idx = 5
+		}
+		get_random_name_idx = yes
+		meta_effect = {
+			text = {
+				set_portraits = { operative = { large = "[PORTRAIT]" small = "[PORTRAIT]_small" } army = { large = "[PORTRAIT]" small = "[PORTRAIT]_small" }  navy = { large = "[PORTRAIT]" small = "[PORTRAIT]_small" } civilian = { large = "[PORTRAIT]" small = "[PORTRAIT]_small" } }
+			}
+			PORTRAIT = "[?name_idx.Get_HYE_female_portrait]"
+		}
+	}
+	else = {
+		set_temp_variable = {
+			name_idx = 15
+		}
+		get_random_name_idx = yes
+		set_leader_name = "[?name_idx.GetHyenaMaleName]"
+		set_temp_variable = {
+			name_idx = 4
+		}
+		get_random_name_idx = yes
+		meta_effect = {
+			text = {
+				set_portraits = { operative = { large = "[PORTRAIT]" small = "[PORTRAIT]_small" } army = { large = "[PORTRAIT]" small = "[PORTRAIT]_small" }  navy = { large = "[PORTRAIT]" small = "[PORTRAIT]_small" } civilian = { large = "[PORTRAIT]" small = "[PORTRAIT]_small" } }
+			}
+			PORTRAIT = "[?name_idx.Get_HYE_male_portrait]"
+		}
+	}
+	add_unit_leader_trait = diamond_dog_race_trait
+	set_unit_leader_flag = hyena_race_flag
+	operative_add_nationalities_hyena = yes
 }
 
 set_operative_to_minotaur = {
@@ -3884,6 +3978,81 @@ set_unit_leader_to_diamond_dog = {
 					set_portraits = { operative = { large = "[PORTRAIT]" small = "[PORTRAIT]_small" } army = { large = "[PORTRAIT]" small = "[PORTRAIT]_small" }  navy = { large = "[PORTRAIT]" small = "[PORTRAIT]_small" } civilian = { large = "[PORTRAIT]" small = "[PORTRAIT]_small" } }
 				}
 				PORTRAIT = "[?name_idx.Get_BRZ_army_male_portrait]"
+			}
+		}
+	}
+	add_unit_leader_trait = diamond_dog_race_trait
+}
+
+set_unit_leader_to_hyena = {
+	if = {
+		limit = {
+			is_female = yes
+		}
+		set_temp_variable = {
+			name_idx = 14
+		}
+		get_random_name_idx = yes
+		set_leader_name = [?name_idx.GetHyenaFemaleName]
+		if = {
+			limit = {
+				is_navy_leader = yes
+			}
+			set_temp_variable = {
+				name_idx = 5
+			}
+			get_random_name_idx = yes
+			meta_effect = {
+				text = {
+					set_portraits = { operative = { large = "[PORTRAIT]" small = "[PORTRAIT]_small" } army = { large = "[PORTRAIT]" small = "[PORTRAIT]_small" }  navy = { large = "[PORTRAIT]" small = "[PORTRAIT]_small" } civilian = { large = "[PORTRAIT]" small = "[PORTRAIT]_small" } }
+				}
+				PORTRAIT = "[?name_idx.Get_HYE_female_portrait]"
+			}
+		}
+		else = {
+			set_temp_variable = {
+				name_idx = 5
+			}
+			get_random_name_idx = yes
+			meta_effect = {
+				text = {
+					set_portraits = { operative = { large = "[PORTRAIT]" small = "[PORTRAIT]_small" } army = { large = "[PORTRAIT]" small = "[PORTRAIT]_small" }  navy = { large = "[PORTRAIT]" small = "[PORTRAIT]_small" } civilian = { large = "[PORTRAIT]" small = "[PORTRAIT]_small" } }
+				}
+				PORTRAIT = "[?name_idx.Get_HYE_female_portrait]"
+			}
+		}
+	}
+	else = {
+		set_temp_variable = {
+			name_idx = 15
+		}
+		get_random_name_idx = yes
+		set_leader_name = [?name_idx.GetHyenaMaleName]
+		if = {
+			limit = {
+				is_navy_leader = yes
+			}
+			set_temp_variable = {
+				name_idx = 4
+			}
+			get_random_name_idx = yes
+			meta_effect = {
+				text = {
+					set_portraits = { operative = { large = "[PORTRAIT]" small = "[PORTRAIT]_small" } army = { large = "[PORTRAIT]" small = "[PORTRAIT]_small" }  navy = { large = "[PORTRAIT]" small = "[PORTRAIT]_small" } civilian = { large = "[PORTRAIT]" small = "[PORTRAIT]_small" } }
+				}
+				PORTRAIT = "[?name_idx.Get_HYE_male_portrait]"
+			}
+		}
+		else = {
+			set_temp_variable = {
+				name_idx = 4
+			}
+			get_random_name_idx = yes
+			meta_effect = {
+				text = {
+					set_portraits = { operative = { large = "[PORTRAIT]" small = "[PORTRAIT]_small" } army = { large = "[PORTRAIT]" small = "[PORTRAIT]_small" }  navy = { large = "[PORTRAIT]" small = "[PORTRAIT]_small" } civilian = { large = "[PORTRAIT]" small = "[PORTRAIT]_small" } }
+				}
+				PORTRAIT = "[?name_idx.Get_HYE_male_portrait]"
 			}
 		}
 	}
