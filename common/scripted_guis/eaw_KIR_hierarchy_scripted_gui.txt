@@ -1,0 +1,282 @@
+scripted_gui = {
+	kir_hierarchy_gui = {
+		context_type = decision_category
+		parent_window_token = decision_tab
+
+		window_name = "kir_hierarchy_window"
+
+		effects = {
+			kir_hierarchy_character_button_click = {
+				if = {
+					# we are selecting an hch
+					limit = {
+						is_hch_slot_selected_trigger = yes
+					}
+
+					if = {
+						# we have clicked on the same hch we are selecting
+						limit = {
+							check_variable = { selected_hch_value = hch_value }
+						}
+
+						# clear the selection
+						kir_clear_hch_selection_effect = yes
+					}
+					else = {
+						# we have clicked on a different hch
+
+						# select it
+						kir_select_hch_var_setup_effect = yes
+						kir_update_hch_pool = yes
+					}
+				}
+				else = {
+					# we are not selecting an hch
+
+					# select the one we clicked on
+					kir_select_hch_var_setup_effect = yes
+					kir_update_hch_pool = yes
+				}
+			}
+		}
+
+		triggers = {
+			kir_hch_selected_glow_visible = {
+				check_variable = { var:hch_value = var:selected_hch_value }
+			}
+		}
+
+		properties = {
+			kir_hierarchy_character_button = {
+				image = "[GetHCHgfx]"
+			}
+		}
+
+		dynamic_lists = {
+			kir_hierarchy_level_1_gridbox = {
+				array = level_1_hchs_array
+				entry_container = "kir_hierarchy_character_entry"
+				value = hch_value
+			}
+			kir_hierarchy_level_2_gridbox = {
+				array = level_2_hchs_array
+				entry_container = "kir_hierarchy_character_entry"
+				value = hch_value
+			}
+			kir_hierarchy_level_3_gridbox = {
+				array = level_3_hchs_array
+				entry_container = "kir_hierarchy_character_entry"
+				value = hch_value
+			}
+			kir_hierarchy_level_4_gridbox = {
+				array = level_4_hchs_array
+				entry_container = "kir_hierarchy_character_entry"
+				value = hch_value
+			}
+			kir_hierarchy_level_5_gridbox = {
+				array = level_5_hchs_array
+				entry_container = "kir_hierarchy_character_entry"
+				value = hch_value
+			}
+		}
+	}
+
+	kir_hierarchy_hch_selection_panel_gui = {
+		window_name = "kir_hierarchy_hch_selection_panel_window"
+
+		visible = {
+			has_country_flag = KIR_Hierarchy_category_unlocked
+		}
+
+		parent_window_token = decision_tab
+	}
+
+	kir_hierarchy_hch_selection_gui = {
+		window_name = "kir_hierarchy_hch_selection_window"
+
+		parent_window_name = "kir_hierarchy_hch_selection_panel_window_instance"
+
+		visible = {
+			is_hch_slot_selected_trigger = yes
+		}
+
+		triggers = {
+			kir_hierarchy_character_selection_button_click_enabled = {
+				kir_hch_has_pp_trigger = yes
+			}
+
+			kir_hierarchy_character_selection_resign_button_click_enabled = {
+				# check if we are selecting a hch to resign
+				is_hch_id_selected_trigger = yes
+
+				kir_hch_has_pp_resign_trigger = yes
+			}
+
+			kir_hierarchy_character_selection_resign_button_visible = {
+				is_hch_id_selected_trigger = yes
+			}
+
+			kir_hierarchy_character_selection_resign_button_text_visible = {
+				is_hch_id_selected_trigger = yes
+			}
+
+			kir_hierarchy_character_selection_promote_button_click_enabled = {
+				# check if we are selecting a hch to promote
+				is_hch_id_selected_trigger = yes
+
+				kir_hch_has_pp_promote_trigger = yes
+				kir_hch_promotion_cap_trigger = yes
+			}
+
+			kir_hierarchy_character_selection_promote_button_visible = {
+				is_hch_id_selected_trigger = yes
+				kir_hch_can_promote_trigger = yes
+			}
+
+			kir_hierarchy_character_selection_promote_button_text_visible = {
+				is_hch_id_selected_trigger = yes
+				kir_hch_can_promote_trigger = yes
+			}
+
+			kir_hierarchy_character_selection_demote_button_click_enabled = {
+				# check if we are selecting a hch to demote
+				is_hch_id_selected_trigger = yes
+
+				kir_hch_has_pp_demote_trigger = yes
+			}
+
+			kir_hierarchy_character_selection_demote_button_visible = {
+				is_hch_id_selected_trigger = yes
+				kir_hch_can_demote_trigger = yes
+			}
+
+			kir_hierarchy_character_selection_demote_button_text_visible = {
+				is_hch_id_selected_trigger = yes
+				kir_hch_can_demote_trigger = yes
+			}
+		}
+
+		effects = {
+			kir_hierarchy_character_selection_button_click = {
+				if = {
+					limit = {
+						check_variable = { selected_hch_level = 2 }
+					}
+					set_country_flag = KIR_hierocracy_first_promotion_completed
+				}
+
+				# setup vars for adding the character
+				kir_assign_hch_var_setup_effect = yes
+
+				if = {
+					# there is a hch in the slot we selected
+					limit = { is_hch_id_selected_trigger = yes }
+
+					# remove the selected hch
+					resign_selected_hch_effect = yes
+
+					# if we have clicked on the hch in the slot, we want to only remove it
+					if = {
+						limit = {
+							check_variable = { selected_hch_id = assign_hch_id }
+						}
+						set_country_flag = only_remove_hch_flag
+					}
+				}
+				else = {
+					# we have selected an empty slot
+				}
+
+				if = {
+					# add the new hch if we need to
+					limit = {
+						NOT = { has_country_flag = only_remove_hch_flag }
+					}
+					# add the add character
+					assign_hch_effect = yes
+					# deduct the pp cost
+					kir_hch_deduct_pp_effect = yes
+				}
+
+				# clear selection and added values
+				kir_clear_hch_selection_effect = yes
+				kir_clear_hch_assign_effect = yes
+
+				# clear the flag for the next usage
+				clr_country_flag = only_remove_hch_flag
+			}
+
+			kir_hierarchy_character_selection_resign_button_click = {
+				# pp cost
+				kir_hch_deduct_pp_resign_effect = yes
+
+				# resign selected character
+				resign_selected_hch_effect = yes
+
+				# clear selection
+				kir_clear_hch_selection_effect = yes
+			}
+
+			kir_hierarchy_character_selection_promote_button_click = {
+				if = {
+					limit = {
+						has_country_flag = KIR_hierocracy_dismiss_upon_promotion_flag
+					}
+					# resign selected character
+					resign_selected_hch_effect = yes
+				}
+
+				# promote selected character
+				promote_selected_hch_effect = yes
+
+				if = {
+					limit = {
+						has_country_flag = KIR_hierocracy_dismiss_upon_promotion_flag
+					}
+					# clear selection
+					kir_clear_hch_selection_effect = yes
+				}
+
+				# pp cost
+				kir_hch_deduct_pp_promote_effect = yes
+			}
+
+			kir_hierarchy_character_selection_demote_button_click = {
+				# resign selected character
+				resign_selected_hch_effect = yes
+
+				# demote selected character
+				demote_selected_hch_effect = yes
+
+				# clear selection
+				kir_clear_hch_selection_effect = yes
+
+				# pp cost
+				kir_hch_deduct_pp_demote_effect = yes
+			}
+
+			kir_hierarchy_character_selection_close_button_click = {
+				# clear selection and added values
+				kir_clear_hch_selection_effect = yes
+				kir_clear_hch_assign_effect = yes
+			}
+		}
+
+		properties = {
+			kir_hierarchy_character_selection_button = {
+				frame = is_selected_hch_array^i  # array which is 1 if not selected hch and 2 if it is
+			}
+			kir_hierarchy_character_selection_icon = {
+				image = "[GetHCHgfx]"
+			}
+		}
+
+		dynamic_lists = {
+			kir_hch_selection_gridbox = {
+				array = current_hch_pool_array
+				entry_container = "kir_hierarchy_hch_selection_entry"
+				value = hch_value
+			}
+		}
+	}
+}
