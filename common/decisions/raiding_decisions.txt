@@ -263,18 +263,6 @@ raiding_category = {
 					}
 				}
 			}
-			if = {
-			    limit = {
-				    has_completed_focus = OLV_raid_tithes
-				}
-				add_political_power = 40 
-			}
-			if = {
-			    limit = {
-				    has_completed_focus = OLV_glory_of_battle
-				}
-				add_manpower = 3000
-			}
 			hidden_effect = {
 				add_ai_strategy = {
 					type = prepare_for_war
@@ -325,10 +313,25 @@ raiding_category = {
 				clr_country_flag = preparing_raid
 				# remove_targeted_decision = { target = FROM decision = initiate_raid }
 				activate_targeted_decision = { target = FROM decision = prepare_raid }
+				activate_targeted_decision = { target = FROM decision = back_out_of_raid_attacker }
+				FROM = { activate_targeted_decision = { target = ROOT decision = back_out_of_raid_defender } }
+				set_country_flag = { 
+					flag = in_the_first_month_of_a_raid 
+					days = 30
+					value = 1
+				}
+				FROM = { 
+					set_country_flag = { 
+						flag = in_the_first_month_of_a_raid 
+						days = 30
+						value = 1
+					}
+				}
 			}
 		}
 	}
-	
+
+
 	divide_loot = {
 		icon = griffon_bandits
 		available = {
@@ -532,4 +535,96 @@ raiding_category = {
 			factor = 100
 		}
 	}
+}
+political_actions = {
+	back_out_of_raid_attacker = {
+
+		allowed = { always = no } #Activated from effect
+
+		available = {
+			NOT = { 
+				has_country_flag = in_the_first_month_of_a_raid
+			}
+
+		}
+
+		icon = griffon_bandits
+
+		on_map_mode = map_only
+		highlight_states = {
+		highlight_state_targets = {
+				state = var:FROM.attacker_state_vs_@ROOT
+				state = var:FROM.defender_state_vs_@ROOT
+			} 
+		}
+
+
+		ai_will_do = {
+			base = 0
+			#modifier = {
+				
+			#}
+		}
+
+		fire_only_once = yes #Reactivation handled in effect
+
+		complete_effect = {
+			log = "[GetDateText]: [Root.GetName]: Decision back_out_of_raid_attacker"
+			custom_effect_tooltip = back_out_of_raid_attacker_tt
+			hidden_effect = {
+				finalize_border_war = {
+					attacker = FROM.attacker_state_vs_@ROOT
+					defender = FROM.defender_state_vs_@ROOT
+					defender_win = yes
+				}
+				FROM = {remove_targeted_decision = { target = ROOT decision = back_out_of_raid_defender }}	
+			}
+		}
+	}
+	back_out_of_raid_defender = {
+
+        allowed = { always = no } #Activated from effect
+
+		available = {
+			NOT = { 
+				has_country_flag = in_the_first_month_of_a_raid
+			}
+
+		}
+
+		icon = griffon_bandits
+
+        on_map_mode = map_only
+        highlight_states = {
+        highlight_state_targets = {
+                state = var:ROOT.attacker_state_vs_@FROM
+                state = var:ROOT.defender_state_vs_@FROM
+            } 
+        }
+
+        ai_will_do = {
+            base = 0
+            #modifier = {
+                
+            #}
+        }
+
+        fire_only_once = yes #Reactivation handled in effect
+
+        complete_effect = {
+			custom_effect_tooltip = back_out_of_raid_attacker_tt
+			hidden_effect = {
+				finalize_border_war = {
+					attacker = ROOT.attacker_state_vs_@FROM
+					defender = ROOT.defender_state_vs_@FROM
+					attacker_win = yes
+				}
+				log = "[GetDateText]: [Root.GetName]: Decision back_out_of_raid_defender"
+				FROM = {remove_targeted_decision = { target = ROOT decision = back_out_of_raid_attacker}}	
+			}
+
+        }
+    }
+
+
 }
