@@ -1,3 +1,6 @@
+@ARTIFACTS_COOLDOWN_PROGRESSBAR_FRAME         = 80
+@ARTIFACTS_COOLDOWN_PROGRESSBAR_FRAME_MINUS_1 = 79
+
 scripted_gui = {
 
 	CES_good_word_gui = {
@@ -233,13 +236,77 @@ scripted_gui = {
 
 		triggers = {
 			artifact_cooldown_bar_visible = {
+				# True trigger
+				check_variable = { CES_piece_cooldown_final_date_array^CES_artifact_index > global.date }
+
+				# Frame computation, frame = 80 - 79*(date - start)/(final - start)
+				# date - start
+				set_temp_variable           = { date_offset = CES_piece_cooldown_final_date_array^CES_artifact_index }
+				subtract_from_temp_variable = { date_offset = global.date }
+				# final - start
+				set_temp_variable           = { rapport = CES_piece_cooldown_final_date_array^CES_artifact_index }
+				subtract_from_temp_variable = { rapport = CES_piece_cooldown_start_date_array^CES_artifact_index }
+				# 79*(date - start)/(final - start)
+				divide_temp_variable   = { date_offset = rapport }
+				multiply_temp_variable = { date_offset = @ARTIFACTS_COOLDOWN_PROGRESSBAR_FRAME_MINUS_1 }
+				# 80 - 79*(date - start)/(final - start)
+				set_temp_variable           = { frame_artifact_cooldown_bar = @ARTIFACTS_COOLDOWN_PROGRESSBAR_FRAME }
+				subtract_from_temp_variable = { frame_artifact_cooldown_bar = date_offset }
+			}
+
+			artifact_image_click_enabled = {
+				OR = {
+					NOT = { has_country_flag = CES_artifact_running }
+					check_variable = { CES_current_running_artifact_id = CES_artifact_value }
+				}
+			}
+
+			artifact_mask_visible = {
 				always = no
+			}
+
+			artifact_glow_visible = {
+				check_variable = { CES_current_running_artifact_id = CES_artifact_value }
+			}
+
+			merge_visible = {
+				check_variable = { CES_piece_array^num > 2 }
 			}
 		}
 
 		effects = {
 			exit_click = {
 				clr_country_flag = CES_artifact_window_enable
+			}
+
+			exit_right_click = {
+				clr_country_flag = CES_artifact_running
+				set_variable = { CES_current_running_artifact_id = -1 }
+				clear_array = CES_piece_cooldown_start_date_array
+				clear_array = CES_piece_cooldown_final_date_array
+				for_loop_effect = {
+					end = CES_artifact_array^num
+
+					add_to_array = { CES_piece_cooldown_start_date_array = global.date }
+					add_to_array = { CES_piece_cooldown_final_date_array = global.date }
+				}
+			}
+
+			artifact_image_click = {
+				if = {
+					limit = { NOT = {has_country_flag = CES_artifact_running} }
+
+					set_country_flag = CES_artifact_running
+					set_variable = { CES_current_running_artifact_id = CES_artifact_value }
+
+					set_variable    = { CES_piece_cooldown_start_date_array^CES_artifact_index = global.date }
+					set_variable    = { CES_piece_cooldown_final_date_array^CES_artifact_index = global.date }
+					add_to_variable = { CES_piece_cooldown_final_date_array^CES_artifact_index = 0.024 }
+				}
+			}
+
+			merge_click = {
+				f_CES_clear_pieces = yes
 			}
 		}
 
@@ -253,7 +320,7 @@ scripted_gui = {
 			}
 
 			artifact_cooldown_bar = {
-				frame = 10
+				frame = frame_artifact_cooldown_bar
 			}
 
 			artifact_time_remaining_bar = {
