@@ -4999,64 +4999,80 @@ NCH_republican_menu = {
 	}
 }
 
-NCH_sunderer_hatred_menu = {
+war_measures = {
 
-	NCH_casualty_mission_start = {
+	NCH_casualty_mission_start = { #TODO - LOC
 		icon = generic_army_support #TODO
 		cost = 5
 		allowed = { tag = NCH }
 		fire_only_once = no
-		days_re_enable = NCH_casualty_mission_cd
+		days_re_enable = 60
 
 		visible = {
 			NOT = { has_country_flag = NCH_casualty_mission_active }
+			has_completed_focus = NCH_hunt_their_wrath
 		}
 
 		available = {
-			#has_completed_focus =
+			has_war = yes
 		}
 
 		complete_effect = {
 			set_country_flag = NCH_casualty_mission_active
 			every_country = {
 				limit = {
-					NOT = { tag = NCH }
 					has_war_with = NCH
 				}
-				add_to_array = { 
-					array = NCH_opponents_arr
-					value = THIS.id
-				}
+				set_country_flag = at_war_with_NCH_atm
 				set_variable = { NCH_casualty_mission_var_control = casualties_k }
 				set_variable = { NCH_casualty_mission_var_offset = casualties_k }
-				clear_variable = { global.NCH_casualty_mission_var = 0 }
 			}
-			clear_variable = { NCH_casualty_mission_var_total = 0 }
+			set_variable = { NCH_casualty_mission_var_total = 0 }
 			activate_decision = NCH_casualty_mission
 		}
 	}
 	
-	NCH_casualty_mission = {
+	NCH_casualty_mission = { #TODO - LOC
 		icon = generic_army_support #TODO
 		allowed = { tag = NCH }
 		fire_only_once = no
 		
-		days_remove = 90
+		days_remove = 5 #90
 
 		visible = {
-			always = no
+			has_country_flag = NCH_casualty_mission_active
 		}
 
 		available = { 
-			always = no
+			has_country_flag = NCH_casualty_mission_active
 		}
 
 		remove_effect = {
-			clr_country_flag = NCH_casualty_mission_active
 			if = {
 				limit = {
-					check_variable = { NCH_casualty_mission_var_total > 10 }
-					NOT = { check_variable = { NCH_casualty_mission_var_total > 50 } }
+					check_variable = { NCH_casualty_mission_var_total > 0.5 }
+				}
+				add_to_variable = { NCH_hatred_total = 15 }
+				clamp_variable = {
+					var = NCH_hatred_total
+					max = 100
+				}
+				custom_effect_tooltip = NCH_casualty_mission_success_15
+			}
+			else_if = {
+				limit = {
+					check_variable = { NCH_casualty_mission_var_total > 0.1 }
+				}
+				add_to_variable = { NCH_hatred_total = 10 }
+				clamp_variable = {
+					var = NCH_hatred_total
+					max = 100
+				}
+				custom_effect_tooltip = NCH_casualty_mission_success_10
+			}
+			else_if = {
+				limit = {
+					check_variable = { NCH_casualty_mission_var_total > 0.050 }
 				}
 				add_to_variable = { NCH_hatred_total = 5 }
 				clamp_variable = {
@@ -5064,42 +5080,19 @@ NCH_sunderer_hatred_menu = {
 					min = 0
 					max = 100
 				}
-				custom_effect_tooltip = NCH_casualty_mission_success
+				custom_effect_tooltip = NCH_casualty_mission_success_5
 			}
-			if = {
-				limit = {
-					check_variable = { NCH_casualty_mission_var_total > 50 }
-					NOT = { check_variable = { NCH_casualty_mission_var_total > 100 } }
-				}
-				add_to_variable = { NCH_hatred_total = 10 }
-				clamp_variable = {
-					var = NCH_hatred_total
-					max = 100
-				}
-				custom_effect_tooltip = NCH_casualty_mission_success
-			}
-			if = {
-				limit = {
-					check_variable = { NCH_casualty_mission_var_total > 100 }
-				}
-				add_to_variable = { NCH_hatred_total = 15 }
-				clamp_variable = {
-					var = NCH_hatred_total
-					max = 100
-				}
-				custom_effect_tooltip = NCH_casualty_mission_success
-			}
-			set_variable = { NCH_casualty_mission_var_total = 0 }
+			log = "Total Casualties: [?NCH_casualty_mission_var_total]"
 			every_country = {
 				limit = {
-					is_in_array = { 
-						array = NCH_opponents_arr
-						value = THIS.id
-					}
+					has_country_flag = at_war_with_NCH_atm
 				}
-				clear_variable = global.NCH_casualty_mission_var
+				clear_variable = NCH_casualty_mission_var_control
 				clear_variable = NCH_casualty_mission_var_offset
+				clr_country_flag = at_war_with_NCH_atm
 			}
+			clear_variable = NCH_casualty_mission_var_total
+			clr_country_flag = NCH_casualty_mission_active
 		}
 	}
 }
@@ -5197,7 +5190,7 @@ political_actions = {
 		}
 	}
 
-	NCH_BEG_core_WAT_642 = {
+	NCH_core_WAT_642 = {
 		icon = generic_nationalism
 		cost = 75
 		allowed = { tag = NCH }
@@ -5211,11 +5204,12 @@ political_actions = {
 				}
 			}
 		}
-
+		on_map_mode = map_only
 		available = {
 			OR = {
 				has_completed_focus = NCH_offer_protection
 				has_completed_focus = NCH_unite_beorgfordas
+				has_completed_focus = NCH_an_example_of_our_kindness_and_strength
 			}
 			642 = { compliance > 45 }
 		}
@@ -5230,11 +5224,27 @@ political_actions = {
 
 		remove_effect = {
 			642 = {
-				add_core_of = NCH
+				if = {
+					limit = {
+						NCH = {
+							has_focus_tree = greneclyf_slana
+						}
+					}
+					add_state_modifier = {
+						modifier = {
+							compliance_growth = 0.05
+							local_manpower = 0.10
+							required_garrison_factor = -0.15
+						}
+					}
+				}
+				else = {
+					add_core_of = NCH
+				}
 			}
 		}
 	}
-	NCH_BEG_core_WAT_641 = {
+	NCH_core_WAT_641 = {
 		icon = generic_nationalism
 		cost = 35
 		allowed = { tag = NCH }
@@ -5248,11 +5258,12 @@ political_actions = {
 				}
 			}
 		}
-
+		on_map_mode = map_only
 		available = {
 			OR = {
 				has_completed_focus = NCH_offer_protection
 				has_completed_focus = NCH_unite_beorgfordas
+				has_completed_focus = NCH_an_example_of_our_kindness_and_strength
 			}
 			641 = { compliance > 45 }
 		}
@@ -5267,11 +5278,27 @@ political_actions = {
 
 		remove_effect = {
 			641 = {
-				add_core_of = NCH
+				if = {
+					limit = {
+						NCH = {
+							has_focus_tree = greneclyf_slana
+						}
+					}
+					add_state_modifier = {
+						modifier = {
+							compliance_growth = 0.05
+							local_manpower = 0.10
+							required_garrison_factor = -0.15
+						}
+					}
+				}
+				else = {
+					add_core_of = NCH
+				}
 			}
 		}
 	}
-	NCH_BEG_core_WAT_643 = {
+	NCH_core_WAT_643 = {
 		icon = generic_nationalism
 		cost = 35
 		allowed = { tag = NCH }
@@ -5285,11 +5312,12 @@ political_actions = {
 				}
 			}
 		}
-
+		on_map_mode = map_only
 		available = {
 			OR = {
 				has_completed_focus = NCH_offer_protection
 				has_completed_focus = NCH_unite_beorgfordas
+				has_completed_focus = NCH_an_example_of_our_kindness_and_strength
 			}
 			643 = { compliance > 45 }
 		}
@@ -5304,11 +5332,27 @@ political_actions = {
 
 		remove_effect = {
 			643 = {
-				add_core_of = NCH
+				if = {
+					limit = {
+						NCH = {
+							has_focus_tree = greneclyf_slana
+						}
+					}
+					add_state_modifier = {
+						modifier = {
+							compliance_growth = 0.05
+							local_manpower = 0.10
+							required_garrison_factor = -0.15
+						}
+					}
+				}
+				else = {
+					add_core_of = NCH
+				}
 			}
 		}
 	}
-	NCH_BEG_core_WAT_640 = {
+	NCH_core_WAT_640 = {
 		icon = generic_nationalism
 		cost = 35
 		allowed = { tag = NCH }
@@ -5322,11 +5366,12 @@ political_actions = {
 				}
 			}
 		}
-
+		on_map_mode = map_only
 		available = {
 			OR = {
 				has_completed_focus = NCH_offer_protection
 				has_completed_focus = NCH_unite_beorgfordas
+				has_completed_focus = NCH_an_example_of_our_kindness_and_strength
 			}
 			640 = { compliance > 45 }
 		}
@@ -5341,11 +5386,27 @@ political_actions = {
 
 		remove_effect = {
 			640 = {
-				add_core_of = NCH
+				if = {
+					limit = {
+						NCH = {
+							has_focus_tree = greneclyf_slana
+						}
+					}
+					add_state_modifier = {
+						modifier = {
+							compliance_growth = 0.05
+							local_manpower = 0.10
+							required_garrison_factor = -0.15
+						}
+					}
+				}
+				else = {
+					add_core_of = NCH
+				}
 			}
 		}
 	}
-	NCH_BEG_core_FIR_454 = {
+	NCH_core_FIR_454 = {
 		icon = generic_nationalism
 		cost = 75
 		allowed = { tag = NCH }
@@ -5359,11 +5420,12 @@ political_actions = {
 				}
 			}
 		}
-
+	on_map_mode = map_only
 		available = {
 			OR = {
 				has_completed_focus = NCH_offer_protection
 				has_completed_focus = NCH_unite_beorgfordas
+				has_completed_focus = NCH_an_example_of_our_kindness_and_strength
 			}
 			454 = { compliance > 45 }
 		}
@@ -5378,11 +5440,27 @@ political_actions = {
 
 		remove_effect = {
 			454 = {
-				add_core_of = NCH
+				if = {
+					limit = {
+						NCH = {
+							has_focus_tree = greneclyf_slana
+						}
+					}
+					add_state_modifier = {
+						modifier = {
+							compliance_growth = 0.05
+							local_manpower = 0.10
+							required_garrison_factor = -0.15
+						}
+					}
+				}
+				else = {
+					add_core_of = NCH
+				}
 			}
 		}
 	}
-	NCH_BEG_core_FIR_453 = {
+	NCH_core_FIR_453 = {
 		icon = generic_nationalism
 		cost = 35
 		allowed = { tag = NCH }
@@ -5396,11 +5474,12 @@ political_actions = {
 				}
 			}
 		}
-
+		on_map_mode = map_only
 		available = {
 			OR = {
 				has_completed_focus = NCH_offer_protection
 				has_completed_focus = NCH_unite_beorgfordas
+				has_completed_focus = NCH_an_example_of_our_kindness_and_strength
 			}
 			453 = { compliance > 45 }
 		}
@@ -5415,11 +5494,27 @@ political_actions = {
 
 		remove_effect = {
 			453 = {
-				add_core_of = NCH
+				if = {
+					limit = {
+						NCH = {
+							has_focus_tree = greneclyf_slana
+						}
+					}
+					add_state_modifier = {
+						modifier = {
+							compliance_growth = 0.05
+							local_manpower = 0.10
+							required_garrison_factor = -0.15
+						}
+					}
+				}
+				else = {
+					add_core_of = NCH
+				}
 			}
 		}
 	}
-	NCH_BEG_core_FIR_478 = {
+	NCH_core_FIR_478 = {
 		icon = generic_nationalism
 		cost = 35
 		allowed = { tag = NCH }
@@ -5433,11 +5528,12 @@ political_actions = {
 				}
 			}
 		}
-
+		on_map_mode = map_only
 		available = {
 			OR = {
 				has_completed_focus = NCH_offer_protection
 				has_completed_focus = NCH_unite_beorgfordas
+				has_completed_focus = NCH_an_example_of_our_kindness_and_strength
 			}
 			478 = { compliance > 45 }
 		}
@@ -5452,11 +5548,27 @@ political_actions = {
 
 		remove_effect = {
 			478 = {
-				add_core_of = NCH
+				if = {
+					limit = {
+						NCH = {
+							has_focus_tree = greneclyf_slana
+						}
+					}
+					add_state_modifier = {
+						modifier = {
+							compliance_growth = 0.05
+							local_manpower = 0.10
+							required_garrison_factor = -0.15
+						}
+					}
+				}
+				else = {
+					add_core_of = NCH
+				}
 			}
 		}
 	}
-	NCH_BEG_core_FIR_650 = {
+	NCH_core_FIR_650 = {
 		icon = generic_nationalism
 		cost = 30
 		allowed = { tag = NCH }
@@ -5470,11 +5582,12 @@ political_actions = {
 				}
 			}
 		}
-
+		on_map_mode = map_only
 		available = {
 			OR = {
 				has_completed_focus = NCH_offer_protection
 				has_completed_focus = NCH_unite_beorgfordas
+				has_completed_focus = NCH_an_example_of_our_kindness_and_strength
 			}
 			650 = { compliance > 45 }
 		}
@@ -5489,11 +5602,27 @@ political_actions = {
 
 		remove_effect = {
 			650 = {
-				add_core_of = NCH
+				if = {
+					limit = {
+						NCH = {
+							has_focus_tree = greneclyf_slana
+						}
+					}
+					add_state_modifier = {
+						modifier = {
+							compliance_growth = 0.05
+							local_manpower = 0.10
+							required_garrison_factor = -0.15
+						}
+					}
+				}
+				else = {
+					add_core_of = NCH
+				}
 			}
 		}
 	}
-	NCH_BEG_core_FIR_636 = {
+	NCH_core_FIR_636 = {
 		icon = generic_nationalism
 		cost = 30
 		allowed = { tag = NCH }
@@ -5507,11 +5636,12 @@ political_actions = {
 				}
 			}
 		}
-
+		on_map_mode = map_only
 		available = {
 			OR = {
 				has_completed_focus = NCH_offer_protection
 				has_completed_focus = NCH_unite_beorgfordas
+				has_completed_focus = NCH_an_example_of_our_kindness_and_strength
 			}
 			636 = { compliance > 45 }
 		}
@@ -5526,11 +5656,27 @@ political_actions = {
 
 		remove_effect = {
 			636 = {
-				add_core_of = NCH
+				if = {
+					limit = {
+						NCH = {
+							has_focus_tree = greneclyf_slana
+						}
+					}
+					add_state_modifier = {
+						modifier = {
+							compliance_growth = 0.05
+							local_manpower = 0.10
+							required_garrison_factor = -0.15
+						}
+					}
+				}
+				else = {
+					add_core_of = NCH
+				}
 			}
 		}
 	}
-	NCH_BEG_core_FIR_644 = {
+	NCH_core_FIR_644 = {
 		icon = generic_nationalism
 		cost = 20
 		allowed = { tag = NCH }
@@ -5544,11 +5690,12 @@ political_actions = {
 				}
 			}
 		}
-
+		on_map_mode = map_only
 		available = {
 			OR = {
 				has_completed_focus = NCH_offer_protection
 				has_completed_focus = NCH_unite_beorgfordas
+				has_completed_focus = NCH_an_example_of_our_kindness_and_strength
 			}
 			644 = { compliance > 45 }
 		}
@@ -5563,11 +5710,27 @@ political_actions = {
 
 		remove_effect = {
 			644 = {
-				add_core_of = NCH
+				if = {
+					limit = {
+						NCH = {
+							has_focus_tree = greneclyf_slana
+						}
+					}
+					add_state_modifier = {
+						modifier = {
+							compliance_growth = 0.05
+							local_manpower = 0.10
+							required_garrison_factor = -0.15
+						}
+					}
+				}
+				else = {
+					add_core_of = NCH
+				}
 			}
 		}
 	}
-	NCH_BEG_core_FIR_604 = {
+	NCH_core_FIR_604 = {
 		icon = generic_nationalism
 		cost = 20
 		allowed = { tag = NCH }
@@ -5581,11 +5744,12 @@ political_actions = {
 				}
 			}
 		}
-
+		on_map_mode = map_only
 		available = {
 			OR = {
 				has_completed_focus = NCH_offer_protection
 				has_completed_focus = NCH_unite_beorgfordas
+				has_completed_focus = NCH_an_example_of_our_kindness_and_strength
 			}
 			604 = { compliance > 45 }
 		}
@@ -5600,7 +5764,323 @@ political_actions = {
 
 		remove_effect = {
 			604 = {
-				add_core_of = NCH
+				if = {
+					limit = {
+						NCH = {
+							has_focus_tree = greneclyf_slana
+						}
+					}
+					add_state_modifier = {
+						modifier = {
+							compliance_growth = 0.05
+							local_manpower = 0.10
+							required_garrison_factor = -0.15
+						}
+					}
+				}
+				else = {
+					add_core_of = NCH
+				}
+			}
+		}
+	}
+	NCH_core_FBK_639 = {
+		icon = generic_nationalism
+		cost = 20
+		allowed = { tag = NCH }
+		fire_only_once = yes
+
+		visible = {
+			639 = {
+				is_owned_and_controlled_by = NCH
+				NOT = {
+					is_core_of = NCH
+				}
+			}
+		}
+		on_map_mode = map_only
+		available = {
+			has_completed_focus = NCH_an_example_of_our_kindness_and_strength
+			639 = { compliance > 45 }
+		}
+		
+		highlight_states = {
+			highlight_state_targets = {
+				state = 639
+			}
+		}
+
+		days_remove = 30
+
+		remove_effect = {
+			639 = {
+				if = {
+					limit = {
+						NCH = {
+							has_focus_tree = greneclyf_slana
+						}
+					}
+					add_state_modifier = {
+						modifier = {
+							compliance_growth = 0.05
+							local_manpower = 0.10
+							required_garrison_factor = -0.15
+						}
+					}
+				}
+				# else = {
+				# 	add_core_of = NCH
+				# }
+			}
+		}
+	}
+	NCH_core_FBK_569 = {
+		icon = generic_nationalism
+		cost = 20
+		allowed = { tag = NCH }
+		fire_only_once = yes
+
+		visible = {
+			569 = {
+				is_owned_and_controlled_by = NCH
+				NOT = {
+					is_core_of = NCH
+				}
+			}
+		}
+		on_map_mode = map_only
+		available = {
+			has_completed_focus = NCH_an_example_of_our_kindness_and_strength
+			569 = { compliance > 45 }
+		}
+		
+		highlight_states = {
+			highlight_state_targets = {
+				state = 569
+			}
+		}
+
+		days_remove = 30
+
+		remove_effect = {
+			569 = {
+				if = {
+					limit = {
+						NCH = {
+							has_focus_tree = greneclyf_slana
+						}
+					}
+					add_state_modifier = {
+						modifier = {
+							compliance_growth = 0.05
+							local_manpower = 0.10
+							required_garrison_factor = -0.15
+						}
+					}
+				}
+				# else = {
+				# 	add_core_of = NCH
+				# }
+			}
+		}
+	}
+	NCH_core_FBK_572 = {
+		icon = generic_nationalism
+		cost = 20
+		allowed = { tag = NCH }
+		fire_only_once = yes
+
+		visible = {
+			572 = {
+				is_owned_and_controlled_by = NCH
+				NOT = {
+					is_core_of = NCH
+				}
+			}
+		}
+		on_map_mode = map_only
+		available = {
+			has_completed_focus = NCH_an_example_of_our_kindness_and_strength
+			572 = { compliance > 45 }
+		}
+		
+		highlight_states = {
+			highlight_state_targets = {
+				state = 572
+			}
+		}
+
+		days_remove = 30
+
+		remove_effect = {
+			572 = {
+				if = {
+					limit = {
+						NCH = {
+							has_focus_tree = greneclyf_slana
+						}
+					}
+					add_state_modifier = {
+						modifier = {
+							compliance_growth = 0.05
+							local_manpower = 0.10
+							required_garrison_factor = -0.15
+						}
+					}
+				}
+				# else = {
+				# 	add_core_of = NCH
+				# }
+			}
+		}
+	}
+	NCH_core_FBK_571 = {
+		icon = generic_nationalism
+		cost = 20
+		allowed = { tag = NCH }
+		fire_only_once = yes
+
+		visible = {
+			571 = {
+				is_owned_and_controlled_by = NCH
+				NOT = {
+					is_core_of = NCH
+				}
+			}
+		}
+		on_map_mode = map_only
+		available = {
+			has_completed_focus = NCH_an_example_of_our_kindness_and_strength
+			571 = { compliance > 45 }
+		}
+		
+		highlight_states = {
+			highlight_state_targets = {
+				state = 571
+			}
+		}
+
+		days_remove = 30
+
+		remove_effect = {
+			571 = {
+				if = {
+					limit = {
+						NCH = {
+							has_focus_tree = greneclyf_slana
+						}
+					}
+					add_state_modifier = {
+						modifier = {
+							compliance_growth = 0.05
+							local_manpower = 0.10
+							required_garrison_factor = -0.15
+						}
+					}
+				}
+				# else = {
+				# 	add_core_of = NCH
+				# }
+			}
+		}
+	}
+	NCH_core_FBK_455 = {
+		icon = generic_nationalism
+		cost = 30
+		allowed = { tag = NCH }
+		fire_only_once = yes
+
+		visible = {
+			455 = {
+				is_owned_and_controlled_by = NCH
+				NOT = {
+					is_core_of = NCH
+				}
+			}
+		}
+		on_map_mode = map_only
+		available = {
+			has_completed_focus = NCH_an_example_of_our_kindness_and_strength
+			455 = { compliance > 45 }
+		}
+		
+		highlight_states = {
+			highlight_state_targets = {
+				state = 455
+			}
+		}
+
+		days_remove = 30
+
+		remove_effect = {
+			455 = {
+				if = {
+					limit = {
+						NCH = {
+							has_focus_tree = greneclyf_slana
+						}
+					}
+					add_state_modifier = {
+						modifier = {
+							compliance_growth = 0.05
+							local_manpower = 0.10
+							required_garrison_factor = -0.15
+						}
+					}
+				}
+				# else = {
+				# 	add_core_of = NCH
+				# }
+			}
+		}
+	}
+	NCH_core_FBK_603 = {
+		icon = generic_nationalism
+		cost = 20
+		allowed = { tag = NCH }
+		fire_only_once = yes
+
+		visible = {
+			603 = {
+				is_owned_and_controlled_by = NCH
+				NOT = {
+					is_core_of = NCH
+				}
+			}
+		}
+		on_map_mode = map_only
+		available = {
+			has_completed_focus = NCH_an_example_of_our_kindness_and_strength
+			603 = { compliance > 45 }
+		}
+		
+		highlight_states = {
+			highlight_state_targets = {
+				state = 603
+			}
+		}
+
+		days_remove = 30
+
+		remove_effect = {
+			603 = {
+				if = {
+					limit = {
+						NCH = {
+							has_focus_tree = greneclyf_slana
+						}
+					}
+					add_state_modifier = {
+						modifier = {
+							compliance_growth = 0.05
+							local_manpower = 0.10
+							required_garrison_factor = -0.15
+						}
+					}
+				}
+				# else = {
+				# 	add_core_of = NCH
+				# }
 			}
 		}
 	}
@@ -5728,6 +6208,7 @@ NCH_debug_wars = {
 			is_debug = yes
 		}
 		complete_effect = {
+			set_country_flag = NCH_hatred_enabled
 			add_dynamic_modifier = {
 				modifier = NCH_power_of_hate
 			}	
