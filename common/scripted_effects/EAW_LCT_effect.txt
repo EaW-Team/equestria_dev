@@ -2455,7 +2455,6 @@ LCT_HPE_set_failstate = {
 LCT_HPE_balkanize = {
 	hidden_effect = {
 		#Step 1: Gather all occupied tags myself because for some reason the occupied_countries array doesn't have them all.
-		log = "Balkanize! --------------------------------------------------"
 		every_owned_state = {
 			limit = {
 				is_fully_controlled_by = ROOT
@@ -2464,27 +2463,40 @@ LCT_HPE_balkanize = {
 				array = core_countries
 				if = {
 					limit = {
-						exists = no
+						LCT_HPE_is_balkanizable = yes
+						OR = {
+							exists = no
+							is_subject_of = ROOT
+						}
 						NOT = {
-							is_in_array = { temp_countries_to_release = THIS }
+							has_country_flag = temp_added_to_array
 						}
 					}
-					log = "Country: [THIS.GetName]"
-					ROOT = {
-						add_to_temp_array = {
-							array = temp_countries_to_release
-							value = PREV
-						}
+					set_country_flag = temp_added_to_array
+					add_to_temp_array = {
+						array = temp_countries_to_release
+						value = THIS
 					}
 				}
 			}
 		}
-		#Step 2: Release all occupied tags as puppets
+		
+		#Step 2: Sort countries by size. This prevents countries from not being released in certain circumstances.
+		get_sorted_scored_countries_temp = {
+			scorer = HPE_largest_country
+			array = temp_countries_to_release_sorted
+			scores = temp_countries_to_release_scores
+		}
+		
+		#Step 3: Release all occupied tags as puppets
 		for_each_scope_loop = {
-			array = temp_countries_to_release
+			array = temp_countries_to_release_sorted
 			if = {
 				limit = {
-					exists = no
+					OR = {
+						exists = no
+						is_subject_of = ROOT
+					}
 				}
 				
 				#Assign a default focus tree
@@ -2504,6 +2516,8 @@ LCT_HPE_balkanize = {
 					load_focus_tree = generic_focus
 				}
 				
+				clr_country_flag = temp_added_to_array
+				
 				for_each_scope_loop = {
 					array = original_cores
 					if = {
@@ -2512,7 +2526,6 @@ LCT_HPE_balkanize = {
 								owner = { tag = ROOT }
 								owner = { is_subject_of = ROOT }
 							}
-							LCT_HPE_is_balkanizable = yes
 						}
 						transfer_state_to = PREV
 					}
