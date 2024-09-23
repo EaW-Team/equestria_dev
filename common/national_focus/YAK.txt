@@ -561,7 +561,6 @@ shared_focus = {
 	completion_reward = {
 		log = "[GetDateText]: [Root.GetName]: Focus YAK_request_equestrian_aid"
 		YAK_eqs_support_add = yes
-		custom_effect_tooltip = YAK_eqs_support_increase_tt
 	}
 	search_filters = { FOCUS_FILTER_BALANCE_OF_POWER }
 
@@ -2919,6 +2918,15 @@ shared_focus = {
 				hostility_reason = asked_to_join
 			}
 		}
+		if = {
+			limit = {
+				country_exists = GFF
+			}
+			create_wargoal = {
+				target = GFF
+				type = take_claimed_state
+			}
+		}
 	}
 	search_filters = { FOCUS_FILTER_ANNEXATION }
 
@@ -2951,12 +2959,6 @@ shared_focus = {
 					has_government = fascism
 				}
 			}
-			all_country_with_original_tag = {
-				original_tag_to_check = GRF
-				NOT = {
-					has_government = democratic
-				}
-			}
 		}
 
 	}
@@ -2983,9 +2985,14 @@ shared_focus = {
 				}
 			}
 		}
-		create_wargoal = {
-			target = GFF
-			type = take_claimed_state
+		if = {
+			limit = {
+				country_exists = GFF
+			}
+			create_wargoal = {
+				target = GFF
+				type = take_claimed_state
+			}
 		}
 	}
 	search_filters = { FOCUS_FILTER_ANNEXATION }
@@ -3060,6 +3067,7 @@ shared_focus = {
 	}
 	available = {
 		has_completed_focus = YAK_first_elections
+		has_completed_focus = YAK_into_a_federation
 	}
 	prerequisite = {
 		focus = YAK_fortify_the_border
@@ -3075,6 +3083,12 @@ shared_focus = {
 		set_cosmetic_tag = YAK_federation_2
 		every_subject_country = {
 			country_event = newyaks.110
+		}
+		hidden_effect = {
+			news_event = {
+				id = yak_news.9
+				days = 7
+			}
 		}
 	}
 
@@ -3178,6 +3192,20 @@ shared_focus = {
 			}
 		}
 	}
+	bypass = {
+		OR = {
+			PNG = {
+				exists = yes
+				has_government = democratic
+				is_subject = no
+			}
+			PLB = {
+				exists = yes
+				has_government = democratic
+				is_subject = no
+			}
+		}
+	}
 	prerequisite = {
 		focus = YAK_closer_to_equestria
 	}
@@ -3211,17 +3239,17 @@ shared_focus = {
 						transfer_state = PREV
 					}
 				}
-				PLB = {
-					ROOT = {
-						puppet = PREV
-					}
-					set_politics = { 
-						ruling_party = democratic 
-					}
-					add_timed_idea = {
-						idea = YAK_harmony_puppet_reconstruction_idea
-						days = 365
-					}
+			}
+			PLB = {
+				ROOT = {
+					puppet = PREV
+				}
+				set_politics = { 
+					ruling_party = democratic 
+				}
+				add_timed_idea = {
+					idea = YAK_harmony_puppet_reconstruction_idea
+					days = 365
 				}
 			}
 		}
@@ -3257,17 +3285,18 @@ shared_focus = {
 						transfer_state = PREV
 					}
 				}
-				PNG = {
-					ROOT = {
-						puppet = PREV
-					}
-					set_politics = { 
-						ruling_party = democratic 
-					}
-					add_timed_idea = {
-						idea = YAK_harmony_puppet_reconstruction_idea
-						days = 365
-					}
+			}
+			
+			PNG = {
+				ROOT = {
+					puppet = PREV
+				}
+				set_politics = { 
+					ruling_party = democratic 
+				}
+				add_timed_idea = {
+					idea = YAK_harmony_puppet_reconstruction_idea
+					days = 365
 				}
 			}
 		}
@@ -4683,7 +4712,8 @@ shared_focus = {
 		set_variable = { YAK_army_speed_factor = 0 } # used
 		set_variable = { YAK_experience_gain_factor = 0 }
 		set_variable = { YAK_army_core_defence_factor = 0 } # used
-		set_variable = { YAK_terrain_penalty_reduction = 0 } # used
+		set_variable = { YAK_cas_damage_reduction = 0 } # used
+		set_variable = { YAK_enemy_army_bonus_air_superiority_factor = 0 } # used
 		set_variable = { YAK_fuel_gain_factor = 0 } # used
 		set_variable = { YAK_terrain_trait_xp_gain_factor = 0 } # used
 		set_variable = { YAK_special_forces_cap = 0 } # used
@@ -5698,7 +5728,8 @@ shared_focus = {
 	completion_reward = {
 		log = "[GetDateText]: [Root.GetName]: Focus YAK_terrain_training"
 		add_to_variable = { YAK_terrain_trait_xp_gain_factor = 0.2 }
-		add_to_variable = { YAK_terrain_penalty_reduction = 0.05 }
+		add_to_variable = { YAK_cas_damage_reduction = 0.1 }
+		add_to_variable = { YAK_enemy_army_bonus_air_superiority_factor = 0.1 }
 		custom_effect_tooltip = YAK_terrain_training_tt
 		hidden_effect = {
 			every_army_leader = {
@@ -6908,10 +6939,18 @@ shared_focus = {
 		focus = YAK_army_with_a_state
 	}
 	available = {
-		has_idea = proper_science_base
-		has_idea = modern_society
+		OR = {
+			has_idea = modern_society
+			AND = {
+				has_idea = outdated_industry
+				has_manpower > 49999
+			}
+			AND = {
+				has_idea = pre_industrial_society
+				has_manpower > 99999
+			}
+		}
 	}
-
 
 	relative_position_id = YAK_begin_nationalization
 	x = 1
@@ -6919,6 +6958,37 @@ shared_focus = {
 
 	completion_reward = {
 		log = "[GetDateText]: [Root.GetName]: Focus YAK_war_crime_focus"
+		custom_effect_tooltip = YAK_modern_society_better
+		if = {
+			limit = {
+				has_idea = outdated_industry
+			}
+			add_manpower = -50000
+		}
+		else_if = {
+			limit = {
+				has_idea = pre_industrial_society
+			}
+			add_manpower = -100000
+		}
+		if = {
+			limit = {
+				has_idea = big_science_base
+			}
+			add_timed_idea = {
+				idea = YAK_bad_research
+				days = 365
+			}
+		}
+		else_if = {
+			limit = {
+				has_idea = better_science_base
+			}
+			add_timed_idea = {
+				idea = YAK_worse_research
+				days = 365
+			}
+		}
 		country_event = newyaks.31
 		unlock_decision_category_tooltip = YAK_war_crimes
 	}
@@ -7252,7 +7322,7 @@ shared_focus = {
 			type = take_claimed_state
 		}
 		GRA = {
-			country_event = newyaks.90
+			country_event = newyaks.94
 		}
 		if = {
 			limit = {
