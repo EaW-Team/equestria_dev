@@ -474,6 +474,22 @@ f_CES_artifact_gui_init = {
 	add_to_array = { CES_artifact_posx_array = 282 }
 	add_to_array = { CES_artifact_posy_array = 180 }
 
+	clear_array = CES_artifact_duration_array
+	add_to_array = { CES_artifact_duration_array = 5 } # Rings of Scorchero
+	add_to_array = { CES_artifact_duration_array = 5 } # Silver Shawl
+	add_to_array = { CES_artifact_duration_array = 5 } # Pieces of Powers
+	add_to_array = { CES_artifact_duration_array = 5 } # Horn of the Abada
+	add_to_array = { CES_artifact_duration_array = 5 } # Truth Totem
+	add_to_array = { CES_artifact_duration_array = 5 } # Key of entrance
+
+	clear_array = CES_artifact_cooldown_array
+	add_to_array = { CES_artifact_cooldown_array = 5 } # Rings of Scorchero
+	add_to_array = { CES_artifact_cooldown_array = 5 } # Silver Shawl
+	add_to_array = { CES_artifact_cooldown_array = 5 } # Pieces of Powers
+	add_to_array = { CES_artifact_cooldown_array = 5 } # Horn of the Abada
+	add_to_array = { CES_artifact_cooldown_array = 5 } # Truth Totem
+	add_to_array = { CES_artifact_cooldown_array = 5 } # Key of entrance
+
 	clear_array = CES_artifact_tokens_array
 	add_to_array = { CES_artifact_tokens_array = token:CES_artifact_the_rings_of_scorchero }
 	add_to_array = { CES_artifact_tokens_array = token:CES_artifact_the_silver_shawl_of_shadows }
@@ -584,11 +600,24 @@ f_CES_hide_artifact_window = {
 }
 
 f_CES_update_artifact_gui = {
-	add_to_variable = { CES_artifact_window_update = 1 }
+	add_to_variable = { CES.CES_artifact_window_update = 1 }
 }
 
-f_clear_artifact_cooldown = {
+f_deactivate_artifact = {
+	set_variable = { CES_current_artifact_effect_index = -1 }
+	meta_effect = {
+		text = {
+			if = {
+				limit = { NOT = { has_idea = [IDEA_TOKEN] } }
 
+				add_ideas = [IDEA_TOKEN]
+			}
+		}
+
+		IDEA_TOKEN = "[?CES_artifact_tokens_array^i_artifact_id.GetTokenKey]"
+	}
+
+	f_CES_update_artifact_gui = yes
 }
 
 f_CES_add_artifact = {
@@ -641,6 +670,38 @@ f_CES_add_artifact_6 = {
 	f_CES_add_artifact = yes
 }
 
+f_CES_activate_artifact = {
+	set_temp_variable = { o_activated = 0 }
+	if = {
+		limit = {
+			check_variable = { CES_current_artifact_effect_index < 0 }
+			check_variable = { CES_artifact_array^i_artifact_id = 1}
+		}
+
+		meta_effect = {
+			text = {
+				if = {
+					limit = { has_idea = [IDEA_TOKEN] }
+
+					remove_ideas = [IDEA_TOKEN]
+				}
+				if = {
+					limit = { NOT = { has_idea = [IDEA_TOKEN]_active } }
+					add_timed_idea = {
+						idea = [IDEA_TOKEN]_active
+						days = CES_artifact_duration_array^i_artifact_id
+					}
+				}
+			}
+
+			IDEA_TOKEN = "[?CES_artifact_tokens_array^i_artifact_id.GetTokenKey]"
+		}
+
+		set_temp_variable = { o_activated = 1 }
+	}
+}
+
+
 f_CES_clear_pieces = {
 	clear_array = CES_piece_array
 	for_each_loop = {
@@ -692,6 +753,8 @@ f_clear_artifacts_pieces_reset = {
 		value = -1
 		size = 6
 	}
+
+	set_variable = { CES_current_artifact_effect_index = -1 }
 }
 
 f_CES_add_piece = {
