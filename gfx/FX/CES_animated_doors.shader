@@ -36,7 +36,6 @@ VertexShader =
 			Out.vPosition  = mul( WorldViewProjectionMatrix, float4( v.vPosition.xyz, 1 ) );
 
 			Out.vTexCoord = v.vTexCoord;
-			Out.vTexCoord += Offset;
 
 			return Out;
 		}
@@ -49,8 +48,12 @@ PixelShader =
 	[[
 		float4 main( VS_OUTPUT v ) : PDX_COLOR
 		{
-			v.vTexCoord.x += Time - AnimationTime;
-			if (v.vTexCoord.x > 1.0)
+			if (Offset.x > 0.5) {
+				v.vTexCoord.x -= (Time - AnimationTime)*2;
+			} else {
+				v.vTexCoord.x += (Time - AnimationTime)*2;
+			}
+			if (v.vTexCoord.x > 1.0 || v.vTexCoord.x < 0.0)
 				return float4(1.0, 1.0, 1.0, 0.0);
 			float4 OutColor = tex2D( MapTexture, v.vTexCoord );
 
