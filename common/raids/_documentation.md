@@ -18,7 +18,8 @@ raid_type_id = {
 
 	category = raid_category_id
 
-	custom_map_icon = GFX_ref # override if not using standard icon
+	custom_map_icon = GFX_ref [Optional] - override for the automatic icon lookup (if this is not set, will look for "GFX_raid_type_icon_{raid_name} )" 
+    custom_terrain_icon = GFX_ref [Optional] - override for the automatic background based on target province terrain
 
 	unit_icon = GFX_ref
 	target_icon = GFX_ref
@@ -249,8 +250,9 @@ failure = {
 	destroy_additional_equipment = 0.25
 
     outcome_description = desc_loc_key [Optional] Custom description of the outcome
-    # outcome_description_attacker = desc_loc_key [Optional] Custom description for attacker
-    # outcome_description_defender = desc_loc_key [Optional] Custom description for defender
+    outcome_description_attacker = desc_loc_key [Optional] Custom description for attacker
+    outcome_description_defender = desc_loc_key [Optional] Custom description for defender
+    custom_sound = SFX_ref [Optional] Custom sound effect to play for this outcome
 }
 
 ```
