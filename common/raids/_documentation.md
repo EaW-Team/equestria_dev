@@ -255,6 +255,12 @@ failure = {
     outcome_description_attacker = desc_loc_key [Optional] Custom description for attacker
     outcome_description_defender = desc_loc_key [Optional] Custom description for defender
     custom_sound = SFX_ref [Optional] Custom sound effect to play for this outcome
+
+    # Visual effect to spawn on the target province
+    visual_effect = {
+        entity = "nuke_entity" # name of the entity to spawn
+        animation = "attack" # name of the entity animation state
+    }
 }
 
 ```
