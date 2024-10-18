@@ -297,7 +297,7 @@ scripted in the same way through this formula construct.
 - *enemy_units*: The number of enemy divisions in the target province. For province-target missions ONLY.
 - *air_superiority*: The air superiority score (fraction) of the actor country in the target region. Reference values from 0.0 to 1.0
 - *naval_supremacy*: The naval supremacy score (fraction) of the actor country in the target sea zone. Reference values from 0.0 to 1.0
-- *interceptor*: The number of enemy planes executing interceptor missions in the target region.
+- *interception*: The number of enemy planes executing interception missions in the target region.
 - *intel*: The amount of intel the actor country has on the target. Reference values depend on defines.
 
 #### Air Units Only:
