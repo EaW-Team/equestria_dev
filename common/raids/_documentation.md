@@ -124,7 +124,6 @@ raid_type_id = {
 			modules = { engine_1_2x }  # Optional
 			amount = { min = 80 max = 100 }  # Optional
 		}
-		experience = { min = 1 }  # Optional
 	}
 
 	# NOTE : unit_requirements can occur multiple times in a script
@@ -150,11 +149,6 @@ raid_type_id = {
 	}
 
 	nuke_type = nuclear_bomb		# type of nuke to use: nuclear_bomb or thermonuclear_bomb
-
-	# Intel requirements
-	intel_levels = {
-		launch = 10 # minimum intel level to launch the raid
-	}
 
 	# What happens depending on which level of access is achieved
 	success_levels = {
@@ -207,8 +201,6 @@ The following effects are supported, taking *failure* as an example:
 Note that *actor_effects* and *victim_effects* both use the same scope, but separating them allows for
 easily separating them for UI purposes (showing separate lists of how the actor and victim country were affected by the outcome)
 
-Custom description of the outcome can be added through *outcome_description*, *outcome_description_attacker* or *outcome_description_defender*.
-
 ```
 failure = {
     # Effects that should be listed as affecting the raiding country
@@ -250,10 +242,6 @@ failure = {
 	# The percentage of additional equipment that gets destroyed
 	# Default is 100%
 	destroy_additional_equipment = 0.25
-
-    outcome_description = desc_loc_key [Optional] Custom description of the outcome
-    outcome_description_attacker = desc_loc_key [Optional] Custom description for attacker
-    outcome_description_defender = desc_loc_key [Optional] Custom description for defender
     custom_sound = SFX_ref [Optional] Custom sound effect to play for this outcome
 
     # Visual effect to spawn on the target province
