@@ -49,9 +49,9 @@ PixelShader =
 		float4 main( VS_OUTPUT v ) : PDX_COLOR
 		{
 			if (Offset.x > 0.5) {
-				v.vTexCoord.x -= (Time - AnimationTime)*2;
+				v.vTexCoord.x -= (Time - AnimationTime)*(Time - AnimationTime);
 			} else {
-				v.vTexCoord.x += (Time - AnimationTime)*2;
+				v.vTexCoord.x += (Time - AnimationTime)*(Time - AnimationTime);
 			}
 			if (v.vTexCoord.x > 1.0 || v.vTexCoord.x < 0.0)
 				return float4(1.0, 1.0, 1.0, 0.0);

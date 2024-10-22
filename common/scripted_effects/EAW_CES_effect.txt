@@ -419,7 +419,19 @@ CES_update_good_word_portrait_effect = {
 	}
 }
 
+CES_init_quest_variables = {
+	1 = { set_variable = { CES_quest_event_id = 1 } }
+	2 = { set_variable = { CES_quest_event_id = 41 } }
+	3 = { set_variable = { CES_quest_event_id = 51 } }
+	4 = { set_variable = { CES_quest_event_id = 61 } }
+	5 = { set_variable = { CES_quest_event_id = 11 } }
+	6 = { set_variable = { CES_quest_event_id = 21 } }
+	7 = { set_variable = { CES_quest_event_id = 31 } }
+	8 = { set_variable = { CES_quest_event_id = 71 } }
+}
+
 CES_quest_start = {
+	set_country_flag = CES_daring_do_is_busy_adventuring
 	var:CES_quest = {
 		if = {
 			limit = { NOT = { has_state_flag = CES_quest_active_local } }
@@ -440,6 +452,7 @@ CES_quest_continue = {
 	}
 }
 CES_quest_end = {
+	set_country_flag = CES_daring_do_is_busy_adventuring
 	var:CES_quest = {
 		if = {
 			limit = { NOT = { has_state_flag = CES_quest_active_local } }
@@ -448,6 +461,237 @@ CES_quest_end = {
 			state_event = daring_adventure.104
 		}
 	}
+}
+
+CES_fire_quest_event = {
+	PREV = {
+		meta_effect = {
+			text = { country_event = daring_adventure.[ID] }
+			ID = "[?PREV.CES_quest_event_id]"
+		}
+	}
+	add_to_variable = { CES_quest_event_id = 1 }
+}
+
+@QUEST_LOW_ODD = 35
+@QUEST_MEDIUM_ODD = 65
+@QUEST_HIGHT_ODD = 90
+@QUEST_PERFECT_ODD = 100
+
+@QUEST_LOW_DAY = 14
+@QUEST_MEDIUM_DAY = 14
+@QUEST_HIGHT_DAY = 21
+@QUEST_PERFECT_DAY = 28
+
+CES_quest_set_low_odds = {
+	FROM = { set_variable = { CES_quest_mission_odds = @QUEST_LOW_ODD } }
+	set_variable = { CES_adventure_step_time_days =  @QUEST_LOW_DAY }
+	custom_effect_tooltip = CES_quest_step_low_chance_tt
+}
+CES_quest_set_medium_odds = {
+	FROM = { set_variable = { CES_quest_mission_odds = @QUEST_MEDIUM_ODD } }
+	set_variable = { CES_adventure_step_time_days =  @QUEST_MEDIUM_DAY }
+	custom_effect_tooltip = CES_quest_step_medium_chance_tt
+	add_political_power = -25
+}
+CES_quest_set_high_odds = {
+	FROM = { set_variable = { CES_quest_mission_odds = @QUEST_HIGHT_ODD } }
+	set_variable = { CES_adventure_step_time_days =  @QUEST_HIGHT_DAY }
+	custom_effect_tooltip = CES_quest_step_high_chance_tt
+	add_equipment_to_stockpile = {
+		type = support_equipment
+		amount = -25
+	}
+}
+CES_quest_set_perfect_odds = {
+	FROM = { set_variable = { CES_quest_mission_odds = @QUEST_PERFECT_ODD } }
+	set_variable = { CES_adventure_step_time_days =  @QUEST_PERFECT_DAY }
+	custom_effect_tooltip = CES_quest_step_perfect_chance_tt
+	add_political_power = -25
+	add_equipment_to_stockpile = {
+		type = support_equipment
+		amount = -25
+	}
+}
+
+CES_quest_activate_start_quest_mission = {
+	hidden_effect = {
+		if = {
+			limit = { has_country_flag = CES_quest_pinpong }
+			activate_targeted_decision = { target = FROM decision = CES_quest_mission_start_ping }
+			clr_country_flag = CES_quest_pinpong
+		} else = {
+			activate_targeted_decision = { target = FROM decision = CES_quest_mission_start_pong }
+			set_country_flag = CES_quest_pinpong
+		}
+	}
+}
+
+CES_quest_activate_continue_1_quest_mission = {
+	hidden_effect = {
+		if = {
+			limit = { has_country_flag = CES_quest_pinpong }
+			activate_targeted_decision = { target = FROM decision = CES_quest_mission_continue_1_ping }
+			clr_country_flag = CES_quest_pinpong
+		} else = {
+			activate_targeted_decision = { target = FROM decision = CES_quest_mission_continue_1_pong }
+			set_country_flag = CES_quest_pinpong
+		}
+	}
+}
+
+CES_quest_activate_continue_2_quest_mission = {
+	hidden_effect = {
+		if = {
+			limit = { has_country_flag = CES_quest_pinpong }
+			activate_targeted_decision = { target = FROM decision = CES_quest_mission_continue_2_ping }
+			clr_country_flag = CES_quest_pinpong
+		} else = {
+			activate_targeted_decision = { target = FROM decision = CES_quest_mission_continue_2_pong }
+			set_country_flag = CES_quest_pinpong
+		}
+	}
+}
+
+CES_quest_activate_end_quest_mission = {
+	hidden_effect = {
+		if = {
+			limit = { has_country_flag = CES_quest_pinpong }
+			activate_targeted_decision = { target = FROM decision = CES_quest_mission_end_ping }
+			clr_country_flag = CES_quest_pinpong
+		} else = {
+			activate_targeted_decision = { target = FROM decision = CES_quest_mission_end_pong }
+			set_country_flag = CES_quest_pinpong
+		}
+	}
+}
+
+CES_quest_start_timout_effect = {
+	hidden_effect = {
+		subtract_from_variable = { CES_quest_active = 1 }
+		FROM = {
+			clr_state_flag = CES_quest_active_local
+			set_temp_variable = { CES_quest_mission_fail = 100 }
+			subtract_from_temp_variable = { CES_quest_mission_fail = CES_quest_mission_odds }
+			random_list = {
+				var:CES_quest_mission_odds = { #Success effect here
+					add_to_array = { CES_quest_array = 3 }
+					add_to_array = { CES_quest_array = 2 }
+
+					PREV = {
+						meta_effect = {
+							text = {
+								set_variable = { CES_current_quest_id = [QUEST_ID] }
+							}
+							QUEST_ID = "[PREV.GetID]"
+						}
+					}
+					CES_fire_quest_event = yes
+				}
+				var:CES_quest_mission_fail = { #Failure effect here
+					PREV = {
+						country_event = daring_adventure.106
+					}
+				}
+			}
+		}
+		#remove_targeted_decision = { target = FROM decision = CES_quest_mission_start }
+	}
+	custom_effect_tooltip = CES_quest_mission_start_tt
+}
+
+CES_quest_continue_1_timout_effect = {
+	hidden_effect = {
+		subtract_from_variable = { CES_quest_active = 1 }
+		FROM = {
+			clr_state_flag = CES_quest_active_local
+			set_temp_variable = { CES_quest_mission_fail = 100 }
+			subtract_from_temp_variable = { CES_quest_mission_fail = CES_quest_mission_odds }
+			random_list = {
+				var:CES_quest_mission_odds = { #Success effect here
+					set_temp_variable = { CES_quest_position = CES_quest_array^num }
+					subtract_from_temp_variable = { CES_quest_position = 1 }
+					set_variable = { CES_quest_array^CES_quest_position = 3 }
+					add_to_array = { CES_quest_array = 2 }
+
+					CES_fire_quest_event = yes
+				}
+				var:CES_quest_mission_fail = { #Failure effect here
+					PREV = { country_event = daring_adventure.106 }
+				}
+			}
+		}
+		#remove_targeted_decision = { target = FROM decision = CES_quest_mission_continue_1 }
+	}
+	custom_effect_tooltip = CES_quest_mission_continue_tt
+}
+CES_quest_continue_2_timout_effect = {
+	hidden_effect = {
+		subtract_from_variable = { CES_quest_active = 1 }
+		FROM = {
+			clr_state_flag = CES_quest_active_local
+			set_temp_variable = { CES_quest_mission_fail = 100 }
+			subtract_from_temp_variable = { CES_quest_mission_fail = CES_quest_mission_odds }
+			random_list = {
+				var:CES_quest_mission_odds = { #Success effect here
+					set_temp_variable = { CES_quest_position = CES_quest_array^num }
+					subtract_from_temp_variable = { CES_quest_position = 1 }
+					set_variable = { CES_quest_array^CES_quest_position = 3 }
+					add_to_array = { CES_quest_array = 2 }
+
+					CES_fire_quest_event = yes
+				}
+				var:CES_quest_mission_fail = { #Failure effect here
+					PREV = { country_event = daring_adventure.106 }
+				}
+			}
+		}
+		#remove_targeted_decision = { target = FROM decision = CES_quest_mission_continue_2 }
+	}
+	custom_effect_tooltip = CES_quest_mission_continue_tt
+}
+
+CES_quest_end_timout_effect = {
+	hidden_effect = {
+		subtract_from_variable = { CES_quest_active = 1 }
+		FROM = {
+			clr_state_flag = CES_quest_active_local
+			set_temp_variable = { CES_quest_mission_fail = 100 }
+			subtract_from_temp_variable = { CES_quest_mission_fail = CES_quest_mission_odds }
+			random_list = {
+				var:CES_quest_mission_odds = { #Success effect here
+					set_temp_variable = { CES_quest_position = 0 }
+					while_loop_effect = {
+						limit = { check_variable = { CES_quest_position < CES_quest_array^num } }
+						set_variable = { CES_quest_array^CES_quest_position = 4 }
+						add_to_temp_variable = { CES_quest_position = 1 }
+					}
+					if = {
+						limit = { check_variable = { CES_quest_position = 0 } }
+						add_to_array = { CES_quest_array = 5 }
+					}
+					else = {
+						subtract_from_temp_variable = { CES_quest_position = 1 }
+						set_variable = { CES_quest_array^CES_quest_position = 5 }
+					}
+					set_variable = { CES_quest_complete = 2 }
+
+					PREV = {
+						set_variable = { CES_current_quest_id = 0 }
+					}
+
+					CES_fire_quest_event = yes
+				}
+				var:CES_quest_mission_fail = { #Failure effect here
+					PREV = {
+						country_event = daring_adventure.106
+					}
+				}
+			}
+		}
+		#remove_targeted_decision = { target = FROM decision = CES_quest_mission_end }
+	}
+	custom_effect_tooltip = CES_quest_mission_end_tt
 }
 
 # Artifact GUI effects
@@ -502,20 +746,20 @@ f_CES_artifact_gui_init = {
 	}
 
 	clear_array = CES_artifact_duration_array
-	add_to_array = { CES_artifact_duration_array = 25 } # Truth Talisman
-	add_to_array = { CES_artifact_duration_array = 25 } # Silver Shawl
-	add_to_array = { CES_artifact_duration_array = 25 } # Pieces of Powers
-	add_to_array = { CES_artifact_duration_array = 25 } # Horn of the Abada
-	add_to_array = { CES_artifact_duration_array = 25 } # Rings of Scorchero
-	add_to_array = { CES_artifact_duration_array = 25 } # Key of entrance
+	add_to_array = { CES_artifact_duration_array = 180 } # Truth Talisman
+	add_to_array = { CES_artifact_duration_array = 180 } # Silver Shawl
+	add_to_array = { CES_artifact_duration_array = 180 } # Pieces of Powers
+	add_to_array = { CES_artifact_duration_array = 180 } # Horn of the Abada
+	add_to_array = { CES_artifact_duration_array = 180 } # Rings of Scorchero
+	add_to_array = { CES_artifact_duration_array = 180 } # Key of entrance
 
 	clear_array = CES_artifact_cooldown_array
-	add_to_array = { CES_artifact_cooldown_array = 50 } # Truth Talisman
-	add_to_array = { CES_artifact_cooldown_array = 50 } # Silver Shawl
-	add_to_array = { CES_artifact_cooldown_array = 50 } # Pieces of Powers
-	add_to_array = { CES_artifact_cooldown_array = 50 } # Horn of the Abada
-	add_to_array = { CES_artifact_cooldown_array = 50 } # Rings of Scorchero
-	add_to_array = { CES_artifact_cooldown_array = 50 } # Key of entrance
+	add_to_array = { CES_artifact_cooldown_array = 180 } # Truth Talisman
+	add_to_array = { CES_artifact_cooldown_array = 180 } # Silver Shawl
+	add_to_array = { CES_artifact_cooldown_array = 180 } # Pieces of Powers
+	add_to_array = { CES_artifact_cooldown_array = 180 } # Horn of the Abada
+	add_to_array = { CES_artifact_cooldown_array = 180 } # Rings of Scorchero
+	add_to_array = { CES_artifact_cooldown_array = 180 } # Key of entrance
 
 	clear_array = CES_artifact_tokens_array
 	if = {
@@ -631,6 +875,13 @@ f_CES_artifact_gui_init = {
 
 f_CES_display_top_artifact_window = {
 	set_country_flag = CES_artifact_top_bar_window_enable
+	if = {
+		limit = {
+			has_country_flag = CES_artifact_top_bar_clicked_once
+			NOT = { has_country_flag = CES_artifact_window_enable }
+		}
+		clr_country_flag = CES_artifact_top_bar_clicked_once
+	}
 }
 
 f_CES_display_artifact_window = {
@@ -646,9 +897,11 @@ f_CES_hide_artifact_window = {
 
 f_CES_update_artifact_gui = {
 	add_to_variable = { CES.CES_artifact_window_update = 1 }
+	add_to_variable = { CES.CES_artifact_top_bar_window_update = 1}
 }
 
 f_CES_add_artifact = {
+	f_CES_display_top_artifact_window = yes
 	if = {
 		limit = { check_variable = { CES_artifact_array^i_artifact_id < 0 } }
 
@@ -703,14 +956,13 @@ f_CES_activate_artifact = {
 	if = {
 		limit = {
 			check_variable = { CES_current_artifact_effect_index < 0 }
-			check_variable = { CES_artifact_array^i_artifact_id = 1}
+			check_variable = { CES_artifact_array^i_artifact_id = 1 }
 		}
 
 		meta_effect = {
 			text = {
 				if = {
 					limit = { has_idea = [IDEA_TOKEN] }
-
 					remove_ideas = [IDEA_TOKEN]
 				}
 				if = {
@@ -747,6 +999,8 @@ f_deactivate_artifact = {
 	set_variable      = { CES_piece_cooldown_final_date_array^i_artifact_id = 0.024 } # A day
 	multiply_variable = { CES_piece_cooldown_final_date_array^i_artifact_id = CES_artifact_cooldown_array^i_artifact_id } # Number of day for cooldown
 	add_to_variable   = { CES_piece_cooldown_final_date_array^i_artifact_id = global.date }
+
+	f_CES_display_top_artifact_window = yes
 
 	f_CES_update_artifact_gui = yes
 }
@@ -807,6 +1061,7 @@ f_clear_artifacts_pieces_reset = {
 }
 
 f_CES_add_piece = {
+	f_CES_display_top_artifact_window = yes
 	if = {
 		limit = { check_variable = { CES_piece_array^i_piece_id < 0 } }
 
@@ -839,7 +1094,7 @@ f_CES_add_piece_ruby = {
 	f_CES_add_piece = yes
 }
 
-f_CES_add_piece_saphire = {
+f_CES_add_piece_sapphire = {
 	set_temp_variable = { i_piece_id = 2 }
 	f_CES_add_piece = yes
 }
