@@ -1124,6 +1124,88 @@ BRZ_add_to_party = {
 	add_to_variable = { BRZ_local_party_support^BRZ_party_boost_selector = BRZ_party_boost_buffer }
 }
 
+# Used for poll aggregator or election itself
+# Has to be triggered in BRZ (country) scope
+BRZ_get_national_party_numbers = {
+	
+	# Reset variables to restart calculation
+	set_variable = { BRZ_national_party_support^0 = 0 }
+	set_variable = { BRZ_national_party_support^1 = 0 }
+	set_variable = { BRZ_national_party_support^2 = 0 }
+	set_variable = { BRZ_national_party_support^3 = 0 }
+	set_variable = { BRZ_national_party_support^4 = 0 }
+	set_variable = { BRZ_national_party_support^5 = 0 }
+	set_variable = { BRZ_national_party_support^6 = 0 }
+	
+	set_variable = { BRZ_national_party_seats^0 = 0 }
+	set_variable = { BRZ_national_party_seats^1 = 0 }
+	set_variable = { BRZ_national_party_seats^2 = 0 }
+	set_variable = { BRZ_national_party_seats^3 = 0 }
+	set_variable = { BRZ_national_party_seats^4 = 0 }
+	set_variable = { BRZ_national_party_seats^5 = 0 }
+	set_variable = { BRZ_national_party_seats^6 = 0 }
+	
+	# Only core states vote
+	every_core_state = {
+	
+		if = {
+			limit = {
+				PREV = {
+					has_country_flag = BRZ_voting_fptp
+				}
+			}
+			
+			# Add to seats
+			set_temp_variable = { temp_party_to_add = 0 }
+			find_highest_in_array = {
+				array = BRZ_local_party_support
+				index = temp_party_to_add
+			}
+			
+			log = "temp_party_to_add: [?temp_party_to_add], Local Seats: [?BRZ_local_state_seats]"
+			
+			add_to_variable = { PREV.BRZ_national_party_seats^temp_party_to_add = BRZ_local_state_seats }
+		}
+		
+		for_each_loop = {
+			array = BRZ_local_party_support
+			value = party_support_local
+			index = loop_index
+			
+			multiply_temp_variable = { party_support_local = state_population_k }
+			add_to_variable = { PREV.BRZ_national_party_support^loop_index = party_support_local }
+		}
+		
+		add_to_temp_variable = { total_votes = state_population_k }
+	}
+	
+	if = {
+		limit = {
+			has_country_flag = BRZ_voting_proportional
+		}
+		
+		for_each_loop = {
+			array = BRZ_national_party_support
+			value = national_party_support_value
+			index = loop_index
+			
+			set_temp_variable = { proportional_seats = national_party_support_value }
+			divide_temp_variable = { proportional_seats = 100 }
+			round_temp_variable = proportional_seats
+			add_to_variable = { BRZ_national_party_seats^loop_index = proportional_seats }
+		}
+	}
+	
+	divide_variable = { BRZ_national_party_support^0 = total_votes }
+	divide_variable = { BRZ_national_party_support^1 = total_votes }
+	divide_variable = { BRZ_national_party_support^2 = total_votes }
+	divide_variable = { BRZ_national_party_support^3 = total_votes }
+	divide_variable = { BRZ_national_party_support^4 = total_votes }
+	divide_variable = { BRZ_national_party_support^5 = total_votes }
+	divide_variable = { BRZ_national_party_support^6 = total_votes }
+	
+}
+
 BRZ_puppeted_by_grover_ii = {
 	# Load the flavour focus tree - keep_completed for Industry/Army trees
 	load_focus_tree = {
