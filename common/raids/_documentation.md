@@ -189,6 +189,15 @@ raid_type_id = {
 	}
 }
 ```
+## Raid Map Icons
+
+Map icons can be assigned in the following ways:
+
+1. Automatically based on a string lookup of "GFX_raid_type_icon_" + [raid_type_name]
+2. A custom scripted icon set through "custom_map_icon = [name]"
+
+In both of the above cases, the system will also try to find a customized icon for the target building type, by appending the building template to the end of the string:
+[1. or 2. from above] + "_" + [building_template_name]
 
 # Raid Outcomes
 
