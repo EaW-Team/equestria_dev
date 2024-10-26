@@ -1231,6 +1231,138 @@ BRZ_get_national_party_numbers = {
 	
 }
 
+BRZ_calculate_governments = {
+	set_temp_variable = { total_seats_var = 0 }
+	
+	for_each_loop = {
+		array = BRZ_national_party_seats
+		value = seat_number
+		
+		add_to_temp_variable = { total_seats_var = seat_number }
+	}
+	
+	set_temp_variable = { majority = total_seats_var }
+	divide_temp_variable = { majority = 2 }
+	round_temp_variable = majority
+	
+	if = {
+		limit = {
+			check_variable = { BRZ_national_party_seats^0 > majority } # Conservative have a majority
+		}
+		set_country_flag = BRZ_conservative_government # Copperhill rules supreme
+		set_country_flag = BRZ_conservative_agrarian_government # Agrarians can be integrated voluntarily
+	}
+	else_if = {
+		limit = {
+			check_variable = { BRZ_national_party_seats^4 > majority } # Socialists have a majority
+		}
+		set_country_flag = BRZ_socialist_government # Guildedwing rules supreme
+		set_country_flag = BRZ_socialist_agrarian_government # Agrarians can be integrated voluntarily
+	}
+	else = {
+		set_temp_variable = { conservative_agrarians = BRZ_national_party_seats^0 } # Conservatives
+		add_to_temp_variable = { conservative_agrarians = BRZ_national_party_seats^1 } # + Conservative Agrarians
+		
+		set_temp_variable = { socialist_agrarians = BRZ_national_party_seats^4 } # Socialists
+		add_to_temp_variable = { socialist_agrarians = BRZ_national_party_seats^2 } # Socialist Agrarians
+		
+		if = {
+			limit = {
+				check_variable = { conservative_agrarians > majority }
+			}
+			
+			set_country_flag = BRZ_conservative_agrarian_government # Agrarians bring majority
+		}
+		else_if = {
+			limit = {
+				check_variable = { socialist_agrarians > majority }
+			}
+			
+			set_country_flag = BRZ_socialist_agrarian_government # Agrarians bring majority
+		}
+		else = {
+			set_temp_variable = { conservative_liberals = conservative_agrarians }
+			add_to_temp_variable = { conservative_liberals = BRZ_national_party_seats^3 } # liberals
+			
+			set_temp_variable = { socialist_liberals = socialist_agrarians }
+			add_to_temp_variable = { socialist_liberals = BRZ_national_party_seats^3 } # liberals
+			
+			set_temp_variable = { socialist_radicals = socialist_agrarians }
+			add_to_temp_variable = { socialist_radicals = BRZ_national_party_seats^5 } # radicals
+			
+			if = {
+				limit = {
+					check_variable = { conservative_liberals > majority }
+				}
+				set_country_flag = BRZ_conservative_agrarian_liberal_government
+			}
+			if = {
+				limit = {
+					check_variable = { socialist_liberals > majority }
+				}
+				set_country_flag = BRZ_socialist_agrarian_liberal_government
+			}
+			if = {
+				limit = {
+					check_variable = { socialist_radicals > majority }
+				}
+				set_country_flag = BRZ_socialist_agrarian_radical_government
+			}
+			
+			# No government can be formed
+			if = {
+				limit = {
+					NOT = { has_country_flag = BRZ_conservative_agrarian_liberal_government }
+					NOT = { has_country_flag = BRZ_socialist_agrarian_liberal_government }
+					NOT = { has_country_flag = BRZ_socialist_agrarian_radical_government }
+				}
+				
+				# Last measures
+				set_temp_variable = { socialist_liberal_radical = socialist_liberals }
+				add_to_temp_variable = { socialist_liberal_radical = BRZ_national_party_seats^5 } # radicals
+				
+				set_temp_variable = { conservative_regionalists = conservative_liberals }
+				add_to_temp_variable = { conservative_regionalists = BRZ_national_party_seats^6 } # regionalists
+				
+				set_temp_variable = { socialist_regionalist = socialist_liberals }
+				add_to_temp_variable = { socialist_regionalist = BRZ_national_party_seats^6 } # regionalists
+				
+				if = {
+					limit = {
+						check_variable = { socialist_liberal_radical > majority }
+					}
+					set_country_flag = BRZ_socialist_agrarian_liberal_radical_government
+				}
+				if = {
+					limit = {
+						check_variable = { conservative_regionalists > majority }
+					}
+					set_country_flag = BRZ_conservative_agrarian_liberal_regionalist_government
+				}
+				if = {
+					limit = {
+						check_variable = { socialist_regionalist > majority }
+					}
+					set_country_flag = BRZ_socialist_agrarian_liberal_regionalist_government
+				}
+			}
+		}
+	}
+}
+
+BRZ_clear_governments = {
+	clr_country_flag = BRZ_conservative_government
+	clr_country_flag = BRZ_conservative_agrarian_government
+	clr_country_flag = BRZ_conservative_agrarian_liberal_government
+	clr_country_flag = BRZ_conservative_agrarian_liberal_regionalist_government
+	clr_country_flag = BRZ_socialist_government
+	clr_country_flag = BRZ_socialist_agrarian_government
+	clr_country_flag = BRZ_socialist_agrarian_radical_government
+	clr_country_flag = BRZ_socialist_agrarian_liberal_government
+	clr_country_flag = BRZ_socialist_agrarian_liberal_radical_government
+	clr_country_flag = BRZ_socialist_agrarian_liberal_regionalist_government
+}
+
 BRZ_puppeted_by_grover_ii = {
 	# Load the flavour focus tree - keep_completed for Industry/Army trees
 	load_focus_tree = {
