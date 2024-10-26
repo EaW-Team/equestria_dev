@@ -288,7 +288,7 @@ scripted in the same way through this formula construct.
 
 ### List of modifiers:
 - *prep_time*: The preparation progress. Reference values from 0.0 (no preparation) to 1.0 (full preparation).
-- *experience*: The experience of the unit assigned to the raid. Reference values from 0.0-1.0 if land unit, or 0-1000 if air wing.
+- *experience*: The experience of the unit assigned to the raid. Reference values from 0.0-1.0
 - *anti_air*: The anti-air defense value of the target state. Reference values e.g. from 0 to 5 (meaning 5 basic AA buildings)
 - *resistance*: The amount of resistance in the target state. Reference values from 0 to 100
 - *enemy_units*: The number of enemy divisions in the target province. For province-target missions ONLY.
@@ -438,6 +438,12 @@ raid_damage_units = {
 
 Add experience to the units (e.g. divisions or air wings) performing the raid.
 ```
-raid_add_unit_experience = <value>
+raid_add_unit_experience = <value> # The value is 0.0-1.0, representing progress towards the max level
+```
+
+example:
+
+# Gain 25% progress towards the max level
+raid_add_unit_experience = 0.25
 ```
 Supports both explicit values and variables
