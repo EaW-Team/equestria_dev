@@ -20,4 +20,6 @@ NDefines_Graphics.NGraphics.COMMANDGROUP_PRESET_COLORS_HSV = { -- thanks Better 
 
 NDefines_Graphics.NMapMode.MAP_MODE_MANPOWER_RANGE_MAX = 1000000	-- When a state has that much manpower, it will be colored with the color MAP_MODE_MANPOWER_RANGE_COLOR_TO. Everything below that will have an interpolated color.
 
+NDefines_Graphics.NInterface.MINIMAP_TOGGLE_SHIFT = 203				-- horizontal shift for minimap to close it
+
 for k,v in pairs( NDefines_Graphics ) do NDefines[k] = v end
