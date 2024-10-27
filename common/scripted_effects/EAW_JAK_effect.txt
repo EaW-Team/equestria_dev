@@ -1,0 +1,115 @@
+# Function    : JAK_bop_update_advisors_cost_f
+# Description : Update advisors cost for expansionist / isolasionist
+# Input       : JAK_expansionist_advisor_cost - The new cost in PP for the expansionist advisors
+#               JAK_isolationist_advisor_cost - The new cost in PP for the isolasionist advisors
+# Output      : None
+JAK_bop_update_advisors_cost_f = {
+
+	# Character / trait token arrays
+	# Expansionists
+	add_to_temp_array = { t_characters_a = token:JAK_nora }
+	add_to_temp_array = { t_trait_a      = token:the_spider }
+	add_to_temp_array = { t_characters_a = token:JAK_archibald }
+	add_to_temp_array = { t_trait_a      = token:national_propagandist }
+	add_to_temp_array = { t_characters_a = token:JAK_gunnel }
+	add_to_temp_array = { t_trait_a      = token:nationalist_lutheran_priest }
+	add_to_temp_array = { t_characters_a = token:JAK_grimhorn }
+	add_to_temp_array = { t_trait_a      = token:JAK_expansionist_policies }
+	# Set the number of expansionist advisors
+	set_temp_variable = { t_nb_expansionist_advisors = 4 }
+	# Isolasionists
+	add_to_temp_array = { t_characters_a = token:JAK_alastair }
+	add_to_temp_array = { t_trait_a      = token:staunch_aristocrat }
+	add_to_temp_array = { t_characters_a = token:JAK_yemina }
+	add_to_temp_array = { t_trait_a      = token:NOR_aristocratic_industrialist }
+	add_to_temp_array = { t_characters_a = token:JAK_ingville }
+	add_to_temp_array = { t_trait_a      = token:tsars_puppet }
+	add_to_temp_array = { t_characters_a = token:JAK_ylva }
+	add_to_temp_array = { t_trait_a      = token:resistance_leader }
+
+
+	# Check if the advisors is currently hired
+	for_each_loop = {
+		array = t_characters_a
+		value = character_token
+
+		meta_effect = {
+			text = {
+				[SCOPE] = {
+					if = {
+						limit = { is_hired_as_advisor = yes }
+
+						add_to_temp_array = { t_activate_a = 1 }
+					} else = {
+						add_to_temp_array = { t_activate_a = 0 }
+					}
+				}
+			}
+
+			SCOPE = "[?character_token.GetTokenKey]"
+		}
+	}
+
+	# Reasign the new advisor cost
+	for_each_loop = {
+		array = t_characters_a
+		value = character_token
+		index = i
+
+		meta_effect = {
+			text = {
+				[SCOPE] = {
+					remove_advisor_role = {
+						slot = political_advisor
+					}
+
+					add_advisor_role = {
+						activate = [ACTIVATE]
+						advisor={
+							slot = political_advisor
+							idea_token = [SCOPE]
+							cost = [COST]
+
+							traits = {
+								[TRAIT]
+							}
+						}
+					}
+				}
+			}
+
+			SCOPE    = "[?character_token.GetTokenKey]"
+			TRAIT    = "[?t_trait_a^i.GetTokenKey]"
+			ACTIVATE = "[JAKBopAdvisorsActivate]"
+			COST     = "[JAKBopAdvisorsCost]"
+		}
+	}
+}
+
+
+JAK_reduce_disunity = {
+	if = {
+		limit = {
+			has_idea = JAK_disunited1
+		}
+		swap_ideas = {
+			remove_idea = JAK_disunited1
+			add_idea = JAK_disunited2
+		}
+	}
+	else_if = {
+		limit = {
+			has_idea = JAK_disunited2
+		 }
+		 swap_ideas = {
+			remove_idea = JAK_disunited2
+			add_idea = JAK_disunited3
+		}
+	}
+	else_if = {
+		limit = {
+			has_idea = JAK_disunited3
+		 }
+		 remove_ideas = JAK_disunited3
+	}
+}
