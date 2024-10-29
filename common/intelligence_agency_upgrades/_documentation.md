@@ -1,8 +1,7 @@
-intelligence_agency_upgrades
+# Intelligence Agency Upgrades
 
 Syntax:
-----------------
-
+```
 <agency branch name> = {
 
 	<upgrade name> = { # upgrade_name must be unique across all branches
@@ -65,3 +64,4 @@ Syntax:
 		# Etc.
 	}
 }
+```

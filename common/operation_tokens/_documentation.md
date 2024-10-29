@@ -1,6 +1,9 @@
-# There can only ever be one token that one country can acquire against another. They are not stackable
+# Operation Tokens
 
-# Every token needs a <unique id>, which is token_test in this case
+There can only ever be one token that one country can acquire against another. They are not stackable.
+
+Every token needs a `<unique id>`, which is `token_test` in this case
+```
 token_test = {
 	# Every token needs a name to be displayed
 	name = ""
@@ -23,3 +26,4 @@ token_test = {
 	intel_source = navy
 	intel_gain = 1.0
 }
+```

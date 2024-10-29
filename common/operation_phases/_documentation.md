@@ -1,4 +1,7 @@
-# Every phase needs a <unique id>, which is phase_test in this case
+# Operation Phases
+
+Every phase needs a `<unique id>`, which is `phase_test` in this case
+```
 phase_test = {
 	# [[scripted localization]]
 	name = "Run Forest Run"
@@ -46,3 +49,4 @@ phase_test = {
 		infantry_equipment = 5000
 	}
 }
+```

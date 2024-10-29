@@ -1,11 +1,15 @@
-#   Definition: SCOPE_OPERATION
-# ------------------------------------------
-# FROM = the target country of the operation
-# ROOT = the origin country of the operation
-# ------------------------------------------
+# Operations
 
+```
+Definition: SCOPE_OPERATION
+------------------------------------------
+FROM = the target country of the operation
+ROOT = the origin country of the operation
+------------------------------------------
+```
 
-# Every operation needs a <unique id>, which is operation_test in this case
+Every operation needs a `<unique id>`, which is `operation_test` in this case
+```
 operation_test = {
 
 	#
@@ -290,3 +294,4 @@ operation_test = {
 
 	will_lead_to_war_with = yes
 }
+```
