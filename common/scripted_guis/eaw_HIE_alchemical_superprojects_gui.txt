@@ -267,15 +267,9 @@ scripted_gui = {
 		}
 		triggers = {
 			flip_page_forward_visible = {
-				if = {
-					limit = {
-						has_country_flag = HIE_JRNL_enable_notes
-					}
-					check_variable = { HIE_JRNL_selected_page < 5 }
-				}
-				else = {
-					check_variable = { HIE_JRNL_selected_page < 4 }
-				}
+				set_temp_variable = { HIE_JRNL_selected_page_check = HIE_JRNL_selected_page }
+				add_to_temp_variable = { HIE_JRNL_selected_page_check = 1 }
+				check_variable = { HIE_JRNL_selected_page_check < HIE_pages_list^num }
 			}
 			flip_page_backward_visible = {
 				NOT = { check_variable = { HIE_JRNL_book_frame = 1 } }
@@ -304,16 +298,18 @@ scripted_gui = {
 			eq_expedition_enroute_label_visible = {
 				has_country_flag = HIE_JRNL_is_in_activity
 				NOT = {
-					check_variable = { HIE_JRNL_selected_page = 4 }
-					check_variable = { HIE_JRNL_selected_page = 5 }
+					check_variable = { HIE_pages_list^HIE_JRNL_selected_page = 2 }
+					check_variable = { HIE_pages_list^HIE_JRNL_selected_page = 5 }
+					check_variable = { HIE_pages_list^HIE_JRNL_selected_page > 300 }
 				}
 				check_variable = { HIE_JRNL_book_frame = 2 }
 			}
 			eq_expedition_active_label_visible = {
 				has_variable = HIE_JRNL_active_expedition
 				NOT = {
-					check_variable = { HIE_JRNL_selected_page = 4 }
-					check_variable = { HIE_JRNL_selected_page = 5 }
+					check_variable = { HIE_pages_list^HIE_JRNL_selected_page = 2 }
+					check_variable = { HIE_pages_list^HIE_JRNL_selected_page = 5 }
+					check_variable = { HIE_pages_list^HIE_JRNL_selected_page > 300 }
 				}
 				check_variable = { HIE_JRNL_book_frame = 2 }
 			}
@@ -378,45 +374,130 @@ scripted_gui = {
 				set_variable = { HIE_JRNL_book_frame = 2 }
 			}
 		}
+
 		dynamic_lists = {
 			journal_contents = {
 				array = HIE_JRNL_dummy_array
-				entry_container = "HIE_page_[?HIE_JRNL_selected_page]"
+				entry_container = "HIE_page_[?HIE_pages_list^HIE_JRNL_selected_page]"
+			}
+		}
+		
+		# Fadeout # reading aid basically
+		
+		triggers = {
+			book_fadeout_visible = {
+				has_country_flag = HIE_book_fadeout_on
+				
+				if = {
+					limit = {
+						check_variable = { HIE_JRNL_selected_page = 2 }
+					}
+					NOT = {
+						has_country_flag = HIE_JRNL_enable_notes
+					}
+				}
+			}
+			book_text_left_visible = {
+				has_country_flag = HIE_book_fadeout_on
+				
+				if = {
+					limit = {
+						check_variable = { HIE_JRNL_selected_page = 2 }
+					}
+					NOT = {
+						has_country_flag = HIE_JRNL_enable_notes
+					}
+				}
+			}
+			book_text_right_visible = {
+				has_country_flag = HIE_book_fadeout_on
+				
+				if = {
+					limit = {
+						check_variable = { HIE_JRNL_selected_page = 2 }
+					}
+					NOT = {
+						has_country_flag = HIE_JRNL_enable_notes
+					}
+				}
+			}
+			book_read_button_visible = {
+				if = {
+					limit = {
+						check_variable = { HIE_JRNL_selected_page = 2 }
+					}
+					NOT = {
+						has_country_flag = HIE_JRNL_enable_notes
+					}
+				}
+			}
+		}
+		
+		effects = {
+			book_read_button_click = {
+				if = {
+					limit = {
+						has_country_flag = HIE_book_fadeout_on
+					}
+					clr_country_flag = HIE_book_fadeout_on
+				}
+				else = { set_country_flag = HIE_book_fadeout_on }
 			}
 		}
 
-		# TABLE OF CONTENTS # `HIE_JRNL_selected_page = 1`
+		# TABLE OF CONTENTS #
 		
 		triggers = {
-			contents_4num_visible = {
-				has_country_flag = HIE_JRNL_enable_notes
+			choice_visible = {
+				has_country_flag = HIE_ToC_choice_active
 			}
-			contents_4_visible = {
-				has_country_flag = HIE_JRNL_enable_notes
+			choice_button_alert_1_visible = {
+				has_country_flag = HIE_ToC_choice_active
+			}
+			choice_button_alert_2_visible = {
+				has_country_flag = HIE_ToC_choice_active
 			}
 		}
 
 		effects = {
-			contents_1_click = {
-				set_variable = { HIE_JRNL_selected_page = 2 }
+			contents_click = {
+				set_variable = { HIE_JRNL_selected_page = HIE_JRNL_toc_array^toc_i }
 				set_variable = { HIE_JRNL_prev_page = 101 }
 			}
-			contents_2_click = {
-				set_variable = { HIE_JRNL_selected_page = 3 }
-				set_variable = { HIE_JRNL_prev_page = 101 }
+			choice_click = {
+				clr_country_flag = HIE_ToC_choice_active
+				country_event = hippone_aspj_flavor.choice
 			}
-			contents_3_click = {
-				set_variable = { HIE_JRNL_selected_page = 4 }
-				set_variable = { HIE_JRNL_prev_page = 101 }
-			}
-			contents_4_click = {
-				set_variable = { HIE_JRNL_selected_page = 5 }
-				set_variable = { HIE_JRNL_prev_page = 101 }
+		}
+		
+		# HIE_JRNL_toc_array
+		# HIE_JRNL_toc_pagenum_array
+		dynamic_lists = {
+			table_of_contents_gridbox = {
+				array = HIE_JRNL_toc_array
+				entry_container = "HIE_table_of_contents_gridbox_entry"
+				index = toc_i
 			}
 		}
 
 		#########
-		# EQUUS # `HIE_JRNL_selected_page = 2`
+		# NOTES #
+		#########
+		
+		dynamic_lists = {
+			notes_grid = {
+				array = HIE_JRNL_notes_array
+				entry_container = "HIE_page_2_notes_entry"
+			}
+		}
+		triggers = {
+			note_entry_dark_visible = {
+				is_in_array = { HIE_JRNL_notes_done = v }
+			}
+		}
+
+		#########
+		# EQUUS #
 		#########
 
 		triggers = {
@@ -765,7 +846,7 @@ scripted_gui = {
 		}
 
 		#############
-		# GRIFFONIA # `HIE_JRNL_selected_page = 3`
+		# GRIFFONIA #
 		#############
 		
 		triggers = {
@@ -969,14 +1050,13 @@ scripted_gui = {
 		}
 
 		###########
-		# ZEBRICA # `HIE_JRNL_selected_page = 4`
+		# ZEBRICA #
 		###########
 		
 		triggers = {
 			later_visible = {
 				NOT = {
 					AND = {
-						has_country_flag = HIE_JRNL_eq_1_DONE
 						has_country_flag = HIE_JRNL_eq_6_DONE
 						has_country_flag = HIE_JRNL_eq_14_DONE
 						has_country_flag = HIE_JRNL_gr_8_DONE
@@ -985,7 +1065,6 @@ scripted_gui = {
 			}
 			
 			ze_start_visible = {
-				has_country_flag = HIE_JRNL_eq_1_DONE
 				has_country_flag = HIE_JRNL_eq_6_DONE
 				has_country_flag = HIE_JRNL_eq_14_DONE
 				has_country_flag = HIE_JRNL_gr_8_DONE
@@ -1122,22 +1201,6 @@ scripted_gui = {
 				has_country_flag = HIE_JRNL_ze_2_DONE
 			}
 		}
-
-		#########
-		# NOTES # `HIE_JRNL_selected_page = 5`
-		#########
-		
-		dynamic_lists = {
-			notes_grid = {
-				array = HIE_JRNL_notes_array
-				entry_container = "HIE_page_5_notes_entry"
-			}
-		}
-		triggers = {
-			note_entry_dark_visible = {
-				is_in_array = { HIE_JRNL_notes_done = v }
-			}
-		}
 		
 	}
 	eaw_HIE_knife = {
@@ -1146,7 +1209,6 @@ scripted_gui = {
 		parent_window_name = "EaW_HIE_Journal_window"
 		visible = {
 			check_variable = { HIE_JRNL_book_frame = 2 }
-			NOT = { check_variable = { HIE_JRNL_selected_page = 5 } }
 		}
 	}
 	eaw_HIE_page_turn = {
@@ -1155,7 +1217,6 @@ scripted_gui = {
 		parent_window_name = "EaW_HIE_Journal_window"
 		visible = {
 			check_variable = { HIE_JRNL_book_frame = 2 }
-			NOT = { check_variable = { HIE_JRNL_selected_page = 5 } }
 		}
 		triggers = {
 			page_turn_right_1_visible = {
