@@ -687,13 +687,6 @@ special_project_facility = {
 		ROOT = { has_country_leader_ideology = monarchism }  # ROOT/owner should allow us to scope to country building the facility
 	}
 
-	# WISHLIST - Depending on if we add Uranium as a resource for Nuclear Reacotrs.
-	resource_use = { # OPTIONAL. Resources utilized by the building ONCE BUILT. Potentially Used for Nuclear Reactor Building
-		steel = 2 # Resource needed
-		chromium = 1
-
-		lack_of_resource_efficiency_factor = 0.5 # FLOAT. Defaults to 0.5 or 0  -> 0 = building does not work if resources are not available // 1 = building keeps 100% efficiency and works normally even when resources are unavailable. 0.5 = 50%
-	}
 }
 
 

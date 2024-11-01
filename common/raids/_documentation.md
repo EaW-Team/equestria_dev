@@ -12,7 +12,6 @@ raid_category_id = {
 ```
 
 # Raids
-TODO Raids: Clean up the documentation before release
 ```
 raid_type_id = {
 
