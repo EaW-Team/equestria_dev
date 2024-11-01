@@ -6,7 +6,7 @@ import string
 import argparse
 import json
 
-HEADER_GFX_FILE = """spiriteTypes = {\n"""
+HEADER_GFX_FILE = """spriteTypes = {\n"""
 FOOTER_GFX_FILE = """}"""
 TEMPLATE_SPRITETYPE = """\tspritetype = {{
 \t\tname = {name}
