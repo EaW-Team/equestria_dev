@@ -1,0 +1,4624 @@
+KIR_KIS_transfer_civil_war_provinces = {
+	KIS = {
+		set_province_controller = 4722
+		set_province_controller = 4040
+		set_province_controller = 2656
+		set_province_controller = 2845
+		set_province_controller = 2867
+		set_province_controller = 4490
+		set_province_controller = 3997
+		set_province_controller = 4713
+		set_province_controller = 2672
+		set_province_controller = 4448
+		set_province_controller = 4221
+		set_province_controller = 4049
+		set_province_controller = 3998
+		set_province_controller = 3647
+		set_province_controller = 3643
+		set_province_controller = 3244
+		set_province_controller = 4428
+	}
+	KIC = {
+		set_province_controller = 16721
+		set_province_controller = 2821
+	}
+	KIR = {
+		set_province_controller = 19200
+		set_province_controller = 8762
+		set_province_controller = 8835
+		set_province_controller = 8740
+		set_province_controller = 8311
+		set_province_controller = 13134
+		set_province_controller = 13057
+		set_province_controller = 13043
+		set_province_controller = 2727
+		set_province_controller = 12268
+		set_province_controller = 10319
+		set_province_controller = 10206
+	}
+}
+
+# Function : KIR_unlock_entry_effect
+# Description : Popup diary and new entry notification
+# Input : temp_KIR_diary_protag - The protagonist ID to switch to
+#         temp_KIR_diary_entry  - The entry ID to activate
+KIR_unlock_entry_effect = {
+	if = {
+		limit = {
+			has_country_flag = KIR_diary_SG_popup_toggle_YES
+		}
+		set_country_flag = KIR_toggled_diary_SG
+		KIR_diary_set_active_protagonist = yes
+	}
+	else = {
+		clr_country_flag = KIR_diary_SG_clicked_flag
+		add_to_variable = { KIR_diary_SG_new_entry_var = 1 }
+	}
+	add_to_variable = { KIR_diary_SG_DIRTY = 1 }
+}
+
+# Function : KIR_diary_set_active_protagonist
+# Description : Set the active protagonist
+# Input : temp_KIR_diary_protag - The protagonist ID to switch to
+#         temp_KIR_diary_entry  - The entry ID to activate
+#         temp_KIR_diary_entry_token - The entry token to activate
+KIR_diary_set_active_protagonist = {
+	set_variable = { KIR_active_protagonist = temp_KIR_diary_protag }
+
+	clear_array = KIR_current_entries
+
+	meta_effect = {
+		text = {
+			for_each_loop = {
+				array = KIR_protag_[ID_PROTAG]_entries
+				index = entry_pos
+				value = entry_value
+
+				add_to_array = {
+					array = KIR_current_entries
+					index = entry_pos
+					value = entry_value
+				}
+			}
+
+			if = {
+				limit = {
+					check_variable = { temp_KIR_diary_entry > -1 }
+				}
+
+				set_variable = {
+					KIR_diary_active_entry = KIR_protag_[ID_PROTAG]_entries^num
+				}
+				subtract_from_variable = { KIR_diary_active_entry = 1 }
+			} else = {
+				set_variable = { KIR_diary_active_entry = -1 }
+			}
+		}
+
+
+		ID_PROTAG = "[?temp_KIR_diary_protag]"
+	}
+
+	set_temp_variable = { temp_KIR_diary_content = token:KIR_diary_SG_ENTRY_TEXTS_blank }
+	if = {
+		limit = {
+			check_variable = { temp_KIR_diary_entry > -1 }
+		}
+
+		set_temp_variable = { temp_KIR_diary_content = temp_KIR_diary_entry_token }
+	}
+
+	meta_effect = {
+		text = {
+			set_variable = {
+				KIR_diary_entry_content = token:[ENTRY_TOKEN]_CONTENT
+			}
+		}
+
+		ENTRY_TOKEN = "[?temp_KIR_diary_content.GetTokenKey]"
+	}
+
+	set_temp_variable = { temp_KIR_diary_protag_to_activate = temp_KIR_diary_protag }
+	KIR_diary_set_active_protagonist_frame = yes
+
+	add_to_variable = { KIR_diary_SG_DIRTY = 1 }
+}
+
+# Function : KIR_diary_add_entry_to_protagonist
+# Description : Add an entry to the protagonist
+# Input :  temp_KIR_diary_protag - The protagonist ID
+#          temp_KIR_diary_entry  - The entry ID to add
+# Output : temp_KIR_diary_entry_token - Variable containing the token added
+KIR_diary_add_entry_to_protagonist = {
+	if = {
+		limit = {
+			check_variable = {
+				KIR_active_protagonist = temp_KIR_diary_protag
+			}
+		}
+
+		meta_effect = {
+			text = {
+				add_to_array = {
+					KIR_current_entries = token:KIR_diary_SG_ENTRY_TEXTS_protag_[ID_PROTAG]_entry_[ID_ENTRY]
+				}
+			}
+
+			ID_PROTAG = "[?temp_KIR_diary_protag]"
+			ID_ENTRY  = "[?temp_KIR_diary_entry]"
+		}
+		add_to_variable = { KIR_diary_SG_DIRTY = 1 }
+	}
+
+	meta_effect = {
+		text = {
+			add_to_array = {
+				KIR_protag_[ID_PROTAG]_entries = token:KIR_diary_SG_ENTRY_TEXTS_protag_[ID_PROTAG]_entry_[ID_ENTRY]
+			}
+			set_temp_variable = { temp_KIR_diary_entry_token = token:KIR_diary_SG_ENTRY_TEXTS_protag_[ID_PROTAG]_entry_[ID_ENTRY] }
+		}
+
+		ID_PROTAG = "[?temp_KIR_diary_protag]"
+		ID_ENTRY  = "[?temp_KIR_diary_entry]"
+	}
+
+	KIR_unlock_entry_effect = yes
+}
+
+# Function : KIR_diary_set_active_protagonist_frame
+# Description : Set the active protagonist frame
+# Input : temp_KIR_diary_protag_to_activate - The protagonist ID to activate, else -1
+KIR_diary_set_active_protagonist_frame = {
+	clear_array = protagonist_frame
+	resize_array = {
+		array = protagonist_frame
+		size = 6
+		value = 2
+	}
+
+	add_to_temp_variable = { temp_KIR_diary_protag_to_activate = -1 }
+	if = {
+		limit = {
+			check_variable = {
+				temp_KIR_diary_protag_to_activate > -1
+			}
+		}
+
+		set_variable = { protagonist_frame^temp_KIR_diary_protag_to_activate = 1 }
+	}
+}
+
+KIR_civil_war_transfer_diary_variables_effect = {
+	add_to_temp_array = { temp_protagonists = 1 }
+	add_to_temp_array = { temp_protagonists = 2 }
+	add_to_temp_array = { temp_protagonists = 3 }
+	add_to_temp_array = { temp_protagonists = 4 }
+
+	for_each_loop = {
+		array = temp_protagonists
+		value = protag_value
+		index = protag_index
+
+		meta_effect = {
+			text = {
+				clear_array = KIR_protag_[ID_PROTAG]_entries
+
+				for_loop_effect = {
+					start = 0
+					end = KIR.KIR_protag_[ID_PROTAG]_entries^num
+					value = index
+
+					add_to_array = {
+						array = KIR_protag_[ID_PROTAG]_entries
+						value = KIR.KIR_protag_[ID_PROTAG]_entries^index
+					}
+				}
+			}
+
+			ID_PROTAG = "[?protag_value]"
+		}
+	}
+}
+
+CFR_steal_diary_KIR_AB = {
+	set_country_flag = KIR_diary_SG_protag_2_UNAVAILABLE_flag
+	set_country_flag = KIR_diary_SG_protag_3_UNAVAILABLE_flag
+	set_country_flag = KIR_diary_SG_protag_4_UNAVAILABLE_flag
+	set_variable = { var = KIR_diary_SG_protag_1_button_offset_X value = -77 }
+	set_variable = { var = KIR_diary_SG_protag_1_button_offset_Y value = 18 }
+
+	clear_array = KIR_protag_1_entries
+
+	for_loop_effect = {
+		start = 0
+		end = KIR.KIR_protag_1_entries^num
+		value = index
+
+		add_to_array = {
+			array = KIR_protag_1_entries
+			value = KIR.KIR_protag_1_entries^index
+		}
+	}
+}
+
+CFR_steal_diary_KIR_WF = {
+	set_country_flag = KIR_diary_SG_protag_1_UNAVAILABLE_flag
+	set_country_flag = KIR_diary_SG_protag_3_UNAVAILABLE_flag
+	set_country_flag = KIR_diary_SG_protag_4_UNAVAILABLE_flag
+	set_variable = { var = KIR_diary_SG_protag_2_button_offset_X value = -77 }
+	set_variable = { var = KIR_diary_SG_protag_2_button_offset_Y value = 18 }
+
+	clear_array = KIR_protag_2_entries
+
+	for_loop_effect = {
+		start = 0
+		end = KIR.KIR_protag_2_entries^num
+		value = index
+
+		add_to_array = {
+			array = KIR_protag_2_entries
+			value = KIR.KIR_protag_2_entries^index
+		}
+	}
+}
+
+CFR_steal_diary_KIC = {
+	set_country_flag = KIR_diary_SG_protag_1_UNAVAILABLE_flag
+	set_country_flag = KIR_diary_SG_protag_2_UNAVAILABLE_flag
+	set_country_flag = KIR_diary_SG_protag_3_UNAVAILABLE_flag
+	set_variable = { var = KIR_diary_SG_protag_4_button_offset_X value = -77 }
+	set_variable = { var = KIR_diary_SG_protag_4_button_offset_Y value = 18 }
+
+	clear_array = KIR_protag_4_entries
+
+	for_loop_effect = {
+		start = 0
+		end = KIC.KIR_protag_4_entries^num
+		value = index
+
+		add_to_array = {
+			array = KIR_protag_4_entries
+			value = KIC.KIR_protag_4_entries^index
+		}
+	}
+}
+
+KIS_treasury_figure_out_prices = {
+	#############################################
+	## Figure out GRI Infantry Equipment Level ##
+	#############################################
+	if = {
+		limit = {
+			GRI = {
+				has_tech = infantry_weapons
+			}
+		}
+		set_variable = { KIS_buy_guns_GRI_cost = 4500 }
+	}
+	if = {
+		limit = {
+			GRI = {
+				has_tech = infantry_weapons1
+			}
+		}
+		set_variable = { KIS_buy_guns_GRI_cost = 5000 }
+	}
+	if = {
+		limit = {
+			GRI = {
+				has_tech = improved_infantry_weapons
+			}
+		}
+		set_variable = { KIS_buy_guns_GRI_cost = 5500 }
+	}
+	if = {
+		limit = {
+			GRI = {
+				has_tech = advanced_infantry_weapons
+			}
+		}
+		set_variable = { KIS_buy_guns_GRI_cost = 6000 }
+	}
+	if = {
+		limit = {
+			GRI = {
+				has_tech = advanced_infantry_weapons_b
+			}
+		}
+		set_variable = { KIS_buy_guns_GRI_cost = 6500 }
+	}
+	if = {
+		limit = {
+			GRI = {
+				has_tech = advanced_infantry_weapons_e
+			}
+		}
+		set_variable = { KIS_buy_guns_GRI_cost = 7000 }
+	}
+	#############################################
+	## Figure out KIS Infantry Equipment Level ##
+	#############################################
+	if = {
+		limit = {
+			KIS = {
+				has_tech = infantry_weapons
+			}
+		}
+		set_variable = { KIS_buy_guns_KIS_cost = 3500 }
+	}
+	if = {
+		limit = {
+			KIS = {
+				has_tech = infantry_weapons1
+			}
+		}
+		set_variable = { KIS_buy_guns_KIS_cost = 4000 }
+	}
+	if = {
+		limit = {
+			KIS = {
+				has_tech = improved_infantry_weapons
+			}
+		}
+		set_variable = { KIS_buy_guns_KIS_cost = 4500 }
+	}
+	if = {
+		limit = {
+			KIS = {
+				has_tech = advanced_infantry_weapons
+			}
+		}
+		set_variable = { KIS_buy_guns_KIS_cost = 5000 }
+	}
+	if = {
+		limit = {
+			KIS = {
+				has_tech = advanced_infantry_weapons_b
+			}
+		}
+		set_variable = { KIS_buy_guns_KIS_cost = 5500 }
+	}
+	if = {
+		limit = {
+			KIS = {
+				has_tech = advanced_infantry_weapons_e
+			}
+		}
+		set_variable = { KIS_buy_guns_KIS_cost = 6000 }
+	}
+}
+
+KIS_plebiscite_calculate_average_popular_support = {
+	set_variable = { KIS_plebiscite_average_popular_support = 0 }
+	add_to_variable = { KIS_plebiscite_average_popular_support = KIS_plebiscite_fragrance_support_var }
+	add_to_variable = { KIS_plebiscite_average_popular_support = KIS_plebiscite_comely_cape_support_var }
+	add_to_variable = { KIS_plebiscite_average_popular_support = KIS_plebiscite_prosperous_dell_support_var }
+	add_to_variable = { KIS_plebiscite_average_popular_support = KIS_plebiscite_rhapsody_support_var }
+	add_to_variable = { KIS_plebiscite_average_popular_support = KIS_plebiscite_viridian_coast_support_var }
+	add_to_variable = { KIS_plebiscite_average_popular_support = KIS_plebiscite_radiance_support_var }
+	add_to_variable = { KIS_plebiscite_average_popular_support = KIS_plebiscite_verdant_fields_support_var }
+	add_to_variable = { KIS_plebiscite_average_popular_support = KIS_plebiscite_apricot_glen_support_var }
+	multiply_variable = { KIS_plebiscite_average_popular_support = 100 }
+	divide_variable = { KIS_plebiscite_average_popular_support = 8 }
+	clamp_variable = {
+		var = KIS_plebiscite_average_popular_support
+		min = 0
+		max = 100
+	}
+}
+
+KIS_gain_offsite_factories_wacky_trigger_one = {
+	add_offsite_building = { type = industrial_complex level = 1 }
+	add_offsite_building = { type = arms_factory level = 1 }
+	add_offsite_building = { type = dockyard level = 1 }
+}
+
+KIS_gain_offsite_factories_wacky_trigger_two = {
+	add_offsite_building = { type = industrial_complex level = -1 }
+	add_offsite_building = { type = arms_factory level = -1 }
+	add_offsite_building = { type = dockyard level = -1 }
+}
+
+KIR_alleviate_failed_industrialisation_idea_effect = {
+	if = {
+		limit = {
+			has_idea = KIR_failed_industrialisation_idea
+		}
+		swap_ideas = { add_idea = KIR_failed_industrialisation_idea1 remove_idea = KIR_failed_industrialisation_idea }
+	}
+	else_if = {
+		limit = {
+			has_idea = KIR_failed_industrialisation_idea1
+		}
+		swap_ideas = { add_idea = KIR_failed_industrialisation_idea2 remove_idea = KIR_failed_industrialisation_idea1 }
+	}
+	else_if = {
+		limit = {
+			has_idea = KIR_failed_industrialisation_idea2
+		}
+		swap_ideas = { add_idea = KIR_failed_industrialisation_idea3 remove_idea = KIR_failed_industrialisation_idea2 }
+	}
+	else_if = {
+		limit = {
+			has_idea = KIR_failed_industrialisation_idea3
+		}
+		remove_ideas = KIR_failed_industrialisation_idea3
+	}
+	else_if = {
+		limit = {
+			NOT = {
+				AND = {
+					has_idea = KIR_failed_industrialisation_idea
+					has_idea = KIR_failed_industrialisation_idea1
+					has_idea = KIR_failed_industrialisation_idea2
+					has_idea = KIR_failed_industrialisation_idea3
+				}
+			}
+		}
+		add_political_power = 100
+		add_tech_bonus = {
+			name = industrial_bonus
+			bonus = 2.0
+			uses = 2
+			category = industry
+		}
+	}
+}
+
+KIR_alleviate_civil_war_idea_effect = {
+	if = {
+		limit = {
+			has_idea = KIR_civil_war
+		}
+		swap_ideas = { add_idea = KIR_civil_war1 remove_idea = KIR_civil_war }
+	}
+	else_if = {
+		limit = {
+			has_idea = KIR_civil_war1
+		}
+		swap_ideas = { add_idea = KIR_civil_war2 remove_idea = KIR_civil_war1 }
+	}
+	else_if = {
+		limit = {
+			has_idea = KIR_civil_war2
+		}
+		remove_ideas = KIR_civil_war2
+	}
+	else_if = {
+		limit = {
+			NOT = {
+				AND = {
+					has_idea = KIR_civil_war
+					has_idea = KIR_civil_war1
+					has_idea = KIR_civil_war2
+				}
+			}
+		}
+		add_political_power = 150
+		add_stability = 0.05
+	}
+}
+
+KIR_upgrade_iron_order_idea_effect = {
+	if = {
+		limit = {
+			has_idea = KIR_NAKP
+		}
+		swap_ideas = { add_idea = KIR_NAKP1 remove_idea = KIR_NAKP }
+	}
+	else_if = {
+		limit = {
+			has_idea = KIR_NAKP1
+		}
+		swap_ideas = { add_idea = KIR_NAKP2 remove_idea = KIR_NAKP1 }
+	}
+	else_if = {
+		limit = {
+			has_idea = KIR_NAKP2
+		}
+		swap_ideas = { add_idea = KIR_NAKP3 remove_idea = KIR_NAKP2 }
+	}
+	else_if = {
+		limit = {
+			has_idea = KIR_NAKP3
+		}
+		add_command_power = 25
+		army_experience = 25
+		if = {
+			limit = {
+				has_government = fascism
+			}
+			add_popularity = {
+				ideology = fascism
+				popularity = 0.05
+			}
+		}
+		if = {
+			limit = {
+				has_government = neutrality
+			}
+			add_popularity = {
+				ideology = neutrality
+				popularity = 0.05
+			}
+		}
+	}
+}
+
+KIS_state_corporate_vassal_clear_other_vassals_effect = {
+	if = {
+		limit = {
+			THIS = {
+				has_state_flag = KIS_selected_SYCEE_state_flag
+			}
+		}
+		ROOT = {
+			subtract_from_variable = { KIS_SYCEE_cost_var = 1000 }
+		}
+		clr_state_flag = KIS_selected_SYCEE_state_flag
+		remove_dynamic_modifier = { modifier = KIS_SYCEE_state_modifier }
+		set_variable = { KIS_state_corporate_vassal_GUI_selection_SYCEE_button_frame = 1 }
+	}
+	if = {
+		limit = {
+			THIS = {
+				has_state_flag = KIS_selected_GUILD_state_flag
+			}
+		}
+		ROOT = {
+			subtract_from_variable = { KIS_GUILD_cost_var = 1000 }
+		}
+		clr_state_flag = KIS_selected_GUILD_state_flag
+		remove_dynamic_modifier = { modifier = KIS_GUILD_state_modifier }
+		set_variable = { KIS_state_corporate_vassal_GUI_selection_GUILD_button_frame = 1 }
+	}
+	if = {
+		limit = {
+			THIS = {
+				has_state_flag = KIS_selected_SORGHUM_state_flag
+			}
+		}
+		ROOT = {
+			subtract_from_variable = { KIS_SORGHUM_cost_var = 1000 }
+		}
+		clr_state_flag = KIS_selected_SORGHUM_state_flag
+		remove_dynamic_modifier = { modifier = KIS_SORGHUM_state_modifier }
+		set_variable = { KIS_state_corporate_vassal_GUI_selection_SORGHUM_button_frame = 1 }
+	}
+	if = {
+		limit = {
+			THIS = {
+				has_state_flag = KIS_selected_COLLEGIUM_state_flag
+			}
+		}
+		ROOT = {
+			subtract_from_variable = { KIS_COLLEGIUM_country_modifier_var = 0.02 }
+			clamp_variable = {
+				var = KIS_COLLEGIUM_country_modifier_var
+				min = 0
+				max = 0.2
+			}
+			subtract_from_variable = { KIS_COLLEGIUM_cost_var = 1000 }
+		}
+		clr_state_flag = KIS_selected_COLLEGIUM_state_flag
+		remove_dynamic_modifier = { modifier = KIS_COLLEGIUM_state_modifier }
+		set_variable = { KIS_state_corporate_vassal_GUI_selection_COLLEGIUM_button_frame = 1 }
+	}
+	if = {
+		limit = {
+			THIS = {
+				has_state_flag = KIS_selected_FRAGRANCE_state_flag
+			}
+		}
+		ROOT = {
+			subtract_from_variable = { KIS_FRAGRANCE_country_modifier_var = 0.02 }
+			clamp_variable = {
+				var = KIS_FRAGRANCE_country_modifier_var
+				min = 0
+				max = 0.2
+			}
+			subtract_from_variable = { KIS_FRAGRANCE_cost_var = 1000 }
+		}
+		clr_state_flag = KIS_selected_FRAGRANCE_state_flag
+		set_variable = { KIS_state_corporate_vassal_GUI_selection_FRAGRANCE_button_frame = 1 }
+	}
+	if = {
+		limit = {
+			THIS = {
+				has_state_flag = KIS_selected_DREAMBOAT_state_flag
+			}
+		}
+		ROOT = {
+			subtract_from_variable = { KIS_DREAMBOAT_country_modifier_var = 0.02 }
+			clamp_variable = {
+				var = KIS_DREAMBOAT_country_modifier_var
+				min = 0
+				max = 0.2
+			}
+			subtract_from_variable = { KIS_DREAMBOAT_cost_var = 1000 }
+		}
+		clr_state_flag = KIS_selected_DREAMBOAT_state_flag
+		remove_dynamic_modifier = { modifier = KIS_DREAMBOAT_state_modifier }
+		set_variable = { KIS_state_corporate_vassal_GUI_selection_DREAMBOAT_button_frame = 1 }
+	}
+	if = {
+		limit = {
+			THIS = {
+				has_state_flag = KIS_selected_SCARLET_state_flag
+			}
+		}
+		ROOT = {
+			subtract_from_variable = { KIS_SCARLET_country_modifier_var = 0.02 }
+			clamp_variable = {
+				var = KIS_SCARLET_country_modifier_var
+				min = 0
+				max = 0.2
+			}
+			subtract_from_variable = { KIS_SCARLET_cost_var = 1000 }
+		}
+		clr_state_flag = KIS_selected_SCARLET_state_flag
+		remove_dynamic_modifier = { modifier = KIS_SCARLET_state_modifier }
+		set_variable = { KIS_state_corporate_vassal_GUI_selection_SCARLET_button_frame = 1 }
+	}
+	if = {
+		limit = {
+			THIS = {
+				has_state_flag = KIS_selected_WINGLUCK_state_flag
+			}
+		}
+		ROOT = {
+			add_to_variable = { KIS_WINGLUCK_country_modifier_var = 0.02 }
+			clamp_variable = {
+				var = KIS_WINGLUCK_country_modifier_var
+				min = -0.2
+				max = 0
+			}
+			subtract_from_variable = { KIS_WINGLUCK_cost_var = 1000 }
+		}
+		clr_state_flag = KIS_selected_WINGLUCK_state_flag
+		remove_dynamic_modifier = { modifier = KIS_WINGLUCK_state_modifier }
+		set_variable = { KIS_state_corporate_vassal_GUI_selection_WINGLUCK_button_frame = 1 }
+	}
+	if = {
+		limit = {
+			THIS = {
+				has_state_flag = KIS_selected_CRANE_state_flag
+			}
+		}
+		ROOT = {
+			subtract_from_variable = { KIS_CRANE_cost_var = 1000 }
+		}
+		clr_state_flag = KIS_selected_CRANE_state_flag
+		remove_dynamic_modifier = { modifier = KIS_CRANE_state_modifier }
+		set_variable = { KIS_state_corporate_vassal_GUI_selection_CRANE_button_frame = 1 }
+	}
+	if = {
+		limit = {
+			THIS = {
+				has_state_flag = KIS_selected_RHAPSODY_state_flag
+			}
+		}
+		ROOT = {
+			add_to_variable = { KIS_RHAPSODY_country_modifier_var = 0.02 }
+			clamp_variable = {
+				var = KIS_RHAPSODY_country_modifier_var
+				min = -0.2
+				max = 0
+			}
+			subtract_from_variable = { KIS_RHAPSODY_cost_var = 1000 }
+		}
+		clr_state_flag = KIS_selected_RHAPSODY_state_flag
+		remove_dynamic_modifier = { modifier = KIS_RHAPSODY_state_modifier }
+		set_variable = { KIS_state_corporate_vassal_GUI_selection_RHAPSODY_button_frame = 1 }
+	}
+	if = {
+		limit = {
+			THIS = {
+				has_state_flag = KIS_selected_BULL_state_flag
+			}
+		}
+		ROOT = {
+			subtract_from_variable = { KIS_BULL_cost_var = 1000 }
+		}
+		clr_state_flag = KIS_selected_BULL_state_flag
+		remove_dynamic_modifier = { modifier = KIS_BULL_state_modifier }
+		set_variable = { KIS_state_corporate_vassal_GUI_selection_BULL_button_frame = 1 }
+	}
+	if = {
+		limit = {
+			THIS = {
+				has_state_flag = KIS_selected_KIRIA_state_flag
+			}
+		}
+		ROOT = {
+			subtract_from_variable = { KIS_KIRIA_cost_var = 1000 }
+		}
+		clr_state_flag = KIS_selected_KIRIA_state_flag
+		remove_dynamic_modifier = { modifier = KIS_KIRIA_state_modifier }
+		remove_dynamic_modifier = { modifier = KIS_KIRIA_state_modifier_non_core }
+		KIS = { remove_resource_rights = PREV }
+		set_variable = { KIS_state_corporate_vassal_GUI_selection_KIRIA_button_frame = 1 }
+	}
+	ROOT = {
+		clr_country_flag = KIS_state_corporate_vassal_GUI_selection_menu_flag
+		add_to_variable = { KIS_state_corporate_vassal_SG_DIRTY = 1 }
+	}
+}
+
+KIR_upgrade_rising_fire_idea_effect = {
+	if = {
+		limit = {
+			has_idea = KIR_rising_fire
+		}
+		swap_ideas = { add_idea = KIR_rising_fire_1 remove_idea = KIR_rising_fire }
+	}
+	else_if = {
+		limit = {
+			has_idea = KIR_rising_fire_1
+		}
+		swap_ideas = { add_idea = KIR_rising_fire_2 remove_idea = KIR_rising_fire_1 }
+	}
+	else_if = {
+		limit = {
+			has_idea = KIR_rising_fire_2
+			has_completed_focus = KIR_republic_focus_back_hoof
+		}
+		swap_ideas = { add_idea = KIR_rising_fire_def remove_idea = KIR_rising_fire_2 }
+	}
+	else_if = {
+		limit = {
+			has_idea = KIR_rising_fire_2
+			has_completed_focus = KIR_republic_focus_sacred_revolution
+		}
+		swap_ideas = { add_idea = KIR_rising_fire_ofs remove_idea = KIR_rising_fire_2 }
+	}
+	else_if = {
+		limit = {
+			has_idea = KIR_rising_fire_def
+		}
+		swap_ideas = { add_idea = KIR_rising_fire_def1 remove_idea = KIR_rising_fire_def }
+	}
+	else_if = {
+		limit = {
+			has_idea = KIR_rising_fire_ofs
+		}
+		swap_ideas = { add_idea = KIR_rising_fire_ofs1 remove_idea = KIR_rising_fire_ofs }
+	}
+}
+
+KIR_get_factory_ratio = {
+	##Total Amount of Industry
+	set_variable = { KIR_total_factories_count_var = KIR.num_of_civilian_factories }
+	add_to_variable = { KIR_total_factories_count_var = KIR.num_of_military_factories }
+	add_to_variable = { KIR_total_factories_count_var = KIR.num_of_naval_factories }
+	##Lowest Common Denominator
+	set_variable = { KIR_ratio_of_factories_var = KIR.num_of_naval_factories }
+	##Ratio of Civilian Factories
+	set_variable = { KIR_civilian_factories_ratio = KIR.num_of_civilian_factories }
+	divide_variable = { KIR_civilian_factories_ratio = KIR.KIR_ratio_of_factories_var }
+	##Ratio of Military Factories
+	set_variable = { KIR_military_factories_ratio = KIR.num_of_military_factories }
+	divide_variable = { KIR_military_factories_ratio = KIR.KIR_ratio_of_factories_var }
+	##Ratio of Naval Factories
+	set_variable = { KIR_naval_factories_ratio = KIR.num_of_naval_factories }
+	divide_variable = { KIR_naval_factories_ratio = KIR.KIR_ratio_of_factories_var }
+}
+
+KIR_KI_RES_OUTPUT_COST_ADD = {
+	if = {
+		limit = {
+			check_variable = { KIR.KIR_KI_RESOURCES_PRODUCED = 0 }
+		}
+		add_ideas = KIR_KI_RES
+		custom_effect_tooltip = KIR_line_break
+		add_to_variable = { KIR.KIR_KI_RESOURCES_PRODUCED = 1 }
+	}
+	else_if = {
+		limit = {
+			check_variable = { KIR.KIR_KI_RESOURCES_PRODUCED = 1 }
+		}
+		swap_ideas = { add_idea = KIR_KI_RES_1 remove_idea = KIR_KI_RES }
+		add_to_variable = { KIR.KIR_KI_RESOURCES_PRODUCED = 1 }
+	}
+	else_if = {
+		limit = {
+			check_variable = { KIR.KIR_KI_RESOURCES_PRODUCED = 2 }
+		}
+		swap_ideas = { add_idea = KIR_KI_RES_2 remove_idea = KIR_KI_RES_1 }
+		add_to_variable = { KIR.KIR_KI_RESOURCES_PRODUCED = 1 }
+	}
+	else_if = {
+		limit = {
+			check_variable = { KIR.KIR_KI_RESOURCES_PRODUCED = 3 }
+		}
+		swap_ideas = { add_idea = KIR_KI_RES_3 remove_idea = KIR_KI_RES_2 }
+		add_to_variable = { KIR.KIR_KI_RESOURCES_PRODUCED = 1 }
+	}
+	else_if = {
+		limit = {
+			check_variable = { KIR.KIR_KI_RESOURCES_PRODUCED = 4 }
+		}
+		swap_ideas = { add_idea = KIR_KI_RES_4 remove_idea = KIR_KI_RES_3 }
+		add_to_variable = { KIR.KIR_KI_RESOURCES_PRODUCED = 1 }
+	}
+	else_if = {
+		limit = {
+			check_variable = { KIR.KIR_KI_RESOURCES_PRODUCED = 5 }
+		}
+		custom_effect_tooltip = KIR_line_break
+	}
+}
+
+KIR_KI_RES_OUTPUT_COST_SUBTRACT = {
+	effect_tooltip = {
+		if = {
+			limit = {
+				has_idea = KIR_KI_RES
+			}
+			remove_ideas = KIR_KI_RES
+			custom_effect_tooltip = KIR_line_break
+		}
+		else = {
+			swap_ideas = { add_idea = KIR_KI_RES remove_idea = KIR_KI_RES_1 }
+		}
+	}
+	hidden_effect = {
+		if = {
+			limit = {
+				has_idea = KIR_KI_RES
+			}
+			remove_ideas = KIR_KI_RES
+			subtract_from_variable = { KIR.KIR_KI_RESOURCES_PRODUCED = 1 }
+		}
+		else_if = {
+			limit = {
+				has_idea = KIR_KI_RES_1
+			}
+			swap_ideas = { add_idea = KIR_KI_RES remove_idea = KIR_KI_RES_1 }
+			subtract_from_variable = { KIR.KIR_KI_RESOURCES_PRODUCED = 1 }
+		}
+		else_if = {
+			limit = {
+				has_idea = KIR_KI_RES_2
+			}
+			swap_ideas = { add_idea = KIR_KI_RES_1 remove_idea = KIR_KI_RES_2 }
+			subtract_from_variable = { KIR.KIR_KI_RESOURCES_PRODUCED = 1 }
+		}
+		else_if = {
+			limit = {
+				has_idea = KIR_KI_RES_3
+			}
+			swap_ideas = { add_idea = KIR_KI_RES_2 remove_idea = KIR_KI_RES_3 }
+			subtract_from_variable = { KIR.KIR_KI_RESOURCES_PRODUCED = 1 }
+		}
+		else_if = {
+			limit = {
+				has_idea = KIR_KI_RES_4
+			}
+			swap_ideas = { add_idea = KIR_KI_RES_3 remove_idea = KIR_KI_RES_4 }
+			subtract_from_variable = { KIR.KIR_KI_RESOURCES_PRODUCED = 1 }
+		}
+	}
+}
+
+KIR_STATE_PALACE_BUTTON_CLICK_EFFECT = {
+	if = {
+		limit = {
+			THIS = {
+				has_state_flag = KIR_STATE_HAS_YAMEN
+				OR = {
+					has_state_flag = KIR_STATE_HAS_H1_YAMEN
+					has_state_flag = KIR_STATE_HAS_H2_YAMEN
+					has_state_flag = KIR_STATE_HAS_H3_YAMEN
+					has_state_flag = KIR_STATE_HAS_N1_YAMEN
+					has_state_flag = KIR_STATE_HAS_N2_YAMEN
+					has_state_flag = KIR_STATE_HAS_N3_YAMEN
+					has_state_flag = KIR_STATE_HAS_N4_YAMEN
+					has_state_flag = KIR_STATE_HAS_N5_YAMEN
+					has_state_flag = KIR_STATE_HAS_C1_YAMEN
+					has_state_flag = KIR_STATE_HAS_C2_YAMEN
+					has_state_flag = KIR_STATE_HAS_C3_YAMEN
+				}
+			}
+		}
+		THIS = {
+			KIR_STATE_YAMEN_BUTTON_CLICK_EFFECT = yes
+		}
+	}
+	if = {
+		limit = { has_state_flag = KIR_STATE_HAS_H1_PALACE }
+		THIS = {
+			clr_state_flag = KIR_STATE_HAS_H1_PALACE
+			set_variable = { KIR_STATE_H1_PALACE_BUTTON_FRAME = 2 }
+		}
+		ROOT = {
+			if = {
+				limit = {
+					check_variable = { KIR_STATE_H1_PALACE_NUM < 4 }
+				}
+				subtract_from_variable = { KIR_CONSOCSYS_political_power_gain_var = 0.1 }
+			}
+			subtract_from_variable = { KIR_STATE_H1_PALACE_NUM = 1 }
+			subtract_from_variable = { KIR_STATE_H1H2_PALACE_NUM = 1 }
+			clamp_variable = { var = KIR_CONSOCSYS_political_power_gain_var min = 0.1 max = 0.5 }
+			subtract_from_variable = { KIR_CONSOCSYS_democratic_drift = 0.01 }
+			subtract_from_variable = { KIR_CONSOCSYS_political_power_gain = KIR_CONSOCSYS_political_power_gain_var }
+			subtract_from_variable = { KIR_CONSOCSYS_KIR_STATE_DIETS_Modifier = 1 }
+		}
+	}
+	if = {
+		limit = { has_state_flag = KIR_STATE_HAS_H2_PALACE }
+		THIS = {
+			clr_state_flag = KIR_STATE_HAS_H2_PALACE
+			set_variable = { KIR_STATE_H2_PALACE_BUTTON_FRAME = 2 }
+		}
+		ROOT = {
+			if = {
+				limit = {
+					check_variable = { KIR_STATE_H2_PALACE_NUM < 4 }
+				}
+				subtract_from_variable = { KIR_CONSOCSYS_command_power_gain_var = 0.1 }
+			}
+			subtract_from_variable = { KIR_STATE_H2_PALACE_NUM = 1 }
+			subtract_from_variable = { KIR_STATE_H1H2_PALACE_NUM = 1 }
+			clamp_variable = { var = KIR_CONSOCSYS_command_power_gain_var min = 0.1 max = 0.5 }
+			subtract_from_variable = { KIR_CONSOCSYS_democratic_drift = 0.01 }
+			subtract_from_variable = { KIR_CONSOCSYS_command_power_gain = KIR_CONSOCSYS_command_power_gain_var }
+			subtract_from_variable = { KIR_CONSOCSYS_KIR_STATE_DIETS_Modifier = 1 }
+		}
+	}
+	if = {
+		limit = { has_state_flag = KIR_STATE_HAS_H3_PALACE }
+		THIS = {
+			clr_state_flag = KIR_STATE_HAS_H3_PALACE
+			set_variable = { KIR_STATE_H3_PALACE_BUTTON_FRAME = 2 }
+		}
+		ROOT = {
+			if = {
+				limit = {
+					check_variable = { KIR_STATE_H3_PALACE_NUM < 4 }
+				}
+				subtract_from_variable = { KIR_CONSOCSYS_consumer_goods_factor_var = 0.004 }
+			}
+			subtract_from_variable = { KIR_STATE_H3_PALACE_NUM = 1 }
+			subtract_from_variable = { KIR_STATE_H3N1_PALACE_NUM = 1 }
+			clamp_variable = { var = KIR_CONSOCSYS_consumer_goods_factor_var min = 0.004 max = 0.02 }
+			subtract_from_variable = { KIR_CONSOCSYS_democratic_drift = 0.01 }
+			add_to_variable = { KIR_CONSOCSYS_consumer_goods_factor = KIR_CONSOCSYS_consumer_goods_factor_var }
+			subtract_from_variable = { KIR_CONSOCSYS_KIR_STATE_DIETS_Modifier = 1 }
+		}
+	}
+	if = {
+		limit = { has_state_flag = KIR_STATE_HAS_N1_PALACE }
+		THIS = {
+			clr_state_flag = KIR_STATE_HAS_N1_PALACE
+			set_variable = { KIR_STATE_N1_PALACE_BUTTON_FRAME = 2 }
+		}
+		ROOT = {
+			if = {
+				limit = {
+					check_variable = { KIR_STATE_N1_PALACE_NUM < 4 }
+				}
+				subtract_from_variable = { KIR_CONSOCSYS_research_speed_factor_var = 0.01 }
+			}
+			subtract_from_variable = { KIR_STATE_N1_PALACE_NUM = 1 }
+			subtract_from_variable = { KIR_STATE_H3N1_PALACE_NUM = 1 }
+			clamp_variable = { var = KIR_CONSOCSYS_research_speed_factor_var min = 0.01 max = 0.05 }
+			subtract_from_variable = { KIR_CONSOCSYS_neutrality_drift = 0.01 }
+			subtract_from_variable = { KIR_CONSOCSYS_research_speed_factor = KIR_CONSOCSYS_research_speed_factor_var }
+			subtract_from_variable = { KIR_CONSOCSYS_KIR_STATE_DIETS_Modifier = 1 }
+		}
+	}
+	if = {
+		limit = { has_state_flag = KIR_STATE_HAS_N2_PALACE }
+		THIS = {
+			clr_state_flag = KIR_STATE_HAS_N2_PALACE
+			set_variable = { KIR_STATE_N2_PALACE_BUTTON_FRAME = 2 }
+		}
+		ROOT = {
+			if = {
+				limit = {
+					check_variable = { KIR_STATE_N2_PALACE_NUM < 4 }
+				}
+				subtract_from_variable = { KIR_CONSOCSYS_war_support_factor_var = 0.01 }
+			}
+			subtract_from_variable = { KIR_STATE_N2_PALACE_NUM = 1 }
+			clamp_variable = { var = KIR_CONSOCSYS_war_support_factor_var min = 0.01 max = 0.05 }
+			subtract_from_variable = { KIR_CONSOCSYS_fascism_drift = 0.01 }
+			subtract_from_variable = { KIR_CONSOCSYS_war_support_factor = KIR_CONSOCSYS_war_support_factor_var }
+			subtract_from_variable = { KIR_CONSOCSYS_KIR_STATE_DIETS_Modifier = 1 }
+		}
+	}
+	if = {
+		limit = { has_state_flag = KIR_STATE_HAS_N3_PALACE }
+		THIS = {
+			clr_state_flag = KIR_STATE_HAS_N3_PALACE
+			set_variable = { KIR_STATE_N3_PALACE_BUTTON_FRAME = 2 }
+		}
+		ROOT = {
+			if = {
+				limit = {
+					check_variable = { KIR_STATE_N3_PALACE_NUM < 4 }
+				}
+				subtract_from_variable = { KIR_CONSOCSYS_local_resources_factor_var = 0.01 }
+			}
+			subtract_from_variable = { KIR_STATE_N3_PALACE_NUM = 1 }
+			subtract_from_variable = { KIR_STATE_N3N4_PALACE_NUM = 1 }
+			clamp_variable = { var = KIR_CONSOCSYS_local_resources_factor_var min = 0.01 max = 0.05 }
+			subtract_from_variable = { KIR_CONSOCSYS_fascism_drift = 0.01 }
+			subtract_from_variable = { KIR_CONSOCSYS_local_resources_factor = KIR_CONSOCSYS_local_resources_factor_var }
+			subtract_from_variable = { KIR_CONSOCSYS_KIR_STATE_DIETS_Modifier = 1 }
+		}
+	}
+	if = {
+		limit = { has_state_flag = KIR_STATE_HAS_N4_PALACE }
+		THIS = {
+			clr_state_flag = KIR_STATE_HAS_N4_PALACE
+			set_variable = { KIR_STATE_N4_PALACE_BUTTON_FRAME = 2 }
+		}
+		ROOT = {
+			if = {
+				limit = {
+					check_variable = { KIR_STATE_N4_PALACE_NUM < 4 }
+				}
+				subtract_from_variable = { KIR_CONSOCSYS_production_factory_efficiency_gain_factor_var = 0.01 }
+			}
+			subtract_from_variable = { KIR_STATE_N4_PALACE_NUM = 1 }
+			subtract_from_variable = { KIR_STATE_N3N4_PALACE_NUM = 1 }
+			clamp_variable = { var = KIR_CONSOCSYS_production_factory_efficiency_gain_factor_var min = 0.01 max = 0.05 }
+			subtract_from_variable = { KIR_CONSOCSYS_fascism_drift = 0.01 }
+			subtract_from_variable = { KIR_CONSOCSYS_production_factory_efficiency_gain_factor = KIR_CONSOCSYS_production_factory_efficiency_gain_factor_var }
+			subtract_from_variable = { KIR_CONSOCSYS_KIR_STATE_DIETS_Modifier = 1 }
+		}
+	}
+	if = {
+		limit = { has_state_flag = KIR_STATE_HAS_N5_PALACE }
+		THIS = {
+			clr_state_flag = KIR_STATE_HAS_N5_PALACE
+			set_variable = { KIR_STATE_N5_PALACE_BUTTON_FRAME = 2 }
+		}
+		ROOT = {
+			if = {
+				limit = {
+					check_variable = { KIR_STATE_N5_PALACE_NUM < 4 }
+				}
+				subtract_from_variable = { KIR_CONSOCSYS_stability_factor_var = 0.01 }
+			}
+			subtract_from_variable = { KIR_STATE_N5_PALACE_NUM = 1 }
+			clamp_variable = { var = KIR_CONSOCSYS_stability_factor_var min = 0.01 max = 0.05 }
+			subtract_from_variable = { KIR_CONSOCSYS_neutrality_drift = 0.01 }
+			subtract_from_variable = { KIR_CONSOCSYS_stability_factor = KIR_CONSOCSYS_stability_factor_var }
+			subtract_from_variable = { KIR_CONSOCSYS_KIR_STATE_DIETS_Modifier = 1 }
+		}
+	}
+	if = {
+		limit = { has_state_flag = KIR_STATE_HAS_C1_PALACE }
+		THIS = {
+			clr_state_flag = KIR_STATE_HAS_C1_PALACE
+			set_variable = { KIR_STATE_C1_PALACE_BUTTON_FRAME = 2 }
+		}
+		ROOT = {
+			if = {
+				limit = {
+					check_variable = { KIR_STATE_C1_PALACE_NUM < 4 }
+				}
+				subtract_from_variable = { KIR_CONSOCSYS_conscription_factor_var = 0.01 }
+			}
+			subtract_from_variable = { KIR_STATE_C1_PALACE_NUM = 1 }
+			clamp_variable = { var = KIR_CONSOCSYS_conscription_factor_var min = 0.01 max = 0.05 }
+			subtract_from_variable = { KIR_CONSOCSYS_communism_drift = 0.01 }
+			subtract_from_variable = { KIR_CONSOCSYS_conscription_factor = KIR_CONSOCSYS_conscription_factor_var }
+			subtract_from_variable = { KIR_CONSOCSYS_KIR_STATE_DIETS_Modifier = 1 }
+		}
+	}
+	if = {
+		limit = { has_state_flag = KIR_STATE_HAS_C2_PALACE }
+		THIS = {
+			clr_state_flag = KIR_STATE_HAS_C2_PALACE
+			set_variable = { KIR_STATE_C2_PALACE_BUTTON_FRAME = 2 }
+		}
+		ROOT = {
+			if = {
+				limit = {
+					check_variable = { KIR_STATE_C2_PALACE_NUM < 4 }
+				}
+				subtract_from_variable = { KIR_CONSOCSYS_monthly_population_var = 0.05 }
+			}
+			subtract_from_variable = { KIR_STATE_C2_PALACE_NUM = 1 }
+			clamp_variable = { var = KIR_CONSOCSYS_monthly_population_var min = 0.05 max = 0.25 }
+			subtract_from_variable = { KIR_CONSOCSYS_communism_drift = 0.01 }
+			subtract_from_variable = { KIR_CONSOCSYS_monthly_population = KIR_CONSOCSYS_monthly_population_var }
+			subtract_from_variable = { KIR_CONSOCSYS_KIR_STATE_DIETS_Modifier = 1 }
+		}
+	}
+	if = {
+		limit = { has_state_flag = KIR_STATE_HAS_C3_PALACE }
+		THIS = {
+			clr_state_flag = KIR_STATE_HAS_C3_PALACE
+			set_variable = { KIR_STATE_C3_PALACE_BUTTON_FRAME = 2 }
+		}
+		ROOT = {
+			if = {
+				limit = {
+					check_variable = { KIR_STATE_C3_PALACE_NUM < 4 }
+				}
+				subtract_from_variable = { KIR_CONSOCSYS_production_speed_buildings_factor_var = 0.01 }
+			}
+			subtract_from_variable = { KIR_STATE_C3_PALACE_NUM = 1 }
+			clamp_variable = { var = KIR_CONSOCSYS_production_speed_buildings_factor_var min = 0.01 max = 0.05 }
+			subtract_from_variable = { KIR_CONSOCSYS_communism_drift = 0.01 }
+			subtract_from_variable = { KIR_CONSOCSYS_production_speed_buildings_factor = KIR_CONSOCSYS_production_speed_buildings_factor_var }
+			subtract_from_variable = { KIR_CONSOCSYS_KIR_STATE_DIETS_Modifier = 1 }
+		}
+	}
+	THIS = {
+		set_state_flag = KIR_STATE_DIET_SUSPENDED
+		set_state_flag = { flag = KIR_STATE_DIET_SUSPENDED_GRACE_PERIOD days = 180 }
+	}
+}
+
+KIR_STATE_YAMEN_BUTTON_CLICK_EFFECT = {
+	if = {
+		limit = { has_state_flag = KIR_STATE_HAS_H1_YAMEN }
+		THIS = {
+			clr_state_flag = KIR_STATE_HAS_H1_YAMEN
+			set_variable = { KIR_STATE_H1_YAMEN_BUTTON_FRAME = 2 }
+			KIR_STATE_YAMEN_BUTTON_CLICK_PALACE_CLEAR_EFFECT = yes
+		}
+		ROOT = {
+			subtract_from_variable = { KIR_STATE_H1_PALACE_NUM = 1 }
+			subtract_from_variable = { KIR_STATE_H1H2_PALACE_NUM = 1 }
+			subtract_from_variable = { KIR_CONSOCSYS_political_power_gain = KIR_CONSOCSYS_YAMEN_political_power_gain_var }
+			subtract_from_variable = { KIR_CONSOCSYS_democratic_drift = 0.01 }
+			subtract_from_variable = { KIR_CONSOCSYS_KIR_STATE_MAYORALTIES_Modifier = 1 }
+		}
+	}
+	if = {
+		limit = { has_state_flag = KIR_STATE_HAS_H2_YAMEN }
+		THIS = {
+			clr_state_flag = KIR_STATE_HAS_H2_YAMEN
+			set_variable = { KIR_STATE_H2_YAMEN_BUTTON_FRAME = 2 }
+			KIR_STATE_YAMEN_BUTTON_CLICK_PALACE_CLEAR_EFFECT = yes
+		}
+		ROOT = {
+			subtract_from_variable = { KIR_STATE_H2_PALACE_NUM = 1 }
+			subtract_from_variable = { KIR_STATE_H1H2_PALACE_NUM = 1 }
+			subtract_from_variable = { KIR_CONSOCSYS_command_power_gain = KIR_CONSOCSYS_YAMEN_command_power_gain_var }
+			subtract_from_variable = { KIR_CONSOCSYS_democratic_drift = 0.01 }
+			subtract_from_variable = { KIR_CONSOCSYS_KIR_STATE_MAYORALTIES_Modifier = 1 }
+		}
+	}
+	if = {
+		limit = { has_state_flag = KIR_STATE_HAS_H3_YAMEN }
+		THIS = {
+			clr_state_flag = KIR_STATE_HAS_H3_YAMEN
+			set_variable = { KIR_STATE_H3_YAMEN_BUTTON_FRAME = 2 }
+			KIR_STATE_YAMEN_BUTTON_CLICK_PALACE_CLEAR_EFFECT = yes
+		}
+		ROOT = {
+			subtract_from_variable = { KIR_STATE_H3_PALACE_NUM = 1 }
+			subtract_from_variable = { KIR_STATE_H3N1_PALACE_NUM = 1 }
+			add_to_variable = { KIR_CONSOCSYS_consumer_goods_factor = KIR_CONSOCSYS_YAMEN_consumer_goods_factor_var }
+			subtract_from_variable = { KIR_CONSOCSYS_democratic_drift = 0.01 }
+			subtract_from_variable = { KIR_CONSOCSYS_KIR_STATE_MAYORALTIES_Modifier = 1 }
+		}
+	}
+	if = {
+		limit = { has_state_flag = KIR_STATE_HAS_N1_YAMEN }
+		THIS = {
+			clr_state_flag = KIR_STATE_HAS_N1_YAMEN
+			set_variable = { KIR_STATE_N1_YAMEN_BUTTON_FRAME = 2 }
+			KIR_STATE_YAMEN_BUTTON_CLICK_PALACE_CLEAR_EFFECT = yes
+		}
+		ROOT = {
+			subtract_from_variable = { KIR_STATE_N1_PALACE_NUM = 1 }
+			subtract_from_variable = { KIR_STATE_H3N1_PALACE_NUM = 1 }
+			subtract_from_variable = { KIR_CONSOCSYS_research_speed_factor = KIR_CONSOCSYS_YAMEN_research_speed_factor_var }
+			subtract_from_variable = { KIR_CONSOCSYS_neutrality_drift = 0.01 }
+			subtract_from_variable = { KIR_CONSOCSYS_KIR_STATE_MAYORALTIES_Modifier = 1 }
+		}
+	}
+	if = {
+		limit = { has_state_flag = KIR_STATE_HAS_N2_YAMEN }
+		THIS = {
+			clr_state_flag = KIR_STATE_HAS_N2_YAMEN
+			set_variable = { KIR_STATE_N2_YAMEN_BUTTON_FRAME = 2 }
+			KIR_STATE_YAMEN_BUTTON_CLICK_PALACE_CLEAR_EFFECT = yes
+		}
+		ROOT = {
+			subtract_from_variable = { KIR_STATE_N2_PALACE_NUM = 1 }
+			subtract_from_variable = { KIR_CONSOCSYS_war_support_factor = KIR_CONSOCSYS_YAMEN_war_support_factor_var }
+			subtract_from_variable = { KIR_CONSOCSYS_fascism_drift = 0.01 }
+			subtract_from_variable = { KIR_CONSOCSYS_KIR_STATE_MAYORALTIES_Modifier = 1 }
+		}
+	}
+	if = {
+		limit = { has_state_flag = KIR_STATE_HAS_N3_YAMEN }
+		THIS = {
+			clr_state_flag = KIR_STATE_HAS_N3_YAMEN
+			set_variable = { KIR_STATE_N3_YAMEN_BUTTON_FRAME = 2 }
+			KIR_STATE_YAMEN_BUTTON_CLICK_PALACE_CLEAR_EFFECT = yes
+		}
+		ROOT = {
+			subtract_from_variable = { KIR_STATE_N3_PALACE_NUM = 1 }
+			subtract_from_variable = { KIR_STATE_N3N4_PALACE_NUM = 1 }
+			subtract_from_variable = { KIR_CONSOCSYS_local_resources_factor = KIR_CONSOCSYS_YAMEN_local_resources_factor_var }
+			subtract_from_variable = { KIR_CONSOCSYS_fascism_drift = 0.01 }
+			subtract_from_variable = { KIR_CONSOCSYS_KIR_STATE_MAYORALTIES_Modifier = 1 }
+		}
+	}
+	if = {
+		limit = { has_state_flag = KIR_STATE_HAS_N4_YAMEN }
+		THIS = {
+			clr_state_flag = KIR_STATE_HAS_N4_YAMEN
+			set_variable = { KIR_STATE_N4_YAMEN_BUTTON_FRAME = 2 }
+			KIR_STATE_YAMEN_BUTTON_CLICK_PALACE_CLEAR_EFFECT = yes
+		}
+		ROOT = {
+			subtract_from_variable = { KIR_STATE_N4_PALACE_NUM = 1 }
+			subtract_from_variable = { KIR_STATE_N3N4_PALACE_NUM = 1 }
+			subtract_from_variable = { KIR_CONSOCSYS_production_factory_efficiency_gain_factor = KIR_CONSOCSYS_YAMEN_production_factory_efficiency_gain_factor_var }
+			subtract_from_variable = { KIR_CONSOCSYS_fascism_drift = 0.01 }
+			subtract_from_variable = { KIR_CONSOCSYS_KIR_STATE_MAYORALTIES_Modifier = 1 }
+		}
+	}
+	if = {
+		limit = { has_state_flag = KIR_STATE_HAS_N5_YAMEN }
+		THIS = {
+			clr_state_flag = KIR_STATE_HAS_N5_YAMEN
+			set_variable = { KIR_STATE_N5_YAMEN_BUTTON_FRAME = 2 }
+			KIR_STATE_YAMEN_BUTTON_CLICK_PALACE_CLEAR_EFFECT = yes
+		}
+		ROOT = {
+			subtract_from_variable = { KIR_STATE_N5_PALACE_NUM = 1 }
+			subtract_from_variable = { KIR_CONSOCSYS_stability_factor = KIR_CONSOCSYS_YAMEN_stability_factor_var }
+			subtract_from_variable = { KIR_CONSOCSYS_neutrality_drift = 0.01 }
+			subtract_from_variable = { KIR_CONSOCSYS_KIR_STATE_MAYORALTIES_Modifier = 1 }
+		}
+	}
+	if = {
+		limit = { has_state_flag = KIR_STATE_HAS_C1_YAMEN }
+		THIS = {
+			clr_state_flag = KIR_STATE_HAS_C1_YAMEN
+			set_variable = { KIR_STATE_C1_YAMEN_BUTTON_FRAME = 2 }
+			KIR_STATE_YAMEN_BUTTON_CLICK_PALACE_CLEAR_EFFECT = yes
+		}
+		ROOT = {
+			subtract_from_variable = { KIR_STATE_C1_PALACE_NUM = 1 }
+			subtract_from_variable = { KIR_CONSOCSYS_conscription_factor = KIR_CONSOCSYS_YAMEN_conscription_factor_var }
+			subtract_from_variable = { KIR_CONSOCSYS_communism_drift = 0.01 }
+			subtract_from_variable = { KIR_CONSOCSYS_KIR_STATE_MAYORALTIES_Modifier = 1 }
+		}
+	}
+	if = {
+		limit = { has_state_flag = KIR_STATE_HAS_C2_YAMEN }
+		THIS = {
+			clr_state_flag = KIR_STATE_HAS_C2_YAMEN
+			set_variable = { KIR_STATE_C2_YAMEN_BUTTON_FRAME = 2 }
+			KIR_STATE_YAMEN_BUTTON_CLICK_PALACE_CLEAR_EFFECT = yes
+		}
+		ROOT = {
+			subtract_from_variable = { KIR_STATE_C2_PALACE_NUM = 1 }
+			subtract_from_variable = { KIR_CONSOCSYS_monthly_population = KIR_CONSOCSYS_YAMEN_monthly_population_var }
+			subtract_from_variable = { KIR_CONSOCSYS_communism_drift = 0.01 }
+			subtract_from_variable = { KIR_CONSOCSYS_KIR_STATE_MAYORALTIES_Modifier = 1 }
+		}
+	}
+	if = {
+		limit = { has_state_flag = KIR_STATE_HAS_C3_YAMEN }
+		THIS = {
+			clr_state_flag = KIR_STATE_HAS_C3_YAMEN
+			set_variable = { KIR_STATE_C3_YAMEN_BUTTON_FRAME = 2 }
+			KIR_STATE_YAMEN_BUTTON_CLICK_PALACE_CLEAR_EFFECT = yes
+		}
+		ROOT = {
+			subtract_from_variable = { KIR_STATE_C3_PALACE_NUM = 1 }
+			subtract_from_variable = { KIR_CONSOCSYS_production_speed_buildings_factor = KIR_CONSOCSYS_YAMEN_production_speed_buildings_factor_var }
+			subtract_from_variable = { KIR_CONSOCSYS_communism_drift = 0.01 }
+			subtract_from_variable = { KIR_CONSOCSYS_KIR_STATE_MAYORALTIES_Modifier = 1 }
+		}
+	}
+}
+
+KIR_STATE_YAMEN_BUTTON_CLICK_PALACE_CLEAR_EFFECT = {
+	if = {
+		limit = { THIS = { has_state_flag = KIR_STATE_HAS_H1_SYNERGY } }
+		ROOT = {
+			subtract_from_variable = { KIR_CONSOCSYS_political_power_gain = KIR_CONSOCSYS_SYNERGY_political_power_gain_var }
+		}
+		THIS = {
+			clr_state_flag = KIR_STATE_HAS_H1_SYNERGY
+		}
+	}
+	if = {
+		limit = { THIS = { has_state_flag = KIR_STATE_HAS_H2_SYNERGY } }
+		ROOT = {
+			subtract_from_variable = { KIR_CONSOCSYS_command_power_gain = KIR_CONSOCSYS_SYNERGY_command_power_gain_var }
+		}
+		THIS = {
+			clr_state_flag = KIR_STATE_HAS_H2_SYNERGY
+		}
+	}
+	if = {
+		limit = { THIS = { has_state_flag = KIR_STATE_HAS_H3_SYNERGY } }
+		ROOT = {
+			add_to_variable = { KIR_CONSOCSYS_consumer_goods_factor = KIR_CONSOCSYS_SYNERGY_consumer_goods_factor_var }
+		}
+		THIS = {
+			clr_state_flag = KIR_STATE_HAS_H3_SYNERGY
+		}
+	}
+	if = {
+		limit = { THIS = { has_state_flag = KIR_STATE_HAS_N1_SYNERGY } }
+		ROOT = {
+			subtract_from_variable = { KIR_CONSOCSYS_research_speed_factor = KIR_CONSOCSYS_SYNERGY_research_speed_factor_var }
+		}
+		THIS = {
+			clr_state_flag = KIR_STATE_HAS_N1_SYNERGY
+		}
+	}
+	if = {
+		limit = { THIS = { has_state_flag = KIR_STATE_HAS_N2_SYNERGY } }
+		ROOT = {
+			subtract_from_variable = { KIR_CONSOCSYS_war_support_factor = KIR_CONSOCSYS_SYNERGY_war_support_factor_var }
+		}
+		THIS = {
+			clr_state_flag = KIR_STATE_HAS_N2_SYNERGY
+		}
+	}
+	if = {
+		limit = { THIS = { has_state_flag = KIR_STATE_HAS_N3_SYNERGY } }
+		ROOT = {
+			subtract_from_variable = { KIR_CONSOCSYS_local_resources_factor = KIR_CONSOCSYS_SYNERGY_local_resources_factor_var }
+		}
+		THIS = {
+			clr_state_flag = KIR_STATE_HAS_N3_SYNERGY
+		}
+	}
+	if = {
+		limit = { THIS = { has_state_flag = KIR_STATE_HAS_N4_SYNERGY } }
+		ROOT = {
+			subtract_from_variable = { KIR_CONSOCSYS_production_factory_efficiency_gain_factor = KIR_CONSOCSYS_SYNERGY_production_factory_efficiency_gain_factor_var }
+		}
+		THIS = {
+			clr_state_flag = KIR_STATE_HAS_N4_SYNERGY
+		}
+	}
+	if = {
+		limit = { THIS = { has_state_flag = KIR_STATE_HAS_N5_SYNERGY } }
+		ROOT = {
+			subtract_from_variable = { KIR_CONSOCSYS_stability_factor = KIR_CONSOCSYS_SYNERGY_stability_factor_var }
+		}
+		THIS = {
+			clr_state_flag = KIR_STATE_HAS_N5_SYNERGY
+		}
+	}
+	if = {
+		limit = { THIS = { has_state_flag = KIR_STATE_HAS_C1_SYNERGY } }
+		ROOT = {
+			subtract_from_variable = { KIR_CONSOCSYS_conscription_factor = KIR_CONSOCSYS_SYNERGY_conscription_factor_var }
+		}
+		THIS = {
+			clr_state_flag = KIR_STATE_HAS_C1_SYNERGY
+		}
+	}
+	if = {
+		limit = { THIS = { has_state_flag = KIR_STATE_HAS_C2_SYNERGY } }
+		ROOT = {
+			subtract_from_variable = { KIR_CONSOCSYS_monthly_population = KIR_CONSOCSYS_SYNERGY_monthly_population_var }
+		}
+		THIS = {
+			clr_state_flag = KIR_STATE_HAS_C2_SYNERGY
+		}
+	}
+	if = {
+		limit = { THIS = { has_state_flag = KIR_STATE_HAS_C3_SYNERGY } }
+		ROOT = {
+			subtract_from_variable = { KIR_CONSOCSYS_production_speed_buildings_factor = KIR_CONSOCSYS_SYNERGY_production_speed_buildings_factor_var }
+		}
+		THIS = {
+			clr_state_flag = KIR_STATE_HAS_C3_SYNERGY
+		}
+	}
+}
+
+KIR_STATE_YAMEN_BUTTON_CLICK_PALACE_ADD_EFFECT = {
+	if = {
+		limit = {
+			THIS = {
+				has_state_flag = KIR_STATE_HAS_H1_PALACE
+				OR = {
+					has_state_flag = KIR_STATE_HAS_H1_YAMEN
+					has_state_flag = KIR_STATE_HAS_H2_YAMEN
+					has_state_flag = KIR_STATE_HAS_H3_YAMEN
+					AND = {
+						NOT = { has_state_flag = KIR_Harmonic_Liberalism_RaHP_CCR }
+						has_state_flag = KIR_STATE_HAS_N5_YAMEN
+						KIR = { has_country_flag = KIR_YAMEN_SYNERGY_CC_flag }
+					}
+					AND = {
+						has_state_flag = KIR_Harmonic_Liberalism_RaHP_CCR
+						has_state_flag = KIR_STATE_HAS_N4_YAMEN
+					}
+				}
+			}
+		}
+		ROOT = {
+			add_to_variable = { KIR_CONSOCSYS_political_power_gain = KIR_CONSOCSYS_SYNERGY_political_power_gain_var }
+		}
+		THIS = {
+			set_state_flag = KIR_STATE_HAS_H1_SYNERGY
+		}
+	}
+	if = {
+		limit = {
+			THIS = {
+				has_state_flag = KIR_STATE_HAS_H2_PALACE
+				OR = {
+					has_state_flag = KIR_STATE_HAS_H1_YAMEN
+					has_state_flag = KIR_STATE_HAS_H2_YAMEN
+					has_state_flag = KIR_STATE_HAS_H3_YAMEN
+					has_state_flag = KIR_STATE_HAS_N5_YAMEN
+				}
+			}
+		}
+		ROOT = {
+			add_to_variable = { KIR_CONSOCSYS_command_power_gain = KIR_CONSOCSYS_SYNERGY_command_power_gain_var }
+		}
+		THIS = {
+			set_state_flag = KIR_STATE_HAS_H2_SYNERGY
+		}
+	}
+	if = {
+		limit = {
+			THIS = {
+				has_state_flag = KIR_STATE_HAS_H3_PALACE
+				OR = {
+					has_state_flag = KIR_STATE_HAS_H1_YAMEN
+					has_state_flag = KIR_STATE_HAS_H2_YAMEN
+					has_state_flag = KIR_STATE_HAS_H3_YAMEN
+					has_state_flag = KIR_STATE_HAS_N1_YAMEN
+					AND = {
+						OR = {
+							has_state_flag = KIR_STATE_HAS_C2_YAMEN
+							has_state_flag = KIR_STATE_HAS_C3_YAMEN
+						}
+						KIR = { has_country_flag = KIR_YAMEN_SYNERGY_LLL_flag }
+					}
+				}
+			}
+		}
+		ROOT = {
+			subtract_from_variable = { KIR_CONSOCSYS_consumer_goods_factor = KIR_CONSOCSYS_SYNERGY_consumer_goods_factor_var }
+		}
+		THIS = {
+			set_state_flag = KIR_STATE_HAS_H3_SYNERGY
+		}
+	}
+	if = {
+		limit = {
+			THIS = {
+				has_state_flag = KIR_STATE_HAS_N1_PALACE
+				OR = {
+					has_state_flag = KIR_STATE_HAS_H3_YAMEN
+					has_state_flag = KIR_STATE_HAS_N1_YAMEN
+					has_state_flag = KIR_STATE_HAS_N5_YAMEN
+				}
+			}
+		}
+		ROOT = {
+			add_to_variable = { KIR_CONSOCSYS_research_speed_factor = KIR_CONSOCSYS_SYNERGY_research_speed_factor_var }
+		}
+		THIS = {
+			set_state_flag = KIR_STATE_HAS_N1_SYNERGY
+		}
+	}
+	if = {
+		limit = {
+			THIS = {
+				has_state_flag = KIR_STATE_HAS_N2_PALACE
+				OR = {
+					has_state_flag = KIR_STATE_HAS_N2_YAMEN
+					has_state_flag = KIR_STATE_HAS_N3_YAMEN
+					has_state_flag = KIR_STATE_HAS_N4_YAMEN
+				}
+			}
+		}
+		ROOT = {
+			add_to_variable = { KIR_CONSOCSYS_war_support_factor = KIR_CONSOCSYS_SYNERGY_war_support_factor_var }
+		}
+		THIS = {
+			set_state_flag = KIR_STATE_HAS_N2_SYNERGY
+		}
+	}
+	if = {
+		limit = {
+			THIS = {
+				has_state_flag = KIR_STATE_HAS_N3_PALACE
+				OR = {
+					has_state_flag = KIR_STATE_HAS_N2_YAMEN
+					has_state_flag = KIR_STATE_HAS_N3_YAMEN
+					has_state_flag = KIR_STATE_HAS_N4_YAMEN
+				}
+			}
+		}
+		ROOT = {
+			add_to_variable = { KIR_CONSOCSYS_local_resources_factor = KIR_CONSOCSYS_SYNERGY_local_resources_factor_var }
+		}
+		THIS = {
+			set_state_flag = KIR_STATE_HAS_N3_SYNERGY
+		}
+	}
+	if = {
+		limit = {
+			THIS = {
+				has_state_flag = KIR_STATE_HAS_N4_PALACE
+				OR = {
+					has_state_flag = KIR_STATE_HAS_N2_YAMEN
+					has_state_flag = KIR_STATE_HAS_N3_YAMEN
+					has_state_flag = KIR_STATE_HAS_N4_YAMEN
+					AND = {
+						has_state_flag = KIR_Harmonic_Liberalism_RaHP_CCR
+						has_state_flag = KIR_STATE_HAS_H1_YAMEN
+					}
+				}
+			}
+		}
+		ROOT = {
+			add_to_variable = { KIR_CONSOCSYS_production_factory_efficiency_gain_factor = KIR_CONSOCSYS_SYNERGY_production_factory_efficiency_gain_factor_var }
+		}
+		THIS = {
+			set_state_flag = KIR_STATE_HAS_N4_SYNERGY
+		}
+	}
+	if = {
+		limit = {
+			THIS = {
+				has_state_flag = KIR_STATE_HAS_N5_PALACE
+				OR = {
+					has_state_flag = KIR_STATE_HAS_H2_YAMEN
+					has_state_flag = KIR_STATE_HAS_N1_YAMEN
+					has_state_flag = KIR_STATE_HAS_N5_YAMEN
+					AND = {
+						NOT = { has_state_flag = KIR_Harmonic_Liberalism_RaHP_CCR }
+						has_state_flag = KIR_STATE_HAS_H1_YAMEN
+						KIR = { has_country_flag = KIR_YAMEN_SYNERGY_CC_flag }
+					}
+				}
+			}
+		}
+		ROOT = {
+			add_to_variable = { KIR_CONSOCSYS_stability_factor = KIR_CONSOCSYS_SYNERGY_stability_factor_var }
+		}
+		THIS = {
+			set_state_flag = KIR_STATE_HAS_N5_SYNERGY
+		}
+	}
+	if = {
+		limit = {
+			THIS = {
+				has_state_flag = KIR_STATE_HAS_C1_PALACE
+				OR = {
+					has_state_flag = KIR_STATE_HAS_C1_YAMEN
+					has_state_flag = KIR_STATE_HAS_C2_YAMEN
+					has_state_flag = KIR_STATE_HAS_C3_YAMEN
+				}
+			}
+		}
+		ROOT = {
+			add_to_variable = { KIR_CONSOCSYS_conscription_factor = KIR_CONSOCSYS_SYNERGY_conscription_factor_var }
+		}
+		THIS = {
+			set_state_flag = KIR_STATE_HAS_C1_SYNERGY
+		}
+	}
+	if = {
+		limit = {
+			THIS = {
+				has_state_flag = KIR_STATE_HAS_C2_PALACE
+				OR = {
+					has_state_flag = KIR_STATE_HAS_C1_YAMEN
+					has_state_flag = KIR_STATE_HAS_C2_YAMEN
+					has_state_flag = KIR_STATE_HAS_C3_YAMEN
+					AND = {
+						has_state_flag = KIR_STATE_HAS_H3_YAMEN
+						KIR = { has_country_flag = KIR_YAMEN_SYNERGY_LLL_flag }
+					}
+				}
+			}
+		}
+		ROOT = {
+			add_to_variable = { KIR_CONSOCSYS_monthly_population = KIR_CONSOCSYS_SYNERGY_monthly_population_var }
+		}
+		THIS = {
+			set_state_flag = KIR_STATE_HAS_C2_SYNERGY
+		}
+	}
+	if = {
+		limit = {
+			THIS = {
+				has_state_flag = KIR_STATE_HAS_C3_PALACE
+				OR = {
+					has_state_flag = KIR_STATE_HAS_C1_YAMEN
+					has_state_flag = KIR_STATE_HAS_C2_YAMEN
+					has_state_flag = KIR_STATE_HAS_C3_YAMEN
+					AND = {
+						has_state_flag = KIR_STATE_HAS_H3_YAMEN
+						KIR = { has_country_flag = KIR_YAMEN_SYNERGY_LLL_flag }
+					}
+				}
+			}
+		}
+		ROOT = {
+			add_to_variable = { KIR_CONSOCSYS_production_speed_buildings_factor = KIR_CONSOCSYS_SYNERGY_production_speed_buildings_factor_var }
+		}
+		THIS = {
+			set_state_flag = KIR_STATE_HAS_C3_SYNERGY
+		}
+	}
+}
+KIR_STATE_H1_PALACE_PP = {
+	if = {
+		limit = {
+			THIS = {
+				OR = {
+					state = 1059
+					state = 1064
+					state = 833
+				}
+			}
+		}
+		ROOT = { add_political_power = KIR.KIR_STATE_PALACE_COST_STRONGHOLD_VAR_NEGATIVE }
+	}
+	else_if = {
+		limit = {
+			THIS = {
+				OR = {
+					AND = {
+						KIR = { has_country_flag = KIR_national_focus_title_3_flag }
+						state = 1088
+					}
+					AND = {
+						KIR = {
+							has_country_flag = KIR_national_focus_title_3_flag
+							NOT = { has_country_flag = KIR_NAKP_disgraced_flag }
+						}
+						state = 1071
+					}
+					state = 1087
+					state = 1067
+					state = 1079
+					state = 926
+					state = 1080
+					state = 1082
+					AND = {
+						KIR = { has_country_flag = KIR_STATE_PALACE_COST_CCH_flag }
+						state = 1073
+					}
+					AND = {
+						KIR = { has_country_flag = KIR_STATE_PALACE_COST_RHP_flag }
+						state = 1060
+					}
+					AND = {
+						KIR = { has_country_flag = KIR_STATE_PALACE_COST_LLL_flag }
+						state = 1069
+					}
+					AND = {
+						KIR = { has_country_flag = KIR_STATE_PALACE_COST_LLL_flag }
+						state = 1076
+					}
+				}
+			}
+		}
+		ROOT = { add_political_power = KIR.KIR_STATE_PALACE_COST_EXCLUDED_VAR_NEGATIVE }
+	}
+	else = {
+		ROOT = { add_political_power = KIR.KIR_STATE_PALACE_COST_VAR_NEGATIVE }
+	}
+}
+KIR_STATE_H2_PALACE_PP = {
+	if = {
+		limit = {
+			THIS = {
+				OR = {
+					state = 1059
+					state = 1064
+					state = 833
+					AND = {
+						KIR = { has_country_flag = KIR_STATE_PALACE_COST_CCH_flag }
+						state = 1073
+					}
+					AND = {
+						KIR = { has_country_flag = KIR_STATE_PALACE_COST_RHP_flag }
+						state = 1060
+					}
+				}
+			}
+		}
+		ROOT = { add_political_power = KIR.KIR_STATE_PALACE_COST_STRONGHOLD_VAR_NEGATIVE }
+	}
+	else_if = {
+		limit = {
+			THIS = {
+				OR = {
+					AND = {
+						KIR = { has_country_flag = KIR_national_focus_title_3_flag }
+						state = 1088
+					}
+					AND = {
+						KIR = {
+							has_country_flag = KIR_national_focus_title_3_flag
+							NOT = { has_country_flag = KIR_NAKP_disgraced_flag }
+						}
+						state = 1071
+					}
+					state = 1087
+					state = 1067
+					state = 1079
+					state = 926
+					state = 1080
+					state = 1082
+					AND = {
+						KIR = { has_country_flag = KIR_STATE_PALACE_COST_LLL_flag }
+						state = 1069
+					}
+					AND = {
+						KIR = { has_country_flag = KIR_STATE_PALACE_COST_LLL_flag }
+						state = 1076
+					}
+				}
+			}
+		}
+		ROOT = { add_political_power = KIR.KIR_STATE_PALACE_COST_EXCLUDED_VAR_NEGATIVE }
+	}
+	else = {
+		ROOT = { add_political_power = KIR.KIR_STATE_PALACE_COST_VAR_NEGATIVE }
+	}
+}
+KIR_STATE_H3_PALACE_PP = {
+	if = {
+		limit = {
+			THIS = {
+				OR = {
+					state = 1064
+					state = 833
+					AND = {
+						KIR = { has_country_flag = KIR_STATE_PALACE_COST_LLL_flag }
+						state = 1069
+					}
+					AND = {
+						KIR = { has_country_flag = KIR_STATE_PALACE_COST_LLL_flag }
+						state = 1076
+					}
+					AND = {
+						KIR = { has_country_flag = KIR_STATE_PALACE_COST_MMK_flag }
+						state = 817
+					}
+				}
+			}
+		}
+		ROOT = { add_political_power = KIR.KIR_STATE_PALACE_COST_STRONGHOLD_VAR_NEGATIVE }
+	}
+	else_if = {
+		limit = {
+			THIS = {
+				OR = {
+					AND = {
+						KIR = { has_country_flag = KIR_national_focus_title_3_flag }
+						state = 1088
+					}
+					AND = {
+						KIR = {
+							has_country_flag = KIR_national_focus_title_3_flag
+							NOT = { has_country_flag = KIR_NAKP_disgraced_flag }
+						}
+						state = 1071
+					}
+					state = 1087
+					state = 1067
+					state = 1079
+					state = 926
+					state = 1080
+					state = 1082
+					AND = {
+						KIR = { has_country_flag = KIR_STATE_PALACE_COST_CCH_flag }
+						state = 1073
+					}
+					AND = {
+						KIR = { has_country_flag = KIR_STATE_PALACE_COST_RHP_flag }
+						state = 1060
+					}
+				}
+			}
+		}
+		ROOT = { add_political_power = KIR.KIR_STATE_PALACE_COST_EXCLUDED_VAR_NEGATIVE }
+	}
+	else = {
+		ROOT = { add_political_power = KIR.KIR_STATE_PALACE_COST_VAR_NEGATIVE }
+	}
+}
+KIR_STATE_N1_PALACE_PP = {
+	if = {
+		limit = {
+			THIS = {
+				AND = {
+					KIR = { has_country_flag = KIR_STATE_PALACE_COST_MMK_flag }
+					state = 817
+				}
+			}
+		}
+		ROOT = { add_political_power = KIR.KIR_STATE_PALACE_COST_STRONGHOLD_VAR_NEGATIVE }
+	}
+	else_if = {
+		limit = {
+			THIS = {
+				OR = {
+					state = 1059
+					state = 1064
+					state = 833
+					AND = {
+						KIR = { has_country_flag = KIR_national_focus_title_3_flag }
+						state = 1088
+					}
+					AND = {
+						KIR = {
+							has_country_flag = KIR_national_focus_title_3_flag
+							NOT = { has_country_flag = KIR_NAKP_disgraced_flag }
+						}
+						state = 1071
+					}
+					state = 1087
+					state = 1067
+					state = 1079
+					state = 926
+					state = 1080
+					state = 1082
+					AND = {
+						KIR = { has_country_flag = KIR_STATE_PALACE_COST_CCH_flag }
+						state = 1073
+					}
+					AND = {
+						KIR = { has_country_flag = KIR_STATE_PALACE_COST_RHP_flag }
+						state = 1060
+					}
+					AND = {
+						KIR = { has_country_flag = KIR_STATE_PALACE_COST_LLL_flag }
+						state = 1069
+					}
+					AND = {
+						KIR = { has_country_flag = KIR_STATE_PALACE_COST_LLL_flag }
+						state = 1076
+					}
+				}
+			}
+		}
+		ROOT = { add_political_power = KIR.KIR_STATE_PALACE_COST_EXCLUDED_VAR_NEGATIVE }
+	}
+	else = {
+		ROOT = { add_political_power = KIR.KIR_STATE_PALACE_COST_VAR_NEGATIVE }
+	}
+}
+KIR_STATE_N2_PALACE_PP = {
+	if = {
+		limit = {
+			THIS = {
+				state = 1087
+			}
+		}
+		ROOT = { add_political_power = KIR.KIR_STATE_PALACE_COST_STRONGHOLD_VAR_NEGATIVE }
+	}
+	else_if = {
+		limit = {
+			THIS = {
+				OR = {
+					state = 1059
+					state = 1064
+					state = 833
+					state = 1067
+					state = 1079
+					state = 926
+					state = 1080
+					state = 1082
+					AND = {
+						KIR = { has_country_flag = KIR_STATE_PALACE_COST_CCH_flag }
+						state = 1073
+					}
+					AND = {
+						KIR = { has_country_flag = KIR_STATE_PALACE_COST_RHP_flag }
+						state = 1060
+					}
+					AND = {
+						KIR = { has_country_flag = KIR_STATE_PALACE_COST_LLL_flag }
+						state = 1069
+					}
+					AND = {
+						KIR = { has_country_flag = KIR_STATE_PALACE_COST_LLL_flag }
+						state = 1076
+					}
+					AND = {
+						KIR = { has_country_flag = KIR_STATE_PALACE_COST_MMK_flag }
+						state = 817
+					}
+				}
+			}
+		}
+		ROOT = { add_political_power = KIR.KIR_STATE_PALACE_COST_EXCLUDED_VAR_NEGATIVE }
+	}
+	else = {
+		ROOT = { add_political_power = KIR.KIR_STATE_PALACE_COST_VAR_NEGATIVE }
+	}
+}
+KIR_STATE_N34_PALACE_PP = {
+	if = {
+		limit = {
+			KIR = { has_country_flag = KIR_national_focus_title_3_flag }
+			THIS = {
+				OR = {
+					AND = {
+						KIR = {
+							has_country_flag = KIR_national_focus_title_3_flag
+							NOT = { has_country_flag = KIR_NAKP_disgraced_flag }
+						}
+						state = 1071
+					}
+					state = 1087
+					state = 1088
+				}
+			}
+		}
+		ROOT = { add_political_power = KIR.KIR_STATE_PALACE_COST_STRONGHOLD_VAR_NEGATIVE }
+	}
+	else_if = {
+		limit = {
+			THIS = {
+				OR = {
+					state = 1059
+					state = 1064
+					state = 833
+					state = 1067
+					state = 1079
+					state = 926
+					state = 1080
+					state = 1082
+					AND = {
+						KIR = { has_country_flag = KIR_STATE_PALACE_COST_CCH_flag }
+						state = 1073
+					}
+					AND = {
+						KIR = { has_country_flag = KIR_STATE_PALACE_COST_RHP_flag }
+						state = 1060
+					}
+					AND = {
+						KIR = { has_country_flag = KIR_STATE_PALACE_COST_LLL_flag }
+						state = 1069
+					}
+					AND = {
+						KIR = { has_country_flag = KIR_STATE_PALACE_COST_LLL_flag }
+						state = 1076
+					}
+					AND = {
+						KIR = { has_country_flag = KIR_STATE_PALACE_COST_MMK_flag }
+						state = 817
+					}
+				}
+			}
+		}
+		ROOT = { add_political_power = KIR.KIR_STATE_PALACE_COST_EXCLUDED_VAR_NEGATIVE }
+	}
+	else = {
+		ROOT = { add_political_power = KIR.KIR_STATE_PALACE_COST_VAR_NEGATIVE }
+	}
+}
+KIR_STATE_N5_PALACE_PP = {
+	if = {
+		limit = {
+			THIS = {
+				OR = {
+					state = 1067
+					state = 1079
+					AND = {
+						KIR = { has_country_flag = KIR_STATE_PALACE_COST_CCH_flag }
+						state = 1073
+					}
+					AND = {
+						KIR = { has_country_flag = KIR_STATE_PALACE_COST_RHP_flag }
+						state = 1060
+					}
+				}
+			}
+		}
+		ROOT = { add_political_power = KIR.KIR_STATE_PALACE_COST_STRONGHOLD_VAR_NEGATIVE }
+	}
+	else_if = {
+		limit = {
+			THIS = {
+				OR = {
+					state = 1059
+					state = 1064
+					state = 833
+					state = 926
+					state = 1080
+					state = 1082
+					AND = {
+						KIR = { has_country_flag = KIR_national_focus_title_3_flag }
+						state = 1088
+					}
+					AND = {
+						KIR = {
+							has_country_flag = KIR_national_focus_title_3_flag
+							NOT = { has_country_flag = KIR_NAKP_disgraced_flag }
+						}
+						state = 1071
+					}
+					state = 1087
+					AND = {
+						KIR = { has_country_flag = KIR_STATE_PALACE_COST_LLL_flag }
+						state = 1069
+					}
+					AND = {
+						KIR = { has_country_flag = KIR_STATE_PALACE_COST_LLL_flag }
+						state = 1076
+					}
+					AND = {
+						KIR = { has_country_flag = KIR_STATE_PALACE_COST_MMK_flag }
+						state = 817
+					}
+				}
+			}
+		}
+		ROOT = { add_political_power = KIR.KIR_STATE_PALACE_COST_EXCLUDED_VAR_NEGATIVE }
+	}
+	else = {
+		ROOT = { add_political_power = KIR.KIR_STATE_PALACE_COST_VAR_NEGATIVE }
+	}
+}
+KIR_STATE_C1_PALACE_PP = {
+	if = {
+		limit = {
+			THIS = {
+				OR = {
+					state = 926
+					state = 1080
+					state = 1082
+					AND = {
+						KIR = { has_country_flag = KIR_STATE_PALACE_COST_CCH_flag }
+						state = 1073
+					}
+				}
+			}
+		}
+		ROOT = { add_political_power = KIR.KIR_STATE_PALACE_COST_STRONGHOLD_VAR_NEGATIVE }
+	}
+	else_if = {
+		limit = {
+			THIS = {
+				OR = {
+					state = 1059
+					state = 1064
+					state = 833
+					AND = {
+						KIR = { has_country_flag = KIR_national_focus_title_3_flag }
+						state = 1088
+					}
+					AND = {
+						KIR = {
+							has_country_flag = KIR_national_focus_title_3_flag
+							NOT = { has_country_flag = KIR_NAKP_disgraced_flag }
+						}
+						state = 1071
+					}
+					state = 1087
+					state = 1067
+					state = 1079
+					AND = {
+						KIR = { has_country_flag = KIR_STATE_PALACE_COST_RHP_flag }
+						state = 1060
+					}
+					AND = {
+						KIR = { has_country_flag = KIR_STATE_PALACE_COST_LLL_flag }
+						state = 1069
+					}
+					AND = {
+						KIR = { has_country_flag = KIR_STATE_PALACE_COST_LLL_flag }
+						state = 1076
+					}
+					AND = {
+						KIR = { has_country_flag = KIR_STATE_PALACE_COST_MMK_flag }
+						state = 817
+					}
+				}
+			}
+		}
+		ROOT = { add_political_power = KIR.KIR_STATE_PALACE_COST_EXCLUDED_VAR_NEGATIVE }
+	}
+	else = {
+		ROOT = { add_political_power = KIR.KIR_STATE_PALACE_COST_VAR_NEGATIVE }
+	}
+}
+KIR_STATE_C23_PALACE_PP = {
+	if = {
+		limit = {
+			THIS = {
+				OR = {
+					state = 926
+					state = 1080
+					state = 1082
+					AND = {
+						KIR = { has_country_flag = KIR_STATE_PALACE_COST_LLL_flag }
+						state = 1069
+					}
+					AND = {
+						KIR = { has_country_flag = KIR_STATE_PALACE_COST_LLL_flag }
+						state = 1076
+					}
+				}
+			}
+		}
+		ROOT = { add_political_power = KIR.KIR_STATE_PALACE_COST_STRONGHOLD_VAR_NEGATIVE }
+	}
+	else_if = {
+		limit = {
+			THIS = {
+				OR = {
+					state = 1059
+					state = 1064
+					state = 833
+					AND = {
+						KIR = { has_country_flag = KIR_national_focus_title_3_flag }
+						state = 1088
+					}
+					AND = {
+						KIR = {
+							has_country_flag = KIR_national_focus_title_3_flag
+							NOT = { has_country_flag = KIR_NAKP_disgraced_flag }
+						}
+						state = 1071
+					}
+					state = 1087
+					state = 1067
+					state = 1079
+					AND = {
+						KIR = { has_country_flag = KIR_STATE_PALACE_COST_CCH_flag }
+						state = 1073
+					}
+					AND = {
+						KIR = { has_country_flag = KIR_STATE_PALACE_COST_RHP_flag }
+						state = 1060
+					}
+					AND = {
+						KIR = { has_country_flag = KIR_STATE_PALACE_COST_MMK_flag }
+						state = 817
+					}
+				}
+			}
+		}
+		ROOT = { add_political_power = KIR.KIR_STATE_PALACE_COST_EXCLUDED_VAR_NEGATIVE }
+	}
+	else = {
+		ROOT = { add_political_power = KIR.KIR_STATE_PALACE_COST_VAR_NEGATIVE }
+	}
+}
+KIR_POST_GGO_INDUSCI_UPGRADE = {
+	if = {
+		limit = {
+			NOT = {
+				has_idea = modern_society
+			}
+		}
+		increase_society_development_gradual = yes
+	}
+	else_if = {
+		limit = {
+			has_idea = modern_society
+		}
+		increase_science_base = yes
+	}
+}
+
+KIR_Get_Balance_of_the_Realm = {
+	hidden_effect = {
+		### Balance of the Realm DynMod
+		add_dynamic_modifier = { modifier = KIR_Balance_Modifier }
+		add_dynamic_modifier = { modifier = KIR_Balance_Modifier_Real }
+		### Var 1
+		clear_variable = KIR.KIR_POSSIBLE_PROVINCIAL_DIETS
+		for_each_scope_loop = {
+			array = KIR.owned_controlled_states
+			if = {
+				limit = {
+					is_core_of = KIR
+				}
+				add_to_variable = { KIR.KIR_POSSIBLE_PROVINCIAL_DIETS = 1 }
+			}
+		}
+		set_variable = { KB1M_VAR = KIR.KIR_POSSIBLE_PROVINCIAL_DIETS }
+		clear_variable = KIR.KB1AM_VAR
+		clear_variable = KIR.KB1A_ALT_M_VAR
+		if = {
+			limit = {
+				check_variable = { KIR.KIR_CONSOCSYS_KIR_STATE_DIETS_Modifier < 10 }
+			}
+			set_variable = { KB1AM_VAR = KIR.KIR_CONSOCSYS_KIR_STATE_DIETS_Modifier }
+			if = {
+				limit = {
+					check_variable = { KIR.KB1AM_VAR = 0 }
+				}
+				add_to_variable = { KB1AM_VAR = 0.001 }
+			}
+		}
+		else_if = {
+			limit = {
+				NOT = { check_variable = { KIR.KIR_CONSOCSYS_KIR_STATE_DIETS_Modifier < 10 } }
+			}
+			set_variable = { KB1A_ALT_M_VAR = KIR.KIR_CONSOCSYS_KIR_STATE_DIETS_Modifier }
+		}
+		set_variable = { KB1BM_VAR = KIR.KIR_POSSIBLE_PROVINCIAL_DIETS }
+		divide_variable = { KB1BM_VAR = 2 }
+		set_variable = { KB1DM_VAR = KIR.KIR_CONSOCSYS_KIR_STATE_DIETS_Modifier }
+		subtract_from_variable = { KB1DM_VAR = KIR.KB1BM_VAR }
+		if = {
+			limit = {
+				check_variable = { KIR.KB1DM_VAR > 0 }
+			}
+			multiply_variable = { KB1DM_VAR = 0.03 }
+		}
+		else_if = {
+			limit = {
+				check_variable = { KIR.KB1DM_VAR < 0 }
+			}
+			multiply_variable = { KB1DM_VAR = 0.05 }
+		}
+		if = {
+			limit = {
+				check_variable = { KIR.KB1M_VAR = 0 }
+			}
+			add_to_variable = { KB1M_VAR = 0.001 }
+		}
+		if = {
+			limit = {
+				check_variable = { KIR.KB1BM_VAR = 0 }
+			}
+			add_to_variable = { KB1BM_VAR = 0.001 }
+		}
+		if = {
+			limit = {
+				check_variable = { KIR.KB1DM_VAR = 0 }
+			}
+			add_to_variable = { KB1DM_VAR = 0.001 }
+		}
+		### Var 2
+		clear_variable = KIR.KIR_POSSIBLE_MAYORALTIES
+		for_each_scope_loop = {
+			array = KIR.owned_controlled_states
+			if = {
+				limit = {
+					is_core_of = KIR
+					has_state_flag = KIR_STATE_HAS_YAMEN
+				}
+				add_to_variable = { KIR.KIR_POSSIBLE_MAYORALTIES = 1 }
+			}
+		}
+		set_variable = { KB2M_VAR = KIR.KIR_POSSIBLE_MAYORALTIES }
+		set_variable = { KB2AM_VAR = KIR.KIR_CONSOCSYS_KIR_STATE_MAYORALTIES_Modifier }
+		set_variable = { KB2BM_VAR = KIR.KIR_POSSIBLE_MAYORALTIES }
+		divide_variable = { KB2BM_VAR = 2 }
+		set_variable = { KB2DM_VAR = KIR.KIR_CONSOCSYS_KIR_STATE_MAYORALTIES_Modifier }
+		subtract_from_variable = { KB2DM_VAR = KIR.KB2BM_VAR }
+		if = {
+			limit = {
+				check_variable = { KIR.KB2DM_VAR > 0 }
+			}
+			multiply_variable = { KB2DM_VAR = 0.03 }
+		}
+		else_if = {
+			limit = {
+				check_variable = { KIR.KB2DM_VAR < 0 }
+			}
+			multiply_variable = { KB2DM_VAR = 0.05 }
+		}
+		if = {
+			limit = {
+				check_variable = { KIR.KB2M_VAR = 0 }
+			}
+			add_to_variable = { KB2M_VAR = 0.001 }
+		}
+		if = {
+			limit = {
+				check_variable = { KIR.KB2AM_VAR = 0 }
+			}
+			add_to_variable = { KB2AM_VAR = 0.001 }
+		}
+		if = {
+			limit = {
+				check_variable = { KIR.KB2BM_VAR = 0 }
+			}
+			add_to_variable = { KB2BM_VAR = 0.001 }
+		}
+		if = {
+			limit = {
+				check_variable = { KIR.KB2DM_VAR = 0 }
+			}
+			add_to_variable = { KB2DM_VAR = 0.001 }
+		}
+		### Var 3
+		clear_variable = KIR.KIR_ACTIVE_SYNERGIES
+		for_each_scope_loop = {
+			array = KIR.owned_controlled_states
+			if = {
+				limit = {
+					is_core_of = KIR
+					has_state_flag = KIR_STATE_HAS_YAMEN
+					OR = {
+						has_state_flag = KIR_STATE_HAS_H1_SYNERGY
+						has_state_flag = KIR_STATE_HAS_H2_SYNERGY
+						has_state_flag = KIR_STATE_HAS_H3_SYNERGY
+						has_state_flag = KIR_STATE_HAS_N1_SYNERGY
+						has_state_flag = KIR_STATE_HAS_N2_SYNERGY
+						has_state_flag = KIR_STATE_HAS_N3_SYNERGY
+						has_state_flag = KIR_STATE_HAS_N4_SYNERGY
+						has_state_flag = KIR_STATE_HAS_N5_SYNERGY
+						has_state_flag = KIR_STATE_HAS_C1_SYNERGY
+						has_state_flag = KIR_STATE_HAS_C2_SYNERGY
+						has_state_flag = KIR_STATE_HAS_C3_SYNERGY
+					}
+				}
+				add_to_variable = { KIR.KIR_ACTIVE_SYNERGIES = 1 }
+			}
+		}
+		set_variable = { KB3M_VAR = KIR.KIR_ACTIVE_SYNERGIES }
+		set_variable = { KB3AM_VAR = KIR.KIR_ACTIVE_SYNERGIES }
+		multiply_variable = { KB3AM_VAR = 0.03 }
+		if = {
+			limit = {
+				check_variable = { KIR.KB3M_VAR = 0 }
+			}
+			add_to_variable = { KB3M_VAR = 0.001 }
+		}
+		if = {
+			limit = {
+				check_variable = { KIR.KB3AM_VAR = 0 }
+			}
+			add_to_variable = { KB3AM_VAR = 0.001 }
+		}
+		### Var 4
+		set_variable = { KB4M_VAR = KIR.KIR_CONSOCSYS_KIR_STATE_DIETS_SUSPENDED_Modifier }
+		set_variable = { KB4AM_VAR = 0 }
+		subtract_from_variable = { KB4AM_VAR = KIR.KIR_CONSOCSYS_KIR_STATE_DIETS_SUSPENDED_Modifier }
+		multiply_variable = { KB4AM_VAR = 0.05 }
+		if = {
+			limit = {
+				check_variable = { KIR.KB4M_VAR = 0 }
+			}
+			add_to_variable = { KB4M_VAR = 0.001 }
+		}
+		if = {
+			limit = {
+				check_variable = { KIR.KB4AM_VAR = 0 }
+			}
+			subtract_from_variable = { KB4AM_VAR = 0.001 }
+		}
+		### Var 4.5
+		set_variable = { KB5M_VAR = 0 }
+		if = {
+			limit = { check_variable = { KIR_STATE_H1_PALACE_NUM < 1 } }
+			add_to_variable = { KB5M_VAR = 1 }
+		}
+		if = {
+			limit = { check_variable = { KIR_STATE_H2_PALACE_NUM < 1 } }
+			add_to_variable = { KB5M_VAR = 1 }
+		}
+		if = {
+			limit = { check_variable = { KIR_STATE_H3_PALACE_NUM < 1 } }
+			add_to_variable = { KB5M_VAR = 1 }
+		}
+		if = {
+			limit = { check_variable = { KIR_STATE_N1_PALACE_NUM < 1 } }
+			add_to_variable = { KB5M_VAR = 1 }
+		}
+		if = {
+			limit = { check_variable = { KIR_STATE_N2_PALACE_NUM < 1 } }
+			add_to_variable = { KB5M_VAR = 1 }
+		}
+		if = {
+			limit = {
+				check_variable = { KIR_STATE_N3_PALACE_NUM < 1 }
+				NOT = { has_country_flag = KIS_council_salvation_front_civil_war_scenario }
+			}
+			add_to_variable = { KB5M_VAR = 1 }
+		}
+		if = {
+			limit = {
+				check_variable = { KIR_STATE_N4_PALACE_NUM < 1 }
+				NOT = { has_country_flag = KIS_council_salvation_front_civil_war_scenario }
+			}
+			add_to_variable = { KB5M_VAR = 1 }
+		}
+		if = {
+			limit = { check_variable = { KIR_STATE_N5_PALACE_NUM < 1 } }
+			add_to_variable = { KB5M_VAR = 1 }
+		}
+		if = {
+			limit = { check_variable = { KIR_STATE_C1_PALACE_NUM < 1 } }
+			add_to_variable = { KB5M_VAR = 1 }
+		}
+		if = {
+			limit = { check_variable = { KIR_STATE_C2_PALACE_NUM < 1 } }
+			add_to_variable = { KB5M_VAR = 1 }
+		}
+		if = {
+			limit = { check_variable = { KIR_STATE_C3_PALACE_NUM < 1 } }
+			add_to_variable = { KB5M_VAR = 1 }
+		}
+		set_variable = { KB5AM_VAR = 0 }
+		subtract_from_variable = { KB5AM_VAR = KB5M_VAR }
+		multiply_variable = { KB5AM_VAR = 0.05 }
+		if = {
+			limit = {
+				check_variable = { KIR.KB5M_VAR = 0 }
+			}
+			add_to_variable = { KB5M_VAR = 0.001 }
+		}
+		if = {
+			limit = {
+				check_variable = { KIR.KB5AM_VAR = 0 }
+			}
+			subtract_from_variable = { KB5AM_VAR = 0.001 }
+		}
+		### From KIR-DEL FSW
+		clear_variable = KIR.KBXM_KDWL_VAR
+		add_to_variable = { KBXM_KDWL_VAR = KIR.KDWLM3A_var }
+		add_to_variable = { KBXM_KDWL_VAR = KIR.KDWLM3B_var }
+		add_to_variable = { KBXM_KDWL_VAR = KIR.KDWLM3C_var }
+		add_to_variable = { KBXM_KDWL_VAR = KIR.KDWLM3D_var }
+		add_to_variable = { KBXM_KDWL_VAR = KIR.KDWLM3E_var }
+		add_to_variable = { KBXM_KDWL_VAR = KIR.KDWLM3F_var }
+		clamp_variable = {
+			var = KIR.KBXM_KDWL_VAR
+			min = -0.3
+			max = 0
+		}
+		### Var 5
+		clear_variable = KIR.KBXM_VAR
+		add_to_variable = { KBXM_VAR = KIR.KB1DM_VAR }
+		add_to_variable = { KBXM_VAR = KIR.KB2DM_VAR }
+		add_to_variable = { KBXM_VAR = KIR.KB3AM_VAR }
+		add_to_variable = { KBXM_VAR = KIR.KB4AM_VAR }
+		add_to_variable = { KBXM_VAR = KIR.KB5AM_VAR }
+		add_to_variable = { KBXM_VAR = KIR.KIR_BASE_INSTITUTIONAL_STAB_VAR }
+		add_to_variable = { KBXM_VAR = KIR.KBXM_KDWL_VAR }
+		clamp_variable = {
+			var = KIR.KBXM_VAR
+			min = -1
+			max = 1
+		}
+		### Var 6
+		if = {
+			limit = {
+				check_variable = {
+					var = KIR.KBXM_VAR
+					value = 0
+					compare = greater_than_or_equals
+				}
+			}
+			set_variable = { KBYM_VAR = KIR.KBXM_VAR }
+			set_variable = { KBYM1_VAR = KIR.KBXM_VAR }
+			set_variable = { KBYM2_VAR = KIR.KBXM_VAR }
+			set_variable = { KBYM3_VAR = KIR.KBXM_VAR }
+			set_variable = { KBYM4_VAR = KIR.KBXM_VAR }
+			set_variable = { KBYM5_VAR = KIR.KBXM_VAR }
+			divide_variable = { KBYM_VAR = 5 }
+			divide_variable = { KBYM1_VAR = 20 }
+			divide_variable = { KBYM2_VAR = 5 }
+			divide_variable = { KBYM3_VAR = 5 }
+			divide_variable = { KBYM4_VAR = 10 }
+			divide_variable = { KBYM5_VAR = 10 }
+		}
+		else_if = {
+			limit = {
+				check_variable = {
+					var = KIR.KBXM_VAR
+					value = 0
+					compare = less_than
+				}
+			}
+			set_variable = { KBYM_VAR = KIR.KBXM_VAR }
+			set_variable = { KBYM1_VAR = KIR.KBXM_VAR }
+			set_variable = { KBYM2_VAR = KIR.KBXM_VAR }
+			set_variable = { KBYM3_VAR = KIR.KBXM_VAR }
+			set_variable = { KBYM4_VAR = KIR.KBXM_VAR }
+			set_variable = { KBYM5_VAR = KIR.KBXM_VAR }
+			divide_variable = { KBYM_VAR = 2 }
+			divide_variable = { KBYM1_VAR = 10 }
+			divide_variable = { KBYM2_VAR = 2 }
+			divide_variable = { KBYM3_VAR = 2 }
+			divide_variable = { KBYM4_VAR = 5 }
+			divide_variable = { KBYM5_VAR = 5 }
+		}
+		if = {
+			limit = {
+				has_country_flag = KIR_to_rage_is_kirin
+			}
+			set_variable = { KBYM6_VAR = KIR.KBXM_VAR }
+			set_variable = { KBYM7_VAR = KIR.KBXM_VAR }
+			set_variable = { KBYM9_VAR = KIR.KBXM_VAR }
+			multiply_variable = { KBYM6_VAR = 0.08 }
+			multiply_variable = { KBYM7_VAR = 0.15 }
+			multiply_variable = { KBYM9_VAR = 0.15 }
+		}
+		if = {
+			limit = {
+				has_country_flag = KIR_teach_them_temperance
+			}
+			set_variable = { KBYM6_VAR = KIR.KBXM_VAR }
+			set_variable = { KBYM8_VAR = KIR.KBXM_VAR }
+			set_variable = { KBYM10_VAR = KIR.KBXM_VAR }
+			multiply_variable = { KBYM6_VAR = 0.12 }
+			multiply_variable = { KBYM8_VAR = 0.15 }
+			multiply_variable = { KBYM10_VAR = 0.15 }
+		}
+	}
+}
+
+KIR_POST_BOU_3A_Get_Ref_Support = {
+	# 1
+	set_variable = { GetBlossomRefStab = ROOT.stability }
+	multiply_variable = { GetBlossomRefStab = 1.3 }
+	multiply_variable = { GetBlossomRefStab = 0.2 }
+	clamp_variable = {
+		var = GetBlossomRefStab
+		min = -0.2
+		max = 0.2
+	}
+	# 2
+	set_variable = { GetBlossomRefInStab = ROOT.KBXM_VAR }
+	multiply_variable = { GetBlossomRefInStab = 1.3 }
+	multiply_variable = { GetBlossomRefInStab = 0.2 }
+	clamp_variable = {
+		var = GetBlossomRefInStab
+		min = -0.2
+		max = 0.2
+	}
+	# 3
+	set_variable = { GetBlossomRefSocDev = 0 }
+	# Literacy
+	if = {
+		limit = {
+			has_idea = no_lack_of_scientists
+		}
+		add_to_variable = { GetBlossomRefSocDev = 0.025 }
+	}
+	if = {
+		limit = {
+			has_idea = lack_of_scientists3
+		}
+		subtract_from_variable = { GetBlossomRefSocDev = 0.02 }
+	}
+	if = {
+		limit = {
+			has_idea = lack_of_scientists2
+		}
+		subtract_from_variable = { GetBlossomRefSocDev = 0.03 }
+	}
+	if = {
+		limit = {
+			has_idea = lack_of_scientists1
+		}
+		subtract_from_variable = { GetBlossomRefSocDev = 0.04 }
+	}
+	if = {
+		limit = {
+			has_idea = lack_of_scientists
+		}
+		subtract_from_variable = { GetBlossomRefSocDev = 0.05 }
+	}
+	# Poverty
+	if = {
+		limit = {
+			has_idea = no_poverty
+		}
+		add_to_variable = { GetBlossomRefSocDev = 0.025 }
+	}
+	if = {
+		limit = {
+			has_idea = poverty5
+		}
+		subtract_from_variable = { GetBlossomRefSocDev = 0.02 }
+	}
+	if = {
+		limit = {
+			has_idea = poverty4
+		}
+		subtract_from_variable = { GetBlossomRefSocDev = 0.03 }
+	}
+	if = {
+		limit = {
+			has_idea = poverty3
+		}
+		subtract_from_variable = { GetBlossomRefSocDev = 0.04 }
+	}
+	if = {
+		limit = {
+			has_idea = poverty2
+		}
+		subtract_from_variable = { GetBlossomRefSocDev = 0.05 }
+	}
+	# Science
+	if = {
+		limit = {
+			has_idea = proper_science_base
+		}
+		add_to_variable = { GetBlossomRefSocDev = 0.07 }
+	}
+	if = {
+		limit = {
+			has_idea = big_science_base
+		}
+		add_to_variable = { GetBlossomRefSocDev = 0.03 }
+	}
+	# Society
+	if = {
+		limit = {
+			has_idea = modern_society
+		}
+		add_to_variable = { GetBlossomRefSocDev = 0.08 }
+	}
+	if = {
+		limit = {
+			has_idea = outdated_industry2
+		}
+		add_to_variable = { GetBlossomRefSocDev = 0.05 }
+	}
+	if = {
+		limit = {
+			has_idea = outdated_industry
+		}
+		add_to_variable = { GetBlossomRefSocDev = 0.02 }
+	}
+	clamp_variable = {
+		var = GetBlossomRefSocDev
+		min = -0.2
+		max = 0.2
+	}
+	# 4
+	set_variable = { GetBlossomRefInDev = ROOT.num_of_factories }
+	divide_variable = { GetBlossomRefInDev = 150 }
+	multiply_variable = { GetBlossomRefInDev = 0.2 }
+	clamp_variable = {
+		var = GetBlossomRefInDev
+		min = -0.2
+		max = 0.2
+	}
+	# 5
+	1058 = {
+		owner = {
+			KIR = {
+				set_variable = { GetBlossomRefRelate = PREV.opinion@KIR }
+				divide_variable = { GetBlossomRefRelate = 100 }
+				multiply_variable = { GetBlossomRefRelate = 0.2 }
+				clamp_variable = {
+					var = GetBlossomRefRelate
+					min = -0.2
+					max = 0.2
+				}
+			}
+		}
+	}
+	# 6
+	set_variable = { GetBlossomRefCapProg = 0 }
+	subtract_from_variable = { GetBlossomRefCapProg = ROOT.surrender_progress }
+	# Total
+	set_variable = { GetBlossomRefSupport = GetBlossomRefStab }
+	add_to_variable = { GetBlossomRefSupport = GetBlossomRefInStab }
+	add_to_variable = { GetBlossomRefSupport = GetBlossomRefSocDev }
+	add_to_variable = { GetBlossomRefSupport = GetBlossomRefInDev }
+	add_to_variable = { GetBlossomRefSupport = GetBlossomRefRelate }
+	add_to_variable = { GetBlossomRefSupport = GetBlossomRefCapProg }
+}
+
+KIR_Give_CHN_Starting_Tech = {
+	set_technology = {
+		changeling_race = 1
+		melee_weapons = 1
+		melee_weapons1 = 1
+		pre_gw_artillery = 1
+		infantry_weapons = 1
+		infantry_weapons1 = 1
+		interwar_antitank = 1
+		gw_artillery = 1
+		tech_support = 1
+		motorised_infantry = 1
+		tech_jager = 1
+		tech_recon = 1
+		tech_engineers = 1
+		mobile_warfare = 1
+		trade_interdiction = 1
+		synth_oil_experiments = 1
+		fuel_silos = 1
+		fuel_refining = 1
+		interwar_antiair = 1
+		tech_military_police = 1
+		basic_train = 1
+	}
+
+	if = {
+		limit = {
+			NOT = { has_dlc = "No Step Back" }
+		}
+		set_technology = {
+			gwtank = 1
+			basic_light_tank = 1
+			improved_light_tank = 1
+			basic_heavy_tank = 1
+		}
+	}
+
+	if = {
+		limit = {
+			has_dlc = "No Step Back"
+		}
+		set_technology = {
+			gwtank_chassis = 1
+			basic_light_tank_chassis = 1
+			improved_light_tank_chassis = 1
+			basic_medium_tank_chassis = 1
+			basic_heavy_tank_chassis = 1
+			armor_tech_1 = 1
+			engine_tech_1 = 1
+		}
+	}
+
+	if = {
+		limit = { has_dlc = "By Blood Alone" }
+		set_technology = {
+			aa_lmg = 1
+			early_bombs = 1
+			aircraft_construction = 1
+			engines_1 = 1
+			iw_small_airframe = 1
+			iw_medium_airframe = 1
+			basic_small_airframe = 1
+			basic_medium_airframe = 1
+		}
+		if = {
+			limit = { has_dlc = "La Resistance" }
+
+			set_technology = {
+				photo_reconnaisance = 1
+			}
+
+			create_equipment_variant = {
+				name = "UWA.126"
+				type = medium_plane_scout_plane_airframe_1
+				modules = {
+					fixed_main_weapon_slot = recon_camera
+					engine_type_slot = engine_2_3x
+					special_type_slot_1 = empty
+				}
+				icon = "GFX_changeling_2d_scout_plane1_medium"
+			}
+		}
+
+		create_equipment_variant = {
+			name = "Vs.50"
+			type = small_plane_cas_airframe_0
+			modules = {
+				fixed_main_weapon_slot = bomb_locks
+				engine_type_slot = engine_1_1x
+				special_type_slot_1 = empty
+			}
+			obsolete = yes
+			icon = "GFX_changeling_2d_early_fighter_medium"
+		}
+		create_equipment_variant = {
+			name = "Vs.123"
+			type = small_plane_cas_airframe_0
+			modules = {
+				fixed_main_weapon_slot = bomb_locks
+				fixed_auxiliary_weapon_slot_1 = light_mg_2x
+				engine_type_slot = engine_1_1x
+				special_type_slot_1 = empty
+			}
+			obsolete = yes
+			icon = "GFX_changeling_2d_early_fighter_medium"
+		}
+		create_equipment_variant = {
+			name = "Sv.51"
+			type = small_plane_airframe_0
+			modules = {
+				fixed_main_weapon_slot = light_mg_2x
+				engine_type_slot = engine_1_1x
+				special_type_slot_1 = empty
+			}
+			obsolete = yes
+			icon = "GFX_changeling_2d_early_fighter_medium"
+		}
+		create_equipment_variant = {
+			name = "Vs.17"
+			type = medium_plane_airframe_1
+			modules = {
+				fixed_main_weapon_slot = medium_bomb_bay
+				engine_type_slot = engine_1_2x
+				special_type_slot_1 = lmg_defense_turret_2x
+			}
+			icon = "GFX_GER_medium_plane_1_medium"
+		}
+		create_equipment_variant = {
+			name = "Sv.109"
+			type = small_plane_airframe_1
+			modules = {
+				fixed_main_weapon_slot = light_mg_2x
+				engine_type_slot = engine_2_1x
+				special_type_slot_1 = empty
+			}
+			icon = "GFX_changeling_2d_fighter1_medium"
+		}
+		create_equipment_variant = {
+			name = "Vs.87"
+			type = small_plane_cas_airframe_1
+			modules = {
+				fixed_main_weapon_slot = bomb_locks
+				engine_type_slot = engine_2_1x
+				special_type_slot_1 = lmg_defense_turret
+				special_type_slot_2 = dive_brakes_small
+			}
+			icon = "GFX_GER_CAS1_medium"
+		}
+		create_equipment_variant = {
+			name = "UWA.18"
+			type = small_plane_cas_airframe_0
+			modules = {
+				fixed_main_weapon_slot = bomb_locks
+				engine_type_slot = engine_1_2x
+				special_type_slot_1 = floats
+				special_type_slot_2 = lmg_defense_turret
+			}
+			obsolete = yes
+		}
+		create_equipment_variant = { # Includes UWA.11
+			name = "UWA.23"
+			type = medium_plane_airframe_0
+			modules = {
+				fixed_main_weapon_slot = medium_bomb_bay
+				engine_type_slot = engine_1_2x
+				special_type_slot_1 = lmg_defense_turret
+			}
+			icon = "GFX_changeling_2d_early_bomber_medium"
+			obsolete = yes
+		}
+		create_equipment_variant = {
+			name = "UWA.86"
+			type = medium_plane_airframe_1
+			modules = {
+				fixed_main_weapon_slot = medium_bomb_bay
+				engine_type_slot = engine_2_2x
+				special_type_slot_1 = lmg_defense_turret_2x
+				special_type_slot_2 = fuel_tanks_medium
+			}
+		}
+		create_equipment_variant = {
+			name = "UWA.111"
+			type = medium_plane_airframe_1
+			modules = {
+				fixed_main_weapon_slot = medium_bomb_bay
+				fixed_auxiliary_weapon_slot_1 = medium_bomb_bay
+				engine_type_slot = engine_2_2x
+				special_type_slot_1 = lmg_defense_turret_2x
+				special_type_slot_2 = lmg_defense_turret_2x
+			}
+			icon = "GFX_GER_tactical_bomber1_medium"
+		}
+
+		else = {
+			set_technology = {
+				early_fighter = 1
+				cv_early_fighter = 1
+				fighter1 = 1
+				early_bomber = 1
+			}
+			add_tech_bonus = {
+				name = bomber_bonus
+				bonus = 3
+				uses = 1
+				technology = CAS1
+			}
+			if = {
+				limit = { has_dlc = "La Resistance" }
+
+				set_technology = {
+					scout_plane1 = 1
+				}
+			}
+		}
+	}
+
+	actually_fix_weapon_techs = yes #THIS HAS TO BE CALLED IN EVERY HISTORY FILE RIGHT AFTER MAIN set_technology!
+
+	if = {
+		limit = {
+			NOT = { has_dlc = "Man the Guns" }
+		}
+		set_technology = {
+			early_submarine = 1
+			basic_submarine = 1
+			early_destroyer = 1
+			basic_destroyer = 1
+			early_light_cruiser = 1
+			basic_light_cruiser = 1
+			early_heavy_cruiser = 1
+			basic_heavy_cruiser = 1
+			early_battleship = 1
+			basic_battleship = 1
+			early_battlecruiser = 1
+			early_carrier = 1
+			early_light_carrier = 1
+			pre_dreadnoughts_nomtg = 1
+			cruiser_submarines_nomtg = 1
+			transport = 1
+		}
+	}
+
+	if = {
+		limit = {
+			has_dlc = "Man the Guns"
+		}
+		set_technology = {
+			basic_naval_mines = 1
+			submarine_mine_laying = 1
+			early_ship_hull_light = 1
+			basic_ship_hull_light = 1
+			early_ship_hull_cruiser = 1
+			basic_ship_hull_cruiser = 1
+			early_ship_hull_heavy = 1
+			basic_ship_hull_heavy = 1
+			early_ship_hull_submarine = 1
+			basic_ship_hull_submarine = 1
+			cruiser_submarines = 1
+			pre_dreadnoughts = 1
+			mtg_transport = 1
+			basic_torpedo = 1
+			improved_ship_torpedo_launcher = 1
+			basic_battery = 1
+			basic_light_battery = 1
+			basic_medium_battery = 1
+			basic_heavy_battery = 1
+			basic_depth_charges = 1
+			sonar = 1
+			basic_fire_control_system = 1
+			basic_cruiser_armor_scheme = 1
+			early_ship_hull_carrier = 1
+			basic_heavy_armor_scheme = 1
+			improved_airplane_launcher = 1
+		}
+	}
+
+	if = {
+		limit = {
+			has_dlc = "La Resistance"
+		}
+		create_intelligence_agency = yes
+		set_technology = {
+			armored_car1 = 1
+		}
+	}
+
+	if = {
+		limit = {
+			has_dlc = "No Step Back"
+		}
+		create_equipment_variant = {
+			name = "Leichttraktor"
+			type = light_tank_chassis_0
+			parent_version = 0
+			modules = {
+				main_armament_slot = tank_small_cannon
+				turret_type_slot = tank_light_three_man_tank_turret
+				suspension_type_slot = tank_christie_suspension
+				armor_type_slot = tank_riveted_armor
+				engine_type_slot = tank_gasoline_engine
+				special_type_slot_1 = tank_radio_1
+			}
+			upgrades = {
+				tank_nsb_engine_upgrade = 2
+				tank_nsb_armor_upgrade = 2
+			}
+			obsolete = yes
+			icon = "gfx/interface/technologies/gwtank.dds"
+		}
+		create_equipment_variant = {
+			name = "A7V"
+			type = medium_tank_chassis_0
+			parent_version = 0
+			modules = {
+				main_armament_slot = tank_small_cannon
+				turret_type_slot = tank_medium_fixed_superstructure_turret
+				suspension_type_slot = tank_bogie_suspension
+				armor_type_slot = tank_riveted_armor
+				engine_type_slot = tank_gasoline_engine
+				special_type_slot_1 = additional_machine_guns
+			}
+			upgrades = {
+				tank_nsb_engine_upgrade = 4
+				tank_nsb_armor_upgrade = 3
+			}
+			obsolete = yes
+			icon = "gfx/interface/technologies/armour_folder/changeling_2d/CHN_A7V.dds"
+		}
+		create_equipment_variant = {
+			name = "Panzer I Ausf. A"
+			type = light_tank_chassis_1
+			parent_version = 0
+			modules = {
+				main_armament_slot = tank_heavy_machine_gun
+				turret_type_slot = tank_light_one_man_tank_turret
+				suspension_type_slot = tank_christie_suspension
+				armor_type_slot = tank_riveted_armor
+				engine_type_slot = tank_gasoline_engine
+				special_type_slot_1 = tank_radio_1
+			}
+			upgrades = {
+				tank_nsb_engine_upgrade = 5
+				tank_nsb_armor_upgrade = 1
+			}
+			icon = "gfx/interface/technologies/armour_folder/changeling_2d/CHN_panzeri.dds"
+		}
+		create_equipment_variant = {
+			name = "Panzer II Ausf. A"
+			type = light_tank_chassis_2
+			parent_version = 0
+			modules = {
+				main_armament_slot = tank_auto_cannon
+				turret_type_slot = tank_light_three_man_tank_turret
+				suspension_type_slot = tank_christie_suspension
+				armor_type_slot = tank_riveted_armor
+				engine_type_slot = tank_gasoline_engine
+				special_type_slot_1 = tank_radio_1
+			}
+			upgrades = {
+				tank_nsb_engine_upgrade = 3
+				tank_nsb_armor_upgrade = 2
+			}
+			icon = "gfx/interface/technologies/armour_folder/changeling_2d/CHN_panzerii.dds"
+		}
+		create_equipment_variant = {
+			name = "Panzer III Ausf. A"
+			type = medium_tank_chassis_1
+				parent_version = 0
+			modules = {
+				main_armament_slot = tank_small_cannon
+				turret_type_slot = tank_medium_three_man_tank_turret
+				suspension_type_slot = tank_bogie_suspension
+				armor_type_slot = tank_welded_armor
+				engine_type_slot = tank_gasoline_engine
+				special_type_slot_1 = tank_radio_1
+				special_type_slot_2 = smoke_launchers
+				special_type_slot_3 = additional_machine_guns
+			}
+			upgrades = {
+				tank_nsb_engine_upgrade = 2
+				tank_nsb_armor_upgrade = 0
+			}
+			icon = "gfx/interface/technologies/ger_basic_main_tank.dds"
+		}
+	}
+
+	if = {
+		limit = { has_dlc = "Man the Guns" }
+		create_equipment_variant = {
+			name = "Type 991 Class"
+			type = ship_hull_light_1
+			name_group = CHN_DD_HISTORICAL
+			parent_version = 0
+			modules = {
+				fixed_ship_battery_slot = ship_light_battery_1
+				fixed_ship_anti_air_slot = ship_anti_air_1
+				fixed_ship_fire_control_system_slot = empty
+				fixed_ship_radar_slot = empty
+				fixed_ship_engine_slot = light_ship_engine_1
+				fixed_ship_torpedo_slot = ship_torpedo_1
+				mid_1_custom_slot = ship_mine_layer_1
+				rear_1_custom_slot = ship_depth_charge_1
+			}
+			obsolete = yes
+		}
+		create_equipment_variant = {
+			name = "Modiolus Class"
+			type = ship_hull_light_2
+			name_group = CHN_DD_HISTORICAL
+			parent_version = 0
+			modules = {
+				fixed_ship_battery_slot = ship_light_battery_2
+				fixed_ship_anti_air_slot = ship_anti_air_1
+				fixed_ship_fire_control_system_slot = ship_fire_control_system_0
+				fixed_ship_radar_slot = empty
+				fixed_ship_engine_slot = light_ship_engine_2
+				fixed_ship_torpedo_slot = ship_torpedo_1
+				mid_1_custom_slot = ship_torpedo_1
+				rear_1_custom_slot = ship_mine_layer_1
+			}
+			obsolete = yes
+		}
+		create_equipment_variant = {
+			name = "Antagonist Class"
+			type = ship_hull_light_2
+			name_group = CHN_DD_HISTORICAL
+			parent_version = 0
+			modules = {
+				fixed_ship_battery_slot = ship_light_battery_2
+				fixed_ship_anti_air_slot = ship_anti_air_1
+				fixed_ship_fire_control_system_slot = ship_fire_control_system_1
+				fixed_ship_radar_slot = empty
+				fixed_ship_engine_slot = light_ship_engine_2
+				fixed_ship_torpedo_slot = ship_torpedo_1
+				mid_1_custom_slot = ship_torpedo_1
+				rear_1_custom_slot = ship_depth_charge_1
+			}
+		}
+		create_equipment_variant = {
+			name = "Type II Class"
+			type = ship_hull_submarine_1
+			name_group = CHN_SS_HISTORICAL
+			parent_version = 0
+			modules = {
+				fixed_ship_torpedo_slot = ship_torpedo_sub_1
+				fixed_ship_engine_slot = sub_ship_engine_1
+				rear_1_custom_slot = ship_torpedo_sub_1
+			}
+			obsolete = yes
+		}
+		create_equipment_variant = {
+			name = "Type VII Class"
+			type = ship_hull_submarine_2
+			name_group = CHN_SS_HISTORICAL
+			parent_version = 0
+			modules = {
+				fixed_ship_torpedo_slot = ship_torpedo_sub_2
+				fixed_ship_engine_slot = sub_ship_engine_2
+				rear_1_custom_slot = ship_torpedo_sub_2
+			}
+		}
+		create_equipment_variant = {
+			name = "Type IX Class"
+			type = ship_hull_cruiser_submarine
+			name_group = CHN_SS_HISTORICAL
+			parent_version = 0
+			modules = {
+				fixed_ship_torpedo_slot = ship_torpedo_sub_2
+				fixed_ship_engine_slot = sub_ship_engine_2
+				front_1_custom_slot = ship_torpedo_sub_2
+				mid_1_custom_slot = empty
+				rear_1_custom_slot = ship_torpedo_sub_2
+			}
+		}
+		create_equipment_variant = {
+			name = "Sezemoid Class"
+			type = ship_hull_cruiser_1
+			name_group = CHN_CL_HISTORICAL
+			parent_version = 0
+			modules = {
+				fixed_ship_battery_slot = ship_light_medium_battery_1
+				fixed_ship_anti_air_slot = ship_anti_air_1
+				fixed_ship_fire_control_system_slot = ship_fire_control_system_0
+				fixed_ship_radar_slot = empty
+				fixed_ship_engine_slot = cruiser_ship_engine_2
+				mid_1_custom_slot = ship_mine_layer_1
+				mid_2_custom_slot = ship_mine_layer_1
+				rear_1_custom_slot = ship_mine_layer_1
+			}
+			obsolete = yes
+		}
+		create_equipment_variant = {
+			name = "Antax Class"
+			type = ship_hull_cruiser_2
+			name_group = CHN_CL_HISTORICAL
+			parent_version = 0
+			modules = {
+				fixed_ship_battery_slot = ship_light_medium_battery_2
+				fixed_ship_anti_air_slot = ship_anti_air_2
+				fixed_ship_fire_control_system_slot = ship_fire_control_system_1
+				fixed_ship_radar_slot = empty
+				fixed_ship_engine_slot = cruiser_ship_engine_2
+				fixed_ship_armor_slot = ship_armor_cruiser_2
+				front_1_custom_slot = ship_anti_air_1
+				mid_1_custom_slot = ship_torpedo_1
+				mid_2_custom_slot = ship_light_medium_battery_2
+				rear_1_custom_slot = ship_light_medium_battery_2
+			}
+		}
+		create_equipment_variant = {
+			name = "Kladisium Class"
+			type = ship_hull_cruiser_2
+			name_group = CHN_CL_HISTORICAL
+			parent_version = 0
+			modules = {
+				fixed_ship_battery_slot = ship_light_medium_battery_2
+				fixed_ship_anti_air_slot = ship_anti_air_2
+				fixed_ship_fire_control_system_slot = ship_sonar_1
+				fixed_ship_radar_slot = empty
+				fixed_ship_engine_slot = cruiser_ship_engine_2
+				fixed_ship_armor_slot = ship_armor_cruiser_2
+				front_1_custom_slot = ship_light_medium_battery_2
+				mid_1_custom_slot = ship_airplane_launcher_2
+				mid_2_custom_slot = ship_airplane_launcher_2
+				rear_1_custom_slot = ship_airplane_launcher_2
+			}
+			obsolete = yes
+		}
+		create_equipment_variant = {
+			name = "Fibula Class"
+			type = ship_hull_cruiser_2
+			name_group = CHN_CL_HISTORICAL
+			parent_version = 0
+			modules = {
+				fixed_ship_battery_slot = ship_medium_battery_2
+				fixed_ship_anti_air_slot = ship_anti_air_2
+				fixed_ship_fire_control_system_slot = ship_sonar_1
+				fixed_ship_radar_slot = empty
+				fixed_ship_engine_slot = cruiser_ship_engine_2
+				fixed_ship_armor_slot = ship_armor_cruiser_2
+				front_1_custom_slot = ship_anti_air_1
+				mid_1_custom_slot = ship_airplane_launcher_2
+				mid_2_custom_slot = ship_airplane_launcher_2
+				rear_1_custom_slot = ship_airplane_launcher_2
+			}
+			obsolete = yes
+		}
+		create_equipment_variant = {
+			name = "Mandible Class"
+			type = ship_hull_cruiser_2
+			name_group = CHN_CL_HISTORICAL
+			parent_version = 0
+			modules = {
+				fixed_ship_battery_slot = ship_medium_battery_2
+				fixed_ship_anti_air_slot = ship_anti_air_2
+				fixed_ship_fire_control_system_slot = ship_fire_control_system_1
+				fixed_ship_radar_slot = empty
+				fixed_ship_engine_slot = cruiser_ship_engine_2
+				fixed_ship_armor_slot = ship_armor_cruiser_2
+				front_1_custom_slot = ship_anti_air_1
+				mid_1_custom_slot = ship_torpedo_1
+				mid_2_custom_slot = ship_medium_battery_2
+				rear_1_custom_slot = ship_medium_battery_2
+			}
+		}
+		create_equipment_variant = {
+			name = "Queen Class"
+			type = ship_hull_pre_dreadnought
+			name_group = CHN_BB_BC_HISTORICAL
+			parent_version = 0
+			modules = {
+				fixed_ship_battery_slot = ship_heavy_battery_1
+				fixed_ship_anti_air_slot = ship_anti_air_1
+				fixed_ship_fire_control_system_slot = ship_fire_control_system_0
+				fixed_ship_radar_slot = empty
+				fixed_ship_engine_slot = heavy_ship_engine_1
+				fixed_ship_secondaries_slot = ship_secondaries_1
+				fixed_ship_armor_slot = ship_armor_bb_1
+				front_1_custom_slot = ship_anti_air_1
+				mid_1_custom_slot = ship_secondaries_1
+				rear_1_custom_slot = empty
+			}
+			obsolete = yes
+		}
+		create_equipment_variant = {
+			name = "Dread Class"
+			type = ship_hull_heavy_2
+			name_group = CHN_BB_BC_HISTORICAL
+			parent_version = 0
+			modules = {
+				fixed_ship_battery_slot = ship_heavy_battery_1
+				fixed_ship_anti_air_slot = ship_anti_air_1
+				fixed_ship_fire_control_system_slot = ship_fire_control_system_1
+				fixed_ship_radar_slot = empty
+				fixed_ship_engine_slot = heavy_ship_engine_2
+				fixed_ship_secondaries_slot = ship_secondaries_1
+				fixed_ship_armor_slot = ship_armor_bc_2
+				front_1_custom_slot = ship_heavy_battery_1
+				mid_1_custom_slot = ship_airplane_launcher_1
+				mid_2_custom_slot = ship_anti_air_1
+				rear_1_custom_slot = ship_heavy_battery_1
+			}
+			obsolete = yes
+		}
+		create_equipment_variant = {
+			name = "Chrysalis Class"
+			type = ship_hull_heavy_2
+			name_group = CHN_BB_BC_HISTORICAL
+			parent_version = 0
+			modules = {
+				fixed_ship_battery_slot = ship_heavy_battery_2
+				fixed_ship_anti_air_slot = ship_anti_air_2
+				fixed_ship_fire_control_system_slot = ship_fire_control_system_1
+				fixed_ship_radar_slot = empty
+				fixed_ship_engine_slot = heavy_ship_engine_2
+				fixed_ship_secondaries_slot = ship_secondaries_2
+				fixed_ship_armor_slot = ship_armor_bc_2
+				front_1_custom_slot = ship_heavy_battery_2
+				mid_1_custom_slot = ship_heavy_battery_2
+				mid_2_custom_slot = ship_anti_air_2
+				rear_1_custom_slot = ship_heavy_battery_2
+			}
+		}
+	}
+}
+
+KIR_Calculate_DEL_Aid = {
+	hidden_effect = {
+		add_offsite_building = { type = industrial_complex level = 1 }
+		set_variable = { DEL_KIR_Aid_Fac_Var = KIR.num_of_civilian_factories }
+		add_to_variable = { DEL_KIR_Aid_Fac_Var = KIR.num_of_military_factories }
+		add_to_variable = { DEL_KIR_Aid_Fac_Var = KIR.num_of_naval_factories }
+		multiply_variable = { DEL_KIR_Aid_Fac_Var = 0.06 } ## Round up by one percentage point
+		add_dynamic_modifier = { modifier = DEL_KIR_Aid }
+		add_offsite_building = { type = industrial_complex level = -1 }
+	}
+}
+
+
+KIR_STATE_H1_PALACE_BUTTON_click_effect = {
+	if = {
+		limit = { NOT = { has_state_flag = KIR_STATE_HAS_H1_PALACE } }
+		THIS = {
+			KIR_STATE_PALACE_BUTTON_CLICK_EFFECT = yes
+			set_state_flag = KIR_STATE_HAS_H1_PALACE
+			set_variable = { KIR_STATE_H1_PALACE_BUTTON_FRAME = 1 }
+			set_variable = { KIR_STATE_SGUI_PALACE_TERM_TIMER = 365 } set_variable = { KIR_STATE_SGUI_PALACE_TERM_REMOVAL_TIMER = 1095 }
+			clr_state_flag = KIR_STATE_DIET_SUSPENDED
+			hidden_effect = { KIR_STATE_H1_PALACE_PP = yes }
+			if = {
+				limit = {
+					has_dynamic_modifier = { modifier = KIR_PJD_SGUI_No_Democracy }
+				}
+				custom_effect_tooltip = KIR_line_break
+				remove_dynamic_modifier = { modifier = KIR_PJD_SGUI_No_Democracy } custom_effect_tooltip = KIR_line_break
+				ROOT = { subtract_from_variable = { KIR_CONSOCSYS_KIR_STATE_DIETS_SUSPENDED_Modifier = 1 } }
+			}
+		}
+		ROOT = {
+			add_to_variable = { KIR_STATE_H1_PALACE_NUM = 1 }
+			add_to_variable = { KIR_STATE_H1H2_PALACE_NUM = 1 }
+			add_to_variable = { KIR_CONSOCSYS_political_power_gain = KIR_CONSOCSYS_political_power_gain_var }
+			add_to_variable = { KIR_CONSOCSYS_political_power_gain_var = 0.1 }
+			clamp_variable = { var = KIR_CONSOCSYS_political_power_gain_var min = 0.1 max = 0.5 }
+			add_to_variable = { KIR_CONSOCSYS_democratic_drift = 0.01 }
+			add_to_variable = { KIR_CONSOCSYS_KIR_STATE_DIETS_Modifier = 1 }
+		}
+	}
+	else_if = {
+		limit = { has_state_flag = KIR_STATE_HAS_H1_PALACE }
+		THIS = {
+			KIR_STATE_PALACE_BUTTON_CLICK_EFFECT = yes
+		}
+		ROOT = {
+		}
+	}
+	add_to_variable = { KIR_STATE_SGUI_DIRTY = 1 }
+	ROOT = {
+		clr_country_flag = KIR_STATE_SGUI_PALACE_MENU_ENABLED
+		if = {
+			limit = {
+				has_country_flag = KIR_Balance_of_the_Realm_Enabled
+			}
+			KIR_Get_Balance_of_the_Realm = yes
+		}
+		KIR_STATE_PALACE_CALL_ALERT = yes
+	}
+}
+KIR_STATE_H2_PALACE_BUTTON_click_effect = {
+	if = {
+		limit = { NOT = { has_state_flag = KIR_STATE_HAS_H2_PALACE } }
+		THIS = {
+			KIR_STATE_PALACE_BUTTON_CLICK_EFFECT = yes
+			set_state_flag = KIR_STATE_HAS_H2_PALACE
+			set_variable = { KIR_STATE_H2_PALACE_BUTTON_FRAME = 1 }
+			set_variable = { KIR_STATE_SGUI_PALACE_TERM_TIMER = 365 } set_variable = { KIR_STATE_SGUI_PALACE_TERM_REMOVAL_TIMER = 1095 }
+			clr_state_flag = KIR_STATE_DIET_SUSPENDED
+			hidden_effect = { KIR_STATE_H2_PALACE_PP = yes }
+			if = {
+				limit = {
+					has_dynamic_modifier = { modifier = KIR_PJD_SGUI_No_Democracy }
+				}
+				custom_effect_tooltip = KIR_line_break
+				remove_dynamic_modifier = { modifier = KIR_PJD_SGUI_No_Democracy } custom_effect_tooltip = KIR_line_break
+				ROOT = { subtract_from_variable = { KIR_CONSOCSYS_KIR_STATE_DIETS_SUSPENDED_Modifier = 1 } }
+			}
+		}
+		ROOT = {
+			add_to_variable = { KIR_STATE_H2_PALACE_NUM = 1 }
+			add_to_variable = { KIR_STATE_H1H2_PALACE_NUM = 1 }
+			add_to_variable = { KIR_CONSOCSYS_command_power_gain = KIR_CONSOCSYS_command_power_gain_var }
+			add_to_variable = { KIR_CONSOCSYS_command_power_gain_var = 0.1 }
+			clamp_variable = { var = KIR_CONSOCSYS_command_power_gain_var min = 0.1 max = 0.5 }
+			add_to_variable = { KIR_CONSOCSYS_democratic_drift = 0.01 }
+			add_to_variable = { KIR_CONSOCSYS_KIR_STATE_DIETS_Modifier = 1 }
+		}
+	}
+	else_if = {
+		limit = { has_state_flag = KIR_STATE_HAS_H2_PALACE }
+		THIS = {
+			KIR_STATE_PALACE_BUTTON_CLICK_EFFECT = yes
+		}
+		ROOT = {
+		}
+	}
+	add_to_variable = { KIR_STATE_SGUI_DIRTY = 1 }
+	ROOT = {
+		clr_country_flag = KIR_STATE_SGUI_PALACE_MENU_ENABLED
+		if = {
+			limit = {
+				has_country_flag = KIR_Balance_of_the_Realm_Enabled
+			}
+			KIR_Get_Balance_of_the_Realm = yes
+		}
+		KIR_STATE_PALACE_CALL_ALERT = yes
+	}
+}
+KIR_STATE_H3_PALACE_BUTTON_click_effect = {
+	if = {
+		limit = { NOT = { has_state_flag = KIR_STATE_HAS_H3_PALACE } }
+		THIS = {
+			KIR_STATE_PALACE_BUTTON_CLICK_EFFECT = yes
+			set_state_flag = KIR_STATE_HAS_H3_PALACE
+			set_variable = { KIR_STATE_H3_PALACE_BUTTON_FRAME = 1 }
+			set_variable = { KIR_STATE_SGUI_PALACE_TERM_TIMER = 365 } set_variable = { KIR_STATE_SGUI_PALACE_TERM_REMOVAL_TIMER = 1095 }
+			clr_state_flag = KIR_STATE_DIET_SUSPENDED
+			hidden_effect = { KIR_STATE_H3_PALACE_PP = yes }
+			if = {
+				limit = {
+					has_dynamic_modifier = { modifier = KIR_PJD_SGUI_No_Democracy }
+				}
+				custom_effect_tooltip = KIR_line_break
+				remove_dynamic_modifier = { modifier = KIR_PJD_SGUI_No_Democracy } custom_effect_tooltip = KIR_line_break
+				ROOT = { subtract_from_variable = { KIR_CONSOCSYS_KIR_STATE_DIETS_SUSPENDED_Modifier = 1 } }
+			}
+		}
+		ROOT = {
+			add_to_variable = { KIR_STATE_H3_PALACE_NUM = 1 }
+			add_to_variable = { KIR_STATE_H3N1_PALACE_NUM = 1 }
+			subtract_from_variable = { KIR_CONSOCSYS_consumer_goods_factor = KIR_CONSOCSYS_consumer_goods_factor_var }
+			add_to_variable = { KIR_CONSOCSYS_consumer_goods_factor_var = 0.004 }
+			clamp_variable = { var = KIR_CONSOCSYS_consumer_goods_factor_var min = 0.004 max = 0.02 }
+			add_to_variable = { KIR_CONSOCSYS_democratic_drift = 0.01 }
+			add_to_variable = { KIR_CONSOCSYS_KIR_STATE_DIETS_Modifier = 1 }
+		}
+	}
+	else_if = {
+		limit = { has_state_flag = KIR_STATE_HAS_H3_PALACE }
+		THIS = {
+			KIR_STATE_PALACE_BUTTON_CLICK_EFFECT = yes
+		}
+		ROOT = {
+		}
+	}
+	add_to_variable = { KIR_STATE_SGUI_DIRTY = 1 }
+	ROOT = {
+		clr_country_flag = KIR_STATE_SGUI_PALACE_MENU_ENABLED
+		if = {
+			limit = {
+				has_country_flag = KIR_Balance_of_the_Realm_Enabled
+			}
+			KIR_Get_Balance_of_the_Realm = yes
+		}
+		KIR_STATE_PALACE_CALL_ALERT = yes
+	}
+}
+KIR_STATE_N1_PALACE_BUTTON_click_effect = {
+	if = {
+		limit = { NOT = { has_state_flag = KIR_STATE_HAS_N1_PALACE } }
+		THIS = {
+			KIR_STATE_PALACE_BUTTON_CLICK_EFFECT = yes
+			set_state_flag = KIR_STATE_HAS_N1_PALACE
+			set_variable = { KIR_STATE_N1_PALACE_BUTTON_FRAME = 1 }
+			set_variable = { KIR_STATE_SGUI_PALACE_TERM_TIMER = 365 } set_variable = { KIR_STATE_SGUI_PALACE_TERM_REMOVAL_TIMER = 1095 }
+			clr_state_flag = KIR_STATE_DIET_SUSPENDED
+			hidden_effect = { KIR_STATE_N1_PALACE_PP = yes }
+			if = {
+				limit = {
+					has_dynamic_modifier = { modifier = KIR_PJD_SGUI_No_Democracy }
+				}
+				custom_effect_tooltip = KIR_line_break
+				remove_dynamic_modifier = { modifier = KIR_PJD_SGUI_No_Democracy } custom_effect_tooltip = KIR_line_break
+				ROOT = { subtract_from_variable = { KIR_CONSOCSYS_KIR_STATE_DIETS_SUSPENDED_Modifier = 1 } }
+			}
+		}
+		ROOT = {
+			add_to_variable = { KIR_STATE_N1_PALACE_NUM = 1 }
+			add_to_variable = { KIR_STATE_H3N1_PALACE_NUM = 1 }
+			add_to_variable = { KIR_CONSOCSYS_research_speed_factor = KIR_CONSOCSYS_research_speed_factor_var }
+			add_to_variable = { KIR_CONSOCSYS_research_speed_factor_var = 0.01 }
+			clamp_variable = { var = KIR_CONSOCSYS_research_speed_factor_var min = 0.01 max = 0.05 }
+			add_to_variable = { KIR_CONSOCSYS_neutrality_drift = 0.01 }
+			add_to_variable = { KIR_CONSOCSYS_KIR_STATE_DIETS_Modifier = 1 }
+		}
+	}
+	else_if = {
+		limit = { has_state_flag = KIR_STATE_HAS_N1_PALACE }
+		THIS = {
+			KIR_STATE_PALACE_BUTTON_CLICK_EFFECT = yes
+		}
+		ROOT = {
+		}
+	}
+	add_to_variable = { KIR_STATE_SGUI_DIRTY = 1 }
+	ROOT = {
+		clr_country_flag = KIR_STATE_SGUI_PALACE_MENU_ENABLED
+		if = {
+			limit = {
+				has_country_flag = KIR_Balance_of_the_Realm_Enabled
+			}
+			KIR_Get_Balance_of_the_Realm = yes
+		}
+		KIR_STATE_PALACE_CALL_ALERT = yes
+	}
+}
+KIR_STATE_N2_PALACE_BUTTON_click_effect = {
+	if = {
+		limit = { NOT = { has_state_flag = KIR_STATE_HAS_N2_PALACE } }
+		THIS = {
+			KIR_STATE_PALACE_BUTTON_CLICK_EFFECT = yes
+			set_state_flag = KIR_STATE_HAS_N2_PALACE
+			set_variable = { KIR_STATE_N2_PALACE_BUTTON_FRAME = 1 }
+			set_variable = { KIR_STATE_SGUI_PALACE_TERM_TIMER = 365 } set_variable = { KIR_STATE_SGUI_PALACE_TERM_REMOVAL_TIMER = 1095 }
+			clr_state_flag = KIR_STATE_DIET_SUSPENDED
+			hidden_effect = { KIR_STATE_N2_PALACE_PP = yes }
+			if = {
+				limit = {
+					has_dynamic_modifier = { modifier = KIR_PJD_SGUI_No_Democracy }
+				}
+				custom_effect_tooltip = KIR_line_break
+				remove_dynamic_modifier = { modifier = KIR_PJD_SGUI_No_Democracy } custom_effect_tooltip = KIR_line_break
+				ROOT = { subtract_from_variable = { KIR_CONSOCSYS_KIR_STATE_DIETS_SUSPENDED_Modifier = 1 } }
+			}
+		}
+		ROOT = {
+			add_to_variable = { KIR_STATE_N2_PALACE_NUM = 1 }
+			add_to_variable = { KIR_CONSOCSYS_war_support_factor = KIR_CONSOCSYS_war_support_factor_var }
+			add_to_variable = { KIR_CONSOCSYS_war_support_factor_var = 0.01 }
+			clamp_variable = { var = KIR_CONSOCSYS_war_support_factor_var min = 0.01 max = 0.05 }
+			add_to_variable = { KIR_CONSOCSYS_fascism_drift = 0.01 }
+			add_to_variable = { KIR_CONSOCSYS_KIR_STATE_DIETS_Modifier = 1 }
+		}
+	}
+	else_if = {
+		limit = { has_state_flag = KIR_STATE_HAS_N2_PALACE }
+		THIS = {
+			KIR_STATE_PALACE_BUTTON_CLICK_EFFECT = yes
+		}
+		ROOT = {
+		}
+	}
+	add_to_variable = { KIR_STATE_SGUI_DIRTY = 1 }
+	ROOT = {
+		clr_country_flag = KIR_STATE_SGUI_PALACE_MENU_ENABLED
+		if = {
+			limit = {
+				has_country_flag = KIR_Balance_of_the_Realm_Enabled
+			}
+			KIR_Get_Balance_of_the_Realm = yes
+		}
+		KIR_STATE_PALACE_CALL_ALERT = yes
+	}
+}
+KIR_STATE_N3_PALACE_BUTTON_click_effect = {
+	if = {
+		limit = { NOT = { has_state_flag = KIR_STATE_HAS_N3_PALACE } }
+		THIS = {
+			KIR_STATE_PALACE_BUTTON_CLICK_EFFECT = yes
+			set_state_flag = KIR_STATE_HAS_N3_PALACE
+			set_variable = { KIR_STATE_N3_PALACE_BUTTON_FRAME = 1 }
+			set_variable = { KIR_STATE_SGUI_PALACE_TERM_TIMER = 365 } set_variable = { KIR_STATE_SGUI_PALACE_TERM_REMOVAL_TIMER = 1095 }
+			clr_state_flag = KIR_STATE_DIET_SUSPENDED
+			hidden_effect = { KIR_STATE_N34_PALACE_PP = yes }
+			if = {
+				limit = {
+					has_dynamic_modifier = { modifier = KIR_PJD_SGUI_No_Democracy }
+				}
+				custom_effect_tooltip = KIR_line_break
+				remove_dynamic_modifier = { modifier = KIR_PJD_SGUI_No_Democracy } custom_effect_tooltip = KIR_line_break
+				ROOT = { subtract_from_variable = { KIR_CONSOCSYS_KIR_STATE_DIETS_SUSPENDED_Modifier = 1 } }
+			}
+		}
+		ROOT = {
+			add_to_variable = { KIR_STATE_N3_PALACE_NUM = 1 }
+			add_to_variable = { KIR_STATE_N3N4_PALACE_NUM = 1 }
+			add_to_variable = { KIR_CONSOCSYS_local_resources_factor = KIR_CONSOCSYS_local_resources_factor_var }
+			add_to_variable = { KIR_CONSOCSYS_local_resources_factor_var = 0.01 }
+			clamp_variable = { var = KIR_CONSOCSYS_local_resources_factor_var min = 0.01 max = 0.05 }
+			add_to_variable = { KIR_CONSOCSYS_fascism_drift = 0.01 }
+			add_to_variable = { KIR_CONSOCSYS_KIR_STATE_DIETS_Modifier = 1 }
+		}
+	}
+	else_if = {
+		limit = { has_state_flag = KIR_STATE_HAS_N3_PALACE }
+		THIS = {
+			KIR_STATE_PALACE_BUTTON_CLICK_EFFECT = yes
+		}
+		ROOT = {
+		}
+	}
+	add_to_variable = { KIR_STATE_SGUI_DIRTY = 1 }
+	ROOT = {
+		clr_country_flag = KIR_STATE_SGUI_PALACE_MENU_ENABLED
+		if = {
+			limit = {
+				has_country_flag = KIR_Balance_of_the_Realm_Enabled
+			}
+			KIR_Get_Balance_of_the_Realm = yes
+		}
+		KIR_STATE_PALACE_CALL_ALERT = yes
+	}
+}
+KIR_STATE_N4_PALACE_BUTTON_click_effect = {
+	if = {
+		limit = { NOT = { has_state_flag = KIR_STATE_HAS_N4_PALACE } }
+		THIS = {
+			KIR_STATE_PALACE_BUTTON_CLICK_EFFECT = yes
+			set_state_flag = KIR_STATE_HAS_N4_PALACE
+			set_variable = { KIR_STATE_N4_PALACE_BUTTON_FRAME = 1 }
+			set_variable = { KIR_STATE_SGUI_PALACE_TERM_TIMER = 365 } set_variable = { KIR_STATE_SGUI_PALACE_TERM_REMOVAL_TIMER = 1095 }
+			clr_state_flag = KIR_STATE_DIET_SUSPENDED
+			hidden_effect = { KIR_STATE_N34_PALACE_PP = yes }
+			if = {
+				limit = {
+					has_dynamic_modifier = { modifier = KIR_PJD_SGUI_No_Democracy }
+				}
+				custom_effect_tooltip = KIR_line_break
+				remove_dynamic_modifier = { modifier = KIR_PJD_SGUI_No_Democracy } custom_effect_tooltip = KIR_line_break
+				ROOT = { subtract_from_variable = { KIR_CONSOCSYS_KIR_STATE_DIETS_SUSPENDED_Modifier = 1 } }
+			}
+		}
+		ROOT = {
+			add_to_variable = { KIR_STATE_N4_PALACE_NUM = 1 }
+			add_to_variable = { KIR_STATE_N3N4_PALACE_NUM = 1 }
+			add_to_variable = { KIR_CONSOCSYS_production_factory_efficiency_gain_factor = KIR_CONSOCSYS_production_factory_efficiency_gain_factor_var }
+			add_to_variable = { KIR_CONSOCSYS_production_factory_efficiency_gain_factor_var = 0.01 }
+			clamp_variable = { var = KIR_CONSOCSYS_production_factory_efficiency_gain_factor_var min = 0.01 max = 0.05 }
+			add_to_variable = { KIR_CONSOCSYS_fascism_drift = 0.01 }
+			add_to_variable = { KIR_CONSOCSYS_KIR_STATE_DIETS_Modifier = 1 }
+		}
+	}
+	else_if = {
+		limit = { has_state_flag = KIR_STATE_HAS_N4_PALACE }
+		THIS = {
+			KIR_STATE_PALACE_BUTTON_CLICK_EFFECT = yes
+		}
+		ROOT = {
+		}
+	}
+	add_to_variable = { KIR_STATE_SGUI_DIRTY = 1 }
+	ROOT = {
+		clr_country_flag = KIR_STATE_SGUI_PALACE_MENU_ENABLED
+		if = {
+			limit = {
+				has_country_flag = KIR_Balance_of_the_Realm_Enabled
+			}
+			KIR_Get_Balance_of_the_Realm = yes
+		}
+		KIR_STATE_PALACE_CALL_ALERT = yes
+	}
+}
+KIR_STATE_N5_PALACE_BUTTON_click_effect = {
+	if = {
+		limit = { NOT = { has_state_flag = KIR_STATE_HAS_N5_PALACE } }
+		THIS = {
+			KIR_STATE_PALACE_BUTTON_CLICK_EFFECT = yes
+			set_state_flag = KIR_STATE_HAS_N5_PALACE
+			set_variable = { KIR_STATE_N5_PALACE_BUTTON_FRAME = 1 }
+			set_variable = { KIR_STATE_SGUI_PALACE_TERM_TIMER = 365 } set_variable = { KIR_STATE_SGUI_PALACE_TERM_REMOVAL_TIMER = 1095 }
+			clr_state_flag = KIR_STATE_DIET_SUSPENDED
+			hidden_effect = { KIR_STATE_N5_PALACE_PP = yes }
+			if = {
+				limit = {
+					has_dynamic_modifier = { modifier = KIR_PJD_SGUI_No_Democracy }
+				}
+				custom_effect_tooltip = KIR_line_break
+				remove_dynamic_modifier = { modifier = KIR_PJD_SGUI_No_Democracy } custom_effect_tooltip = KIR_line_break
+				ROOT = { subtract_from_variable = { KIR_CONSOCSYS_KIR_STATE_DIETS_SUSPENDED_Modifier = 1 } }
+			}
+		}
+		ROOT = {
+			add_to_variable = { KIR_STATE_N5_PALACE_NUM = 1 }
+			add_to_variable = { KIR_CONSOCSYS_stability_factor = KIR_CONSOCSYS_stability_factor_var }
+			add_to_variable = { KIR_CONSOCSYS_stability_factor_var = 0.01 }
+			clamp_variable = { var = KIR_CONSOCSYS_stability_factor_var min = 0.01 max = 0.05 }
+			add_to_variable = { KIR_CONSOCSYS_neutrality_drift = 0.01 }
+			add_to_variable = { KIR_CONSOCSYS_KIR_STATE_DIETS_Modifier = 1 }
+		}
+	}
+	else_if = {
+		limit = { has_state_flag = KIR_STATE_HAS_N5_PALACE }
+		THIS = {
+			KIR_STATE_PALACE_BUTTON_CLICK_EFFECT = yes
+		}
+		ROOT = {
+		}
+	}
+	add_to_variable = { KIR_STATE_SGUI_DIRTY = 1 }
+	ROOT = {
+		clr_country_flag = KIR_STATE_SGUI_PALACE_MENU_ENABLED
+		if = {
+			limit = {
+				has_country_flag = KIR_Balance_of_the_Realm_Enabled
+			}
+			KIR_Get_Balance_of_the_Realm = yes
+		}
+		KIR_STATE_PALACE_CALL_ALERT = yes
+	}
+}
+KIR_STATE_C1_PALACE_BUTTON_click_effect = {
+	if = {
+		limit = { NOT = { has_state_flag = KIR_STATE_HAS_C1_PALACE } }
+		THIS = {
+			KIR_STATE_PALACE_BUTTON_CLICK_EFFECT = yes
+			set_state_flag = KIR_STATE_HAS_C1_PALACE
+			set_variable = { KIR_STATE_C1_PALACE_BUTTON_FRAME = 1 }
+			set_variable = { KIR_STATE_SGUI_PALACE_TERM_TIMER = 365 } set_variable = { KIR_STATE_SGUI_PALACE_TERM_REMOVAL_TIMER = 1095 }
+			clr_state_flag = KIR_STATE_DIET_SUSPENDED
+			hidden_effect = { KIR_STATE_C1_PALACE_PP = yes }
+			if = {
+				limit = {
+					has_dynamic_modifier = { modifier = KIR_PJD_SGUI_No_Democracy }
+				}
+				custom_effect_tooltip = KIR_line_break
+				remove_dynamic_modifier = { modifier = KIR_PJD_SGUI_No_Democracy } custom_effect_tooltip = KIR_line_break
+				ROOT = { subtract_from_variable = { KIR_CONSOCSYS_KIR_STATE_DIETS_SUSPENDED_Modifier = 1 } }
+			}
+		}
+		ROOT = {
+			add_to_variable = { KIR_STATE_C1_PALACE_NUM = 1 }
+			add_to_variable = { KIR_CONSOCSYS_conscription_factor = KIR_CONSOCSYS_conscription_factor_var }
+			add_to_variable = { KIR_CONSOCSYS_conscription_factor_var = 0.01 }
+			clamp_variable = { var = KIR_CONSOCSYS_conscription_factor_var min = 0.01 max = 0.05 }
+			add_to_variable = { KIR_CONSOCSYS_communism_drift = 0.01 }
+			add_to_variable = { KIR_CONSOCSYS_KIR_STATE_DIETS_Modifier = 1 }
+		}
+	}
+	else_if = {
+		limit = { has_state_flag = KIR_STATE_HAS_C1_PALACE }
+		THIS = {
+			KIR_STATE_PALACE_BUTTON_CLICK_EFFECT = yes
+		}
+		ROOT = {
+		}
+	}
+	add_to_variable = { KIR_STATE_SGUI_DIRTY = 1 }
+	ROOT = {
+		clr_country_flag = KIR_STATE_SGUI_PALACE_MENU_ENABLED
+		if = {
+			limit = {
+				has_country_flag = KIR_Balance_of_the_Realm_Enabled
+			}
+			KIR_Get_Balance_of_the_Realm = yes
+		}
+		KIR_STATE_PALACE_CALL_ALERT = yes
+	}
+}
+KIR_STATE_C2_PALACE_BUTTON_click_effect = {
+	if = {
+		limit = { NOT = { has_state_flag = KIR_STATE_HAS_C2_PALACE } }
+		THIS = {
+			KIR_STATE_PALACE_BUTTON_CLICK_EFFECT = yes
+			set_state_flag = KIR_STATE_HAS_C2_PALACE
+			set_variable = { KIR_STATE_C2_PALACE_BUTTON_FRAME = 1 }
+			set_variable = { KIR_STATE_SGUI_PALACE_TERM_TIMER = 365 } set_variable = { KIR_STATE_SGUI_PALACE_TERM_REMOVAL_TIMER = 1095 }
+			clr_state_flag = KIR_STATE_DIET_SUSPENDED
+			hidden_effect = { KIR_STATE_C23_PALACE_PP = yes }
+			if = {
+				limit = {
+					has_dynamic_modifier = { modifier = KIR_PJD_SGUI_No_Democracy }
+				}
+				custom_effect_tooltip = KIR_line_break
+				remove_dynamic_modifier = { modifier = KIR_PJD_SGUI_No_Democracy } custom_effect_tooltip = KIR_line_break
+				ROOT = { subtract_from_variable = { KIR_CONSOCSYS_KIR_STATE_DIETS_SUSPENDED_Modifier = 1 } }
+			}
+		}
+		ROOT = {
+			add_to_variable = { KIR_STATE_C2_PALACE_NUM = 1 }
+			add_to_variable = { KIR_CONSOCSYS_monthly_population = KIR_CONSOCSYS_monthly_population_var }
+			add_to_variable = { KIR_CONSOCSYS_monthly_population_var = 0.05 }
+			clamp_variable = { var = KIR_CONSOCSYS_monthly_population_var min = 0.05 max = 0.25 }
+			add_to_variable = { KIR_CONSOCSYS_communism_drift = 0.01 }
+			add_to_variable = { KIR_CONSOCSYS_KIR_STATE_DIETS_Modifier = 1 }
+		}
+	}
+	else_if = {
+		limit = { has_state_flag = KIR_STATE_HAS_C2_PALACE }
+		THIS = {
+			KIR_STATE_PALACE_BUTTON_CLICK_EFFECT = yes
+		}
+		ROOT = {
+		}
+	}
+	add_to_variable = { KIR_STATE_SGUI_DIRTY = 1 }
+	ROOT = {
+		clr_country_flag = KIR_STATE_SGUI_PALACE_MENU_ENABLED
+		if = {
+			limit = {
+				has_country_flag = KIR_Balance_of_the_Realm_Enabled
+			}
+			KIR_Get_Balance_of_the_Realm = yes
+		}
+		KIR_STATE_PALACE_CALL_ALERT = yes
+	}
+}
+KIR_STATE_C3_PALACE_BUTTON_click_effect = {
+	if = {
+		limit = { NOT = { has_state_flag = KIR_STATE_HAS_C3_PALACE } }
+		THIS = {
+			KIR_STATE_PALACE_BUTTON_CLICK_EFFECT = yes
+			set_state_flag = KIR_STATE_HAS_C3_PALACE
+			set_variable = { KIR_STATE_C3_PALACE_BUTTON_FRAME = 1 }
+			set_variable = { KIR_STATE_SGUI_PALACE_TERM_TIMER = 365 } set_variable = { KIR_STATE_SGUI_PALACE_TERM_REMOVAL_TIMER = 1095 }
+			clr_state_flag = KIR_STATE_DIET_SUSPENDED
+			hidden_effect = { KIR_STATE_C23_PALACE_PP = yes }
+			if = {
+				limit = {
+					has_dynamic_modifier = { modifier = KIR_PJD_SGUI_No_Democracy }
+				}
+				custom_effect_tooltip = KIR_line_break
+				remove_dynamic_modifier = { modifier = KIR_PJD_SGUI_No_Democracy } custom_effect_tooltip = KIR_line_break
+				ROOT = { subtract_from_variable = { KIR_CONSOCSYS_KIR_STATE_DIETS_SUSPENDED_Modifier = 1 } }
+			}
+		}
+		ROOT = {
+			add_to_variable = { KIR_STATE_C3_PALACE_NUM = 1 }
+			add_to_variable = { KIR_CONSOCSYS_production_speed_buildings_factor = KIR_CONSOCSYS_production_speed_buildings_factor_var }
+			add_to_variable = { KIR_CONSOCSYS_production_speed_buildings_factor_var = 0.01 }
+			clamp_variable = { var = KIR_CONSOCSYS_production_speed_buildings_factor_var min = 0.01 max = 0.05 }
+			add_to_variable = { KIR_CONSOCSYS_communism_drift = 0.01 }
+			add_to_variable = { KIR_CONSOCSYS_KIR_STATE_DIETS_Modifier = 1 }
+		}
+	}
+	else_if = {
+		limit = { has_state_flag = KIR_STATE_HAS_C3_PALACE }
+		THIS = {
+			KIR_STATE_PALACE_BUTTON_CLICK_EFFECT = yes
+		}
+		ROOT = {
+		}
+	}
+	add_to_variable = { KIR_STATE_SGUI_DIRTY = 1 }
+	ROOT = {
+		clr_country_flag = KIR_STATE_SGUI_PALACE_MENU_ENABLED
+		if = {
+			limit = {
+				has_country_flag = KIR_Balance_of_the_Realm_Enabled
+			}
+			KIR_Get_Balance_of_the_Realm = yes
+		}
+		KIR_STATE_PALACE_CALL_ALERT = yes
+	}
+}
+
+FRV_Capitulate_KIC_Second_Republic = {
+	set_global_flag = FRV_Second_Republic_Created_Flag
+	set_faction_name = FRV_SECOND_REPUBLIC
+	unlock_national_focus = FRV_Focus_20
+	transfer_state = 1066
+	1066 = { add_core_of = PREV }
+	remove_dynamic_modifier = { modifier = KIR_FRV_uprising_modifier }
+	add_dynamic_modifier = { modifier = KIR_FRV_revolution_modifier }
+	create_dynamic_country = {
+		original_tag = KIC
+		transfer_state = 1059
+		transfer_state = 1062
+		transfer_state = 1064
+		transfer_state = 1068
+		every_core_state = { remove_core_of = PREV }
+		1059 = { add_core_of = PREV }
+		1062 = { add_core_of = PREV }
+		1064 = { add_core_of = PREV }
+		1068 = { add_core_of = PREV }
+		set_capital = { state = 1059 }
+		FRV = { puppet = PREV }
+		set_politics = { ruling_party = communism elections_allowed = no }
+		add_popularity = { ideology = communism popularity = 0.55 }
+		set_cosmetic_tag = KIC_FRV
+		KIR = { KIC_FRV_national_plenum = { set_nationality = PREV.PREV } }
+		add_country_leader_role = {
+			character = "KIC_FRV_national_plenum"
+			promote_leader = yes
+			country_leader = {
+				desc = ""
+				ideology = democratic_socialism
+				expire = "1965.1.1.1"
+				traits = {  }
+			}
+		}
+		load_focus_tree = blank_focus_tree reserve_dynamic_country = yes set_AI_strategies_on_every_possible_country_delayed = yes
+		FRV = { add_to_faction = PREV } set_country_flag = FRV_kirin_confederacy_member_flag country_event = { id = kirin_utility.43 days = 1 }
+		add_equipment_to_stockpile = { type = infantry_equipment amount = 2500 }
+	}
+	create_dynamic_country = {
+		original_tag = KIC
+		transfer_state = 1087
+		transfer_state = 1088
+		every_core_state = { remove_core_of = PREV }
+		1087 = { add_core_of = PREV }
+		1088 = { add_core_of = PREV }
+		set_capital = { state = 1088 }
+		#FRK = { puppet = PREV }
+		set_politics = { ruling_party = neutrality elections_allowed = no }
+		add_popularity = { ideology = neutrality popularity = 0.55 }
+		set_cosmetic_tag = KIC_CAP
+		every_possible_country = {
+			limit = {
+				has_character = KIC_CAP_leader
+			}
+			KIC_CAP_leader = {
+				set_nationality = PREV.PREV
+			}
+		}
+		add_country_leader_role = {
+			character = "KIC_CAP_leader"
+			promote_leader = yes
+			country_leader = {
+				desc = ""
+				ideology = khakistocracy
+				expire = "1965.1.1.1"
+				traits = {  }
+			}
+		}
+		load_focus_tree = blank_focus_tree
+		reserve_dynamic_country = yes
+		set_AI_strategies_on_every_possible_country_delayed = yes
+		FRV = { add_to_faction = PREV } set_country_flag = FRV_kirin_confederacy_member_flag country_event = { id = kirin_utility.43 days = 1 }
+		FRV = { reverse_add_opinion_modifier = { target = PREV modifier = FRV_revisionist_traitors } }
+		add_equipment_to_stockpile = { type = infantry_equipment amount = 2500 }
+	}
+	create_dynamic_country = {
+		original_tag = KIC
+		transfer_state = 1060
+		transfer_state = 1061
+		every_core_state = { remove_core_of = PREV }
+		1060 = { add_core_of = PREV }
+		1061 = { add_core_of = PREV }
+		set_capital = { state = 1060 }
+		#FRK = { puppet = PREV }
+		set_politics = { ruling_party = neutrality elections_allowed = no }
+		add_popularity = { ideology = neutrality popularity = 0.55 }
+		set_cosmetic_tag = KIC_RHP
+		every_possible_country = {
+			limit = {
+				has_character = KIC_RHP_leader
+			}
+			KIC_RHP_leader = {
+				set_nationality = PREV.PREV
+			}
+		}
+		add_country_leader_role = {
+			character = "KIC_RHP_leader"
+			promote_leader = yes
+			country_leader = {
+				desc = ""
+				ideology = theocracy_subideology
+				expire = "1965.1.1.1"
+				traits = {  }
+			}
+		}
+		load_focus_tree = blank_focus_tree
+		reserve_dynamic_country = yes
+		set_AI_strategies_on_every_possible_country_delayed = yes
+		FRV = { add_to_faction = PREV } set_country_flag = FRV_kirin_confederacy_member_flag country_event = { id = kirin_utility.43 days = 1 }
+		add_equipment_to_stockpile = { type = infantry_equipment amount = 2500 }
+	}
+	if = {
+		limit = {
+			has_global_flag = KIC_FRV_Radiance_Revolt_Happened
+		}
+		RAD = {
+			transfer_state = 817
+			817 = { add_core_of = PREV }
+			set_capital = { state = 817 }
+			FRV = { add_to_faction = PREV }
+		}
+	}
+	else_if = {
+		limit = {
+			NOT = {
+				has_global_flag = KIC_FRV_Radiance_Revolt_Happened
+			}
+		}
+		create_dynamic_country = {
+			original_tag = KIC
+			transfer_state = 817
+			every_core_state = { remove_core_of = PREV }
+			817 = { add_core_of = PREV }
+			set_capital = { state = 817 }
+			set_politics = { ruling_party = communism elections_allowed = no }
+			add_popularity = { ideology = communism popularity = 0.55 }
+			set_cosmetic_tag = RAD
+			retire_ideology_leader = fascism retire_ideology_leader = communism retire_ideology_leader = neutrality retire_ideology_leader = democratic
+			set_country_leader_portrait = { portrait = "GFX_portrait_unknown_kirin_female" }
+			set_country_leader_ideology = anarchist_communism
+			set_party_name = { ideology = communism long_name = KIR_communism_party_A2_long name = KIR_communism_party_A2 }
+			load_focus_tree = blank_focus_tree reserve_dynamic_country = yes set_AI_strategies_on_every_possible_country_delayed = yes
+			FRV = { add_to_faction = PREV } set_country_flag = FRV_kirin_confederacy_member_flag country_event = { id = kirin_utility.43 days = 1 }
+			add_equipment_to_stockpile = { type = infantry_equipment amount = 2500 }
+		}
+	}
+	create_dynamic_country = {
+		original_tag = KIC
+		transfer_state = 1067
+		transfer_state = 1070
+		every_core_state = { remove_core_of = PREV }
+		1067 = { add_core_of = PREV }
+		1070 = { add_core_of = PREV }
+		set_capital = { state = 1067 }
+		#FRK = { puppet = PREV }
+		set_politics = { ruling_party = communism elections_allowed = no }
+		add_popularity = { ideology = communism popularity = 0.55 }
+		set_cosmetic_tag = KIR_PAT
+		KIR = { KIR_citronella_blaze = { set_nationality = PREV.PREV } }
+		add_country_leader_role = {
+			character = "KIR_citronella_blaze"
+			promote_leader = yes
+			country_leader = {
+				desc = ""
+				ideology = anti_revisionism
+				expire = "1965.1.1.1"
+				traits = {  }
+			}
+		}
+		load_focus_tree = blank_focus_tree reserve_dynamic_country = yes set_AI_strategies_on_every_possible_country_delayed = yes
+		FRV = { add_to_faction = PREV } set_country_flag = FRV_kirin_confederacy_member_flag country_event = { id = kirin_utility.43 days = 1 }
+		FRV = { reverse_add_opinion_modifier = { target = PREV modifier = FRV_revisionist_traitors } }
+		add_equipment_to_stockpile = { type = infantry_equipment amount = 2500 }
+	}
+	if = {
+		limit = {
+			has_global_flag = KIC_FRV_Maritime_Revolt_Happened
+		}
+		NWL = {
+			transfer_state = 833
+			transfer_state = 1063
+			transfer_state = 1065
+			transfer_state = 1074
+			833 = { add_core_of = PREV }
+			1063 = { add_core_of = PREV }
+			1065 = { add_core_of = PREV }
+			1074 = { add_core_of = PREV }
+			set_capital = { state = 833 }
+			FRV = { add_to_faction = PREV }
+		}
+	}
+	else_if = {
+		limit = {
+			NOT = {
+				has_global_flag = KIC_FRV_Maritime_Revolt_Happened
+			}
+		}
+		create_dynamic_country = {
+			original_tag = KIC
+			transfer_state = 833
+			transfer_state = 1063
+			transfer_state = 1065
+			transfer_state = 1074
+			every_core_state = { remove_core_of = PREV }
+			833 = { add_core_of = PREV }
+			1063 = { add_core_of = PREV }
+			1065 = { add_core_of = PREV }
+			1074 = { add_core_of = PREV }
+			set_capital = { state = 833 }
+			set_politics = { ruling_party = neutrality elections_allowed = no }
+			add_popularity = { ideology = neutrality popularity = 0.55 }
+			set_cosmetic_tag = KIR_NWL
+			if = {
+				limit = {
+					has_dlc = "La Resistance"
+				}
+				KIR = { KIR_ember_wane_lar = { set_nationality = PREV.PREV } }
+				add_country_leader_role = {
+					character = "KIR_ember_wane_lar"
+					promote_leader = yes
+					country_leader = {
+						ideology = republicanism
+						expire = "1965.1.1.1"
+						traits = { }
+					}
+				}
+			}
+			else = {
+				KIR = { KIR_ember_wane = { set_nationality = PREV.PREV } }
+				add_country_leader_role = {
+					character = "KIR_ember_wane"
+					promote_leader = yes
+					country_leader = {
+						ideology = republicanism
+						expire = "1965.1.1.1"
+						traits = { }
+					}
+				}
+			}
+			load_focus_tree = blank_focus_tree reserve_dynamic_country = yes set_AI_strategies_on_every_possible_country_delayed = yes
+			FRV = { add_to_faction = PREV } set_country_flag = FRV_kirin_confederacy_member_flag country_event = { id = kirin_utility.43 days = 1 }
+			add_equipment_to_stockpile = { type = infantry_equipment amount = 2500 }
+		}
+	}
+	if = {
+		limit = {
+			has_global_flag = KIC_FRV_Central_Revolt_Happened
+		}
+		SGM = {
+			transfer_state = 816
+			transfer_state = 1069
+			transfer_state = 1076
+			816 = { add_core_of = PREV }
+			1069 = { add_core_of = PREV }
+			1076 = { add_core_of = PREV }
+			set_capital = { state = 1069 }
+			FRV = { add_to_faction = PREV }
+		}
+	}
+	else_if = {
+		limit = {
+			NOT = {
+				has_global_flag = KIC_FRV_Central_Revolt_Happened
+			}
+		}
+		create_dynamic_country = {
+			original_tag = KIC
+			transfer_state = 816
+			transfer_state = 1069
+			transfer_state = 1076
+			every_core_state = { remove_core_of = PREV }
+			816 = { add_core_of = PREV }
+			1069 = { add_core_of = PREV }
+			1076 = { add_core_of = PREV }
+			set_capital = { state = 1069 }
+			set_politics = { ruling_party = communism elections_allowed = no }
+			add_popularity = { ideology = communism popularity = 0.55 }
+			set_cosmetic_tag = KIR_SGM
+			every_possible_country = {
+				limit = {
+					has_character = KIR_kindling_flash
+				}
+				KIR_kindling_flash = {
+					set_nationality = PREV.PREV
+				}
+			}
+			add_country_leader_role = {
+				character = "KIR_kindling_flash"
+				promote_leader = yes
+				country_leader = {
+					ideology = syndicalism
+					expire = "1965.1.1.1"
+					traits = { }
+				}
+			}
+			set_party_name = { ideology = communism long_name = KIR_communism_party_A4_long name = KIR_communism_party_A4 }
+			load_focus_tree = blank_focus_tree reserve_dynamic_country = yes set_AI_strategies_on_every_possible_country_delayed = yes
+			FRV = { add_to_faction = PREV } set_country_flag = FRV_kirin_confederacy_member_flag country_event = { id = kirin_utility.43 days = 1 }
+			add_equipment_to_stockpile = { type = infantry_equipment amount = 2500 }
+		}
+	}
+	if = {
+		limit = {
+			has_global_flag = KIC_FRV_Bandit_Revolt_Happened
+		}
+		SBC = {
+			transfer_state = 1078
+			transfer_state = 1079
+			1078 = { add_core_of = PREV }
+			1079 = { add_core_of = PREV }
+			set_capital = { state = 1079 }
+			FRV = { add_to_faction = PREV }
+		}
+	}
+	else_if = {
+		limit = {
+			NOT = {
+				has_global_flag = KIC_FRV_Bandit_Revolt_Happened
+			}
+		}
+		create_dynamic_country = {
+			original_tag = KIC
+			transfer_state = 1078
+			transfer_state = 1079
+			every_core_state = { remove_core_of = PREV }
+			1078 = { add_core_of = PREV }
+			1079 = { add_core_of = PREV }
+			set_capital = { state = 1079 }
+			set_politics = { ruling_party = democratic elections_allowed = no }
+			add_popularity = { ideology = democratic popularity = 0.55 }
+			set_cosmetic_tag = SBC
+			if = {
+				limit = {
+					NOT = { has_global_flag = KIC_ember_glow_dead }
+				}
+				every_possible_country = {
+					limit = {
+						has_character = KIC_ember_glow
+					}
+					KIC_ember_glow = {
+						set_nationality = PREV.PREV
+					}
+				}
+				add_country_leader_role = {
+					character = "KIC_ember_glow"
+					promote_leader = yes
+					country_leader = {
+						ideology = social_banditry
+						expire = "1965.1.1.1"
+						traits = { }
+					}
+				}
+			}
+			else = {
+				retire_ideology_leader = fascism retire_ideology_leader = communism retire_ideology_leader = neutrality retire_ideology_leader = democratic
+				set_country_leader_portrait = { portrait = "GFX_portrait_unknown_kirin_male" }
+				set_country_leader_ideology = social_banditry
+			}
+			load_focus_tree = blank_focus_tree reserve_dynamic_country = yes set_AI_strategies_on_every_possible_country_delayed = yes
+			FRV = { add_to_faction = PREV } set_country_flag = FRV_kirin_confederacy_member_flag country_event = { id = kirin_utility.43 days = 1 }
+			add_equipment_to_stockpile = { type = infantry_equipment amount = 2500 }
+		}
+	}
+	if = {
+		limit = {
+			has_global_flag = KIC_FRV_Verdant_Revolt_Happened
+		}
+		VER = {
+			transfer_state = 1073
+			1073 = { add_core_of = PREV }
+			set_capital = { state = 1073 }
+			FRV = { add_to_faction = PREV }
+		}
+	}
+	else_if = {
+		limit = {
+			NOT = {
+				has_global_flag = KIC_FRV_Verdant_Revolt_Happened
+			}
+		}
+		create_dynamic_country = {
+			original_tag = KIC
+			transfer_state = 1073
+			every_core_state = { remove_core_of = PREV }
+			1073 = { add_core_of = PREV }
+			set_capital = { state = 1073 }
+			set_politics = { ruling_party = democratic elections_allowed = no }
+			add_popularity = { ideology = democratic popularity = 0.55 }
+			set_cosmetic_tag = KIR_VER
+			retire_ideology_leader = fascism retire_ideology_leader = communism retire_ideology_leader = neutrality retire_ideology_leader = democratic
+			set_country_leader_portrait = { portrait = "GFX_portrait_unknown_kirin_female" }
+			set_country_leader_ideology = harmonic_theocracy
+			load_focus_tree = blank_focus_tree reserve_dynamic_country = yes set_AI_strategies_on_every_possible_country_delayed = yes
+			FRV = { add_to_faction = PREV } set_country_flag = FRV_kirin_confederacy_member_flag country_event = { id = kirin_utility.43 days = 1 }
+			add_equipment_to_stockpile = { type = infantry_equipment amount = 2500 }
+		}
+	}
+	if = {
+		limit = {
+			has_global_flag = KIC_FRV_Proletarian_Revolt_Happened
+		}
+		PRB = {
+			transfer_state = 1075
+			1075 = { add_core_of = PREV }
+			set_capital = { state = 1075 }
+			FRV = { add_to_faction = PREV }
+		}
+	}
+	else_if = {
+		limit = {
+			NOT = {
+				has_global_flag = KIC_FRV_Proletarian_Revolt_Happened
+			}
+		}
+		create_dynamic_country = {
+			original_tag = KIC
+			transfer_state = 1075
+			every_core_state = { remove_core_of = PREV }
+			1075 = { add_core_of = PREV }
+			set_capital = { state = 1075 }
+			set_politics = { ruling_party = communism elections_allowed = no }
+			add_popularity = { ideology = communism popularity = 0.55 }
+			set_cosmetic_tag = PRB
+			retire_ideology_leader = fascism retire_ideology_leader = communism retire_ideology_leader = neutrality retire_ideology_leader = democratic
+			set_country_leader_portrait = { portrait = "GFX_portrait_unknown_kirin_male" }
+			set_country_leader_ideology = stalinism
+			set_country_leader_name = { name = KIR_stallionist_conservative }
+			set_party_name = { ideology = communism long_name = KIR_communism_party_A1_long name = KIR_communism_party_A1 }
+			load_focus_tree = blank_focus_tree reserve_dynamic_country = yes set_AI_strategies_on_every_possible_country_delayed = yes
+			FRV = { add_to_faction = PREV } set_country_flag = FRV_kirin_confederacy_member_flag country_event = { id = kirin_utility.43 days = 1 }
+			FRV = { reverse_add_opinion_modifier = { target = PREV modifier = FRV_stolen_thunder } }
+			RAD = { reverse_add_opinion_modifier = { target = PREV modifier = FRV_party_schism } add_opinion_modifier = { target = PREV modifier = FRV_party_schism } }
+			add_equipment_to_stockpile = { type = infantry_equipment amount = 2500 }
+		}
+	}
+	create_dynamic_country = {
+		original_tag = KIC
+		transfer_state = 1081
+		transfer_state = 926
+		every_core_state = { remove_core_of = PREV }
+		1081 = { add_core_of = PREV }
+		926 = { add_core_of = PREV }
+		set_capital = { state = 1081 }
+		#FRK = { puppet = PREV }
+		set_politics = { ruling_party = communism elections_allowed = no }
+		add_popularity = { ideology = communism popularity = 0.55 }
+		set_cosmetic_tag = CHY
+		retire_ideology_leader = fascism retire_ideology_leader = communism retire_ideology_leader = neutrality retire_ideology_leader = democratic
+		set_country_leader_portrait = { portrait = "GFX_portrait_unknown_kirin_male" }
+		set_country_leader_ideology = religious_socialism
+		load_focus_tree = blank_focus_tree reserve_dynamic_country = yes set_AI_strategies_on_every_possible_country_delayed = yes
+		FRV = { add_to_faction = PREV } set_country_flag = FRV_kirin_confederacy_member_flag country_event = { id = kirin_utility.43 days = 1 }
+		FRV = { reverse_add_opinion_modifier = { target = PREV modifier = FRV_revisionist_traitors } }
+		add_equipment_to_stockpile = { type = infantry_equipment amount = 2500 }
+	}
+	if = {
+		limit = {
+			has_global_flag = KIC_FRV_River_Revolt_Happened
+		}
+		UKP = {
+			transfer_state = 1080
+			transfer_state = 1082
+			1080 = { add_core_of = PREV }
+			1082 = { add_core_of = PREV }
+			set_capital = { state = 1080 }
+			FRV = { add_to_faction = PREV }
+		}
+	}
+	else_if = {
+		limit = {
+			NOT = {
+				has_global_flag = KIC_FRV_River_Revolt_Happened
+			}
+		}
+		create_dynamic_country = {
+			original_tag = KIC
+			transfer_state = 1080
+			transfer_state = 1082
+			every_core_state = { remove_core_of = PREV }
+			1080 = { add_core_of = PREV }
+			1082 = { add_core_of = PREV }
+			set_capital = { state = 1080 }
+			set_politics = { ruling_party = communism elections_allowed = no }
+			add_popularity = { ideology = communism popularity = 0.55 }
+			set_cosmetic_tag = KIR_UKP
+			if = {
+				limit = {
+					NOT = { has_global_flag = KIC_dayspring_rose_dead }
+				}
+				every_possible_country = {
+					limit = {
+						has_character = KIR_dayspring_rose
+					}
+					KIR_dayspring_rose = {
+						set_nationality = PREV.PREV
+					}
+				}
+				add_country_leader_role = {
+					character = "KIR_dayspring_rose"
+					promote_leader = yes
+					country_leader = {
+						ideology = primitive_communism
+						expire = "1965.1.1.1"
+						traits = { }
+					}
+				}
+			}
+			else = {
+				retire_ideology_leader = fascism retire_ideology_leader = communism retire_ideology_leader = neutrality retire_ideology_leader = democratic
+				set_country_leader_portrait = { portrait = "GFX_portrait_unknown_kirin_male" }
+				set_country_leader_ideology = primitive_communism
+			}
+			load_focus_tree = blank_focus_tree reserve_dynamic_country = yes set_AI_strategies_on_every_possible_country_delayed = yes
+			FRV = { add_to_faction = PREV } set_country_flag = FRV_kirin_confederacy_member_flag country_event = { id = kirin_utility.43 days = 1 }
+			add_equipment_to_stockpile = { type = infantry_equipment amount = 2500 }
+		}
+	}
+	create_dynamic_country = {
+		original_tag = KIC
+		transfer_state = 1077
+		every_core_state = { remove_core_of = PREV }
+		1077 = { add_core_of = PREV }
+		set_capital = { state = 1077 }
+		set_politics = { ruling_party = fascism elections_allowed = no }
+		add_popularity = { ideology = fascism popularity = 0.55 }
+		set_cosmetic_tag = SRM
+		retire_ideology_leader = fascism retire_ideology_leader = communism retire_ideology_leader = neutrality retire_ideology_leader = democratic
+		set_country_leader_portrait = { portrait = "GFX_portrait_unknown_kirin_female" }
+		set_country_leader_ideology = national_communism
+		load_focus_tree = blank_focus_tree reserve_dynamic_country = yes set_AI_strategies_on_every_possible_country_delayed = yes
+		FRV = { add_to_faction = PREV } set_country_flag = FRV_kirin_confederacy_member_flag country_event = { id = kirin_utility.43 days = 1 }
+		FRV = { reverse_add_opinion_modifier = { target = PREV modifier = FRV_revisionist_traitors } }
+		add_equipment_to_stockpile = { type = infantry_equipment amount = 2500 }
+	}
+	set_temp_variable = { KIRGetKSRConstituents = 14 }
+	if = {
+		limit = {
+			OR = {
+				KIC = { controls_state = 1058 }
+				controls_state = 1058
+			}
+		}
+		create_dynamic_country = {
+			original_tag = KIC
+			transfer_state = 1058
+			every_core_state = { remove_core_of = PREV }
+			1058 = { add_core_of = PREV }
+			set_capital = { state = 1058 }
+			set_politics = { ruling_party = neutrality elections_allowed = no }
+			add_popularity = { ideology = neutrality popularity = 0.55 }
+			set_cosmetic_tag = BSM
+			retire_ideology_leader = fascism retire_ideology_leader = communism retire_ideology_leader = neutrality retire_ideology_leader = democratic
+			set_country_leader_portrait = { portrait = "GFX_portrait_unknown_kirin_female" }
+			set_country_leader_ideology = technocracy
+			load_focus_tree = blank_focus_tree reserve_dynamic_country = yes set_AI_strategies_on_every_possible_country_delayed = yes
+			FRV = { add_to_faction = PREV } set_country_flag = FRV_kirin_confederacy_member_flag country_event = { id = kirin_utility.43 days = 1 }
+			add_equipment_to_stockpile = { type = infantry_equipment amount = 2500 }
+		}
+		add_to_temp_variable = { KIRGetKSRConstituents = 1 }
+	}
+	if = {
+		limit = {
+			OR = {
+				KIC = { controls_state = 1054 }
+				controls_state = 1054
+			}
+		}
+		create_dynamic_country = {
+			original_tag = KIC
+			transfer_state = 1054
+			every_core_state = { remove_core_of = PREV }
+			1054 = { add_core_of = PREV }
+			set_capital = { state = 1054 }
+			if = {
+				limit = {
+					OR = {
+						KIC = { controls_state = 1055 }
+						PREV = { controls_state = 1055 }
+					}
+				}
+				transfer_state = 1055
+				1055 = { add_core_of = PREV }
+			}
+			if = {
+				limit = {
+					OR = {
+						KIC = { controls_state = 1056 }
+						PREV = { controls_state = 1056 }
+					}
+				}
+				transfer_state = 1056
+				1056 = { add_core_of = PREV }
+			}
+			if = {
+				limit = {
+					OR = {
+						KIC = { controls_state = 1057 }
+						PREV = { controls_state = 1057 }
+					}
+				}
+				transfer_state = 1057
+				1057 = { add_core_of = PREV }
+			}
+			if = {
+				limit = {
+					OR = {
+						KIC = { controls_state = 1084 }
+						PREV = { controls_state = 1084 }
+					}
+				}
+				transfer_state = 1084
+				1084 = { add_core_of = PREV }
+			}
+			if = {
+				limit = {
+					OR = {
+						KIC = { controls_state = 1085 }
+						PREV = { controls_state = 1085 }
+					}
+				}
+				transfer_state = 1085
+				1085 = { add_core_of = PREV }
+			}
+			if = {
+				limit = {
+					OR = {
+						KIC = { controls_state = 1086 }
+						PREV = { controls_state = 1086 }
+					}
+				}
+				transfer_state = 1086
+				1086 = { add_core_of = PREV }
+			}
+			set_politics = { ruling_party = communism elections_allowed = no }
+			add_popularity = { ideology = communism popularity = 0.55 }
+			set_cosmetic_tag = CRZ
+			retire_ideology_leader = fascism retire_ideology_leader = communism retire_ideology_leader = neutrality retire_ideology_leader = democratic
+			set_country_leader_portrait = { portrait = "GFX_portrait_unknown_kirin_male" }
+			set_country_leader_ideology = marxism
+			load_focus_tree = blank_focus_tree reserve_dynamic_country = yes set_AI_strategies_on_every_possible_country_delayed = yes
+			FRV = { add_to_faction = PREV } set_country_flag = FRV_kirin_confederacy_member_flag country_event = { id = kirin_utility.43 days = 1 }
+			add_equipment_to_stockpile = { type = infantry_equipment amount = 2500 }
+		}
+		add_to_temp_variable = { KIRGetKSRConstituents = 1 }
+	}
+	if = {
+		limit = {
+			OR = {
+				KIC = { controls_state = 1083 }
+				controls_state = 1083
+			}
+		}
+		create_dynamic_country = {
+			original_tag = KIC
+			transfer_state = 1083
+			every_core_state = { remove_core_of = PREV }
+			1083 = { add_core_of = PREV }
+			set_capital = { state = 1083 }
+			set_politics = { ruling_party = democratic elections_allowed = no }
+			add_popularity = { ideology = democratic popularity = 0.55 }
+			set_cosmetic_tag = MCR
+			retire_ideology_leader = fascism retire_ideology_leader = communism retire_ideology_leader = neutrality retire_ideology_leader = democratic
+			set_country_leader_portrait = { portrait = "GFX_portrait_unknown_kirin_female" }
+			set_country_leader_ideology = socialism
+			load_focus_tree = blank_focus_tree reserve_dynamic_country = yes set_AI_strategies_on_every_possible_country_delayed = yes
+			FRV = { add_to_faction = PREV } set_country_flag = FRV_kirin_confederacy_member_flag country_event = { id = kirin_utility.43 days = 1 }
+			add_equipment_to_stockpile = { type = infantry_equipment amount = 2500 }
+		}
+		add_to_temp_variable = { KIRGetKSRConstituents = 1 }
+	}
+	if = {
+		limit = {
+			OR = {
+				KIC = { controls_state = 924 }
+				controls_state = 924
+			}
+		}
+		create_dynamic_country = {
+			original_tag = KIC
+			transfer_state = 924
+			every_core_state = { remove_core_of = PREV }
+			924 = { add_core_of = PREV }
+			set_capital = { state = 924 }
+			if = {
+				limit = {
+					OR = {
+						KIC = { controls_state = 1072 }
+						PREV = { controls_state = 1072 }
+					}
+				}
+				transfer_state = 1072
+				1072 = { add_core_of = PREV }
+			}
+			if = {
+				limit = {
+					OR = {
+						KIC = { controls_state = 925 }
+						PREV = { controls_state = 925 }
+					}
+				}
+				transfer_state = 925
+				925 = { add_core_of = PREV }
+			}
+			if = {
+				limit = {
+					OR = {
+						KIC = { controls_state = 923 }
+						PREV = { controls_state = 923 }
+					}
+				}
+				transfer_state = 923
+				923 = { add_core_of = PREV }
+			}
+			set_politics = { ruling_party = communism elections_allowed = no }
+			add_popularity = { ideology = communism popularity = 0.55 }
+			set_cosmetic_tag = MCT
+			retire_ideology_leader = fascism retire_ideology_leader = communism retire_ideology_leader = neutrality retire_ideology_leader = democratic
+			set_country_leader_portrait = { portrait = "GFX_portrait_unknown_kirin_male" }
+			set_country_leader_ideology = socialist_monarchism
+			load_focus_tree = blank_focus_tree reserve_dynamic_country = yes set_AI_strategies_on_every_possible_country_delayed = yes
+			FRV = { add_to_faction = PREV } set_country_flag = FRV_kirin_confederacy_member_flag country_event = { id = kirin_utility.43 days = 1 }
+			add_equipment_to_stockpile = { type = infantry_equipment amount = 2500 }
+		}
+		add_to_temp_variable = { KIRGetKSRConstituents = 1 }
+	}
+	if = {
+		limit = {
+			check_variable = { KIRGetKSRConstituents > 17 }
+		}
+		set_country_flag = FRV_whole_again_broke_again
+	}
+}
