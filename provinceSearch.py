@@ -71,3 +71,5 @@ if __name__ == "__main__":
                     'days_mission_timeout', 'BAT_labourers', 'id', 'add_equipment_to_stockpile', 'infantry_equipment',
                     'option', '#', 'legacy_id']
     search_in_directories(directories, number, ignore_words)
+    
+    #20308
