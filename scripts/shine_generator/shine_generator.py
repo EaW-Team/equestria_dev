@@ -50,7 +50,7 @@ TEMPLATE_SHINE_GFX_FILENAME = "focus_{name}_shine.gfx"
 
 # Default paths, generated from the current script path
 current_folder_path = pathlib.Path().resolve()
-DEFAULT_GRAMMAR_PATH = os.path.join(current_folder_path, "pdx_grammar", "pdx_scripts.tx")
+DEFAULT_GRAMMAR_PATH = os.path.join(current_folder_path, "..", "pdx_grammar", "pdx_scripts.tx")
 DEFAULT_DATABASE_PATH = os.path.join(current_folder_path, "category.json")
 
 # CLI arguments management
