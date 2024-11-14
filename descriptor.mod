@@ -1,4 +1,4 @@
-name="Equestria at War - Secret Dev"
+name="Equestria at War"
 replace_path="common/ai_equipment"
 replace_path="common/ai_focuses"
 replace_path="common/ai_peace"
@@ -41,4 +41,4 @@ tags={
 }
 picture="equestria.jpg"
 supported_version="1.15.*"
-path="mod/eaw-secret"
+path="mod/equestria"
