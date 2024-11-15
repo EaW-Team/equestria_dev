@@ -74,6 +74,6 @@ output_folder
 # Exemple
 ## Prerequisits and execution (Windows)
  * You need to first install [Python 3](https://www.python.org/downloads/release/python-3130/)
- * Open a powershell in the folder of the scripts by using MAJ+Right Click on an empty space of the folder
+ * Open a powershell in the folder of the scripts by using Shift+Right Click on an empty space of the folder
  * Install the prerequisits using the **requirements.txt** file using the command `pip install -r requirements.txt`
  * You can then launch the script directly using `python shine_generator.py <input> <output_folder>`
