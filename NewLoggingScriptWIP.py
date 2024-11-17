@@ -302,19 +302,21 @@ def format_logging_focuses(username, mod_name):
         mod_name (_type_): mod folder name
     """
     test_runner = TestRunner(username, mod_name)
-    filepath_to_focuses = f'{test_runner.full_path_to_mod}common\\national_focus\\'
+    filepath_to_focuses = f"{test_runner.full_path_to_mod}common\\national_focus\\"
 
     # Regular focus
     for filename in glob.iglob(filepath_to_focuses + '**/*.txt', recursive=True):
         text_file = FileOpener.open_text_file(filename, lowercase=False)
-        pattern_matches = re.findall('^\\tfocus = \\{.*?^\\t\\}', text_file, flags=re.MULTILINE | re.DOTALL)
+        pattern_matches = re.findall(r'^\s*focus = \{.*?^\s*\}', text_file, flags=re.MULTILINE | re.DOTALL)
         if len(pattern_matches) > 0:
             dict_with_str_to_replace = dict()
             for focus in pattern_matches:
-                focus_id = re.findall('^\\t\\tid = ([^\t\n ]+)', focus, flags=re.MULTILINE)[0]
+                focus_id = re.findall(r'^\s*id = ([^\s]+)', focus, flags=re.MULTILINE)[0]
 
-                select_effect = re.findall('(\\t+)select_effect = \\{([^\\n]*|.*?^\\1)\\}', focus, flags=re.DOTALL | re.MULTILINE)[0][1] if 'select_effect =' in focus else False
-                complete_effect = re.findall('(\\t+)completion_reward = \\{([^\\n]*|.*?^\\1)\\}', focus, flags=re.DOTALL | re.MULTILINE)[0][1] if 'completion_reward =' in focus else False
+                select_effect_match = re.findall(r'(\t+)select_effect = \{([^\n]*|.*?^\1)\}', focus, flags=re.DOTALL | re.MULTILINE)
+                select_effect = select_effect_match[0][1] if select_effect_match else False
+                complete_effect_match = re.findall(r'(\t+)completion_reward = \{([^\n]*|.*?^\1)\}', focus, flags=re.DOTALL | re.MULTILINE)
+                complete_effect = complete_effect_match[0][1] if complete_effect_match else False
 
                 expected_logging_line_select = 'log = "[GetDateText]: [Root.GetName]: Select Focus ' + focus_id + '"'
                 expected_logging_line_complete = 'log = "[GetDateText]: [Root.GetName]: Focus ' + focus_id + '"'
@@ -327,21 +329,21 @@ def format_logging_focuses(username, mod_name):
                 if select_effect:
                     if expected_logging_line_select not in select_effect:
                         if has_any_logging_select:
-                            str_to_replace_select = re.findall('select_effect = \\{.*\\n\\t+log =.*', focus)[0]
+                            str_to_replace_select = re.findall(r'select_effect = \{.*\n\t+log =.*', focus)[0]
                             fixed_focus_code = fixed_focus_code.replace(str_to_replace_select, 'select_effect = {\n\t\t\t' + expected_logging_line_select)
 
                         if not has_any_logging_select:
-                            str_to_replace_select = re.findall('select_effect = \\{', focus)[0]
+                            str_to_replace_select = re.findall(r'select_effect = \{', focus)[0]
                             fixed_focus_code = fixed_focus_code.replace(str_to_replace_select, 'select_effect = {\n\t\t\t' + expected_logging_line_select)
 
                 if complete_effect:
                     if expected_logging_line_complete not in complete_effect:
                         if has_any_logging_complete:
-                            str_to_replace_complete = re.findall('completion_reward = \\{.*\\n\\t+log =.*', focus)[0]
+                            str_to_replace_complete = re.findall(r'completion_reward = \{.*\n\t+log =.*', focus)[0]
                             fixed_focus_code = fixed_focus_code.replace(str_to_replace_complete, 'completion_reward = {\n\t\t\t' + expected_logging_line_complete)
 
                         if not has_any_logging_complete:
-                            str_to_replace_complete = re.findall('completion_reward = \\{', focus)[0]
+                            str_to_replace_complete = re.findall(r'completion_reward = \{', focus)[0]
                             fixed_focus_code = fixed_focus_code.replace(str_to_replace_complete, 'completion_reward = {\n\t\t\t' + expected_logging_line_complete)
 
                 if fixed_focus_code != focus:
@@ -355,14 +357,16 @@ def format_logging_focuses(username, mod_name):
     # Shared focus
     for filename in glob.iglob(filepath_to_focuses + '**/*.txt', recursive=True):
         text_file = FileOpener.open_text_file(filename, lowercase=False)
-        pattern_matches = re.findall('^shared_focus = \\{.*?^\\}', text_file, flags=re.MULTILINE | re.DOTALL)
+        pattern_matches = re.findall(r'^shared_focus = \{.*?^\}', text_file, flags=re.MULTILINE | re.DOTALL)
         if len(pattern_matches) > 0:
             dict_with_str_to_replace = dict()
             for focus in pattern_matches:
-                focus_id = re.findall('^\\tid = ([^\t\n ]+)', focus, flags=re.MULTILINE)[0]
+                focus_id = re.findall(r'^\s*id = ([^\s]+)', focus, flags=re.MULTILINE)[0]
 
-                select_effect = re.findall('(\\t+)select_effect = \\{([^\\n]*|.*?^\\1)\\}', focus, flags=re.DOTALL | re.MULTILINE)[0][1] if 'select_effect =' in focus else False
-                complete_effect = re.findall('(\\t+)completion_reward = \\{([^\\n]*|.*?^\\1)\\}', focus, flags=re.DOTALL | re.MULTILINE)[0][1] if 'completion_reward =' in focus else False
+                select_effect_match = re.findall(r'(\t+)select_effect = \{([^\n]*|.*?^\1)\}', focus, flags=re.DOTALL | re.MULTILINE)
+                select_effect = select_effect_match[0][1] if select_effect_match else False
+                complete_effect_match = re.findall(r'(\t+)completion_reward = \{([^\n]*|.*?^\1)\}', focus, flags=re.DOTALL | re.MULTILINE)
+                complete_effect = complete_effect_match[0][1] if complete_effect_match else False
 
                 expected_logging_line_select = 'log = "[GetDateText]: [Root.GetName]: Select Focus ' + focus_id + '"'
                 expected_logging_line_complete = 'log = "[GetDateText]: [Root.GetName]: Focus ' + focus_id + '"'
@@ -375,21 +379,21 @@ def format_logging_focuses(username, mod_name):
                 if select_effect:
                     if expected_logging_line_select not in select_effect:
                         if has_any_logging_select:
-                            str_to_replace_select = re.findall('select_effect = \\{.*\\n\\t+log =.*', focus)[0]
+                            str_to_replace_select = re.findall(r'select_effect = \{.*\n\t+log =.*', focus)[0]
                             fixed_focus_code = fixed_focus_code.replace(str_to_replace_select, 'select_effect = {\n\t\t' + expected_logging_line_select)
 
                         if not has_any_logging_select:
-                            str_to_replace_select = re.findall('select_effect = \\{', focus)[0]
+                            str_to_replace_select = re.findall(r'select_effect = \{', focus)[0]
                             fixed_focus_code = fixed_focus_code.replace(str_to_replace_select, 'select_effect = {\n\t\t' + expected_logging_line_select)
 
                 if complete_effect:
                     if expected_logging_line_complete not in complete_effect:
                         if has_any_logging_complete:
-                            str_to_replace_complete = re.findall('completion_reward = \\{.*\\n\\t+log =.*', focus)[0]
+                            str_to_replace_complete = re.findall(r'completion_reward = \{.*\n\t+log =.*', focus)[0]
                             fixed_focus_code = fixed_focus_code.replace(str_to_replace_complete, 'completion_reward = {\n\t\t' + expected_logging_line_complete)
 
                         if not has_any_logging_complete:
-                            str_to_replace_complete = re.findall('completion_reward = \\{', focus)[0]
+                            str_to_replace_complete = re.findall(r'completion_reward = \{', focus)[0]
                             fixed_focus_code = fixed_focus_code.replace(str_to_replace_complete, 'completion_reward = {\n\t\t' + expected_logging_line_complete)
 
                 if fixed_focus_code != focus:
