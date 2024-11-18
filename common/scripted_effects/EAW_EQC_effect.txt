@@ -436,16 +436,7 @@ EQC_initialize_parliament = {
 	
 	set_country_flag = EQC_parliament_active
 	
-	#Starting popularities
-	add_to_array = { EQC_party_popularity_array = 28 }
-	add_to_array = { EQC_party_popularity_array = 18 }
-	add_to_array = { EQC_party_popularity_array = 11 }
-	add_to_array = { EQC_party_popularity_array = 6 }
-	add_to_array = { EQC_party_popularity_array = 19 }
-	add_to_array = { EQC_party_popularity_array = 9 }
-	add_to_array = { EQC_party_popularity_array = 9 }
-	
-	#Utility token array
+	#Main token array
 	add_to_array = { EQC_party_token_array = token:jet_set_party }
 	add_to_array = { EQC_party_token_array = token:lufty_star_party }
 	add_to_array = { EQC_party_token_array = token:blueberry_frost_party }
@@ -454,88 +445,67 @@ EQC_initialize_parliament = {
 	add_to_array = { EQC_party_token_array = token:duke_haygle_party }
 	add_to_array = { EQC_party_token_array = token:picket_fence_party }
 	
+	set_variable = { EQC_party_popularity@token:jet_set_party = 28 }
+	set_variable = { EQC_party_popularity@token:lufty_star_party = 18 }
+	set_variable = { EQC_party_popularity@token:blueberry_frost_party = 11 }
+	set_variable = { EQC_party_popularity@token:maresoc_party = 6 }
+	set_variable = { EQC_party_popularity@token:kingfisher_party = 19 }
+	set_variable = { EQC_party_popularity@token:duke_haygle_party = 9 }
+	set_variable = { EQC_party_popularity@token:picket_fence_party = 9 }
+	
 	for_each_loop = {
 		array = EQC_party_token_array
 		value = v
 		index = i
 		
-		set_variable = { EQC_party@var:v = i }
+		#Some frame variables for the gui
+		set_variable = { EQC_party_coalition_btn_frame@var:v = 1 }
+		set_variable = { EQC_party_improve_relations_frame@var:v = 1 }
 	}
-	
-	#Initialize popularity frames array
-	resize_array = {
-		array = EQC_party_popularity_frames_array
-		size = EQC_party_token_array^num
-	}
-	
-	resize_array = {
-		array = EQC_party_coalition_partner_array
-		value = 1
-		size = EQC_party_token_array^num
-	}
-	
-	resize_array = {
-		array = EQC_party_improve_relations_frame_array
-		value = 1
-		size = EQC_party_token_array^num
-	}
-	
-	set_variable = { EQC_coalition_party_index = -1 }
-	#set_variable = { EQC_coalition_party_target_index = -1 }
 	
 	add_dynamic_modifier = { modifier = EQC_parliament_effects }
 	
 	EQC_update_parliament_chart = yes
-	
 }
 
 EQC_update_parliament_chart = {
 	set_temp_variable = { temp_frame_var = 100 }
 	
 	for_each_loop = {
-		array = EQC_party_popularity_array
+		array = EQC_party_token_array
 		value = v
 		index = i
 		
 		subtract_from_temp_variable = { temp_frame_var = temp_prev_popularity }
-		set_variable = { EQC_party_popularity_frames_array^i = temp_frame_var }
-		set_temp_variable = { temp_prev_popularity = v }
+		set_variable = { EQC_party_popularity_frame@var:v = temp_frame_var }
+		set_temp_variable = { temp_prev_popularity = EQC_party_popularity@var:v }
 	}
 	
 	add_to_variable = { EQC_parliament_dirty = 0.01 }
 }
 
 EQC_calculate_total_relations = {
-	resize_array = {
-		array = EQC_party_opinion_array
-		size = EQC_party_token_array^num
-	}
-	
 	for_each_loop = {
 		array = EQC_party_token_array
 		value = v
 		index = i
 		
-		set_temp_variable = { temp_total = 0 }
+		set_variable = { EQC_party_opinion@var:v = 0 }
 		for_each_loop = {
-			array = EQC_party_opinion@var:v
+			array = EQC_party_opinion_breakdown@var:v
 			value = w
 			index = j
 			
-			add_to_temp_variable = { temp_total = w }
+			add_to_variable = { EQC_party_opinion@var:v = w }
 		}
-		
-		set_variable = { EQC_party_opinion_array^i = temp_total }
 	}
 	
 	add_to_variable = { EQC_parliament_dirty = 0.01 }
 }
 
-EQC_break_current_coalition = {
-	set_temp_variable = { temp_token = EQC_party_token_array^EQC_coalition_party_index }	#Have to do this retarded shit, thanks PDX.
-					
+EQC_break_current_coalition = {				
 	for_each_loop = {
-		array = EQC_party_opinion_loc@var:temp_token
+		array = EQC_party_opinion_loc@var:EQC_coalition_partner
 		value = v
 		index = i
 		break = b
@@ -545,34 +515,32 @@ EQC_break_current_coalition = {
 				check_variable = { v = token:in_coalition_modifier }
 			}
 			remove_from_array = { 
-				array = EQC_party_opinion@var:temp_token
+				array = EQC_party_opinion_breakdown@var:EQC_coalition_partner
 				index = i 
 			}
 			remove_from_array = { 
-				array = EQC_party_opinion_loc@var:temp_token
+				array = EQC_party_opinion_loc@var:EQC_coalition_partner
 				index = i
 			}
 			set_temp_variable = { b = 1 }
 		}
 	}
 	
-	add_to_array = { EQC_party_opinion@var:temp_token = -25 }
-	add_to_array = { EQC_party_opinion_loc@var:temp_token = token:broke_coalition_modifier }
+	add_to_array = { EQC_party_opinion_breakdown@var:EQC_coalition_partner = -25 }
+	add_to_array = { EQC_party_opinion_loc@var:EQC_coalition_partner = token:broke_coalition_modifier }
 	EQC_calculate_total_relations = yes
 	
-	set_variable = { EQC_party_coalition_partner_array^EQC_coalition_party_index = 1 }
-	set_variable = { EQC_coalition_party_index = -1 }
+	set_variable = { EQC_party_coalition_btn_frame@var:EQC_coalition_partner = 1 }
 	
-	clr_country_flag = EQC_active_coalition
+	clear_variable = EQC_coalition_partner
 }
 
-#EQC_form_coalition = {
-#	set_temp_variable = { temp_token = EQC_party_token_array^EQC_coalition_party_index }
-#					
-#	add_to_array = { EQC_party_opinion@var:temp_token = 15 }
-#	add_to_array = { EQC_party_opinion_loc@var:temp_token = token:in_coalition_modifier }
-#	
-#	EQC_calculate_total_relations = yes
-#	
-#	set_country_flag = EQC_active_coalition
-#}
+#Use temp_target for the targert
+EQC_form_coalition = {
+	add_to_array = { EQC_party_opinion_breakdown@var:temp_target = 15 }
+	add_to_array = { EQC_party_opinion_loc@var:temp_target = token:in_coalition_modifier }
+	
+	set_variable = { EQC_coalition_partner = temp_target }
+	
+	EQC_calculate_total_relations = yes
+}
