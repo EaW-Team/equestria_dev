@@ -201,8 +201,7 @@ if __name__ == "__main__":
                 # print(filename, focus_name, current_keywords)
                 if len(current_keywords) > 0:
                     whitespace = orig_line[:-len(orig_line.lstrip())]
-                    unique_keywords = list(set(current_keywords))
-                    file.write(whitespace + "search_filters = { " + " ".join([str(i) for i in unique_keywords]) + " }\n")
+                    file.write(whitespace + "search_filters = { " + " ".join([str(i) for i in list(current_keywords)]) + " }\n")
                     current_keywords = set()
 
             if '{' in line:
