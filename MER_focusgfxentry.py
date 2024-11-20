@@ -58,10 +58,10 @@ parser.add_argument('icon_name', metavar='icon_name',
                     help='Name of the focus icon GFX entry (without GFX_ at the beginning)')
 parser.add_argument('-d' '--directory', metavar='directory', type=str, dest='directory', default=os.getcwd(), required=False,
                     help='Directory to look for .gfx files in (default: working directory)')
-parser.add_argument('--goals', metavar='goals', default="MER_goals.gfx", required=False,
-                    help='Name of the goals file (default:\"MER_goals.gfx\")')
-parser.add_argument('--goals_shine', metavar='goals_shine', default="MER_goals_shine.gfx", required=False,
-                    help='Name of the goals_shine file (default:\"MER_goals_shine.gfx\")')
+parser.add_argument('--goals', metavar='goals', default="eaw_MER_goals.gfx", required=False,
+                    help='Name of the goals file (default:\"eaw_MER_goals.gfx\")')
+parser.add_argument('--goals_shine', metavar='goals_shine', default="eaw_MER_goals_shine.gfx", required=False,
+                    help='Name of the goals_shine file (default:\"eaw_MER_goals_shine.gfx\")')
 
 args = parser.parse_args()
 
