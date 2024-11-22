@@ -74,6 +74,20 @@ output_folder
 # Exemple
 ## Prerequisits and execution (Windows)
  * You need to first install [Python 3](https://www.python.org/downloads/release/python-3130/)
- * Open a powershell in the folder of the scripts by using MAJ+Right Click on an empty space of the folder
+ * Open a powershell in the folder of the scripts by using Shift+Right Click on an empty space of the folder
  * Install the prerequisits using the **requirements.txt** file using the command `pip install -r requirements.txt`
- * You can then launch the script directly using `python shine_generator.py <input> <output_folder>`
+ * You can then launch the script directly using `python -s shine_generator.py <input> <output_folder>`
+  ## Case of a merge conflict
+When merging from a branche that does not have yet this new organization, or if there are still conflict in the goals files, you need to manage these conflicts.
+
+![Old GFX files](https://i.imgur.com/lb28Axq.png "Old GFX files")
+
+The procedure is the following:
+ 1. Localize the GFX entries missing. In case of a deleted file, it is simply the new lines that have been added on the current branch compared to the incoming changes.
+ 2. Put this change in one of the current GFX file, no need to sort them
+ 3. Finish the merge
+ 4. Execute `python .\shine_generator.py -s ..\..\interface\focus ../../interface/focus`.
+ 5. Commit the new files
+
+ ![New lines added in a file that doesn't exist anymore](https://i.imgur.com/LQlQZQx.png "New lines added in a file that doesn't exist anymore")
+![The new GFX entry added in a random file]( https://i.imgur.com/8d3DXlr.png "The new GFX entry added in a random file")
