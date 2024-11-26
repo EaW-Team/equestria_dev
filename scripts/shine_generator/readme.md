@@ -79,13 +79,15 @@ output_folder
  * You can then launch the script directly using `python -s shine_generator.py <input> <output_folder>`
   ## Case of a merge conflict
 When merging from a branche that does not have yet this new organization, or if there are still conflict in the goals files, you need to manage these conflicts.
+
 ![Old GFX files](https://i.imgur.com/lb28Axq.png "Old GFX files")
 
 The procedure is the following:
  1. Localize the GFX entries missing. In case of a deleted file, it is simply the new lines that have been added on the current branch compared to the incoming changes.
- ![New lines added in a file that doesn't exist anymore](https://i.imgur.com/LQlQZQx.png "New lines added in a file that doesn't exist anymore")
  2. Put this change in one of the current GFX file, no need to sort them
-  ![The new GFX entry added in a random file]( https://i.imgur.com/8d3DXlr.png "The new GFX entry added in a random file")
  3. Finish the merge
  4. Execute `python .\shine_generator.py -s ..\..\interface\focus ../../interface/focus`.
  5. Commit the new files
+
+ ![New lines added in a file that doesn't exist anymore](https://i.imgur.com/LQlQZQx.png "New lines added in a file that doesn't exist anymore")
+![The new GFX entry added in a random file]( https://i.imgur.com/8d3DXlr.png "The new GFX entry added in a random file")
