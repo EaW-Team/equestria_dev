@@ -327,7 +327,7 @@ on_actions = {
 									limit = {
 										has_country_flag = OLE_CHN_puppet
 									}
-									country_event = olenia.720
+									fire_OLE_CHN_puppet_removal = yes
 								}
 							}
 						}
@@ -1327,7 +1327,7 @@ on_actions = {
 							has_country_flag = CVA_zeirutid_assassinated
 						}
 						FROM = {
-							original_tag = CTH
+							tag = CTA
 						}
 					}
 					country_event = {
@@ -1814,6 +1814,82 @@ on_actions = {
 					}
 					add_core_of = EQS
 					clr_state_flag = eqs_bat_state
+				}
+				if = {		#GRF STG peacedeal
+					limit = {
+						original_tag = GRF
+						FROM = {
+							original_tag = STG
+						}
+					}
+					country_event = { id = griffons.143 days = 5 }
+				}
+				if = { # workaround to hopefully fix the weird GRF behavior
+					limit = {
+						original_tag = STG
+						FROM = {
+							original_tag = GRF
+						}
+						any_country_with_original_tag = {
+							original_tag_to_check = GRF
+							is_subject_of = ROOT
+						}
+					}
+					random_country_with_original_tag = {
+						original_tag_to_check = GRF
+						limit = {
+							is_subject_of = STG
+						}
+						country_event = { id = griffons.142 days = 5 }
+					}
+				}
+
+
+
+				# remove demilitarized flag if previous overlord no longer exists, has become a subject or if country gains a new overlord
+				# done to prevent countries from ending up with demilitarized puppets that don't want any				
+				FROM = {
+					if = {
+						limit = {
+							FROM = {
+								has_country_flag = demilitarized
+							}
+						}
+						if = {
+							limit = {
+								OR = {
+									if = {
+										limit = {
+											is_subject = yes
+										}
+										overlord = {
+											NOT = {
+												tag = FROM.overlord_before_pc
+											}
+										}
+									}
+									is_subject = no
+									var:overlord_before_pc = {
+										OR = {
+											exists = no
+											is_subject = yes
+										}
+									}
+								}
+							}
+							clr_country_flag = demilitarized
+							log = "[GetDateText]: ROOT: [Root.GetName] FROM: [From.GetName] demilitarized flag cleared"
+							set_temp_variable = {
+								current_overlord = overlord
+							}
+							# need to end puppet before puppeting anew or it will take lower possible autonomy instead of default
+							end_puppet_this = yes
+							var:current_overlord = {
+								puppet = FROM
+							}
+						}
+						clear_variable = overlord_before_pc
+					}
 				}
 				# if a country is an AI puppet with only one state and surrounded by another country, annex them to reduce bordergore
 				FROM = { country_event = { id = utility.10 hours = 1 } }
