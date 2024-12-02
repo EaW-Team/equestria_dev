@@ -1,4 +1,4 @@
-# Raid Categories (outdated)
+# Raid Categories
 ```
 raid_category_id = {
     intel_source = air # The intel type used to detect this raid. air, naval, army or civilian
@@ -8,6 +8,8 @@ raid_category_id = {
     available = {
         # Whether the category should be available (active) or not (country scope)
     }
+    free_targeting = yes # If set, the UI will let you use this category to target any province (as for nuclear raids)
+    # note that raid types still need province = any as the target type
 }
 ```
 
@@ -19,6 +21,7 @@ raid_type_id = {
 
 	custom_map_icon = GFX_ref [Optional] - override for the automatic icon lookup (if this is not set, will look for "GFX_raid_type_icon_{raid_name} )" 
     custom_terrain_icon = GFX_ref [Optional] - override for the automatic background based on target province terrain
+	target_loc_key = LOC_KEY #[Optional] - Custom loc key for overriding the target name. Use $LOCATION$ inside the loc key if you want to include the location name (state or VP).
 
 	unit_icon = GFX_ref
 	target_icon = GFX_ref
@@ -95,8 +98,6 @@ raid_type_id = {
 				is_coastal = yes # Optional
 			}
 			state = { <triggers> }
-			
-	target_loc_key = LOC_KEY [Optional] - Custom loc key for overriding the target name. Use $LOCATION$ if you want to include the location name (state or VP).
 	
     # Conditions on the starting point:
     starting_point = {
@@ -134,7 +135,7 @@ raid_type_id = {
         # will be collected after a raid is created
 		transport_plane_equipment = 5
 
-		nukes = 1					# number of nukes (if using nukes)
+		nukes = 1					# number of nukes (if using nukes). See: nuke_type
     }
 
 	additional_equipment = {
@@ -144,7 +145,7 @@ raid_type_id = {
 		# Note: ships (ship hulls) can also be used, and will be primarily be collected from existing fleets
 		ship_hull_light = 5
 
-		nukes = 1					# number of nukes (if using nukes)
+		nukes = 1					# number of nukes (if using nukes). See: nuke_type
 	}
 
 	nuke_type = nuclear_bomb		# type of nuke to use: nuclear_bomb or thermonuclear_bomb
@@ -206,9 +207,6 @@ There are four levels: *failure*, *limited_success*, *success*, and *critical_su
 
 The following effects are supported, taking *failure* as an example:
 
-Note that *actor_effects* and *victim_effects* both use the same scope, but separating them allows for
-easily separating them for UI purposes (showing separate lists of how the actor and victim country were affected by the outcome)
-
 ```
 failure = {
     # Effects that should be listed as affecting the raiding country
@@ -261,6 +259,12 @@ failure = {
 
 ```
 
+Note that *actor_effects* and *victim_effects* both use the same scope, but separating them allows for
+easily separating them for UI purposes (showing separate lists of how the actor and victim country were affected by the outcome)
+
+As another note on the terminology of these outcomes, unfortunately there were some changes to the naming during development which were not properly consolidated in time. 
+**Failure**, **Critical Failure** and **Disaster** all refer to the same thing (the worst outcome).
+
 # Success Chance Formulas & Modifiers
 
 "Success Chance Formulas" are essentially lists of different **modifiers** which can affect the probability of a certain
@@ -283,7 +287,7 @@ scripted in the same way through this formula construct.
 
 - *success* defines the probability of a raid being a success
 - *critical* defines the probability of a successful raid being a critical success (conditional probability)
-- *disaster* defines the probability of a raid being a disaster/critical failure (not conditional)
+- *disaster* defines the probability of a raid being a critical failure (not conditional)
 
 ### List of modifiers:
 - *prep_time*: The preparation progress. Reference values from 0.0 (no preparation) to 1.0 (full preparation).

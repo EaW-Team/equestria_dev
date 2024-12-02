@@ -43,7 +43,8 @@ TEMPLATE_SPRITETYPE_SHINE = """\tSpriteType = {{
 \t\t\tanimationtexturescale = {{ x = 1.0 y = 1.0 }}
 \t\t}}
 \t\tlegacy_lazy_load = no
-\t}}"""
+\t}}
+"""
 TEMPLATE_GFX_FILENAME = "focus_{name}.gfx"
 SHINE_FOLDER_NAME = "shine"
 TEMPLATE_SHINE_GFX_FILENAME = "focus_{name}_shine.gfx"
