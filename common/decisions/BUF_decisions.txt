@@ -286,3 +286,168 @@ BUF_balance_of_power_category = {
 		}
 	}
 }
+BUF_partisan_tactics_category = {
+	BUF_prepare_partisan_tactics_in_state = {
+		icon = generic_operation
+
+		priority = 10
+
+		state_target = yes
+
+		on_map_mode = map_and_decisions_view
+
+		target_array = ROOT.core_states
+
+		target_trigger = {
+			FROM = {
+				BUF_state_is_valid_for_partisan_tactics = yes
+				NOT = { has_dynamic_modifier = { modifier = BUF_partisan_tactics_modifier } }
+			}
+		}
+
+		visible = {
+			FROM = {
+				is_controlled_by = ROOT
+			}
+		}
+		
+		cancel_if_not_visible = yes
+
+		custom_cost_trigger = {
+			command_power > BUF_partisan_decision_cost_for_trigger
+			has_political_power > BUF_partisan_decision_cost_for_trigger
+		}
+		custom_cost_text = BUF_partisan_tactics_decision_cost_dynamic_cp_pp
+		ai_hint_pp_cost = 25 #It increases every time this decision is taken though
+
+		days_remove = 15
+
+		available = {
+			FROM = {
+				NOT = { has_dynamic_modifier = { modifier = BUF_partisan_tactics_modifier } }
+				is_controlled_by = ROOT
+			}
+		}
+
+		cancel_trigger = {
+			FROM = {
+				NOT = { is_controlled_by = ROOT }
+			}
+		}
+
+		cancel_effect = {
+			#Reset cost
+			hidden_effect = {
+				divide_variable = { BUF_partisan_decision_cost = BUF_partisan_decision_cost_increase }
+				set_variable = { BUF_partisan_decision_cost_for_trigger = BUF_partisan_decision_cost } #For trigger purposes
+				subtract_from_variable = { BUF_partisan_decision_cost_for_trigger = 1 } 
+			}
+		}
+
+		complete_effect = {
+			#Cost increase
+			hidden_effect = {
+				set_temp_variable = { BUF_remove_mana_cost = BUF_partisan_decision_cost }
+				multiply_temp_variable = { BUF_remove_mana_cost = -1 }
+				add_command_power = BUF_remove_mana_cost
+				add_political_power = BUF_remove_mana_cost
+				
+				multiply_variable = { BUF_partisan_decision_cost = BUF_partisan_decision_cost_increase }
+				set_variable = { BUF_partisan_decision_cost_for_trigger = BUF_partisan_decision_cost } #For trigger purposes
+				subtract_from_variable = { BUF_partisan_decision_cost_for_trigger = 1 } 
+			}
+
+			custom_effect_tooltip = BUF_partisan_tactics_cost_increase_tt
+		}
+
+		remove_effect = {
+			FROM = {	
+				add_dynamic_modifier = { modifier = BUF_partisan_tactics_modifier }
+			}
+		}
+
+		ai_will_do = {
+			base = 0.1
+			modifier = {
+				factor = 10
+				FROM = {
+					any_neighbor_state = {
+						controller = {
+							original_tag = SCS
+						}
+					}
+				}
+			}
+			modifier = {
+				factor = 10
+				FROM = {
+					any_neighbor_state = {
+						controller = {
+							has_war_with = ROOT
+						}
+					}
+				}
+			}
+			modifier = {
+				factor = 10
+				FROM = {
+					NOT = { is_fully_controlled_by = ROOT }
+				}
+			}
+		}
+	}
+
+	BUF_cancel_partisan_tactics_in_state = {
+		icon = GFX_decision_FIN_stop_motti_tactics
+
+		priority = 1
+
+		state_target = yes
+
+		on_map_mode = map_and_decisions_view
+
+		target_array = ROOT.core_states
+
+		target_trigger = {
+			FROM = {
+				has_dynamic_modifier = { modifier = BUF_partisan_tactics_modifier }
+			}
+		}
+
+		available = {
+			FROM = {
+				has_dynamic_modifier = { modifier = BUF_partisan_tactics_modifier }
+			}
+		}
+
+		complete_effect = {
+			FROM = {	
+				remove_dynamic_modifier = { modifier = BUF_partisan_tactics_modifier }
+			}
+
+			#Cost decrease
+			hidden_effect = {
+				divide_variable = { BUF_partisan_decision_cost = BUF_partisan_decision_cost_increase }
+				set_variable = { BUF_partisan_decision_cost_for_trigger = BUF_partisan_decision_cost } #For trigger purposes
+				subtract_from_variable = { BUF_partisan_decision_cost_for_trigger = 1 } 
+			}
+
+			custom_effect_tooltip = BUF_partisan_tactics_cost_decrease_tt
+		}
+
+		ai_will_do = {
+			base = 0.1
+			modifier = {
+				factor = 1000
+				FROM = {
+					is_fully_controlled_by = ROOT
+					all_neighbor_state = {
+						controller = {
+							NOT = { has_war_with = ROOT }
+						}
+					}
+				}
+			}
+		}
+	}
+}
