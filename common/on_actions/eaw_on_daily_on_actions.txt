@@ -1,4 +1,581 @@
 on_actions = {
+	# ROOT is country, this is ran for every country
+	on_daily = {
+		effect = {
+			if = {
+				limit = {
+					has_military_access_to = ROOT
+				}
+				diplomatic_relation = { country = ROOT relation = military_access active = no }
+			}
+			if = {
+				limit = {
+					has_guaranteed = ROOT
+				}
+				diplomatic_relation = { country = ROOT relation = guarantee active = no }
+			}
+			update_global_arrays = yes
+			adjust_research_modifier = yes
+			daily_fix_weapon_techs = yes
+			if = {
+				limit = {
+					NOT = { has_global_flag = river_federation_founded }
+					is_river_fed_member = yes
+					is_faction_leader = yes
+					any_allied_country = {
+						has_capitulated = no
+					}
+					NOT = { has_idea = RIV_leader_surrender_bonus }
+				}
+				add_ideas = RIV_leader_surrender_bonus
+			}
+			if = {
+				limit = { has_idea = GRF_got_mercs_delayed }
+				add_to_variable = { delayed_merc_payment_GRF = 1 }
+			}
+			if = {
+				limit = { has_idea = TRD_got_mercs_delayed }
+				add_to_variable = { delayed_merc_payment_TRD = 1 }
+			}
+			if = {
+				limit = {
+					has_tech = nukes
+				}
+				if = {
+					limit = {
+						has_idea = no_crystals_reactor_prevent
+						check_variable = { resource@crystals > -1 }
+					}
+					remove_ideas = no_crystals_reactor_prevent
+				}
+				else_if = {
+					limit = { check_variable = { resource@crystals < 0 } }
+					add_ideas = no_crystals_reactor_prevent
+				}
+				if = {
+					limit = {
+						NOT = { has_global_flag = first_nuke_done }
+						num_of_nukes > 0.99
+					}
+					news_event = { id = nuke_first.1 days = 1 }
+					set_global_flag = first_nuke_done
+				}
+			}
+			if = {
+				limit = {
+					OR = {
+						NOT = { has_event_target = griffonian_empire }
+						if = {
+							limit = { has_event_target = griffonian_empire }
+							event_target:griffonian_empire = { exists = no }
+						}
+					}
+					exists = yes
+					OR = {
+						AND = {
+							owns_state = 382
+							has_cosmetic_tag = GRIF_EMPIRE
+						}
+						if = {
+							limit = {
+								382 = {
+									owner = { NOT = { has_cosmetic_tag = GRIF_EMPIRE } }
+								}
+							}
+							tag = GRI
+						}
+					}
+				}
+				save_global_event_target_as = griffonian_empire
+				set_variable = { global.griffonian_empire_var = THIS }
+			}
+			if = {
+				limit = {
+					NOT = { has_event_target = longsword }
+					exists = yes
+					OR = {
+						original_tag = LNS
+						original_tag = LSM
+						original_tag = LSC
+					}
+				}
+				save_global_event_target_as = longsword
+			}
+			if = {
+				limit = {
+					OR = {
+						NOT = { has_event_target = equestria }
+						AND = {
+							has_event_target = equestria
+							event_target:equestria = {
+								NOT = {
+									original_tag = EQS
+									original_tag = ELF
+									original_tag = SOL
+								}
+							}
+						}
+					}
+				}
+				if = {
+					limit = {
+						has_event_target = solar_empire
+						event_target:solar_empire = { exists = yes has_government = fascism }
+					}
+					SOL = { save_global_event_target_as = equestria }
+				}
+				else_if = {
+					limit = {
+						ELF = {
+							exists = yes
+							has_completed_focus = ELF_middle_4
+						}
+					}
+					ELF = { save_global_event_target_as = equestria }
+				}
+				else = {
+					EQS = { save_global_event_target_as = equestria }
+				}
+			}
+			if = {
+				limit = {
+					original_tag = EQS
+					tag = event_target:solar_empire
+					OR = {
+						is_subject = yes
+						NOT = { has_government = fascism }
+					}
+				}
+				kill_ideology_leader = fascism
+				if = {
+					limit = { event_target:equestria = { exists = no } }
+					save_global_event_target_as = equestria
+				}
+				SOL = { save_global_event_target_as = solar_empire }
+				country_event = { id = solarempire.1018 }
+			}
+			else_if = {
+				limit = {
+					original_tag = MAN
+				}
+				if = {
+					limit = {
+						has_country_flag = MAN_unlocked_dynamic_modifier_flag
+					}
+					set_temp_variable = { MAN_dynamic_modifier_central_variable_TEMP = MAN_lovetax_variable }
+					divide_temp_variable = { MAN_dynamic_modifier_central_variable_TEMP = 100 }
+					set_variable = { MAN_dynamic_modifier_central_variable = MAN_dynamic_modifier_central_variable_TEMP }
+					if = {
+						limit = {
+							check_variable = {
+								var = MAN_dynamic_modifier_central_variable
+								value = 0.5
+								compare = less_than_or_equals
+							}
+						}
+						set_variable = { MAN_dynamic_modifier_central_variable_final = MAN_dynamic_modifier_central_variable }
+					}
+					else = {
+						set_variable = { MAN_dynamic_modifier_central_variable_final = 0.5 }
+					}
+				}
+				if = {
+					limit = {
+						has_country_flag = MAN_continuous_love_distribution_country_flag
+					}
+					subtract_from_variable = { var = MAN_lovetax_variable value = 0.005 }
+				}
+			}
+			else_if = {
+				limit = {
+					original_tag = CHN
+				}
+				if = { ### Changeling Division Limiter-cum-Love Consumption Mechanic ###
+					limit = {
+						has_completed_focus = CHN_post_war_5
+					}
+					### State Total (S) :  [ directly-controlled non-core states + (indirectly-controlled states / 2) ]
+					set_temp_variable = { CHN_weekly_love_gain_state_var_TEMP = CHN.num_of_controlled_states }
+					subtract_from_temp_variable = { CHN_weekly_love_gain_state_var_TEMP = CHN.num_core_states }
+					set_variable = { CHN_directly_controlled_noncorestates_var = CHN_weekly_love_gain_state_var_TEMP }
+					set_temp_variable = { CHN_weekly_love_gain_state_PUPPETS_var_TEMP = 0 }
+					for_each_scope_loop = {
+						array = subjects
+						add_to_temp_variable = { PREV.CHN_weekly_love_gain_state_PUPPETS_var_TEMP = num_controlled_states }
+					}
+					set_variable = { CHN_weekly_love_gain_state_PUPPETS_var = CHN_weekly_love_gain_state_PUPPETS_var_TEMP }
+					divide_temp_variable = { CHN_weekly_love_gain_state_PUPPETS_var_TEMP = 2 }
+					add_to_temp_variable = { CHN_weekly_love_gain_state_var_TEMP = CHN_weekly_love_gain_state_PUPPETS_var_TEMP }
+					set_variable = { CHN_weekly_love_gain_state_var = CHN_weekly_love_gain_state_var_TEMP }
+					### The above gives us (S)
+					set_temp_variable = { CHN_amount_of_allowed_battalions_TEMP = CHN_weekly_love_gain_state_var }
+					add_to_temp_variable = { CHN_amount_of_allowed_battalions_TEMP = 10 } ### base of 10 states
+					multiply_temp_variable = { CHN_amount_of_allowed_battalions_TEMP = 10 } ### 10 Battalions for each State
+					if = {
+						limit = {
+							has_idea = CHN_billeting_system
+						}
+						multiply_temp_variable = { CHN_amount_of_allowed_battalions_TEMP = 1.15 } ## +15% bonus from focus-unlocked idea ##
+					}
+					set_variable = { CHN_amount_of_allowed_battalions = CHN_amount_of_allowed_battalions_TEMP }
+					round_variable = CHN_amount_of_allowed_battalions
+					### ( ( 10 + (S) ) x 10 ) = Amount of Battalions allowed for Free ###
+					set_variable = { CHN_excess_battalions = 0 }
+					set_variable = { CHN_excess_battalions_cost = 0 }
+					if = {
+						limit = {
+							check_variable = { CHN_amount_of_allowed_battalions < CHN.num_battalions } ### if battalions exceed carrying capacity
+						}
+						set_temp_variable = { CHN_excess_battalions_TEMP = CHN.num_battalions }
+						subtract_from_temp_variable = { CHN_excess_battalions_TEMP = CHN_amount_of_allowed_battalions }
+						add_to_variable = { CHN_excess_battalions = CHN_excess_battalions_TEMP } ### total amount of excess battalions
+						set_temp_variable = { CHN_excess_battalions_cost_TEMP = CHN_excess_battalions }
+						multiply_temp_variable = { CHN_excess_battalions_cost_TEMP = 0.001 } ### extra Love cost of 0.001 erots per battalion
+						add_to_variable = { CHN_excess_battalions_cost = CHN_excess_battalions_cost_TEMP } ### total cost of excess battalions
+					} ### and then on_weekly to subtract Love cost from above, and a dynamic modifier that penalises having negative Love
+				}
+				if = {
+					limit = {
+						check_variable = { CHN_love_variable < 0 }
+					}
+					set_temp_variable = { CHN_penalty_from_love_deficit_var_TEMP = CHN_love_variable }
+					divide_temp_variable = { CHN_penalty_from_love_deficit_var_TEMP = 4 }
+					set_variable = { CHN_penalty_from_love_deficit_var = CHN_penalty_from_love_deficit_var_TEMP }
+					clamp_variable = {
+						var = CHN_penalty_from_love_deficit_var
+						min = -1.50
+						max = 0
+					}
+					add_dynamic_modifier = { modifier = CHN_love_deficit_dynamic_modifier }
+				}
+				if = {
+					limit = {
+						has_country_flag = CHN_continuous_love_harvesting_flag
+					}
+					set_temp_variable = { CHN_continuous_love_harvesting_LOVE_var_TEMP = CHN_weekly_love_gain_state_var }
+					divide_temp_variable = { CHN_continuous_love_harvesting_LOVE_var_TEMP = 20000 } ## that is, multiply by 0.005% ##
+					### Average Resistance Level Calculations ###
+					set_variable = { CHN_number_of_states_under_occupation_var = 0 }
+					set_variable = { CHN_resistance_level_of_number_of_states_under_occupation_var = 0 }
+					for_each_scope_loop = {
+						array = controlled_states
+						add_to_variable = { PREV.CHN_number_of_states_under_occupation_var = 1 }
+						add_to_variable = { PREV.CHN_resistance_level_of_number_of_states_under_occupation_var = THIS.resistance }
+					}
+					subtract_from_variable = { CHN_number_of_states_under_occupation_var = CHN.num_core_states }
+					set_temp_variable = { CHN_number_of_states_under_occupation_var_TEMP = CHN_number_of_states_under_occupation_var }
+					set_temp_variable = { CHN_resistance_level_of_number_of_states_under_occupation_var_TEMP = CHN_resistance_level_of_number_of_states_under_occupation_var }
+					divide_temp_variable = { CHN_resistance_level_of_number_of_states_under_occupation_var_TEMP = CHN_number_of_states_under_occupation_var_TEMP }
+					set_variable = { CHN_average_resistance_level_of_states_under_occupation_var = CHN_resistance_level_of_number_of_states_under_occupation_var_TEMP }
+					set_variable = { CHN_average_resistance_level_100_TEMP = 100 }
+					subtract_from_variable = { CHN_average_resistance_level_100_TEMP = CHN_average_resistance_level_of_states_under_occupation_var }
+					divide_variable = { CHN_average_resistance_level_100_TEMP = 100 } ## change to percentage ##
+					set_variable = { CHN_average_resistance_level_of_states_under_occupation_var_TEMP = CHN_average_resistance_level_100_TEMP }
+					###
+					multiply_temp_variable = { CHN_continuous_love_harvesting_LOVE_var_TEMP = CHN_average_resistance_level_of_states_under_occupation_var_TEMP }
+					if = {
+						limit = {
+							has_idea = CHN_love_refineries
+						}
+						multiply_temp_variable = { CHN_continuous_love_harvesting_LOVE_var_TEMP = 1.25 } ## +25% bonus from focus-unlocked idea ##
+					}
+					set_variable = { CHN_continuous_love_harvesting_LOVE_var = CHN_continuous_love_harvesting_LOVE_var_TEMP }
+					add_to_variable = { var = CHN_love_variable value = CHN_continuous_love_harvesting_LOVE_var }
+				}
+				if = {
+					limit = {
+						has_country_flag = CHN_acquired_pony_slave_dynamic_modifier
+					}
+					set_temp_variable = { CHN_acquired_pony_slave_dynamic_modifier_var_TEMP = CHN.core_compliance@EQS }
+					divide_temp_variable = { CHN_acquired_pony_slave_dynamic_modifier_var_TEMP = 1000 }
+					set_variable = { CHN_acquired_pony_slave_dynamic_modifier_var = CHN_acquired_pony_slave_dynamic_modifier_var_TEMP }
+				}
+				if = {
+					limit = {
+						has_global_flag = ZRS_uprising_has_happened
+						has_global_flag = CHN_ZRS_everfree_not_tamed
+						has_active_mission = CHN_chaos_in_the_everfree_ticking_mission
+					}
+
+					if = {
+						limit = { NOT = { has_country_flag = ever_free_max_spread } }
+						ZRS = {
+							var:everfree_chaos_state^CHN_chaos_in_the_everfree_days_elapsed_var = {
+								add_province_modifier = {
+									static_modifiers = { old_dragon_gardens }
+									province = { id = everfree_chaos_province^CHN_chaos_in_the_everfree_days_elapsed_var }
+								}
+							}
+							set_province_controller = everfree_chaos_province^CHN_chaos_in_the_everfree_days_elapsed_var
+						}
+					}
+					if = {
+						limit = { check_variable = { CHN_chaos_in_the_everfree_days_elapsed_var = 62 } }
+						set_country_flag = ever_free_max_spread
+					}
+
+					if = {
+						limit = { check_variable = { CHN_chaos_in_the_everfree_days_elapsed_var > 4 } }
+						CHN_up_the_ante_set_1 = yes
+					}
+					if = {
+						limit = { check_variable = { CHN_chaos_in_the_everfree_days_elapsed_var > 9 } }
+						CHN_up_the_ante_set_2 = yes
+					}
+					if = {
+						limit = { check_variable = { CHN_chaos_in_the_everfree_days_elapsed_var > 14 } }
+						CHN_up_the_ante_set_3 = yes
+					}
+					if = {
+						limit = { check_variable = { CHN_chaos_in_the_everfree_days_elapsed_var > 19 } }
+						CHN_up_the_ante_set_4 = yes
+					}
+					if = {
+						limit = { check_variable = { CHN_chaos_in_the_everfree_days_elapsed_var > 24 } }
+						CHN_up_the_ante_set_5 = yes
+					}
+					if = {
+						limit = { check_variable = { CHN_chaos_in_the_everfree_days_elapsed_var > 29 } }
+						CHN_up_the_ante_set_6 = yes
+					}
+					if = {
+						limit = { check_variable = { CHN_chaos_in_the_everfree_days_elapsed_var > 34 } }
+						CHN_up_the_ante_set_7 = yes
+					}
+					if = {
+						limit = { check_variable = { CHN_chaos_in_the_everfree_days_elapsed_var > 39 } }
+						CHN_up_the_ante_set_8 = yes
+					}
+					if = {
+						limit = { check_variable = { CHN_chaos_in_the_everfree_days_elapsed_var > 44 } }
+						CHN_up_the_ante_set_9 = yes
+					}
+					if = {
+						limit = { check_variable = { CHN_chaos_in_the_everfree_days_elapsed_var > 49 } }
+						CHN_up_the_ante_set_10 = yes
+					}
+					if = {
+						limit = { check_variable = { CHN_chaos_in_the_everfree_days_elapsed_var > 54 } }
+						CHN_up_the_ante_set_11 = yes
+					}
+					if = {
+						limit = { check_variable = { CHN_chaos_in_the_everfree_days_elapsed_var > 59 } }
+						CHN_up_the_ante_set_12 = yes
+					}
+
+					if = {
+						limit = { check_variable = { CHN_chaos_in_the_everfree_days_elapsed_var = 33 } }
+						country_event = { id = changelings_paxchrysalia.412 hours = 2 }
+					}
+
+					if = {
+						limit = { check_variable = { CHN_chaos_in_the_everfree_days_elapsed_var < 62 } }
+						add_to_variable = { var = CHN_chaos_in_the_everfree_days_elapsed_var value = 1 }
+					}
+
+				}
+			}
+			else_if = {
+				limit = {
+					original_tag = ZRS
+					has_war_with = CHN
+				}
+				if = {
+					limit = {
+						CHN = {
+							NOT = {
+								has_country_flag = CHN_everfree_thoroughly_defeated_decision_check_flag
+							}
+						}
+					}
+					ZRS = {
+						set_state_controller = 1
+						set_state_controller = 5
+					}
+				}
+				else_if = {
+					limit = {
+						CHN = {
+							has_country_flag = CHN_everfree_thoroughly_defeated_decision_check_flag
+						}
+					}
+					ZRS = {
+						random_list = {
+							1 = { set_state_controller = 1 }
+							2 = { }
+						}
+						random_list = {
+							1 = { set_state_controller = 5 }
+							2 = { }
+						}
+					}
+				}
+			}
+			if = {
+				limit = {
+					original_tag = JER
+					has_dynamic_modifier = {
+						modifier = JER_stability_weekly_mod
+					}
+					is_subject = no
+					has_stability < 0.6
+					NOT = {
+			            has_country_flag = JER_no_assembly
+			        }
+				}
+				update_JER_stability_weekly_mod = yes
+			}
+			#if = {
+			#	limit = {
+			#		SRS = {
+			#			exists = yes
+			#			is_subject = no
+			#			has_government = communism
+			#			NOT = { has_country_flag = SRS_turned_into_the_PGSC }
+			#		}
+			#	}
+			#	set_variable = { total_sum_of_internationalist_and_communalist_displeasure = 0 }
+			#   add_to_variable = { total_sum_of_internationalist_and_communalist_displeasure = displeasure_towards_communards_var }
+			#   add_to_variable = { total_sum_of_internationalist_and_communalist_displeasure = displeasure_towards_internationalists_var }
+			#   set_temp_variable = { internationalist_displeasure_as_a_percentage_ersatz = displeasure_towards_internationalists_var }
+			#   divide_temp_variable = { internationalist_displeasure_as_a_percentage_ersatz = total_sum_of_internationalist_and_communalist_displeasure }
+			#   set_variable = { internationalist_displeasure_as_a_percentage = internationalist_displeasure_as_a_percentage_ersatz }
+			#   set_temp_variable = { communalist_displeasure_as_a_percentage_ersatz = displeasure_towards_communards_var }
+			#   divide_temp_variable = { communalist_displeasure_as_a_percentage_ersatz = total_sum_of_internationalist_and_communalist_displeasure }
+			#   set_variable = { communalist_displeasure_as_a_percentage = communalist_displeasure_as_a_percentage_ersatz }
+			#}
+
+			if = {
+				limit = {
+					original_tag = CTH
+					has_country_flag = CTH_limited_CGI_war_flag
+					has_war_with = CGI
+					CGI = {
+						surrender_progress > 0.29
+					}
+				}
+				country_event = colthage_other.8
+			}
+			if = {
+				limit = {
+					OR = {
+						is_in_faction_with = JER
+						is_subject_of = JER
+					}
+				}
+				if = {
+					limit = {
+						JER = {
+							has_completed_focus = JER_joint_research_effort
+						}
+						NOT = {
+							is_in_tech_sharing_group = JER_research_group
+						}
+					}
+					add_to_tech_sharing_group = JER_research_group
+				}
+				if = {
+					limit = {
+						JER = {
+							has_completed_focus = JER_pan_socialist_science_committee
+						}
+						NOT = {
+							is_in_tech_sharing_group = JER_research_group_2
+						}
+					}
+					add_to_tech_sharing_group = JER_research_group_2
+				}
+				if = {
+					limit = {
+						JER = {
+							has_completed_focus = JER_permenant_transport_ties
+						}
+						NOT = {
+							has_idea = JER_permenant_transport_ties_idea
+						}
+					}
+					add_ideas = JER_permenant_transport_ties_idea
+				}
+				if = {
+					limit = {
+						JER = {
+							has_completed_focus = JER_no_tarrifs
+						}
+						NOT = {
+							has_idea = JER_no_tarrifs_idea
+						}
+					}
+					add_ideas = JER_no_tarrifs_idea
+				}
+				if = {
+					limit = {
+						JER = {
+							has_completed_focus = JER_joint_nuclear_research
+						}
+						NOT = {
+							has_idea = JER_joint_nuclear_research_idea
+						}
+					}
+					add_ideas = JER_joint_nuclear_research_idea
+				}
+				if = {
+					limit = {
+						JER = {
+							has_completed_focus = JER_bind_the_economies
+						}
+						is_subject_of = JER
+						NOT = {
+							has_idea = JER_bind_the_economies_idea
+						}
+					}
+					add_ideas = JER_bind_the_economies_idea
+				}
+			}
+			else_if = {
+                limit = {
+					EQC = {
+                        has_completed_focus = EQC_economic_exploitation
+					}
+					is_subject_of = EQC
+                    NOT = {
+						has_idea = EQC_economic_exploitation_idea
+                    }
+			    }
+				add_ideas = EQC_economic_exploitation_idea
+            }
+			if = {
+                limit = {
+					CVA = {
+                        has_completed_focus = CVA_CTH_2_i3
+					}
+					OR = {
+					    is_subject_of = CVA
+						is_in_faction_with = CVA
+					}
+                    NOT = {
+						has_idea = CVA_CTH_mutual_assistance_fund
+                    }
+			    }
+				add_ideas = CVA_CTH_mutual_assistance_fund
+            }
+			if = {
+                limit = {
+					CVA = {
+                        has_completed_focus = CVA_CTH_2_i5
+					}
+					OR = {
+						is_in_faction_with = CVA
+						is_subject_of = CVA
+					}
+					NOT = {
+						is_in_tech_sharing_group = CVA_CTH_research_group
+                    }
+			    }
+				add_to_tech_sharing_group = CVA_CTH_research_group
+            }
+		}
+	}
+
 	on_daily_WNG = {
 		effect = {
 			if = {
@@ -33,238 +610,7 @@ on_actions = {
 			}
 		}
 	}
-	on_daily_KIS = {
-		effect = {
-			if = {
-				limit = {
-					#has_country_flag = KIS_continuous_research_taken_flag
-					OR = {
-						has_idea = KIS_continuous_army_research_idea
-						has_idea = KIS_continuous_navy_research_idea
-						has_idea = KIS_continuous_air_research_idea
-						has_idea = KIS_continuous_industry_research_idea
-					}
-				}
-				subtract_from_variable = { 
-					var = KIS.TreasuryWealth
-					value = KIS.KIS_continuous_research_foci_cost
-				}
-			}
-		}
-	}
-	on_daily_KIC = {
-		effect = {
-			every_controlled_state = {
-				limit = {
-					check_variable = { KIC_state_actions_recruitment_COOLDOWN_var > 0 }
-				}
-				subtract_from_variable = { KIC_state_actions_recruitment_COOLDOWN_var = 1 }
-				clamp_variable = {
-					var = KIC_state_actions_recruitment_COOLDOWN_var
-					min = 0
-				}
-				add_to_variable = { KIC_state_actions_SG_DIRTY = 1 }
-			}
-			every_controlled_state = {
-				limit = {
-					check_variable = { KIC_state_actions_conscription_COOLDOWN_var > 0 }
-				}
-				subtract_from_variable = { KIC_state_actions_conscription_COOLDOWN_var = 1 }
-				clamp_variable = {
-					var = KIC_state_actions_conscription_COOLDOWN_var
-					min = 0
-				}
-				add_to_variable = { KIC_state_actions_SG_DIRTY = 1 }
-			}
-			every_state = {
-				limit = {
-					OR = {
-						region = 283
-						region = 316
-						region = 94
-						region = 85
-						region = 82
-						region = 79
-						region = 31
-					}
-					check_variable = { KIC_state_actions_uprising_COOLDOWN_var > 0 }
-				}
-				subtract_from_variable = { KIC_state_actions_uprising_COOLDOWN_var = 1 }
-				clamp_variable = {
-					var = KIC_state_actions_uprising_COOLDOWN_var
-					min = 0
-				}
-				add_to_variable = { KIC_state_actions_SG_DIRTY = 1 }
-			}
-			if = {
-				limit = {
-					has_country_flag = KIR_republic_focus_shared_4A_flag
-				}
-				add_equipment_to_stockpile = {
-					type = infantry_equipment_0
-					amount = 75
-				}
-			}
-			if = {
-				limit = {
-					has_war_with = UMC
-					UMC = {
-						surrender_progress > 0.75
-						OR = {
-							has_country_flag = UMC_revolt_spawned_WEST
-							has_country_flag = UMC_revolt_spawned_NORTH
-							has_country_flag = UMC_revolt_spawned_SOUTH
-						}
-					}
-				}
-				country_event = { id = kirin_republic.71 }
-			}
-			if = {
-				limit = {
-					has_war_with = UMC
-					UMC = {
-						surrender_progress > 0.75
-						count_triggers = { 
-							amount = 2
-							has_country_flag = UMC_revolt_spawned_WEST
-							has_country_flag = UMC_revolt_spawned_NORTH
-							has_country_flag = UMC_revolt_spawned_SOUTH
-						}
-					}
-				}
-				country_event = { id = kirin_republic.72 }
-			}
-		}
-	}
-	on_daily_KIR = {
-		effect = {
-			if = {
-				limit = {
-					has_country_flag = KIR_power_struggle_ongoing_flag
-				}
-				set_variable = { KIR_power_struggle_TOTAL_var = KIR.party_popularity@neutrality }
-				add_to_variable = { KIR_power_struggle_TOTAL_var = KIR.party_popularity@communism }
-				
-				set_variable = { KIR_power_struggle_WF_var = KIR.party_popularity@neutrality }
-				divide_variable = { KIR_power_struggle_WF_var = KIR_power_struggle_TOTAL_var }
-				multiply_variable = { KIR_power_struggle_WF_var = 100 }
 
-				set_variable = { KIR_power_struggle_RS_var = KIR.party_popularity@communism }
-				divide_variable = { KIR_power_struggle_RS_var = KIR_power_struggle_TOTAL_var }
-				multiply_variable = { KIR_power_struggle_RS_var = 100 }
-			}
-			if = {
-				limit = {
-					has_country_flag = KIR_STATE_SGUI_ENABLED
-				}
-				every_controlled_state = {
-					limit = {
-						OR = {
-							has_state_flag = KIR_STATE_HAS_H1_PALACE
-							has_state_flag = KIR_STATE_HAS_H2_PALACE
-							has_state_flag = KIR_STATE_HAS_H3_PALACE
-							has_state_flag = KIR_STATE_HAS_N1_PALACE
-							has_state_flag = KIR_STATE_HAS_N2_PALACE
-							has_state_flag = KIR_STATE_HAS_N3_PALACE
-							has_state_flag = KIR_STATE_HAS_N4_PALACE
-							has_state_flag = KIR_STATE_HAS_N5_PALACE
-							has_state_flag = KIR_STATE_HAS_C1_PALACE
-							has_state_flag = KIR_STATE_HAS_C2_PALACE
-							has_state_flag = KIR_STATE_HAS_C3_PALACE
-						}
-					}
-					subtract_from_variable = { KIR_STATE_SGUI_PALACE_TERM_TIMER = 1 }
-					clamp_variable = {
-						var = KIR_STATE_SGUI_PALACE_TERM_TIMER
-						min = 0
-					}
-					subtract_from_variable = { KIR_STATE_SGUI_PALACE_TERM_REMOVAL_TIMER = 1 }
-					clamp_variable = {
-						var = KIR_STATE_SGUI_PALACE_TERM_REMOVAL_TIMER
-						min = 0
-					}
-					if = {
-						limit = {
-							check_variable = { KIR_STATE_SGUI_PALACE_TERM_REMOVAL_TIMER < 1 }
-						}
-						# add state flag 1. Provincial Diet removed.
-						# add state flag 2, timer for 365 days. This is the grace period
-						# state event check for has state flag 1 but not state flag 2
-						# fires kirin.200, adding state dynamic modifier
-						# state flag 1 removed upon selection of new provincial diet.
-						if = {
-							limit = {
-								KIR = { has_country_flag = KIR_AUTO_RENEW_STATE_DIET }
-							}
-							if = {
-								limit = { has_state_flag = KIR_STATE_HAS_H1_PALACE }
-								KIR_STATE_PALACE_BUTTON_CLICK_EFFECT = yes
-								KIR_STATE_H1_PALACE_BUTTON_click_effect = yes
-							}
-							else_if = {
-								limit = { has_state_flag = KIR_STATE_HAS_H2_PALACE }
-								KIR_STATE_PALACE_BUTTON_CLICK_EFFECT = yes
-								KIR_STATE_H2_PALACE_BUTTON_click_effect = yes
-							}
-							else_if = {
-								limit = { has_state_flag = KIR_STATE_HAS_H3_PALACE }
-								KIR_STATE_PALACE_BUTTON_CLICK_EFFECT = yes
-								KIR_STATE_H3_PALACE_BUTTON_click_effect = yes
-							}
-							else_if = {
-								limit = { has_state_flag = KIR_STATE_HAS_N1_PALACE }
-								KIR_STATE_PALACE_BUTTON_CLICK_EFFECT = yes
-								KIR_STATE_N1_PALACE_BUTTON_click_effect = yes
-							}
-							else_if = {
-								limit = { has_state_flag = KIR_STATE_HAS_N2_PALACE }
-								KIR_STATE_PALACE_BUTTON_CLICK_EFFECT = yes
-								KIR_STATE_N2_PALACE_BUTTON_click_effect = yes
-							}
-							else_if = {
-								limit = { has_state_flag = KIR_STATE_HAS_N3_PALACE }
-								KIR_STATE_PALACE_BUTTON_CLICK_EFFECT = yes
-								KIR_STATE_N3_PALACE_BUTTON_click_effect = yes
-							}
-							else_if = {
-								limit = { has_state_flag = KIR_STATE_HAS_N4_PALACE }
-								KIR_STATE_PALACE_BUTTON_CLICK_EFFECT = yes
-								KIR_STATE_N4_PALACE_BUTTON_click_effect = yes
-							}
-							else_if = {
-								limit = { has_state_flag = KIR_STATE_HAS_N5_PALACE }
-								KIR_STATE_PALACE_BUTTON_CLICK_EFFECT = yes
-								KIR_STATE_N5_PALACE_BUTTON_click_effect = yes
-							}
-							else_if = {
-								limit = { has_state_flag = KIR_STATE_HAS_C1_PALACE }
-								KIR_STATE_PALACE_BUTTON_CLICK_EFFECT = yes
-								KIR_STATE_C1_PALACE_BUTTON_click_effect = yes
-							}
-							else_if = {
-								limit = { has_state_flag = KIR_STATE_HAS_C2_PALACE }
-								KIR_STATE_PALACE_BUTTON_CLICK_EFFECT = yes
-								KIR_STATE_C2_PALACE_BUTTON_click_effect = yes
-							}
-							else_if = {
-								limit = { has_state_flag = KIR_STATE_HAS_C3_PALACE }
-								KIR_STATE_PALACE_BUTTON_CLICK_EFFECT = yes
-								KIR_STATE_C3_PALACE_BUTTON_click_effect = yes
-							}
-							else = {
-								KIR_STATE_PALACE_BUTTON_CLICK_EFFECT = yes
-							}
-						}
-						else = {
-							KIR_STATE_PALACE_BUTTON_CLICK_EFFECT = yes
-						}
-					}
-					add_to_variable = { KIR_STATE_SGUI_DIRTY = 1 }
-				}
-			}
-		}
-	}
-	
 	on_daily_BAL = {
 		effect = {
 			if = {
@@ -284,6 +630,20 @@ on_actions = {
 				}
 				country_event = baltimare.20
 			}
+			if = {
+                limit = {
+					has_country_flag = is_changeling_puppet
+				}
+				get_BAL_PRO_no_recruits = yes
+				get_BAL_PRO_resistance = yes
+				get_BAL_PRO_natives = yes
+				if = {
+					limit = {
+						has_country_flag = BAL_PRO_blood_cult
+					}
+					get_BAL_PRO_cults = yes
+				}
+			}
 		}
 	}
 	on_daily_JUN = {
@@ -302,7 +662,7 @@ on_actions = {
 							country_exists = NMS
 						}
 					}
-					
+
 				}
 				country_event = jungle.8
 			}
@@ -329,6 +689,33 @@ on_actions = {
 			}
 		}
 	}
+	on_daily_CES = {
+		effect = {
+			if = {
+				limit = {
+					has_focus_tree = celestial_state_civil_war_focus
+					NOT = {
+						has_war_with = JUN
+						has_war_with = BAL
+						has_war_with = NMS
+						count_triggers = {
+							amount = 2
+							country_exists = CES
+							country_exists = JUN
+							country_exists = NMS
+						}
+					}
+				}
+				country_event = daring.10
+			}
+
+			if = {
+				limit = { has_country_flag = CES_artifact_window_enable }
+
+				add_to_variable = { CES_artifact_window_update = 1 }
+			}
+		}
+	}
 	on_daily_TBK = {
 		effect = {
 			if = {
@@ -345,8 +732,6 @@ on_actions = {
 					country_event = { id = tobuck_start.31 }
 				}
 			}
-		}
-		effect = {
 			if = {
 				limit = {
 					original_tag = TBK
@@ -589,16 +974,16 @@ on_actions = {
 				}
 				set_variable = { davirt_frame = CTL_eva_influence }
 				add_to_variable = { davirt_frame = CTL_davirt_influence }
-				
+
 				set_variable = { jakob_frame = CTL_eva_influence }
 				add_to_variable = { jakob_frame = CTL_davirt_influence }
 				add_to_variable = { jakob_frame = CTL_jakub_influence }
-				
+
 				set_variable = { eva_x_pos = 404 }
 				divide_variable = { eva_x_pos = 200 }
 				multiply_variable = { eva_x_pos = CTL_eva_influence }
 				subtract_from_variable = { eva_x_pos = 40 }
-				
+
 				set_variable = { davirt_x_pos = 404 }
 				divide_variable = { davirt_x_pos = 200 }
 				multiply_variable = { davirt_x_pos = CTL_davirt_influence }
@@ -607,7 +992,7 @@ on_actions = {
 				divide_temp_variable = { added = 100 }
 				multiply_temp_variable = { added = 404 }
 				add_to_variable = { davirt_x_pos = added }
-				
+
 				set_variable = { jakob_x_pos = 404 }
 				divide_variable = { jakob_x_pos = 200 }
 				multiply_variable = { jakob_x_pos = CTL_jakub_influence }
@@ -617,7 +1002,7 @@ on_actions = {
 				divide_temp_variable = { added = 100 }
 				multiply_temp_variable = { added = 404 }
 				add_to_variable = { jakob_x_pos = added }
-				
+
 				set_variable = { axis_x_pos = 404 }
 				divide_variable = { axis_x_pos = 200 }
 				multiply_variable = { axis_x_pos = CTL_axis_influence }
@@ -628,7 +1013,7 @@ on_actions = {
 				divide_temp_variable = { added = 100 }
 				multiply_temp_variable = { added = 404 }
 				add_to_variable = { axis_x_pos = added }
-				
+
 				add_to_variable = { CTL_intrigue_dirty = 0.01 }
 			}	
 		}
@@ -656,7 +1041,7 @@ on_actions = {
 					}
         		}
 				remove_ideas = CHN_infiltrators_army
-				CHN = { 
+				CHN = {
 					country_event = changelings.54
 				}
         	}
@@ -706,7 +1091,7 @@ on_actions = {
 						hours = 6
 						random_hours = 8
 					}
-					
+
 				}
 				# Army Morale Boost
 				IF = {
@@ -859,6 +1244,180 @@ on_actions = {
 						random_hours = 8
 					}
 				}
+			}
+			if = {
+				limit = {
+					NOT = { has_idea = CHN_operation_river_idea }
+					has_tech = CHN_operation_river_tech
+				}
+				set_technology = {
+					popup = no
+					CHN_operation_river_tech = 0
+				}
+			}
+		}
+	}
+	on_daily_BAT = {
+		effect = {
+			if = {
+				limit = {
+					tag = BAT
+					has_country_flag = BAT_resistance_enabled
+				}
+				if = {
+					limit = {
+						check_variable = {
+							BAT_tobuck_intel = 100
+						}
+						NOT = { has_country_flag = BAT_partisan_arrows_tobuck_shown }
+					}
+					set_country_flag = BAT_partisan_arrows_show
+					set_country_flag = BAT_partisan_arrows_tobuck_shown
+				}
+				if = {
+					limit = {
+						check_variable = {
+							BAT_zarantia_intel = 100
+						}
+						NOT = { has_country_flag = BAT_partisan_arrows_zarantia_shown }
+					}
+					set_country_flag = BAT_partisan_arrows_show
+					set_country_flag = BAT_partisan_arrows_zarantia_shown
+				}
+				if = {
+					limit = {
+						check_variable = {
+							BAT_slave_intel = 100
+						}
+						NOT = { has_country_flag = BAT_partisan_arrows_slave_shown }
+					}
+					set_country_flag = BAT_partisan_arrows_show
+					set_country_flag = BAT_partisan_arrows_slave_shown
+				}
+			}
+			if = {
+				limit = {
+					has_country_flag = BAT_resistance_enabled
+					OR = {
+						has_completed_focus = BAT_special_zones
+						has_completed_focus = BAT_special_zones_2
+					}
+				}
+				if = {
+					limit = {
+						has_country_flag = BAT_tobuck_alive
+					}
+					for_each_scope_loop = {
+						array = WAR.core_states
+						if = {
+							limit = {
+								is_controlled_by = ROOT
+								has_resistance = yes
+								occupation_law = BAT_local_commissariat
+							}
+							ROOT = {
+								add_to_variable = {
+									BAT_tobuck_intel = 0.05
+								}
+							}
+						}
+					}
+					for_each_scope_loop = {
+						array = ZUM.core_states
+						if = {
+							limit = {
+								is_controlled_by = ROOT
+								has_resistance = yes
+								occupation_law = BAT_local_commissariat
+							}
+							ROOT = {
+								add_to_variable = {
+									BAT_tobuck_intel = 0.05
+								}
+							}
+						}
+					}
+				}
+				if = {
+					limit = {
+						has_country_flag = BAT_zarantia_alive
+					}
+					for_each_scope_loop = {
+						array = ZAR.core_states
+						if = {
+							limit = {
+								is_controlled_by = ROOT
+								has_resistance = yes
+								occupation_law = BAT_local_commissariat
+							}
+							ROOT = {
+								add_to_variable = {
+									BAT_zarantia_intel = 0.05
+								}
+							}
+						}
+					}
+				}
+				if = {
+					limit = {
+						has_country_flag = BAT_slave_alive
+					}
+					for_each_scope_loop = {
+						array = TBK.core_states
+						if = {
+							limit = {
+								is_controlled_by = ROOT
+								has_resistance = yes
+								occupation_law = BAT_local_commissariat
+							}
+							ROOT = {
+								add_to_variable = {
+									BAT_slave_intel = 0.05
+								}
+							}
+						}
+					}
+				}
+				calculate_intel_levels = yes
+			}
+		}
+	}
+	on_daily_ZES = {
+		effect = {
+			if = {
+				limit = {
+					OR = {
+						559 = { is_owned_and_controlled_by = ROOT }
+						599 = { is_owned_and_controlled_by = ROOT }
+						600 = { is_owned_and_controlled_by = ROOT }
+						512 = { is_owned_and_controlled_by = ROOT }
+						514 = { is_owned_and_controlled_by = ROOT }
+						630 = { is_owned_and_controlled_by = ROOT }
+						594 = { is_owned_and_controlled_by = ROOT }
+						595 = { is_owned_and_controlled_by = ROOT }
+						623 = { is_owned_and_controlled_by = ROOT }
+					}
+				}
+				country_event = { id = kasa.85 days = 85 random_hours = 120 }
+			}
+			if = {
+				limit = {
+					has_idea = modern_society
+					has_idea = proper_science_base
+				}
+				country_event = { id = kasa.91 days = 65 random_hours = 200 }
+			}
+		}
+	}
+	on_daily_OLV = {
+		effect = {
+			if = {
+				limit = {
+					has_country_flag = OLV_character_creation_finished
+				}
+				get_OLV_warriors_idea = yes
+				get_OLV_commoners_idea = yes
+				get_OLV_noble_idea = yes
 			}
 		}
 	}
