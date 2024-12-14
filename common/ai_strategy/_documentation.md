@@ -5,7 +5,7 @@ Try to keep this reasonably up-to-date, please.
 -------------------------
 
 ## List of available strategy tokens
-(updated 2024-07)
+(updated 2024-11)
 
 ### Related to diplomacy
 - `alliance`
@@ -68,6 +68,7 @@ Try to keep this reasonably up-to-date, please.
 - `operation_equipment_priority`
 - `operative_mission`
 - `operative_operation`
+- `become_spymaster`
 
 ### Related to production and resources
 - `added_military_to_civilian_factory_ratio`
@@ -654,5 +655,14 @@ ai_strategy = {
 	type = raid_target_country
 	id = GER # The target country
 	value = 200  # Defines how the probability is affected. 200 means +200 %, -50 means -50 %
+}
+```
+
+### `become_spymaster`
+Used to set weight for a faction leader to become spymaster if not already a spymaster
+```
+ai_strategy = {
+	type = become_spymaster
+	value = 30 # Weight value for pp spend to become spymaster
 }
 ```
