@@ -36,7 +36,7 @@ STG_advisors_init = {
 	## Tick of the advisors
 	clear_array = KRMLK_ticks
 	resize_array = { array = KRMLK_ticks value = -1 size = 5 }
-	
+
 	add_to_variable = { KRMLK_dirty = 0.01 }
 }
 
@@ -55,13 +55,106 @@ KRMLK_set_tick = {
 KRMLK_find_index = {
 	for_each_loop = {
 		array = KRMLK_active_advisors
-		break = b
+		value = find_v
+		index = find_i
 		if = {
 			limit = {
-				check_variable = { v = temp_value }
+				check_variable = { find_v = temp_value }
 			}
-			set_temp_variable = { out_index = i }
-			set_temp_variable = { b = 1 }
+			set_temp_variable = { out_index = find_i }
 		}
 	}
 }
+
+#################
+### Front End ###
+#################
+
+## Adds an advisor to the pool of selectable advisors
+# Arguments: temp_advisor
+STG_KRMLK_add_to_available_advisors = {
+	add_to_array = { KRMLK_available_advisors = temp_advisor }
+	custom_effect_tooltip = STG_KRMLK_add_to_available_advisors_tt
+	add_to_variable = { KRMLK_dirty = 0.01 }
+}
+
+## Removes an advisor from the pool of selectable advisors and the active advisor board if active
+# Arguments: temp_advisor
+STG_KRMLK_remove_from_available_advisors = {
+	custom_effect_tooltip = STG_KRMLK_remove_from_available_advisors_tt
+	hidden_effect = {
+		if = {
+			limit = {
+				is_in_array = { KRMLK_available_advisors = temp_advisor }
+			}
+			remove_from_array = { KRMLK_available_advisors = temp_advisor }
+		}
+		else_if = {
+			limit = {
+				is_in_array = { KRMLK_active_advisors = temp_advisor }
+			}
+			set_temp_variable = { temp_value = temp_advisor }
+			KRMLK_find_index = yes
+
+			set_variable = { KRMLK_active_advisors^out_index = token:STG_KRMLK_no_advisor }
+			set_variable = { KRMLK_ticks^out_index = -1 }
+			meta_effect = {
+				text = {
+					remove_ideas = [INPUT]
+				}
+				INPUT = "[?temp_advisor.GetTokenKey]"
+			}
+		}
+	}
+	add_to_variable = { KRMLK_dirty = 0.01 }
+}
+
+## Removes this advisor and puts them on cooldown
+# Arguments: temp_advisor, temp_cooldown
+STG_KRLMK_set_cooldown = {
+	custom_effect_tooltip = STG_KRLMK_set_cooldown_tt
+	hidden_effect = {
+		set_temp_variable = { temp_value = temp_advisor }
+		KRMLK_find_index = yes
+		set_variable = { KRMLK_active_advisors^out_index = token:STG_KRMLK_no_advisor }
+		set_variable = { KRMLK_ticks^out_index = -1 }
+		meta_effect = {
+			text = {
+				remove_ideas = [INPUT]
+			}
+			INPUT = "[?temp_advisor.GetTokenKey]"
+		}
+	}
+	add_to_variable = { KRMLK_dirty = 0.01 }
+}
+
+### Effects for advisor ticks ###
+# Format: <advisor token ID>_effect
+# gets triggered from eaw_on_daily_on_actions.txt when respective tick reaches -1
+# search keyword "Karamelka"
+
+STG_KRMLK_test_1_tick_effect = {
+	random_owned_controlled_state = {
+		add_extra_state_shared_building_slots = 1
+		add_building_construction = {
+			type = arms_factory
+			level = 1
+			instant_build = yes
+		}
+	}
+	set_temp_variable = { temp_advisor = token:STG_KRMLK_test_1 }
+	set_temp_variable = { temp_cooldown = 5 }
+	STG_KRLMK_set_cooldown = yes
+	add_to_variable = { KRMLK_dirty = 0.01 }
+}
+
+STG_KRMLK_test_2_tick_effect = {
+}
+
+STG_KRMLK_test_3_tick_effect = {
+}
+
+
+
+# Ignore
+STG_KRMLK_no_advisor_tick_effect = {}
