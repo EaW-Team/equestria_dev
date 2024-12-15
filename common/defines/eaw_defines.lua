@@ -6,7 +6,7 @@ NDefines.NDiplomacy.TENSION_TIME_SCALE_START_DATE = "1007.1.1.12"
 NDefines.NDiplomacy.VOLUNTEERS_DIVISIONS_REQUIRED = 10
 NDefines.NDiplomacy.MAX_OPINION_VALUE = 200							-- Max opinion value cap.
 NDefines.NDiplomacy.MIN_OPINION_VALUE = -200						-- Min opinion value cap.
-NDefines.NDiplomacy.TENSION_PUPPET = 0
+NDefines.NDiplomacy.TENSION_PUPPET = 0.75 -- vanilla is 1.25
 NDefines.NDiplomacy.PEACE_SCORE_DISTRIBUTION = { 0.2, 0.2, 0.2, 0.2, 0.2, 0.2, 0.2, 0.2, 0.2, 0.2, 0.2, 0.2, 0.2, 0.2, 0.2, 0.2, 0.2, 0.2, 0.2, 0.2, 0.2, 0.2, 0.2, 0.2, 0.2 } -- How much of the total peace conference score you get during the first n turns.
 NDefines.NDiplomacy.PEACE_CONTEST_REFUND_FACTOR = { 1.0, 0.90, 0.80, 0.70, 0.60, 0.50 } -- How much of the spent peace conference score that gets refunded in a contest. First element applies for the first round of conflicts, second element for the second round of conflicts, etc. The final element is used for each consecutive turn, so setting that to e.g. 0.7 means you get 70 % of the spent score back for every turn thereafter.
 NDefines.NDiplomacy.EQUIPMENT_PURCHASE_ACCEPTANCE_COMPETING_FACTIONS = 0
@@ -24,6 +24,7 @@ NDefines.NCountry.FEMALE_UNIT_LEADER_BASE_CHANCE = {
     0.5, -- navy leaders
     0.5, -- air leaders
     0.5, -- operatives
+    0.5, -- scientists
 }
 
 NDefines.NResistance.GARRISON_MANPOWER_LOST_BY_ATTACK = 0.01 	-- Ratio of manpower lost by garrison at each attack on garrison (this number will be reduced by the hardness of garrison template)
@@ -35,6 +36,7 @@ NDefines.NProduction.CAPITAL_SHIP_MAX_NAV_FACTORIES_PER_LINE = 10 -- vanilla is 
 NDefines.NProduction.RAILWAY_GUN_MAX_MIL_FACTORIES_PER_LINE = 10 -- vanilla is 5
 NDefines.NProduction.BASE_FACTORY_SPEED_NAV = 3.5 -- vanilla is 2.5
 NDefines.NProduction.MINIMUM_NUMBER_OF_FACTORIES_TAKEN_BY_CONSUMER_GOODS_PERCENT = 0.05 -- vanilla is 0.1
+NDefines.NProduction.MAX_EQUIPMENT_RESOURCES_NEED = 4
 
 
 NDefines.NMilitary.PLAN_EXECUTE_CAREFUL_MAX_FORT = 4
