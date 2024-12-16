@@ -109,9 +109,6 @@ raid_type_id = {
 	preparation_time = INT # number of days
 	cost = INT # Command Power Allocation
 
-	target_requirements = {  } # air_superiority = percentage / naval_supremacy = percentage (in air region over target / adjacent sea zone) Defaults to NONE
-	target_requirement_time = INT # Number of days
-
 	unit_requirements = {
 		# Battalions...
 		battalion_types = {  # Optional
@@ -197,7 +194,7 @@ Map icons can be assigned in the following ways:
 2. A custom scripted icon set through "custom_map_icon = [name]"
 
 In both of the above cases, the system will also try to find a customized icon for the target building type, by appending the building template to the end of the string:
-[1. or 2. from above] + "_" + [building_template_name]
+`[1. or 2. from above] + "_" + [building_template_name]`
 
 # Raid Outcomes
 
