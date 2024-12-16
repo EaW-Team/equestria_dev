@@ -3299,21 +3299,29 @@ ABY_AF_zebtropa_project_cat = {
 			hidden_effect = {
 				#Initialize variables to drain the sea
 				set_variable = { zebtropa_sea_level_drop = 0 }
+				set_variable = { zebtropa_draining_level = 1 }
+
 				set_variable = { zebtropa_dam_power_output = 1 }
-				set_variable = { zebtropa_teraliters = 0 }
+				set_variable = { zebtropa_dam_power_output_per_m = 0.1 }
+
+				set_variable = { zebtropa_petaliters = 0 }
+				set_variable = { zebtropa_petaliters_per_m = 2 }
+
 				set_variable = { zebtropa_next_designation_threshold = 100 }
+				set_variable = { ABY_AF_zebtropa_solar_buff = 0 }
+
 				country_event = { id = katzen_AF.607 days = 180 }
 				set_country_flag = ABY_AF_zebtropa_dam_completed
 			}
 			custom_effect_tooltip = ABY_AF_zebtropa_dam_decision_tt
 			# TODO WUW CLOSE THE STRAIT?
-			add_ideas = ABY_AF_the_zebtropa_dam_idea
+			add_dynamic_modifier = { modifier = ABY_AF_the_zebtropa_dam_modifier }
 			hidden_effect = { news_event = { id = katzen_AF.505 } }
 		}
 	}
 
 	ABY_AF_build_zebtropa_mirror_array = {
-		icon = GFX_decision_category_generic_political_actions
+		icon = celestia
 
 		allowed = {
 			original_tag = ABY
@@ -3332,7 +3340,7 @@ ABY_AF_zebtropa_project_cat = {
 
 		cost = 25
 		days_remove = 180
-		on_map_mode = map_and_decisions_view
+		on_map_mode = map_only
 		state_target = any_controlled_state
 		modifier = {
 			civilian_factory_use = 100
@@ -3389,14 +3397,15 @@ ABY_AF_zebtropa_project_cat = {
 		complete_effect = {
 			log = "[GetDateText]: [Root.GetName]: Decision ABY_AF_zebtropa_settlement_designation target: [From.GetName]"
 			custom_effect_tooltip = ABY_AF_zebtropa_seabed_designation_tt
+			FROM = { subtract_from_variable = { zebtropa_state_spec_count = 1 } }
 		}
 
 		remove_effect = {
-			log = "[GetDateText]: [Root.GetName]: Decision ABY_AF_zebtropa_settlement_designation ABY_AF_build_zebtropa_mirror_array target: [From.GetName]"
+			log = "[GetDateText]: [Root.GetName]: Decision ABY_AF_zebtropa_settlement_designation target: [From.GetName]"
 			FROM = {
 				add_extra_state_shared_building_slots = 2
 				add_manpower = 100000
-				hidden_effect = { subtract_from_variable = { zebtropa_state_spec_count = 1 } }
+				hidden_effect = { add_manpower = 25000 }
 			}
 		}
 	}
@@ -3433,6 +3442,7 @@ ABY_AF_zebtropa_project_cat = {
 		complete_effect = {
 			log = "[GetDateText]: [Root.GetName]: Decision ABY_AF_zebtropa_dredging_designation target: [From.GetName]"
 			custom_effect_tooltip = ABY_AF_zebtropa_seabed_designation_tt
+			FROM = { subtract_from_variable = { zebtropa_state_spec_count = 1 } }
 		}
 		
 		remove_effect = {
@@ -3442,15 +3452,12 @@ ABY_AF_zebtropa_project_cat = {
 			add_resource = { type = tungsten amount = 5 state = FROM }
 			add_resource = { type = chromium amount = 5 state = FROM }
 			add_resource = { type = crystals amount = 5 state = FROM }
-			FROM = { hidden_effect = { subtract_from_variable = { zebtropa_state_spec_count = 1 } } }
+			FROM = { add_manpower = 25000 }
 		}
 	}
-}
 
-ABY_AF_terraforming_project_cat = {
-	ABY_AF_terraform_zebhara_state = {
-		icon = GFX_decision_minecraft
-		desc = "ABY_AF_zebhara_decision_desc"
+	ABY_AF_zebtropa_solar_designation = {
+		icon = GFX_decision_generic_electricity
 
 		allowed = {
 			original_tag = ABY
@@ -3458,22 +3465,80 @@ ABY_AF_terraforming_project_cat = {
 
 		visible = {
 			FROM = {
-				OR = {
-					any_neighbor_state = {
-						OR = {
-							has_state_flag = ABY_AF_terraformed_zebhara_state
-							NOT = { is_in_array = { array = ABY_AF_zebhara_states_array value = THIS } }
-						}
-					}
-					is_coastal = yes
-				}
 				is_controlled_by = ABY
+				check_variable = { zebtropa_state_spec_count > 0 }
 			}
 		}
 
 		available = {
 			num_of_civilian_factories_available_for_projects > 29
-			always = yes
+		}
+
+		modifier = {
+			civilian_factory_use = 30
+		}
+
+		days_remove = 90
+		on_map_mode = map_only
+		state_target = any_controlled_state
+		target_array = ABY_AF_zebtropa_states_array
+
+		ai_will_do = { factor = 50 }
+
+		complete_effect = {
+			log = "[GetDateText]: [Root.GetName]: Decision ABY_AF_zebtropa_solar_designation target: [From.GetName]"
+			custom_effect_tooltip = ABY_AF_zebtropa_seabed_designation_tt
+			FROM = { subtract_from_variable = { zebtropa_state_spec_count = 1 } }
+		}
+
+		remove_effect = {
+			log = "[GetDateText]: [Root.GetName]: Decision ABY_AF_zebtropa_solar_designation ABY_AF_build_zebtropa_mirror_array target: [From.GetName]"
+			hidden_effect = {
+				add_to_variable = { ABY_AF_zebtropa_solar_buff = 0.005 }
+			}
+			custom_effect_tooltip = ABY_AF_zebtropa_solar_designation_tt
+			FROM = {
+				add_manpower = 25000
+			}
+		}
+	}
+}
+
+ABY_AF_terraforming_project_cat = {
+	ABY_AF_terraform_zebhara_state = {
+		icon = GFX_interface_ABY_AF_grunwuste_state_modifier
+		desc = "ABY_AF_zebhara_decision_desc"
+
+		allowed = {
+			original_tag = ABY
+		}
+
+		visible = {
+			has_completed_focus = ABY_AF_project_grunwuste
+			hidden_trigger = {
+				FROM = {
+					OR = {
+						any_neighbor_state = {
+							OR = {
+								NOT = { is_in_array = { ABY_AF_zebhara_states_array = id } }
+								has_state_flag = ABY_AF_terraformed_zebhara_state
+							}
+						}
+						is_coastal = yes
+					}
+					is_controlled_by = ABY
+				}
+			}
+		}
+
+		available = {
+			num_of_civilian_factories_available_for_projects > 29
+			check_variable = {
+				var = zebtropa_petaliters
+				value = 10
+				compare = greater_than_or_equals
+			}
+			has_equipment = { aby_af_weather_control_airship_equipment > 99 }
 		}
 
 		on_map_mode = map_only
@@ -3486,6 +3551,8 @@ ABY_AF_terraforming_project_cat = {
 
 		ai_will_do = { base = 200 }
 
+		fire_only_once = yes
+
 		modifier = {
 			civilian_factory_use = 30
 		}
@@ -3493,14 +3560,16 @@ ABY_AF_terraforming_project_cat = {
 		cancel_effect = {
 			log = "[GetDateText]: [Root.GetName]: Decision cancel ABY_AF_terraform_zebhara_state "
 			hidden_effect = {
-				FROM = {
-					clr_state_flag = ABY_AF_terraformed_zebhara_state
-				}
+				FROM = { clr_state_flag = ABY_AF_terraformed_zebhara_state }
 			}
 		}
 
 		complete_effect = {
 			log = "[GetDateText]: [Root.GetName]: Decision complete ABY_AF_terraform_zebhara_state"
+			set_variable = { zebtropa_petaliters_used = 10 }
+			subtract_from_variable = { zebtropa_petaliters = zebtropa_petaliters_used }
+			custom_effect_tooltip = ABY_AF_spend_petaliters_tt
+			add_equipment_to_stockpile = { type = aby_af_weather_control_airship_equipment amount = -100 }
 			hidden_effect = {
 				FROM = {
 					set_state_flag = ABY_AF_terraformed_zebhara_state
@@ -3509,20 +3578,19 @@ ABY_AF_terraforming_project_cat = {
 		}
 		remove_effect = {
 			log = "[GetDateText]: [Root.GetName]: Decision remove  ABY_AF_terraform_zebhara_state"
-			custom_effect_tooltip = ABY_AF_zebhara_decision_tt
 			FROM = {
-				increase_state_category = yes
-				increase_state_category = yes
+				add_extra_state_shared_building_slots = 4
 				add_building_construction = {
 					type = industrial_complex
 					level = 1
 					instant_build = yes
 				}
-				add_compliance = 30
-				if = {
-					limit = { state_population < 100000 }
-					add_core_of = ABY
+				add_building_construction = {
+					type = infrastructure
+					level = 2
+					instant_build = yes
 				}
+				add_core_of = ABY
 				add_dynamic_modifier = { modifier = ABY_AF_grunwuste_state_modifier }
 				hidden_effect = {
 					set_state_flag = ABY_AF_terraformed_state
@@ -3542,6 +3610,86 @@ ABY_AF_terraforming_project_cat = {
 						}
 					}
 				}
+			}
+			country_event = { id =  katzen_AF.27 days = 30 }
+ 		}
+	}
+
+	ABY_AF_terraform_equus_desert_state = {
+		icon = GFX_interface_ABY_AF_grunwuste_state_modifier
+		desc = "ABY_AF_zebhara_decision_desc"
+
+		allowed = {
+			original_tag = ABY
+		}
+
+		visible = {
+			has_completed_focus = ABY_AF_into_the_desert
+			hidden_trigger = {
+				FROM = {
+					OR = {
+						any_neighbor_state = {
+							OR = {
+								NOT = { is_in_array = { ABY_AF_equus_desert_states_array = id } }
+								has_state_flag = ABY_AF_terraformed_equus_desert_state
+							}
+						}
+						is_coastal = yes
+					}
+					is_controlled_by = ABY
+				}	
+			}
+		}
+
+		available = {
+			num_of_civilian_factories_available_for_projects > 29
+			check_variable = {
+				var = zebtropa_petaliters
+				value = 10
+				compare = greater_than_or_equals
+			}
+			has_equipment = { aby_af_weather_control_airship_equipment > 99 }
+		}
+
+		on_map_mode = map_only
+		state_target = any_controlled_state
+		target_array = ABY_AF_equus_desert_states_array
+		cancel_if_not_visible = yes
+
+		cost = 20
+		days_remove = 180
+
+		ai_will_do = { base = 200 }
+
+		fire_only_once = yes
+
+		modifier = {
+			civilian_factory_use = 30
+		}
+
+		cancel_effect = {
+			log = "[GetDateText]: [Root.GetName]: Decision cancel ABY_AF_terraform_zebhara_state "
+			hidden_effect = {
+				FROM = { clr_state_flag = ABY_AF_terraformed_equus_desert_state }
+			}
+		}
+
+		complete_effect = {
+			log = "[GetDateText]: [Root.GetName]: Decision complete ABY_AF_terraform_zebhara_state"
+			set_variable = { zebtropa_petaliters_used = 10 }
+			subtract_from_variable = { zebtropa_petaliters = zebtropa_petaliters_used }
+			custom_effect_tooltip = ABY_AF_spend_petaliters_tt
+			add_equipment_to_stockpile = { type = aby_af_weather_control_airship_equipment amount = -100 }
+			hidden_effect = {
+				FROM = {
+					set_state_flag = ABY_AF_terraformed_equus_desert_state
+				}
+			}
+		}
+		remove_effect = {
+			log = "[GetDateText]: [Root.GetName]: Decision remove  ABY_AF_terraform_zebhara_state"
+			FROM = {
+				add_extra_state_shared_building_slots = 4
 				add_building_construction = {
 					type = industrial_complex
 					level = 1
@@ -3551,6 +3699,25 @@ ABY_AF_terraforming_project_cat = {
 					type = infrastructure
 					level = 2
 					instant_build = yes
+				}
+				add_dynamic_modifier = { modifier = ABY_AF_grunwuste_state_modifier }
+				hidden_effect = {
+					set_state_flag = ABY_AF_terraformed_state
+					set_building_level = {
+						type = aby_af_grunwuste_province
+						level = 1
+						instant_build = yes
+						province = { all_provinces = yes }
+					}
+					ABY = {
+						add_to_variable = { ABY_AF_terraformed_equus_desert_state_count = 1 }
+						set_variable = { ABY_AF_terraformed_equus_desert_state_perc = ABY_AF_terraformed_equus_desert_state_count }
+						divide_variable = { ABY_AF_terraformed_equus_desert_state_perc = ABY.ABY_AF_equus_desert_states_array^num }
+						if = {
+							limit = { check_variable = { ABY_AF_terraformed_equus_desert_state_perc = 1 } }
+							hidden_effect = { news_event = { id = katzen_AF.500 } }
+						}
+					}
 				}
 			}
 			country_event = { id =  katzen_AF.27 days = 30 }
