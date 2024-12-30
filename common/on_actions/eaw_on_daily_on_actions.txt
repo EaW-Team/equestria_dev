@@ -1644,67 +1644,62 @@ on_actions = {
 
 			### Karamelka's Advisors GUI ###
 
-			## Ticks for advisors
-			# v = -1 means the slot is inactive
-			# v = 0 is when the effect of the tick gets triggered
-
-			for_each_loop = {
-				array = KRMLK_ticks
-				value = tick_v
-				index = tick_i
-				if = {
-					limit = {
-						check_variable = { tick_v > 0 }
-					}
-					subtract_from_variable = { KRMLK_ticks^tick_i = 1 }
+			if = {
+				limit = {
+					has_country_flag = KRMLK_active
 				}
-				else_if = {
-					limit = {
-						check_variable = { tick_v = 0 }
-					}
-					subtract_from_variable = { KRMLK_ticks^out_index = 1 }
-					meta_effect = {
-						text = {
-							[INPUT]_tick_effect = yes
+
+				## Ticks for advisors
+				# v = -1 means the slot is inactive
+				# v = 0 is when the effect of the tick gets triggered
+
+				for_each_loop = {
+					array = KRMLK_ticks
+					value = tick_v
+					index = tick_i
+					if = {
+						limit = {
+							check_variable = { tick_v > 0 }
 						}
-						INPUT = "[?KRMLK_active_advisors^tick_i.GetTokenKey]"
+						subtract_from_variable = { KRMLK_ticks^tick_i = 1 }
+					}
+					else_if = {
+						limit = {
+							check_variable = { tick_v = 0 }
+						}
+						subtract_from_variable = { KRMLK_ticks^tick_i = 1 }
+						meta_effect = {
+							text = {
+								[INPUT]_tick_effect = yes
+							}
+							INPUT = "[?KRMLK_active_advisors^tick_i.GetTokenKey]"
+						}
 					}
 				}
-			}
-
-			## Cooldown logic for advisors
-			for_each_loop = {
-				array = KRMLK_cooldown_timer
-				value = cool_v
-				index = cool_i
-
-				if = {
-					limit = {
-						check_variable = { cool_v > 0 }
+	
+				## Cooldown logic for advisors
+				for_each_loop = {
+					array = KRMLK_cooldown_timer
+					value = cool_v
+					index = cool_i
+	
+					if = {
+						limit = {
+							check_variable = { cool_v > 0 }
+						}
+						subtract_from_variable = { KRMLK_cooldown_timer^cool_i = 1 }
 					}
-					subtract_from_variable = { KRMLK_cooldown_timer^cool_i = 1 }
-				}
-				else_if = {
-					limit = {
-						check_variable = { cool_v = 0 }
+					else_if = {
+						limit = {
+							check_variable = { cool_v = 0 }
+						}
+						subtract_from_variable = { KRMLK_cooldown_timer^cool_i = 1 }
+						add_to_array = { KRMLK_available_advisors = KRMLK_cooldown_array^cool_i }
+						set_variable = { KRMLK_cooldown_array^cool_i = -1 }
 					}
-					log = "cool_v = 0 triggered, index = [?cool_i], value = [?cool_v]"
-					add_to_array = { KRMLK_available_advisors = KRMLK_cooldown_array^cool_i }
-					remove_from_array = { array = KRMLK_cooldown_array index = cool_i }
-					add_to_array = { KRMLK_cooldown_timer_to_remove_i = cool_i }
 				}
+				add_to_variable = { KRMLK_dirty = 0.01 }
 			}
-			for_each_loop = {
-				array = KRMLK_cooldown_timer_to_remove_i
-				set_temp_variable = { true_index = KRMLK_cooldown_timer_to_remove_i^num }
-				subtract_from_temp_variable = { true_index = 1 }
-				subtract_from_temp_variable = { true_index = i }
-
-				remove_from_array = { array = KRMLK_cooldown_timer index = KRMLK_cooldown_timer_to_remove_i^true_index }
-			}
-			clear_array = KRMLK_cooldown_timer_to_remove_i
-
-			add_to_variable = { KRMLK_dirty = 0.01 }
 		}
 	}
 }
