@@ -39,6 +39,11 @@ STG_advisors_init = {
 	add_to_array = { KRMLK_available_advisors = token:STG_KRMLK_test_2 }
 	add_to_array = { KRMLK_available_advisors = token:STG_KRMLK_test_3 }
 	add_to_array = { KRMLK_available_advisors = token:STG_KRMLK_test_reset_guy }
+	
+	clear_array = KRMLK_advisors_cooldown_tracker
+	clear_array = KRMLK_advisors_cooldown_tracker_ref
+	resize_array = { array = KRMLK_advisors_cooldown_tracker value = -1 size = 4 }
+	resize_array = { array = KRMLK_advisors_cooldown_tracker_ref value = -1 size = 4 }
 
 	## Tick of the advisors
 	clear_array = KRMLK_ticks
@@ -56,19 +61,38 @@ KRMLK_set_tick = {
 	set_variable = { KRMLK_ticks^out_index = temp_tick_days }
 }
 
-# Shorthand function to get the index of the value in KRMLK_active_advisors
+# Shorthand function to get the index of the value in KRMLK_active_advisors or KRMLK_available_advisors
 # Arguments: temp_value
 # Output: out_index
+
 KRMLK_find_index = {
 	for_each_loop = {
 		array = KRMLK_active_advisors
 		value = find_v
 		index = find_i
+		break = b
 		if = {
 			limit = {
 				check_variable = { find_v = temp_value }
 			}
 			set_temp_variable = { out_index = find_i }
+			set_temp_variable = { b = 1 }
+		}
+	}
+}
+
+KRMLK_find_index_in_available = {
+	for_each_loop = {
+		array = KRMLK_available_advisors
+		value = find_v
+		index = find_i
+		break = b
+		if = {
+			limit = {
+				check_variable = { find_v = temp_value }
+			}
+			set_temp_variable = { out_index = find_i }
+			set_temp_variable = { b = 1 }
 		}
 	}
 }
@@ -81,7 +105,12 @@ KRMLK_find_index = {
 # Arguments: temp_advisor
 STG_KRMLK_add_to_available_advisors = {
 	add_to_array = { KRMLK_available_advisors = temp_advisor }
+	add_to_array = { KRMLK_advisors_cooldown_tracker = -1 }
+	add_to_array = { KRMLK_advisors_cooldown_tracker_ref = -1 }
 	custom_effect_tooltip = STG_KRMLK_add_to_available_advisors_tt
+	
+	set_temp_variable = { added_index = KRMLK_available_advisors^num }
+	subtract_from_temp_variable = { added_index = 1 }
 	add_to_variable = { KRMLK_dirty = 0.01 }
 }
 
@@ -94,6 +123,10 @@ STG_KRMLK_remove_from_available_advisors = {
 			limit = {
 				is_in_array = { KRMLK_available_advisors = temp_advisor }
 			}
+			set_temp_variable = { temp_value = temp_advisor }
+			KRMLK_find_index_in_available = yes
+			remove_from_array = { array = KRMLK_advisors_cooldown_tracker index = out_index }
+			remove_from_array = { array = KRMLK_advisors_cooldown_tracker_ref index = out_index }
 			remove_from_array = { KRMLK_available_advisors = temp_advisor }
 		}
 		else_if = {
@@ -120,6 +153,9 @@ STG_KRMLK_remove_from_available_advisors = {
 # Arguments: temp_advisor, temp_cooldown
 STG_KRMLK_set_cooldown = {
 	custom_effect_tooltip = STG_KRLMK_set_cooldown_tt
+	log = "STG_KRMLK_set_cooldown activated"
+	log = "temp_advisor: [?temp_advisor.GetTokenKey]"
+	log = "temp_cooldown: [?temp_cooldown]"
 	hidden_effect = {
 		set_temp_variable = { temp_value = temp_advisor }
 		KRMLK_find_index = yes
@@ -145,7 +181,12 @@ STG_KRMLK_set_cooldown = {
 		}
 		set_variable = { KRMLK_cooldown_timer^valid_index = temp_cooldown }
 		set_variable = { KRMLK_cooldown_array^valid_index = temp_advisor }
-		add_to_array = { KRMLK_available_advisors = temp_advisor }
+
+		STG_KRMLK_add_to_available_advisors = yes
+		set_temp_variable = { temp_value = temp_advisor }
+		KRMLK_find_index_in_available = yes
+		set_variable = { KRMLK_advisors_cooldown_tracker^added_index = temp_cooldown }
+		set_variable = { KRMLK_advisors_cooldown_tracker_ref^added_index = valid_index }
 	}
 	add_to_variable = { KRMLK_dirty = 0.01 }
 }
@@ -165,13 +206,13 @@ STG_KRMLK_test_1_tick_effect = {
 		}
 	}
 	set_temp_variable = { temp_advisor = token:STG_KRMLK_test_1 }
-	set_temp_variable = { temp_cooldown = KRMLK_advisor_slot_cooldown^advisor_i }
+	set_temp_variable = { temp_cooldown = 5 }
 	STG_KRMLK_set_cooldown = yes
 }
 
 STG_KRMLK_test_2_tick_effect = {
 	set_temp_variable = { temp_advisor = token:STG_KRMLK_test_2 }
-	set_temp_variable = { temp_cooldown = KRMLK_advisor_slot_cooldown^advisor_i }
+	set_temp_variable = { temp_cooldown = 10 }
 	STG_KRMLK_set_cooldown = yes
 }
 
@@ -196,14 +237,20 @@ STG_KRMLK_test_reset_guy_tick_effect = {
 					check_variable = { v = -1 }
 				}
 			}
-			add_to_array = { KRMLK_available_advisors = KRMLK_cooldown_array^i }
 			set_variable = { KRMLK_cooldown_array^i = -1 }
 			set_variable = { KRMLK_cooldown_timer^i = -1 }
 		}
 	}
+	for_loop_effect = {
+		start = 0
+		end = KRMLK_advisors_cooldown_tracker^num
+		value = i
+		set_variable = { KRMLK_advisors_cooldown_tracker^i = -1 }
+		set_variable = { KRMLK_advisors_cooldown_tracker_ref^i = -1 }
+	}
 
 	set_temp_variable = { temp_advisor = token:STG_KRMLK_test_reset_guy }
-	set_temp_variable = { temp_cooldown = KRMLK_advisor_slot_cooldown^advisor_i }
+	set_temp_variable = { temp_cooldown = 20 }
 	STG_KRMLK_set_cooldown = yes
 }
 
