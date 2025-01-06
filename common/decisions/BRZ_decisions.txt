@@ -6097,6 +6097,7 @@ BRZ_loudbark_land_reform_category = {
 		}
 		
 		cost = 100
+		
 		modifier = {
 			consumer_goods_factor = 0.15
 		}
@@ -6131,7 +6132,7 @@ BRZ_loudbark_party_reform_category = {
 		
 		allowed = { always = no }
 		
-		available = { always = no }
+		available = { has_country_flag = BRZ_temp_end_party_reform }
 		
 		priority = 100 # First in this category
 		
@@ -6140,12 +6141,674 @@ BRZ_loudbark_party_reform_category = {
 		days_mission_timeout = 365
 		
 		timeout_effect = { 
-			log = "[GetDateText]: [Root.GetName]: Timeout BRZ_noble_virtue_merry_go_round"
+			log = "[GetDateText]: [Root.GetName]: Timeout BRZ_preparations_for_the_party_congress"
 			
-			# TODO: Party congress event(s)
+			subtract_from_variable = { BRZ_loudbark_party_populist_influence = BRZ_loudbark_party_reactionary_influence }
+			subtract_from_variable = { BRZ_loudbark_party_militarist_influence = BRZ_loudbark_party_reactionary_influence }
+			set_variable = { BRZ_loudbark_party_reactionary_influence = 0 }
 			
+			if = {
+				limit = {
+					check_variable = { BRZ_loudbark_party_populist_influence < 2 }
+					check_variable = { BRZ_loudbark_party_militarist_influence < 2 }
+				}
+				
+				country_event = bronzehill_loudbark.7
+				
+				clr_country_flag = BRZ_loudbark_party_reform_in_progress
+				set_country_flag = BRZ_loudbark_party_reform_done
+			}
+			else = {
+				set_country_flag = BRZ_loudbark_party_reform_phase_2
+				
+				set_temp_variable = { total_remaining_influence = BRZ_loudbark_party_populist_influence }
+				add_to_temp_variable = { total_remaining_influence = BRZ_loudbark_party_militarist_influence }
+				
+				if = {
+					limit = {
+						check_variable = { total_remaining_influence < 9 }
+					}
+					country_event = bronzehill_loudbark.8
+				}
+				else = {
+					country_event = bronzehill_loudbark.9
+				}
+			}
+		}
+		
+		complete_effect = { 
+			log = "[GetDateText]: [Root.GetName]: Complete BRZ_preparations_for_the_party_congress"
+			
+			subtract_from_variable = { BRZ_loudbark_party_populist_influence = BRZ_loudbark_party_reactionary_influence }
+			subtract_from_variable = { BRZ_loudbark_party_militarist_influence = BRZ_loudbark_party_reactionary_influence }
+			set_variable = { BRZ_loudbark_party_reactionary_influence = 0 }
+			
+			if = {
+				limit = {
+					check_variable = { BRZ_loudbark_party_populist_influence < 2 }
+					check_variable = { BRZ_loudbark_party_militarist_influence < 2 }
+				}
+				
+				country_event = bronzehill_loudbark.7
+				
+				clr_country_flag = BRZ_loudbark_party_reform_in_progress
+				set_country_flag = BRZ_loudbark_party_reform_done
+			}
+			else = {
+				set_country_flag = BRZ_loudbark_party_reform_phase_2
+				
+				set_temp_variable = { total_remaining_influence = BRZ_loudbark_party_populist_influence }
+				add_to_temp_variable = { total_remaining_influence = BRZ_loudbark_party_militarist_influence }
+				
+				if = {
+					limit = {
+						check_variable = { total_remaining_influence < 9 }
+					}
+					country_event = bronzehill_loudbark.8
+				}
+				else = {
+					country_event = bronzehill_loudbark.9
+				}
+			}
+		}
+	}
+	
+	BRZ_finish_party_reform = {
+		icon = GFX_decision_generic
+		
+		visible = {
+			has_country_flag = BRZ_loudbark_party_reform_phase_2
+		}
+		
+		fire_only_once = yes
+		
+		ai_will_do = {
+			base = 100
+			modifier = { # Still points to spend
+				factor = 0
+				OR = { 
+					check_variable = { BRZ_loudbark_party_militarist_influence > 1 }
+					check_variable = { BRZ_loudbark_party_populist_influence > 1 }
+				}
+			}
+		}
+
+		complete_effect = {
+			log = "[GetDateText]: [Root.GetName]: Decision complete BRZ_finish_party_reform"
+		
 			clr_country_flag = BRZ_loudbark_party_reform_in_progress
+			clr_country_flag = BRZ_loudbark_party_reform_phase_2
 			set_country_flag = BRZ_loudbark_party_reform_done
+		}
+	}
+	
+	BRZ_enshrine_social_security = {
+		icon = GFX_decision_generic
+
+		visible = {
+			has_country_flag = BRZ_loudbark_party_reform_phase_2
+		}
+
+		fire_only_once = yes
+
+		ai_will_do = {
+			factor = 100
+		}
+		
+		# Custom cost: 2 populist influence
+		custom_cost_trigger = {
+			check_variable = { 
+				var = BRZ_loudbark_party_populist_influence
+				value = 2
+				compare = greater_than_or_equals
+			}
+		}
+		custom_cost_text = BRZ_decision_cost_2_populist_influence
+		complete_effect = { # Costs
+			hidden_effect = {
+				subtract_from_variable = { BRZ_loudbark_party_populist_influence = 2 }
+			}
+		}
+
+		complete_effect = {
+			log = "[GetDateText]: [Root.GetName]: Decision complete BRZ_enshrine_commitment_to_social_securty"
+			
+			set_country_flag = BRZ_loudbark_party_reform_stab
+			add_ideas = BRZ_party_reform_stab
+			
+			hidden_effect = {
+				if = {
+					limit = {
+						NOT = { has_idea = BRZ_party_reform_hull }
+					}
+					add_ideas = BRZ_party_reform_hull
+				}
+			}
+		}
+	}
+	
+	BRZ_adopt_the_land_tax = {
+		icon = GFX_decision_generic
+
+		visible = {
+			has_country_flag = BRZ_loudbark_party_reform_phase_2
+		}
+
+		fire_only_once = yes
+
+		ai_will_do = {
+			factor = 100
+		}
+		
+		# Custom cost: 2 populist influence
+		custom_cost_trigger = {
+			check_variable = { 
+				var = BRZ_loudbark_party_populist_influence
+				value = 2
+				compare = greater_than_or_equals
+			}
+		}
+		custom_cost_text = BRZ_decision_cost_2_populist_influence
+		complete_effect = { # Costs
+			hidden_effect = {
+				subtract_from_variable = { BRZ_loudbark_party_populist_influence = 2 }
+			}
+		}
+
+		complete_effect = {
+			log = "[GetDateText]: [Root.GetName]: Decision complete BRZ_enshrine_commitment_to_social_securty"
+			
+			set_country_flag = BRZ_loudbark_party_reform_cons_goods
+			add_ideas = BRZ_party_reform_cons_goods
+			
+			hidden_effect = {
+				if = {
+					limit = {
+						NOT = { has_idea = BRZ_party_reform_hull }
+					}
+					add_ideas = BRZ_party_reform_hull
+				}
+			}
+			
+			add_power_balance_value = {
+				id = BRZ_loudbark_bop
+				value = -0.05
+			}
+		}
+	}
+	
+	BRZ_reform_the_party_loyalty_pledge = {
+		icon = GFX_decision_generic
+
+		visible = {
+			has_country_flag = BRZ_loudbark_party_reform_phase_2
+		}
+
+		fire_only_once = yes
+
+		ai_will_do = {
+			factor = 100
+		}
+		
+		# Custom cost: 2 populist influence
+		custom_cost_trigger = {
+			check_variable = { 
+				var = BRZ_loudbark_party_populist_influence
+				value = 2
+				compare = greater_than_or_equals
+			}
+		}
+		custom_cost_text = BRZ_decision_cost_2_populist_influence
+		complete_effect = { # Costs
+			hidden_effect = {
+				subtract_from_variable = { BRZ_loudbark_party_populist_influence = 2 }
+			}
+		}
+
+		complete_effect = {
+			log = "[GetDateText]: [Root.GetName]: Decision complete BRZ_enshrine_commitment_to_social_securty"
+			
+			set_country_flag = BRZ_loudbark_party_reform_pol_power
+			add_ideas = BRZ_party_reform_pol_power
+			
+			hidden_effect = {
+				if = {
+					limit = {
+						NOT = { has_idea = BRZ_party_reform_hull }
+					}
+					add_ideas = BRZ_party_reform_hull
+				}
+			}
+		}
+	}
+	
+	BRZ_pledge_to_strenghten_agriculture = {
+		icon = GFX_decision_generic
+
+		visible = {
+			has_country_flag = BRZ_loudbark_party_reform_phase_2
+		}
+
+		fire_only_once = yes
+
+		ai_will_do = {
+			factor = 100
+		}
+		
+		# Custom cost: 2 populist influence
+		custom_cost_trigger = {
+			check_variable = { 
+				var = BRZ_loudbark_party_populist_influence
+				value = 2
+				compare = greater_than_or_equals
+			}
+		}
+		custom_cost_text = BRZ_decision_cost_2_populist_influence
+		complete_effect = { # Costs
+			hidden_effect = {
+				subtract_from_variable = { BRZ_loudbark_party_populist_influence = 2 }
+			}
+		}
+
+		complete_effect = {
+			log = "[GetDateText]: [Root.GetName]: Decision complete BRZ_enshrine_commitment_to_social_securty"
+			
+			set_country_flag = BRZ_loudbark_party_resource
+			add_ideas = BRZ_party_reform_resource
+			
+			hidden_effect = {
+				if = {
+					limit = {
+						NOT = { has_idea = BRZ_party_reform_hull }
+					}
+					add_ideas = BRZ_party_reform_hull
+				}
+			}
+			
+			add_power_balance_value = {
+				id = BRZ_loudbark_bop
+				value = 0.05
+			}
+		}
+	}
+	
+	BRZ_introduce_the_economic_advisory_council = {
+		icon = GFX_decision_generic
+
+		visible = {
+			has_country_flag = BRZ_loudbark_party_reform_phase_2
+		}
+
+		fire_only_once = yes
+
+		ai_will_do = {
+			factor = 100
+		}
+		
+		# Custom cost: 2 populist influence
+		custom_cost_trigger = {
+			check_variable = { 
+				var = BRZ_loudbark_party_populist_influence
+				value = 2
+				compare = greater_than_or_equals
+			}
+		}
+		custom_cost_text = BRZ_decision_cost_2_populist_influence
+		complete_effect = { # Costs
+			hidden_effect = {
+				subtract_from_variable = { BRZ_loudbark_party_populist_influence = 2 }
+			}
+		}
+
+		complete_effect = {
+			log = "[GetDateText]: [Root.GetName]: Decision complete BRZ_enshrine_commitment_to_social_securty"
+			
+			set_country_flag = BRZ_loudbark_party_prod_eff
+			add_ideas = BRZ_party_reform_prod_eff
+			
+			hidden_effect = {
+				if = {
+					limit = {
+						NOT = { has_idea = BRZ_party_reform_hull }
+					}
+					add_ideas = BRZ_party_reform_hull
+				}
+			}
+			
+			add_power_balance_value = {
+				id = BRZ_loudbark_bop
+				value = 0.05
+			}
+		}
+	}
+	
+	BRZ_guarantee_the_right_to_work = {
+		icon = GFX_decision_generic
+
+		visible = {
+			has_country_flag = BRZ_loudbark_party_reform_phase_2
+		}
+
+		fire_only_once = yes
+
+		ai_will_do = {
+			factor = 100
+		}
+		
+		# Custom cost: 2 populist influence
+		custom_cost_trigger = {
+			check_variable = { 
+				var = BRZ_loudbark_party_populist_influence
+				value = 2
+				compare = greater_than_or_equals
+			}
+		}
+		custom_cost_text = BRZ_decision_cost_2_populist_influence
+		complete_effect = { # Costs
+			hidden_effect = {
+				subtract_from_variable = { BRZ_loudbark_party_populist_influence = 2 }
+			}
+		}
+
+		complete_effect = {
+			log = "[GetDateText]: [Root.GetName]: Decision complete BRZ_enshrine_commitment_to_social_securty"
+			
+			set_country_flag = BRZ_loudbark_party_fac_space
+			add_ideas = BRZ_party_reform_fac_space
+			
+			hidden_effect = {
+				if = {
+					limit = {
+						NOT = { has_idea = BRZ_party_reform_hull }
+					}
+					add_ideas = BRZ_party_reform_hull
+				}
+			}
+		}
+	}
+	
+	BRZ_embed_the_military_connection_office = {
+		icon = GFX_decision_generic
+
+		visible = {
+			has_country_flag = BRZ_loudbark_party_reform_phase_2
+		}
+
+		fire_only_once = yes
+
+		ai_will_do = {
+			factor = 100
+		}
+		
+		# Custom cost: 2 populist influence
+		custom_cost_trigger = {
+			check_variable = { 
+				var = BRZ_loudbark_party_militarist_influence
+				value = 2
+				compare = greater_than_or_equals
+			}
+		}
+		custom_cost_text = BRZ_decision_cost_2_militarist_influence
+		complete_effect = { # Costs
+			hidden_effect = {
+				subtract_from_variable = { BRZ_loudbark_party_militarist_influence = 2 }
+			}
+		}
+
+		complete_effect = {
+			log = "[GetDateText]: [Root.GetName]: Decision complete BRZ_enshrine_commitment_to_social_securty"
+			
+			set_country_flag = BRZ_loudbark_party_war_sup
+			add_ideas = BRZ_party_reform_war_sup
+			
+			hidden_effect = {
+				if = {
+					limit = {
+						NOT = { has_idea = BRZ_party_reform_hull }
+					}
+					add_ideas = BRZ_party_reform_hull
+				}
+			}
+		}
+	}
+	
+	BRZ_reaffirm_the_readiness_doctrine = {
+		icon = GFX_decision_generic
+
+		visible = {
+			has_country_flag = BRZ_loudbark_party_reform_phase_2
+		}
+
+		fire_only_once = yes
+
+		ai_will_do = {
+			factor = 100
+		}
+		
+		# Custom cost: 2 populist influence
+		custom_cost_trigger = {
+			check_variable = { 
+				var = BRZ_loudbark_party_militarist_influence
+				value = 2
+				compare = greater_than_or_equals
+			}
+		}
+		custom_cost_text = BRZ_decision_cost_2_militarist_influence
+		complete_effect = { # Costs
+			hidden_effect = {
+				subtract_from_variable = { BRZ_loudbark_party_militarist_influence = 2 }
+			}
+		}
+
+		complete_effect = {
+			log = "[GetDateText]: [Root.GetName]: Decision complete BRZ_enshrine_commitment_to_social_securty"
+			
+			set_country_flag = BRZ_loudbark_party_army_speed
+			add_ideas = BRZ_party_reform_army_speed
+			
+			hidden_effect = {
+				if = {
+					limit = {
+						NOT = { has_idea = BRZ_party_reform_hull }
+					}
+					add_ideas = BRZ_party_reform_hull
+				}
+			}
+			
+			add_power_balance_value = {
+				id = BRZ_loudbark_bop
+				value = -0.05
+			}
+		}
+	}
+	
+	BRZ_ratify_the_new_technology_plan = {
+		icon = GFX_decision_generic
+
+		visible = {
+			has_country_flag = BRZ_loudbark_party_reform_phase_2
+		}
+
+		fire_only_once = yes
+
+		ai_will_do = {
+			factor = 100
+		}
+		
+		# Custom cost: 2 populist influence
+		custom_cost_trigger = {
+			check_variable = { 
+				var = BRZ_loudbark_party_militarist_influence
+				value = 2
+				compare = greater_than_or_equals
+			}
+		}
+		custom_cost_text = BRZ_decision_cost_2_militarist_influence
+		complete_effect = { # Costs
+			hidden_effect = {
+				subtract_from_variable = { BRZ_loudbark_party_militarist_influence = 2 }
+			}
+		}
+
+		complete_effect = {
+			log = "[GetDateText]: [Root.GetName]: Decision complete BRZ_enshrine_commitment_to_social_securty"
+			
+			set_country_flag = BRZ_loudbark_party_sp_speed
+			add_ideas = BRZ_party_reform_sp_speed
+			
+			hidden_effect = {
+				if = {
+					limit = {
+						NOT = { has_idea = BRZ_party_reform_hull }
+					}
+					add_ideas = BRZ_party_reform_hull
+				}
+			}
+			
+			add_power_balance_value = {
+				id = BRZ_loudbark_bop
+				value = -0.05
+			}
+		}
+	}
+	
+	BRZ_affirm_the_duty_to_serve = {
+		icon = GFX_decision_generic
+
+		visible = {
+			has_country_flag = BRZ_loudbark_party_reform_phase_2
+		}
+
+		fire_only_once = yes
+
+		ai_will_do = {
+			factor = 100
+		}
+		
+		# Custom cost: 2 populist influence
+		custom_cost_trigger = {
+			check_variable = { 
+				var = BRZ_loudbark_party_militarist_influence
+				value = 2
+				compare = greater_than_or_equals
+			}
+		}
+		custom_cost_text = BRZ_decision_cost_2_militarist_influence
+		complete_effect = { # Costs
+			hidden_effect = {
+				subtract_from_variable = { BRZ_loudbark_party_militarist_influence = 2 }
+			}
+		}
+
+		complete_effect = {
+			log = "[GetDateText]: [Root.GetName]: Decision complete BRZ_enshrine_commitment_to_social_securty"
+			
+			set_country_flag = BRZ_loudbark_party_consc
+			add_ideas = BRZ_party_reform_consc
+			
+			hidden_effect = {
+				if = {
+					limit = {
+						NOT = { has_idea = BRZ_party_reform_hull }
+					}
+					add_ideas = BRZ_party_reform_hull
+				}
+			}
+		}
+	}
+	
+	BRZ_safeguard_the_flexible_battleplan_policy = {
+		icon = GFX_decision_generic
+
+		visible = {
+			has_country_flag = BRZ_loudbark_party_reform_phase_2
+		}
+
+		fire_only_once = yes
+
+		ai_will_do = {
+			factor = 100
+		}
+		
+		# Custom cost: 2 populist influence
+		custom_cost_trigger = {
+			check_variable = { 
+				var = BRZ_loudbark_party_militarist_influence
+				value = 2
+				compare = greater_than_or_equals
+			}
+		}
+		custom_cost_text = BRZ_decision_cost_2_militarist_influence
+		complete_effect = { # Costs
+			hidden_effect = {
+				subtract_from_variable = { BRZ_loudbark_party_militarist_influence = 2 }
+			}
+		}
+
+		complete_effect = {
+			log = "[GetDateText]: [Root.GetName]: Decision complete BRZ_enshrine_commitment_to_social_securty"
+			
+			set_country_flag = BRZ_loudbark_party_planning
+			add_ideas = BRZ_party_reform_planning
+			
+			hidden_effect = {
+				if = {
+					limit = {
+						NOT = { has_idea = BRZ_party_reform_hull }
+					}
+					add_ideas = BRZ_party_reform_hull
+				}
+			}
+			
+			add_power_balance_value = {
+				id = BRZ_loudbark_bop
+				value = 0.05
+			}
+		}
+	}
+	
+	BRZ_deepen_ties_to_the_admirality = {
+		icon = GFX_decision_generic
+
+		visible = {
+			has_country_flag = BRZ_loudbark_party_reform_phase_2
+		}
+
+		fire_only_once = yes
+
+		ai_will_do = {
+			factor = 100
+		}
+		
+		# Custom cost: 2 populist influence
+		custom_cost_trigger = {
+			check_variable = { 
+				var = BRZ_loudbark_party_militarist_influence
+				value = 2
+				compare = greater_than_or_equals
+			}
+		}
+		custom_cost_text = BRZ_decision_cost_2_militarist_influence
+		complete_effect = { # Costs
+			hidden_effect = {
+				subtract_from_variable = { BRZ_loudbark_party_militarist_influence = 2 }
+			}
+		}
+
+		complete_effect = {
+			log = "[GetDateText]: [Root.GetName]: Decision complete BRZ_enshrine_commitment_to_social_securty"
+			
+			set_country_flag = BRZ_loudbark_party_naval
+			add_ideas = BRZ_party_reform_naval
+			
+			hidden_effect = {
+				if = {
+					limit = {
+						NOT = { has_idea = BRZ_party_reform_hull }
+					}
+					add_ideas = BRZ_party_reform_hull
+				}
+			}
 		}
 	}
 }
