@@ -128,6 +128,87 @@ on_actions = {
 					country_event = stalliongrad_darkwing_reform.1
 				}
 			}
+
+			### Karamelka's Advisors GUI ###
+	
+			if = {
+				limit = {
+					has_country_flag = KRMLK_active
+				}
+	
+				## Ticks for advisors
+				# v = -1 means the slot is inactive
+				# v = 0 is when the effect of the tick gets triggered
+	
+				for_each_loop = {
+					array = KRMLK_ticks
+					value = tick_v
+					index = tick_i
+					if = {
+						limit = {
+							check_variable = { tick_v > 0 }
+						}
+						subtract_from_variable = { KRMLK_ticks^tick_i = 1 }
+					}
+					else_if = {
+						limit = {
+							check_variable = { tick_v = 0 }
+						}
+						subtract_from_variable = { KRMLK_ticks^tick_i = 1 }
+						set_temp_variable = { advisor_i = tick_i }
+						meta_effect = {
+							text = {
+								[INPUT]_tick_effect = yes
+							}
+							INPUT = "[?KRMLK_active_advisors^tick_i.GetTokenKey]"
+						}
+					}
+				}
+	
+				## Cooldown logic for advisors
+				for_each_loop = {
+					array = KRMLK_cooldown_timer
+					value = cool_v
+					index = cool_i
+	
+					if = {
+						limit = {
+							check_variable = { cool_v = 0 }
+						}
+						set_variable = { KRMLK_cooldown_array^cool_i = -1 }
+					}
+					if = {
+						limit = {
+							check_variable = { var = cool_v value = 0 compare = greater_than_or_equals }
+						}
+						subtract_from_variable = { KRMLK_cooldown_timer^cool_i = 1 }
+					}
+				}
+				for_each_loop = {
+					array = KRMLK_advisors_cooldown_tracker_ref
+					value = rev_v
+					index = rev_i
+					if = {
+						limit = {
+							check_variable = { KRMLK_advisors_cooldown_tracker^ref_v = -1 }
+						}
+						set_variable = { KRMLK_advisors_cooldown_tracker^ref_i = -1 }
+						set_variable = { KRMLK_advisors_cooldown_tracker_ref^ref_i = -1 }
+					}
+				}
+				for_each_loop = {
+					array = KRMLK_advisors_cooldown_tracker
+					if = {
+						limit = {
+							NOT = {
+								check_variable = { v = -1 }
+							}
+						}
+						set_variable = { KRMLK_advisors_cooldown_tracker^i = KRMLK_cooldown_timer^KRMLK_advisors_cooldown_tracker_ref^i }
+					}
+				}
+				add_to_variable = { KRMLK_dirty = 0.01 }
+			}
 		}
 	}
 }
