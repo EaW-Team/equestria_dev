@@ -136,25 +136,52 @@ on_actions = {
 					has_country_flag = KRMLK_active
 				}
 	
-				## Ticks for advisors
-				# v = -1 means the slot is inactive
-				# v = 0 is when the effect of the tick gets triggered
+				## Cooldown logic for advisors
+				for_each_loop = {
+					array = KRMLK_advisors_cooldown_tracker
+					value = cool_v
+					index = cool_i
+
+					if = {
+						limit = {
+							is_in_array = { KRMLK_cooldown_array = KRMLK_available_advisors^cool_i }
+						}
+						if = {
+							limit = {
+								check_variable = { var = cool_v value = 0 compare = greater_than_or_equals }
+							}
+							subtract_from_variable = { KRMLK_advisors_cooldown_tracker^cool_i = 1 }
+						}
+						if = {
+							limit = {
+								check_variable = { KRMLK_advisors_cooldown_tracker^cool_i = 0 }
+							}
+							set_temp_variable = { added_index = cool_i }
+							add_ideas = var:KRMLK_available_advisors^cool_i
+							remove_ideas = var:KRMLK_available_advisors^cool_i
 	
+							remove_from_array = { KRMLK_cooldown_array = KRMLK_available_advisors^cool_i }
+						}
+					}
+				}
+	
+				## Ticks for advisors
 				for_each_loop = {
 					array = KRMLK_ticks
 					value = tick_v
 					index = tick_i
+
 					if = {
 						limit = {
-							check_variable = { tick_v > 0 }
+							check_variable = { var = tick_v value = 0 compare = greater_than_or_equals }
 						}
 						subtract_from_variable = { KRMLK_ticks^tick_i = 1 }
 					}
-					else_if = {
+					if = {
 						limit = {
-							check_variable = { tick_v = 0 }
+							check_variable = { KRMLK_ticks^tick_i = 0 }
 						}
-						subtract_from_variable = { KRMLK_ticks^tick_i = 1 }
+						set_variable = { KRMLK_ticks^tick_i = -1 }
 						set_temp_variable = { advisor_i = tick_i }
 						meta_effect = {
 							text = {
@@ -162,40 +189,6 @@ on_actions = {
 							}
 							INPUT = "[?KRMLK_active_advisors^tick_i.GetTokenKey]"
 						}
-					}
-				}
-	
-				## Cooldown logic for advisors
-				for_each_loop = {
-					array = KRMLK_cooldown_timer
-					value = cool_v
-					index = cool_i
-	
-					if = {
-						limit = {
-							check_variable = { cool_v = 0 }
-						}
-						set_temp_variable = { temp_value = KRMLK_cooldown_array^cool_i }
-						KRMLK_find_index_in_available = yes
-						set_temp_variable = { added_index = out_index }
-						add_ideas = var:KRMLK_cooldown_array^cool_i
-						remove_ideas = var:KRMLK_cooldown_array^cool_i
-						set_variable = { KRMLK_cooldown_array^cool_i = -1 }
-					}
-					if = {
-						limit = {
-							check_variable = { var = cool_v value = 0 compare = greater_than_or_equals }
-						}
-						subtract_from_variable = { KRMLK_cooldown_timer^cool_i = 1 }
-					}
-				}
-				for_each_loop = {
-					array = KRMLK_available_advisors
-					if = {
-						limit = {
-							is_in_array = { KRMLK_cooldown_array = v }
-						}
-						set_variable = { KRMLK_advisors_cooldown_tracker^i = KRMLK_cooldown_timer^KRMLK_advisors_cooldown_tracker_ref^i }
 					}
 				}
 				add_to_variable = { KRMLK_dirty = 0.01 }
