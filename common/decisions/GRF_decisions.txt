@@ -2518,9 +2518,15 @@ GRF_sending_mercs_cat = {
 	GRF_send_mercs_dec = {
 		icon = rifles
 		available = {
+			hidden_trigger = {
+				NOT = {
+					has_country_flag = mercs_considered
+				}
+			}
 			num_divisions > 15
 			check_variable = { offsite_IC < 20 }
 			FROM = {
+				num_of_civilian_factories_available_for_projects > 4
 				all_enemy_country = {
 					if = {
 						limit = { ROOT = { tag = GRF } }
@@ -2554,10 +2560,16 @@ GRF_sending_mercs_cat = {
 			}
 			else = {
 				has_completed_focus = TRD_robber_baron
+				has_government = neutrality
+				is_subject = no
 			}
 		}
 		visible = {
 			NOT = { has_country_flag = agreed_to_mercs_@FROM }
+			has_opinion = {
+				target = FROM
+				value > -30
+			}
 			FROM = {
 				#is_subject = no
 				exists = yes
@@ -2568,6 +2580,7 @@ GRF_sending_mercs_cat = {
 					is_in_faction_with = ROOT
 					is_subject_of = ROOT
 					has_war_with = ROOT
+					is_embargoed_by = ROOT
 				}
 				NOT = {
 					has_idea = detached_country
@@ -2575,7 +2588,7 @@ GRF_sending_mercs_cat = {
 				does_not_have_communal_society = yes
 				has_opinion = {
 					target = ROOT
-					value > -40
+					value > -30
 				}
 				NOT = { has_country_flag = refused_mercs_from_@ROOT }
 				if = {
@@ -2598,6 +2611,10 @@ GRF_sending_mercs_cat = {
 			}
 		}
 		target_trigger = {
+			has_opinion = {
+				target = FROM
+				value > -30
+			}
 			FROM = {
 				#is_subject = no
 				exists = yes
@@ -2608,6 +2625,7 @@ GRF_sending_mercs_cat = {
 					is_in_faction_with = ROOT
 					is_subject_of = ROOT
 					has_war_with = ROOT
+					is_embargoed_by = ROOT
 				}
 				NOT = {
 					has_idea = detached_country
@@ -2615,21 +2633,44 @@ GRF_sending_mercs_cat = {
 				does_not_have_communal_society = yes
 				has_opinion = {
 					target = ROOT
-					value > -40
+					value > -30
 				}
 			}
 		}
 		days_re_enable = 7
 		complete_effect = {
 			log = "[GetDateText]: [Root.GetName]: Decision GRF_send_mercs_dec target: [From.GetName]"
+			set_country_flag = mercs_considered
 			set_country_flag = mercs_considered_@FROM
 			FROM = { country_event = { id = griffons.62 } }
 		}
 		ai_will_do = {
-			factor = 5
+			factor = 3
 			modifier = {
 				factor = 0
-				check_variable = { volunteers_factor > 0.6 }
+				OR = {
+					check_variable = { volunteers_factor > 0.24 }  # defines MAX_VOLUNTEER_ARMY_FRACTION
+					has_country_flag = mercs_in_progress
+					is_in_array = { potential_and_current_enemies = FROM }
+				}
+			}
+			modifier = {
+				factor = 2
+				FROM = {
+					num_of_civilian_factories_available_for_projects > 9
+				}
+			}
+			modifier = {
+				factor = 2
+				FROM = {
+					num_of_civilian_factories_available_for_projects > 18
+				}
+			}
+			modifier = {
+				factor = 0.5
+				FROM = {
+					is_major = yes
+				}
 			}
 			modifier = {
 				factor = 0.5
@@ -2670,11 +2711,25 @@ GRF_sending_mercs_cat = {
 			modifier = {
 				factor = 0
 				FROM = {
-					surrender_progress > 0.9
+					surrender_progress > 0.8
 				}
 			}
 			modifier = {
-				factor = 2
+				factor = 0.5
+				has_opinion = {
+					target = FROM
+					value < 0
+				}
+			}
+			modifier = {
+				factor = 1.25
+				has_opinion = {
+					target = FROM
+					value > 40
+				}
+			}
+			modifier = {
+				factor = 1.5
 				FROM = {
 					has_opinion = {
 						target = ROOT
@@ -2683,17 +2738,52 @@ GRF_sending_mercs_cat = {
 				}
 			}
 			modifier = {
-				factor = 0
+				factor = 1.5
 				FROM = {
-					NOT = {
-						has_government = fascism
+					has_opinion = {
+						target = ROOT
+						value > 80
 					}
 				}
 			}
 			modifier = {
-				factor = 3
+				factor = 1.5
 				FROM = {
-					num_of_civilian_factories_available_for_projects > 18
+					has_market_access_with = ROOT
+				}
+			}
+			modifier = {
+				factor = 0.25
+				OR = {
+					has_government = communism
+					has_idea = closed_economy
+					has_idea = BAT_hidden_economy
+					has_idea = ZAR_hidden_economy
+				}
+			}
+			modifier = {
+				factor = 0.2
+				FROM = {
+					NOT = {
+						has_government = fascism
+						has_government = neutrality
+					}
+				}
+			}
+			modifier = {
+				factor = 2
+				FROM = {
+					any_enemy_country = {
+						OR = {
+							is_in_array = { ROOT.potential_and_current_enemies = THIS }
+							ROOT = {
+								has_opinion = {
+									target = PREV
+									value < -59
+								}
+							}
+						}
+					}
 				}
 			}
 		}
@@ -2728,11 +2818,16 @@ GRF_sending_mercs_cat = {
 		days_mission_timeout = 30
 
 		timeout_effect = {
-			log = "[GetDateText]: [Root.GetName]: Decision timeout GRF_send_mercs_mis"
+			log = "[GetDateText]: [Root.GetName]: Decision timeout GRF_send_mercs_mis target: [From.GetName]"
 			add_ai_strategy = {
 				type = support
 				id = FROM
 				value = -9999
+			}
+			add_ai_strategy = {
+				type = send_lend_lease_desire
+				id = FROM
+				value = 999
 			}
 			add_ai_strategy = {
 				type = send_volunteers_desire
@@ -2752,11 +2847,11 @@ GRF_sending_mercs_cat = {
 				}
 			}
 			clr_country_flag = agreed_to_mercs_@FROM
+			clr_country_flag = mercs_in_progress
 		}
 
 		complete_effect = {
-			log = "[GetDateText]: [Root.GetName]: Decision GRF_send_mercs_mis"
-			hidden_effect = { GRF_recalc_mercs = yes }
+			log = "[GetDateText]: [Root.GetName]: Decision GRF_send_mercs_mis target: [From.GetName]"
 			FROM = {
 				add_ai_strategy = {
 					type = befriend
@@ -2770,16 +2865,19 @@ GRF_sending_mercs_cat = {
 				value = -9999
 			}
 			add_ai_strategy = {
+				type = send_lend_lease_desire
+				id = FROM
+				value = 999
+			}
+			add_ai_strategy = {
 				type = send_volunteers_desire
 				id = FROM
 				value = -9999
 			}
 			if = {
-				limit = { NOT = { FROM = { has_country_flag = mercs_delayed_payment } } }
+				limit = { NOT = { FROM = { has_country_flag = mercs_delayed_payment_@ROOT } } }
 				if = {
 					limit = { tag = GRF }
-					add_to_variable = { offsite_IC = 4 }
-					add_offsite_building = { type = industrial_complex level = 4 }
 					FROM = {
 						country_event = griffons.64
 						add_ideas = GRF_got_mercs
@@ -2800,18 +2898,20 @@ GRF_sending_mercs_cat = {
 						FROM = {
 							country_event = griffons.64
 							add_ideas = GRF_got_mercs_delayed
-							clr_country_flag = mercs_delayed_payment
+							clr_country_flag = mercs_delayed_payment_@ROOT
 						}					
 					else = {
 						FROM = {
 							country_event = griffons.64
 							add_ideas = TRD_got_mercs_delayed
-							clr_country_flag = mercs_delayed_payment
+							clr_country_flag = mercs_delayed_payment_@ROOT
 						}
 					}
 				}
 			}
 			clr_country_flag = agreed_to_mercs_@FROM
+			clr_country_flag = mercs_in_progress
+			GRF_recalc_mercs = yes
 		}
 
 	}
@@ -2824,28 +2924,17 @@ GRF_sending_mercs_cat = {
 		available = {
 			FROM = {
 				OR = {
-					has_capitulated = yes
 					exists = no
 					NOT = { has_idea = GRF_got_mercs }
 				}
 			}
 		}
+		fire_only_once = yes
 		complete_effect = {
-			log = "[GetDateText]: [Root.GetName]: Decision GRF_send_mercs_reward"
-			hidden_effect = { GRF_recalc_mercs = yes }
-			add_to_variable = { offsite_IC = -4 }
-			add_offsite_building = { type = industrial_complex level = -4 }
-			# remove_targeted_decision = {
-			# 	target = FROM
-			# 	decision = GRF_send_mercs_reward
-			# }
+			log = "[GetDateText]: [Root.GetName]: Decision GRF_send_mercs_reward target: [From.GetName]"
 		}
 		timeout_effect = {
-			log = "[GetDateText]: [Root.GetName]: Decision timeout GRF_send_mercs_reward"
-			# remove_targeted_decision = {
-			# 	target = FROM
-			# 	decision = GRF_send_mercs_reward
-			# }
+			log = "[GetDateText]: [Root.GetName]: Decision timeout GRF_send_mercs_reward target: [From.GetName]"
 		}
 	}
 	TRD_send_mercs_reward = {
@@ -2858,22 +2947,17 @@ GRF_sending_mercs_cat = {
 		available = {
 			FROM = {
 				OR = {
-					has_capitulated = yes
 					exists = no
 					NOT = { has_idea = TRD_got_mercs }
 				}
 			}
 		}
+		fire_only_once = yes
 		complete_effect = {
-			log = "[GetDateText]: [Root.GetName]: Decision TRD_send_mercs_reward"
-			hidden_effect = { GRF_recalc_mercs = yes }
-			# remove_targeted_decision = {
-			# 	target = FROM
-			# 	decision = TRD_send_mercs_reward
-			# }
+			log = "[GetDateText]: [Root.GetName]: Decision TRD_send_mercs_reward target: [From.GetName]"
 		}
 		timeout_effect = {
-			log = "[GetDateText]: [Root.GetName]: Decision timeout TRD_send_mercs_reward"
+			log = "[GetDateText]: [Root.GetName]: Decision timeout TRD_send_mercs_reward target: [From.GetName]"
 			custom_effect_tooltip = TRD_gain_money_05_tp
 			add_to_variable = {
 				var = bank
@@ -2927,29 +3011,17 @@ GRF_sending_mercs_cat = {
 		available = {
 			FROM = {
 				OR = {
-					has_capitulated = yes
 					exists = no
 					NOT = { has_idea = GRF_got_mercs_delayed_payment }
 				}
 			}
 		}
+		fire_only_once = yes
 		complete_effect = {
-			log = "[GetDateText]: [Root.GetName]: Decision GRF_send_mercs_reward_delayed"
-			add_to_variable = { offsite_IC = -4 }
-			add_offsite_building = { type = industrial_complex level = -4 }
-			# remove_targeted_decision = {
-			# 	target = FROM
-			# 	decision = GRF_send_mercs_reward_delayed
-			# }
+			log = "[GetDateText]: [Root.GetName]: Decision GRF_send_mercs_reward_delayed target: [From.GetName]"
 		}
 		timeout_effect = {
-			log = "[GetDateText]: [Root.GetName]: Decision timeout GRF_send_mercs_reward_delayed"
-			add_to_variable = { offsite_IC = -4 }
-			add_offsite_building = { type = industrial_complex level = -4 }
-			# remove_targeted_decision = {
-			# 	target = FROM
-			# 	decision = GRF_send_mercs_reward_delayed
-			# }
+			log = "[GetDateText]: [Root.GetName]: Decision timeout GRF_send_mercs_reward_delayed target: [From.GetName]"
 		}
 	}
 	TRD_send_mercs_reward_delayed = {
@@ -2960,22 +3032,18 @@ GRF_sending_mercs_cat = {
 		available = {
 			FROM = {
 				OR = {
-					has_capitulated = yes
 					exists = no
 					NOT = { has_idea = TRD_got_mercs_delayed_payment }
 				}
 			}
 		}
+		fire_only_once = yes
 		days_remove = 0
 		complete_effect = {
-			log = "[GetDateText]: [Root.GetName]: Decision TRD_send_mercs_reward_delayed"
-			# remove_targeted_decision = {
-			# 	target = FROM
-			# 	decision = TRD_send_mercs_reward_delayed
-			# }
+			log = "[GetDateText]: [Root.GetName]: Decision TRD_send_mercs_reward_delayed target: [From.GetName]"
 		}
 		timeout_effect = {
-			log = "[GetDateText]: [Root.GetName]: Decision timeout TRD_send_mercs_reward_delayed"
+			log = "[GetDateText]: [Root.GetName]: Decision timeout TRD_send_mercs_reward_delayed target: [From.GetName]"
 			custom_effect_tooltip = TRD_gain_money_05_tp
 			add_to_variable = {
 				var = bank
