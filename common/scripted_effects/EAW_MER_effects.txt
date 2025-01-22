@@ -2419,3 +2419,115 @@ MER_random_decision_sod_effect = {
 	
 	MER_sod_add_popularity = yes 
 }
+
+
+
+
+### Daily Duppy GUI
+
+MER_DDP_Initiate_Phase_1 = {
+	set_country_flag = MER_DDP_Phase_1_Active
+	set_variable = { MER_DDP_P1_card_activation_remaining_days = -1 }
+	set_variable = { MER_DDP_P1_cooldown_remaining_days = -1 }
+	set_variable = { MER_DDP_P1_active_card = 0 }
+	add_to_variable = { MER_DDP_Dirty = 0.001 }
+}
+
+MER_DDP_P1_activate_card = {
+	set_variable = { MER_DDP_P1_card_activation_remaining_total = temp_activation_days }
+	set_variable = { MER_DDP_P1_card_activation_remaining_days = temp_activation_days }
+	set_variable = { MER_DDP_P1_card_activation_remaining_pct = 1 }
+	set_variable = { MER_DDP_P1_card_activation_frame = 100 }
+}
+
+MER_DDP_P1_initiate_cooldown = {
+	set_temp_variable = { temp_cooldown_days = 10 } # Remove later
+	set_variable = { MER_DDP_P1_cooldown_remaining_total = temp_cooldown_days }
+	set_variable = { MER_DDP_P1_cooldown_remaining_days = temp_cooldown_days }
+	set_variable = { MER_DDP_P1_cooldown_remaining_pct = 1 }
+	set_variable = { MER_DDP_P1_cooldown_frame = 100 }
+}
+
+MER_DDP_P1_daily_effect = {
+
+
+	### PHASE 1 ###
+	if = {
+		limit = {
+			has_country_flag = MER_DDP_Phase_1_Active
+		}
+
+		if = {
+			limit = {
+				check_variable = { MER_DDP_P1_card_activation_remaining_days > 0 }
+			}
+			subtract_from_variable = { MER_DDP_P1_card_activation_remaining_days = 1 }
+			set_variable = { MER_DDP_P1_card_activation_remaining_pct = MER_DDP_P1_card_activation_remaining_days }
+			divide_variable = { MER_DDP_P1_card_activation_remaining_pct = MER_DDP_P1_card_activation_remaining_total }
+
+			set_variable = { MER_DDP_P1_card_activation_frame = MER_DDP_P1_card_activation_remaining_pct }
+			multiply_variable = { MER_DDP_P1_card_activation_frame = 100 }
+		}
+
+		if = {
+			limit = {
+				check_variable = { MER_DDP_P1_card_activation_remaining_days = 0 }
+			}
+			meta_effect = {
+				text = {
+					remove_ideas = MER_DDP_card_[INPUT]
+				}
+				INPUT = "[?MER_DDP_P1_active_card]"
+			}
+			set_variable = { MER_DDP_P1_active_card = 0 }
+			set_variable = { MER_DDP_P1_card_activation_remaining_days = -1 }
+			MER_DDP_P1_initiate_cooldown = yes
+		}
+
+		if = {
+			limit = {
+				check_variable = { MER_DDP_P1_cooldown_remaining_days > 0 }
+			}
+			subtract_from_variable = { MER_DDP_P1_cooldown_remaining_days = 1 }
+			set_variable = { MER_DDP_P1_cooldown_remaining_pct = MER_DDP_P1_cooldown_remaining_days }
+			divide_variable = { MER_DDP_P1_cooldown_remaining_pct = MER_DDP_P1_cooldown_remaining_total }
+
+			set_variable = { MER_DDP_P1_card_activation_frame = MER_DDP_P1_cooldown_remaining_pct }
+			multiply_variable = { MER_DDP_P1_cooldown_frame = 100 }
+		}
+
+		if = {
+			limit = {
+				check_variable = { MER_DDP_P1_cooldown_remaining_days = 0 }
+			}
+			set_variable = { MER_DDP_P1_cooldown_remaining_days = -1 }
+		}
+
+		add_to_variable = { MER_DDP_Dirty = 0.001 }
+
+	}
+}
+
+MER_DDP_Change_Phases = {
+	# Deactivate Phase 1
+	clr_country_flag = MER_DDP_Phase_1_Active
+	clr_country_flag = MER_DDP_P1_popup_show
+
+	clear_variable = MER_DDP_P1_active_card
+	remove_ideas = MER_DDP_card_1
+	remove_ideas = MER_DDP_card_2
+	remove_ideas = MER_DDP_card_3
+	remove_ideas = MER_DDP_card_4
+
+	clear_variable = MER_DDP_P1_card_activation_remaining_total
+	clear_variable = MER_DDP_P1_card_activation_remaining_days
+	clear_variable = MER_DDP_P1_card_activation_remaining_pct
+	clear_variable = MER_DDP_P1_card_activation_frame
+
+	clear_variable = MER_DDP_P1_cooldown_remaining_total
+	clear_variable = MER_DDP_P1_cooldown_remaining_days
+	clear_variable = MER_DDP_P1_cooldown_remaining_pct
+	clear_variable = MER_DDP_P1_cooldown_frame
+	
+	# Activate Phase 2
+}
