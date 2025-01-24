@@ -82,11 +82,25 @@ class App(tk.Frame):
 		self.run_script.pack(side='top', pady=5)
 
 		self.country_tag_label = tk.Label(self)
-		self.country_tag_label['text'] = 'Country Tag\n(USA, MEX, BRA)'
+		self.country_tag_label['text'] = 'Country Tag\n(EQS, GRI, CTH)'
 		self.country_tag_label['wraplength'] = 170
 		self.country_tag_label.pack(side='top', pady=5)
 		self.country_tag = tk.Entry(self)
 		self.country_tag.pack(side='top', pady=5)
+
+		self.file_name_focus_label = tk.Label(self)
+		self.file_name_focus_label['text'] = 'National Focus File Name'
+		self.file_name_focus_label['wraplength'] = 170
+		self.file_name_focus_label.pack(side='top', pady=5)
+		self.file_name_focus = tk.Entry(self)
+		self.file_name_focus.pack(side='top', pady=5)
+
+		self.file_name_loc_label = tk.Label(self)
+		self.file_name_loc_label['text'] = 'Localisation File Name\n(with _l_english)'
+		self.file_name_loc_label['wraplength'] = 170
+		self.file_name_loc_label.pack(side='top', pady=5)
+		self.file_name_loc = tk.Entry(self)
+		self.file_name_loc.pack(side='top', pady=5)
 
 
 		self.horiz_spacing_label = tk.Label(self)
@@ -117,6 +131,8 @@ class App(tk.Frame):
 		
 	def run_app(self):
 		country_tag = self.country_tag.get()
+		file_name_focus = self.file_name_focus.get()
+		file_name_loc = self.file_name_loc.get()
 
 		foci = {}
 		i_contents = self.drawio_data.get(1.0, tk.END).strip()
@@ -241,15 +257,15 @@ class App(tk.Frame):
 			focus = foci[focus_id]
 			out_loc += f' {focus.tag}: "{focus.name}"\n'
 
-		with open('common/national_focus/drawio_focus_tree.txt', 'w') as o_file:
+		with open(f'common/national_focus/{file_name_focus}.txt', 'w') as o_file:
 			o_file.write(out)
 
-		with open('localisation/english/drawio_loc.yml', 'w', encoding='utf-8-sig') as o_file:
+		with open(f'localisation/english/{file_name_loc}.yml', 'w', encoding='utf-8-sig') as o_file:
 			o_file.write(out_loc)
 
 
 root = tk.Tk()
-root.geometry('500x510')
+root.geometry('500x772')
 root.title('Draw.io Converter')
 app = App(master=root)
 app.mainloop()
