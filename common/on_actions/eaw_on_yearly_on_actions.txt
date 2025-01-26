@@ -2990,76 +2990,88 @@ on_actions = {
 		effect = {
 			if = {
 				limit = {
-					has_completed_focus = DED_Black_Crusade
-					any_neighbor_country = {
-						NOT = { has_war_with = ROOT }
+					OR = {
+						has_completed_focus = DED_Black_Crusade
+						has_country_flag = DED_APN_even_death_may_die_flag
 					}
 				}
-				every_neighbor_country = {
+				if = { # Escalation stage 1: always keep declaring on neighbors if possible
 					limit = {
-						NOT = {
-							has_war_with = ROOT
-							tag = ZRS
-							AND = {
-								original_tag = FIR
-								has_country_flag = FIR_is_necromancer
-								has_completed_focus = FIR_mistress_of_the_dark_arts
-								has_country_leader = { ruling_only = yes character = FIR_shinespark }
-								OR = {
-									is_subject = no
-									is_subject_of = ROOT
+						any_neighbor_country = {
+							NOT = { has_war_with = ROOT }
+							NOT = { DED_should_not_autodeclare_on_this = yes }
+						}
+					}
+					every_neighbor_country = {
+						limit = {
+							NOT = { has_war_with = ROOT }
+							NOT = { DED_should_not_autodeclare_on_this = yes }
+						}
+						ROOT = {
+							hidden_effect = {
+								create_wargoal = { 
+									type = annex_everything 
+									target = PREV
 								}
 							}
+							declare_war_on = { target = PREV type = annex_everything }
 						}
 					}
-					ROOT = {
-						hidden_effect = {
-							create_wargoal = {
-								type = annex_everything
-								target = PREV
-							}
-						}
-						declare_war_on = { target = PREV type = annex_everything }
-					}
 				}
-			}
-			if = {
-				limit = {
-					has_country_flag = DED_APN_even_death_may_die_flag
-					any_neighbor_country = {
-						NOT = { has_war_with = ROOT }
-					}
-				}
-				every_neighbor_country = {
+				if = { # Escalation stage 2: if already conquered most of mainland Griffonia, declare war on the entire rest of the continent (e.g. island-countries like Greneclyf)
 					limit = {
-						NOT = {
-							has_war_with = ROOT
-							tag = ZRS
-							AND = {
-								original_tag = FIR
-								has_country_flag = FIR_is_necromancer
-								has_completed_focus = FIR_mistress_of_the_dark_arts
-								has_country_leader = { ruling_only = yes character = FIR_shinespark }
-								OR = {
-									is_subject = no
-									is_subject_of = ROOT
+						NOT = { any_neighbor_country = { has_war_with = ROOT } } #no neighbor to fight, i.e. already conquered the mainland (preferable to has_war = no because this ignores overseas wars where neither side naval-invaded)
+					}
+					every_other_country = {
+						limit = {
+							exists = yes
+							NOT = { has_war_with = ROOT }
+							NOT = { DED_should_not_autodeclare_on_this = yes }
+							capital_scope = { is_on_continent = asia } # Griffonia
+						}
+						ROOT = {
+							hidden_effect = {
+								create_wargoal = { 
+									type = annex_everything 
+									target = PREV
 								}
 							}
+							declare_war_on = { target = PREV type = annex_everything }
 						}
 					}
-					ROOT = { 
-						hidden_effect = {
-							create_wargoal = { 
-								type = annex_everything
-								target = PREV
+				}
+				if = { # Escalation stage 3: if the entire Griffonian continent has fallen, declare war on the entire world
+					limit = {
+						NOT = {
+							any_other_country = {
+								exists = yes
+								NOT = { has_capitulated = yes }
+								NOT = { DED_should_not_autodeclare_on_this = yes }
+								capital_scope = { is_on_continent = asia } # Griffonia
 							}
 						}
-						declare_war_on = { target = PREV type = annex_everything } 
+					}
+					every_other_country = {
+						limit = {
+							exists = yes
+							NOT = { has_war_with = ROOT }
+							NOT = { DED_should_not_autodeclare_on_this = yes }
+						}
+						ROOT = {
+							hidden_effect = {
+								create_wargoal = { 
+									type = annex_everything 
+									target = PREV
+								}
+							}
+							declare_war_on = { target = PREV type = annex_everything }
+						}
 					}
 				}
 			}
 		}
 	}
+	
 	on_monthly_FEA = {
 		effect = {
 			log = "[GetDateText]: ROOT: [Root.GetName] on_monthly_FEA"
@@ -3079,6 +3091,29 @@ on_actions = {
 				}
 			}
 		}
-		
+	}
+	
+	on_monthly_GRF = {
+		effect = {
+			if = {
+				limit = {
+					has_idea = GRF_send_mercs
+				}
+				GRF_recalc_mercs = yes
+			}
+		}
+	}
+	on_monthly_TRD = {
+		effect = {
+			if = {
+				limit = {
+					has_completed_focus = TRD_robber_baron
+					has_government = neutrality
+					is_subject = no
+				}
+				GRF_recalc_mercs = yes
+			}
+		}
 	}
 }
+
