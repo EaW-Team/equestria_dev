@@ -229,14 +229,56 @@ STG_check_party_variables = {
 			}
 		}
 
-		if = { # Centre Clamping
+		if = { # Centre Clamping - if Left is smaller than Right, increase Left, otherwise increase Right
+			limit = {
+				check_variable = {
+					STG_main_party_support < 0
+				}
+				check_variable = {
+					STG_left_opposition_support < STG_right_opposition_support
+				}
+			}
+			subtract_from_variable = { # subtracting a negative value is adding a positive, which is intended
+				STG_left_opposition_support = STG_main_party_support
+			}
+			clamp_variable = {
+				var = STG_main_party_support
+				min = 0
+				max = 100
+			}
+		}
+		else_if = {
 			limit = {
 				check_variable = {
 					STG_main_party_support < 0
 				}
 			}
 			subtract_from_variable = { # subtracting a negative value is adding a positive, which is intended
-				STG_left_opposition_support = STG_main_party_support
+				STG_right_opposition_support = STG_main_party_support
+			}
+			clamp_variable = {
+				var = STG_main_party_support
+				min = 0
+				max = 100
+			}
+		}
+		else_if = { # If Left is smaller than Right, increase Left, otherwise increase Right
+			limit = {
+				check_variable = {
+					STG_main_party_support > 100
+				}
+				check_variable = {
+					STG_left_opposition_support < STG_right_opposition_support
+				}
+			}
+			set_temp_variable = {
+				STG_main_party_reduction = STG_main_party_support
+			}
+			add_to_temp_variable = { # subtract it by 100, to get how much it's over by
+				STG_main_party_reduction = -100
+			}
+			add_to_variable = { # then add it to left oppo - to get back how much was missing
+				STG_left_opposition_support = STG_main_party_reduction
 			}
 			clamp_variable = {
 				var = STG_main_party_support
@@ -257,7 +299,7 @@ STG_check_party_variables = {
 				STG_main_party_reduction = -100
 			}
 			add_to_variable = { # then add it to right oppo - to get back how much was missing
-				STG_left_opposition_support = STG_main_party_reduction
+				STG_right_opposition_support = STG_main_party_reduction
 			}
 			clamp_variable = {
 				var = STG_main_party_support
