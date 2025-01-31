@@ -530,96 +530,49 @@ MSH_Influences_re_position_num = {
 ## This will change 1000's purist influence in the by 10
 
 MSH_change_support = {
-	set_temp_variable = { v_check = MSH_Influences^t_index }
-	add_to_temp_variable = { v_check = t_change }
+    for_each_loop = {
+        array = MSH_Influences
+        if = {
+            limit = {
+                check_variable = { var = i value = t_index compare = not_equals }
+            }
+            add_to_temp_variable = { sum_of_other_parties = v }
+        }
+    }
+    add_to_variable = { MSH_Influences^t_index = t_change }
+    clamp_variable = {
+        var = MSH_Influences^t_index
+        min = 0
+        max = 100
+    }
+    if = {
+        limit = {
+            all_of = {
+                array = MSH_Influences
+                add_to_temp_variable = { sum_popularity = v }
+            }
+            check_variable = { sum_popularity > 100 }
+        }
+        for_each_loop = {
+            array = MSH_Influences
+            index = current_influence
+            if = {
+                limit = {
+                    check_variable = { var = party value = current_influence compare = not_equals }
+                }
+                set_temp_variable = { popularity_factor = MSH_Influences^current_influences }
+                divide_temp_variable = { popularity_factor = sum_of_other_parties }
+                multiply_temp_variable = { t_change = popularity_factor }
+                subtract_from_variable = { MSH_Influences^current_influences = t_change }
+                divide_temp_variable = { t_change = popularity_factor }
+            }
+        }
+    }
+    custom_effect_tooltip = MSH_change_support_CET
 
-	if = {
-		limit = {
-			check_variable = { v_check < 0 }
-		}
-		subtract_from_temp_variable = { t_change = v_check }
-	}
-	else_if = {
-		limit = {
-			check_variable = { v_check > 100 }
-		}
-		set_temp_variable = { n_100 = v_check }
-		subtract_from_temp_variable = { n_100 = 100 }
-		subtract_from_temp_variable = { t_change = n_100 }
-	}
-	
-	if = {
-		limit = {
-			NOT = {
-				check_variable = { t_change = 0 }
-			}
-		}
-		custom_effect_tooltip = MSH_change_support_CET
-		add_to_variable = { MSH_Influences^t_index = t_change }
-		set_temp_variable = { t_change_divide = t_change }
-		
-		for_each_loop = {
-			array = MSH_Influences
-			if = {
-				limit = {
-					check_variable = { v = 0 }
-					NOT = { check_variable = { i = t_index } }
-				}
-				add_to_temp_array = { has_0 = i }
-			}
-		}
-		
-		set_temp_variable = { divide_factor = 2 }
-		subtract_from_temp_variable = { divide_factor = has_0^num }
-		divide_temp_variable = { t_change_divide = divide_factor }
-		
-		set_temp_variable = { excess = 0 }
-		for_each_loop = {
-			array = MSH_Influences
-			value = inf_v
-			index = inf_i
-
-			if = {
-				limit = {
-					NOT = {
-						check_variable = { inf_i = t_index }
-						is_in_array = { array = has_0 value = inf_i }
-					}
-				}
-				subtract_from_variable = { MSH_Influences^inf_i = t_change_divide }
-			}
-			if = {
-				limit = { check_variable = { MSH_Influences^inf_i < 0 } }
-				add_to_temp_variable = { excess = MSH_Influences^inf_i }
-				set_variable = { MSH_Influences^inf_i = 0 }
-				add_to_temp_array = { zero_value = inf_i }
-			}
-		}
-		for_each_loop = {
-			array = MSH_Influences
-			value = inf_v
-			index = inf_i
-			if = {
-				limit = {
-					NOT = {
-						is_in_array = { array = zero_value value = inf_i }
-						check_variable = { inf_i = t_index }
-					}
-				}
-				add_to_variable = { MSH_Influences^inf_i = excess }
-			}
-		}
-	}
-	
-	if = {
-		limit = {
-			check_variable = { manually_re_render_gui = 0 }
-		}
-		MSH_Influences_re_render = yes
-	}
-	
-	clear_temp_array = has_0
-	clear_temp_array = zero_value
+	clear_variable = t_index
+	clear_variable = t_change
+	MSH_Influences_re_render = yes
 }
 
 d_MSH_change_support = {
@@ -641,7 +594,6 @@ MSH_change_global_support = {
 ## Use the same index definitions as the one stated above
 
 MSH_change_support_targeted = {
-	custom_effect_tooltip = MSH_change_support_targeted_CET
 
 	add_to_variable = { MSH_Influences^t_index = t_change }
 	subtract_from_variable = { MSH_Influences^t_index_2 = t_change }
@@ -654,6 +606,8 @@ MSH_change_support_targeted = {
 		set_variable = { MSH_Influences^t_index_2 = 0 }
 		add_to_variable = { MSH_Influences^t_index = normalize }
 	}
+	
+	custom_effect_tooltip = MSH_change_support_targeted_CET
 	
 	clear_variable = t_index
 	clear_variable = t_index_2
