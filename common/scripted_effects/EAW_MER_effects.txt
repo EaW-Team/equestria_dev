@@ -2531,3 +2531,130 @@ MER_DDP_Change_Phases = {
 	
 	# Activate Phase 2
 }
+
+MER_auto_focus_start = {
+	
+	set_country_flag = MER_auto_focus_active
+	
+	#Set the length of time for each focus to complete
+	set_variable = { MER_auto_focus_time@token:MER_the_second_revolution_monarchy = 7 }
+	set_variable = { MER_auto_focus_time@token:MER_balance_shifts_moderate = 14 }
+	set_variable = { MER_auto_focus_time@token:MER_elevate_voices_of_reason = 21 }
+	set_variable = { MER_auto_focus_time@token:MER_negotiate_with_warhawks = 21 }
+	set_variable = { MER_auto_focus_time@token:MER_raise_regional_militias = 35 }
+	set_variable = { MER_auto_focus_time@token:MER_dig_in = 35 }
+	set_variable = { MER_auto_focus_time@token:MER_balance_shifts_radical = 14 }
+	set_variable = { MER_auto_focus_time@token:MER_buff_ourselves = 28 }
+	set_variable = { MER_auto_focus_time@token:MER_arms_shipments = 35 }
+	set_variable = { MER_auto_focus_time@token:MER_send_help = 21 }
+	set_variable = { MER_auto_focus_time@token:MER_buff_aquileia = 28 }
+	set_variable = { MER_auto_focus_time@token:MER_detrimental_enthusiasm = 28 }
+	set_variable = { MER_auto_focus_time@token:MER_deepen_involvement = 35 }
+	set_variable = { MER_auto_focus_time@token:MER_patriotic_speech = 7 }
+	set_variable = { MER_auto_focus_time@token:MER_send_actual_volunteers = 42 }
+	set_variable = { MER_auto_focus_time@token:MER_join_the_fray = 42 }
+	set_variable = { MER_auto_focus_time@token:MER_wait_it_out = 14 }
+	
+	add_to_array = { MER_auto_focus_available_foci = token:MER_the_second_revolution_monarchy }
+	MER_auto_focus_select_focus = yes
+}
+
+#Randomly select and activate an available focus.
+MER_auto_focus_select_focus = {
+	log = "[GetDateText]: [Root.GetName]: Scripted effect: MER_auto_focus_select_focus."
+	
+	if = {
+		limit = {
+			check_variable = { MER_auto_focus_available_foci^num = 0 }
+		}
+		MER_auto_focus_stop = yes #Because otherwise it creates an infinite loop and crashes the game.
+	}
+	else = {
+		#Choose a random focus from the array
+		set_variable_to_random = {
+			var = MER_active_focus_index
+			max = MER_auto_focus_available_foci^num
+			integer = yes
+		}
+		
+		#Debug logs
+		#log = "Array Length: [?MER_auto_focus_available_foci^num]"
+		#log = "Temp Max: [?temp_max]"
+		#log = "Focus Index: [?MER_active_focus_index]"
+		#log = "-----Available Focuses-----"
+		#for_each_loop = {
+		#	array = MER_auto_focus_available_foci
+		#	value = v
+		#	index = i
+		#	log = "[?i]: [?v.GetTokenKey]"
+		#}
+		
+		#Activate shine on the selected focus
+		meta_effect = {
+			text = {
+				activate_shine_on_focus = [FOCUS_ID]
+			}
+			FOCUS_ID = "[?MER_auto_focus_available_foci^MER_active_focus_index.GetTokenKey]"
+		}
+		
+		MER_auto_focus_select_effect = yes
+		
+		#Set up the country flag and the untility event to fire when the focus is complete
+		set_temp_variable = { temp_focus_token = MER_auto_focus_available_foci^MER_active_focus_index } #Have to do this thanks to PDX weirdness
+		set_country_flag = { flag = MER_auto_focus_in_progress_flag days = MER_auto_focus_time@var:temp_focus_token = 1 }
+		country_event = { id = meridiennes_utility.0 days = MER_auto_focus_time@var:temp_focus_token }
+	}
+}
+
+#Activate the select effects of the focuses that have them.
+MER_auto_focus_select_effect = {
+	if = {
+		limit = {
+			check_variable = { MER_auto_focus_available_foci^MER_active_focus_index = token:MER_the_second_revolution_monarchy }
+		}
+		if = {
+			limit = {
+				NOT = { has_country_flag = MER_clique_GUI_visible } 
+			}
+			country_event = { id = meridiennes_m_rev.1 days = 0 }
+			set_variable = { MER_oppo_mission_timeout = 30 }
+			hidden_effect = {
+				country_event = { id = meridiennes_m_rev.8 days = 35 }
+			}
+		}
+		else = {
+			
+		}
+	}
+	else_if = {
+		limit = {
+			check_variable = { MER_auto_focus_available_foci^MER_active_focus_index = token:MER_balance_shifts_moderate }
+		}
+		hidden_effect = { 
+			country_event = { id = meridiennes_m_rev.3 days = 0 }
+		}
+	}
+	else_if = {
+		limit = {
+			check_variable = { MER_auto_focus_available_foci^MER_active_focus_index = token:MER_balance_shifts_radical }
+		}
+		hidden_effect = {
+			country_event = { id = meridiennes_m_rev.7 days = 0 }
+		}
+	}
+}
+
+#Stops the auto-focus process and cancels all ongoing foci 
+MER_auto_focus_stop = {
+	log = "[GetDateText]: [Root.GetName]: Scripted effect: MER_auto_focus_stop."
+
+	clr_country_flag = MER_auto_focus_active
+	clr_country_flag = MER_auto_focus_in_progress_flag
+	
+	meta_effect = {
+		text = {
+			deactivate_shine_on_focus = [FOCUS_ID]
+		}
+		FOCUS_ID = "[?MER_auto_focus_available_foci^MER_active_focus_index.GetTokenKey]"
+	}
+}
