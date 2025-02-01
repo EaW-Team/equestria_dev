@@ -1,3 +1,67 @@
+@DAYS_DETERMINED = 180 #Used for propaganda campaign SOV_heroes_forward -> Value should be the same as SOV_default_propaganda_campaign_duration
+@YAK_MISSION_TIMEOUT = 70
+debug_decisions = {
+	YAK_starting_tree_dec = {
+		available = {
+			is_ai = no
+		}
+		allowed = {
+			tag = YAK
+		}
+
+		complete_effect = {
+			load_focus_tree = YAK_start_focus
+		}
+	}
+	YAK_civil_war_tree_dec = {
+		available = {
+			is_ai = no
+		}
+		allowed = {
+			tag = YAK
+		}
+
+		complete_effect = {
+			load_focus_tree = YAK_civil_war_tree
+		}
+	}
+	YAK_harmonist_tree_dec = {
+		available = {
+			is_ai = no
+		}
+		allowed = {
+			tag = YAK
+		}
+
+		complete_effect = {
+			load_focus_tree = YAK_harmonist_tree
+		}
+	}
+	YAK_communist_tree_endgame_thyra_dec = {
+		available = {
+			is_ai = no
+		}
+		allowed = {
+			tag = YAK
+		}
+
+		complete_effect = {
+			load_focus_tree = YAK_communist_tree_endgame_thyra
+		}
+	}
+	YAK_communist_tree_endgame_yngvar_dec = {
+		available = {
+			is_ai = no
+		}
+		allowed = {
+			tag = YAK
+		}
+
+		complete_effect = {
+			load_focus_tree = YAK_communist_tree_endgame_yngvar
+		}
+	}
+}
 foreign_politics = {
 	YAK_kick_out_equestrians = {
 		icon = generic_nationalism
@@ -156,13 +220,16 @@ form_yak_empire_category = {
 		available = {
 			all_cores_owned_by_ROOT = yes
 
-			277 = { is_owned_by = ROOT }
-			278 = { is_owned_by = ROOT }
-			281 = { is_owned_by = ROOT }
-			271 = { is_owned_by = ROOT }
-			335 = { is_owned_by = ROOT }
-			336 = { is_owned_by = ROOT }
-			337 = { is_owned_by = ROOT }
+			custom_trigger_tooltip = {
+				tooltip = YAK_owns_all_claims
+				277 = { is_owned_by = ROOT }
+				278 = { is_owned_by = ROOT }
+				281 = { is_owned_by = ROOT }
+				283 = { is_owned_by = ROOT }
+				335 = { is_owned_by = ROOT }
+				336 = { is_owned_by = ROOT }
+				337 = { is_owned_by = ROOT }
+			}
 			custom_trigger_tooltip = {
 				tooltip = not_has_agrarian_society
 				hidden_trigger = {
@@ -179,16 +246,26 @@ form_yak_empire_category = {
 		fire_only_once = yes
 
 		visible = {
-			NOT = { has_global_flag = YAK_empire_formed }
+			NOT = {
+				has_global_flag = YAK_empire_formed
+				has_country_leader = {
+					character = JAK_star_mountain
+					ruling_only = yes
+				}
+			}
 			OR = {
 				has_government = fascism
 				has_government = neutrality
+				has_country_leader = {
+					character = YAK_prince_rutherford
+					ruling_only = yes
+				}
 			}
 		}
 		complete_effect = {
 			log = "[GetDateText]: [Root.GetName]: Decision YAK_formation_of_the_empire"
-			drop_cosmetic_tag = yes
-			set_cosmetic_tag = YAK_empire
+			#drop_cosmetic_tag = yes
+			#set_cosmetic_tag = YAK_empire
 			set_global_flag = YAK_empire_formed
 			every_state = {
 				limit = {
@@ -197,7 +274,7 @@ form_yak_empire_category = {
 						state = 277
 						state = 278
 						state = 281
-						state = 271
+						state = 283
 						state = 335
 						state = 336
 						state = 337
@@ -217,6 +294,9 @@ war_measures = {
 
 		visible = {
 			is_ai = yes
+			JAK = {
+				is_ai = yes
+			}
 			FROM = { has_war_with = JAK }
 		}
 
@@ -261,209 +341,1113 @@ war_measures = {
 		}
 		days_remove = 30
 	}
+	
+	YAK_hold_the_line = {
+		icon = GFX_decision_generic_ignite_civil_war
+		allowed = {
+			tag = YAK
+		}
+		visible = {
+			has_completed_focus = YAK_civil_war_happening
+			NOT = {
+				has_global_flag = YAK_civil_war_over
+			}
+		}
+		available = {
+			NOT = {
+				has_decision = YAK_pierce_the_line
+			}
+		}
+		cost = 30
+		days_re_enable = 30
+		days_remove = 60
+		
+		modifier = {
+			land_bunker_effectiveness_factor = 0.5
+			breakthrough_factor = -0.1
+		}
+	}
+	YAK_pierce_the_line = {
+		icon = GFX_decision_generic_ignite_civil_war
+		allowed = {
+			tag = YAK
+		}
+		visible = {
+			has_completed_focus = YAK_civil_war_happening
+			NOT = {
+				has_global_flag = YAK_civil_war_over
+			}
+		}
+		available = {
+			NOT = {
+				has_decision = YAK_hold_the_line
+			}
+		}
+		cost = 30
+		days_re_enable = 30
+		days_remove = 60
+		
+		modifier = {
+			army_defence_factor = -0.1
+			breakthrough_factor = 0.5
+		}
+	}
+	YAK_flee_to_equestria = {
+		icon = GFX_decision_generic_ignite_civil_war
+		allowed = {
+			tag = YAK
+		}
+		visible = {
+			has_completed_focus = YAK_civil_war_happening
+			NOT = {
+				has_global_flag = YAK_civil_war_over
+			}
+		}
+		available = {
+			surrender_progress > 0.1
+			EQS = {
+				has_government = democratic
+			}
+		}
+		fire_only_once = yes
+		cost = 15
+		days_remove = 30
+		complete_effect = {
+			set_country_flag = YAK_yona_and_rutherford_running_away
+			custom_effect_tooltip = YAK_govt_in_exile_tt2
+		}
+		remove_effect = {
+			YAK = { add_country_leader_trait = YAK_absent_leader }
+			custom_effect_tooltip = YAK_govt_in_exile_tt
+			EQS = {
+				country_event = newyaks.86
+			}
+		}
+		
+	}
 }
 YAK_communist_decisions = {
-	YAK_attack_union1 = {
-		icon = red_star
-
-		available = {
-			has_country_flag = YAK_no_unions
+	YAK_incite_riots = {
+		
+        icon = GFX_decision_SOV_secure_the_administration
+		allowed = {
+		    original_tag = YAK
 		}
-
-		cost = 50
-
-		ai_will_do = {
-			factor = 100
+        available = {
+            FROM = {
+				resistance < 10
+            }
+        }
+        visible = {
+            FROM = {
+				NOT = {
+					is_core_of = ROOT
+				}
+            }
+        }
+		custom_cost_trigger = {
+			has_stability > 0.02
 		}
+		custom_cost_text = decision_cost_3_stability
 
-		fire_only_once = yes
-
-		complete_effect = {
-			log = "[GetDateText]: [Root.GetName]: Decision YAK_attack_union1"
-			add_stability = 0.1
+        target_root_trigger = {
+			has_completed_focus = YAK_massive_cooperatives
+        }
+		target_trigger = {
+			FROM = {
+				NOT = {
+					is_core_of = ROOT
+				}
+			}
 		}
+        state_target = any_controlled_state
+        target_array = JAK.core_states
+        on_map_mode = map_only
+    
+        ai_will_do = {
+            base = 10
+        }
+		days_remove = 45
+		remove_effect = {
+            FROM = {
+                add_compliance = 10
+				add_resistance = -5
+				add_resistance_target = -5
+			}
+		}
+    
+        complete_effect = {
+            log = "[GetDateText]: [Root.GetName]: Decision HIP_posada_core_state"
+			hidden_effect = {
+				
+				ROOT = {
+					add_stability = -0.03
+				}
+			}
+            FROM = {
+				add_resistance = 5
+				add_resistance_target = 5
+            }
+        }
 	}
-
-	YAK_attack_union2 = {
-		icon = red_star
-
-		available = {
-			has_country_flag = YAK_no_unions
+	YAK_send_in_army = {
+		
+        icon = GFX_decision_SOV_secure_the_administration
+		allowed = {
+		    original_tag = YAK
+		}
+		custom_cost_trigger = {
+			has_equipment = {
+				infantry_equipment > 199
+			}
+			has_manpower > 1999
+			command_power > 19
 		}
 
-		cost = 50
-
-		ai_will_do = {
-			factor = 100
+		custom_cost_text = decision_cost_200_infantry_2000_manpower_20_cp
+        visible = {
+            FROM = {
+				NOT = {
+					is_core_of = ROOT
+				}
+            }
+        }
+        target_root_trigger = {
+			has_completed_focus = YAK_ultimate_propaganda
+        }
+		target_trigger = {
+			FROM = {
+				NOT = {
+					is_core_of = ROOT
+				}
+			}
 		}
-
-		fire_only_once = yes
-
-		complete_effect = {
-			log = "[GetDateText]: [Root.GetName]: Decision YAK_attack_union2"
-			add_war_support = 0.1
+        state_target = any_controlled_state
+        target_array = JAK.core_states
+        on_map_mode = map_only
+    
+        ai_will_do = {
+            base = 10
+        }
+		days_remove = 45
+		remove_effect = {
+            FROM = {
+                add_compliance = 10
+				add_resistance = -5
+				add_resistance_target = -5
+			}
 		}
+    
+        complete_effect = {
+            log = "[GetDateText]: [Root.GetName]: Decision HIP_posada_core_state"
+			hidden_effect = {
+				ROOT = {
+					add_equipment_to_stockpile = {
+						type = infantry_equipment
+						amount = -200
+					}
+					add_manpower = -2000
+					add_command_power = -20
+				}
+			}
+            FROM = {
+				add_resistance = 5
+				add_resistance_target = 5
+            }
+        }
 	}
-
-	YAK_attack_union3 = {
-		icon = red_star
-
+	YAK_commies_reconcile_yurkids = {
+		icon = GFX_yak_yurkid_decision
+		allowed = {
+			tag = YAK
+		}
 		available = {
-			has_country_flag = YAK_no_unions
+			custom_trigger_tooltip = {
+				tooltip = YAK_all_states_of_this_clan_40_compliance
+				276 = {
+					compliance > 20
+				}
+				275 = {
+					compliance > 20
+				}
+				347 = {
+					compliance > 20
+				}
+				340 = {
+					compliance > 20
+				}
+			}
 		}
-
-		cost = 50
-
-		ai_will_do = {
-			factor = 100
-		}
-
-		fire_only_once = yes
-
-		complete_effect = {
-			log = "[GetDateText]: [Root.GetName]: Decision YAK_attack_union3"
-			add_stability = 0.1
-		}
-	}
-
-	YAK_attack_union4 = {
-		icon = red_star
-
-		available = {
-			has_country_flag = YAK_no_unions
-		}
-
-		cost = 50
-
-		ai_will_do = {
-			factor = 100
-		}
-
-		fire_only_once = yes
-
-		complete_effect = {
-			log = "[GetDateText]: [Root.GetName]: Decision YAK_attack_union4"
-			add_war_support = 0.1
-		}
-	}
-
-	YAK_worker_program = {
-		icon = red_star
-
-		cost = 150
-
-		ai_will_do = {
-			factor = 100
-		}
-
-		fire_only_once = yes
-
 		visible = {
-			has_country_flag = YAK_gov_programs
+			has_country_flag = YAK_yurkid_gone
 		}
-
-		complete_effect = {
-			log = "[GetDateText]: [Root.GetName]: Decision YAK_worker_program"
-			add_ideas = YAK_worker_programs
-		}
-	}
-
-	YAK_miner_program = {
-		icon = red_star
-
-		cost = 150
-
-		ai_will_do = {
-			factor = 100
-		}
-
 		fire_only_once = yes
 
-		visible = {
-			has_country_flag = YAK_gov_programs
-		}
+		days_remove = 30
 
-		complete_effect = {
-			log = "[GetDateText]: [Root.GetName]: Decision YAK_miner_program"
-			add_ideas = YAK_miner_programs
+		remove_effect = {
+			276 = {
+				add_core_of = YAK
+				remove_core_of = JAK
+			}
+			275 = {
+				add_core_of = YAK
+				remove_core_of = JAK
+			}
+			347 = {
+				add_core_of = YAK
+				remove_core_of = JAK
+			}
+			340 = {
+				add_core_of = YAK
+				remove_core_of = JAK
+			}
+			if = {
+				limit = {
+					has_completed_focus = YAK_red_junta
+				}
+				country_event = newyaks.68
+			}
+			else = {
+				country_event = newyaks.69
+			}
+		}
+		ai_will_do = {
+			factor = 1
 		}
 	}
+	YAK_commies_reconcile_juyilkhai = {
+		icon = GFX_yak_juyilkhai_decision
+		allowed = {
+			tag = YAK
+		}
+		available = {
+			custom_trigger_tooltip = {
+				tooltip = YAK_all_states_of_this_clan_40_compliance
+				255 = {
+					compliance > 20
+				}
+			}
+		}
+		visible = {
+			has_country_flag = YAK_juyilkhai_gone
+		}
+		fire_only_once = yes
+
+		days_remove = 30
+
+		remove_effect = {
+			255 = {
+				force_disable_resistance = {
+					clear = yes
+					occupier = YAK
+					occupied = JAK
+				}
+				add_core_of = YAK
+				remove_core_of = JAK
+			}
+			if = {
+				limit = {
+					has_completed_focus = YAK_red_junta
+				}
+				country_event = newyaks.70
+			}
+			else = {
+				country_event = newyaks.71
+			}
+		}
+		ai_will_do = {
+			factor = 1
+		}
+	}
+	YAK_commies_reconcile_noyamanan = {
+		icon = GFX_yak_noyamanan_decision
+		allowed = {
+			tag = YAK
+		}
+		available = {
+			custom_trigger_tooltip = {
+				tooltip = YAK_all_states_of_this_clan_40_compliance
+				317 = {
+					compliance > 20
+				}
+				267 = {
+					compliance > 20
+				}
+			}
+		}
+		visible = {
+			has_country_flag = YAK_noyamanan_gone
+		}
+		fire_only_once = yes
+
+		days_remove = 30
+
+		remove_effect = {
+			317 = {
+				force_disable_resistance = {
+					clear = yes
+					occupier = YAK
+					occupied = JAK
+				}
+				add_core_of = YAK
+				remove_core_of = JAK
+			}
+			267 = {
+				force_disable_resistance = {
+					clear = yes
+					occupier = YAK
+					occupied = JAK
+				}
+				add_core_of = YAK
+				remove_core_of = JAK
+			}
+		}
+		ai_will_do = {
+			factor = 1
+		}
+	}
+	YAK_commies_reconcile_arusharii = {
+		icon = GFX_yak_arusharii_decision
+		allowed = {
+			tag = YAK
+		}
+		available = {
+			custom_trigger_tooltip = {
+				tooltip = YAK_all_states_of_this_clan_40_compliance
+				256 = {
+					compliance > 20
+				}
+			}
+		}
+		visible = {
+			has_country_flag = YAK_arusharii_gone
+		}
+		fire_only_once = yes
+
+		days_remove = 30
+
+		remove_effect = {
+			256 = {
+				force_disable_resistance = {
+					clear = yes
+					occupier = YAK
+					occupied = JAK
+				}
+				add_core_of = YAK
+				remove_core_of = JAK
+			}
+		}
+		ai_will_do = {
+			factor = 1
+		}
+	}
+	YAK_commies_reconcile_kiyatukh = {
+		icon = GFX_yak_kiyatukh_decision
+		allowed = {
+			tag = YAK
+		}
+		available = {
+			custom_trigger_tooltip = {
+				tooltip = YAK_all_states_of_this_clan_40_compliance
+				257 = {
+					compliance > 20
+				}
+			}
+		}
+		visible = {
+			has_country_flag = YAK_kiyatukh_gone
+		}
+		fire_only_once = yes
+
+		days_remove = 30
+
+		remove_effect = {
+			257 = {
+				force_disable_resistance = {
+					clear = yes
+					occupier = YAK
+					occupied = JAK
+				}
+				add_core_of = YAK
+				remove_core_of = JAK
+			}
+		}
+		ai_will_do = {
+			factor = 1
+		}
+	}
+	YAK_commies_reconcile_mankhutayid = {
+		icon = GFX_yak_mankhutayid_decision
+		allowed = {
+			tag = YAK
+		}
+		available = {
+			custom_trigger_tooltip = {
+				tooltip = YAK_all_states_of_this_clan_40_compliance
+				346 = {
+					compliance > 20
+				}
+			}
+		}
+		visible = {
+			has_country_flag = YAK_mankhutayid_gone
+		}
+		fire_only_once = yes
+
+		days_remove = 30
+
+		remove_effect = {
+			346 = {
+				force_disable_resistance = {
+					clear = yes
+					occupier = YAK
+					occupied = JAK
+				}
+				add_core_of = YAK
+				remove_core_of = JAK
+			}
+		}
+		ai_will_do = {
+			factor = 1
+		}
+	}
+	YAK_commies_reconcile_suldintjid = {
+		icon = GFX_yak_suldintjid_decision
+		allowed = {
+			tag = YAK
+		}
+		available = {
+			custom_trigger_tooltip = {
+				tooltip = YAK_all_states_of_this_clan_40_compliance
+				273 = {
+					compliance > 20
+				}
+			}
+		}
+		visible = {
+			has_country_flag = YAK_suldintjid_gone
+		}
+		fire_only_once = yes
+
+		days_remove = 30
+
+		remove_effect = {
+			273 = {
+				force_disable_resistance = {
+					clear = yes
+					occupier = YAK
+					occupied = JAK
+				}
+				add_core_of = YAK
+				remove_core_of = JAK
+			}
+		}
+		ai_will_do = {
+			factor = 1
+		}
+	}
+	YAK_commies_reconcile_jakichikh = {
+		icon = GFX_yak_jakichikh_decision
+		allowed = {
+			tag = YAK
+		}
+		available = {
+			custom_trigger_tooltip = {
+				tooltip = YAK_all_states_of_this_clan_40_compliance
+				269 = {
+					compliance > 20
+				}
+				274 = {
+					compliance > 20
+				}
+			}
+		}
+		fire_only_once = yes
+
+		days_remove = 30
+
+		remove_effect = {
+			269 = {
+				add_core_of = YAK
+				remove_core_of = JAK
+			}
+			274 = {
+				add_core_of = YAK
+				remove_core_of = JAK
+			}
+		}
+		ai_will_do = {
+			factor = 1
+		}
+	}
+	YAK_commies_reconcile_khoriikhat = {
+		icon = GFX_yak_khoriikhat_decision
+		allowed = {
+			tag = YAK
+		}
+		available = {
+			custom_trigger_tooltip = {
+				tooltip = YAK_all_states_of_this_clan_40_compliance
+				341 = {
+					compliance > 20
+				}
+			}
+		}
+		fire_only_once = yes
+
+		days_remove = 30
+
+		remove_effect = {
+			341 = {
+				add_core_of = YAK
+				remove_core_of = JAK
+			}
+		}
+		ai_will_do = {
+			factor = 1
+		}
+	}
+	YAK_commies_reconcile_ubkhait = {
+		icon = GFX_yak_ubkhait_decision
+		allowed = {
+			tag = YAK
+		}
+		available = {
+			custom_trigger_tooltip = {
+				tooltip = YAK_all_states_of_this_clan_40_compliance
+				253 = {
+					compliance > 20
+				}
+			}
+		}
+		fire_only_once = yes
+
+		days_remove = 30
+
+		remove_effect = {
+			253 = {
+				add_core_of = YAK
+				remove_core_of = JAK
+			}
+		}
+		ai_will_do = {
+			factor = 1
+		}
+	}
+	YAK_commies_reconcile_khataut = {
+		icon = GFX_yak_khataut_decision
+		allowed = {
+			tag = YAK
+		}
+		available = {
+			custom_trigger_tooltip = {
+				tooltip = YAK_all_states_of_this_clan_40_compliance
+				342 = {
+					compliance > 20
+				}
+			}
+		}
+		fire_only_once = yes
+
+		days_remove = 30
+
+		remove_effect = {
+			342 = {
+				add_core_of = YAK
+				remove_core_of = JAK
+			}
+		}
+		ai_will_do = {
+			factor = 1
+		}
+	}
+
 }
 
-YAK_changeling_decisions = {
-
-	YAK_hive_yakistown = {
-		icon = changeling_icon
-
-		cost = 300
-
-		ai_will_do = {
-			factor = 100
+YAK_harmonist_decisions = {
+	YAK_hold_parade = {
+		
+        icon = GFX_decision_flower
+		allowed = {
+		    original_tag = YAK
 		}
+		cost = 30
 
-		fire_only_once = yes
-		days_remove = 180
-
-		visible = {
-			has_country_flag = YAK_hives
-		}
-
-		complete_effect = {
-			log = "[GetDateText]: [Root.GetName]: Decision YAK_hive_yakistown"
-			11 = {
-				add_manpower = 100000
+        visible = {
+            FROM = {
+				NOT = {
+					is_core_of = ROOT
+				}
+            }
+        }
+        target_root_trigger = {
+			has_completed_focus = YAK_parades_through_the_land
+        }
+		target_trigger = {
+			FROM = {
+				NOT = {
+					is_core_of = ROOT
+				}
 			}
-			add_stability = -0.2
 		}
-	}
-
-	YAK_hive_karsag = {
-		icon = changeling_icon
-
-		cost = 300
-
-		ai_will_do = {
-			factor = 100
+        state_target = any_controlled_state
+        target_array = JAK.core_states
+        on_map_mode = map_only
+    
+        ai_will_do = {
+            base = 10
+        }
+		days_remove = 45
+		modifier = {
+			command_power_gain_mult = -0.1
 		}
-
-		fire_only_once = yes
-		days_remove = 180
-
-		visible = {
-			has_country_flag = YAK_hives
-		}
-
-		complete_effect = {
-			log = "[GetDateText]: [Root.GetName]: Decision YAK_hive_karsag"
-			270 = {
-				add_manpower = 100000
+		remove_effect = {
+            FROM = {
+                add_compliance = 10
+				add_resistance = -5
+				add_resistance_target = -5
 			}
-			add_stability = -0.2
 		}
+    
+        complete_effect = {
+            log = "[GetDateText]: [Root.GetName]: Decision HIP_posada_core_state"
+        }
 	}
-
-	YAK_hive_baradur = {
-		icon = changeling_icon
-
-		cost = 300
-
-		ai_will_do = {
-			factor = 100
+	YAK_hold_festival= {
+		
+        icon = GFX_decision_flower
+		allowed = {
+		    original_tag = YAK
 		}
+		cost = 30
 
-		fire_only_once = yes
-		days_remove = 180
-
+        visible = {
+            FROM = {
+				NOT = {
+					is_core_of = ROOT
+				}
+            }
+        }
+        target_root_trigger = {
+			has_completed_focus = YAK_hold_republican_festival
+        }
+		target_trigger = {
+			FROM = {
+				NOT = {
+					is_core_of = ROOT
+				}
+			}
+		}
+        state_target = any_controlled_state
+        target_array = JAK.core_states
+        on_map_mode = map_only
+    
+        ai_will_do = {
+            base = 10
+        }
+		days_remove = 45
+		modifier = {
+			political_power_factor = -0.1
+		}
+		remove_effect = {
+            FROM = {
+                add_compliance = 10
+				add_resistance = -5
+				add_resistance_target = -5
+			}
+		}
+    
+        complete_effect = {
+            log = "[GetDateText]: [Root.GetName]: Decision HIP_posada_core_state"
+        }
+	}
+	YAK_harmonists_reconcile_yurkids = {
+		icon = GFX_yak_yurkid_decision
+		allowed = {
+			tag = YAK
+		}
+		available = {
+			custom_trigger_tooltip = {
+				tooltip = YAK_all_states_of_this_clan_40_compliance
+				276 = {
+					compliance > 20
+				}
+				275 = {
+					compliance > 20
+				}
+				347 = {
+					compliance > 20
+				}
+				340 = {
+					compliance > 20
+				}
+			}
+		}
 		visible = {
-			has_country_flag = YAK_hives
+			has_country_flag = YAK_yurkid_gone
 		}
+		fire_only_once = yes
 
-		complete_effect = {
-			log = "[GetDateText]: [Root.GetName]: Decision YAK_hive_baradur"
+		days_remove = 30
+
+		remove_effect = {
+			276 = {
+				add_core_of = YAK
+				remove_core_of = JAK
+			}
+			275 = {
+				add_core_of = YAK
+				remove_core_of = JAK
+			}
 			347 = {
-				add_manpower = 100000
+				add_core_of = YAK
+				remove_core_of = JAK
 			}
-			add_stability = -0.2
+			340 = {
+				add_core_of = YAK
+				remove_core_of = JAK
+			}
+		}
+		ai_will_do = {
+			factor = 1
+		}
+	}
+	YAK_harmonists_reconcile_juyilkhai = {
+		icon = GFX_yak_juyilkhai_decision
+		allowed = {
+			tag = YAK
+		}
+		available = {
+			custom_trigger_tooltip = {
+				tooltip = YAK_all_states_of_this_clan_40_compliance
+				255 = {
+					compliance > 20
+				}
+			}
+		}
+		visible = {
+			has_country_flag = YAK_juyilkhai_gone
+		}
+		fire_only_once = yes
+
+		days_remove = 30
+
+		remove_effect = {
+			255 = {
+				force_disable_resistance = {
+					clear = yes
+					occupier = YAK
+					occupied = JAK
+				}
+				add_core_of = YAK
+				remove_core_of = JAK
+			}
+		}
+		ai_will_do = {
+			factor = 1
+		}
+	}
+	YAK_harmonists_reconcile_noyamanan = {
+		icon = GFX_yak_noyamanan_decision
+		allowed = {
+			tag = YAK
+		}
+		available = {
+			custom_trigger_tooltip = {
+				tooltip = YAK_all_states_of_this_clan_40_compliance
+				317 = {
+					compliance > 20
+				}
+				267 = {
+					compliance > 20
+				}
+			}
+		}
+		visible = {
+			has_country_flag = YAK_noyamanan_gone
+		}
+		fire_only_once = yes
+
+		days_remove = 30
+
+		remove_effect = {
+			317 = {
+				force_disable_resistance = {
+					clear = yes
+					occupier = YAK
+					occupied = JAK
+				}
+				add_core_of = YAK
+				remove_core_of = JAK
+			}
+			267 = {
+				force_disable_resistance = {
+					clear = yes
+					occupier = YAK
+					occupied = JAK
+				}
+				add_core_of = YAK
+				remove_core_of = JAK
+			}
+		}
+		ai_will_do = {
+			factor = 1
+		}
+	}
+	YAK_harmonists_reconcile_arusharii = {
+		icon = GFX_yak_arusharii_decision
+		allowed = {
+			tag = YAK
+		}
+		available = {
+			custom_trigger_tooltip = {
+				tooltip = YAK_all_states_of_this_clan_40_compliance
+				256 = {
+					compliance > 20
+				}
+			}
+		}
+		visible = {
+			has_country_flag = YAK_arusharii_gone
+		}
+		fire_only_once = yes
+
+		days_remove = 30
+
+		remove_effect = {
+			256 = {
+				force_disable_resistance = {
+					clear = yes
+					occupier = YAK
+					occupied = JAK
+				}
+				add_core_of = YAK
+				remove_core_of = JAK
+			}
+		}
+		ai_will_do = {
+			factor = 1
+		}
+	}
+	YAK_harmonists_reconcile_kiyatukh = {
+		icon = GFX_yak_kiyatukh_decision
+		allowed = {
+			tag = YAK
+		}
+		available = {
+			custom_trigger_tooltip = {
+				tooltip = YAK_all_states_of_this_clan_40_compliance
+				257 = {
+					compliance > 20
+				}
+			}
+		}
+		visible = {
+			has_country_flag = YAK_kiyatukh_gone
+		}
+		fire_only_once = yes
+
+		days_remove = 30
+
+		remove_effect = {
+			257 = {
+				force_disable_resistance = {
+					clear = yes
+					occupier = YAK
+					occupied = JAK
+				}
+				add_core_of = YAK
+				remove_core_of = JAK
+			}
+		}
+		ai_will_do = {
+			factor = 1
+		}
+	}
+	YAK_harmonists_reconcile_mankhutayid = {
+		icon = GFX_yak_mankhutayid_decision
+		allowed = {
+			tag = YAK
+		}
+		available = {
+			custom_trigger_tooltip = {
+				tooltip = YAK_all_states_of_this_clan_40_compliance
+				346 = {
+					compliance > 20
+				}
+			}
+		}
+		visible = {
+			has_country_flag = YAK_mankhutayid_gone
+		}
+		fire_only_once = yes
+
+		days_remove = 30
+
+		remove_effect = {
+			346 = {
+				force_disable_resistance = {
+					clear = yes
+					occupier = YAK
+					occupied = JAK
+				}
+				add_core_of = YAK
+				remove_core_of = JAK
+			}
+		}
+		ai_will_do = {
+			factor = 1
+		}
+	}
+	YAK_harmonists_reconcile_suldintjid = {
+		icon = GFX_yak_suldintjid_decision
+		allowed = {
+			tag = YAK
+		}
+		available = {
+			custom_trigger_tooltip = {
+				tooltip = YAK_all_states_of_this_clan_40_compliance
+				273 = {
+					compliance > 20
+				}
+			}
+		}
+		visible = {
+			has_country_flag = YAK_suldintjid_gone
+		}
+		fire_only_once = yes
+
+		days_remove = 30
+
+		remove_effect = {
+			273 = {
+				force_disable_resistance = {
+					clear = yes
+					occupier = YAK
+					occupied = JAK
+				}
+				add_core_of = YAK
+				remove_core_of = JAK
+			}
+		}
+		ai_will_do = {
+			factor = 1
+		}
+	}
+	YAK_harmonists_reconcile_jakichikh = {
+		icon = GFX_yak_jakichikh_decision
+		allowed = {
+			tag = YAK
+		}
+		available = {
+			custom_trigger_tooltip = {
+				tooltip = YAK_all_states_of_this_clan_40_compliance
+				269 = {
+					compliance > 20
+				}
+				274 = {
+					compliance > 20
+				}
+			}
+		}
+		fire_only_once = yes
+
+		days_remove = 30
+
+		remove_effect = {
+			269 = {
+				add_core_of = YAK
+				remove_core_of = JAK
+			}
+			274 = {
+				add_core_of = YAK
+				remove_core_of = JAK
+			}
+		}
+		ai_will_do = {
+			factor = 1
+		}
+	}
+	YAK_harmonists_reconcile_khoriikhat = {
+		icon = GFX_yak_khoriikhat_decision
+		allowed = {
+			tag = YAK
+		}
+		available = {
+			custom_trigger_tooltip = {
+				tooltip = YAK_all_states_of_this_clan_40_compliance
+				341 = {
+					compliance > 20
+				}
+			}
+		}
+		fire_only_once = yes
+
+		days_remove = 30
+
+		remove_effect = {
+			341 = {
+				add_core_of = YAK
+				remove_core_of = JAK
+			}
+		}
+		ai_will_do = {
+			factor = 1
+		}
+	}
+	YAK_harmonists_reconcile_ubkhait = {
+		icon = GFX_yak_ubkhait_decision
+		allowed = {
+			tag = YAK
+		}
+		available = {
+			custom_trigger_tooltip = {
+				tooltip = YAK_all_states_of_this_clan_40_compliance
+				253 = {
+					compliance > 20
+				}
+			}
+		}
+		fire_only_once = yes
+
+		days_remove = 30
+
+		remove_effect = {
+			253 = {
+				add_core_of = YAK
+				remove_core_of = JAK
+			}
+		}
+		ai_will_do = {
+			factor = 1
+		}
+	}
+	YAK_harmonists_reconcile_khataut = {
+		icon = GFX_yak_khataut_decision
+		allowed = {
+			tag = YAK
+		}
+		available = {
+			custom_trigger_tooltip = {
+				tooltip = YAK_all_states_of_this_clan_40_compliance
+				342 = {
+					compliance > 20
+				}
+			}
+		}
+		fire_only_once = yes
+
+		days_remove = 30
+
+		remove_effect = {
+			342 = {
+				add_core_of = YAK
+				remove_core_of = JAK
+			}
+		}
+		ai_will_do = {
+			factor = 1
 		}
 	}
 }
@@ -486,6 +1470,2996 @@ YAK_remove_stalliongrad_propoganda = {
 			add_war_support = -0.2
 			remove_ideas = communist_influence
 			remove_ideas = stalliongrad_propaganda
+		}
+	}
+}
+
+#####CLAN STUFF#####
+YAK_clans_category = {
+
+
+	#Juyilkhai Clan
+	clan_yak_juyilkhai = {
+
+  		allowed = { 
+  			OR = { 
+  				original_tag = JAK
+  				original_tag = YAK 
+  			}
+  		}
+
+  		icon = GFX_decision_juyilkhai_clan
+
+  		state_target = europe
+
+		targets = { 255 }
+
+  		fire_only_once = no
+
+  		cost = 0
+
+  		on_map_mode = map_only
+
+  		complete_effect = { } # haha yak go bbrrr
+
+  		ai_will_do = { base = 0 } # haha ai dont go brrr
+	}
+
+	#Mangchijid Clan
+	clan_yak_mangchijid = {
+
+  		allowed = {
+  			OR = { 
+  				original_tag = JAK
+  				original_tag = YAK 
+  			}
+  		}
+
+  		icon = GFX_decision_mangchijid_clan
+
+  		state_target = europe
+
+		targets = { 254 11 }
+
+  		fire_only_once = no
+
+  		cost = 0
+
+  		on_map_mode = map_only
+
+  		complete_effect = { } # haha yak go bbrrr
+
+  		ai_will_do = { base = 0 } # haha ai dont go brrr
+
+	}
+
+	#Noyamanan Clan
+	clan_yak_noyamanan = {
+
+  		allowed = {
+  			OR = { 
+  				original_tag = JAK
+  				original_tag = YAK 
+  			}
+  		}
+
+  		icon = GFX_decision_noyamanan_clan
+
+  		state_target = europe
+
+		targets = { 317 267 }
+
+  		fire_only_once = no
+
+  		cost = 0
+
+  		on_map_mode = map_only
+
+  		complete_effect = { } # haha yak go bbrrr
+
+  		ai_will_do = { base = 0 } # haha ai dont go brrr
+
+	}
+
+	#Arusharii Clan
+	clan_yak_arusharii = {
+
+  		allowed = { 
+  			OR = { 
+  				original_tag = JAK
+  				original_tag = YAK 
+  			}
+  		}
+
+  		icon = GFX_decision_arusharii_clan
+
+  		state_target = europe
+
+		targets = { 256 }
+
+  		fire_only_once = no
+
+  		cost = 0
+
+  		on_map_mode = map_only
+
+  		complete_effect = { } # haha yak go bbrrr
+
+  		ai_will_do = { base = 0 } # haha ai dont go brrr
+
+	}
+
+	#Kiyatukh Clan
+	clan_yak_kiyatukh = {
+
+  		allowed = { 
+  			OR = { 
+  				original_tag = JAK
+  				original_tag = YAK 
+  			}
+  		}
+
+  		icon = GFX_decision_kiyatukh_clan
+
+  		state_target = europe
+
+		targets = { 257 }
+
+  		fire_only_once = no
+
+  		cost = 0
+
+  		on_map_mode = map_only
+
+  		complete_effect = { } # haha yak go bbrrr
+
+  		ai_will_do = { base = 0 } # haha ai dont go brrr
+
+	}
+
+	#Süldintjid Clan
+	clan_yak_suldintjid = {
+
+  		allowed = { 
+  			OR = { 
+  				original_tag = JAK
+  				original_tag = YAK 
+  			}
+  		}
+
+  		icon = GFX_decision_suldintjid_clan
+
+  		state_target = europe
+
+	  	targets = { 273 }
+
+  		fire_only_once = no
+
+  		cost = 0
+
+  		on_map_mode = map_only
+
+  		complete_effect = { } # haha yak go bbrrr
+
+  		ai_will_do = { base = 0 } # haha ai dont go brrr
+
+	}
+
+	#Mankhutayid Clan
+	clan_yak_mankhutayid = {
+
+  		allowed = { 
+  			OR = { 
+  				original_tag = JAK
+  				original_tag = YAK 
+  			}
+  		}
+
+  		icon = GFX_decision_mankhutayid_clan
+
+  		state_target = europe
+
+	  	targets = { 346 }
+
+  		fire_only_once = no
+
+  		cost = 0
+
+  		on_map_mode = map_only
+
+  		complete_effect = { } # haha yak go bbrrr
+
+  		ai_will_do = { base = 0 } # haha ai dont go brrr
+
+	}
+
+	#Ghenikhan Clan
+	clan_yak_ghenikhan = {
+
+  		allowed = { 
+  			OR = { 
+  				original_tag = JAK
+  				original_tag = YAK 
+  			}
+  		}
+
+  		icon = GFX_decision_ghenikhan_clan
+
+  		state_target = europe
+
+		targets = { 270 268 }
+
+  		fire_only_once = no
+
+  		cost = 0
+
+  		on_map_mode = map_only
+
+  		complete_effect = { } # haha yak go bbrrr
+
+  		ai_will_do = { base = 0 } # haha ai dont go brrr
+
+	}
+
+	#Yürkid Clan
+	clan_yak_yurkid = {
+
+  		allowed = { 
+  			OR = { 
+  				original_tag = JAK
+  				original_tag = YAK 
+  			}
+  		}
+
+  		icon = GFX_decision_yurkid_clan
+
+  		state_target = europe
+
+		targets = { 276 275 347 340 }
+
+  		fire_only_once = no
+
+  		cost = 0
+
+  		on_map_mode = map_only
+
+  		complete_effect = { } # haha yak go bbrrr
+
+  		ai_will_do = { base = 0 } # haha ai dont go brrr
+
+	}
+
+	#Jakichikh Clan
+	clan_yak_jakichikh = {
+
+  		allowed = { 
+  			OR = { 
+  				original_tag = JAK
+  				original_tag = YAK 
+  			}
+  		}
+
+  		icon = GFX_decision_jakichikh_clan
+
+  		state_target = europe
+
+		targets = { 269 274 }
+
+  		fire_only_once = no
+
+  		cost = 0
+
+  		on_map_mode = map_only
+
+  		complete_effect = { } # haha yak go bbrrr
+
+  		ai_will_do = { base = 0 } # haha ai dont go brrr
+
+	}
+
+
+	#Ubkhait Clan
+	clan_yak_ubkhait = {
+
+  		allowed = { 
+  			OR = { 
+  				original_tag = JAK
+  				original_tag = YAK 
+  			}
+  		}
+
+  		icon = GFX_decision_ubkhait_clan
+
+  		state_target = europe
+
+		targets = { 253 }
+
+
+  		fire_only_once = no
+
+  		cost = 0
+
+  		on_map_mode = map_only
+
+  		complete_effect = { } # haha yak go bbrrr
+
+  		ai_will_do = { base = 0 } # haha ai dont go brrr
+
+	}
+
+
+	#Khoriikhat Clan
+	clan_yak_khoriikhat = {
+
+  		allowed = { 
+  			OR = { 
+  				original_tag = JAK
+  				original_tag = YAK 
+  			}
+  		}
+
+  		icon = GFX_decision_khoriikhat_clan
+
+  		state_target = europe
+
+		targets = { 341 }
+
+  		fire_only_once = no
+
+  		cost = 0
+
+  		on_map_mode = map_only
+
+  		complete_effect = { } # haha yak go bbrrr
+
+  		ai_will_do = { base = 0 } # haha ai dont go brrr
+
+	}
+
+	#Khata'ut Clan
+	clan_yak_khataut = {
+
+  		allowed = { 
+  			OR = { 
+  				original_tag = JAK
+  				original_tag = YAK 
+  			}
+  		}
+
+  		icon = GFX_decision_khataut_clan
+
+  		state_target = europe
+
+		targets = { 342 }
+
+  		fire_only_once = no
+
+  		cost = 0
+
+  		on_map_mode = map_only
+
+  		complete_effect = { } # haha yak go bbrrr
+
+  		ai_will_do = { base = 0 } # haha ai dont go brrr
+
+	}
+
+	### Clan decisions
+	#YAK DECISIONS
+	YAK_juyilkhai_grant_autonomy = {
+
+		icon = GFX_yak_juyilkhai_decision
+		allowed = {
+			tag = YAK
+		}
+		available = {
+			NOT = {
+				has_country_flag = YAK_doing_stuff
+			}
+		}
+		cancel_trigger = {
+			has_country_flag = YAK_juyilkhai_gone
+		}
+
+		visible = {
+			NOT = {
+				has_country_flag = YAK_juyilkhai_gone
+			}
+		}
+		cost = 15
+
+		complete_effect = {
+			set_country_flag = YAK_doing_stuff
+		}
+
+		days_remove = 20
+
+		remove_effect = {
+			YAK_add_opinion_juyilkhai = yes
+			custom_effect_tooltip = YAK_juyilkhai_opinion_increase_tt				
+			add_stability = -0.05
+			clr_country_flag = YAK_doing_stuff
+			hidden_effect = {
+				random_list = {
+					25 = {
+						modifier = {
+							factor = 2.25
+							has_global_flag = JAK_noyamanan_demand_boost
+						}
+						modifier = {
+							factor = 0
+							has_country_flag = YAK_subsidised_linguists
+						}
+						set_country_flag = YAK_pls_words_shit
+						clr_global_flag = JAK_noyamanan_demand_boost
+					}
+					75 = {
+					#nothing lol
+					}
+				}
+			}
+		}
+		ai_will_do = {
+			factor = 1
+		}
+	}
+	YAK_juyilkhai_loosen_code = {
+		icon = GFX_yak_juyilkhai_decision
+		allowed = {
+			tag = YAK
+		}
+		available = {
+			NOT = {
+				has_country_flag = YAK_doing_stuff
+			}
+		}
+		cancel_trigger = {
+			has_country_flag = YAK_juyilkhai_gone
+		}
+
+		visible = {
+			NOT = {
+				has_country_flag = YAK_juyilkhai_gone
+			}
+		}
+		cost = 15
+
+		complete_effect = {
+			set_country_flag = YAK_doing_stuff
+		}
+
+		days_remove = 20
+
+		remove_effect = {
+			if = {
+				limit = {
+					NOT = {
+						has_country_flag = YAK_pls_loosen_shit
+					}
+				}
+				YAK_add_opinion_juyilkhai = yes
+				YAK_decrease_opinion_kiyatukh = yes
+				custom_effect_tooltip = YAK_juyilkhai_opinion_increase_tt
+				custom_effect_tooltip = YAK_kiyatukh_opinion_decrease_tt
+			}
+			else = {
+				clr_country_flag = YAK_pls_loosen_shit
+				custom_effect_tooltip = YAK_demands_loosened_tt
+				YAK_decrease_opinion_kiyatukh = yes
+				custom_effect_tooltip = YAK_kiyatukh_opinion_decrease_tt
+			}	
+			clr_country_flag = YAK_doing_stuff
+			hidden_effect = {
+				random_list = {
+					25 = {
+						modifier = {
+							factor = 2.25
+							has_global_flag = JAK_noyamanan_demand_boost
+						}
+						modifier = {
+							factor = 0
+							has_country_flag = YAK_subsidised_linguists
+						}
+						set_country_flag = YAK_pls_words_shit
+						clr_global_flag = JAK_noyamanan_demand_boost
+					}
+					75 = {
+					#nothing lol
+					}
+				}
+			}
+		}
+		ai_will_do = {
+			factor = 5
+		}
+	}
+	YAK_kiyatukh_expand_smashing_ground = {
+		icon = GFX_yak_kiyatukh_decision
+		allowed = {
+			tag = YAK
+		}
+		available = {
+			NOT = {
+				has_country_flag = YAK_doing_stuff
+			}
+		}
+		cancel_trigger = {
+			has_country_flag = YAK_kiyatukh_gone
+		}
+
+		fixed_random_seed = no
+
+		visible = {
+			NOT = {
+				has_country_flag = YAK_kiyatukh_gone
+			}
+		}
+		cost = 15
+
+		complete_effect = {
+			set_country_flag = YAK_doing_stuff
+		}
+
+		days_remove = 20
+
+		remove_effect = {
+			YAK_add_opinion_kiyatukh = yes
+			custom_effect_tooltip = YAK_kiyatukh_opinion_increase_tt
+			add_timed_idea = {
+				idea = YAK_smash_grounds_idea
+				days = 50
+			}			
+			clr_country_flag = YAK_doing_stuff
+			hidden_effect = {
+				random_list = {
+					25 = {
+						modifier = {
+							factor = 2.25
+							has_global_flag = JAK_juyilkhai_demand_boost
+						}
+						modifier = {
+							factor = 0
+							has_country_flag = YAK_loosened_religious_code
+						}
+						set_country_flag = YAK_pls_loosen_shit
+						clr_global_flag = JAK_juyilkhai_demand_boost
+					}
+					75 = {
+						#nothing lol
+					}
+				}
+			}
+		}
+		ai_will_do = {
+			factor = 1
+		}
+	}
+	YAK_kiyatukh_grant_authority = {
+		icon = GFX_yak_kiyatukh_decision
+		allowed = {
+			tag = YAK
+		}
+		available = {
+			NOT = {
+				has_country_flag = YAK_doing_stuff
+			}
+		}
+		cancel_trigger = {
+			has_country_flag = YAK_kiyatukh_gone
+		}
+
+		fixed_random_seed = no
+
+		visible = {
+			NOT = {
+				has_country_flag = YAK_kiyatukh_gone
+			}
+		}
+		cost = 30
+
+		complete_effect = {
+			set_country_flag = YAK_doing_stuff
+		}
+
+		days_remove = 20
+
+		remove_effect = {
+			YAK_add_opinion_kiyatukh = yes
+			custom_effect_tooltip = YAK_kiyatukh_opinion_increase_tt
+			add_stability = -0.05
+			clr_country_flag = YAK_doing_stuff
+			hidden_effect = {
+				random_list = {
+					25 = {
+						modifier = {
+							factor = 2.25
+							has_global_flag = JAK_juyilkhai_demand_boost
+						}
+						modifier = {
+							factor = 0
+							has_country_flag = YAK_loosened_religious_code
+						}
+						set_country_flag = YAK_pls_loosen_shit
+						clr_global_flag = JAK_juyilkhai_demand_boost
+					}
+					75 = {
+					#nothing lol
+					}
+				}
+			}
+		}
+		ai_will_do = {
+			factor = 1
+		}
+	}
+	YAK_noyamanan_subsidise_linguists = {
+		icon = GFX_yak_noyamanan_decision
+		allowed = {
+			tag = YAK
+		}
+		available = {
+			NOT = {
+				has_country_flag = YAK_doing_stuff
+			}
+		}
+		cancel_trigger = {
+			has_country_flag = YAK_noyamanan_gone
+		}
+
+		visible = {
+			NOT = {
+				has_country_flag = YAK_noyamanan_gone
+			}
+		}
+		cost = 15
+
+		complete_effect = {
+			set_country_flag = YAK_doing_stuff
+		}
+
+		days_re_enable = 70
+
+		days_remove = 20
+
+		remove_effect = {
+			YAK_add_opinion_noyamanan = yes
+			custom_effect_tooltip = YAK_noyamanan_opinion_increase_tt
+			add_timed_idea = {
+				idea = YAK_subsidised_linguists_idea
+				days = 50
+			}	
+			clr_country_flag = YAK_doing_stuff
+			set_country_flag = YAK_subsidised_linguists
+		}
+		ai_will_do = {
+			factor = 1
+		}
+	}
+	YAK_noyamanan_introduce_equipment = {
+		icon = GFX_yak_noyamanan_decision
+		allowed = {
+			tag = YAK
+		}
+		available = {
+			NOT = {
+				has_country_flag = YAK_doing_stuff
+				has_country_flag = YAK_scrapped_equipment
+			}
+		}
+		cancel_trigger = {
+			has_country_flag = YAK_noyamanan_gone
+		}
+
+		fixed_random_seed = no
+
+		visible = {
+			NOT = {
+				has_country_flag = YAK_noyamanan_gone
+			}
+		}
+		cost = 15
+
+		complete_effect = {
+			set_country_flag = YAK_doing_stuff
+		}
+
+		days_re_enable = 70
+
+		days_remove = 20
+
+		remove_effect = {
+			YAK_add_opinion_noyamanan = yes
+			custom_effect_tooltip = YAK_noyamanan_opinion_increase_tt
+			YAK_decrease_opinion_mankhutayid = yes
+			custom_effect_tooltip = YAK_mankhutayid_opinion_decrease_tt
+			add_timed_idea = {
+				idea = YAK_new_equipment_idea
+				days = 50
+			}
+			set_country_flag = YAK_pls_scrap_shit
+			clr_country_flag = YAK_doing_stuff
+			hidden_effect = {
+				random_list = {
+					25 = {
+						modifier = {
+							factor = 2.25
+							has_global_flag = JAK_juyilkhai_demand_boost
+						}
+						modifier = {
+							factor = 0
+							has_country_flag = YAK_loosened_religious_code
+						}
+						set_country_flag = YAK_pls_loosen_shit
+						clr_global_flag = JAK_juyilkhai_demand_boost
+					}
+					75 = {
+					#nothing lol
+					}
+				}
+			}
+		}
+		ai_will_do = {
+			factor = 1
+		}
+	}
+	YAK_arusharii_decrease_imports = {
+		icon = GFX_yak_arusharii_decision
+		allowed = {
+			tag = YAK
+		}
+		available = {
+			NOT = {
+				has_country_flag = YAK_doing_stuff
+			}
+		}
+		cancel_trigger = {
+			has_country_flag = YAK_arusharii_gone
+		}
+
+
+		visible = {
+			NOT = {
+				has_country_flag = YAK_arusharii_gone
+			}
+		}
+		cost = 15
+
+		complete_effect = {
+			set_country_flag = YAK_doing_stuff
+		}
+
+		days_remove = 20
+
+		remove_effect = {
+			YAK_add_opinion_arusharii = yes
+			custom_effect_tooltip = YAK_arusharii_opinion_increase_tt
+			#decreases EQS support
+			YAK_eqs_support_subtract = yes
+			clr_country_flag = YAK_doing_stuff
+		}
+		ai_will_do = {
+			factor = 1
+		}
+	}
+	YAK_arusharii_enshrine_banners = {
+		icon = GFX_yak_arusharii_decision
+		allowed = {
+			tag = YAK
+		}
+		available = {
+			NOT = {
+				has_country_flag = YAK_doing_stuff
+			}
+			has_completed_focus = YAK_right_to_rule
+		}
+		cancel_trigger = {
+			has_country_flag = YAK_arusharii_gone
+		}
+
+
+		visible = {
+			NOT = {
+				has_country_flag = YAK_arusharii_gone
+			}
+		}
+		cost = 30
+
+		complete_effect = {
+			set_country_flag = YAK_doing_stuff
+		}
+
+		days_remove = 20
+
+		remove_effect = {
+			YAK_add_opinion_arusharii = yes
+			custom_effect_tooltip = YAK_arusharii_opinion_increase_tt
+			YAK_decrease_opinion_suldintjid = yes
+			custom_effect_tooltip = YAK_suldintjid_opinion_decrease_tt
+			clr_country_flag = YAK_doing_stuff
+			hidden_effect = {
+				random_list = {
+					25 = {
+						modifier = {
+							factor = 2.25
+							has_global_flag = JAK_noyamanan_demand_boost
+						}
+						modifier = {
+							factor = 0
+							has_country_flag = YAK_subsidised_linguists
+						}
+						set_country_flag = YAK_pls_words_shit
+						clr_global_flag = JAK_noyamanan_demand_boost
+					}
+					75 = {
+					#nothing lol
+					}
+				}
+			}
+		}
+		ai_will_do = {
+			factor = 1
+		}
+	}
+	# YAK_ghenikhan_modernise_government = {
+	# 	icon = GFX_yak_ghenikhan_decision
+	# 	allowed = {
+	# 		tag = YAK
+	# 	}
+	# 	available = {
+	# 		NOT = {
+	# 			has_country_flag = YAK_doing_stuff
+	# 		}
+	# 	}
+	# 	cancel_trigger = {
+	# 		has_country_flag = YAK_ghenikhan_gone
+	# 	}
+
+	# 	fixed_random_seed = no
+
+	# 	visible = {
+	# 		NOT = {
+	# 			has_country_flag = YAK_ghenikhan_gone
+	# 		}
+	# 	}
+	# 	cost = 15
+
+	# 	complete_effect = {
+	# 		set_country_flag = YAK_doing_stuff
+	# 	}
+
+	# 	days_remove = 20
+
+	# 	remove_effect = {
+	# 		YAK_add_opinion_ghenikhan = yes
+	# 		custom_effect_tooltip = YAK_ghenikhan_opinion_increase_tt
+	# 		YAK_decrease_opinion_suldintjid = yes
+	# 		YAK_decrease_opinion_arusharii = yes
+	# 		YAK_decrease_opinion_mankhutayid = yes
+	# 		YAK_decrease_opinion_kiyatukh = yes
+	# 		YAK_decrease_opinion_noyamanan = yes
+	# 		YAK_decrease_opinion_juyilkhai = yes
+	# 		custom_effect_tooltip = YAK_everyone_except_ghenikhan_opinion_decrease_tt
+	# 		#Increases EQS support ADD THIS WHEN THE DYNAMIC MODIFIER IS DONE
+	# 		custom_effect_tooltip = YAK_eqs_support_increase_tt
+	# 		YAK_eqs_support_add = yes
+	# 		clr_country_flag = YAK_doing_stuff
+	# 		hidden_effect = {
+	# 			random_list = {
+	# 				25 = {
+	# 					modifier = {
+	# 						factor = 2.25
+	# 						has_country_flag = JAK_juyilkhai_demand_boost
+	# 					}
+	# 					modifier = {
+	# 						factor = 0
+	# 						has_country_flag = YAK_loosened_religious_code
+	# 					}
+	# 					set_country_flag = YAK_pls_loosen_shit
+	# 					clr_global_flag = JAK_juyilkhai_demand_boost
+	# 				}
+	# 				75 = {
+	# 				#nothing lol
+	# 				}
+	# 			}
+	# 		}
+	# 	}
+	# 	ai_will_do = {
+	# 		factor = 0
+	# 	}
+	# }
+	# YAK_ghenikhan_expand_army_program = {
+	# 	icon = GFX_yak_ghenikhan_decision
+	# 	allowed = {
+	# 		tag = YAK
+	# 	}
+	# 	available = {
+	# 		NOT = {
+	# 			has_country_flag = YAK_doing_stuff
+	# 			has_country_flag = YAK_new_army_expanded
+	# 		}
+	# 		has_completed_focus = YAK_right_to_rule
+	# 	}
+	# 	cancel_trigger = {
+	# 		has_country_flag = YAK_ghenikhan_gone
+	# 	}
+
+
+	# 	visible = {
+	# 		NOT = {
+	# 			has_country_flag = YAK_ghenikhan_gone
+	# 		}
+	# 	}
+	# 	cost = 35
+
+	# 	complete_effect = {
+	# 		set_country_flag = YAK_doing_stuff
+	# 	}
+
+	# 	days_remove = 30
+
+	# 	remove_effect = {
+	# 		custom_effect_tooltip = YAK_create_new_army_unit
+	# 		#creates another division in the capital state with the same template as the New Army focus one
+	# 		YAK_decrease_opinion_suldintjid = yes
+	# 		YAK_decrease_opinion_mankhutayid = yes
+	# 		YAK_decrease_opinion_kiyatukh = yes
+	# 		YAK_decrease_opinion_noyamanan = yes
+	# 		YAK_decrease_opinion_juyilkhai = yes
+	# 		custom_effect_tooltip = YAK_everyone_except_ghenikhan_arusharii_opinion_decrease_tt
+	# 		custom_effect_tooltip = YAK_eqs_support_increase_tt
+	# 		YAK_eqs_support_add = yes
+	# 		clr_country_flag = YAK_doing_stuff
+	# 		set_country_flag = YAK_new_army_expanded
+	# 	}
+	# 	ai_will_do = {
+	# 		factor = 0
+	# 	}
+	# }
+	YAK_mankhutayid_scrap_new_machinery = {
+		icon = GFX_yak_mankhutayid_decision
+		allowed = {
+			tag = YAK
+		}
+		available = {
+			NOT = {
+				has_country_flag = YAK_doing_stuff
+			}
+			has_country_flag = YAK_pls_scrap_shit
+		}
+		cancel_trigger = {
+			has_country_flag = YAK_mankhutayid_gone
+		}
+
+
+		visible = {
+			NOT = {
+				has_country_flag = YAK_mankhutayid_gone
+			}
+		}
+		cost = 15
+
+		complete_effect = {
+			set_country_flag = YAK_doing_stuff
+		}
+
+		days_re_enable = 30
+
+		days_remove = 20
+
+		remove_effect = {
+			clr_country_flag = YAK_pls_scrap_shit
+			custom_effect_tooltip = YAK_mankhutayid_scrapped_machines
+			clr_country_flag = YAK_doing_stuff
+		}
+		ai_will_do = {
+			factor = 1
+		}
+	}
+	YAK_mankhutayid_temporarily_halt_industry = {
+		icon = GFX_yak_mankhutayid_decision
+		allowed = {
+			tag = YAK
+		}
+		available = {
+			NOT = {
+				has_country_flag = YAK_doing_stuff
+			}
+		}
+
+		cancel_trigger = {
+			has_country_flag = YAK_mankhutayid_gone
+		}
+
+		visible = {
+			NOT = {
+				has_country_flag = YAK_mankhutayid_gone
+			}
+		}
+		cost = 15
+
+		complete_effect = {
+			set_country_flag = YAK_doing_stuff
+		}
+
+		days_re_enable = 70
+
+		days_remove = 20
+
+		remove_effect = {
+			custom_effect_tooltip = YAK_mankhutayid_opinion_increase_tt
+			YAK_add_opinion_mankhutayid = yes
+			add_timed_idea = {
+				idea = YAK_halted_industry
+				days = 50
+			}
+			clr_country_flag = YAK_doing_stuff
+		}
+		ai_will_do = {
+			factor = 1
+		}
+	}
+	YAK_suldintjid_enshrine_banners = {
+		icon = GFX_yak_suldintjid_decision
+		allowed = {
+			tag = YAK
+		}
+		available = {
+			NOT = {
+				has_country_flag = YAK_doing_stuff
+			}
+			#has_completed_focus = YAK_enshrine_the_militarists
+		}
+		cancel_trigger = {
+			has_country_flag = YAK_suldintjid_gone
+		}
+
+		fixed_random_seed = no
+
+		visible = {
+			NOT = {
+				has_country_flag = YAK_suldintjid_gone
+			}
+		}
+		cost = 30
+
+		complete_effect = {
+			set_country_flag = YAK_doing_stuff
+		}
+
+		days_remove = 20
+
+		remove_effect = {
+			YAK_add_opinion_suldintjid = yes
+			custom_effect_tooltip = YAK_suldintjid_opinion_increase_tt
+			YAK_decrease_opinion_arusharii = yes
+			custom_effect_tooltip = YAK_arusharii_opinion_decrease_tt
+			clr_country_flag = YAK_doing_stuff
+			hidden_effect = {
+				random_list = {
+					25 = {
+						modifier = {
+							factor = 2.25
+							has_global_flag = JAK_noyamanan_demand_boost
+						}
+						modifier = {
+							factor = 0
+							has_country_flag = YAK_subsidised_linguists
+						}
+						set_country_flag = YAK_pls_words_shit
+						clr_global_flag = JAK_noyamanan_demand_boost
+					}
+					75 = {
+					#nothing lol
+					}
+				}
+				random_list = {
+					25 = {
+						modifier = {
+							factor = 2.25
+							has_global_flag = JAK_juyilkhai_demand_boost
+						}
+						modifier = {
+							factor = 0
+							has_country_flag = YAK_loosened_religious_code
+						}
+						set_country_flag = YAK_pls_loosen_shit
+						clr_global_flag = JAK_juyilkhai_demand_boost
+					}
+					75 = {
+					#nothing lol
+					}
+				}
+			}
+		}
+		ai_will_do = {
+			factor = 1
+		}
+	}
+	YAK_suldintjid_antagonise_atheism = {
+		icon = GFX_yak_suldintjid_decision
+		allowed = {
+			tag = YAK
+		}
+		available = {
+			NOT = {
+				has_country_flag = YAK_doing_stuff
+			}
+		}
+		cancel_trigger = {
+			has_country_flag = YAK_suldintjid_gone
+		}
+
+		visible = {
+			NOT = {
+				has_country_flag = YAK_suldintjid_gone
+			}
+		}
+		cost = 15
+
+		complete_effect = {
+			set_country_flag = YAK_doing_stuff
+		}
+
+		days_remove = 20
+
+		remove_effect = {
+			YAK_add_opinion_suldintjid = yes
+			custom_effect_tooltip = YAK_suldintjid_opinion_increase_tt
+			#Will decrease military support from Stalliongrad if there is any
+			YAK_stg_support_subtract = yes # moved outside to avoid cheesing it
+
+			clr_country_flag = YAK_doing_stuff
+		}
+		ai_will_do = {
+			factor = 1
+		}
+	}
+	YAK_yurkid_reconcile = {
+		icon = GFX_yak_yurkid_decision
+		allowed = {
+			tag = YAK
+		}
+		available = {
+			NOT = {
+				has_country_flag = YAK_doing_stuff
+			}
+		}
+		cancel_trigger = {
+			has_country_flag = YAK_yurkid_gone
+		}
+
+		visible = {
+			NOT = {
+				has_country_flag = YAK_yurkid_gone
+			}
+		}
+		cost = 0
+
+		complete_effect = {
+			set_country_flag = YAK_doing_stuff
+		}
+
+		days_remove = 20
+
+		remove_effect = {
+			country_event = {
+				id = yakistan.44
+				days = 1
+			}
+		}
+		ai_will_do = {
+			factor = 1
+		}
+	}
+	YAK_peace_talk_attempts = {
+		icon = GFX_yak_jakichikh_decision
+		allowed = {
+			tag = YAK
+		}
+		available = {
+			NOT = {
+				has_country_flag = YAK_doing_stuff
+			}
+			has_completed_focus = YAK_right_to_rule
+		}
+		cancel_trigger = {
+			has_war_with = JAK
+		}
+
+		cost = 25
+
+		complete_effect = {
+			custom_effect_tooltip = YAK_peace_talks_attempt_tt
+			set_country_flag = YAK_doing_stuff
+			set_global_flag = YAK_peace_talks
+		}
+
+		days_remove = 30
+
+		remove_effect = {
+			clr_country_flag = YAK_doing_stuff
+			clr_global_flag = YAK_peace_talks
+		}
+		ai_will_do = {
+			factor = 1
+		}
+	}
+
+	#YAK MISSIONS
+	YAK_scrap_new_equipment = {
+		icon = GFX_yak_mankhutayid_decision
+		allowed = { tag = YAK }
+        available = {
+            NOT = {
+            	has_country_flag = YAK_pls_scrap_shit
+            }
+        }
+        activation = {
+        	original_tag = YAK
+        	has_country_flag = YAK_pls_scrap_shit
+        }
+        days_mission_timeout = 60
+        complete_effect = {
+        	custom_effect_tooltip = YAK_mankhutayid_appeased_tt
+        	set_country_flag = YAK_scrapped_equipment
+        	country_event = {	
+        		id = yakistan.43
+        		days = 50
+        	}
+        }
+        timeout_effect = {
+  			YAK_decrease_opinion_mankhutayid = yes
+			custom_effect_tooltip = YAK_mankhutayid_opinion_decrease_tt
+			clr_country_flag = YAK_pls_scrap_shit
+        }
+	}
+	YAK_loosen_religious_code = {
+		icon = GFX_yak_juyilkhai_decision
+		allowed = { tag = YAK }
+        available = {
+            NOT = {
+            	has_country_flag = YAK_pls_loosen_shit
+            }
+        }
+        activation = {
+        	original_tag = YAK
+        	has_country_flag = YAK_pls_loosen_shit
+			NOT = {
+				has_country_flag = YAK_juyilkhai_gone
+			}
+        }
+        days_mission_timeout = 60
+        complete_effect = {
+        	custom_effect_tooltip = YAK_juyilkhai_appeased_tt
+        	set_country_flag = YAK_loosened_religious_code
+        	country_event = {	
+        		id = yakistan.45
+        		days = 50
+        	}
+        }
+        timeout_effect = {
+  			YAK_decrease_opinion_juyilkhai = yes
+			custom_effect_tooltip = YAK_juyilkhai_opinion_decrease_tt
+			clr_country_flag = YAK_pls_loosen_shit
+        }
+	}
+	YAK_subsidise_linguists = {
+		icon = GFX_yak_noyamanan_decision
+		allowed = { tag = YAK }
+        available = {
+            NOT = {
+            	has_country_flag = YAK_pls_words_shit
+            }
+        }
+		cancel_trigger = {
+			has_country_flag = YAK_subsidised_linguists
+		}
+        activation = {
+        	original_tag = YAK
+        	has_country_flag = YAK_pls_words_shit
+			NOT = {
+				has_country_flag = YAK_noyamanan_gone
+			}
+        }
+        days_mission_timeout = 60
+        complete_effect = {
+        	custom_effect_tooltip = YAK_noyamanan_appeased_tt
+        	set_country_flag = YAK_subsidised_linguists
+        	country_event = {	
+        		id = yakistan.46
+        		days = 50
+        	}
+        }
+		cancel_effect = {
+			clr_country_flag = YAK_pls_words_shit
+			custom_effect_tooltip = YAK_noyamanan_appeased_tt
+		}
+        timeout_effect = {
+  			YAK_decrease_opinion_noyamanan = yes
+			custom_effect_tooltip = YAK_noyamanan_opinion_decrease_tt
+			clr_country_flag = YAK_pls_words_shit
+        }
+	}
+	YAK_juyilkhai_secession_timer = {
+		icon = GFX_yak_juyilkhai_decision
+		allowed = { tag = YAK }
+		available = {
+			custom_trigger_tooltip = {
+				tooltip = YAK_clan_loyalty_middle_or_better
+				check_variable = {
+					var = YAK_clan_opinion_arr^0
+					value = 2
+					compare = greater_than_or_equals
+				}
+			}
+			has_political_power > 19
+		}
+		cancel_trigger = {
+			has_global_flag = YAK_civil_war_started
+		}
+		is_good = no
+		selectable_mission = yes
+		activation = {
+			always = no
+		}
+		days_mission_timeout = @YAK_MISSION_TIMEOUT
+		timeout_effect = {
+			YAK = {
+				if = {
+					limit = {
+						JAK = {
+							OR = {
+								owns_state = 256
+								owns_state = 257	
+							}
+						}
+					}
+					country_event = {
+						id = yakistan.33
+					}					
+				}
+				else = {
+					country_event = {
+						id = yakistan.42
+					}
+				}
+			}
+			set_country_flag = YAK_juyilkhai_secession
+		}
+		complete_effect = {
+			add_political_power = -20
+			YAK_alert_remove_juyilkhai = yes
+			JAK = {
+				YAK_alert_remove_juyilkhai = yes
+			}
+		}
+	}
+	YAK_kiyatukh_secession_timer = {
+		icon = GFX_yak_kiyatukh_decision
+		allowed = { tag = YAK }
+		available = {
+			custom_trigger_tooltip = {
+				tooltip = YAK_clan_loyalty_middle_or_better
+				check_variable = {
+					var = YAK_clan_opinion_arr^4
+					value = 2
+					compare = greater_than_or_equals
+				}
+			}
+			has_political_power > 19
+		}
+		is_good = no
+		selectable_mission = yes
+		activation = {
+			always = no
+		}
+		cancel_trigger = {
+			has_global_flag = YAK_civil_war_started
+		}
+		days_mission_timeout = @YAK_MISSION_TIMEOUT
+		timeout_effect = {
+			YAK = {
+				if = {
+					limit = {
+						JAK = {
+							OR = {
+								owns_state = 273
+								owns_state = 346
+							}
+						}
+					}
+					country_event = {
+						id = yakistan.36
+					}					
+				}
+				else = {
+					country_event = {
+						id = yakistan.40
+					}
+				}
+			}
+			set_country_flag = YAK_kiyatukh_secession
+		}
+		complete_effect = {
+			add_political_power = -20
+			YAK_alert_remove_kiyatukh = yes
+			JAK = {
+				YAK_alert_remove_kiyatukh = yes
+			}
+		}
+	}
+	YAK_noyamanan_secession_timer = {
+		icon = GFX_yak_noyamanan_decision
+		allowed = { tag = YAK }
+		available = {
+			custom_trigger_tooltip = {
+				tooltip = YAK_clan_loyalty_middle_or_better
+				check_variable = {
+					var = YAK_clan_opinion_arr^1
+					value = 2
+					compare = greater_than_or_equals
+				}
+			}
+			has_political_power > 19
+		}
+		is_good = no
+		cancel_trigger = {
+			has_global_flag = YAK_civil_war_started
+		}
+		selectable_mission = yes
+		activation = {
+			always = no
+		}
+		days_mission_timeout = @YAK_MISSION_TIMEOUT
+		timeout_effect = {
+			YAK = {
+				if = {
+					limit = {
+						JAK = {
+							owns_state = 256
+						}
+					}
+					country_event = {
+						id = yakistan.37
+					}					
+				}
+				else = {
+					country_event = {
+						id = yakistan.38
+					}
+				}
+			}
+			set_country_flag = YAK_noyamanan_secession
+		}
+		complete_effect = {
+			add_political_power = -20
+			YAK_alert_remove_noyamanan = yes
+			JAK = {
+				YAK_alert_remove_noyamanan = yes
+			}
+		}
+	}
+	YAK_mankhutayid_secession_timer = {
+		icon = GFX_yak_mankhutayid_decision
+		allowed = { tag = YAK }
+		available = {
+			custom_trigger_tooltip = {
+				tooltip = YAK_clan_loyalty_middle_or_better
+				check_variable = {
+					var = YAK_clan_opinion_arr^5
+					value = 2
+					compare = greater_than_or_equals
+				}
+			}
+			has_political_power > 19
+		}
+		is_good = no
+		selectable_mission = yes
+		activation = {
+			always = no
+		}
+		cancel_trigger = {
+			has_global_flag = YAK_civil_war_started
+		}
+		days_mission_timeout = @YAK_MISSION_TIMEOUT
+		timeout_effect = {
+			YAK = {
+				country_event = {
+					id = yakistan.34
+				}
+			}
+			set_country_flag = YAK_mankhutayid_secession
+		}
+		complete_effect = {
+			add_political_power = -20
+			YAK_alert_remove_mankhutayid = yes
+			JAK = {
+				YAK_alert_remove_mankhutayid = yes
+			}
+		}
+	}
+	YAK_arusharii_secession_timer = {
+		icon = GFX_yak_arusharii_decision
+		allowed = { tag = YAK }
+		available = {
+			custom_trigger_tooltip = {
+				tooltip = YAK_clan_loyalty_middle_or_better
+				check_variable = {
+					var = YAK_clan_opinion_arr^2
+					value = 2
+					compare = greater_than_or_equals
+				}
+			}
+			has_political_power > 19
+		}
+		cancel_trigger = {
+			has_global_flag = YAK_civil_war_started
+		}
+		is_good = no
+		selectable_mission = yes
+		activation = {
+			always = no
+		}
+		days_mission_timeout = @YAK_MISSION_TIMEOUT
+		timeout_effect = {
+			YAK = {
+				if = {
+					limit = {
+						JAK = {
+							OR = {
+								owns_state = 346
+								owns_state = 270
+							}
+						}
+					}
+					country_event = {
+						id = yakistan.35
+					}					
+				}
+				else = {
+					country_event = {
+						id = yakistan.39
+					}
+				}
+			}
+			set_country_flag = YAK_arusharii_secession
+		}
+		complete_effect = {
+			add_political_power = -20
+			YAK_alert_remove_arusharii = yes
+			JAK = {
+				YAK_alert_remove_arusharii = yes
+			}
+		}
+	}
+	YAK_suldintjid_secession_timer = {
+		icon = GFX_yak_suldintjid_decision
+		allowed = { tag = YAK }
+		available = {
+			custom_trigger_tooltip = {
+				tooltip = YAK_clan_loyalty_middle_or_better
+				check_variable = {
+					var = YAK_clan_opinion_arr^6
+					value = 2
+					compare = greater_than_or_equals
+				}
+			}
+			has_political_power > 19
+		}
+		is_good = no
+		selectable_mission = yes
+		activation = {
+			always = no
+		}
+		cancel_trigger = {
+			has_global_flag = YAK_civil_war_started
+		}
+		days_mission_timeout = @YAK_MISSION_TIMEOUT
+		timeout_effect = {
+			YAK = {
+				country_event = {
+					id = yakistan.41
+				}					
+			}
+			set_country_flag = YAK_suldintjid_secession
+		}
+		complete_effect = {
+			add_political_power = -20
+			YAK_alert_remove_suldintjid = yes
+			JAK = {
+				YAK_alert_remove_suldintjid = yes
+			}
+		}
+	}
+}
+
+YAK_bear_penguin_tech_research_category = {
+
+	YAK_tech_polar_shamans = { ## 1st ind. tech
+		icon = GFX_magic_power_texticon
+		allowed = {
+			original_tag = YAK
+		}
+		available = {
+			has_completed_focus = YAK_bear_penguin_tech_research
+			NOT = {
+				has_country_flag = YAK_researching_bear_tech
+			}
+		}
+		modifier = {
+			research_speed_factor = -0.25
+			consumer_goods_factor = 0.35
+		}
+		fire_only_once = yes
+		cost = 75
+		days_remove = 125
+        remove_effect = {
+			clr_country_flag = YAK_researching_bear_tech
+			custom_effect_tooltip = YAK_tech_polar_shamans_tt
+			set_technology = {
+				tech_polar_shamans = 1
+			}
+        }
+		complete_effect = {
+			set_country_flag = YAK_researching_bear_tech
+		}
+	}
+	YAK_tech_polar_nomadic_crafters = { ## 2nd ind. tech
+		icon = GFX_tank_niche_8
+		allowed = {
+			original_tag = YAK
+		}
+		available = {
+			has_completed_focus = YAK_bear_penguin_tech_research
+			has_tech = tech_polar_shamans
+			NOT = {
+				has_country_flag = YAK_researching_bear_tech
+			}
+		}
+		modifier = {
+			research_speed_factor = -0.25
+			consumer_goods_factor = 0.35
+		}
+		fire_only_once = yes
+		cost = 75
+		days_remove = 125
+        remove_effect = {
+			clr_country_flag = YAK_researching_bear_tech
+			custom_effect_tooltip = YAK_tech_polar_nomadic_crafters_tt
+			set_technology = {
+				tech_polar_nomadic_crafters = 1
+			}
+        }
+		complete_effect = {
+			set_country_flag = YAK_researching_bear_tech
+		}
+	}
+	YAK_tech_polar_dowsing = { ## 3rd ind. tech
+		icon = GFX_gold_texticon
+		allowed = {
+			original_tag = YAK
+		}
+		available = {
+			has_completed_focus = YAK_bear_penguin_tech_research
+			has_tech = tech_polar_nomadic_crafters
+			NOT = {
+				has_country_flag = YAK_researching_bear_tech
+			}
+		}
+		modifier = {
+			research_speed_factor = -0.25
+			consumer_goods_factor = 0.35
+		}
+		fire_only_once = yes
+		cost = 75
+		days_remove = 125
+        remove_effect = {
+			clr_country_flag = YAK_researching_bear_tech
+			custom_effect_tooltip = YAK_tech_polar_dowsing_tt
+			set_technology = {
+				tech_polar_dowsing = 1
+			}
+        }
+		complete_effect = {
+			set_country_flag = YAK_researching_bear_tech
+		}
+	}
+
+	YAK_tech_mountain_supply_chains = { ## 1st mil. tech
+		icon = GFX_mountain_texticon
+		allowed = {
+			original_tag = YAK
+		}
+		available = {
+			has_completed_focus = YAK_bear_penguin_tech_research
+			NOT = {
+				has_country_flag = YAK_researching_bear_tech
+			}
+		}
+		modifier = {
+			research_speed_factor = -0.25
+			consumer_goods_factor = 0.35
+		}
+		fire_only_once = yes
+		cost = 75
+		days_remove = 125
+        remove_effect = {
+			clr_country_flag = YAK_researching_bear_tech
+			custom_effect_tooltip = YAK_tech_mountain_supply_chains_tt
+			set_technology = {
+				tech_mountain_supply_chains = 1
+			}
+        }
+		complete_effect = {
+			set_country_flag = YAK_researching_bear_tech
+		}
+	}
+	YAK_tech_modern_berserkers = { ## 2nd mil. tech
+		icon = GFX_tank_niche_9
+		allowed = {
+			original_tag = YAK
+		}
+		available = {
+			has_completed_focus = YAK_bear_penguin_tech_research
+			has_tech = tech_mountain_supply_chains
+			NOT = {
+				has_country_flag = YAK_researching_bear_tech
+			}
+		}
+		modifier = {
+			research_speed_factor = -0.25
+			consumer_goods_factor = 0.35
+		}
+		fire_only_once = yes
+		cost = 75
+		days_remove = 125
+        remove_effect = {
+			clr_country_flag = YAK_researching_bear_tech
+			custom_effect_tooltip = YAK_tech_modern_berserkers_tt
+			set_technology = {
+				tech_modern_berserkers = 1
+			}
+        }
+		complete_effect = {
+			set_country_flag = YAK_researching_bear_tech
+		}
+	}
+	YAK_tech_lords_of_winter = { ## 3rd mil. tech
+		icon = GFX_gunandshield_texticon
+		allowed = {
+			original_tag = YAK
+		}
+		available = {
+			has_completed_focus = YAK_bear_penguin_tech_research
+			has_tech = tech_modern_berserkers
+			NOT = {
+				has_country_flag = YAK_researching_bear_tech
+			}
+		}
+		modifier = {
+			research_speed_factor = -0.25
+			consumer_goods_factor = 0.35
+		}
+		fire_only_once = yes
+		cost = 75
+		days_remove = 125
+        remove_effect = {
+			clr_country_flag = YAK_researching_bear_tech
+			custom_effect_tooltip = YAK_tech_lords_of_winter_tt
+			set_technology = {
+				tech_lords_of_winter = 1
+			}
+        }
+		complete_effect = {
+			set_country_flag = YAK_researching_bear_tech
+		}
+	}
+
+}
+
+YAK_war_crimes = {
+	YAK_develop_sarin = {
+		icon = GFX_decision_generic_scorched_earth
+		allowed = {
+			OR = {
+				original_tag = YAK
+				original_tag = JAK
+			}
+		}
+		available = {
+			NOT = {
+				has_country_flag = YAK_doing_warcrimes
+			}
+		}
+		modifier = {
+			consumer_goods_factor = 0.1
+			research_speed_factor = -0.1
+		}
+		fire_only_once = yes
+		cost = 25
+		days_remove = 180
+        remove_effect = {
+			clr_country_flag = YAK_doing_warcrimes
+			custom_effect_tooltip = BAT_chemical_warfare_corps_tp
+			set_country_flag = BAT_chemical_warfare_corps_flag
+        }
+		complete_effect = {
+			set_country_flag = YAK_doing_warcrimes
+		}
+	}
+	YAK_develop_blister_agents = {
+		icon = GFX_decision_generic_scorched_earth
+		allowed = {
+			OR = {
+				original_tag = YAK
+				original_tag = JAK
+			}
+		}
+		available = {
+			NOT = {
+				has_country_flag = YAK_doing_warcrimes
+			}
+		}
+		modifier = {
+			consumer_goods_factor = 0.1
+			research_speed_factor = -0.1
+		}
+		fire_only_once = yes
+		cost = 25
+		days_remove = 180
+        remove_effect = {
+			clr_country_flag = YAK_doing_warcrimes
+			set_technology = {
+				MAN_chemical_warfare_division = 1
+			}
+			custom_effect_tooltip = MAN_chemical_warfare_division_buff
+			set_country_flag = YAK_developed_blister_agents
+        }
+		complete_effect = {
+			set_country_flag = YAK_doing_warcrimes
+		}
+	}
+	YAK_develop_tear_gas = {
+		icon = GFX_decision_generic_scorched_earth
+		allowed = {
+			OR = {
+				original_tag = YAK
+				original_tag = JAK
+			}
+		}
+		available = {
+			NOT = {
+				has_country_flag = YAK_doing_warcrimes
+			}
+		}
+		modifier = {
+			consumer_goods_factor = 0.1
+			research_speed_factor = -0.1
+		}
+		fire_only_once = yes
+		cost = 25
+		days_remove = 180
+        remove_effect = {
+			clr_country_flag = YAK_doing_warcrimes
+			set_country_flag = unlocked_tear_gas_bombardment_tactic
+			custom_effect_tooltip = MAN_enables_tear_gas_bombardment_tactic
+        }
+		complete_effect = {
+			set_country_flag = YAK_doing_warcrimes
+		}
+	}
+	YAK_decontamination_procedures = {
+		icon = GFX_decision_generic_scorched_earth
+		allowed = {
+			OR = {
+				original_tag = YAK
+				original_tag = JAK
+			}
+		}
+		available = {
+			NOT = {
+				has_country_flag = YAK_doing_warcrimes
+			}
+		}
+		modifier = {
+			consumer_goods_factor = 0.1
+			research_speed_factor = -0.1
+		}
+		fire_only_once = yes
+		cost = 25
+		days_remove = 180
+        remove_effect = {
+			clr_country_flag = YAK_doing_warcrimes
+			set_technology = {
+				HIP_CAMB = 1
+			}
+			custom_effect_tooltip = HIP_CAMB_effect
+			set_country_flag = YAK_decontam
+        }
+		complete_effect = {
+			set_country_flag = YAK_doing_warcrimes
+		}
+	}
+	YAK_plague = {
+		icon = GFX_decision_generic_scorched_earth
+		allowed = {
+			OR = {
+				original_tag = YAK
+				original_tag = JAK
+			}
+		}
+		available = {
+			NOT = {
+				has_country_flag = YAK_doing_warcrimes
+			}
+		}
+		modifier = {
+			research_speed_factor = -0.1
+			consumer_goods_factor = 0.1
+		}
+		fire_only_once = yes
+		cost = 20
+		days_remove = 180
+        remove_effect = {
+			clr_country_flag = YAK_doing_warcrimes
+			set_country_flag = YAK_developed_bioweapons
+			custom_effect_tooltip = PLB_bioweapons_tt
+			if = {
+				limit = {
+					has_war = yes
+				}
+				every_other_country = {
+					limit = {
+						has_war_with = YAK
+					}
+					add_ideas = YAK_biological_warfare
+				}
+			}
+			else = {
+				show_ideas_tooltip = YAK_biological_warfare
+			}
+        }
+		complete_effect = {
+			set_country_flag = YAK_doing_warcrimes
+		}
+	}
+	YAK_develop_napalm = {
+		icon = GFX_decision_generic_scorched_earth
+		allowed = {
+			OR = {
+				original_tag = YAK
+				original_tag = JAK
+			}
+		}
+		available = {
+			NOT = {
+				has_country_flag = YAK_doing_warcrimes
+			}
+		}
+		modifier = {
+			research_speed_factor = -0.1
+			consumer_goods_factor = 0.1
+		}
+		fire_only_once = yes
+		cost = 25
+		days_remove = 180
+        remove_effect = {
+			clr_country_flag = YAK_doing_warcrimes
+			set_technology = {
+				YAK_napalm = 1
+			}
+			custom_effect_tooltip = YAK_napalm_effect
+			set_country_flag = YAK_developed_napalm
+        }
+		complete_effect = {
+			set_country_flag = YAK_doing_warcrimes
+		}
+	}
+	YAK_develop_defoliant = {
+		icon = GFX_decision_generic_scorched_earth
+		allowed = {
+			OR = {
+				original_tag = YAK
+				original_tag = JAK
+			}
+		}
+		available = {
+			NOT = {
+				has_country_flag = YAK_doing_warcrimes
+			}
+		}
+		modifier = {
+			research_speed_factor = -0.1
+			consumer_goods_factor = 0.1
+		}
+		fire_only_once = yes
+		cost = 25
+		days_remove = 180
+        remove_effect = {
+			clr_country_flag = YAK_doing_warcrimes
+			set_technology = {
+				YAK_defoliant = 1
+			}
+			custom_effect_tooltip = YAK_defoliant_effect
+			set_country_flag = YAK_developed_defoliant
+        }
+		complete_effect = {
+			set_country_flag = YAK_doing_warcrimes
+		}
+	}
+	YAK_develop_artillery_delivery = {
+		icon = GFX_decision_generic_scorched_earth
+		allowed = {
+			OR = {
+				original_tag = YAK
+				original_tag = JAK
+			}
+		}
+		available = {
+			OR = {
+				has_tech = artillery5
+				is_special_project_completed = sp:sp_rocket_interceptor
+			}
+			NOT = {
+				has_country_flag = YAK_doing_warcrimes
+			}
+		}
+		modifier = {
+			research_speed_factor = -0.1
+			consumer_goods_factor = 0.1
+		}
+		fire_only_once = yes
+		cost = 25
+		days_remove = 180
+        remove_effect = {
+			clr_country_flag = YAK_doing_warcrimes
+			set_technology = {
+				YAK_cluster_bombs = 1
+			}
+			custom_effect_tooltip = YAK_cluster_bombs_effect
+			set_country_flag = YAK_cluster_bombs_developed
+		}
+		complete_effect = {
+			set_country_flag = YAK_doing_warcrimes
+		}
+	}
+	YAK_ultimate_chemical_weapon = {
+		icon = GFX_decision_generic_scorched_earth
+		allowed = {
+			OR = {
+				original_tag = YAK
+				original_tag = JAK
+			}
+		}
+		available = {
+			NOT = {
+				has_country_flag = YAK_doing_warcrimes
+			}
+		}
+		visible = {
+			has_country_flag = YAK_unlocked_vx
+		}
+		modifier = {
+			research_speed_factor = -0.1
+			consumer_goods_factor = 0.1
+		}
+		complete_effect = {
+			set_country_flag = YAK_doing_warcrimes
+			add_ideas = HIE_VX_stockpiling_2
+		}
+		fire_only_once = yes
+		cost = 25
+		days_remove = 180
+        remove_effect = {
+			clr_country_flag = YAK_doing_warcrimes
+			remove_ideas = HIE_VX_stockpiling_2
+			set_technology = {
+				HIE_vx_gas = 1
+			}
+			custom_effect_tooltip = HIE_CTH_vx_gas_tp
+		}
+	}
+	YAK_underground_nukes_FROM = {
+        icon = GFX_decision_SOV_secure_the_administration
+		allowed = {
+			OR = {
+				original_tag = YAK
+				original_tag = JAK
+			}
+		}
+        available = {
+			num_of_nukes > 0
+        }
+        target_root_trigger = {
+			has_country_flag = YAK_underground_nukes_unlocked
+        }
+		target_trigger = {
+			FROM = {
+				NOT = {
+					has_state_flag = YAK_underground_nuke_planted
+				}
+				any_neighbor_state = {
+					is_owned_by = CHN
+				}
+			}
+		}
+		cancel_trigger = {
+			NOT = {
+				is_controlled_by_ROOT_or_ally = yes
+			}
+		}
+        state_target = any_controlled_state
+
+        on_map_mode = map_only
+    
+        ai_will_do = {
+            base = 100
+        }
+
+        cost = 25
+        fire_only_once = yes
+		days_remove = 30
+    
+        complete_effect = {
+            log = "[GetDateText]: [Root.GetName]: Decision YAK_underground_nukes_FROM"
+			add_nuclear_bombs = -1
+        }
+		cancel_effect = {
+			CHN = {
+				add_nuclear_bombs = 1
+			}
+		}
+		remove_effect = {
+			FROM = {
+                set_state_flag = YAK_underground_nuke_planted
+            }
+		}
+    }
+}
+
+prospect_for_resources = {
+    YAK_develop_tundra_oil = { 
+		icon = oil
+		allowed = {
+			OR = {
+				original_tag = JAK
+				original_tag = YAK
+			}
+		}
+		highlight_states = {
+			highlight_state_targets = {
+				state = 257
+			}
+		}
+		available = {
+			num_of_civilian_factories_available_for_projects > 2
+			owns_state = 257
+			controls_state = 257
+			has_tech = fuel_refining
+		}
+		visible = {
+			has_country_flag = YAK_unlocked_mines
+			owns_state = 257
+			controls_state = 257
+		}
+		
+		fire_only_once = yes
+		
+		cost = 10
+		days_remove = 60
+		
+		modifier = {
+			civilian_factory_use = 3
+		}
+		ai_will_do = {
+			factor = 5
+		}
+		remove_effect = {
+			log = "[GetDateText]: [Root.GetName]: Decision remove YAK_develop_tundra_oil"
+			add_resource = {
+				type = oil
+				amount = 24
+				state = 257
+			}
+		}
+	}
+    YAK_develop_mountain_crystals = { 
+		icon = crystals
+		allowed = {
+			OR = {
+				original_tag = JAK
+				original_tag = YAK
+			}
+		}
+		highlight_states = {
+			highlight_state_targets = {
+				state = 317
+			}
+		}
+		available = {
+			num_of_civilian_factories_available_for_projects > 2
+			owns_state = 317
+			controls_state = 317
+			has_tech = excavation1
+		}
+		visible = {
+		    has_country_flag = YAK_unlocked_mines
+			owns_state = 317
+			controls_state = 317
+		}
+		
+		fire_only_once = yes
+		
+		cost = 10
+		days_remove = 60
+		
+		modifier = {
+			civilian_factory_use = 3
+		}
+		ai_will_do = {
+			factor = 5
+		}
+		remove_effect = {
+			log = "[GetDateText]: [Root.GetName]: Decision remove YAK_develop_mountain_crystals"
+			add_resource = {
+				type = crystals
+				amount = 16
+				state = 317
+			}
+		}
+	}
+	YAK_develop_chromium_hills = { 
+		icon = GFX_decision_chromium
+		allowed = {
+			OR = {
+				original_tag = JAK
+				original_tag = YAK
+			}
+		}
+		highlight_states = {
+			highlight_state_targets = {
+				state = 256
+			}
+		}
+		available = {
+			num_of_civilian_factories_available_for_projects > 2
+			owns_state = 256
+			controls_state = 256
+			has_tech = excavation3
+		}
+		visible = {
+		    has_country_flag = YAK_unlocked_mines
+			owns_state = 256
+			controls_state = 256
+		}
+		
+		fire_only_once = yes
+		
+		cost = 10
+		days_remove = 60
+		
+		modifier = {
+			civilian_factory_use = 3
+		}
+		ai_will_do = {
+			factor = 5
+		}
+		remove_effect = {
+			log = "[GetDateText]: [Root.GetName]: Decision remove YAK_develop_mountain_crystals"
+			add_resource = {
+				type = chromium
+				amount = 16
+				state = 256
+			}
+		}
+	}
+	YAK_develop_tungsten_mountains = { 
+		icon = GFX_decision_tungsten
+		allowed = {
+			OR = {
+				original_tag = JAK
+				original_tag = YAK
+			}
+		}
+		highlight_states = {
+			highlight_state_targets = {
+				state = 255
+			}
+		}
+		available = {
+			num_of_civilian_factories_available_for_projects > 2
+			owns_state = 255
+			controls_state = 255
+			has_tech = excavation2
+		}
+		visible = {
+		    has_country_flag = YAK_unlocked_mines
+			owns_state = 255
+			controls_state = 255
+		}
+		
+		fire_only_once = yes
+		
+		cost = 10
+		days_remove = 60
+		
+		modifier = {
+			civilian_factory_use = 3
+		}
+		ai_will_do = {
+			factor = 5
+		}
+		remove_effect = {
+			log = "[GetDateText]: [Root.GetName]: Decision remove YAK_develop_mountain_crystals"
+			add_resource = {
+				type = tungsten
+				amount = 32
+				state = 255
+			}
+		}
+	}
+
+}
+
+
+YAK_coring_the_north = {
+	YAK_gommie_core_state = {
+        icon = GFX_decision_SOV_secure_the_administration
+		allowed = {
+		    original_tag = YAK
+		}
+        available = {
+            FROM = {
+                is_controlled_by = ROOT
+				compliance > 50
+				resistance < 5
+            }
+        }
+        visible = {
+            FROM = {
+				NOT = {
+					is_core_of = ROOT
+				}
+            }
+        }
+        target_root_trigger = {
+			has_completed_focus = YAK_northern_republic_of_councils
+        }
+		target_trigger = {
+			FROM = {
+				NOT = {
+					is_core_of = ROOT
+				}
+			}
+		}
+        state_target = any_owned_state
+        targets = {
+			62 263 265 272 280 289 290 # PLB
+			266 282 284 285 325 # PNG
+			58 222 238 239 242 243 244 245 271 279 286 287 288 329 338 # GRF
+		}
+        on_map_mode = map_only
+    
+        ai_will_do = {
+            base = 1000
+        }
+
+        cost = 25
+        fire_only_once = yes
+    
+        complete_effect = {
+            log = "[GetDateText]: [Root.GetName]: Decision YAK_core_state"
+            FROM = {
+                add_core_of = ROOT
+            }
+        }
+    }
+	YAK_proclaim_nrc = {
+		icon = GFX_decision_SOV_the_stalin_constitution
+		allowed = {
+			tag = YAK
+		}
+		visible = {
+			has_completed_focus = YAK_northern_republic_of_councils
+		}
+		available = {
+			GRF = {
+				all_core_state = {
+					is_owned_and_controlled_by_ROOT_or_ally = yes
+				}
+			}
+			GFF = {
+				all_core_state = {
+					is_owned_and_controlled_by_ROOT_or_ally = yes
+				}
+			}
+			PLB = {
+				all_core_state = {
+					is_owned_and_controlled_by_ROOT_or_ally = yes
+				}
+			}
+			PNG = {
+				all_core_state = {
+					is_owned_and_controlled_by_ROOT_or_ally = yes
+				}
+			}
+		}
+		fire_only_once = yes
+		cost = 50
+
+		days_remove = 30
+		remove_effect = {
+			
+			set_cosmetic_tag = YAK_council	
+			if = {
+				limit = {
+					has_country_leader = {
+						character = YAK_ovliinkhuvisgal_elbegdorj
+						ruling_only = yes
+					}
+				}
+				set_party_name = {
+					ideology = communism
+					long_name = YAK_communism_party_final1_long
+					name = YAK_communism_party_final1
+				}
+			}
+			else_if = {
+				limit = {
+					has_country_leader = {
+						character = YAK_kari
+						ruling_only = yes
+					}
+				}
+				set_party_name = {
+					ideology = communism
+					long_name = YAK_communism_party_final2_long
+					name = YAK_communism_party_final2
+				}
+			}
+			else = {
+				
+				set_party_name = {
+					ideology = communism
+					long_name = YAK_communism_party_final3_long
+					name = YAK_communism_party_final3
+				}
+			}
+			every_owned_state = {
+				limit = {
+					NOT = {
+						is_core_of = ROOT
+					}
+				}
+				add_compliance = 10
+			}
+			hidden_effect = {
+				news_event = yak_news.7
+			}
+		}
+		complete_effect = {
+			
+			every_other_country = {
+				limit = {
+					OR = {
+						is_subject = no
+						is_subject_of = ROOT
+					}
+					any_owned_state = {
+						OR = {
+							is_core_of = GRF
+							is_core_of = GFF
+							is_core_of = PLB
+							is_core_of = PNG
+						}
+					}
+				}
+				country_event = newyaks.106
+			}
+		}
+		ai_will_do = {
+			factor = 100
+		}
+	}
+	
+	YAK_territorial_coring_rutherford = {
+		icon = GFX_decision_category_yak_empire
+		allowed = {
+		    original_tag = YAK
+		}
+		available = {
+            FROM = {
+                is_controlled_by = ROOT
+            }
+        }
+        visible = {
+            FROM = {
+				NOT = {
+					is_core_of = ROOT
+				}
+            }
+        }
+		state_target = any_owned_state
+		on_map_mode = map_only
+		
+		target_trigger = {
+			FROM = {
+				NOT = {
+					has_dynamic_modifier = {
+						modifier = YAK_northern_territorial_core
+					}
+				}
+			}
+		}
+		targets = {
+			62 263 265 272 280 289 290 # PLB
+			266 282 284 285 325 # PNG
+			58 222 238 239 242 243 244 245 271 279 286 287 288 329 338 # GRF
+		}
+		target_root_trigger = {
+			has_completed_focus = YAK_rutherford_partial_cores
+		}
+
+		cost = 10
+		days_remove = 45
+		fire_only_once = yes
+
+		remove_effect = {
+			FROM = {
+				if = {
+					limit = {
+						NOT = {
+							is_core_of = ROOT
+						}
+					}
+					add_core_of = ROOT
+				}
+				add_dynamic_modifier = {
+					modifier = YAK_northern_territorial_core
+				}
+			}
+			custom_effect_tooltip = YAK_territorial_core_modifier_tt
+		}
+	}
+	YAK_full_coring_yona = {
+		icon = GFX_decision_category_yak_empire
+		available = {
+            FROM = {
+                is_controlled_by = ROOT
+            }
+        }
+        visible = {
+            FROM = {
+				NOT = {
+					is_core_of = ROOT
+				}
+            }
+        }
+		allowed = {
+		    original_tag = YAK
+		}
+		state_target = any_owned_state
+		on_map_mode = map_only
+		
+		target_trigger = {
+			FROM = {
+				compliance > 24
+				NOT = {
+					is_core_of = ROOT
+				}
+			}
+		}
+		targets = {
+			277 278 281 283 335 336 337 # from claims
+			62 263 265 272 280 289 290 # PLB
+			266 282 284 285 325 # PNG
+			58 222 238 239 242 243 244 245 271 279 286 287 288 329 338 # GRF
+		}
+		target_root_trigger = {
+			has_completed_focus = YAK_yona_full_cores
+		}
+
+		cost = 40
+		days_remove = 125
+		fire_only_once = yes
+		remove_effect = {
+			FROM = {
+				add_core_of = ROOT
+			}
+		}
+	}
+	YAK_harmonious_prosperity_yona = {
+		icon = GFX_decision_flower
+		allowed = {
+		    original_tag = YAK
+		}
+		state_target = any_owned_state
+		on_map_mode = map_only
+		fire_only_once = yes
+		target_trigger = {
+			FROM = {
+				is_owned_and_controlled_by = ROOT
+				is_core_of = ROOT
+				NOT = {
+					has_dynamic_modifier = {
+						modifier = YAK_harmonious_prosperity
+					}
+				}
+			}
+		}
+		targets = {
+			62 263 265 272 280 289 290 # PLB
+			266 282 284 285 325 # PNG
+			58 222 238 239 242 243 244 245 271 279 286 287 288 329 338 # GRF
+		}
+		target_root_trigger = {
+			has_completed_focus = YAK_yona_prosperous_cores
+		}
+
+		cost = 25
+
+		complete_effect = {
+			log = "[GetDateText]: [Root.GetName]: Decision YAK_harmonious_prosperity_yona"
+			FROM = {
+				add_dynamic_modifier = {
+					modifier = YAK_harmonious_prosperity
+				}
+			}
+		}
+	}
+}
+YAK_starting_leaning = {
+	YAK_prostyletize_among_the_poor = {
+		priority = 99
+		icon = GFX_decision_red_star
+
+		ai_will_do = {
+			base = 0
+		}
+
+		allowed = {
+			original_tag = YAK
+		}
+
+
+		days_remove = 180
+
+		cost = 50
+
+		complete_effect = {
+			add_power_balance_value = {
+				id = YAK_starting_bop
+				value = -0.03
+			}
+			add_stability = 0.05
+		}
+	}
+	YAK_appeal_to_clan_elders = {
+		priority = 99
+		icon = GFX_decision_helmet
+
+		ai_will_do = {
+			base = 0
+		}
+
+		allowed = {
+			original_tag = YAK
+		}
+
+
+		days_remove = 180
+
+		complete_effect = {
+			add_power_balance_value = {
+				id = YAK_starting_bop
+				value = 0.03
+			}
+			custom_effect_tooltip = YAK_pp_equal_to_lvl3_loyal_clans
+			hidden_effect = {
+				for_each_loop = {
+					array = YAK_clan_opinion_arr
+					value = v
+					break = break
+					if = {
+						limit = {
+							check_variable = {
+								v > 1
+							}
+						}
+						add_political_power = 20
+					}
+				}
+				
+			}
+		}
+	}
+	YAK_raise_peasant_levies = {
+
+		priority = 99
+		icon = GFX_decision_generic_intelligence_operation
+
+		ai_will_do = { 
+			base = 100
+		}
+
+		allowed = {
+			original_tag = YAK
+		}
+
+		visible = {
+		}
+
+		available = {
+			has_country_flag = YAK_completed_look_to_heritage
+		}
+
+		days_remove = 90
+
+		custom_cost_trigger = {
+			has_equipment = {
+				infantry_equipment > 599
+			}
+			has_equipment = {
+				support_equipment > 24
+			}
+			has_equipment = {
+				artillery_equipment > 11
+			}
+			has_manpower > 6799
+		}
+		custom_cost_text = decision_cost_600_infantry_12_artillery_25_support_6800_manpower
+
+		complete_effect = {
+			add_power_balance_value = {
+				id = YAK_starting_bop
+				value = 0.03
+			}
+			capital_scope = {
+				create_unit = {
+					division = "division_template = \"Mangchijid Banner Army\" start_experience_factor = 0.3 start_equipment_factor = 1"
+					owner = YAK
+				}
+			}
+			hidden_effect = {
+				add_manpower = -6800
+				add_equipment_to_stockpile = {
+					type = infantry_equipment
+					amount = -600
+				}
+				add_equipment_to_stockpile = {
+					type = support_equipment
+					amount = -25
+				}
+				add_equipment_to_stockpile = {
+					type = artillery_equipment
+					amount = -12
+				}
+			}
+		}
+	}
+	
+	YAK_raise_ghenikhan_banner = {
+
+		priority = 99
+		icon = GFX_decision_generic_intelligence_operation
+
+		ai_will_do = { 
+			base = 100
+		}
+
+		allowed = {
+			original_tag = YAK
+		}
+
+		visible = {
+		}
+
+		available = {
+			has_country_flag = YAK_completed_look_to_people
+		}
+
+		days_remove = 90
+
+		custom_cost_trigger = {
+			has_equipment = {
+				infantry_equipment > 639
+			}
+			has_equipment = {
+				support_equipment > 9
+			}
+			has_manpower > 6499
+		}
+		custom_cost_text = decision_cost_640_infantry_10_support_6500_manpower
+
+		complete_effect = {
+			add_power_balance_value = {
+				id = YAK_starting_bop
+				value = -0.03
+			}
+			capital_scope = {
+				create_unit = {
+					division = "division_template = \"Ghenikhan Banner Army\" start_experience_factor = 0.3 start_equipment_factor = 1"
+					owner = YAK
+				}
+			}
+			hidden_effect = {
+				add_manpower = -6500
+				add_equipment_to_stockpile = {
+					type = infantry_equipment
+					amount = -640
+				}
+				add_equipment_to_stockpile = {
+					type = support_equipment
+					amount = -10
+				}
+			}
+		}
+	}
+	
+	YAK_request_equestrian_aid_intensification = {
+		priority = 99
+		icon = GFX_decision_celestia
+
+		ai_will_do = {
+			base = 0
+		}
+
+		allowed = {
+			original_tag = YAK
+		}
+
+		available = {
+			has_country_flag = YAK_completed_look_to_future
+			custom_trigger_tooltip = {
+				tooltip = JAK_not_maxxed_out
+				NOT = {
+					has_idea = YAK_equestrian_support_5
+				}
+			}
+		}
+
+		days_remove = 180
+
+		cost = YAK_request_equestrian_aid_intensification_cost
+
+		complete_effect = {
+			YAK_eqs_support_add = yes
+			multiply_variable = {
+				YAK_request_equestrian_aid_intensification_cost = 2
+			}
+			custom_effect_tooltip = JAK_decision_cost_increase
+		}
+	}
+		
+	YAK_request_stalliongradian_aid_intensification = {
+		priority = 99
+		icon = GFX_decision_vasily_cutiemark
+
+		ai_will_do = {
+			base = 0
+		}
+
+		allowed = {
+			original_tag = YAK
+		}
+
+		visible = {
+			OR = {
+				has_idea = YAK_stg_support_0
+				has_idea = YAK_stg_support_1
+				has_idea = YAK_stg_support_2
+				has_idea = YAK_stg_support_3
+				has_idea = YAK_stg_support_4
+				has_idea = YAK_stg_support_5
+			}
+		}
+		available = {
+			custom_trigger_tooltip = {
+				tooltip = JAK_not_maxxed_out
+				NOT = {
+					has_idea = YAK_stg_support_5
+				}
+			}
+		}
+
+		days_remove = 180
+
+		cost = YAK_request_stalliongradian_aid_intensification_cost
+
+		complete_effect = {
+			add_power_balance_value = {
+				id = YAK_starting_bop
+				value = -0.03
+			}
+			YAK_stg_support_add = yes
+			multiply_variable = {
+				YAK_request_stalliongradian_aid_intensification_cost = 2
+			}
+			custom_effect_tooltip = JAK_decision_cost_increase
+		}
+	}
+	YAK_speak_out_in_favor_of_war = {
+		priority = 99
+		icon = GFX_decision_generic_coastal_fortification
+
+		ai_will_do = {
+			base = 0
+		}
+
+		allowed = {
+			original_tag = YAK
+		}
+
+		available = {
+			has_country_flag = YAK_completed_look_to_army
+		}
+		modifier = {
+			army_morale_factor = 0.07
+		}
+
+		days_remove = 180
+
+		cost = YAK_speak_out_in_favor_of_war_cost
+
+		complete_effect = {
+			add_power_balance_value = {
+				id = YAK_starting_bop
+				value = -0.06
+			}
+			custom_effect_tooltip = YAK_determined_tt
+			set_temp_variable = { temp_targets_index = 0 }
+			while_loop_effect = {
+				limit = {
+					check_variable = { temp_targets_index = 5 compare = less_than }
+				}
+				if = {
+					limit = {
+						any_unit_leader = {
+							is_assigned = yes
+							NOT = { has_trait = trait_SOV_determined }
+						}
+					}
+					random_unit_leader = {
+						limit = {
+							is_assigned = yes
+							NOT = { has_trait = trait_SOV_determined }
+						}
+						add_timed_unit_leader_trait = {
+							trait = trait_SOV_determined
+							days = @DAYS_DETERMINED #Does not seem to support vars
+						}
+					}
+				}
+				else = {
+					random_unit_leader = {
+						limit = {
+							NOT = { has_trait = trait_SOV_determined }
+						}
+						add_timed_unit_leader_trait = {
+							trait = trait_SOV_determined
+							days = @DAYS_DETERMINED #Does not seem to support vars
+						}
+					}
+				}
+				add_to_temp_variable = { temp_targets_index = 1 }
+			}
+			if = {
+				limit = {
+					has_dlc = "By Blood Alone"
+				}
+				every_country_division = {
+					add_divisional_commander_xp = 250
+				}
+			}
+			else = {
+				add_command_power = 25
+				add_war_support = 0.05
+				army_experience = 15
+			}
+			multiply_variable = {
+				YAK_speak_out_in_favor_of_war_cost = 2
+			}
+			custom_effect_tooltip = JAK_decision_cost_increase
 		}
 	}
 }
