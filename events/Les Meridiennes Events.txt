@@ -41,6 +41,7 @@ add_namespace = PPH_colony #Right Branch
 add_namespace = PPH_duchy #Post-Victory
 #FACILIER
 add_namespace = m_rev_facilier
+add_namespace = genevieve_ai
 add_namespace = facilier_victory
 
 #Debug
@@ -789,7 +790,7 @@ country_event = {  #TODO rework this event - fired by aquileia.46
 
 	is_triggered_only = yes
 	
-	option = {
+	option = { #Choose Geneviève
 		name = meridiennes.11.a
 		set_country_flag = MER_revolution_tree_monarchist
 		load_focus_tree = {
@@ -808,12 +809,18 @@ country_event = {  #TODO rework this event - fired by aquileia.46
 			force_update_dynamic_modifier = yes
 		}
 	}
-	option = {
+	option = { #Choose Facilier
 		name = meridiennes.11.b
 		set_country_flag = MER_clique_GUI_visible
+		set_country_flag = MER_f_rev
+		load_focus_tree = {
+			tree = MER_revolution_tree
+			keep_completed = yes
+		}
 		custom_effect_tooltip = MER_replace_GUI_tt
 		MER_replace_juggling_effect = yes
 		force_update_dynamic_modifier = yes
+
 	}
 }
 ## Revolution Fires (JER is Republican) - 1 day after it starts ##
@@ -2283,7 +2290,90 @@ country_event = { #Aquileian puppets get Volunteers
 # #  ..........................................
 # #  ..........................................
 
-country_event = { # MER_the_second_revolution_monarchy - 
+#constants for times
+@focus_time_7_days = 7
+@focus_time_14_days = 14
+@focus_time_21_days = 21
+@focus_time_28_days = 28
+@focus_time_35_days = 35
+@focus_time_42_days = 42
+#flag constants
+@focus_time_7_days_flag = 8
+@focus_time_14_days_flag = 15
+@focus_time_21_days_flag = 22
+@focus_time_28_days_flag = 29
+@focus_time_35_days_flag = 36
+@focus_time_42_days_flag = 43
+
+country_event = { #Genevieve begins working
+	id = genevieve_ai.1
+	hidden = yes
+	is_triggered_only = yes
+	trigger = {
+		MER_genevieve_voliere = { has_character_flag = doing_focuses }
+	}
+
+	immediate = { 
+		log = "[GetDateText]: [Root.GetName]: event HEY SHITASS!!!!!" 
+		if = {
+			limit = { 
+				# MER_genevieve_voliere = { 
+				# 	NOT = {
+				# 		OR = {
+				# 			has_character_flag = MER_genevieve_went_moderate
+				# 			has_character_flag = MER_genevieve_went_hawkish
+				# 		}
+				# 	}
+					
+				# } 
+			}
+			activate_shine_on_focus = MER_the_second_revolution_monarchy
+			set_country_flag = { flag = MER_first_focus_in_progress_flag days = @focus_time_7_days_flag value = 1 }
+			country_event = { id = genevieve_ai.2 days = @focus_time_7_days }
+		}
+	}
+}
+country_event = { #Genevieve finishes working
+	id = genevieve_ai.2
+	hidden = yes
+	is_triggered_only = yes
+	trigger = {
+		MER_genevieve_voliere = { has_character_flag = doing_focuses }
+	}
+
+	immediate = { 
+		log = "[GetDateText]: [Root.GetName]: event genevieve_ai.2" 
+		if = {
+			limit = {
+				has_shine_effect_on_focus = MER_the_second_revolution_monarchy
+			}
+			complete_national_focus = {
+				focus = MER_the_second_revolution_monarchy
+				use_side_message = yes
+				originator_name = MER_genevieve_voliere
+			}
+			country_event = { id = m_rev_facilier.1 days = 0 }
+		}
+		# if = {
+		# 	limit = { 
+		# 		MER_genevieve_voliere = { 
+		# 			NOT = {
+		# 				OR = {
+		# 					has_character_flag = MER_genevieve_went_moderate
+		# 					has_character_flag = MER_genevieve_went_hawkish
+		# 				}
+		# 			}
+					
+		# 		} 
+		# 	}
+		# 	activate_shine_on_focus = MER_the_second_revolution_monarchy
+		# 	set_country_flag = { flag = MER_first_focus_in_progress_flag days = @focus_time_7_days_flag value = 1 }
+		# 	country_event = { id = genevieve_ai.2 days = @focus_time_7_days }
+		# }
+	}
+}
+
+country_event = { #  
 	id = m_rev_facilier.1
 	immediate = { log = "[GetDateText]: [Root.GetName]: event m_rev_facilier.1" }
 	title = m_rev_facilier.1.t
