@@ -2526,6 +2526,7 @@ GRF_sending_mercs_cat = {
 			num_divisions > 15
 			check_variable = { offsite_IC < 20 }
 			FROM = {
+				num_of_civilian_factories_available_for_projects > 4
 				all_enemy_country = {
 					if = {
 						limit = { ROOT = { tag = GRF } }
@@ -2644,10 +2645,32 @@ GRF_sending_mercs_cat = {
 			FROM = { country_event = { id = griffons.62 } }
 		}
 		ai_will_do = {
-			factor = 5
+			factor = 3
 			modifier = {
 				factor = 0
-				check_variable = { volunteers_factor > 0.6 }
+				OR = {
+					check_variable = { volunteers_factor > 0.24 }  # defines MAX_VOLUNTEER_ARMY_FRACTION
+					has_country_flag = mercs_in_progress
+					is_in_array = { potential_and_current_enemies = FROM }
+				}
+			}
+			modifier = {
+				factor = 2
+				FROM = {
+					num_of_civilian_factories_available_for_projects > 9
+				}
+			}
+			modifier = {
+				factor = 2
+				FROM = {
+					num_of_civilian_factories_available_for_projects > 18
+				}
+			}
+			modifier = {
+				factor = 0.5
+				FROM = {
+					is_major = yes
+				}
 			}
 			modifier = {
 				factor = 0.5
@@ -2688,7 +2711,21 @@ GRF_sending_mercs_cat = {
 			modifier = {
 				factor = 0
 				FROM = {
-					surrender_progress > 0.9
+					surrender_progress > 0.8
+				}
+			}
+			modifier = {
+				factor = 0.5
+				has_opinion = {
+					target = FROM
+					value < 0
+				}
+			}
+			modifier = {
+				factor = 1.25
+				has_opinion = {
+					target = FROM
+					value > 40
 				}
 			}
 			modifier = {
@@ -2716,7 +2753,16 @@ GRF_sending_mercs_cat = {
 				}
 			}
 			modifier = {
-				factor = 0.05
+				factor = 0.25
+				OR = {
+					has_government = communism
+					has_idea = closed_economy
+					has_idea = BAT_hidden_economy
+					has_idea = ZAR_hidden_economy
+				}
+			}
+			modifier = {
+				factor = 0.2
 				FROM = {
 					NOT = {
 						has_government = fascism
@@ -2725,15 +2771,19 @@ GRF_sending_mercs_cat = {
 				}
 			}
 			modifier = {
-				factor = 0.1
+				factor = 2
 				FROM = {
-					has_government = neutrality
-				}
-			}
-			modifier = {
-				factor = 3
-				FROM = {
-					num_of_civilian_factories_available_for_projects > 18
+					any_enemy_country = {
+						OR = {
+							is_in_array = { ROOT.potential_and_current_enemies = THIS }
+							ROOT = {
+								has_opinion = {
+									target = PREV
+									value < -59
+								}
+							}
+						}
+					}
 				}
 			}
 		}
@@ -2775,6 +2825,11 @@ GRF_sending_mercs_cat = {
 				value = -9999
 			}
 			add_ai_strategy = {
+				type = send_lend_lease_desire
+				id = FROM
+				value = 999
+			}
+			add_ai_strategy = {
 				type = send_volunteers_desire
 				id = FROM
 				value = -9999
@@ -2792,11 +2847,11 @@ GRF_sending_mercs_cat = {
 				}
 			}
 			clr_country_flag = agreed_to_mercs_@FROM
+			clr_country_flag = mercs_in_progress
 		}
 
 		complete_effect = {
 			log = "[GetDateText]: [Root.GetName]: Decision GRF_send_mercs_mis target: [From.GetName]"
-			hidden_effect = { GRF_recalc_mercs = yes }
 			FROM = {
 				add_ai_strategy = {
 					type = befriend
@@ -2808,6 +2863,11 @@ GRF_sending_mercs_cat = {
 				type = support
 				id = FROM
 				value = -9999
+			}
+			add_ai_strategy = {
+				type = send_lend_lease_desire
+				id = FROM
+				value = 999
 			}
 			add_ai_strategy = {
 				type = send_volunteers_desire
@@ -2850,6 +2910,8 @@ GRF_sending_mercs_cat = {
 				}
 			}
 			clr_country_flag = agreed_to_mercs_@FROM
+			clr_country_flag = mercs_in_progress
+			GRF_recalc_mercs = yes
 		}
 
 	}
