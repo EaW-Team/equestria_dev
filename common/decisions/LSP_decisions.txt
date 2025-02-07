@@ -1,17 +1,38 @@
 
 LSP_deal_with_famine = {
+	LSP_famine_timer = {
+
+		allowed = { tag = LSP }
+		activation = { always = no } #Activated by event
+		available = { #Will not happen if:
+			hidden_trigger = {
+				always = no
+			}
+		}
+		days_mission_timeout = 120
+		is_good = no
+		timeout_effect = {
+			log = "[GetDateText]: [Root.GetName]: Decision timeout LSP_famine_timer"
+			LSP_increase_famine = yes
+			custom_effect_tooltip = LSP_recurring_mission
+			if = {
+				limit = {
+					NOT = {
+						has_idea = LSP_catastrophic_famine
+					}
+				}
+				activate_mission = LSP_famine_timer
+			}
+		}
+	}
 	LSP_mayor_trade_for_food_from = {
         icon = rice_bowl
         targets = { SCS EQS CRY STG OLE }
-		targets_dynamic = yes
         target_trigger = {
             FROM = {
                 OR = {
                     AND = {
                         original_tag = SCS
-                        NOT = {
-                            has_government = fascism
-                        }
                     }
                     AND = {
                         original_tag = EQS
@@ -38,129 +59,25 @@ LSP_deal_with_famine = {
                 }
             }
         }
-        target_root_trigger = {
-			OR = {
-				has_government = neutrality
-				has_country_flag = LSP_rockhoof_in_power
-			}
-        }
         visible = {
-			OR = {
-				has_government = neutrality
-				has_country_flag = LSP_rockhoof_in_power
-			}
 			FROM = {
                 exists = yes
-                NOT = {
-                    has_idea = LSP_trade_profits
-                }
             }
-        }
-        available = {
-          OR={
-            has_completed_focus = LSP_establish_trade_relations
-			has_completed_focus = LSP_so_buy_them_food
-			}
         }
         cost = 40
-        days_remove = 30
+        days_remove = 90
+		fire_only_once = yes
         ai_will_do = {
             factor = 200
         }
+		targeted_modifier = {
+			tag = FROM
+			cic_to_target_factor = 0.34
+			mic_to_target_factor = 0.34
+		}
 		remove_effect = {
 			log = "[GetDateText]: [Root.GetName]: Decision remove LSP_mayor_trade_for_food_from target: [From.GetName]"
-            FROM = {
-                country_event = {
-                    id = lsp_old.33
-                }
-            }
+			LSP_reduce_famine = yes
         }
-	}
-	LSP_grow_food = {
-		available = {
-			OR = {
-				has_completed_focus = LSP_encourage_farming_in_waffleland
-				has_completed_focus = LSP_farming_syndicates
-				has_completed_focus = LSP_agricultural_forced_labor
-				has_completed_focus = LSP_before_they_starve
-			}
-		}
-		visible = {
-
-		}
-		cost = 20
-
-        ai_will_do = {
-            factor = 200
-        }
-		days_remove = 60
-		fixed_random_seed = no
-
-		remove_effect = {
-			log = "[GetDateText]: [Root.GetName]: Decision remove LSP_grow_food"
-			random_list = {
-				60 = {
-					country_event = lsp_old.37
-				}
-				20 = {
-					country_event = lsp_old.38
-				}
-				20 = {
-					country_event = lsp_old.39
-				}
-			}
-		}
-	}
-	LSP_reduce_famine = {
-		available = {
-			OR = {
-				has_completed_focus = LSP_encourage_farming_in_waffleland
-				has_completed_focus = LSP_establish_trade_relations
-				has_completed_focus = LSP_bread_and_roses
-				has_completed_focus = LSP_the_hungry_people
-				has_completed_focus = LSP_so_buy_them_food
-			}
-			custom_trigger_tooltip = {
-				tooltip = LSP_costs_5_food
-					check_variable = {
-						LSP_food_supply > 4
-					}
-			}
-		}
-		visible = {
-
-		}
-		cost = 0
-
-		ai_will_do = {
-			base = 200
-		}
-
-		complete_effect = {
-			log = "[GetDateText]: [Root.GetName]: Decision LSP_reduce_famine"
-			custom_effect_tooltip = LSP_removes_5_food
-			subtract_from_variable = { var = LSP_food_supply value = 5 }
-			if = {
-				limit = {
-					has_idea = LSP_severe_famine
-				}
-				swap_ideas = {
-					remove_idea = LSP_severe_famine
-					add_idea = LSP_famine
-				}
-			}
-			else_if = {
-				limit = {
-					has_idea = LSP_famine
-				}
-				swap_ideas = { remove_idea = LSP_famine add_idea = LSP_fragile_food_supply }
-			}
-			else_if = {
-				limit = {
-					has_idea = LSP_fragile_food_supply
-				}
-				remove_ideas = LSP_fragile_food_supply
-			}
-		}
 	}
 }
