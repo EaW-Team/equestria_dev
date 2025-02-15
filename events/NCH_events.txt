@@ -2360,15 +2360,30 @@ country_event = { #Event telling if trade was a success or not leading into othe
 				add = -10
 			}
 		}
-		trigger = {
-			check_variable = { NCH_trade_refusals > 1 }
-			has_country_flag = NCH_FBK_accepted_us
-			NOT = { has_country_flag = NCH_trade_bypassed }
+		trigger = { #Doesn't account for player not doing anything but FBK!
+					#FBK MUST SAY YES, regardless of what happens, for this to even be partial.
+			OR = { #Either 2 rivfed members declined or you didn't interact at all.
+				check_variable = { NCH_trade_refusals > 1 } #2 RivFed members have declined. This is the issue - if you completely ignore doing RivFed, and only just FBK... 
+				#You don't get that var up. Ergo, check is false.
+				#You get full success, without the event option for this because they never declined. It should be partial, hence this. -Knife.
+				NOT = { #if the player has not interacted at all with the RivFed...
+					AND = {
+						has_completed_focus = NCH_trade_diamond_dogs
+						has_completed_focus = NCH_trade_bakara
+						has_completed_focus = NCH_trade_nimbusia
+						has_completed_focus = NCH_trade_ponaidhean
+ 						has_completed_focus = NCH_trade_deponya
+						has_completed_focus = NCH_trade_river_republic
+						has_completed_focus = NCH_trade_wittenland
+					}
+				}
+			}
+			has_country_flag = NCH_attempted_to_trade_with_river_fed #This accounts for them interacting with the RivFed. Could've sworn this was scripted before.
+			#Above with country flag needs a better fix, this is a rotting band-aid. TODO. It'll have to do from me for now while my mental state is wrecked, though. -Knife.
+			#Maybe a var? -Knife.
+			has_country_flag = NCH_FBK_accepted_us #Farbrook has said yes <- This is a must
+			NOT = { has_country_flag = NCH_trade_bypassed } #Did not take the event skip 
 		}
-		#set_variable = {
-		#	var = NCH_Crisis_Resolve_Points #These aren't checked anywhere
-		#	value = 1
-		#}
 		country_event = greneclyf_trade_crisis.9 #Partial Success
 		
 	}
@@ -2385,9 +2400,10 @@ country_event = { #Event telling if trade was a success or not leading into othe
 		trigger = {
 			OR = {
 				AND ={
-					check_variable = { NCH_trade_refusals < 2 }
-					has_country_flag = NCH_FBK_accepted_us
-					NOT = { has_country_flag = NCH_trade_bypassed }
+					#check_variable = { NCH_rivfed_trade_accepts > 4 } #TODO Implement trade accept var. Need to have 5 or more accept
+					check_variable = { NCH_trade_refusals < 2 } #Less than 2 have declined, so max 1 decline
+					has_country_flag = NCH_FBK_accepted_us #Farbrook has said yes
+					NOT = { has_country_flag = NCH_trade_bypassed } #Did not take the event skip
 				}
 				AND = {
 					is_ai = yes
@@ -2398,7 +2414,7 @@ country_event = { #Event telling if trade was a success or not leading into othe
 		country_event = greneclyf_trade_crisis.25 #Beogfordas
 	}
 	
-	option = { #Absolute Failure
+	option = { #Absolute Failure. Requires FBK to reject, not bother with it via event option. 
 		name = greneclyf.28.c
 		ai_chance = {
 			base = 10
@@ -2536,7 +2552,7 @@ country_event = { #Council Convenes
 }
 
 country_event = { #Gytha offs herself via Chandelier (not a necktie). Unless you want to make it one.
-	id = greneclyf.69 #Fired from greneclyf_trade.34 if you literally did fucking nothing in the trade minigame. Or Farbrook rejected.
+	id = greneclyf.69 #Fired from greneclyf_trade.34 if you literally did fucking nothing in the trade minigame. Or Farbrook rejected. Edite: 15/02/25, If FBK Rejects, Gytha shouldn't off herself.
 	immediate = {log = "[GetDateText]: [Root.GetName]: event greneclyf.69"}
 	title = greneclyf.69.t
 	desc = greneclyf.69.d
@@ -2581,6 +2597,25 @@ country_event = { #Gytha offs herself via Chandelier (not a necktie). Unless you
 				trait = trait_disheartened
 			}
 		}
+	}
+}
+
+country_event = { #Gytha almost offs herself, but is saved by Feilian. TODO.
+	id = greneclyf.70 #Fired if FBK rejects. NYI.
+	immediate = {log = "[GetDateText]: [Root.GetName]: event greneclyf.70"}
+	title = greneclyf.70.t
+	desc = greneclyf.70.d
+	picture = GFX_event_nch_ruined_flag
+	fire_only_once = yes
+	is_triggered_only = yes
+	
+	option = {
+		name = greneclyf.69.a
+		set_country_flag = NCH_gytha_dead
+		mark_focus_tree_layout_dirty = yes
+		hidden_effect = { retire_character = NCH_queen_gytha }
+		custom_effect_tooltip = NCH_gytha_offs_herself_tt
+		add_stability = -0.10
 	}
 }
 
