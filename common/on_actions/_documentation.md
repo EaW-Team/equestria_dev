@@ -2,7 +2,7 @@
 
 Try to keep this reasonably up-to-date, please.
 
-(updated 2022-09)
+(updated 2024-11)
 
 ### General
 - `on_startup`
@@ -23,6 +23,7 @@ Try to keep this reasonably up-to-date, please.
 - `on_ruling_party_change`
 - `on_ruling_party_change_immediate`    - [deprecated] Unsafe behavior, prefer using on_ruling_party_change instead
 - `on_new_term_election`
+- `on_before_peace_conference_start`    - ROOT is winner, FROM is loser (called for all winners against all losers)
 - `on_peaceconference_started`          - ROOT is winner, FROM is loser (called for all winners against all losers)
 - `on_peaceconference_ended`            - ROOT is winner, FROM is loser (called for all winners against all losers)
 
