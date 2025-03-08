@@ -56,6 +56,7 @@ NDefines.NNavy.NAVAL_MINES_ACCIDENT_STRENGTH_LOSS = 75.0 -- Vanilla is 50.0, rev
 NDefines.NNavy.NAVAL_MINES_ACCIDENT_ORG_LOSS_FACTOR = 0.6	-- Vanilla is 0.5, reverted to pre-AAT value
 
 NDefines.NAir.NAVAL_COMBAT_EXTERNAL_PLANES_JOIN_RATIO = 0.03 	-- Max planes that can join a combat comparing to the total strength of the ships, vanilla is 0.05
+NDefines.NAir.AIR_WING_XP_LEVELS = {20,	40,	60,	80,	100,	140,	180,	220,	260,	300,	390,	480,	570,	660,	750,	780,	810,	840,	870,	900}		-- Experience needed to progress to the next level
 
 NDefines.NAI.RESEARCH_LAND_DOCTRINE_NEED_GAIN_FACTOR = 0.12 -- Multiplies value based on relative military industry size / country size.
 NDefines.NAI.DYNAMIC_STRATEGIES_THREAT_FACTOR = 6.0
