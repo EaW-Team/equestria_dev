@@ -43,14 +43,105 @@ on_actions = {
 				}
 				if = {
 					limit = {
-						has_idea = no_crystals_reactor_prevent
-						check_variable = { resource@crystals > -1 }
+						OR = { #TODO later after next patch simplify and remove the idea version 17-12-2024
+							has_dynamic_modifier = {
+								modifier = no_crystals_reactor
+							}
+							has_idea = no_crystals_reactor_prevent
+						}
+						set_temp_variable = {
+							tot_crystal_resource_income = resource_produced@crystals
+						}
+						add_to_temp_variable = {
+							tot_crystal_resource_income = resource_imported@crystals
+						}
+						check_variable = { tot_crystal_resource_income > -1 }
 					}
-					remove_ideas = no_crystals_reactor_prevent
+					if = {
+						limit = {
+							has_dynamic_modifier = {
+								modifier = no_crystals_reactor
+							}
+						}
+						remove_dynamic_modifier = {
+							modifier = no_crystals_reactor
+						}
+					}
+					if = {
+						limit = {
+							has_idea = no_crystals_reactor_prevent
+						}
+						remove_ideas = no_crystals_reactor_prevent
+					}
 				}
 				else_if = {
-					limit = { check_variable = { resource@crystals < 0 } }
-					add_ideas = no_crystals_reactor_prevent
+					limit = { 
+						set_temp_variable = {
+							tot_crystal_resource_income = resource_produced@crystals
+						}
+						add_to_temp_variable = {
+							tot_crystal_resource_income = resource_imported@crystals
+						}
+						check_variable = { tot_crystal_resource_income < 0 }
+						OR = {
+							nuclear_reactor > 0
+							nuclear_reactor_heavy_water > 0
+							commercial_nuclear_reactor > 0
+						}
+					}
+					if = {
+						limit = {
+							has_dynamic_modifier = {
+								modifier = no_crystals_reactor
+							}
+						}
+						remove_dynamic_modifier = {
+							modifier = no_crystals_reactor
+						}
+					}
+
+					set_variable = {
+						tot_reactor_res = modifier@total_crystal_consumption_reactors
+					}
+
+					set_variable = {
+						tot_res_shortage = resource_produced@crystals
+					}
+					add_to_variable = {
+						tot_res_shortage = resource_imported@crystals
+					}
+					
+					divide_variable = {
+						tot_res_shortage = tot_reactor_res 
+					}
+
+					set_variable = {
+						var_no_crystals_reactor = modifier@nuclear_production_factor
+					}
+					
+					multiply_variable = {
+						var_no_crystals_reactor = tot_res_shortage
+					}
+					
+					set_variable = {
+						var_no_crystals_thermoreactor = modifier@thermonuclear_production_factor
+					}
+
+					multiply_variable = {
+						var_no_crystals_thermoreactor = tot_res_shortage
+					}
+					clamp_variable = {
+						var = var_no_crystals_reactor
+						max = 0
+					}
+					clamp_variable = {
+						var = var_no_crystals_thermoreactor
+						max = 0
+					}
+
+					add_dynamic_modifier = {
+						modifier = no_crystals_reactor
+					}
 				}
 				if = {
 					limit = {
@@ -686,6 +777,33 @@ on_actions = {
 					}
 				}
 				country_event = supporters.9
+			}
+		}
+	}
+	on_daily_CES = {
+		effect = {
+			if = {
+				limit = {
+					has_focus_tree = celestial_state_civil_war_focus
+					NOT = {
+						has_war_with = JUN
+						has_war_with = BAL
+						has_war_with = NMS
+						count_triggers = {
+							amount = 2
+							country_exists = CES
+							country_exists = JUN
+							country_exists = NMS
+						}
+					}
+				}
+				country_event = daring.10
+			}
+
+			if = {
+				limit = { has_country_flag = CES_artifact_window_enable }
+
+				add_to_variable = { CES_artifact_window_update = 1 }
 			}
 		}
 	}
@@ -1392,6 +1510,75 @@ on_actions = {
 				get_OLV_warriors_idea = yes
 				get_OLV_commoners_idea = yes
 				get_OLV_noble_idea = yes
+			}
+		}
+	}
+	on_daily_ABY = {
+		effect = {
+			if = {
+				limit = {
+					has_country_flag = ABY_limited_MDL_war_flag
+					has_war = yes
+				}
+				if = {
+					limit = {
+						OR = {
+							any_enemy_country = {
+								OR = {
+									owns_state = 741
+									owns_state = 738
+									owns_state = 740
+								}
+								surrender_progress > 0.14
+							}
+							AND = {
+								has_full_control_of_state = 740
+								has_full_control_of_state = 741
+								has_full_control_of_state = 738
+							}
+						}
+					}
+					every_enemy_country = { 
+						limit = {
+							OR = {
+								owns_state = 741
+								owns_state = 738
+								owns_state = 740
+							}
+						}
+						country_event = abyssinia.92
+					}
+					ABY = {
+						country_event = abyssinia.93
+					}
+					clr_country_flag = ABY_limited_MDL_war_flag
+				}
+				else_if = {
+					limit = {
+						OR = {
+							any_enemy_country = {
+								has_full_control_of_state = 740
+								has_full_control_of_state = 741
+								has_full_control_of_state = 738
+							}
+							surrender_progress > 0.14
+						}
+					}
+					random_enemy_country = { 
+						limit = {
+							OR = {
+								owns_state = 741
+								owns_state = 738
+								owns_state = 740
+							}
+						}
+						country_event = abyssinia.94
+					}
+					ABY = {
+						country_event = abyssinia.95
+					}
+					clr_country_flag = ABY_limited_MDL_war_flag
+				}
 			}
 		}
 	}

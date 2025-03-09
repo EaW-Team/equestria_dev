@@ -929,6 +929,11 @@ ABY_oatmeal_loyal = {
 		if = {
 			limit = {
 				owns_state = 784
+				784 = {
+					has_dynamic_modifier = {
+						modifier = ABY_disloyal_local_noble
+					}
+				}
 			}
 			784 = {
 				remove_dynamic_modifier = {
@@ -1093,7 +1098,6 @@ ABY_bingus_loyal = {
 }
 
 ABY_update_number_of_loyal_disloyal = {
-	custom_effect_tooltip = ABY_update_number_of_loyal_disloyal_tt
 	if = {
 		limit = {
 			NOT = {
@@ -1385,22 +1389,21 @@ ABY_mental_stab_add_15 = {
 ABY_clear_alert = {
 	if = {
 		limit = {
-			check_variable = { ABY_gomez_mental_stability > 5 }
-		}
-		set_temp_variable = { ABY_alert_id = 1 }
-		add_to_array = { ABY_alert_icon_hidden_array = ABY_alert_id }
-		set_temp_variable = { ABY_alert_index_to_remove = ABY_alert_type_array^num }
-		while_loop_effect = {
-			limit = { check_variable = { ABY_alert_index_to_remove > 0 } }
-			subtract_from_temp_variable = { ABY_alert_index_to_remove = 1 }
-			if = {
-				limit = { check_variable = { ABY_alert_type_array^ABY_alert_index_to_remove = ABY_alert_id } }
-				remove_from_array = { array = ABY_alert_type_array index = ABY_alert_index_to_remove }
-				remove_from_array = { array = ABY_alert_location_array index = ABY_alert_index_to_remove }
-				remove_from_array = { array = ABY_alert_special_array index = ABY_alert_index_to_remove }
+			OR = {
+				check_variable = { ABY_gomez_mental_stability > 5 }
+				NOT = {
+					has_country_flag = ABY_mental_stab_enabled
+				}
 			}
 		}
+		set_temp_variable = { alert_id = token:eaw_alert_ABY_mental_health }
+		remove_eaw_alert = yes
 	}
+}
+ABY_alert_raise_1 = {
+	set_temp_variable = { alert_id = token:eaw_alert_ABY_mental_health }
+	set_temp_variable = { alert_color = 2 }
+	add_eaw_alert_unless_exists = yes
 }
 ABY_mental_stab_reduce_1 = {
 	subtract_from_variable = {
@@ -1451,15 +1454,21 @@ ABY_mental_stab_reduce_25 = {
 	}
 }
 ABY_witchweed_recalculate_production = {
-	set_temp_variable = { ABY_temp_var = ABY_catrina_slaves }
-	multiply_variable = {
-		var = ABY_temp_var
-		value = ABY_machine_efficiency
+	round_variable = ABY_catrina_slaves
+	if = {
+		limit = {
+			check_variable = { ABY_catrina_slaves > ABY_catrina_slaves_cap }
+		}
+		set_variable = {
+			ABY_catrina_slaves = ABY_catrina_slaves_cap
+		}
 	}
-	divide_variable = { ABY_temp_var = 52 }
+	set_temp_variable = { ABY_temp_var = ABY_catrina_slaves }
+	multiply_temp_variable = {
+		ABY_temp_var = ABY_machine_efficiency
+	}
 	set_variable = {
-		var = ABY_slaves_multiplied_by_efficiency_divided_by_52
-		value = ABY_temp_var
+		ABY_slaves_multiplied_by_efficiency = ABY_temp_var
 	}
 	if = {
 		limit = {
@@ -1472,5 +1481,3248 @@ ABY_witchweed_recalculate_production = {
 			country_event = { id = abyssinia.137 days = 15 }
 		}
 	}
+	if = {
+		limit = {
+			NOT = {
+				has_country_flag = ABY_slave_event_2_triggered
+				has_country_flag = ABY_final_battle
+			}
+			check_variable = { ABY_catrina_slaves > 7499 }
+		}
+		hidden_effect = {
+			country_event = { id = abyssinia.139 days = 15 }
+		}
+	}
+}
+#Behold, the spaghetti monster code, gaze upon my works and despair
+#Why is this so convoluted? All it does is give random 10% bonuses on states. Because I thought it'd be cool and fun to make. And I was right. B)
+#and no i dont care if theres a more efficient way to do this, its unimportant so it doesnt matter if its shit
+#PARADOX WHERE ARE MY MATRICES
+
+# Your savior is here (too late tho D:)
+ABY_debug_color_provinces = {
+	for_each_loop = {
+		array = ABY.ABY_prov_list
+		value = x
+
+		random_country = {
+			for_each_loop = {
+				array = ABY.ABY_prov_@var:x
+				value = y
+				
+				var:y = {
+					transfer_state_to = PREV
+				}
+			}
+		}
+	}
 }
 
+ABY_debug_annex_provinces = {
+	for_each_loop = {
+		array = ABY.ABY_prov_list
+		value = x
+
+		for_each_loop = {
+			array = ABY.ABY_prov_@var:x
+			value = y
+			
+			var:y = {
+				transfer_state_to = ABY
+				add_core_of = ABY
+			}
+		}
+	}
+}
+
+ABY_provinces_tooltip_loop = {
+	if = {
+		limit = {
+			check_variable = { current_state < ABY_prov_@var:prov_v^num }
+		}
+
+		if = {
+			limit = {
+				var:ABY_prov_@var:prov_v^current_state = {
+					is_owned_by = ABY
+					is_core_of = ABY
+				}
+			}
+			custom_effect_tooltip = ABY_Provinces_state_entry
+		}
+		else_if = {
+			limit = {
+				var:ABY_prov_@var:prov_v^current_state = {
+					is_owned_by = ABY
+				}
+			}
+			custom_effect_tooltip = ABY_Provinces_state_not_cored_entry
+		}
+		else = {
+			custom_effect_tooltip = ABY_Provinces_state_not_owned_entry
+		}
+
+		add_to_temp_variable = { current_state = 1 }
+		ABY_provinces_tooltip_loop = yes
+	}
+}
+
+ABY_provincial_elections = {
+	hidden_effect = {
+		if = {
+			limit = {
+				has_country_flag = ABY_urf_split
+			}
+			set_temp_variable = { comm_pop = party_popularity_100@communism }
+			divide_temp_variable = { comm_pop = 4 }
+			set_temp_variable = { asp_pop = comm_pop }
+			set_temp_variable = { alf_pop = comm_pop }
+			multiply_temp_variable = { alf_pop = 3 }
+			set_temp_variable = { pla_pop = party_popularity_100@democratic }
+			set_temp_variable = { apf_pop = party_popularity_100@neutrality }
+			add_to_temp_variable = { apf_pop = party_popularity_100@fascism }
+			set_temp_variable = { asp_chance_urb = 15 }
+			add_to_temp_variable = { asp_chance_urb = asp_pop }
+			set_temp_variable = { alf_chance_urb = 10 }
+			add_to_temp_variable = { alf_chance_urb = alf_pop }
+			set_temp_variable = { pla_chance_urb = 5 }
+			add_to_temp_variable = { pla_chance_urb = pla_pop }
+			set_temp_variable = { apf_chance_rural = 15 }
+			add_to_temp_variable = { apf_chance_rural = apf_pop }
+			if = {
+				limit = {
+					has_country_flag = ABY_big_provinces
+				}
+				#Big provinces:
+					#1. 775, 777, 785, 776, 786 urban
+					#2. 773, 772, 771, 778, 774, (1208) rural
+					#3. 779, 780, 1201, (1200), 782, 783, (784) rural
+					#4. 741, 740, 738 urban
+					#5. 737, 734, 733, 731, 732, 736, 735 urban
+					#6. 760, 761, 759, 758 rural
+					#7. 766, 770, 763 rural
+					#8. 792, 801, 790, 795, 799 urban
+					#9. 807, 808, 810, 812, 828, 827 rural
+					#10. 788, 789, 955, 954, 956, 958, 957 urban
+					
+				#Province 1 urban
+				random_list = {
+					asp_chance_urb = {
+						for_each_scope_loop = {
+							array = ABY_prov_1
+							if = {
+								limit = {
+									is_owned_by = PREV
+									is_core_of = PREV
+								}
+								add_dynamic_modifier = {
+									modifier = ABY_asp_dominant_state
+								}
+							}
+						}
+					}
+					alf_chance_urb = {
+						for_each_scope_loop = {
+							array = ABY_prov_1
+							if = {
+								limit = {
+									is_owned_by = PREV
+									is_core_of = PREV
+								}
+								add_dynamic_modifier = {
+									modifier = ABY_alf_dominant_state
+								}
+							}
+						}
+					}
+					pla_chance_urb = {
+						for_each_scope_loop = {
+							array = ABY_prov_1
+							if = {
+								limit = {
+									is_owned_by = PREV
+									is_core_of = PREV
+								}
+								add_dynamic_modifier = {
+									modifier = ABY_pla_dominant_state
+								}
+							}
+						}
+					}
+					apf_pop = {
+						for_each_scope_loop = {
+							array = ABY_prov_1
+							if = {
+								limit = {
+									is_owned_by = PREV
+									is_core_of = PREV
+								}
+								add_dynamic_modifier = {
+									modifier = ABY_apf_dominant_state
+								}
+							}
+						}
+					}
+				}
+				
+				#Province 2 rural
+				random_list = {
+					asp_pop = {
+						for_each_scope_loop = {
+							array = ABY_prov_2
+							if = {
+								limit = {
+									is_owned_by = PREV
+									is_core_of = PREV
+								}
+								add_dynamic_modifier = {
+									modifier = ABY_asp_dominant_state
+								}
+							}
+						}
+					}
+					alf_pop = {
+						for_each_scope_loop = {
+							array = ABY_prov_2
+							if = {
+								limit = {
+									is_owned_by = PREV
+									is_core_of = PREV
+								}
+								add_dynamic_modifier = {
+									modifier = ABY_alf_dominant_state
+								}
+							}
+						}
+					}
+					pla_pop = {
+						for_each_scope_loop = {
+							array = ABY_prov_2
+							if = {
+								limit = {
+									is_owned_by = PREV
+									is_core_of = PREV
+								}
+								add_dynamic_modifier = {
+									modifier = ABY_pla_dominant_state
+								}
+							}
+						}
+					}
+					apf_chance_rural = {
+						for_each_scope_loop = {
+							array = ABY_prov_2
+							if = {
+								limit = {
+									is_owned_by = PREV
+									is_core_of = PREV
+								}
+								add_dynamic_modifier = {
+									modifier = ABY_apf_dominant_state
+								}
+							}
+						}
+					}
+				}
+				#Province 3 rural
+				random_list = {
+					asp_pop = {
+						for_each_scope_loop = {
+							array = ABY_prov_3
+							if = {
+								limit = {
+									is_owned_by = PREV
+									is_core_of = PREV
+								}
+								add_dynamic_modifier = {
+									modifier = ABY_asp_dominant_state
+								}
+							}
+						}
+					}
+					alf_pop = {
+						for_each_scope_loop = {
+							array = ABY_prov_3
+							if = {
+								limit = {
+									is_owned_by = PREV
+									is_core_of = PREV
+								}
+								add_dynamic_modifier = {
+									modifier = ABY_alf_dominant_state
+								}
+							}
+						}
+					}
+					pla_pop = {
+						for_each_scope_loop = {
+							array = ABY_prov_3
+							if = {
+								limit = {
+									is_owned_by = PREV
+									is_core_of = PREV
+								}
+								add_dynamic_modifier = {
+									modifier = ABY_pla_dominant_state
+								}
+							}
+						}
+					}
+					apf_chance_rural = {
+						for_each_scope_loop = {
+							array = ABY_prov_3
+							if = {
+								limit = {
+									is_owned_by = PREV
+									is_core_of = PREV
+								}
+								add_dynamic_modifier = {
+									modifier = ABY_apf_dominant_state
+								}
+							}
+						}
+					}
+				}
+				#Province 4 urban
+				random_list = {
+					asp_chance_urb = {
+						for_each_scope_loop = {
+							array = ABY_prov_4
+							if = {
+								limit = {
+									is_owned_by = PREV
+									is_core_of = PREV
+								}
+								add_dynamic_modifier = {
+									modifier = ABY_asp_dominant_state
+								}
+							}
+						}
+					}
+					alf_chance_urb = {
+						for_each_scope_loop = {
+							array = ABY_prov_4
+							if = {
+								limit = {
+									is_owned_by = PREV
+									is_core_of = PREV
+								}
+								add_dynamic_modifier = {
+									modifier = ABY_alf_dominant_state
+								}
+							}
+						}
+					}
+					pla_chance_urb = {
+						for_each_scope_loop = {
+							array = ABY_prov_4
+							if = {
+								limit = {
+									is_owned_by = PREV
+									is_core_of = PREV
+								}
+								add_dynamic_modifier = {
+									modifier = ABY_pla_dominant_state
+								}
+							}
+						}
+					}
+					apf_pop = {
+						for_each_scope_loop = {
+							array = ABY_prov_4
+							if = {
+								limit = {
+									is_owned_by = PREV
+									is_core_of = PREV
+								}
+								add_dynamic_modifier = {
+									modifier = ABY_apf_dominant_state
+								}
+							}
+						}
+					}
+				}
+				#Province 5 urban
+				random_list = {
+					asp_chance_urb = {
+						for_each_scope_loop = {
+							array = ABY_prov_5
+							if = {
+								limit = {
+									is_owned_by = PREV
+									is_core_of = PREV
+								}
+								add_dynamic_modifier = {
+									modifier = ABY_asp_dominant_state
+								}
+							}
+						}
+					}
+					alf_chance_urb = {
+						for_each_scope_loop = {
+							array = ABY_prov_5
+							if = {
+								limit = {
+									is_owned_by = PREV
+									is_core_of = PREV
+								}
+								add_dynamic_modifier = {
+									modifier = ABY_alf_dominant_state
+								}
+							}
+						}
+					}
+					pla_chance_urb = {
+						for_each_scope_loop = {
+							array = ABY_prov_5
+							if = {
+								limit = {
+									is_owned_by = PREV
+									is_core_of = PREV
+								}
+								add_dynamic_modifier = {
+									modifier = ABY_pla_dominant_state
+								}
+							}
+						}
+					}
+					apf_pop = {
+						for_each_scope_loop = {
+							array = ABY_prov_5
+							if = {
+								limit = {
+									is_owned_by = PREV
+									is_core_of = PREV
+								}
+								add_dynamic_modifier = {
+									modifier = ABY_apf_dominant_state
+								}
+							}
+						}
+					}
+				}
+				#Province 6 rural
+				random_list = {
+					asp_pop = {
+						for_each_scope_loop = {
+							array = ABY_prov_6
+							if = {
+								limit = {
+									is_owned_by = PREV
+									is_core_of = PREV
+								}
+								add_dynamic_modifier = {
+									modifier = ABY_asp_dominant_state
+								}
+							}
+						}
+					}
+					alf_pop = {
+						for_each_scope_loop = {
+							array = ABY_prov_6
+							if = {
+								limit = {
+									is_owned_by = PREV
+									is_core_of = PREV
+								}
+								add_dynamic_modifier = {
+									modifier = ABY_alf_dominant_state
+								}
+							}
+						}
+					}
+					pla_pop = {
+						for_each_scope_loop = {
+							array = ABY_prov_6
+							if = {
+								limit = {
+									is_owned_by = PREV
+									is_core_of = PREV
+								}
+								add_dynamic_modifier = {
+									modifier = ABY_pla_dominant_state
+								}
+							}
+						}
+					}
+					apf_chance_rural = {
+						for_each_scope_loop = {
+							array = ABY_prov_6
+							if = {
+								limit = {
+									is_owned_by = PREV
+									is_core_of = PREV
+								}
+								add_dynamic_modifier = {
+									modifier = ABY_apf_dominant_state
+								}
+							}
+						}
+					}
+				}
+				#Province 7 rural
+				random_list = {
+					asp_pop = {
+						for_each_scope_loop = {
+							array = ABY_prov_7
+							if = {
+								limit = {
+									is_owned_by = PREV
+									is_core_of = PREV
+								}
+								add_dynamic_modifier = {
+									modifier = ABY_asp_dominant_state
+								}
+							}
+						}
+					}
+					alf_pop = {
+						for_each_scope_loop = {
+							array = ABY_prov_7
+							if = {
+								limit = {
+									is_owned_by = PREV
+									is_core_of = PREV
+								}
+								add_dynamic_modifier = {
+									modifier = ABY_alf_dominant_state
+								}
+							}
+						}
+					}
+					pla_pop = {
+						for_each_scope_loop = {
+							array = ABY_prov_7
+							if = {
+								limit = {
+									is_owned_by = PREV
+									is_core_of = PREV
+								}
+								add_dynamic_modifier = {
+									modifier = ABY_pla_dominant_state
+								}
+							}
+						}
+					}
+					apf_chance_rural = {
+						for_each_scope_loop = {
+							array = ABY_prov_7
+							if = {
+								limit = {
+									is_owned_by = PREV
+									is_core_of = PREV
+								}
+								add_dynamic_modifier = {
+									modifier = ABY_apf_dominant_state
+								}
+							}
+						}
+					}
+				}
+				#Province 8 urban
+				random_list = {
+					asp_chance_urb = {
+						for_each_scope_loop = {
+							array = ABY_prov_8
+							if = {
+								limit = {
+									is_owned_by = PREV
+									is_core_of = PREV
+								}
+								add_dynamic_modifier = {
+									modifier = ABY_asp_dominant_state
+								}
+							}
+						}
+					}
+					alf_chance_urb = {
+						for_each_scope_loop = {
+							array = ABY_prov_8
+							if = {
+								limit = {
+									is_owned_by = PREV
+									is_core_of = PREV
+								}
+								add_dynamic_modifier = {
+									modifier = ABY_alf_dominant_state
+								}
+							}
+						}
+					}
+					pla_chance_urb = {
+						for_each_scope_loop = {
+							array = ABY_prov_8
+							if = {
+								limit = {
+									is_owned_by = PREV
+									is_core_of = PREV
+								}
+								add_dynamic_modifier = {
+									modifier = ABY_pla_dominant_state
+								}
+							}
+						}
+					}
+					apf_pop = {
+						for_each_scope_loop = {
+							array = ABY_prov_8
+							if = {
+								limit = {
+									is_owned_by = PREV
+									is_core_of = PREV
+								}
+								add_dynamic_modifier = {
+									modifier = ABY_apf_dominant_state
+								}
+							}
+						}
+					}
+				}
+				#Province 9 rural
+				random_list = {
+					asp_pop = {
+						for_each_scope_loop = {
+							array = ABY_prov_9
+							if = {
+								limit = {
+									is_owned_by = PREV
+									is_core_of = PREV
+								}
+								add_dynamic_modifier = {
+									modifier = ABY_asp_dominant_state
+								}
+							}
+						}
+					}
+					alf_pop = {
+						for_each_scope_loop = {
+							array = ABY_prov_9
+							if = {
+								limit = {
+									is_owned_by = PREV
+									is_core_of = PREV
+								}
+								add_dynamic_modifier = {
+									modifier = ABY_alf_dominant_state
+								}
+							}
+						}
+					}
+					pla_pop = {
+						for_each_scope_loop = {
+							array = ABY_prov_9
+							if = {
+								limit = {
+									is_owned_by = PREV
+									is_core_of = PREV
+								}
+								add_dynamic_modifier = {
+									modifier = ABY_pla_dominant_state
+								}
+							}
+						}
+					}
+					apf_chance_rural = {
+						for_each_scope_loop = {
+							array = ABY_prov_9
+							if = {
+								limit = {
+									is_owned_by = PREV
+									is_core_of = PREV
+								}
+								add_dynamic_modifier = {
+									modifier = ABY_apf_dominant_state
+								}
+							}
+						}
+					}
+				}
+				#Province 10 urban
+				random_list = {
+					asp_chance_urb = {
+						for_each_scope_loop = {
+							array = ABY_prov_10
+							if = {
+								limit = {
+									is_owned_by = PREV
+									is_core_of = PREV
+								}
+								add_dynamic_modifier = {
+									modifier = ABY_asp_dominant_state
+								}
+							}
+						}
+					}
+					alf_chance_urb = {
+						for_each_scope_loop = {
+							array = ABY_prov_10
+							if = {
+								limit = {
+									is_owned_by = PREV
+									is_core_of = PREV
+								}
+								add_dynamic_modifier = {
+									modifier = ABY_alf_dominant_state
+								}
+							}
+						}
+					}
+					pla_chance_urb = {
+						for_each_scope_loop = {
+							array = ABY_prov_10
+							if = {
+								limit = {
+									is_owned_by = PREV
+									is_core_of = PREV
+								}
+								add_dynamic_modifier = {
+									modifier = ABY_pla_dominant_state
+								}
+							}
+						}
+					}
+					apf_pop = {
+						for_each_scope_loop = {
+							array = ABY_prov_10
+							if = {
+								limit = {
+									is_owned_by = PREV
+									is_core_of = PREV
+								}
+								add_dynamic_modifier = {
+									modifier = ABY_apf_dominant_state
+								}
+							}
+						}
+					}
+				}
+			}
+			else_if = {
+				limit = {
+					has_country_flag = ABY_medium_provinces
+				}
+				#Medium provinces:
+					#1. 775, 785 urban
+					#2. 776, 786 urban
+					#3. 772, 773, 771, (1208) rural
+					#4. 777, 779, 780 rural
+					#5. 778, 774, 782 rural
+					#6. 783, 1201, (1200), (784) rural
+					#7. 741, 740, 738 urban
+					#8. 737, 734 urban
+					#9. 733, 732, 731 urban
+					#10. 736, 735 urban
+					#11. 759, 758 rural
+					#12. 760, 761 rural
+					#13. 766, 770, 763 rural
+					#14. 792, 801, 790 urban
+					#15. 795, 799 urban
+					#16. 807, 810, 808 urban
+					#17. 827, 828, 812 rural
+					#18. 788, 789, 955 rural
+					#19. 954, 956 urban
+					#20. 957, 958 urban
+					
+				#Province 1 urban
+				random_list = {
+					asp_chance_urb = {
+						for_each_scope_loop = {
+							array = ABY_prov_1
+							if = {
+								limit = {
+									is_owned_by = PREV
+									is_core_of = PREV
+								}
+								add_dynamic_modifier = {
+									modifier = ABY_asp_dominant_state
+								}
+							}
+						}
+					}
+					alf_chance_urb = {
+						for_each_scope_loop = {
+							array = ABY_prov_1
+							if = {
+								limit = {
+									is_owned_by = PREV
+									is_core_of = PREV
+								}
+								add_dynamic_modifier = {
+									modifier = ABY_alf_dominant_state
+								}
+							}
+						}
+					}
+					pla_chance_urb = {
+						for_each_scope_loop = {
+							array = ABY_prov_1
+							if = {
+								limit = {
+									is_owned_by = PREV
+									is_core_of = PREV
+								}
+								add_dynamic_modifier = {
+									modifier = ABY_pla_dominant_state
+								}
+							}
+						}
+					}
+					apf_pop = {
+						for_each_scope_loop = {
+							array = ABY_prov_1
+							if = {
+								limit = {
+									is_owned_by = PREV
+									is_core_of = PREV
+								}
+								add_dynamic_modifier = {
+									modifier = ABY_apf_dominant_state
+								}
+							}
+						}
+					}
+				}
+				#Province 2 urban
+				random_list = {
+					asp_chance_urb = {
+						for_each_scope_loop = {
+							array = ABY_prov_2
+							if = {
+								limit = {
+									is_owned_by = PREV
+									is_core_of = PREV
+								}
+								add_dynamic_modifier = {
+									modifier = ABY_asp_dominant_state
+								}
+							}
+						}
+					}
+					alf_chance_urb = {
+						for_each_scope_loop = {
+							array = ABY_prov_2
+							if = {
+								limit = {
+									is_owned_by = PREV
+									is_core_of = PREV
+								}
+								add_dynamic_modifier = {
+									modifier = ABY_alf_dominant_state
+								}
+							}
+						}
+					}
+					pla_chance_urb = {
+						for_each_scope_loop = {
+							array = ABY_prov_2
+							if = {
+								limit = {
+									is_owned_by = PREV
+									is_core_of = PREV
+								}
+								add_dynamic_modifier = {
+									modifier = ABY_pla_dominant_state
+								}
+							}
+						}
+					}
+					apf_pop = {
+						for_each_scope_loop = {
+							array = ABY_prov_2
+							if = {
+								limit = {
+									is_owned_by = PREV
+									is_core_of = PREV
+								}
+								add_dynamic_modifier = {
+									modifier = ABY_apf_dominant_state
+								}
+							}
+						}
+					}
+				}
+				#Province 3 rural
+				random_list = {
+					asp_pop = {
+						for_each_scope_loop = {
+							array = ABY_prov_3
+							if = {
+								limit = {
+									is_owned_by = PREV
+									is_core_of = PREV
+								}
+								add_dynamic_modifier = {
+									modifier = ABY_asp_dominant_state
+								}
+							}
+						}
+					}
+					alf_pop = {
+						for_each_scope_loop = {
+							array = ABY_prov_3
+							if = {
+								limit = {
+									is_owned_by = PREV
+									is_core_of = PREV
+								}
+								add_dynamic_modifier = {
+									modifier = ABY_alf_dominant_state
+								}
+							}
+						}
+					}
+					pla_pop = {
+						for_each_scope_loop = {
+							array = ABY_prov_3
+							if = {
+								limit = {
+									is_owned_by = PREV
+									is_core_of = PREV
+								}
+								add_dynamic_modifier = {
+									modifier = ABY_pla_dominant_state
+								}
+							}
+						}
+					}
+					apf_chance_rural = {
+						for_each_scope_loop = {
+							array = ABY_prov_3
+							if = {
+								limit = {
+									is_owned_by = PREV
+									is_core_of = PREV
+								}
+								add_dynamic_modifier = {
+									modifier = ABY_apf_dominant_state
+								}
+							}
+						}
+					}
+				}
+				#Province 4 rural
+				random_list = {
+					asp_pop = {
+						for_each_scope_loop = {
+							array = ABY_prov_4
+							if = {
+								limit = {
+									is_owned_by = PREV
+									is_core_of = PREV
+								}
+								add_dynamic_modifier = {
+									modifier = ABY_asp_dominant_state
+								}
+							}
+						}
+					}
+					alf_pop = {
+						for_each_scope_loop = {
+							array = ABY_prov_4
+							if = {
+								limit = {
+									is_owned_by = PREV
+									is_core_of = PREV
+								}
+								add_dynamic_modifier = {
+									modifier = ABY_alf_dominant_state
+								}
+							}
+						}
+					}
+					pla_pop = {
+						for_each_scope_loop = {
+							array = ABY_prov_4
+							if = {
+								limit = {
+									is_owned_by = PREV
+									is_core_of = PREV
+								}
+								add_dynamic_modifier = {
+									modifier = ABY_pla_dominant_state
+								}
+							}
+						}
+					}
+					apf_chance_rural = {
+						for_each_scope_loop = {
+							array = ABY_prov_4
+							if = {
+								limit = {
+									is_owned_by = PREV
+									is_core_of = PREV
+								}
+								add_dynamic_modifier = {
+									modifier = ABY_apf_dominant_state
+								}
+							}
+						}
+					}
+				}
+				#Province 5 rural
+				random_list = {
+					asp_pop = {
+						for_each_scope_loop = {
+							array = ABY_prov_5
+							if = {
+								limit = {
+									is_owned_by = PREV
+									is_core_of = PREV
+								}
+								add_dynamic_modifier = {
+									modifier = ABY_asp_dominant_state
+								}
+							}
+						}
+					}
+					alf_pop = {
+						for_each_scope_loop = {
+							array = ABY_prov_5
+							if = {
+								limit = {
+									is_owned_by = PREV
+									is_core_of = PREV
+								}
+								add_dynamic_modifier = {
+									modifier = ABY_alf_dominant_state
+								}
+							}
+						}
+					}
+					pla_pop = {
+						for_each_scope_loop = {
+							array = ABY_prov_5
+							if = {
+								limit = {
+									is_owned_by = PREV
+									is_core_of = PREV
+								}
+								add_dynamic_modifier = {
+									modifier = ABY_pla_dominant_state
+								}
+							}
+						}
+					}
+					apf_chance_rural = {
+						for_each_scope_loop = {
+							array = ABY_prov_5
+							if = {
+								limit = {
+									is_owned_by = PREV
+									is_core_of = PREV
+								}
+								add_dynamic_modifier = {
+									modifier = ABY_apf_dominant_state
+								}
+							}
+						}
+					}
+				}
+				#Province 6 rural
+				random_list = {
+					asp_pop = {
+						for_each_scope_loop = {
+							array = ABY_prov_6
+							if = {
+								limit = {
+									is_owned_by = PREV
+									is_core_of = PREV
+								}
+								add_dynamic_modifier = {
+									modifier = ABY_asp_dominant_state
+								}
+							}
+						}
+					}
+					alf_pop = {
+						for_each_scope_loop = {
+							array = ABY_prov_6
+							if = {
+								limit = {
+									is_owned_by = PREV
+									is_core_of = PREV
+								}
+								add_dynamic_modifier = {
+									modifier = ABY_alf_dominant_state
+								}
+							}
+						}
+					}
+					pla_pop = {
+						for_each_scope_loop = {
+							array = ABY_prov_6
+							if = {
+								limit = {
+									is_owned_by = PREV
+									is_core_of = PREV
+								}
+								add_dynamic_modifier = {
+									modifier = ABY_pla_dominant_state
+								}
+							}
+						}
+					}
+					apf_chance_rural = {
+						for_each_scope_loop = {
+							array = ABY_prov_6
+							if = {
+								limit = {
+									is_owned_by = PREV
+									is_core_of = PREV
+								}
+								add_dynamic_modifier = {
+									modifier = ABY_apf_dominant_state
+								}
+							}
+						}
+					}
+				}
+				#Province 7 urban
+				random_list = {
+					asp_chance_urb = {
+						for_each_scope_loop = {
+							array = ABY_prov_7
+							if = {
+								limit = {
+									is_owned_by = PREV
+									is_core_of = PREV
+								}
+								add_dynamic_modifier = {
+									modifier = ABY_asp_dominant_state
+								}
+							}
+						}
+					}
+					alf_chance_urb = {
+						for_each_scope_loop = {
+							array = ABY_prov_7
+							if = {
+								limit = {
+									is_owned_by = PREV
+									is_core_of = PREV
+								}
+								add_dynamic_modifier = {
+									modifier = ABY_alf_dominant_state
+								}
+							}
+						}
+					}
+					pla_chance_urb = {
+						for_each_scope_loop = {
+							array = ABY_prov_7
+							if = {
+								limit = {
+									is_owned_by = PREV
+									is_core_of = PREV
+								}
+								add_dynamic_modifier = {
+									modifier = ABY_pla_dominant_state
+								}
+							}
+						}
+					}
+					apf_pop = {
+						for_each_scope_loop = {
+							array = ABY_prov_7
+							if = {
+								limit = {
+									is_owned_by = PREV
+									is_core_of = PREV
+								}
+								add_dynamic_modifier = {
+									modifier = ABY_apf_dominant_state
+								}
+							}
+						}
+					}
+				}
+				#Province 8 urban
+				random_list = {
+					asp_chance_urb = {
+						for_each_scope_loop = {
+							array = ABY_prov_8
+							if = {
+								limit = {
+									is_owned_by = PREV
+									is_core_of = PREV
+								}
+								add_dynamic_modifier = {
+									modifier = ABY_asp_dominant_state
+								}
+							}
+						}
+					}
+					alf_chance_urb = {
+						for_each_scope_loop = {
+							array = ABY_prov_8
+							if = {
+								limit = {
+									is_owned_by = PREV
+									is_core_of = PREV
+								}
+								add_dynamic_modifier = {
+									modifier = ABY_alf_dominant_state
+								}
+							}
+						}
+					}
+					pla_chance_urb = {
+						for_each_scope_loop = {
+							array = ABY_prov_8
+							if = {
+								limit = {
+									is_owned_by = PREV
+									is_core_of = PREV
+								}
+								add_dynamic_modifier = {
+									modifier = ABY_pla_dominant_state
+								}
+							}
+						}
+					}
+					apf_pop = {
+						for_each_scope_loop = {
+							array = ABY_prov_8
+							if = {
+								limit = {
+									is_owned_by = PREV
+									is_core_of = PREV
+								}
+								add_dynamic_modifier = {
+									modifier = ABY_apf_dominant_state
+								}
+							}
+						}
+					}
+				}
+				#Province 9 urban
+				random_list = {
+					asp_chance_urb = {
+						for_each_scope_loop = {
+							array = ABY_prov_9
+							if = {
+								limit = {
+									is_owned_by = PREV
+									is_core_of = PREV
+								}
+								add_dynamic_modifier = {
+									modifier = ABY_asp_dominant_state
+								}
+							}
+						}
+					}
+					alf_chance_urb = {
+						for_each_scope_loop = {
+							array = ABY_prov_9
+							if = {
+								limit = {
+									is_owned_by = PREV
+									is_core_of = PREV
+								}
+								add_dynamic_modifier = {
+									modifier = ABY_alf_dominant_state
+								}
+							}
+						}
+					}
+					pla_chance_urb = {
+						for_each_scope_loop = {
+							array = ABY_prov_9
+							if = {
+								limit = {
+									is_owned_by = PREV
+									is_core_of = PREV
+								}
+								add_dynamic_modifier = {
+									modifier = ABY_pla_dominant_state
+								}
+							}
+						}
+					}
+					apf_pop = {
+						for_each_scope_loop = {
+							array = ABY_prov_9
+							if = {
+								limit = {
+									is_owned_by = PREV
+									is_core_of = PREV
+								}
+								add_dynamic_modifier = {
+									modifier = ABY_apf_dominant_state
+								}
+							}
+						}
+					}
+				}
+				#Province 10 urban
+				random_list = {
+					asp_chance_urb = {
+						for_each_scope_loop = {
+							array = ABY_prov_10
+							if = {
+								limit = {
+									is_owned_by = PREV
+									is_core_of = PREV
+								}
+								add_dynamic_modifier = {
+									modifier = ABY_asp_dominant_state
+								}
+							}
+						}
+					}
+					alf_chance_urb = {
+						for_each_scope_loop = {
+							array = ABY_prov_10
+							if = {
+								limit = {
+									is_owned_by = PREV
+									is_core_of = PREV
+								}
+								add_dynamic_modifier = {
+									modifier = ABY_alf_dominant_state
+								}
+							}
+						}
+					}
+					pla_chance_urb = {
+						for_each_scope_loop = {
+							array = ABY_prov_10
+							if = {
+								limit = {
+									is_owned_by = PREV
+									is_core_of = PREV
+								}
+								add_dynamic_modifier = {
+									modifier = ABY_pla_dominant_state
+								}
+							}
+						}
+					}
+					apf_pop = {
+						for_each_scope_loop = {
+							array = ABY_prov_10
+							if = {
+								limit = {
+									is_owned_by = PREV
+									is_core_of = PREV
+								}
+								add_dynamic_modifier = {
+									modifier = ABY_apf_dominant_state
+								}
+							}
+						}
+					}
+				}
+				#Province 11 rural
+				random_list = {
+					asp_pop = {
+						for_each_scope_loop = {
+							array = ABY_prov_11
+							if = {
+								limit = {
+									is_owned_by = PREV
+									is_core_of = PREV
+								}
+								add_dynamic_modifier = {
+									modifier = ABY_asp_dominant_state
+								}
+							}
+						}
+					}
+					alf_pop = {
+						for_each_scope_loop = {
+							array = ABY_prov_11
+							if = {
+								limit = {
+									is_owned_by = PREV
+									is_core_of = PREV
+								}
+								add_dynamic_modifier = {
+									modifier = ABY_alf_dominant_state
+								}
+							}
+						}
+					}
+					pla_pop = {
+						for_each_scope_loop = {
+							array = ABY_prov_11
+							if = {
+								limit = {
+									is_owned_by = PREV
+									is_core_of = PREV
+								}
+								add_dynamic_modifier = {
+									modifier = ABY_pla_dominant_state
+								}
+							}
+						}
+					}
+					apf_chance_rural = {
+						for_each_scope_loop = {
+							array = ABY_prov_11
+							if = {
+								limit = {
+									is_owned_by = PREV
+									is_core_of = PREV
+								}
+								add_dynamic_modifier = {
+									modifier = ABY_apf_dominant_state
+								}
+							}
+						}
+					}
+				}
+				#Province 12 rural
+				random_list = {
+					asp_pop = {
+						for_each_scope_loop = {
+							array = ABY_prov_12
+							if = {
+								limit = {
+									is_owned_by = PREV
+									is_core_of = PREV
+								}
+								add_dynamic_modifier = {
+									modifier = ABY_asp_dominant_state
+								}
+							}
+						}
+					}
+					alf_pop = {
+						for_each_scope_loop = {
+							array = ABY_prov_12
+							if = {
+								limit = {
+									is_owned_by = PREV
+									is_core_of = PREV
+								}
+								add_dynamic_modifier = {
+									modifier = ABY_alf_dominant_state
+								}
+							}
+						}
+					}
+					pla_pop = {
+						for_each_scope_loop = {
+							array = ABY_prov_12
+							if = {
+								limit = {
+									is_owned_by = PREV
+									is_core_of = PREV
+								}
+								add_dynamic_modifier = {
+									modifier = ABY_pla_dominant_state
+								}
+							}
+						}
+					}
+					apf_chance_rural = {
+						for_each_scope_loop = {
+							array = ABY_prov_12
+							if = {
+								limit = {
+									is_owned_by = PREV
+									is_core_of = PREV
+								}
+								add_dynamic_modifier = {
+									modifier = ABY_apf_dominant_state
+								}
+							}
+						}
+					}
+				}
+				#Province 13 rural
+				random_list = {
+					asp_pop = {
+						for_each_scope_loop = {
+							array = ABY_prov_13
+							if = {
+								limit = {
+									is_owned_by = PREV
+									is_core_of = PREV
+								}
+								add_dynamic_modifier = {
+									modifier = ABY_asp_dominant_state
+								}
+							}
+						}
+					}
+					alf_pop = {
+						for_each_scope_loop = {
+							array = ABY_prov_13
+							if = {
+								limit = {
+									is_owned_by = PREV
+									is_core_of = PREV
+								}
+								add_dynamic_modifier = {
+									modifier = ABY_alf_dominant_state
+								}
+							}
+						}
+					}
+					pla_pop = {
+						for_each_scope_loop = {
+							array = ABY_prov_13
+							if = {
+								limit = {
+									is_owned_by = PREV
+									is_core_of = PREV
+								}
+								add_dynamic_modifier = {
+									modifier = ABY_pla_dominant_state
+								}
+							}
+						}
+					}
+					apf_chance_rural = {
+						for_each_scope_loop = {
+							array = ABY_prov_13
+							if = {
+								limit = {
+									is_owned_by = PREV
+									is_core_of = PREV
+								}
+								add_dynamic_modifier = {
+									modifier = ABY_apf_dominant_state
+								}
+							}
+						}
+					}
+				}
+				#Province 14 urban
+				random_list = {
+					asp_chance_urb = {
+						for_each_scope_loop = {
+							array = ABY_prov_14
+							if = {
+								limit = {
+									is_owned_by = PREV
+									is_core_of = PREV
+								}
+								add_dynamic_modifier = {
+									modifier = ABY_asp_dominant_state
+								}
+							}
+						}
+					}
+					alf_chance_urb = {
+						for_each_scope_loop = {
+							array = ABY_prov_14
+							if = {
+								limit = {
+									is_owned_by = PREV
+									is_core_of = PREV
+								}
+								add_dynamic_modifier = {
+									modifier = ABY_alf_dominant_state
+								}
+							}
+						}
+					}
+					pla_chance_urb = {
+						for_each_scope_loop = {
+							array = ABY_prov_14
+							if = {
+								limit = {
+									is_owned_by = PREV
+									is_core_of = PREV
+								}
+								add_dynamic_modifier = {
+									modifier = ABY_pla_dominant_state
+								}
+							}
+						}
+					}
+					apf_pop = {
+						for_each_scope_loop = {
+							array = ABY_prov_14
+							if = {
+								limit = {
+									is_owned_by = PREV
+									is_core_of = PREV
+								}
+								add_dynamic_modifier = {
+									modifier = ABY_apf_dominant_state
+								}
+							}
+						}
+					}
+				}
+				#Province 15 urban
+				random_list = {
+					asp_chance_urb = {
+						for_each_scope_loop = {
+							array = ABY_prov_15
+							if = {
+								limit = {
+									is_owned_by = PREV
+									is_core_of = PREV
+								}
+								add_dynamic_modifier = {
+									modifier = ABY_asp_dominant_state
+								}
+							}
+						}
+					}
+					alf_chance_urb = {
+						for_each_scope_loop = {
+							array = ABY_prov_15
+							if = {
+								limit = {
+									is_owned_by = PREV
+									is_core_of = PREV
+								}
+								add_dynamic_modifier = {
+									modifier = ABY_alf_dominant_state
+								}
+							}
+						}
+					}
+					pla_chance_urb = {
+						for_each_scope_loop = {
+							array = ABY_prov_15
+							if = {
+								limit = {
+									is_owned_by = PREV
+									is_core_of = PREV
+								}
+								add_dynamic_modifier = {
+									modifier = ABY_pla_dominant_state
+								}
+							}
+						}
+					}
+					apf_pop = {
+						for_each_scope_loop = {
+							array = ABY_prov_15
+							if = {
+								limit = {
+									is_owned_by = PREV
+									is_core_of = PREV
+								}
+								add_dynamic_modifier = {
+									modifier = ABY_apf_dominant_state
+								}
+							}
+						}
+					}
+				}
+				#Province 16 urban
+				random_list = {
+					asp_chance_urb = {
+						for_each_scope_loop = {
+							array = ABY_prov_16
+							if = {
+								limit = {
+									is_owned_by = PREV
+									is_core_of = PREV
+								}
+								add_dynamic_modifier = {
+									modifier = ABY_asp_dominant_state
+								}
+							}
+						}
+					}
+					alf_chance_urb = {
+						for_each_scope_loop = {
+							array = ABY_prov_16
+							if = {
+								limit = {
+									is_owned_by = PREV
+									is_core_of = PREV
+								}
+								add_dynamic_modifier = {
+									modifier = ABY_alf_dominant_state
+								}
+							}
+						}
+					}
+					pla_chance_urb = {
+						for_each_scope_loop = {
+							array = ABY_prov_16
+							if = {
+								limit = {
+									is_owned_by = PREV
+									is_core_of = PREV
+								}
+								add_dynamic_modifier = {
+									modifier = ABY_pla_dominant_state
+								}
+							}
+						}
+					}
+					apf_pop = {
+						for_each_scope_loop = {
+							array = ABY_prov_16
+							if = {
+								limit = {
+									is_owned_by = PREV
+									is_core_of = PREV
+								}
+								add_dynamic_modifier = {
+									modifier = ABY_apf_dominant_state
+								}
+							}
+						}
+					}
+				}
+				#Province 17 rural
+				random_list = {
+					asp_pop = {
+						for_each_scope_loop = {
+							array = ABY_prov_17
+							if = {
+								limit = {
+									is_owned_by = PREV
+									is_core_of = PREV
+								}
+								add_dynamic_modifier = {
+									modifier = ABY_asp_dominant_state
+								}
+							}
+						}
+					}
+					alf_pop = {
+						for_each_scope_loop = {
+							array = ABY_prov_17
+							if = {
+								limit = {
+									is_owned_by = PREV
+									is_core_of = PREV
+								}
+								add_dynamic_modifier = {
+									modifier = ABY_alf_dominant_state
+								}
+							}
+						}
+					}
+					pla_pop = {
+						for_each_scope_loop = {
+							array = ABY_prov_17
+							if = {
+								limit = {
+									is_owned_by = PREV
+									is_core_of = PREV
+								}
+								add_dynamic_modifier = {
+									modifier = ABY_pla_dominant_state
+								}
+							}
+						}
+					}
+					apf_chance_rural = {
+						for_each_scope_loop = {
+							array = ABY_prov_17
+							if = {
+								limit = {
+									is_owned_by = PREV
+									is_core_of = PREV
+								}
+								add_dynamic_modifier = {
+									modifier = ABY_apf_dominant_state
+								}
+							}
+						}
+					}
+				}
+				#Province 18 rural
+				random_list = {
+					asp_pop = {
+						for_each_scope_loop = {
+							array = ABY_prov_18
+							if = {
+								limit = {
+									is_owned_by = PREV
+									is_core_of = PREV
+								}
+								add_dynamic_modifier = {
+									modifier = ABY_asp_dominant_state
+								}
+							}
+						}
+					}
+					alf_pop = {
+						for_each_scope_loop = {
+							array = ABY_prov_18
+							if = {
+								limit = {
+									is_owned_by = PREV
+									is_core_of = PREV
+								}
+								add_dynamic_modifier = {
+									modifier = ABY_alf_dominant_state
+								}
+							}
+						}
+					}
+					pla_pop = {
+						for_each_scope_loop = {
+							array = ABY_prov_18
+							if = {
+								limit = {
+									is_owned_by = PREV
+									is_core_of = PREV
+								}
+								add_dynamic_modifier = {
+									modifier = ABY_pla_dominant_state
+								}
+							}
+						}
+					}
+					apf_chance_rural = {
+						for_each_scope_loop = {
+							array = ABY_prov_18
+							if = {
+								limit = {
+									is_owned_by = PREV
+									is_core_of = PREV
+								}
+								add_dynamic_modifier = {
+									modifier = ABY_apf_dominant_state
+								}
+							}
+						}
+					}
+				}
+				#Province 19 urban
+				random_list = {
+					asp_chance_urb = {
+						for_each_scope_loop = {
+							array = ABY_prov_19
+							if = {
+								limit = {
+									is_owned_by = PREV
+									is_core_of = PREV
+								}
+								add_dynamic_modifier = {
+									modifier = ABY_asp_dominant_state
+								}
+							}
+						}
+					}
+					alf_chance_urb = {
+						for_each_scope_loop = {
+							array = ABY_prov_19
+							if = {
+								limit = {
+									is_owned_by = PREV
+									is_core_of = PREV
+								}
+								add_dynamic_modifier = {
+									modifier = ABY_alf_dominant_state
+								}
+							}
+						}
+					}
+					pla_chance_urb = {
+						for_each_scope_loop = {
+							array = ABY_prov_19
+							if = {
+								limit = {
+									is_owned_by = PREV
+									is_core_of = PREV
+								}
+								add_dynamic_modifier = {
+									modifier = ABY_pla_dominant_state
+								}
+							}
+						}
+					}
+					apf_pop = {
+						for_each_scope_loop = {
+							array = ABY_prov_19
+							if = {
+								limit = {
+									is_owned_by = PREV
+									is_core_of = PREV
+								}
+								add_dynamic_modifier = {
+									modifier = ABY_apf_dominant_state
+								}
+							}
+						}
+					}
+				}
+				#Province 20 urban
+				random_list = {
+					asp_chance_urb = {
+						for_each_scope_loop = {
+							array = ABY_prov_20
+							if = {
+								limit = {
+									is_owned_by = PREV
+									is_core_of = PREV
+								}
+								add_dynamic_modifier = {
+									modifier = ABY_asp_dominant_state
+								}
+							}
+						}
+					}
+					alf_chance_urb = {
+						for_each_scope_loop = {
+							array = ABY_prov_20
+							if = {
+								limit = {
+									is_owned_by = PREV
+									is_core_of = PREV
+								}
+								add_dynamic_modifier = {
+									modifier = ABY_alf_dominant_state
+								}
+							}
+						}
+					}
+					pla_chance_urb = {
+						for_each_scope_loop = {
+							array = ABY_prov_20
+							if = {
+								limit = {
+									is_owned_by = PREV
+									is_core_of = PREV
+								}
+								add_dynamic_modifier = {
+									modifier = ABY_pla_dominant_state
+								}
+							}
+						}
+					}
+					apf_pop = {
+						for_each_scope_loop = {
+							array = ABY_prov_20
+							if = {
+								limit = {
+									is_owned_by = PREV
+									is_core_of = PREV
+								}
+								add_dynamic_modifier = {
+									modifier = ABY_apf_dominant_state
+								}
+							}
+						}
+					}
+				}
+			}
+			else_if = {
+				limit = {
+					has_country_flag = ABY_every_state_a_province
+				}
+				every_owned_state = {
+					limit = {
+						is_core_of = ROOT
+					}
+					if = {
+						limit = {
+							OR = {
+								has_state_category = megalopolis
+								has_state_category = metropolis
+								has_state_category = large_city
+								has_state_category = city
+								has_state_category = large_town
+							}
+						}
+						random_list = {
+							asp_chance_urb = {
+								add_dynamic_modifier = {
+									modifier = ABY_asp_dominant_state
+								}
+							}
+							alf_chance_urb = {
+								add_dynamic_modifier = {
+									modifier = ABY_alf_dominant_state
+								}
+							}
+							pla_chance_urb = {
+								add_dynamic_modifier = {
+									modifier = ABY_pla_dominant_state
+								}
+							}
+							apf_pop = {
+								add_dynamic_modifier = {
+									modifier = ABY_apf_dominant_state
+								}
+							}
+						}
+					}
+					else = {
+						random_list = {
+							asp_pop = {
+								add_dynamic_modifier = {
+									modifier = ABY_asp_dominant_state
+								}
+							}
+							alf_pop = {
+								add_dynamic_modifier = {
+									modifier = ABY_alf_dominant_state
+								}
+							}
+							pla_pop = {
+								add_dynamic_modifier = {
+									modifier = ABY_pla_dominant_state
+								}
+							}
+							apf_chance_rural = {
+								add_dynamic_modifier = {
+									modifier = ABY_apf_dominant_state
+								}
+							}
+						}
+					}
+				}
+			}
+		}
+		else = {
+			set_temp_variable = { urf_pop = party_popularity_100@communism }
+			add_to_temp_variable = { urf_pop = party_popularity_100@democratic }
+			set_temp_variable = { apf_pop = party_popularity_100@neutrality }
+			add_to_temp_variable = { apf_pop = party_popularity_100@fascism }
+			set_temp_variable = { urf_chance_urb = 15 }
+			add_to_temp_variable = { urf_chance_urb = urf_pop }
+			set_temp_variable = { apf_chance_rural = 15 }
+			add_to_temp_variable = { apf_chance_rural = apf_pop }
+			log = "[GetDateText]: [Root.GetName]: Popularities setup [THIS.GetName]"
+			if = {
+				limit = {
+					has_country_flag = ABY_big_provinces
+				}
+				#Big provinces:
+					#1. 775, 777, 785, 776, 786 urban
+					#2. 773, 772, 771, 778, 774, (1208) rural
+					#3. 779, 780, 1201, (1200), 782, 783, (784) rural
+					#4. 741, 740, 738 urban
+					#5. 737, 734, 733, 731, 732, 736, 735 urban
+					#6. 760, 761, 759, 758 rural
+					#7. 766, 770, 763 rural
+					#8. 792, 801, 790, 795, 799 urban
+					#9. 807, 808, 810, 812, 828, 827 rural
+					#10. 788, 789, 955, 954, 956, 958, 957 urban
+					
+				#Province 1 urban
+				random_list = {
+					urf_chance_urb = {
+						for_each_scope_loop = {
+							array = ABY_prov_1
+							if = {
+								limit = {
+									is_owned_by = PREV
+									is_core_of = PREV
+								}
+								add_dynamic_modifier = {
+									modifier = ABY_urf_dominant_state
+								}
+							}
+						}
+					}
+					apf_pop = {
+						for_each_scope_loop = {
+							array = ABY_prov_1
+							if = {
+								limit = {
+									is_owned_by = PREV
+									is_core_of = PREV
+								}
+								add_dynamic_modifier = {
+									modifier = ABY_apf_dominant_state
+								}
+							}
+						}
+					}
+				}
+				
+				#Province 2 rural
+				random_list = {
+					urf_pop = {
+						for_each_scope_loop = {
+							array = ABY_prov_2
+							if = {
+								limit = {
+									is_owned_by = PREV
+									is_core_of = PREV
+								}
+								add_dynamic_modifier = {
+									modifier = ABY_urf_dominant_state
+								}
+							}
+						}
+					}
+					apf_chance_rural = {
+						for_each_scope_loop = {
+							array = ABY_prov_2
+							if = {
+								limit = {
+									is_owned_by = PREV
+									is_core_of = PREV
+								}
+								add_dynamic_modifier = {
+									modifier = ABY_apf_dominant_state
+								}
+							}
+						}
+					}
+				}
+				#Province 3 rural
+				random_list = {
+					urf_pop = {
+						for_each_scope_loop = {
+							array = ABY_prov_3
+							if = {
+								limit = {
+									is_owned_by = PREV
+									is_core_of = PREV
+								}
+								add_dynamic_modifier = {
+									modifier = ABY_urf_dominant_state
+								}
+							}
+						}
+					}
+					apf_chance_rural = {
+						for_each_scope_loop = {
+							array = ABY_prov_3
+							if = {
+								limit = {
+									is_owned_by = PREV
+									is_core_of = PREV
+								}
+								add_dynamic_modifier = {
+									modifier = ABY_apf_dominant_state
+								}
+							}
+						}
+					}
+				}
+				#Province 4 urban
+				random_list = {
+					urf_chance_urb = {
+						for_each_scope_loop = {
+							array = ABY_prov_4
+							if = {
+								limit = {
+									is_owned_by = PREV
+									is_core_of = PREV
+								}
+								add_dynamic_modifier = {
+									modifier = ABY_urf_dominant_state
+								}
+							}
+						}
+					}
+					apf_pop = {
+						for_each_scope_loop = {
+							array = ABY_prov_4
+							if = {
+								limit = {
+									is_owned_by = PREV
+									is_core_of = PREV
+								}
+								add_dynamic_modifier = {
+									modifier = ABY_apf_dominant_state
+								}
+							}
+						}
+					}
+				}
+				#Province 5 urban
+				random_list = {
+					urf_chance_urb = {
+						for_each_scope_loop = {
+							array = ABY_prov_5
+							if = {
+								limit = {
+									is_owned_by = PREV
+									is_core_of = PREV
+								}
+								add_dynamic_modifier = {
+									modifier = ABY_urf_dominant_state
+								}
+							}
+						}
+					}
+					apf_pop = {
+						for_each_scope_loop = {
+							array = ABY_prov_5
+							if = {
+								limit = {
+									is_owned_by = PREV
+									is_core_of = PREV
+								}
+								add_dynamic_modifier = {
+									modifier = ABY_apf_dominant_state
+								}
+							}
+						}
+					}
+				}
+				#Province 6 rural
+				random_list = {
+					urf_pop = {
+						for_each_scope_loop = {
+							array = ABY_prov_6
+							if = {
+								limit = {
+									is_owned_by = PREV
+									is_core_of = PREV
+								}
+								add_dynamic_modifier = {
+									modifier = ABY_urf_dominant_state
+								}
+							}
+						}
+					}
+					apf_chance_rural = {
+						for_each_scope_loop = {
+							array = ABY_prov_6
+							if = {
+								limit = {
+									is_owned_by = PREV
+									is_core_of = PREV
+								}
+								add_dynamic_modifier = {
+									modifier = ABY_apf_dominant_state
+								}
+							}
+						}
+					}
+				}
+				#Province 7 rural
+				random_list = {
+					urf_pop = {
+						for_each_scope_loop = {
+							array = ABY_prov_7
+							if = {
+								limit = {
+									is_owned_by = PREV
+									is_core_of = PREV
+								}
+								add_dynamic_modifier = {
+									modifier = ABY_urf_dominant_state
+								}
+							}
+						}
+					}
+					apf_chance_rural = {
+						for_each_scope_loop = {
+							array = ABY_prov_7
+							if = {
+								limit = {
+									is_owned_by = PREV
+									is_core_of = PREV
+								}
+								add_dynamic_modifier = {
+									modifier = ABY_apf_dominant_state
+								}
+							}
+						}
+					}
+				}
+				#Province 8 urban
+				random_list = {
+					urf_chance_urb = {
+						for_each_scope_loop = {
+							array = ABY_prov_8
+							if = {
+								limit = {
+									is_owned_by = PREV
+									is_core_of = PREV
+								}
+								add_dynamic_modifier = {
+									modifier = ABY_urf_dominant_state
+								}
+							}
+						}
+					}
+					apf_pop = {
+						for_each_scope_loop = {
+							array = ABY_prov_8
+							if = {
+								limit = {
+									is_owned_by = PREV
+									is_core_of = PREV
+								}
+								add_dynamic_modifier = {
+									modifier = ABY_apf_dominant_state
+								}
+							}
+						}
+					}
+				}
+				#Province 9 rural
+				random_list = {
+					urf_pop = {
+						for_each_scope_loop = {
+							array = ABY_prov_9
+							if = {
+								limit = {
+									is_owned_by = PREV
+									is_core_of = PREV
+								}
+								add_dynamic_modifier = {
+									modifier = ABY_urf_dominant_state
+								}
+							}
+						}
+					}
+					apf_chance_rural = {
+						for_each_scope_loop = {
+							array = ABY_prov_9
+							if = {
+								limit = {
+									is_owned_by = PREV
+									is_core_of = PREV
+								}
+								add_dynamic_modifier = {
+									modifier = ABY_apf_dominant_state
+								}
+							}
+						}
+					}
+				}
+				#Province 10 urban
+				random_list = {
+					urf_chance_urb = {
+						for_each_scope_loop = {
+							array = ABY_prov_10
+							if = {
+								limit = {
+									is_owned_by = PREV
+									is_core_of = PREV
+								}
+								add_dynamic_modifier = {
+									modifier = ABY_urf_dominant_state
+								}
+							}
+						}
+					}
+					apf_pop = {
+						for_each_scope_loop = {
+							array = ABY_prov_10
+							if = {
+								limit = {
+									is_owned_by = PREV
+									is_core_of = PREV
+								}
+								add_dynamic_modifier = {
+									modifier = ABY_apf_dominant_state
+								}
+							}
+						}
+					}
+				}
+			}
+			else_if = {
+				limit = {
+					has_country_flag = ABY_medium_provinces
+				}
+				#Medium provinces:
+					#1. 775, 785 urban
+					#2. 776, 786 urban
+					#3. 772, 773, 771, (1208) rural
+					#4. 777, 779, 780 rural
+					#5. 778, 774, 782 rural
+					#6. 783, 1201, (1200), (784) rural
+					#7. 741, 740, 738 urban
+					#8. 737, 734 urban
+					#9. 733, 732, 731 urban
+					#10. 736, 735 urban
+					#11. 759, 758 rural
+					#12. 760, 761 rural
+					#13. 766, 770, 763 rural
+					#14. 792, 801, 790 urban
+					#15. 795, 799 urban
+					#16. 807, 810, 808 urban
+					#17. 827, 828, 812 rural
+					#18. 788, 789, 955 rural
+					#19. 954, 956 urban
+					#20. 957, 958 urban
+					
+				#Province 1 urban
+				random_list = {
+					urf_chance_urb = {
+						for_each_scope_loop = {
+							array = ABY_prov_1
+							if = {
+								limit = {
+									is_owned_by = PREV
+									is_core_of = PREV
+								}
+								add_dynamic_modifier = {
+									modifier = ABY_urf_dominant_state
+								}
+							}
+						}
+					}
+					apf_pop = {
+						for_each_scope_loop = {
+							array = ABY_prov_1
+							if = {
+								limit = {
+									is_owned_by = PREV
+									is_core_of = PREV
+								}
+								add_dynamic_modifier = {
+									modifier = ABY_apf_dominant_state
+								}
+							}
+						}
+					}
+				}
+				#Province 2 urban
+				random_list = {
+					urf_chance_urb = {
+						for_each_scope_loop = {
+							array = ABY_prov_2
+							if = {
+								limit = {
+									is_owned_by = PREV
+									is_core_of = PREV
+								}
+								add_dynamic_modifier = {
+									modifier = ABY_urf_dominant_state
+								}
+							}
+						}
+					}
+					apf_pop = {
+						for_each_scope_loop = {
+							array = ABY_prov_2
+							if = {
+								limit = {
+									is_owned_by = PREV
+									is_core_of = PREV
+								}
+								add_dynamic_modifier = {
+									modifier = ABY_apf_dominant_state
+								}
+							}
+						}
+					}
+				}
+				#Province 3 rural
+				random_list = {
+					urf_pop = {
+						for_each_scope_loop = {
+							array = ABY_prov_3
+							if = {
+								limit = {
+									is_owned_by = PREV
+									is_core_of = PREV
+								}
+								add_dynamic_modifier = {
+									modifier = ABY_urf_dominant_state
+								}
+							}
+						}
+					}
+					apf_chance_rural = {
+						for_each_scope_loop = {
+							array = ABY_prov_3
+							if = {
+								limit = {
+									is_owned_by = PREV
+									is_core_of = PREV
+								}
+								add_dynamic_modifier = {
+									modifier = ABY_apf_dominant_state
+								}
+							}
+						}
+					}
+				}
+				#Province 4 rural
+				random_list = {
+					urf_pop = {
+						for_each_scope_loop = {
+							array = ABY_prov_4
+							if = {
+								limit = {
+									is_owned_by = PREV
+									is_core_of = PREV
+								}
+								add_dynamic_modifier = {
+									modifier = ABY_urf_dominant_state
+								}
+							}
+						}
+					}
+					apf_chance_rural = {
+						for_each_scope_loop = {
+							array = ABY_prov_4
+							if = {
+								limit = {
+									is_owned_by = PREV
+									is_core_of = PREV
+								}
+								add_dynamic_modifier = {
+									modifier = ABY_apf_dominant_state
+								}
+							}
+						}
+					}
+				}
+				#Province 5 rural
+				random_list = {
+					urf_pop = {
+						for_each_scope_loop = {
+							array = ABY_prov_5
+							if = {
+								limit = {
+									is_owned_by = PREV
+									is_core_of = PREV
+								}
+								add_dynamic_modifier = {
+									modifier = ABY_urf_dominant_state
+								}
+							}
+						}
+					}
+					apf_chance_rural = {
+						for_each_scope_loop = {
+							array = ABY_prov_5
+							if = {
+								limit = {
+									is_owned_by = PREV
+									is_core_of = PREV
+								}
+								add_dynamic_modifier = {
+									modifier = ABY_apf_dominant_state
+								}
+							}
+						}
+					}
+				}
+				#Province 6 rural
+				random_list = {
+					urf_pop = {
+						for_each_scope_loop = {
+							array = ABY_prov_6
+							if = {
+								limit = {
+									is_owned_by = PREV
+									is_core_of = PREV
+								}
+								add_dynamic_modifier = {
+									modifier = ABY_urf_dominant_state
+								}
+							}
+						}
+					}
+					apf_chance_rural = {
+						for_each_scope_loop = {
+							array = ABY_prov_6
+							if = {
+								limit = {
+									is_owned_by = PREV
+									is_core_of = PREV
+								}
+								add_dynamic_modifier = {
+									modifier = ABY_apf_dominant_state
+								}
+							}
+						}
+					}
+				}
+				#Province 7 urban
+				random_list = {
+					urf_chance_urb = {
+						for_each_scope_loop = {
+							array = ABY_prov_7
+							if = {
+								limit = {
+									is_owned_by = PREV
+									is_core_of = PREV
+								}
+								add_dynamic_modifier = {
+									modifier = ABY_urf_dominant_state
+								}
+							}
+						}
+					}
+					apf_pop = {
+						for_each_scope_loop = {
+							array = ABY_prov_7
+							if = {
+								limit = {
+									is_owned_by = PREV
+									is_core_of = PREV
+								}
+								add_dynamic_modifier = {
+									modifier = ABY_apf_dominant_state
+								}
+							}
+						}
+					}
+				}
+				#Province 8 urban
+				random_list = {
+					urf_chance_urb = {
+						for_each_scope_loop = {
+							array = ABY_prov_8
+							if = {
+								limit = {
+									is_owned_by = PREV
+									is_core_of = PREV
+								}
+								add_dynamic_modifier = {
+									modifier = ABY_urf_dominant_state
+								}
+							}
+						}
+					}
+					apf_pop = {
+						for_each_scope_loop = {
+							array = ABY_prov_8
+							if = {
+								limit = {
+									is_owned_by = PREV
+									is_core_of = PREV
+								}
+								add_dynamic_modifier = {
+									modifier = ABY_apf_dominant_state
+								}
+							}
+						}
+					}
+				}
+				#Province 9 urban
+				random_list = {
+					urf_chance_urb = {
+						for_each_scope_loop = {
+							array = ABY_prov_9
+							if = {
+								limit = {
+									is_owned_by = PREV
+									is_core_of = PREV
+								}
+								add_dynamic_modifier = {
+									modifier = ABY_urf_dominant_state
+								}
+							}
+						}
+					}
+					apf_pop = {
+						for_each_scope_loop = {
+							array = ABY_prov_9
+							if = {
+								limit = {
+									is_owned_by = PREV
+									is_core_of = PREV
+								}
+								add_dynamic_modifier = {
+									modifier = ABY_apf_dominant_state
+								}
+							}
+						}
+					}
+				}
+				#Province 10 urban
+				random_list = {
+					urf_chance_urb = {
+						for_each_scope_loop = {
+							array = ABY_prov_10
+							if = {
+								limit = {
+									is_owned_by = PREV
+									is_core_of = PREV
+								}
+								add_dynamic_modifier = {
+									modifier = ABY_urf_dominant_state
+								}
+							}
+						}
+					}
+					apf_pop = {
+						for_each_scope_loop = {
+							array = ABY_prov_10
+							if = {
+								limit = {
+									is_owned_by = PREV
+									is_core_of = PREV
+								}
+								add_dynamic_modifier = {
+									modifier = ABY_apf_dominant_state
+								}
+							}
+						}
+					}
+				}
+				#Province 11 rural
+				random_list = {
+					urf_pop = {
+						for_each_scope_loop = {
+							array = ABY_prov_11
+							if = {
+								limit = {
+									is_owned_by = PREV
+									is_core_of = PREV
+								}
+								add_dynamic_modifier = {
+									modifier = ABY_urf_dominant_state
+								}
+							}
+						}
+					}
+					apf_chance_rural = {
+						for_each_scope_loop = {
+							array = ABY_prov_11
+							if = {
+								limit = {
+									is_owned_by = PREV
+									is_core_of = PREV
+								}
+								add_dynamic_modifier = {
+									modifier = ABY_apf_dominant_state
+								}
+							}
+						}
+					}
+				}
+				#Province 12 rural
+				random_list = {
+					urf_pop = {
+						for_each_scope_loop = {
+							array = ABY_prov_12
+							if = {
+								limit = {
+									is_owned_by = PREV
+									is_core_of = PREV
+								}
+								add_dynamic_modifier = {
+									modifier = ABY_urf_dominant_state
+								}
+							}
+						}
+					}
+					apf_chance_rural = {
+						for_each_scope_loop = {
+							array = ABY_prov_12
+							if = {
+								limit = {
+									is_owned_by = PREV
+									is_core_of = PREV
+								}
+								add_dynamic_modifier = {
+									modifier = ABY_apf_dominant_state
+								}
+							}
+						}
+					}
+				}
+				#Province 13 rural
+				random_list = {
+					urf_pop = {
+						for_each_scope_loop = {
+							array = ABY_prov_13
+							if = {
+								limit = {
+									is_owned_by = PREV
+									is_core_of = PREV
+								}
+								add_dynamic_modifier = {
+									modifier = ABY_urf_dominant_state
+								}
+							}
+						}
+					}
+					apf_chance_rural = {
+						for_each_scope_loop = {
+							array = ABY_prov_13
+							if = {
+								limit = {
+									is_owned_by = PREV
+									is_core_of = PREV
+								}
+								add_dynamic_modifier = {
+									modifier = ABY_apf_dominant_state
+								}
+							}
+						}
+					}
+				}
+				#Province 14 urban
+				random_list = {
+					urf_chance_urb = {
+						for_each_scope_loop = {
+							array = ABY_prov_14
+							if = {
+								limit = {
+									is_owned_by = PREV
+									is_core_of = PREV
+								}
+								add_dynamic_modifier = {
+									modifier = ABY_urf_dominant_state
+								}
+							}
+						}
+					}
+					apf_pop = {
+						for_each_scope_loop = {
+							array = ABY_prov_14
+							if = {
+								limit = {
+									is_owned_by = PREV
+									is_core_of = PREV
+								}
+								add_dynamic_modifier = {
+									modifier = ABY_apf_dominant_state
+								}
+							}
+						}
+					}
+				}
+				#Province 15 urban
+				random_list = {
+					urf_chance_urb = {
+						for_each_scope_loop = {
+							array = ABY_prov_15
+							if = {
+								limit = {
+									is_owned_by = PREV
+									is_core_of = PREV
+								}
+								add_dynamic_modifier = {
+									modifier = ABY_urf_dominant_state
+								}
+							}
+						}
+					}
+					apf_pop = {
+						for_each_scope_loop = {
+							array = ABY_prov_15
+							if = {
+								limit = {
+									is_owned_by = PREV
+									is_core_of = PREV
+								}
+								add_dynamic_modifier = {
+									modifier = ABY_apf_dominant_state
+								}
+							}
+						}
+					}
+				}
+				#Province 16 urban
+				random_list = {
+					urf_chance_urb = {
+						for_each_scope_loop = {
+							array = ABY_prov_16
+							if = {
+								limit = {
+									is_owned_by = PREV
+									is_core_of = PREV
+								}
+								add_dynamic_modifier = {
+									modifier = ABY_urf_dominant_state
+								}
+							}
+						}
+					}
+					apf_pop = {
+						for_each_scope_loop = {
+							array = ABY_prov_16
+							if = {
+								limit = {
+									is_owned_by = PREV
+									is_core_of = PREV
+								}
+								add_dynamic_modifier = {
+									modifier = ABY_apf_dominant_state
+								}
+							}
+						}
+					}
+				}
+				#Province 17 rural
+				random_list = {
+					urf_pop = {
+						for_each_scope_loop = {
+							array = ABY_prov_17
+							if = {
+								limit = {
+									is_owned_by = PREV
+									is_core_of = PREV
+								}
+								add_dynamic_modifier = {
+									modifier = ABY_urf_dominant_state
+								}
+							}
+						}
+					}
+					apf_chance_rural = {
+						for_each_scope_loop = {
+							array = ABY_prov_17
+							if = {
+								limit = {
+									is_owned_by = PREV
+									is_core_of = PREV
+								}
+								add_dynamic_modifier = {
+									modifier = ABY_apf_dominant_state
+								}
+							}
+						}
+					}
+				}
+				#Province 18 rural
+				random_list = {
+					urf_pop = {
+						for_each_scope_loop = {
+							array = ABY_prov_18
+							if = {
+								limit = {
+									is_owned_by = PREV
+									is_core_of = PREV
+								}
+								add_dynamic_modifier = {
+									modifier = ABY_urf_dominant_state
+								}
+							}
+						}
+					}
+					apf_chance_rural = {
+						for_each_scope_loop = {
+							array = ABY_prov_18
+							if = {
+								limit = {
+									is_owned_by = PREV
+									is_core_of = PREV
+								}
+								add_dynamic_modifier = {
+									modifier = ABY_apf_dominant_state
+								}
+							}
+						}
+					}
+				}
+				#Province 19 urban
+				random_list = {
+					urf_chance_urb = {
+						for_each_scope_loop = {
+							array = ABY_prov_19
+							if = {
+								limit = {
+									is_owned_by = PREV
+									is_core_of = PREV
+								}
+								add_dynamic_modifier = {
+									modifier = ABY_urf_dominant_state
+								}
+							}
+						}
+					}
+					apf_pop = {
+						for_each_scope_loop = {
+							array = ABY_prov_19
+							if = {
+								limit = {
+									is_owned_by = PREV
+									is_core_of = PREV
+								}
+								add_dynamic_modifier = {
+									modifier = ABY_apf_dominant_state
+								}
+							}
+						}
+					}
+				}
+				#Province 20 urban
+				random_list = {
+					urf_chance_urb = {
+						for_each_scope_loop = {
+							array = ABY_prov_20
+							if = {
+								limit = {
+									is_owned_by = PREV
+									is_core_of = PREV
+								}
+								add_dynamic_modifier = {
+									modifier = ABY_urf_dominant_state
+								}
+							}
+						}
+					}
+					apf_pop = {
+						for_each_scope_loop = {
+							array = ABY_prov_20
+							if = {
+								limit = {
+									is_owned_by = PREV
+									is_core_of = PREV
+								}
+								add_dynamic_modifier = {
+									modifier = ABY_apf_dominant_state
+								}
+							}
+						}
+					}
+				}
+			}
+			else_if = {
+				limit = {
+					has_country_flag = ABY_every_state_a_province
+				}
+				every_owned_state = {
+					limit = {
+						is_core_of = ROOT
+					}
+					if = {
+						limit = {
+							OR = {
+								has_state_category = megalopolis
+								has_state_category = metropolis
+								has_state_category = large_city
+								has_state_category = city
+								has_state_category = large_town
+							}
+						}
+						random_list = {
+							urf_chance_urb = {
+								add_dynamic_modifier = {
+									modifier = ABY_urf_dominant_state
+								}
+							}
+							apf_pop = {
+								add_dynamic_modifier = {
+									modifier = ABY_apf_dominant_state
+								}
+							}
+						}
+					}
+					else = {
+						random_list = {
+							urf_pop = {
+								add_dynamic_modifier = {
+									modifier = ABY_urf_dominant_state
+								}
+							}
+							apf_chance_rural = {
+								add_dynamic_modifier = {
+									modifier = ABY_apf_dominant_state
+								}
+							}
+						}
+					}
+				}
+			}
+		}
+	}
+	add_to_variable = { ABY_PLMT_dirty = 1 }
+}
+ABY_clear_provinces = {
+	if = {
+		limit = {
+			has_country_flag = ABY_urf_split
+		}
+		every_owned_state = {
+			limit = {
+				OR = {
+					has_dynamic_modifier = {
+						modifier = ABY_asp_dominant_state
+					}
+					has_dynamic_modifier = {
+						modifier = ABY_alf_dominant_state
+					}
+					has_dynamic_modifier = {
+						modifier = ABY_pla_dominant_state
+					}
+					has_dynamic_modifier = {
+						modifier = ABY_apf_dominant_state
+					}
+				}
+			}
+			if = {
+				limit = {
+					has_dynamic_modifier = {
+						modifier = ABY_asp_dominant_state
+					}
+				}
+				remove_dynamic_modifier = {
+					modifier = ABY_asp_dominant_state
+				}
+			}
+			else_if = {
+				limit = {
+					has_dynamic_modifier = {
+						modifier = ABY_alf_dominant_state
+					}
+				}
+				remove_dynamic_modifier = {
+					modifier = ABY_alf_dominant_state
+				}
+			}
+			else_if = {
+				limit = {
+					has_dynamic_modifier = {
+						modifier = ABY_pla_dominant_state
+					}
+				}
+				remove_dynamic_modifier = {
+					modifier = ABY_pla_dominant_state
+				}
+			}
+			else_if = {
+				limit = {
+					has_dynamic_modifier = {
+						modifier = ABY_apf_dominant_state
+					}
+				}
+				remove_dynamic_modifier = {
+					modifier = ABY_apf_dominant_state
+				}
+			}
+		}
+	}
+	else = {
+		every_owned_state = {
+			limit = {
+				OR = {
+					has_dynamic_modifier = {
+						modifier = ABY_urf_dominant_state
+					}
+					has_dynamic_modifier = {
+						modifier = ABY_apf_dominant_state
+					}
+				}
+			}
+			if = {
+				limit = {
+					has_dynamic_modifier = {
+						modifier = ABY_urf_dominant_state
+					}
+				}
+				remove_dynamic_modifier = {
+					modifier = ABY_urf_dominant_state
+				}
+			}
+			else_if = {
+				limit = {
+					has_dynamic_modifier = {
+						modifier = ABY_apf_dominant_state
+					}
+				}
+				remove_dynamic_modifier = {
+					modifier = ABY_apf_dominant_state
+				}
+			}
+		}
+	}
+}
+ABY_no_majority_effect = {
+	if = {
+		limit = {
+			NOT = {
+				ABY_PLMT_has_majority = yes
+			}
+		}
+		custom_effect_tooltip = ABY_majority_warning
+		add_political_power = -50
+		add_stability = -0.05
+		add_war_support = -0.05
+		add_popularity = { ideology = communism popularity = -0.05 }
+	}
+}
+ABY_apf_opposes = {
+	if = {
+		limit = {
+			check_variable = {
+				ABY_apf_support > 4
+			}
+		}
+		subtract_from_variable = {
+			var = ABY_apf_support
+			value = 5
+			tooltip = ABY_lose_support_5_apf
+		}
+		ABY_PLMT_re_render = yes
+	}
+
+}
+ABY_pla_opposes = {
+	if = {
+		limit = {
+			has_country_flag = ABY_urf_split
+		}
+		custom_effect_tooltip = ABY_pla_opposes_tt
+	}
+	if = {
+		limit = {
+			has_country_flag = ABY_pla_alliance
+		}
+		add_to_variable = {
+			var = ABY_pla_patience
+			value = 1
+			tooltip = ABY_lose_1_pla_patience
+		}
+		if = {
+			limit = {
+				check_variable = {
+					ABY_pla_patience > 3
+				}
+			}
+			custom_effect_tooltip = ABY_pla_alliance_breaks
+			clr_country_flag = ABY_pla_alliance
+			remove_from_array = { ABY_coalitions_array = 3 }
+			ABY_PLMT_re_render = yes
+		}
+	}
+}
+ABY_asp_opposes = {
+	if = {
+		limit = {
+			has_country_flag = ABY_urf_split
+		}
+		custom_effect_tooltip = ABY_asp_opposes_tt
+	}
+	if = {
+		limit = {
+			has_country_flag = ABY_asp_alliance
+		}
+		add_to_variable = {
+			var = ABY_asp_patience
+			value = 1
+			tooltip = ABY_lose_1_asp_patience
+		}
+		if = {
+			limit = {
+				check_variable = {
+					ABY_asp_patience > 3
+				}
+			}
+			custom_effect_tooltip = ABY_asp_alliance_breaks
+			clr_country_flag = ABY_asp_alliance
+			remove_from_array = { ABY_coalitions_array = 1 }
+			ABY_PLMT_re_render = yes
+		}
+	}
+}
+ABY_improve_ongoing_famine = {
+	if = {
+		limit = {
+			has_idea = ABY_mild_famine
+		}
+		swap_ideas = {
+		  remove_idea = ABY_mild_famine
+		  add_idea = ABY_risk_of_famine
+		}
+	}
+	else_if = {
+		limit = {
+			has_idea = ABY_famine
+		}
+		swap_ideas = {
+		  remove_idea = ABY_famine
+		  add_idea = ABY_mild_famine
+		  days = 365
+		}
+	}
+	else_if = {
+		limit = {
+			has_idea = ABY_apocalyptic_famine
+		}
+		swap_ideas = {
+		  remove_idea = ABY_apocalyptic_famine
+		  add_idea = ABY_famine
+		  days = 365
+		}
+	}
+}
