@@ -2452,11 +2452,30 @@ LCT_HPE_set_failstate = {
 LCT_HPE_balkanize = {
 	custom_effect_tooltip = LCT_HPE_balkanize_tt
 	hidden_effect = {
+		
+		#Step 0: Annex all non-Herzland puppets
+		log = "Balkanize start -------------------------------------------------------------- "
+		every_subject_country = {
+			limit = {
+				NOT = { 
+					has_country_flag = LCT_HPE_member 
+				}
+			}
+			ROOT = {
+				annex_country = {
+					target = PREV
+					transfer_troops = no
+				}
+			}
+		}
+		
 		#Step 1: Gather all occupied tags myself because for some reason the occupied_countries array doesn't have them all.
 		every_owned_state = {
 			limit = {
 				is_fully_controlled_by = ROOT
 			}
+			log = "[THIS.GetName] looped"
+			#log = "ROOT: [ROOT.GetNameDef]"
 			for_each_scope_loop = {
 				array = core_countries
 				if = {
@@ -2475,9 +2494,11 @@ LCT_HPE_balkanize = {
 						array = temp_countries_to_release
 						value = THIS
 					}
+					log = "[THIS.GetNameDefCap] added"
 				}
 			}
 		}
+		log = "All countries gathered"
 		
 		#Step 2: Sort countries by size. This prevents countries from not being released in certain circumstances.
 		get_sorted_scored_countries_temp = {
@@ -2485,9 +2506,12 @@ LCT_HPE_balkanize = {
 			array = temp_countries_to_release_sorted
 			scores = temp_countries_to_release_scores
 		}
+		log = "All countries sorted"
 		
 		#Step 3: Release all occupied tags as puppets
+		log = "Releasing countries"
 		for_each_scope_loop = {
+			log = "[THIS.GetNameDefCap] start"
 			array = temp_countries_to_release_sorted
 			if = {
 				limit = {
@@ -2529,6 +2553,7 @@ LCT_HPE_balkanize = {
 					}
 					set_demilitarized_zone = no
 				}
+				#transfer_state = 3
 				
 				#This code subdivides large countries into smaller ones. Was removed for being too... much. Add back in at your own risk.
 #				if = {
@@ -2607,6 +2632,7 @@ LCT_HPE_balkanize = {
 					add_to_array = { LCT.LCT_HPE_members = THIS }
 				}
 			}
+			log = "[THIS.GetNameDefCap] end"
 		}
 	}
 }
