@@ -391,6 +391,80 @@ f_eaw_parliament_update_seats = {
 	}
 }
 
+# Function    : f_eaw_parliament_get_sorted_parliament
+# Description : Return an array with the index of the parties sorted in an ascending manner
+# Inputs      : None
+# Outputs     : o_sorted_party_a - Sorted list of party, from index 0 the party with the less deputies, to the party with the most
+f_eaw_parliament_get_sorted_parliament = {
+	resize_temp_array = { o_sorted_party_a = 0 }
+	resize_temp_array = { t_party_deputy_a = 0 }
+	for_each_loop = {
+		array = generic_parliament_party_a
+		add_to_temp_array = { o_sorted_party_a = i }
+		add_to_temp_array = { t_party_deputy_a = v }
+	}
+
+	# An insertion sort because I cannot be bothered
+	for_loop_effect = {
+		start = 1
+		end = t_party_deputy_a^num
+		value = sorting_index
+
+		set_temp_variable = { curr_index = sorting_index }
+		while_loop_effect = {
+			limit = {
+				check_variable = { curr_index > 0 }
+				set_temp_variable = { curr_index_1 = curr_index }
+				add_to_temp_variable = { curr_index_1 = -1 }
+				check_variable = { t_party_deputy_a^curr_index_1 > t_party_deputy_a^curr_index }
+			}
+
+			# Swap the values
+			set_temp_variable = { t_value = t_party_deputy_a^curr_index_1 }
+			set_temp_variable = { t_party_deputy_a^curr_index_1 = t_party_deputy_a^curr_index }
+			set_temp_variable = { t_party_deputy_a^curr_index   = t_value }
+
+			set_temp_variable = { t_value = o_sorted_party_a^curr_index_1 }
+			set_temp_variable = { o_sorted_party_a^curr_index_1 = o_sorted_party_a^curr_index }
+			set_temp_variable = { o_sorted_party_a^curr_index   = t_value}
+
+			add_to_temp_variable = { curr_index = -1 }
+		}
+	}
+}
+
+# Function    : f_eaw_parliament_get_majority_party
+# Description : Return the ID of the party with the majority
+#               In case of a ties for the majority, another variable is output with the number of tied parties
+# Inputs      : None
+# Outputs     : o_winner - The ID of the winning party (With the most seats
+#               o_ties   - 0 if no ties, otherwise the number of parties with the same number of deputies that have "won"
+f_eaw_parliament_get_majority_party = {
+	set_temp_variable = { o_winner = 0 }
+	set_temp_variable = { o_ties   = 0 }
+
+	set_temp_variable = { t_deputy_nb = generic_parliament_party_a^0 }
+	for_loop_effect = {
+		start = 1
+		end = generic_parliament_party_a^num
+		value = party_index
+
+		set_temp_variable = { t_curr_deputy_nb = generic_parliament_party_a^party_index }
+		if = {
+			limit = { check_variable = {t_curr_deputy_nb > t_deputy_nb} }
+
+			set_temp_variable = { t_deputy_nb = t_curr_deputy_nb }
+			set_temp_variable = { o_winner    = party_index }
+			set_temp_variable = { o_ties      = 0 }
+
+		} else_if = {
+			limit = { check_variable = {t_curr_deputy_nb = t_deputy_nb}  }
+
+			add_to_temp_variable = { o_ties = 1 }
+		}
+	}
+}
+
 ### Private Functions ###
 
 # Function    : f_eaw_parliament_change_seats_priv
