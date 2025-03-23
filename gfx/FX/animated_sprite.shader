@@ -37,8 +37,8 @@ PixelShader =
 		MapTexture =
 		{
 			Index = 0
-			MagFilter = "Linear"
-			MinFilter = "Linear"
+			MagFilter = "Point"
+			MinFilter = "Point"
 			MipFilter = "None"
 			AddressU = "Wrap"
 			AddressV = "Wrap"
@@ -63,7 +63,7 @@ VertexShader =
 		    VS_OUTPUT Out;
 			Out.vTexCoord = v.vTexCoord;
 			Out.vPosition  = mul( WorldViewProjectionMatrix, float4( v.vPosition, 1 ) );
-			
+
 		    return Out;
 		}
 	]]
@@ -71,8 +71,14 @@ VertexShader =
 
 PixelShader =
 {
-	MainCode PixelShaderUp
+	MainCode PixelShader
 	[[
+
+		// These additional extensions are here for OpenGL compatibility
+		#ifdef PDX_OPENGL
+			#extension GL_ARB_shader_texture_lod : enable
+			#extension GL_EXT_gpu_shader4 : enable
+		#endif
 
         float part_dec(float x) {
             return x - floor(x);
@@ -81,56 +87,27 @@ PixelShader =
 		{
             // The number of frames is in the last frame
             float4 frame_size = tex2D( MapTexture, float2((Offset.x - NextOffset.x)/2, 0));
-            int nb_frames = round(frame_size.x * 256) + 1;
+            int nb_frames = int(round(frame_size.x * 256) + 1);
             // Get the inputs parameters
-            int offsetInt = round(Offset.x*nb_frames);
+            int offsetInt = int(round(Offset.x*nb_frames));
             int start_frame   = (offsetInt >> 0)  & 0x3F;
             int end_frame     = ((offsetInt >> 6) & 0x3F) + 1;
             int frame_per_sec = (offsetInt >> 12) & 0xFF;
             int looping       = (offsetInt >> 20) & 0x1;
 
+
             // Compute the effective fps
-            float fps = (float)(frame_per_sec + 1)/256;
-            fps = fps*fps * 20;
+            float fps = float(frame_per_sec + 1)/256.0;
+            fps = fps*fps * 50;
 
 			// Display the first frame
             float delta_time = (Time - AnimationTime)*fps/(end_frame - start_frame);
             float current_frame_offset = floor(part_dec(delta_time)*(end_frame - start_frame));
-            if ((!looping) && (delta_time > 1.0) ) {
+            if ((looping == 0) && (delta_time >= 1.0) ) {
                 current_frame_offset = end_frame - start_frame - 1;
             }
 
-            v.vTexCoord.x = (float)start_frame/nb_frames + v.vTexCoord.x + current_frame_offset/nb_frames;
-            return tex2D(MapTexture, v.vTexCoord);
-		}
-	]]
-
-	MainCode PixelShaderDisable
-	[[
-		float4 main( VS_OUTPUT v ) : PDX_COLOR
-		{
-            // The number of frames is in the last frame
-            float4 frame_size = tex2D( MapTexture, float2((Offset.x - NextOffset.x)/2, 0));
-            int nb_frames = round(frame_size.x * 256) + 1;
-            // Get the inputs parameters
-            int offsetInt = round(Offset.x*nb_frames);
-            int start_frame   = (offsetInt >> 0)  & 0x3F;
-            int end_frame     = ((offsetInt >> 6) & 0x3F) + 1;
-            int frame_per_sec = (offsetInt >> 12) & 0xFF;
-            int looping       = (offsetInt >> 20) & 0x1;
-
-            // Compute the effective fps
-            float fps = (float)(frame_per_sec + 1)/256;
-            fps = fps*fps * 20;
-
-			// Display the first frame
-            float delta_time = (Time - AnimationTime)*fps/(end_frame - start_frame);
-            float current_frame_offset = floor(part_dec(delta_time)*(end_frame - start_frame));
-            if ((!looping) && (delta_time > 1.0) ) {
-                current_frame_offset = end_frame - start_frame - 1;
-            }
-
-            v.vTexCoord.x = (float)start_frame/nb_frames + v.vTexCoord.x + current_frame_offset/nb_frames;
+            v.vTexCoord.x += float(start_frame + current_frame_offset)/nb_frames;
             return tex2D(MapTexture, v.vTexCoord);
 		}
 	]]
@@ -164,19 +141,19 @@ BlendState BlendState
 Effect Up
 {
 	VertexShader = "VertexShader"
-	PixelShader = "PixelShaderUp"
+	PixelShader = "PixelShader"
 }
 
 Effect Down
 {
 	VertexShader = "VertexShader"
-	PixelShader = "PixelShaderDown"
+	PixelShader = "PixelShader"
 }
 
 Effect Disable
 {
 	VertexShader = "VertexShader"
-	PixelShader = "PixelShaderDisable"
+	PixelShader = "PixelShaderDown"
 }
 
 Effect Over
