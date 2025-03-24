@@ -435,3 +435,103 @@ JER_parliament_detractions_effect = {
 		}
 	}
 }
+
+MER_initialize_refugee_system = {
+	for_each_scope_loop = {
+		array = JER.original_cores
+		set_variable = { state_pop_factor = -1.25 }
+		set_variable = { state_pop_return_factor = 0.6 }
+		add_to_array = { MER.MER_refugee_states = THIS }
+	}
+	for_each_scope_loop = {
+		array = JEB.original_cores
+		set_variable = { state_pop_factor = -1.1 }
+		set_variable = { state_pop_return_factor = 0.5 }
+		add_to_array = { MER.MER_refugee_states = THIS }
+	}
+	for_each_scope_loop = {
+		array = JRR.original_cores
+		set_variable = { state_pop_factor = -0.8 }
+		set_variable = { state_pop_return_factor = 0.4 }
+		add_to_array = { MER.MER_refugee_states = THIS }
+	}
+	for_each_scope_loop = {
+		array = VIN.original_cores
+		set_variable = { state_pop_factor = -1.0 }
+		set_variable = { state_pop_return_factor = 0.8 }
+		add_to_array = { MER.MER_refugee_states = THIS }
+	}
+	for_each_scope_loop = {
+		array = JFT.original_cores
+		set_variable = { state_pop_factor = -1.15 }
+		set_variable = { state_pop_return_factor = 0.3 }
+		add_to_array = { MER.MER_refugee_states = THIS }
+	}
+}
+
+MER_refugee_system_weekly = {
+	
+	!Loop over Aquileia's states and subtract manpower
+	for_each_scope_loop = {
+		array = MER_refugee_states
+		controller = { save_current_manpower = yes }
+		set_temp_variable = { state_refugees = state_pop_factor }
+		multiply_temp_variable = { state_refugees = state_population_k }
+		add_manpower = state_refugees
+		subtract_from_temp_variable = { total_refugees = state_refugees }
+		multiply_temp_variable = { state_refugees = state_pop_return_factor }
+		subtract_from_variable = { state_return_refugees = state_refugees }
+		controller = { restore_previous_manpower = yes }
+	}
+	
+	!Add up MER's total pop
+	for_each_loop = {
+		array = original_cores
+		value = v
+		add_to_temp_variable = { MER_pop_k = v:state_population_k }
+	}
+	
+	!Split the refugees up among the states according to population
+	for_each_scope_loop = {
+		array = original_cores
+		set_temp_variable = { state_refugees = state_population_k }
+		divide_temp_variable = { state_refugees = MER_pop_k }
+		multiply_temp_variable = { state_refugees = total_refugees }
+		add_manpower = state_refugees
+		
+	}
+}
+
+MER_end_refugee_system = {
+	
+	!Add returning population back to Aquileia's states
+	for_each_scope_loop = {
+		array = MER_refugee_states
+		add_to_temp_variable = { total_return_refugees = state_return_refugees }
+		add_manpower = state_return_refugees
+		clear_variable = state_return_refugees
+		clear_variable = state_pop_factor
+		clear_variable = state_pop_return_factor
+	}
+	
+	clear_array = MER_refugee_states
+	
+	!Add up MER's total pop
+	for_each_loop = {
+		array = original_cores
+		value = v
+		add_to_temp_variable = { MER_pop_k = v:state_population_k }
+	}
+	
+	!Remove refugees that returned according to state population
+	save_current_manpower = yes
+	for_each_scope_loop = {
+		array = original_cores
+		set_temp_variable = { state_refugees = state_population_k }
+		divide_temp_variable = { state_refugees = MER_pop_k }
+		multiply_temp_variable = { state_refugees = total_return_refugees }
+		multiply_temp_variable = { state_refugees = -1 }
+		add_manpower = state_refugees
+	}
+	restore_previous_manpower = yes
+}
