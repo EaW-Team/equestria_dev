@@ -6081,7 +6081,26 @@ country_event = { ## Roman's postwar story: part six - how good did you do?
 	id = eyrie_roman.11
 	immediate = {log = "[GetDateText]: [Root.GetName]: event eyrie_roman.11"}
 	title = eyrie_roman.11.t
-    desc = eyrie_roman.11.d
+    desc = {
+        text = eyrie_roman.11.d_loser
+        trigger = { NOT = { has_character = EYR_guard_captain_roman } }
+    }
+	desc = {
+        text = eyrie_roman.11.d_bad_coup
+        trigger = { AND = { has_any_power_balance = yes power_balance_value = { id = EYR_noble_power_struggle value < -0.59 } } }
+    }
+	desc = {
+        text = eyrie_roman.11.d_good_coup
+        trigger = { AND = { has_any_power_balance = yes power_balance_value = { id = EYR_noble_power_struggle value > 0.74 } } }
+    }
+	desc = {
+        text = eyrie_roman.11.d_stressed
+        trigger = { check_variable = { EYR_Roman_stress > 3 } }
+    }
+	desc = {
+        text = eyrie_roman.11.d_chad
+        trigger = { check_variable = { EYR_Roman_stress < 4 } }
+    }
 	picture = GFX_event_EYR_roman
 
 	is_triggered_only = yes
@@ -6089,51 +6108,69 @@ country_event = { ## Roman's postwar story: part six - how good did you do?
 	option = {
 		name = eyrie_roman.11.a
 		trigger = {
-			OR = {
-				check_variable = { EYR_Roman_stress < 4 }
-				has_country_flag = EYR_coup_fired
-			}
+			NOT = { has_character = EYR_guard_captain_roman }
 		}
-		if = {
-			limit = { has_any_power_balance = yes }
-			remove_power_balance = {
-				id = EYR_noble_power_struggle
-			}
-		}
-		EYR_guard_captain_roman = {
-			add_unit_leader_trait = old_guard
-			add_unit_leader_trait = trait_cautious
-		}
-		if = {
-			limit = { has_country_flag = EYR_coup_fired }
-			add_ruling_to_neu = yes
-			set_politics = {
-				ruling_party = neutrality
-				elections_allowed = no
-			}
-			add_trait = {
-				character = EYR_duke_iovinus_eyrie
-				ideology = despotism
-				trait = EYR_verenian_duke
-			}
-			remove_ideas = EYR_puppet_duke_eyrie
-		}
+		
 	}
 	option = {
 		name = eyrie_roman.11.b
 		trigger = {
-			check_variable = { EYR_Roman_stress > 3 }
-			NOT = { has_country_flag = EYR_coup_fired }
+			OR = {
+				check_variable = { EYR_Roman_stress > 3 }
+				power_balance_value = { id = EYR_noble_power_struggle value < -0.59 }
+			}
+			has_character = EYR_guard_captain_roman
 		}
 		if = {
 			limit = { has_any_power_balance = yes }
 			remove_power_balance = {
 				id = EYR_noble_power_struggle
 			}
+			EYR_guard_captain_roman = { retire = yes }
+			add_country_leader_role = {
+				character = EYR_council_of_cunts
+				promote_leader = yes
+				country_leader = {
+					expire = "1965.1.1"
+					ideology = neofeudalism
+				}
+			}
+			EYR_economist_and_smuggler = {
+				set_can_be_fired_in_advisor_role = {
+					slot = political_advisor
+					value = yes
+				}
+			}
+		}
+		if = {
+			limit = { has_any_power_balance = no }
+			EYR_guard_captain_roman = {
+				add_unit_leader_trait = trait_reckless
+				add_unit_leader_trait = harsh_leader
+			}
+		}
+	}
+	option = {
+		name = eyrie_roman.11.c
+		trigger = {
+			OR = {
+				check_variable = { EYR_Roman_stress < 4 }
+				power_balance_value = { id = EYR_noble_power_struggle value > 0.74 }
+			}
+			has_character = EYR_guard_captain_roman
+		}
+		if = {
+			limit = { has_any_power_balance = yes }
+			remove_power_balance = {
+				id = EYR_noble_power_struggle
+			}
+			add_political_power = 100
+			add_command_power = 25
+			add_ideas = EYR_super_roman_buff
 		}
 		EYR_guard_captain_roman = {
-			add_unit_leader_trait = trait_reckless
-			add_unit_leader_trait = harsh_leader
+			add_unit_leader_trait = old_guard
+			add_unit_leader_trait = trait_cautious
 		}
 	}
 }
@@ -6396,6 +6433,12 @@ country_event = { ## coup plotline: bad ending - the dark neofeudalist future
 				country_leader = {
 					expire = "1965.1.1"
 					ideology = neofeudalism
+				}
+			}
+			EYR_economist_and_smuggler = {
+				set_can_be_fired_in_advisor_role = {
+					slot = political_advisor
+					value = yes
 				}
 			}
 			remove_power_balance = {
@@ -7297,7 +7340,7 @@ unit_leader_event = { ## those who remain - the Treasurer
 	title = eyrie_eyrilogue.5.t
 	desc = {
         text = eyrie_eyrilogue.5.d_coup
-        trigger = { has_country_flag = EYR_coup_fired }
+        trigger = { has_country_leader = { ruling_only = yes character = EYR_council_of_cunts } }
     }
 	desc = {
         text = eyrie_eyrilogue.5.d_burnout
@@ -7326,7 +7369,22 @@ unit_leader_event = { ## those who remain - the Captain
 	id = eyrie_eyrilogue.6
 	immediate = {log = "[GetDateText]: [Root.GetName]: event eyrie_eyrilogue.6"}
 	title = eyrie_eyrilogue.6.t
-	desc = eyrie_eyrilogue.6.d
+	desc = {
+        text = eyrie_eyrilogue.6.d_left
+        trigger = { NOT = { has_character = EYR_guard_captain_roman } }
+    }
+	desc = {
+        text = eyrie_eyrilogue.6.d_angi
+        trigger = { EYR_guard_captain_roman = { has_trait = harsh_leader } }
+    }
+	desc = {
+        text = eyrie_eyrilogue.6.d_chill
+        trigger = { EYR_guard_captain_roman = { has_trait = trait_cautious } }
+    }
+	desc = {
+        text = eyrie_eyrilogue.6.d_vibing
+        trigger = { NOT = { has_country_flag = EYR_Roman_chosen } }
+    }
 
 	picture = GFX_report_event_military_planning
 
@@ -7344,7 +7402,7 @@ unit_leader_event = { ## those who remain - the Prelate
 	title = eyrie_eyrilogue.7.t
 	desc = {
         text = eyrie_eyrilogue.7.d_coup
-        trigger = { has_country_flag = EYR_coup_fired }
+        trigger = { has_country_leader = { ruling_only = yes character = EYR_council_of_cunts } }
     }
 	desc = {
         text = eyrie_eyrilogue.7.d_kirkwall
