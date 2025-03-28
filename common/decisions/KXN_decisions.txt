@@ -6807,7 +6807,7 @@ KXN_Tributaries_Category = {
 
 KXN_Aerostat_Category = {
 	KXN_Aerostat_CAS_Decision = {
-		icon = airship_bomb
+		icon = airship_defence
 		allowed = { tag = KXN }
 		ai_will_do = { factor = 20 }
 		
@@ -6863,6 +6863,96 @@ KXN_Aerostat_Category = {
 				}
 			}
 			custom_effect_tooltip = decision_cost_airship_25_return_tt
+		}
+	}
+	KXN_Aerostat_Bomb_Decision = {
+		icon = airship_bomb
+		allowed = { tag = KXN }
+		ai_will_do = { factor = 20 }
+		
+		state_target = africa
+		on_map_mode = map_only
+		
+		visible = {
+			has_country_flag = KXN_Aerostat_Bomb_Decision_Show_Flag
+		}
+		
+		target_trigger = {
+			FROM = {
+				OR = {
+					AND = {
+						controller = {
+							has_war_with = KXN
+							PREV = {
+								NOT = {
+									is_fully_controlled_by = PREV
+								}
+							}
+						}
+						any_neighbor_state = {
+							is_controlled_by = KXN
+						}
+					}
+					AND = {
+						is_controlled_by = KXN
+						NOT = { is_fully_controlled_by = KXN }
+						any_neighbor_state = {
+							controller = {
+								has_war_with = KXN
+							}
+						}
+					}
+				}
+			}
+		}
+		
+		custom_cost_text = decision_cost_25_cp_airship_30
+		custom_cost_trigger = {
+			command_power > 24
+			has_equipment = { medium_airship_equipment_0 > 29 }
+		}
+		
+		days_re_enable = 30
+		
+		complete_effect = {
+			log = "[GetDateText]: [Root.GetName]: Decision KXN_Aerostat_Bomb_Decision target: [From.GetName]"
+			hidden_effect = {
+				set_variable = { var = FROM.Aerostat_Bomb_Damage_Var value = 0.8 }
+				clear_variable = FROM.Aerostat_Bomb_Damage_Ratio
+				for_each_scope_loop = {
+					array = KXN.enemies
+					if = {
+						limit = {
+							divisions_in_state = {
+								size > 0
+								state = FROM
+							}
+						}
+						add_to_variable = { FROM.Aerostat_Bomb_Damage_Ratio = num_armies_in_state@FROM }
+					}
+				}
+				divide_variable = { var = FROM.Aerostat_Bomb_Damage_Var value = FROM.Aerostat_Bomb_Damage_Ratio } 
+				meta_effect = {
+					text = {
+						damage_units = {
+							state = FROM
+							limit = { has_war_with = ROOT }
+							damage = [Aerostat_Bomb_Damage]
+							ratio = yes
+							army = yes
+							navy = no
+						}
+					}
+					Aerostat_Bomb_Damage = "[?FROM.Aerostat_Bomb_Damage_Var]"
+				}
+				country_event = { id = lan_kir_utility.3 days = 30 }
+				add_command_power = -25
+				add_equipment_to_stockpile = {
+					type = medium_airship_equipment_0
+					amount = -30
+				}
+			}
+			custom_effect_tooltip = decision_cost_airship_30_return_tt
 		}
 	}
 	KXN_Aerostat_Supply_Decision = {
@@ -6947,8 +7037,30 @@ KXN_Aerostat_Category = {
 			custom_effect_tooltip = decision_cost_airship_25_return_tt
 		}
 	}
-	KXN_Aerostat_CAS_Decision_HIDE = {
+	KXN_Aerostat_Bomb_Decision_HIDE = {
 		icon = airship_bomb
+		allowed = { tag = KXN }
+		visible = {
+			has_country_flag = KXN_Aerostat_Bomb_Decision_Show_Flag
+		}
+		complete_effect = {
+			clr_country_flag = KXN_Aerostat_Bomb_Decision_Show_Flag
+			custom_effect_tooltip = KXN_Aerostat_Bomb_Decision_HIDE_tt
+		}
+	}
+	KXN_Aerostat_Bomb_Decision_SHOW = {
+		icon = airship_bomb
+		allowed = { tag = KXN }
+		visible = {
+			NOT = { has_country_flag = KXN_Aerostat_Bomb_Decision_Show_Flag }
+		}
+		complete_effect = {
+			set_country_flag = KXN_Aerostat_Bomb_Decision_Show_Flag
+			custom_effect_tooltip = KXN_Aerostat_Bomb_Decision_SHOW_tt
+		}
+	}
+	KXN_Aerostat_CAS_Decision_HIDE = {
+		icon = airship_defence
 		allowed = { tag = KXN }
 		visible = {
 			has_country_flag = KXN_Aerostat_CAS_Decision_Show_Flag
@@ -6959,7 +7071,7 @@ KXN_Aerostat_Category = {
 		}
 	}
 	KXN_Aerostat_CAS_Decision_SHOW = {
-		icon = airship_bomb
+		icon = airship_defence
 		allowed = { tag = KXN }
 		visible = {
 			NOT = { has_country_flag = KXN_Aerostat_CAS_Decision_Show_Flag }
