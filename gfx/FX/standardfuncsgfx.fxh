@@ -219,6 +219,7 @@ PixelShader =
 
 	float3 ApplyDistanceFog( float3 vColor, float vFogFactor )
 	{
+
 		return lerp( vColor, FOG_COLOR, vFogFactor );
 	}
 
@@ -872,16 +873,20 @@ PixelShader =
 
 		vThick *= floor(vOldOutline);
 
-		float vMaxGradient = max( vColorOpacity, vOutline );
+		float vMaxGradient = Levels(max( vColorOpacity, vOutline ), 0, 1);
 
-		vCh = lerp( vCh, vGBDist.rgb, max( vMaxGradient, vThick )* vStrength);
+		vCh = lerp( vCh, vGBDist.rgb, vOldOutline - clamp(1 - max(vMaxGradient, vThick), 0, 0.1));
 
 		// Compensate the brightness since the 2nd layer is now black (not white) although it's alpha is 0
-		vCh *= 1.15f;
+		vCh *= 1.1f;
 		vCh = min( vCh, float3( 1, 1, 1 ) );
+        vCh = Levels(vCh, 0, 1.35);
+//
+		//// Make the outline edge darker
+		vCh = lerp( vCh, vCh * .5, max(vMaxGradient, vThick) - vStrength);
+        vCh = lerp(vCh, vGBDist.rgb, vThick);
+        vCh = lerp(vCh, float3( 0, 0, 0 ), Levels(Alpha, 0.95, 0.97)*vOldOutline);
 
-		// Make the outline edge darker
-		vCh = lerp( vCh, vCh * .5, vThick );
 
 		return max( vMaxGradient, vThick );
 	}
@@ -915,10 +920,11 @@ PixelShader =
 		// Now mix, the resultat with background
 		float TranspA = 1.0f - tex2D( TexCh2, vUV ).g;
 		vColor = lerp( vColor, vGradMix, ( GB_OPACITY_NEAR + ( 1.0f - vGBCamDist ) * ( GB_OPACITY_FAR - GB_OPACITY_NEAR ) ) * TranspA );
-
+        //vColor = vGradMix;
 
 		float vAlpha2 = gradient_border_process_channel( vGradMix, vColor, vGBCamDistCh2, vNormal, vUV2, TexCh1, TexCh2, vOutlineMult, vOutlineCutoff.y, (1.0 - vAlpha1 * GB_STRENGTH_CH1 * GB_FIRST_LAYER_PRIORITY) * GB_STRENGTH_CH2 );
 		float TranspB = 1.0f - tex2D( TexCh2, vUV2 ).g;
+        TranspB = 0;
 		vColor = lerp( vColor, vGradMix, ( GB_OPACITY_NEAR + ( 1.0f - vGBCamDist ) * ( GB_OPACITY_FAR - GB_OPACITY_NEAR ) ) * TranspB );
 
 	//vColor = GetOverlay( vColor, ToLinear(vGradMix), 0.80);
@@ -927,7 +933,13 @@ PixelShader =
 		// when applying season coloring overlay
 		// (we don't want to affect the colors especially when camera is zoomed out, and
 		//  everything is 100% filled)
-		vBloomAlpha = 1.0f - max( vAlpha1, vAlpha2 );
+		vBloomAlpha = 1.0f - vAlpha1;
+        //vBloomAlpha = 0f;
+        //vColor = float3(0, 0, 0);
+        //if (tex2D( TexCh2, vUV2 ).a > 0f) {
+        //    vColor =  float3(1, 1, 1);
+        //}
+        //vColor = float3(tex2D( TexCh2, vUV2 ).a, tex2D( TexCh2, vUV2 ).a, tex2D( TexCh2, vUV2 ).a);
 	}
 
 	/*
