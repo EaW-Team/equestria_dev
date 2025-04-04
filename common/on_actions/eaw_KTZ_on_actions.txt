@@ -107,15 +107,17 @@ on_actions = {
 					}
 				}
 				KTZ = {
-					KTZ_calculate_world_conquered_perc = yes
+					#KTZ_calculate_world_conquered_perc = yes
 					if = {
 						limit = {
-							is_ai = yes
-							has_completed_focus = KTZ_the_kattown_pyramid
+							has_game_rule = {
+								rule = aby_april_fool
+								option = ABY_APRIL_FOOL_HARD
+							}
 						}
-						add_to_variable = { KTZ_kattail_conquest_timer = 6 }
+						add_to_variable = { KTZ_kattail_conquest_timer = 3 }
 					}
-					else = {
+					else_if = {
 						add_to_variable = { KTZ_kattail_conquest_timer = 6 }
 						add_political_power = 5
 					}
@@ -132,13 +134,15 @@ on_actions = {
 					#KTZ_calculate_world_conquered_perc = yes
 					if = {
 						limit = {
-							is_ai = yes
-							has_completed_focus = KTZ_the_kattown_pyramid
+							has_game_rule = {
+								rule = aby_april_fool
+								option = ABY_APRIL_FOOL_HARD
+							}
 						}
-						subtract_from_variable = { KTZ_kattail_conquest_timer = 6 }
+						subtract_from_variable = { KTZ_kattail_conquest_timer = 3 }
 					}
 					else = {
-						subtract_from_variable = { KTZ_kattail_conquest_timer = 6 }
+						subtract_from_variable = { KTZ_kattail_conquest_timer = 3 }
 					}
 				}
 			}
@@ -159,6 +163,46 @@ on_actions = {
 	on_weekly_KTZ = {
 		effect = {
 			log = "[GetDateText]: ROOT: [Root.GetName] on_weekly_KTZ"
+			if = {
+				limit = { #calculate perc of world kattail has conquered
+					has_game_rule = {
+						rule = aby_april_fool
+						option = ABY_APRIL_FOOL_HARD
+					}
+				}
+				set_variable = { KTZ_conquest_perc = KTZ.num_owned_controlled_states }
+				divide_variable = { KTZ_conquest_perc = 1208 }
+				set_variable = { KTZ_conquest_perc_negative = KTZ_conquest_perc }
+				multiply_variable = { KTZ_conquest_perc_negative = -1 }
+				if = {
+					limit = { #a non kattail country isn't AI, apply buffs to Kattail
+						any_country = {
+							is_ai = no
+							NOT = { tag = KTZ }
+						}
+					}
+					KTZ = {
+						set_variable = { KTZ_wild_ride_scaling_buffs_modifier_good = KTZ.KTZ_conquest_perc }
+						set_variable = { KTZ_wild_ride_scaling_buffs_modifier_bad = KTZ.KTZ_conquest_perc_negative }
+					}
+				}
+				else = {
+					every_country = {
+						limit = {
+							has_war_with = KTZ
+							NOT = { has_dynamic_modifier = { modifier = KTZ_wild_ride_scaling_buffs_modifier } }
+						}
+						add_dynamic_modifier = {
+							modifier = KTZ_wild_ride_scaling_buffs_modifier
+						}
+					}
+					every_country = {
+						limit = {  has_dynamic_modifier = { modifier = KTZ_wild_ride_scaling_buffs_modifier } }
+						set_variable = { KTZ_wild_ride_scaling_buffs_modifier_good = KTZ.KTZ_conquest_perc }
+						set_variable = { KTZ_wild_ride_scaling_buffs_modifier_bad = KTZ.KTZ_conquest_perc_negative }
+					}
+				}
+			}
 			if = {
 				limit = { has_completed_focus = KTZ_are_worth_taking_over }
 				every_other_country = {
