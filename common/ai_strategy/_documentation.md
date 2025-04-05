@@ -36,7 +36,7 @@ Try to keep this reasonably up-to-date, please.
 - `force_concentration_front_factor`
 - `force_concentration_factor`
 - `force_concentration_target_weight`
-- `front_armor_score`
+- `front_armor_score`: make divisions with `role = armor` or `front_role_override = offence` in their template more likely to be assigned to a front
 - `front_control`
 - `front_unit_request`
 - `garrison`
