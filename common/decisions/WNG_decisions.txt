@@ -51,6 +51,11 @@ WNG_beakolinis_march = {
 		priority = 199
 
 		state_target = yes
+		target_trigger = {
+			FROM = {
+				is_owned_by = ROOT
+			}
+		}
 
 		targets = { 369 370 371 372 373 374 375 536 }
 
@@ -316,7 +321,7 @@ form_WNG_workers_empire_category = {
 				FRN = {
 					is_subject_of = ROOT
 				}
-			} 
+			}
 		}
 
 		complete_effect = {
@@ -344,8 +349,8 @@ form_WNG_workers_empire_category = {
 						is_capital = no
 					}
 				}
-				set_capital = { 
-					state = 371 
+				set_capital = {
+					state = 371
 					remember_old_capital = no
 				}
 			}
@@ -666,7 +671,7 @@ form_WNG_wingbardian_empire_category = {
 				FRN = {
 					is_subject_of = ROOT
 				}
-			} 
+			}
 		}
 
 		complete_effect = {
@@ -678,8 +683,8 @@ form_WNG_wingbardian_empire_category = {
 				}
                 drop_cosmetic_tag = yes
                 set_cosmetic_tag = FAL_Falcoria
-				if = { 
-					limit = { 
+				if = {
+					limit = {
 						has_government = fascism
 					}
 					country_event = falcor.24
@@ -688,7 +693,7 @@ form_WNG_wingbardian_empire_category = {
 			else = {
 				set_capital = {
 					state = 371
-					remember_old_capital = no 
+					remember_old_capital = no
 				}
 			}
 			if = {
@@ -832,7 +837,7 @@ form_WNG_wingbardian_empire_category = {
 							has_character = WNG_EQC_puppet_leader
 						}
 						set_portraits = {
-							character = WNG_EQC_puppet_leader 
+							character = WNG_EQC_puppet_leader
 							civilian = { large ="gfx/leaders/Asia/Unknown_Griffon.dds" }
 						}
 						add_country_leader_role = {
@@ -852,7 +857,7 @@ form_WNG_wingbardian_empire_category = {
 							promote_leader = yes
 						}
 					}
-					if = {				 
+					if = {
 						limit = {
 							ROOT = {
 								original_tag = FAL
@@ -1241,21 +1246,8 @@ WNG_reunifying_the_republic_category = {
 			custom_effect_tooltip = if_they_accept
 			effect_tooltip = {
 				puppet = FROM
-				if = {
-					limit = {
-						has_dlc = "Together for Victory"
-					}
-					FROM = {
-						add_ideas = WNG_intergration
-					}
-				}
-				else = {
-					FROM = {
-						add_timed_idea = {
-							idea = WNG_intergration_notfv
-							days = 547
-						}
-					}
+				FROM = {
+					add_ideas = WNG_intergration
 				}
 			}
 		}
@@ -1287,23 +1279,7 @@ WNG_reunifying_the_republic_category = {
 		available = {
 			FROM = {
 				is_subject_of = ROOT
-				if = {
-					limit = {
-						has_dlc = "Together for Victory"
-					}
-					has_autonomy_state = autonomy_integrated_puppet
-				}
-				else_if = {
-					limit = {
-						has_dlc = "Death or Dishonor"
-					}
-					has_autonomy_state = autonomy_reichskommissariat
-				}
-				else = {
-					NOT = {
-						has_idea = WNG_intergration_notfv
-					}
-				}
+				has_autonomy_state = autonomy_integrated_puppet
 			}
 		}
 		target_root_trigger = {
@@ -1320,14 +1296,15 @@ WNG_reunifying_the_republic_category = {
 		fire_only_once = yes
 
 		complete_effect = {
-			every_state = {
-				limit = {
-					is_core_of = FROM
-					NOT = {
-						is_core_of = ROOT
+			FROM = {
+				every_core_state = {
+					limit = {
+						NOT = {
+							is_core_of = ROOT
+						}
 					}
+					add_core_of = ROOT
 				}
-				add_core_of = ROOT
 			}
 			FROM = {
 				transfer_navy = {
@@ -1335,7 +1312,7 @@ WNG_reunifying_the_republic_category = {
 				}
 				every_character = {
 					limit = {
-						is_unit_leader = yes 
+						is_unit_leader = yes
 						is_country_leader = no
 					}
 					set_nationality = ROOT
@@ -1488,7 +1465,18 @@ foreign_politics = {
 			factor = 100
 		}
 	}
-
+	ZES_enslave_the_liberated = {
+		allowed = {
+			original_tag = ZAI
+		}
+		visible = {
+			always = no
+		}
+		cost = 1
+		complete_effect = {
+			hidden_effect = { country_event = { id =  tradefed.150 days = 1 } }
+		}
+	}
 	WNG_ally_wingbardy = {
 
 		icon = generic_nationalism
@@ -1693,10 +1681,7 @@ foreign_politics = {
 	WNG_secure_new_mareland = {
 		icon = griffon_claw
 		allowed = {
-			OR = {
-				original_tag = WNG
-				original_tag = TAL
-			}
+			is_griffon_continent_country = yes
 		}
 		available = {
 			OR = {
@@ -1705,13 +1690,18 @@ foreign_politics = {
 			}
 			has_war_with = FROM
 			FROM = {
-				has_capitulated = yes
-				overlord = {
-					OR = {
-						has_war_with = WNG
-						has_war_with = TAL
+				OR = {
+					overlord = {
+						has_war_with = ROOT
 					}
-					
+					AND = {
+						is_in_faction = yes
+						is_faction_leader = no
+						any_allied_country = {
+							is_faction_leader = yes
+							has_war_with = ROOT
+						}
+					}
 				}
 			}
 			356 = {
@@ -1733,11 +1723,18 @@ foreign_politics = {
 		}
 		visible = {
 			FROM = {
-				is_subject = yes
-				overlord = {
-					OR = {
-						has_war_with = WNG
-						has_war_with = TAL
+				has_capitulated = yes
+				OR = {
+					AND = {
+						is_subject = yes
+						overlord = {
+							has_war_with = ROOT
+							is_on_griffon_continent = no
+						}
+					}
+					any_allied_country = {
+						is_on_griffon_continent = no
+						has_war_with = ROOT
 					}
 				}
 			}
@@ -1755,8 +1752,30 @@ foreign_politics = {
 		fire_only_once = yes
 		complete_effect = {
 			log = "[GetDateText]: [Root.GetName]: Decision WNG_secure_new_mareland"
-			FROM = {
-				overlord = {
+			if = {
+				limit = {
+					FROM = {
+						is_subject = yes
+					}
+				}
+				FROM = {
+					overlord = {
+						country_event = { id = wingbardy.7 hours = 2 }
+					}
+				}
+			}
+			else_if = {
+				limit = {
+					FROM = {
+						is_in_faction = yes
+						is_faction_leader = no
+					}
+				}
+				every_enemy_country = {
+					limit = {
+						is_in_faction_with = FROM
+						is_faction_leader = yes
+					}
 					country_event = { id = wingbardy.7 hours = 2 }
 				}
 			}
@@ -1808,7 +1827,7 @@ foreign_politics = {
 		ai_will_do = {
 			factor = 200
 		}
-		
+
 		complete_effect = {
 			log = "[GetDateText]: [Root.GetName]: Decision WNG_aid_ally"
 			add_ideas = WNG_united_against_disharmony
@@ -1824,7 +1843,7 @@ foreign_politics = {
 				}
 				WNG = { country_event = wingbardy.133 }
 			}
-			
+
 		}
 	}
 	WNG_give_land_back_to_cats = {
@@ -2086,7 +2105,7 @@ WNG_royal_support_decision_cat = {
 			WNG_add_10_popular_support = yes
 		}
 	}
-	
+
 	WNG_visit_the_workers = {
 		allowed = {
 			original_tag = WNG
@@ -2351,7 +2370,7 @@ WNG_wingbardian_parliament_cat = {
 			WNG_small_support_for_government = yes
 		}
 		modifier = {
-			stability_weekly_factor = -0.01
+			stability_weekly = -0.01
 		}
 	}
 	WNG_bribe_conservative_politicans = {
@@ -2380,7 +2399,7 @@ WNG_wingbardian_parliament_cat = {
 			WNG_small_support_for_government = yes
 		}
 		modifier = {
-			consumer_goods_factor = 0.02
+			consumer_goods_factor = 0.04
 		}
 	}
 	WNG_launch_the_coup = {
@@ -2399,7 +2418,7 @@ WNG_wingbardian_parliament_cat = {
 			base = 0
 		}
 		cost = 50
-		
+
 		complete_effect = {
 			#TODO Move this to an event
 			if = {
@@ -2740,7 +2759,7 @@ WNG_mafia_decisions_cat ={
 			}
 		}
 		activation = {
-			
+
 			OR = {
 				AND = {
 					has_stability < 0.71
@@ -3020,7 +3039,7 @@ political_actions = {
 		icon = anti_communist
 
 		available = {
-			
+
 		}
 
 		allowed = {
@@ -3301,7 +3320,7 @@ WNG_altar_of_the_fatherland_cat = {
 						}
 					}
 				}
-				
+
 			}
 			owns_state = 371
 			has_full_control_of_state = 371
@@ -3340,7 +3359,7 @@ WNG_gumberto_teaching_cat = {
 			always = yes
 		}
 		cost = 25
-		
+
 		days_remove = 14
 		ai_will_do = {
 			factor = 50
@@ -3361,7 +3380,7 @@ WNG_gumberto_teaching_cat = {
 			always = yes
 		}
 		cost = 25
-		
+
 		days_remove = 14
 		ai_will_do = {
 			factor = 50
@@ -3382,7 +3401,7 @@ WNG_gumberto_teaching_cat = {
 			always = yes
 		}
 		cost = 25
-		
+
 		days_remove = 14
 		ai_will_do = {
 			factor = 50
@@ -3718,7 +3737,7 @@ WNG_murder_investigation_cat = {
 					}
 				}
 			}
-			NOT = { 
+			NOT = {
 				has_country_flag = WNG_regency_chambers_infiltration_chosen_flag
 				has_country_flag = WNG_grover_room_infiltration_chosen_flag
 			}
@@ -3758,7 +3777,7 @@ WNG_murder_investigation_cat = {
 					}
 				}
 			}
-			NOT = { 
+			NOT = {
 				has_country_flag = WNG_regency_chambers_infiltration_chosen_flag
 				has_country_flag = WNG_grover_room_infiltration_chosen_flag
 			}

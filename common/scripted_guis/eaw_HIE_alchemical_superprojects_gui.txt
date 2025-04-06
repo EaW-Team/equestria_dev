@@ -96,11 +96,9 @@ scripted_gui = {
 						has_country_flag = HIE_ASPJ_open
 					}
 					clr_country_flag = HIE_ASPJ_open
-					scoped_play_song = "maintheme"
 				}
 				else = {
 					set_country_flag = HIE_ASPJ_open
-					scoped_play_song = "HIE_black_book"
 				}
 				add_to_variable = { HIE_ASPJ_dirty_var = 0.01 }
 				clr_country_flag = HIE_ASPJ_arrows_show
@@ -269,7 +267,15 @@ scripted_gui = {
 		}
 		triggers = {
 			flip_page_forward_visible = {
-				check_variable = { HIE_JRNL_selected_page < 4 }
+				if = {
+					limit = {
+						has_country_flag = HIE_JRNL_enable_notes
+					}
+					check_variable = { HIE_JRNL_selected_page < 5 }
+				}
+				else = {
+					check_variable = { HIE_JRNL_selected_page < 4 }
+				}
 			}
 			flip_page_backward_visible = {
 				NOT = { check_variable = { HIE_JRNL_book_frame = 1 } }
@@ -297,11 +303,18 @@ scripted_gui = {
 			}
 			eq_expedition_enroute_label_visible = {
 				has_country_flag = HIE_JRNL_is_in_activity
-				NOT = { has_country_flag = HIE_JRNL_backing_out }
+				NOT = {
+					check_variable = { HIE_JRNL_selected_page = 4 }
+					check_variable = { HIE_JRNL_selected_page = 5 }
+				}
 				check_variable = { HIE_JRNL_book_frame = 2 }
 			}
 			eq_expedition_active_label_visible = {
 				has_variable = HIE_JRNL_active_expedition
+				NOT = {
+					check_variable = { HIE_JRNL_selected_page = 4 }
+					check_variable = { HIE_JRNL_selected_page = 5 }
+				}
 				check_variable = { HIE_JRNL_book_frame = 2 }
 			}
 			eq_expedition_active_label_click_enabled = {
@@ -323,6 +336,7 @@ scripted_gui = {
 				}
 				
 				scoped_sound_effect = "HIE_journal_flips"
+				set_variable = { HIE_JRNL_prev_page = HIE_JRNL_selected_page }
 				add_to_variable = { HIE_JRNL_selected_page = -1 }
 			}
 			flip_page_backward_right_click = {
@@ -340,14 +354,29 @@ scripted_gui = {
 					scoped_sound_effect = "HIE_journal_flips"
 				}
 				
+				set_variable = { HIE_JRNL_prev_page = HIE_JRNL_selected_page }
 				add_to_variable = { HIE_JRNL_selected_page = 1 }
 			}
 			
 			# Bookmarks
-			bookmark_front_click = { set_variable = { HIE_JRNL_selected_page = HIE_JRNL_bookmarked_page } set_variable = { HIE_JRNL_book_frame = 2 } }
-			bookmark_back_click = { set_variable = { HIE_JRNL_selected_page = HIE_JRNL_bookmarked_page } set_variable = { HIE_JRNL_book_frame = 2 } }
-			bookmark_front_right_click = { set_variable = { HIE_JRNL_bookmarked_page = HIE_JRNL_selected_page } set_variable = { HIE_JRNL_book_frame = 2 } }
-			bookmark_back_right_click = { set_variable = { HIE_JRNL_bookmarked_page = HIE_JRNL_selected_page } set_variable = { HIE_JRNL_book_frame = 2 } }
+			bookmark_front_click = {
+				set_variable = { HIE_JRNL_prev_page = 100 }
+				set_variable = { HIE_JRNL_selected_page = HIE_JRNL_bookmarked_page }
+				set_variable = { HIE_JRNL_book_frame = 2 }
+			}
+			bookmark_back_click = {
+				set_variable = { HIE_JRNL_prev_page = 101 }
+				set_variable = { HIE_JRNL_selected_page = HIE_JRNL_bookmarked_page }
+				set_variable = { HIE_JRNL_book_frame = 2 }
+			}
+			bookmark_front_right_click = {
+				set_variable = { HIE_JRNL_bookmarked_page = HIE_JRNL_selected_page }
+				set_variable = { HIE_JRNL_book_frame = 2 }
+			}
+			bookmark_back_right_click = {
+				set_variable = { HIE_JRNL_bookmarked_page = HIE_JRNL_selected_page }
+				set_variable = { HIE_JRNL_book_frame = 2 }
+			}
 		}
 		dynamic_lists = {
 			journal_contents = {
@@ -356,21 +385,33 @@ scripted_gui = {
 			}
 		}
 
-
 		# TABLE OF CONTENTS # `HIE_JRNL_selected_page = 1`
+		
+		triggers = {
+			contents_4num_visible = {
+				has_country_flag = HIE_JRNL_enable_notes
+			}
+			contents_4_visible = {
+				has_country_flag = HIE_JRNL_enable_notes
+			}
+		}
 
 		effects = {
 			contents_1_click = {
 				set_variable = { HIE_JRNL_selected_page = 2 }
+				set_variable = { HIE_JRNL_prev_page = 101 }
 			}
 			contents_2_click = {
 				set_variable = { HIE_JRNL_selected_page = 3 }
+				set_variable = { HIE_JRNL_prev_page = 101 }
 			}
 			contents_3_click = {
 				set_variable = { HIE_JRNL_selected_page = 4 }
+				set_variable = { HIE_JRNL_prev_page = 101 }
 			}
 			contents_4_click = {
 				set_variable = { HIE_JRNL_selected_page = 5 }
+				set_variable = { HIE_JRNL_prev_page = 101 }
 			}
 		}
 
@@ -1081,6 +1122,23 @@ scripted_gui = {
 				has_country_flag = HIE_JRNL_ze_2_DONE
 			}
 		}
+
+		#########
+		# NOTES # `HIE_JRNL_selected_page = 5`
+		#########
+		
+		dynamic_lists = {
+			notes_grid = {
+				array = HIE_JRNL_notes_array
+				entry_container = "HIE_page_5_notes_entry"
+			}
+		}
+		triggers = {
+			note_entry_dark_visible = {
+				is_in_array = { HIE_JRNL_notes_done = v }
+			}
+		}
+		
 	}
 	eaw_HIE_knife = {
 		window_name = "EaW_HIE_knife"
@@ -1089,6 +1147,213 @@ scripted_gui = {
 		visible = {
 			check_variable = { HIE_JRNL_book_frame = 2 }
 			NOT = { check_variable = { HIE_JRNL_selected_page = 5 } }
+		}
+	}
+	eaw_HIE_page_turn = {
+		window_name = "EaW_HIE_page_turn"
+		context_type = player_context
+		parent_window_name = "EaW_HIE_Journal_window"
+		visible = {
+			check_variable = { HIE_JRNL_book_frame = 2 }
+			NOT = { check_variable = { HIE_JRNL_selected_page = 5 } }
+		}
+		triggers = {
+			page_turn_right_1_visible = {
+				OR = {
+					AND = {
+						set_temp_variable = { temp_prev_page = HIE_JRNL_prev_page }
+						modulo_temp_variable = { temp_prev_page = 2 }
+						check_variable = { temp_prev_page = 1 }
+						
+						set_temp_variable = { temp_selected_page = HIE_JRNL_prev_page }
+						add_to_temp_variable = { temp_selected_page = 1 }
+						check_variable = { temp_selected_page = HIE_JRNL_selected_page }
+					}
+					check_variable = { HIE_JRNL_prev_page = 101 }
+				}
+			
+				set_temp_variable = { page_turn_right_1_frame = 0 } # Looping
+				multiply_temp_variable = { page_turn_right_1_frame = 256 }
+				add_to_temp_variable = { page_turn_right_1_frame = 255 } # FPS
+				multiply_temp_variable = { page_turn_right_1_frame = 64 }
+				add_to_temp_variable = { page_turn_right_1_frame = 20 } # End frame
+				multiply_temp_variable = { page_turn_right_1_frame = 64 }
+				add_to_temp_variable = { page_turn_right_1_frame = 1 } # Start frame
+
+				add_to_temp_variable = { page_turn_right_1_frame = 1 }
+			}
+			page_turn_right_2_visible = {
+				OR = {
+					AND = {
+						set_temp_variable = { temp_prev_page = HIE_JRNL_prev_page }
+						modulo_temp_variable = { temp_prev_page = 2 }
+						check_variable = { temp_prev_page = 0 }
+						
+						set_temp_variable = { temp_selected_page = HIE_JRNL_prev_page }
+						add_to_temp_variable = { temp_selected_page = 1 }
+						check_variable = { temp_selected_page = HIE_JRNL_selected_page }
+					}
+					check_variable = { HIE_JRNL_prev_page = 101 }
+				}
+			
+				set_temp_variable = { page_turn_right_2_frame = 0 } # Looping
+				multiply_temp_variable = { page_turn_right_2_frame = 256 }
+				add_to_temp_variable = { page_turn_right_2_frame = 255 } # FPS
+				multiply_temp_variable = { page_turn_right_2_frame = 64 }
+				add_to_temp_variable = { page_turn_right_2_frame = 20 } # End frame
+				multiply_temp_variable = { page_turn_right_2_frame = 64 }
+				add_to_temp_variable = { page_turn_right_2_frame = 1 } # Start frame
+
+				add_to_temp_variable = { page_turn_right_2_frame = 1 }
+			}
+			
+			page_turn_right_1_click_enabled = {
+				OR = {
+					AND = {
+						set_temp_variable = { temp_prev_page = HIE_JRNL_prev_page }
+						modulo_temp_variable = { temp_prev_page = 2 }
+						check_variable = { temp_prev_page = 1 }
+						
+						set_temp_variable = { temp_selected_page = HIE_JRNL_prev_page }
+						add_to_temp_variable = { temp_selected_page = 1 }
+						check_variable = { temp_selected_page = HIE_JRNL_selected_page }
+					}
+					check_variable = { HIE_JRNL_prev_page = 101 }
+				}
+			}
+			page_turn_right_2_click_enabled = {
+				OR = {
+					AND = {
+						set_temp_variable = { temp_prev_page = HIE_JRNL_prev_page }
+						modulo_temp_variable = { temp_prev_page = 2 }
+						check_variable = { temp_prev_page = 0 }
+						
+						set_temp_variable = { temp_selected_page = HIE_JRNL_prev_page }
+						add_to_temp_variable = { temp_selected_page = 1 }
+						check_variable = { temp_selected_page = HIE_JRNL_selected_page }
+					}
+					check_variable = { HIE_JRNL_prev_page = 101 }
+				}
+			}
+		}
+		
+		
+		triggers = {
+			page_turn_left_1_visible = {
+				OR = {
+					AND = {
+						set_temp_variable = { temp_prev_page = HIE_JRNL_prev_page }
+						modulo_temp_variable = { temp_prev_page = 2 }
+						check_variable = { temp_prev_page = 0 }
+						
+						set_temp_variable = { temp_selected_page = HIE_JRNL_prev_page }
+						add_to_temp_variable = { temp_selected_page = -1 }
+						check_variable = { temp_selected_page = HIE_JRNL_selected_page }
+						
+						check_variable = { HIE_JRNL_book_frame = 2 }
+					}
+					check_variable = { HIE_JRNL_prev_page = 100 }
+				}
+			
+				set_temp_variable = { page_turn_left_1_frame = 0 } # Looping
+				multiply_temp_variable = { page_turn_left_1_frame = 256 }
+				add_to_temp_variable = { page_turn_left_1_frame = 255 } # FPS
+				multiply_temp_variable = { page_turn_left_1_frame = 64 }
+				add_to_temp_variable = { page_turn_left_1_frame = 20 } # End frame
+				multiply_temp_variable = { page_turn_left_1_frame = 64 }
+				add_to_temp_variable = { page_turn_left_1_frame = 1 } # Start frame
+
+				add_to_temp_variable = { page_turn_left_1_frame = 1 }
+			}
+			page_turn_left_2_visible = {
+				OR = {
+					AND = {
+						set_temp_variable = { temp_prev_page = HIE_JRNL_prev_page }
+						modulo_temp_variable = { temp_prev_page = 2 }
+						check_variable = { temp_prev_page = 1 }
+						
+						set_temp_variable = { temp_selected_page = HIE_JRNL_prev_page }
+						add_to_temp_variable = { temp_selected_page = -1 }
+						check_variable = { temp_selected_page = HIE_JRNL_selected_page }
+						
+						check_variable = { HIE_JRNL_book_frame = 2 }
+					}
+					check_variable = { HIE_JRNL_prev_page = 100 }
+				}
+			
+				set_temp_variable = { page_turn_left_2_frame = 0 } # Looping
+				multiply_temp_variable = { page_turn_left_2_frame = 256 }
+				add_to_temp_variable = { page_turn_left_2_frame = 255 } # FPS
+				multiply_temp_variable = { page_turn_left_2_frame = 64 }
+				add_to_temp_variable = { page_turn_left_2_frame = 20 } # End frame
+				multiply_temp_variable = { page_turn_left_2_frame = 64 }
+				add_to_temp_variable = { page_turn_left_2_frame = 1 } # Start frame
+
+				add_to_temp_variable = { page_turn_left_2_frame = 1 }
+			}
+			
+			page_turn_left_1_click_enabled = {
+				OR = {
+					AND = {
+						set_temp_variable = { temp_prev_page = HIE_JRNL_prev_page }
+						modulo_temp_variable = { temp_prev_page = 2 }
+						check_variable = { temp_prev_page = 0 }
+						
+						set_temp_variable = { temp_selected_page = HIE_JRNL_prev_page }
+						add_to_temp_variable = { temp_selected_page = -1 }
+						check_variable = { temp_selected_page = HIE_JRNL_selected_page }
+						
+						check_variable = { HIE_JRNL_book_frame = 2 }
+					}
+					check_variable = { HIE_JRNL_prev_page = 100 }
+				}
+			}
+			page_turn_left_2_click_enabled = {
+				OR = {
+					AND = {
+						set_temp_variable = { temp_prev_page = HIE_JRNL_prev_page }
+						modulo_temp_variable = { temp_prev_page = 2 }
+						check_variable = { temp_prev_page = 1 }
+						
+						set_temp_variable = { temp_selected_page = HIE_JRNL_prev_page }
+						add_to_temp_variable = { temp_selected_page = -1 }
+						check_variable = { temp_selected_page = HIE_JRNL_selected_page }
+						
+						check_variable = { HIE_JRNL_book_frame = 2 }
+					}
+					check_variable = { HIE_JRNL_prev_page = 100 }
+				}
+			}
+		}
+		
+		properties = {
+			page_turn_right_1 = {
+				frame = page_turn_right_1_frame
+			}
+			page_turn_right_2 = {
+				frame = page_turn_right_2_frame
+			}
+			page_turn_right_3 = {
+				frame = page_turn_right_3_frame
+			}
+			page_turn_right_4 = {
+				frame = page_turn_right_4_frame
+			}
+		}
+		
+		properties = {
+			page_turn_left_1 = {
+				frame = page_turn_left_1_frame
+			}
+			page_turn_left_2 = {
+				frame = page_turn_left_2_frame
+			}
+			page_turn_left_3 = {
+				frame = page_turn_left_3_frame
+			}
+			page_turn_left_4 = {
+				frame = page_turn_left_4_frame
+			}
 		}
 	}
 	

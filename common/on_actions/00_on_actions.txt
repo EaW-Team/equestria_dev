@@ -43,17 +43,17 @@ on_actions = {
 			100 = ace_died.1
 		}
 	}
-	
+
 	# our ace died in accident
 	# country, FROM = ace
 	on_ace_killed_on_accident = {
-	
+
 	}
-	
+
 	# enemy ace is killed by our non name
 	# country, FROM = enemy ace
 	on_non_ace_killed_other_ace = {
-	
+
 	}
 
 	# During justifying wargoals
@@ -83,7 +83,7 @@ on_actions = {
 			100 = war_justification.19
 			17000 = 0
 		}
-		
+
 		effect = {
 			if = {
 				limit = {
@@ -112,6 +112,10 @@ on_actions = {
 						has_global_flag = first_nuke_dropped
 						has_country_flag = WIT_magic_nuke_achievement
 						original_tag = BAR
+						original_tag = ZAI
+						FROM = {
+							has_state_flag = S1139_thunder_tiger_nuking
+						}
 					} 
 				}
 				country_event = { id = generic.8 }
@@ -216,14 +220,48 @@ on_actions = {
 					}
 				}
 			}
-			
+
 			if = {
 				limit = {
 					HIE_is_star_father_fighting_avians = yes
 				}
 				clr_country_flag = HIE_has_fired_justification_event_on_@FROM
 			}
-			
+
+			#if = {
+			#	limit = {
+			#		FROM = {
+			#			original_tag = ROOT
+			#			has_civil_war = yes
+			#			has_country_flag = CFR_infiltrated_this_country
+			#		}
+			#		ROOT = {
+			#			is_ai = yes
+			#			is_major = no
+			#			has_civil_war = yes
+			#		}
+			#	}
+			#	CFR = {
+			#		declare_war_on = {
+			#			target = FROM
+			#			type = topple_government
+			#		}
+			#		puppet = ROOT
+			#		ROOT = {
+			#			set_cosmetic_tag = CFR_PUPPET
+			#			capital_scope = {
+			#				create_unit = {
+			#					division = "division_template = \"Infiltrator-Saboteurs\" start_experience_factor = 0.5 start_equipment_factor = 1"
+			#					owner = CFR
+			#					count = 2
+			#				}
+			#			}
+			#			PREV = {
+			#				country_event = { id = kirin_council.115 hours = 1 }
+			#			}
+			#		}
+			#	}
+			#}
 		}
 	}
 
@@ -372,10 +410,13 @@ on_actions = {
 					NOT = { has_trait = undead_race_trait }
 					check_variable = { random < 0.02 }
 					NOT = { has_trait = sick }
+					NOT = { has_trait = CES_pony_of_shadows_commander }
+					NOT = { has_trait = CES_greater_shard_commander }
 					set_temp_variable = { temp = sum_unit_terrain_modifier@sickness_chance }
 					divide_temp_variable = { temp = num_units }
 					check_variable = { temp > 0.75 }
 					NOT = { has_unit_leader_flag = recently_sick }
+					NOT = { has_unit_leader_flag = cant_get_sick }
 				}
 				add_timed_unit_leader_trait = {
 					trait = sick
@@ -445,10 +486,25 @@ on_actions = {
 	# root country that invades
 	# scope state that is invaded
 	# from scope state that the invasion started
-	# on_naval_invasion = {
-	# 	effect = {
-	# 	}
-	# }
+	on_naval_invasion = {
+	 	effect = {
+		 	if = {
+				limit = {
+					ROOT = {
+						divisions_in_state = {
+							 unit = marine_commando
+							 size > 0
+							 state = PREV
+						}
+						 has_tech = marines_commandos_demolition 
+					}
+					NOT = { has_state_flag = marines_commando_effect }
+					OWNER = { NOT = { tag = ROOT } }
+				}
+				SF_marine_demoliton_effect = yes # Note that the state flag condition is not preventing it from doing 1 damage per division 
+			}
+	 	}
+	}
 	
 	
 	# root country that paradrops
@@ -456,19 +512,81 @@ on_actions = {
 	# from scope state that the paradrop started
 	on_paradrop = {
 	    effect = {
-		    set_country_flag = has_paradropped_flag
+		    ROOT = { set_country_flag = has_paradropped_flag }
 		}
 	}
-	on_ruling_party_change = { 
+	on_ruling_party_change = {
 		# temp var old_ideology_token is available for effects
 		effect = {
-			every_controlled_state = {
+			if = {
 				limit = {
-					has_resistance = yes
+					NOT = {
+						has_country_flag = bypass_compliance_loss_party_change
+					}
+				}				
+				every_controlled_state = {
+					limit = {
+						has_resistance = yes
+					}
+					set_temp_variable = { new_compliance = compliance }
+					multiply_temp_variable = { new_compliance = 0.5 }
+					set_compliance = new_compliance
 				}
-				set_temp_variable = { new_compliance = compliance }
-				multiply_temp_variable = { new_compliance = 0.5 }
-				set_compliance = new_compliance
+			}
+		}
+	}
+	
+	on_unit_leader_promote_from_ranks_veteran = { #Unit leader scope, FROM is unit
+		effect = {
+			FROM = {
+				add_random_valid_trait_from_unit = {
+					character = ROOT
+				}
+			}
+			set_unit_leader_flag = field_promotion_achievement
+		}
+	}
+
+	on_unit_leader_promote_from_ranks_green = { #Unit leader scope, FROM is unit
+		effect = {
+			set_unit_leader_flag = field_promotion_achievement
+		}
+	}
+
+	on_add_history = { #Unit Scope
+		effect = {
+			#add_unit_medal_to_latest_entry = {
+			#	unit_medals = iron_cross_second_class
+			#} #This would add a unit medal to the history entry you just received
+		}
+	}
+
+	on_units_paradropped_in_state = {
+		effect = {
+			if = {
+				limit = { 
+					FROM = { has_tech = paras_dispersed_drop } 
+					NOT = { 
+						has_state_flag = {
+						    flag = para_drop_effect
+						    value = 0
+						}
+					}
+					CONTROLLER = { NOT = { tag = FROM } }
+				}
+				SF_PARA_sabotage_effect = yes
+			}
+			if = {
+				limit = { 
+					FROM = { has_tech = paras_combat_drop } 
+					NOT = { 
+						has_state_flag = {
+						    flag = para_drop_effect
+						    value = 0
+						}
+					}
+				}
+				SF_PARA_combat_effect = yes
 			}
 		}
 	}

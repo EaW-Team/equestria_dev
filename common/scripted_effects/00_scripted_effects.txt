@@ -318,14 +318,14 @@ civil_war_anti_exploiter_punitive_action = {
 				infantry = { x = 0 y = 0 }
 				infantry = { x = 0 y = 1 }
 				infantry = { x = 0 y = 2 }
-	
+				infantry = { x = 0 y = 3 }
+
 		   	   	infantry = { x = 1 y = 0 }
 				infantry = { x = 1 y = 1 }
 				infantry = { x = 1 y = 2 }
 	
-		   	   	infantry = { x = 2 y = 0 }
+				artillery_brigade = { x = 2 y = 0 }
 				artillery_brigade = { x = 2 y = 1 }
-				artillery_brigade = { x = 2 y = 2 }
 			}
 			support = {
 				engineer = { x = 0 y = 0 }
@@ -523,9 +523,7 @@ instantiate_collaboration_government = {
 							transfer_state = PREV
 						}
 					}
-					
-					puppet = new_country
-					
+										
 					set_autonomy = {
 						target = new_country
 						autonomy_state = autonomy_collaboration_government
@@ -1173,6 +1171,72 @@ remove_any_country_role_from_character = { #Expected to be used inside the chara
 	}
 }
 
+
+### Paratroopers
+SF_PARA_sabotage_effect = { #When changing this, update the research tooltip
+	damage_building = {
+		type = infrastructure
+		damage = 2
+	}
+	damage_building = {
+		type = industrial_complex
+		damage = 1
+	}
+	damage_building = {
+		type = arms_factory
+		damage = 1
+	}
+	set_state_flag = {
+		flag = para_drop_effect
+		days = 30
+	}
+}
+
+SF_PARA_combat_effect = { #When changing this, update the research tooltip
+	every_state_division = {
+		limit = { 
+			OWNER = { has_war_with = FROM }
+		}
+		set_unit_organization = 0.50
+	}
+	set_state_flag = {
+		flag = para_drop_effect
+		days = 30
+	}
+}
+
+### Muuuurrrriiinnnnneeeeessssss
+SF_marine_demoliton_effect = { #When changing this, update the research tooltip
+	damage_building = {
+		type = radar_station
+		damage = 1
+	}
+	damage_building = {
+		type = naval_base
+		damage = 1
+	}
+	damage_building = {
+		type = dockyard
+		damage = 1
+	}
+	damage_building = {
+		type = nuclear_reactor
+		damage = 1
+	}
+	damage_building = {
+		type = rocket_site
+		damage = 1
+	}
+	damage_building = {
+		type = fuel_silo
+		damage = 1
+	}
+	set_state_flag = {
+		flag = marines_commando_effect
+		days = 30
+	}
+}
+
 on_daily = {
 
 }
@@ -1180,3 +1244,321 @@ on_daily = {
 #on_daily_USA = {
 #	# you can specify an on daily action for a specific country
 #}
+
+
+###########################################################################################
+###########################################################################################
+###########################################################################################
+
+							########    ###       ###    ######## 
+							   ##      ## ##     ## ##      ##    
+							   ##     ##   ##   ##   ##     ##    
+							   ##    ##     ## ##     ##    ##    
+							   ##    ######### #########    ##    
+							   ##    ##     ## ##     ##    ##    
+							   ##    ##     ## ##     ##    ##    
+
+###########################################################################################
+###########################################################################################
+###########################################################################################
+
+find_global_platonic_countries = { # Look for the countries that meet the best criteria for the different platonic countries we expect in HoI 
+	find_biggest_fascist = yes
+	find_biggest_democrat = yes
+	find_biggest_communist = yes
+	find_biggest_non_aligned = yes
+	find_biggest_fascist_bully = yes
+	find_best_democratic_ally_leader = yes
+	find_democratic_sleeping_giant = yes
+	find_local_dangerous_fascist = yes 
+}
+
+
+find_biggest_fascist_bully = { # Finds the biggest and/or meanest fascist country 
+	get_highest_scored_country = {
+		var = GLOBAL.platonic_fascist_bully
+		scorer = fascist_bully_scorer
+	}
+}
+
+find_best_democratic_ally_leader = { # Finds the most suitable democratic country to lead a faction
+	get_highest_scored_country = {
+		var = GLOBAL.platonic_democratic_ally_leader
+		scorer = democratic_faction_leader_scorer
+	}
+}
+
+find_democratic_sleeping_giant = { # Finds biggest desarmed democratic nation. Expected to be USA 
+	get_highest_scored_country = {
+		var = GLOBAL.platonic_democratic_sleeping_giant
+		scorer = democratic_sleeping_giant_scorer
+	}
+}
+
+find_biggest_fascist = { # Finds Nazi Germany, or the closest to it 
+	get_highest_scored_country = {
+		var = GLOBAL.platonic_big_fascist
+		scorer = fascist_major_scorer
+	}
+}
+
+find_biggest_democrat = { # Finds biggest Democratic Nation
+	get_highest_scored_country = {
+		var = GLOBAL.platonic_big_democratic
+		scorer = democratic_major_scorer
+	}
+}
+
+find_biggest_communist = { # Finds biggest Communist
+	get_highest_scored_country = {
+		var = GLOBAL.platonic_big_communist
+		scorer = communist_major_scorer
+	}
+}
+
+find_biggest_non_aligned = { # Finds biggest... anything else
+	get_highest_scored_country = {
+		var = GLOBAL.platonic_big_non_aligned
+		scorer = non_aligned_major_scorer
+	}
+}
+# There are ideology scorers for each continent. If you need more check the generic_platonic_scorers file and make a new scripted effect 
+
+find_local_dangerous_fascist = {
+	get_highest_scored_country = {
+		var = platonic_local_dangerous_fascist
+		scorer = local_fascist_country
+	}
+}
+
+
+# The idea is that you can use these effects to store the party popularities (and, if desired, the ruling party) when puppeting or possibly when starting civil wars, and then use the "restore" effects to reset it after the puppeting has happened, so that you don't have to use the overlord's ideology if you don't want to. 
+get_current_ideology_popularities = {
+	set_variable = { ROOT.communist_support_before_change = ROOT.party_popularity_100@communism }
+	set_variable = { ROOT.democratic_support_before_change = ROOT.party_popularity_100@democratic }
+	set_variable = { ROOT.fascist_support_before_change = ROOT.party_popularity_100@fascism }
+	set_variable = { ROOT.neutrality_support_before_change = ROOT.party_popularity_100@neutrality }
+}
+get_current_ruling_party = {
+	set_variable = { ROOT.ruling_ideology_before_change = ROOT.current_party_ideology_group }
+}
+restore_ideology_popularities = {
+	hidden_effect = {
+		# Reset popluarities to what they were before puppeting 
+		set_popularities = {
+			communism = ROOT.communist_support_before_change
+			democratic = ROOT.democratic_support_before_change
+			fascism = ROOT.fascist_support_before_change
+			neutrality = ROOT.neutrality_support_before_change
+		}
+		clear_variable = ROOT.communist_support_before_change
+		clear_variable = ROOT.democratic_support_before_change
+		clear_variable = ROOT.fascist_support_before_change
+		clear_variable = ROOT.neutrality_support_before_change
+	}
+}
+restore_ruling_party = {
+	ROOT = {
+		set_politics = {
+			ruling_party = var:ROOT.ruling_ideology_before_change
+		}
+	}
+}
+
+
+#Upgrades state cat to the next valid level. Called from state scope
+increase_state_category = {
+	if = {
+		limit = {
+			has_state_category = tiny_island
+		}
+		set_state_category = small_island
+		effect_tooltip = {
+			add_extra_state_shared_building_slots = 1
+		}
+	}
+
+	if = {
+		limit = {
+			OR = {
+				has_state_category = wasteland
+				has_state_category = enclave
+			}
+		}
+		set_state_category = pastoral
+		effect_tooltip = {
+			add_extra_state_shared_building_slots = 1
+		}
+	}
+	else_if = {
+		limit = {
+			has_state_category = pastoral
+		}
+		set_state_category = rural
+		effect_tooltip = {
+			add_extra_state_shared_building_slots = 1
+		}
+	}
+	else_if = {
+		limit = {
+			has_state_category = rural
+		}
+		set_state_category = town
+		effect_tooltip = {
+			add_extra_state_shared_building_slots = 2
+		}
+	}
+	else_if = {
+		limit = {
+			has_state_category = town
+		}
+		set_state_category = large_town
+		effect_tooltip = {
+			add_extra_state_shared_building_slots = 1
+		}
+	}
+	else_if = {
+		limit = {
+			has_state_category = large_town
+		}
+		set_state_category = city
+		effect_tooltip = {
+			add_extra_state_shared_building_slots = 1
+		}
+	}
+	else_if = {
+		limit = {
+			has_state_category = city
+		}
+		set_state_category = large_city
+		effect_tooltip = {
+			add_extra_state_shared_building_slots = 2
+		}
+	}
+
+	else_if = {
+		limit = {
+			has_state_category = large_city
+		}
+		set_state_category = metropolis
+		effect_tooltip = {
+			add_extra_state_shared_building_slots = 2
+		}
+	}
+
+	else_if = {
+		limit = {
+			has_state_category = metropolis
+		} 
+		set_state_category = megalopolis
+		effect_tooltip = {
+			add_extra_state_shared_building_slots = 2
+		}
+	}
+}
+
+add_potential_special_forces_tree = {
+	custom_effect_tooltip = add_potential_special_forces_tree_tt
+	if = {
+		limit = { NOT = { has_variable = sf_trees } }
+		set_variable = { sf_trees = 3 }
+	}
+	else = {
+		add_to_variable = { sf_trees = 1 }
+	}
+}
+
+remove_potential_special_forces_tree = {
+	if = {
+		limit = { NOT = { has_variable = sf_trees } }
+		set_variable = { sf_trees = 1 }
+	}
+	else = {
+		subtract_from_variable = { sf_trees = 1 }
+	}
+}
+
+store_core_states_on_game_start = { #Should be called from history file
+	every_core_state = {
+		ROOT = {
+			add_to_array = {
+				array = core_states_at_game_start
+				value = PREV
+			}
+		}
+	}
+}
+
+#called in country scope
+unlock_project_facilities = {
+	if = {
+		limit = {
+			NOT = {
+				has_tech = tech_naval_facilities
+			}
+		}
+		set_technology = {
+			tech_naval_facilities = 1
+			popup = no
+		}
+	}
+	if = {
+		limit = {
+			NOT = {
+				has_tech = tech_air_facilities
+			}
+		}
+		set_technology = {
+			tech_air_facilities = 1
+			popup = no
+		}
+	}
+	if = {
+		limit = {
+			NOT = {
+				has_tech = tech_land_facilities
+			}
+		}
+		set_technology = {
+			tech_land_facilities = 1
+			popup = no
+		}
+	}
+	if = {
+		limit = {
+			NOT = {
+				has_tech = tech_nuclear_facilities
+			}
+		}
+		set_technology = {
+			tech_nuclear_facilities = 1
+			popup = no
+		}
+	}
+	if = {
+		limit = {
+			NOT = {
+				has_tech = tech_magical_facilities
+			}
+		}
+		set_technology = {
+			tech_magical_facilities = 1
+			popup = no
+		}
+	}
+}
+
+ai_production_fix_buff_base_production_effect = {	#when player or ai researching tech or increasing max production anywhere on 10%
+	if = {
+		limit = { 
+			has_game_rule = {
+				rule = ai_production_fix
+				option = PRODUCTION_FIX_ENABLE
+			}
+		}
+		add_to_variable = { 
+			var = AI_production_efficiency_fix_var
+			value = 0.1
+		}
+	}
+}
