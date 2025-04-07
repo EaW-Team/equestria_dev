@@ -38,6 +38,7 @@ NDefines.NProduction.BASE_FACTORY_SPEED_NAV = 3.5 -- vanilla is 2.5
 NDefines.NProduction.MINIMUM_NUMBER_OF_FACTORIES_TAKEN_BY_CONSUMER_GOODS_PERCENT = 0.05 -- vanilla is 0.1
 NDefines.NProduction.MAX_EQUIPMENT_RESOURCES_NEED = 4
 
+NDefines.NBuildings.RADAR_RANGE_MAX = 416 --each level is 36, we've gone from 6 levels (40 to 220, 5 increases) to 12 levels (40 to 436, 11 increases)
 
 NDefines.NMilitary.PLAN_EXECUTE_CAREFUL_MAX_FORT = 4
 NDefines.NMilitary.TRAINING_MAX_LEVEL = 10
@@ -56,6 +57,7 @@ NDefines.NNavy.NAVAL_MINES_ACCIDENT_STRENGTH_LOSS = 75.0 -- Vanilla is 50.0, rev
 NDefines.NNavy.NAVAL_MINES_ACCIDENT_ORG_LOSS_FACTOR = 0.6	-- Vanilla is 0.5, reverted to pre-AAT value
 
 NDefines.NAir.NAVAL_COMBAT_EXTERNAL_PLANES_JOIN_RATIO = 0.03 	-- Max planes that can join a combat comparing to the total strength of the ships, vanilla is 0.05
+NDefines.NAir.AIR_WING_XP_LEVELS = {20,	40,	60,	80,	100,	140,	180,	220,	260,	300,	390,	480,	570,	660,	750,	780,	810,	840,	870,	900}		-- Experience needed to progress to the next level
 
 NDefines.NAI.RESEARCH_LAND_DOCTRINE_NEED_GAIN_FACTOR = 0.12 -- Multiplies value based on relative military industry size / country size.
 NDefines.NAI.DYNAMIC_STRATEGIES_THREAT_FACTOR = 6.0
