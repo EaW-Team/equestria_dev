@@ -233,33 +233,42 @@ PixelShader =
 
 			float2 vOffsets = float2( -0.5f / MAP_SIZE_X, -0.5f / MAP_SIZE_Y );
 
-			float yay = 0.0;
+			// EAW solution for aliasing on the map
+			float flagOcean = 0.0f;
 			float vAllSame;
 			float4 IndexU;
 			float4 IndexV;
 			calculate_map_tex_index( tex2D( TerrainIDMap, Input.uv + vOffsets.xy ), IndexU, IndexV, vAllSame );
-			if (IndexV.w > 3.0 || IndexV.x > 3.0 || IndexV.y > 3.0 || IndexV.z > 3.0) {
-				yay = 1.0;
+			if (IndexV.w > 3.0f || IndexV.x > 3.0f || IndexV.y > 3.0f || IndexV.z > 3.0f) {
+				flagOcean = 1.0f;
 				if (vAllSame > 0) {
-					//discard;
+					discard;
 				} else {
-					if (IndexV.w > 3.0) {
-						IndexV.w = 2.0;
-						IndexU.w = 1.0;
+					if (IndexV.w > 3.0f) {
+						IndexV.w = 2.0f;
+						IndexU.w = 1.0f;
 					}
-					if (IndexV.x > 3.0) {
-						IndexV.x = 2.0;
-						IndexU.x = 1.0;
+					if (IndexV.x > 3.0f) {
+						IndexV.x = 2.0f;
+						IndexU.x = 1.0f;
 					}
-					if (IndexV.y > 3.0) {
-						IndexV.y = 2.0;
-						IndexU.y = 1.0;
+					if (IndexV.y > 3.0f) {
+						IndexV.y = 2.0f;
+						IndexU.y = 1.0f;
 					}
-					if (IndexV.z > 3.0) {
-						IndexV.z = 2.0;
-						IndexU.z = 1.0;
+					if (IndexV.z > 3.0f) {
+						IndexV.z = 2.0f;
+						IndexU.z = 1.0f;
 					}
 				}
+			}
+
+			float4 TerrainColor = tex2D( TerrainColorTint, Input.uv2 );
+			float3 colorcheck = float3(0.08, 0.135, 0.270);
+			float delta = 0.10;
+			float3 compara = abs(TerrainColor.rgb - colorcheck.rgb);
+            if (flagOcean > 0 && compara.r < delta && compara.g < delta && compara.b < delta) {
+				discard;
 			}
 
 			float2 vTileRepeat = Input.uv2 * TERRAIN_TILE_FREQ;
@@ -330,17 +339,6 @@ PixelShader =
 			normal = RotateVectorByVector( normal, terrain_normal );
 			normal = normalize(normal);
 		#endif
-
-			float4 TerrainColor = tex2D( TerrainColorTint, Input.uv2 );
-            float3 colorcheck = float3(0.08, 0.135, 0.270);
-            float delta = 0.01;
-            float3 compara = abs(TerrainColor.rgb - colorcheck.rgb);
-            if (yay > 0 && compara.r < delta && compara.g < delta && compara.b < delta) {
-				discard;
-				return float4( 0, 1.0f, 0, 1.0f );
-			}
-            //discard;
-            //return TerrainColor;
 
 		#ifndef LOW_END_GFX
 			float CityLightsMask = TerrainColor.a;
