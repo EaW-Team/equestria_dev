@@ -265,7 +265,7 @@ PixelShader =
 
 			float4 TerrainColor = tex2D( TerrainColorTint, Input.uv2 );
 			float3 colorcheck = float3(0.08, 0.135, 0.270);
-			float delta = 0.10;
+			float delta = 0.050;
 			float3 compara = abs(TerrainColor.rgb - colorcheck.rgb);
             if (flagOcean > 0 && compara.r < delta && compara.g < delta && compara.b < delta) {
 				discard;
