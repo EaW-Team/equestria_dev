@@ -39,11 +39,12 @@ Code
 	float4 gradient_border_multisample_alpha( in float4 vCh, in sampler2D TexCh, in float2 vUV );
 	float gradient_border_distance_to_alpha( float vDist, float vCamDist );
 
-	static const float EAW_GB_CAM_MIN = 100.0f;
-	static const float EAW_GB_CAM_MAX = 350.0f;
-	static const float EAW_GB_CAM_MAX_FILLING_CLAMP = 0.8f; // 0 to 1 value for clamping the fill when camera is at max distance
 	float eaw_gradient_border_camera_distance() {
-		return 1.0f - clamp( cam_distance( EAW_GB_CAM_MIN, EAW_GB_CAM_MAX ), 0, EAW_GB_CAM_MAX_FILLING_CLAMP );
+		return 1.0f - clamp(cam_distance( EAW_GB_CAM_MIN, EAW_GB_CAM_MAX ), 0, EAW_GB_CAM_MAX_FILLING_CLAMP);
+	}
+
+	float eaw_black_outline_camera_distance() {
+		return clamp(cam_distance( EAW_BLACK_OUTLINE_CAM_MIN, EAW_BLACK_OUTLINE_CAM_MAX ), 0, 1);
 	}
 
 	float eaw_gradient_border_process_channel( out float3 vCh, float3 vInit, float vCamDist, float2 uv, in sampler2D gbTex, in sampler2D gbTex2, float vOutlineMult, float vOutlineCutoff, float vStrength )
@@ -105,12 +106,10 @@ Code
 
 	float eaw_apply_black_border(out float3 vCh,
 									 float3 vInit,
-									 float vCamDist,
 									 float2 uv,
 									 float Alpha,
 									 float FX,
 									 float vOutlineMult,
-									 float vOutlineCutoff,
 									 float vStrength) {
 
 		vCh = vInit;
@@ -118,23 +117,19 @@ Code
 		const float PulseSpeedMult = 3.5f;
 		vStrength *= lerp( lerp( 0.7f, 1.0f, 1.0f - FX ), 1.0f, ( sin( vGlobalTime * PulseSpeedMult ) + 1.0f ) / 2 );
 
-		//Alpha = 1;
+		float vOutlineCutoff = EAW_BLACK_BORDER_MAX_CUTOFF - EAW_BLACK_BORDER_CUTOFF_WIDTH*eaw_black_outline_camera_distance();
 
-		vOutlineCutoff = 0.968;
+		float in_mask = floor(Levels(Alpha, 0.0f, vOutlineCutoff));
+		float out_mask = ceil(Levels(Alpha, EAW_BLACK_BORDER_MAX_CUTOFF, 1));
+		float gradient = ceil((1.0 - Levels( Alpha, vOutlineCutoff, 1.0f ))*(in_mask - out_mask))*vStrength*eaw_black_outline_camera_distance();
 
-		// Check how much color and how much outline there is
-		float vColorOpacity = Levels( Alpha, 0.0f, vOutlineCutoff );
-		float vOutline = 1.0f - Levels( Alpha, vOutlineCutoff, 1.0f );
-		float vOldOutline = vOutline;
-		vOutline *= ceil(floor(vColorOpacity));
-		vOutline *= vOutlineMult;
+		vCh = lerp( vCh, float3(0, 0, 0), gradient);
 
-		vColorOpacity = vOutline*vStrength;
+		// Debug, to see the mask
+		//float val = gradient;
+		//vCh = float3(val, val, val);
 
-		vCh = lerp( vCh, float3(0, 0, 0), vColorOpacity);
-		//vCh = float3(vColorOpacity, vColorOpacity, vColorOpacity);
-
-		return vColorOpacity;
+		return gradient;
 	}
 
 	void eaw_gradient_border_apply( inout float3 vColor, float3 vNormal, float2 vUV,
@@ -181,12 +176,10 @@ Code
 
 		float vAlpha3 = eaw_apply_black_border(vGradMix,
 									vColor,
-									vGBCamDist,
 									vUV,
 									Alpha,
 									FX,
 									vOutlineMult,
-									vOutlineCutoff.x,
 									1.0);
 		vColor = vGradMix;
 

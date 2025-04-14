@@ -5,6 +5,7 @@ Includes = {
 	"shadow.fxh"
 	"tiled_pointlights.fxh"
 	"fow.fxh"
+    "eaw_map_constants.fxh"
     "zz_eaw_map.fxh"
 }
 

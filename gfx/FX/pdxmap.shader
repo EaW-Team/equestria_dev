@@ -5,6 +5,7 @@ Includes = {
 	"pdxmap.fxh"
 	"shadow.fxh"
 	"fow.fxh"
+	"eaw_map_constants.fxh"
 	"zz_eaw_map.fxh"
 }
 
