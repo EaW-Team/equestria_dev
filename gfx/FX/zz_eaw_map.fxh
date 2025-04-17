@@ -47,22 +47,21 @@ Code
 		return clamp(cam_distance( EAW_BLACK_OUTLINE_CAM_MIN, EAW_BLACK_OUTLINE_CAM_MAX ), 0, 1);
 	}
 
-	float eaw_gradient_border_process_channel( out float3 vCh, float3 vInit, float vCamDist, float2 uv, in sampler2D gbTex, in sampler2D gbTex2, float vOutlineMult, float vOutlineCutoff, float vStrength )
+	float eaw_shadow_border_distance() {
+		return clamp(cam_distance( EAW_SHADOW_BORDER_CAM_MIN, EAW_SHADOW_BORDER_CAM_MAX ), 0, 1);
+	}
+
+	float eaw_gradient_border_process_channel( out float3 vCh, float3 vInit, float vCamDist, float2 uv, float4 vGBDist, float FX, float vOutlineMult, float vOutlineCutoff, float vStrength, float override)
 	{
 		vCh = vInit;
 
 		const float PulseSpeedMult = 3.5f;
-		float FX = tex2D( gbTex2, uv ).b;
 		vStrength *= lerp( lerp( 0.45f, 1.0f, 1.0f - FX ), 1.0f, ( sin( vGlobalTime * PulseSpeedMult ) + 1.0f ) / 2 );
-
-		float vFullWidth = (2.5f + 4*smoothstep(0.0f, 1.0f, 1f - vCamDist))/ 255.0f;//lerp( 5.25f, 0.01f, FX ) / 255.f;
-		float vGradientWidth = 10f / 255.0f;//lerp( 0.5f, 0.1f, FX ) / 255.f;
-
-		// Grab multisampled border color
-		float4 vGBDist = gradient_border_multisample_alpha( tex2D( gbTex, uv ), gbTex, uv );
 
 		float Alpha = vGBDist.a;
 		//Alpha = 1;
+
+		vOutlineCutoff = EAW_BLACK_BORDER_MAX_CUTOFF;
 
 		// Check how much color and how much outline there is
 		float vColorOpacity = Levels( Alpha, 0.0f, vOutlineCutoff );
@@ -71,36 +70,46 @@ Code
 		vOutline *= floor(vColorOpacity);
 		vOutline *= vOutlineMult;
 
-		//vCh = float3(vCamDistOverride.y, vCamDistOverride.y, vCamDistOverride.y);
-		//return 0.0;
+		//vCamDist = 0;
+
 
 		// Convert "heightmap" to "fill" regarding camera distance (the whole magic in this function)
 		vColorOpacity = gradient_border_distance_to_alpha( vColorOpacity, vCamDist );
+		//vCh = float3(vColorOpacity, vColorOpacity, vColorOpacity);
+		//return 0.0;
 
 		// Now when vOutline > 0 then vColorOpacity = 0, and other way around.
 		// Never both values will be > 0.
 		vColorOpacity *= floor(vOldOutline);
 
+		float borderShadow = 1.0f - eaw_shadow_border_distance();
 
+		float low_threshold = (EAW_MAP_BORDER_SHADOW_WIDTH_GRADIENT - EAW_MAP_BORDER_SHADOW_WIDTH_GRADIENT_SMOOTH*borderShadow)*floor(1.0 - override) +
+		                        EAW_MAP_BORDER_SHADOW_WIDTH_GRADIENT_STATIC*ceil(override);
+		float high_threshold = (EAW_MAP_BORDER_SHADOW_WIDTH_SOLID + EAW_MAP_BORDER_SHADOW_WIDTH_SOLID_SMOOTH*borderShadow)*floor(1.0 - override) +
+		                        EAW_MAP_BORDER_SHADOW_WIDTH_SOLID_STATIC*ceil(override);
 
-		float vThick = smoothstep( 0.f, 1.f, Levels( Alpha, vOutlineCutoff - vFullWidth, vOutlineCutoff - vFullWidth + vGradientWidth ) ) ;
-		vThick = ceil(Levels( Alpha, vOutlineCutoff - vFullWidth, vOutlineCutoff - vFullWidth + vGradientWidth ));
+		float vThick = Levels( Alpha, low_threshold, high_threshold);
 
-		vThick *= floor(vOldOutline);
-
-		float vMaxGradient = max( vColorOpacity, vOutline );
+		float vMaxGradient = 0.3;//max( vColorOpacity, vOutline );
 		//vCh = lerp( vCh, vCh*0.5, vThick);
 		//return 1;
 
 		vCh = lerp( vCh, vGBDist.rgb, vMaxGradient * vStrength);
+		//vCh = lerp( vCh, vGBDist.rgb, 0.7);
 
 		// Compensate the brightness since the 2nd layer is now black (not white) although it's alpha is 0
-		vCh *= 1.15f;
+		//vCh *= 1.15f;
 		vCh = min( vCh, float3( 1, 1, 1 ) );
 
 		// Make the outline edge darker
-		//vCh = lerp( vCh, vCh * .5, vThick );
+		vCh = lerp( vCh, vCh*lerp(EAW_MAP_BORDER_SHADOW_STRENGTH, EAW_MAP_BORDER_SHADOW_STRENGTH_SMOOTH, borderShadow), vThick );
 
+		float val = vOutline;
+		//vCh = float3(val, val, val);
+		//return 1.0;
+
+		return 0;
 		return max( vMaxGradient, vThick );
 	}
 
@@ -109,6 +118,7 @@ Code
 									 float2 uv,
 									 float Alpha,
 									 float FX,
+									 float en,
 									 float vOutlineMult,
 									 float vStrength) {
 
@@ -121,9 +131,9 @@ Code
 
 		float in_mask = floor(Levels(Alpha, 0.0f, vOutlineCutoff));
 		float out_mask = ceil(Levels(Alpha, EAW_BLACK_BORDER_MAX_CUTOFF, 1));
-		float gradient = ceil((1.0 - Levels( Alpha, vOutlineCutoff, 1.0f ))*(in_mask - out_mask))*vStrength*eaw_black_outline_camera_distance();
+		float gradient = ceil((1.0 - Levels( Alpha, vOutlineCutoff, 1.0f ))*(in_mask - out_mask))*vStrength*eaw_black_outline_camera_distance()*(1.0 - ceil(en));
 
-		vCh = lerp( vCh, float3(0, 0, 0), gradient);
+		vCh = lerp( vCh, EAW_BLACK_BORDER_COLOR, gradient);
 
 		// Debug, to see the mask
 		//float val = gradient;
@@ -134,7 +144,7 @@ Code
 
 	void eaw_gradient_border_apply( inout float3 vColor, float3 vNormal, float2 vUV,
 		in sampler2D TexCh1, in sampler2D TexCh2,
-		float vOutlineMult, float2 vOutlineCutoff, float2 vCamDistOverride, inout float vBloomAlpha )
+		float vOutlineMult, float2 vOutlineCutoff, float2 vCamDistOverride, inout float vBloomAlpha, float water)
 	{
 
 	#ifndef GRADIENT_BORDERS
@@ -142,6 +152,10 @@ Code
 		return;
 	#endif
 
+		//if (water > 0) {
+		//	vBloomAlpha = 1.0f;
+		//	return;
+		//}
 
 		// Check the distance of camera (value 0-1)
 		float vGBCamDist = eaw_gradient_border_camera_distance();
@@ -150,7 +164,7 @@ Code
 		// Handle camera distance overriding (unique for each channel)
 		float vGBCamDistCh1 = saturate( ( vGBCamDist * int( 1.0f - vCamDistOverride.x ) ) + vCamDistOverride.x );
 		float vGBCamDistCh2 = saturate( ( vGBCamDist * int( 1.0f - vCamDistOverride.y ) ) + vCamDistOverride.y );
-		//vColor = float3(vCamDistOverride.y, vCamDistOverride.y, vCamDistOverride.y);
+		//vColor = float3(vCamDistOverride.x, vCamDistOverride.x, vCamDistOverride.x);
 		//return;
 
 		// Split UV to correct offset in height, as 1st channel is the top half part of the texture, and 2nd channel is bottom half
@@ -160,28 +174,35 @@ Code
 
 		// Calculate color and transparency of both channels
 		float3 vGradMix;
+		float4 FX1 = tex2D(TexCh2, vUV);
+		float4 FX2 = tex2D(TexCh2, vUV2);
+		float4 text_color1 = gradient_border_multisample_alpha(tex2D(TexCh1, vUV),  TexCh1, vUV);
+		float4 text_color2 = gradient_border_multisample_alpha(tex2D(TexCh1, vUV2), TexCh1, vUV2);
 
-		float vAlpha1 = eaw_gradient_border_process_channel( vGradMix, vColor, vGBCamDistCh1, vUV, TexCh1, TexCh2, vOutlineMult, vOutlineCutoff.x, GB_STRENGTH_CH1 );
+		float vAlpha1 = eaw_gradient_border_process_channel( vGradMix, vColor, vGBCamDistCh1, vUV, text_color1, FX1.b, vOutlineMult, vOutlineCutoff.x, GB_STRENGTH_CH1, water);
 		// Now mix, the resultat with background
-		float TranspA = 1.0f - tex2D( TexCh2, vUV ).g;
-		vColor = lerp( vColor, vGradMix, ( GB_OPACITY_NEAR + ( 1.0f - vGBCamDist ) * ( GB_OPACITY_FAR - GB_OPACITY_NEAR ) ) * TranspA );
-
-		float vAlpha2 = eaw_gradient_border_process_channel( vGradMix, vColor, vGBCamDistCh2, vUV2, TexCh1, TexCh2, vOutlineMult, vOutlineCutoff.y, (1.0 - vAlpha1 * GB_STRENGTH_CH1 * GB_FIRST_LAYER_PRIORITY) * GB_STRENGTH_CH2 );
-		float TranspB = 1.0f - tex2D( TexCh2, vUV2 ).g;
+		float TranspA = 1.0f - FX1.g;
 		vColor = vGradMix;
-		vColor = lerp( vColor, vGradMix, ( GB_OPACITY_NEAR + ( 1.0f - vGBCamDist ) * ( GB_OPACITY_FAR - GB_OPACITY_NEAR ) ) * TranspB );
+		//vColor = lerp( vColor, vGradMix, ( GB_OPACITY_NEAR + ( 1.0f - vGBCamDist ) * ( GB_OPACITY_FAR - GB_OPACITY_NEAR ) ) * TranspA );
 
-		float FX = tex2D(TexCh2, vUV).b;
-		float Alpha = gradient_border_multisample_alpha( tex2D( TexCh1, vUV ), TexCh1, vUV).a;
+		float vAlpha2 = eaw_gradient_border_process_channel( vGradMix, vColor, vGBCamDistCh2, vUV2, text_color2, FX2.b, vOutlineMult, vOutlineCutoff.y, (1.0 - vAlpha1 * GB_STRENGTH_CH1 * GB_FIRST_LAYER_PRIORITY) * GB_STRENGTH_CH2, water);
+		float TranspB = 1.0f - FX2.g;
+		//vColor = vGradMix;
+		//vColor = lerp( vColor, vGradMix, ( GB_OPACITY_NEAR + ( 1.0f - vGBCamDist ) * ( GB_OPACITY_FAR - GB_OPACITY_NEAR ) ) * TranspB );
 
 		float vAlpha3 = eaw_apply_black_border(vGradMix,
 									vColor,
 									vUV,
-									Alpha,
-									FX,
+									text_color1.a,
+									FX1.b,
+									FX1.g,
 									vOutlineMult,
 									1.0);
-		vColor = vGradMix;
+		vColor = lerp(vGradMix, vColor, water);
+
+		float val = FX1.g;
+		//vColor = float3(val, val, val);
+		//vColor = text_color2.rgb;
 
 		//vColor = vGradMix;
 		//return;
@@ -192,6 +213,7 @@ Code
 		// (we don't want to affect the colors especially when camera is zoomed out, and
 		//  everything is 100% filled)
 		vBloomAlpha = 1.0f - max(max( vAlpha1, vAlpha2), vAlpha3);
+		//vBloomAlpha = 0;
 	}
 
 ]]

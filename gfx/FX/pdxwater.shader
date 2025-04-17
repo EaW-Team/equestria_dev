@@ -340,23 +340,23 @@ PixelShader =
 		#endif
 
 			float vBloomAlpha = 0.0f;
-            /*
+
 			gradient_border_apply( refractiveColor, normal,
 				Input.uv + vRefractionDistortion * 0.0075f,
 				GradientBorderChannel1, GradientBorderChannel2, 0.0f,
 				vGBCamDistOverride_GBOutlineCutoff.zw * GB_OUTLINE_CUTOFF_SEA,
-				vGBCamDistOverride_GBOutlineCutoff.xy, vBloomAlpha ); */
+				vGBCamDistOverride_GBOutlineCutoff.xy, vBloomAlpha );
 			secondary_color_mask( refractiveColor, normal,
 				Input.uv - vRefractionDistortion * 0.001,
 				ProvinceSecondaryColorMap,
 				vBloomAlpha );
 
-                eaw_gradient_border_apply(refractiveColor, normal,
-                    Input.uv + vRefractionDistortion * 0.0075f, GradientBorderChannel1,
-                    GradientBorderChannel2, 1.0f,
-                    vGBCamDistOverride_GBOutlineCutoff.zw, vGBCamDistOverride_GBOutlineCutoff.xy,
-                    vBloomAlpha );
-            //return float4(0, 0, 0, 0);
+                //eaw_gradient_border_apply(refractiveColor, normal,
+                //    Input.uv + vRefractionDistortion * 0.0075f, GradientBorderChannel1,
+                //    GradientBorderChannel2, 1.0f,
+                //    vGBCamDistOverride_GBOutlineCutoff.zw, vGBCamDistOverride_GBOutlineCutoff.xy,
+                //    vBloomAlpha, 1.0);
+            //return float4(refractiveColor, 1.0);
 
 			LightingProperties lightingProperties;
 			lightingProperties._WorldSpacePos = Input.pos;
