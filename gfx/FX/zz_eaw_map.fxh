@@ -71,10 +71,17 @@ Code
 		vOutline *= vOutlineMult;
 
 		//vCamDist = 0;
+		float borderShadow = 1.0f - eaw_shadow_border_distance();
+
+		float solid_border_mask = Levels(vColorOpacity, EAW_FILL_SOLID_THRESHOLD_LOW + borderShadow/6, 1);
+		solid_border_mask = ceil(solid_border_mask - floor(solid_border_mask));
 
 
 		// Convert "heightmap" to "fill" regarding camera distance (the whole magic in this function)
-		vColorOpacity = gradient_border_distance_to_alpha( vColorOpacity, vCamDist );
+		//vColorOpacity = gradient_border_distance_to_alpha( vColorOpacity, vCamDist );
+		vColorOpacity = 1.0f - vColorOpacity;
+		vColorOpacity *= ( vCamDist - GB_THRESHOLD ) / ( GB_THRESHOLD2 );
+		vColorOpacity = 1.0f - saturate( vColorOpacity );
 		//vCh = float3(vColorOpacity, vColorOpacity, vColorOpacity);
 		//return 0.0;
 
@@ -82,8 +89,20 @@ Code
 		// Never both values will be > 0.
 		vColorOpacity *= floor(vOldOutline);
 
-		float borderShadow = 1.0f - eaw_shadow_border_distance();
 
+		float vMaxGradient = max( 1.0 - vCamDist, solid_border_mask );
+		//vMaxGradient = solid_border_mask;
+		//vCh = lerp( vCh, vCh*0.5, vThick);
+		//return 1;
+
+		vCh = lerp( vCh, vGBDist.rgb, vMaxGradient * vStrength);
+		//vCh = lerp( vCh, vGBDist.rgb, 1);
+
+		// Compensate the brightness since the 2nd layer is now black (not white) although it's alpha is 0
+		//vCh *= 1.15f;
+		vCh = min( vCh, float3( 1, 1, 1 ) );
+
+		// Border Shadow
 		float low_threshold = (EAW_MAP_BORDER_SHADOW_WIDTH_GRADIENT - EAW_MAP_BORDER_SHADOW_WIDTH_GRADIENT_SMOOTH*borderShadow)*floor(1.0 - override) +
 		                        EAW_MAP_BORDER_SHADOW_WIDTH_GRADIENT_STATIC*ceil(override);
 		float high_threshold = (EAW_MAP_BORDER_SHADOW_WIDTH_SOLID + EAW_MAP_BORDER_SHADOW_WIDTH_SOLID_SMOOTH*borderShadow)*floor(1.0 - override) +
@@ -91,25 +110,15 @@ Code
 
 		float vThick = Levels( Alpha, low_threshold, high_threshold);
 
-		float vMaxGradient = 0.3;//max( vColorOpacity, vOutline );
-		//vCh = lerp( vCh, vCh*0.5, vThick);
-		//return 1;
-
-		vCh = lerp( vCh, vGBDist.rgb, vMaxGradient * vStrength);
-		//vCh = lerp( vCh, vGBDist.rgb, 0.7);
-
-		// Compensate the brightness since the 2nd layer is now black (not white) although it's alpha is 0
-		//vCh *= 1.15f;
-		vCh = min( vCh, float3( 1, 1, 1 ) );
-
 		// Make the outline edge darker
 		vCh = lerp( vCh, vCh*lerp(EAW_MAP_BORDER_SHADOW_STRENGTH, EAW_MAP_BORDER_SHADOW_STRENGTH_SMOOTH, borderShadow), vThick );
+		// End - Border Shadow
 
 		float val = vOutline;
 		//vCh = float3(val, val, val);
 		//return 1.0;
 
-		return 0;
+		//return 1;
 		return max( vMaxGradient, vThick );
 	}
 
