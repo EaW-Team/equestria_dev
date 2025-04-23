@@ -1,0 +1,243 @@
+on_actions = {
+	on_monthly_KTZ = {
+		effect = {
+			log = "[GetDateText]: ROOT: [Root.GetName] on_monthly_KTZ"
+			#Zebtropa draining
+			if = {
+				limit = {
+					has_country_flag = KTZ_zebtropa_dam_completed
+					check_variable = { zebtropa_draining_level < 7 }
+				}
+				
+				add_to_variable = { zebtropa_sea_level_drop = zebtropa_monthly_sea_level_drop }
+
+				set_temp_variable = { zebtropa_new_petaliters = zebtropa_monthly_sea_level_drop }
+				multiply_temp_variable = { zebtropa_new_petaliters = zebtropa_petaliters_per_m }
+				add_to_variable = { zebtropa_petaliters = zebtropa_new_petaliters }
+
+				set_temp_variable = { zebtropa_new_dam_power_output = zebtropa_monthly_sea_level_drop }
+				multiply_temp_variable = { zebtropa_new_dam_power_output = zebtropa_dam_power_output_per_m }
+				add_to_variable = { zebtropa_dam_power_output = zebtropa_new_dam_power_output }
+
+				set_variable = { zebtropa_dam_power_output_mod = zebtropa_dam_power_output }
+				divide_variable = { zebtropa_dam_power_output_mod = 200 }
+
+				if = {
+					limit = { check_variable = { zebtropa_sea_level_drop > zebtropa_next_designation_threshold } }
+					set_variable = { zebtropa_current_designation_threshold = zebtropa_next_designation_threshold }
+					add_to_variable = { zebtropa_draining_level = 1 }
+					add_to_variable = { zebtropa_next_designation_threshold = 100 }
+					851 = { add_to_variable = { zebtropa_state_spec_count = 1 } }
+					1002 = { add_to_variable = { zebtropa_state_spec_count = 1 } }
+					199 = { add_to_variable = { zebtropa_state_spec_count = 1 } }
+					818 = { add_to_variable = { zebtropa_state_spec_count = 1 } }
+					788 = { add_to_variable = { zebtropa_state_spec_count = 1 } }
+					country_event = { id = katzen_AF.651 }
+					if = {
+						limit = { check_variable = { zebtropa_draining_level > 6 } }
+						set_country_flag = zebtropa_project_realized
+						set_variable = { zebtropa_sea_level_drop = 600 }
+						set_variable = { zebtropa_monthly_sea_level_drop = 0 }
+
+						set_variable=  { zebtropa_dam_power_output = 120 }
+						set_variable = { zebtropa_dam_power_output_mod = zebtropa_dam_power_output }
+						divide_variable = { zebtropa_dam_power_output_mod = 100 }
+						country_event = { id = katzen_AF.652 days = 10 }
+					}
+				}
+				add_to_variable = { KTZ_zebtropa_decision_gui_dirty = 1 }
+			}
+			else_if = {
+				limit = {
+					has_country_flag = KTZ_zebtropa_dam_completed
+					check_variable = { zebtropa_draining_level > 6 }
+				}
+				add_to_variable = { KTZ_zebtropa_decision_gui_dirty = 1 }
+				set_variable = { zebtropa_sea_level_drop = 600 }
+				set_variable = { zebtropa_monthly_sea_level_drop = 0 }
+			}
+		}
+	}
+	on_capitulation_immediate = {
+		effect = {
+			if = { #Remove AF Kaiser
+				limit = {
+					ROOT = {
+						original_tag = KTZ
+						has_completed_focus = KTZ_are_worth_taking_over
+					}
+				}
+				ROOT = {
+					set_party_name = { ideology = neutrality long_name = ABY_neutrality_party_long name = ABY_neutrality_party }
+					set_party_name = { ideology = fascism long_name = ABY_fascism_party_long name = ABY_fascism_party }
+					set_party_name = { ideology = democratic long_name = ABY_democratic_party_long name = ABY_democratic_party }
+					set_party_name = { ideology = communism long_name = ABY_communism_party_long name = ABY_communism_party }
+					if = { limit = { has_idea = KTZ_taking_too_long } remove_ideas = KTZ_taking_too_long }
+					clr_country_flag = KTZ_kattail_conquest_timer_active
+					load_focus_tree = generic_zebra_focus
+					set_cosmetic_tag = ABY
+					KTZ_kaiser_kattail = { retire = yes }
+				}
+			}
+			if = { #auto annex because AI kaiser has problems
+				limit = {
+					FROM = { original_tag = KTZ is_ai = yes }
+					ROOT = { is_in_faction = no }
+				}
+				ROOT = {
+					every_owned_state = { transfer_state_to = KTZ }
+				}
+			}	
+		}
+	}
+	on_state_control_changed = {
+		effect = {
+			if = {
+				limit = {
+					ROOT = {
+						tag = KTZ
+						has_country_flag = KTZ_kattail_conquest_timer_active
+					}
+				}
+				KTZ = {
+					add_political_power = 2
+					add_to_variable = { KTZ_kattail_conquest_timer = KTZ.KTZ_kattail_conquest_timer_days_per_state }
+				}
+			}
+			if = {
+				limit = {
+					FROM = {
+						tag = KTZ
+						has_country_flag = KTZ_kattail_conquest_timer_active
+					}
+				}
+				KTZ = {
+					#KTZ_calculate_world_conquered_perc = yes
+					subtract_from_variable = { KTZ_kattail_conquest_timer = KTZ.KTZ_kattail_conquest_timer_days_per_state }
+				}
+			}
+		}
+	}
+	on_daily_KTZ = {
+		effect = {
+			if = {
+				limit = { has_country_flag = KTZ_kattail_conquest_timer_active }
+				subtract_from_variable = { KTZ_kattail_conquest_timer = 1 }
+				if = {
+					limit = { check_variable = { KTZ_kattail_conquest_timer < 1 } }
+					country_event = katzen_AF.999
+				}
+			}
+		}
+	}
+	on_weekly_KTZ = {
+		effect = {
+			log = "[GetDateText]: ROOT: [Root.GetName] on_weekly_KTZ"
+			if = {
+				limit = { #calculate perc of world kattail has conquered
+					has_game_rule = {
+						rule = aby_april_fool
+						option = ABY_APRIL_FOOL_HARD
+					}
+				}
+				set_variable = { KTZ_conquest_perc = KTZ.num_owned_controlled_states }
+				divide_variable = { KTZ_conquest_perc = 1208 }
+				set_variable = { KTZ_conquest_perc_half = KTZ_conquest_perc }
+				multiply_variable = { KTZ_conquest_perc_half = 0.5 }
+				set_variable = { KTZ_conquest_perc_negative = KTZ_conquest_perc }
+				multiply_variable = { KTZ_conquest_perc_negative = -1 }
+				set_variable = { KTZ_conquest_perc_negative_half = KTZ_conquest_perc_negative }
+				multiply_variable = { KTZ_conquest_perc_negative_half = 0.5 }
+				if = {
+					limit = { #a non kattail country isn't AI, apply buffs to Kattail
+						any_country = {
+							is_ai = no
+							NOT = { tag = KTZ }
+						}
+					}
+					KTZ = {
+						set_variable = { KTZ_wild_ride_scaling_buffs_modifier_good = KTZ.KTZ_conquest_perc }
+						set_variable = { KTZ_wild_ride_scaling_buffs_modifier_bad = KTZ.KTZ_conquest_perc_negative }
+						set_variable = { KTZ_wild_ride_scaling_buffs_modifier_good_half = KTZ.KTZ_conquest_perc_half }
+						set_variable = { KTZ_wild_ride_scaling_buffs_modifier_bad_half = KTZ.KTZ_conquest_perc_negative_half }
+					}
+				}
+				else = {
+					every_country = {
+						limit = {
+							has_war_with = KTZ
+							NOT = { has_dynamic_modifier = { modifier = KTZ_wild_ride_scaling_buffs_modifier } }
+						}
+						add_dynamic_modifier = {
+							modifier = KTZ_wild_ride_scaling_buffs_modifier
+						}
+					}
+					every_country = {
+						limit = {  has_dynamic_modifier = { modifier = KTZ_wild_ride_scaling_buffs_modifier } }
+						set_variable = { KTZ_wild_ride_scaling_buffs_modifier_good = KTZ.KTZ_conquest_perc }
+						set_variable = { KTZ_wild_ride_scaling_buffs_modifier_bad = KTZ.KTZ_conquest_perc_negative }
+						set_variable = { KTZ_wild_ride_scaling_buffs_modifier_good_half = KTZ.KTZ_conquest_perc_half }
+						set_variable = { KTZ_wild_ride_scaling_buffs_modifier_bad_half = KTZ.KTZ_conquest_perc_negative_half }
+					}
+				}
+			}
+			if = {
+				limit = { has_completed_focus = KTZ_are_worth_taking_over }
+				every_other_country = {
+					limit = {
+						NOT = { has_war_with = KTZ }
+						any_core_state = { is_claimed_by = KTZ }
+						NOT = { #Klugetown
+							AND = {
+								tag = KLG
+								ABY = { NOT = { has_completed_focus = KTZ_let_loose_the_cries_of_war } }
+							}
+						}
+						NOT = { #Mandalusia
+							AND = {
+								tag = MGY
+								ABY = { NOT = { has_completed_focus = KTZ_along_the_sea } }
+							}
+						}
+						NOT = { #Warzena
+							AND = {
+								tag = WAR
+								ABY = { NOT = { has_completed_focus = KTZ_the_capable_hippogriffs } }
+							}
+						}
+						NOT = { #Llambet
+							AND = {
+								tag = LMB
+								ABY = { NOT = { has_completed_focus = KTZ_war_plan_zebrica } }
+							}
+						}
+						NOT = { #Avoid interference if say WNG landed in North Griffonia
+							AND = {
+								OR = {
+									is_griffon_continent_country = yes
+									overlord = { is_griffon_continent_country = yes }
+								}
+								ABY = { NOT = { has_completed_focus = KTZ_war_plan_griffonia } }
+							}
+						}
+						NOT = { #New Mareland
+							AND = {
+								OR = {
+									is_equestrian_continent_country = yes
+									overlord = { is_equestrian_continent_country = yes }
+								}
+								ABY = { NOT = { has_completed_focus = KTZ_war_plan_equus } }
+							}
+						}
+					}
+					KTZ = {
+						declare_war_on = {
+							target = PREV
+							type = annex_everything
+						}
+					}
+				}
+			}
+		}
+	}
+}
