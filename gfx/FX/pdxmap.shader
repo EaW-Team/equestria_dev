@@ -233,10 +233,44 @@ PixelShader =
 
 			float2 vOffsets = float2( -0.5f / MAP_SIZE_X, -0.5f / MAP_SIZE_Y );
 
+			// EAW solution for aliasing on the map
+			float flagOcean = 0.0f;
 			float vAllSame;
 			float4 IndexU;
 			float4 IndexV;
 			calculate_map_tex_index( tex2D( TerrainIDMap, Input.uv + vOffsets.xy ), IndexU, IndexV, vAllSame );
+
+			if (IndexV.w > 3.0f || IndexV.x > 3.0f || IndexV.y > 3.0f || IndexV.z > 3.0f) {
+				flagOcean = 1.0f;
+				if (vAllSame > 0) {
+					discard;
+				} else {
+					if (IndexV.w > 3.0f) {
+						IndexV.w = 2.0f;
+						IndexU.w = 1.0f;
+					}
+					if (IndexV.x > 3.0f) {
+						IndexV.x = 2.0f;
+						IndexU.x = 1.0f;
+					}
+					if (IndexV.y > 3.0f) {
+						IndexV.y = 2.0f;
+						IndexU.y = 1.0f;
+					}
+					if (IndexV.z > 3.0f) {
+						IndexV.z = 2.0f;
+						IndexU.z = 1.0f;
+					}
+				}
+			}
+
+			float4 TerrainColor = tex2D( TerrainColorTint, Input.uv2 );
+			float3 colorcheck = float3(0.08, 0.135, 0.270);
+			float delta = 0.050;
+			float3 compara = abs(TerrainColor.rgb - colorcheck.rgb);
+            if (flagOcean > 0 && compara.r < delta && compara.g < delta && compara.b < delta) {
+				discard;
+			}
 
 			float2 vTileRepeat = Input.uv2 * TERRAIN_TILE_FREQ;
 			vTileRepeat.x *= MAP_SIZE_X/MAP_SIZE_Y;
@@ -307,7 +341,6 @@ PixelShader =
 			normal = normalize(normal);
 		#endif
 
-			float4 TerrainColor = tex2D( TerrainColorTint, Input.uv2 );
 
 		#ifndef LOW_END_GFX
 			float CityLightsMask = TerrainColor.a;
@@ -323,7 +356,7 @@ PixelShader =
 			// Gradient Borders
 			float vBloomAlpha = 0.0f;
 			gradient_border_apply( diffuse.rgb, normal, Input.uv2, GradientBorderChannel1, GradientBorderChannel2, 1.0f, vGBCamDistOverride_GBOutlineCutoff.zw, vGBCamDistOverride_GBOutlineCutoff.xy, vBloomAlpha );
-            //return diffuse;
+
 			// Secondary color mask
 			secondary_color_mask( diffuse.rgb, normal, Input.uv2, ProvinceSecondaryColorMap, vBloomAlpha );
 

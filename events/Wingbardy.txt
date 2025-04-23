@@ -1292,28 +1292,83 @@ country_event = { # Abyssinia wins
 
 	option = { #
 		name = wingbardy.601.a
-		set_country_flag = { flag = bypass_on_peaceconference_ended days = 1 value = 1 }
-		white_peace = WNG
-		set_truce = { target = WNG days = 365 }
-		if = {
-			limit = {
-				WNG = {
-					owns_state = 1201
-				}
-			}
-			transfer_state = 1201
+		ai_chance = {
+			base = 1
 		}
-		if = {
+		set_country_flag = { flag = bypass_on_peaceconference_ended days = 1 value = 1 }
+		random_enemy_country = { 
 			limit = {
-				WNG = {
+				OR = {
+					owns_state = 1201
 					owns_state = 1200
 				}
 			}
-			transfer_state = 1200
-		}
-		WNG = {
+			white_peace = ROOT
+			set_truce = { target = ROOT  days = 365 }
+			if = {
+				limit = {
+					owns_state = 1201
+				}
+				ROOT = {
+					transfer_state = 1201
+				}
+			}
+			if = {
+				limit = {
+					owns_state = 1200
+				}
+				ROOT = {
+					transfer_state = 1200
+				}
+			}
+			if = {
+				limit = {
+					owns_state = 784
+					784 = {
+						is_controlled_by = ROOT
+					}
+				}
+				ROOT = {
+					transfer_state = 784
+				}
+			}
 			country_event = wingbardy.602
+			every_other_country = {
+				limit = {
+					has_war_with = ROOT
+					OR = {
+						is_subject_of = PREV
+						is_in_faction_with = PREV
+					}
+				}
+				set_country_flag = { flag = bypass_on_peaceconference_ended days = 1 value = 1 }
+				white_peace = ROOT
+			}
 		}
+		hidden_effect = {
+			if = {
+				limit = {
+					has_country_flag = ABY_conscripts_raised
+				}
+				clr_country_flag = ABY_conscripts_raised
+			}
+			if = {
+				limit = {
+					has_template = "Liberation War Veterans"
+				}
+				delete_unit_template_and_units = {
+					division_template = "Liberation War Veterans"
+					disband = no
+				}
+			}
+		}
+	}
+	option = { # Continue fighting
+		name = wingbardy.601.b
+		ai_chance = {
+			base = 0
+		}
+		add_war_support = -0.15
 	}
 }
 country_event = { # Wingbardy informed of defeat
@@ -1328,7 +1383,24 @@ country_event = { # Wingbardy informed of defeat
 		add_stability = -0.1
 		add_war_support = -0.1
 		add_political_power = -100
-
+		if = {
+			limit = {
+				1201 = {
+					has_resources_rights = {
+						receiver = WNG
+					}
+				}
+			}
+			remove_resource_rights = 1201 
+		}
+		effect_tooltip = {
+			white_peace = FROM
+			set_truce = { target = FROM  days = 365 }
+			FROM = {
+				transfer_state = 1201
+				transfer_state = 1200
+			}
+		}
 	}
 }
 # Wingbardy Moves Into Katkat
@@ -1344,10 +1416,14 @@ country_event = {
 	option = { #Back down
 		name = wingbardy.60.a
 		ai_chance = {
-			factor = 2
+			factor = 1
 			modifier = {
 				is_historical_focus_on = yes
 				factor = 0
+			}
+			modifier = {
+				has_government = democratic
+				factor = 2
 			}
 		}
 		effect_tooltip = {
@@ -1367,8 +1443,28 @@ country_event = {
 
 	option = { #Contest them!
 		name = wingbardy.60.b
+		trigger = {
+			NOT = {
+				has_country_leader_with_trait = ABY_melancholic
+			}
+		}
 		ai_chance = {
-			factor = 10
+			factor = 1
+			modifier = {
+				has_government = fascism
+				factor = 10
+			}
+			modifier = {
+				has_war = yes
+				factor = 0
+			}
+		}
+		#WNG = {
+		#	transfer_state = 1201
+		#}
+		declare_war_on = {
+		 	type = annex_everything
+		 	target = WNG
 		}
 		WNG = {
 			country_event = { id = wingbardy.62 days = 1 }
@@ -1391,10 +1487,13 @@ country_event = {
 	option = { #Excellent!
 		name = wingbardy.61.a
 		transfer_state = 1201
+		1201 = {
+			set_demilitarized_zone = no
+		}
 	}
 }
 
-# Abyssinia Folds
+# Abyssinia Fights back
 country_event = {
 	id = wingbardy.62
 	immediate = {log = "[GetDateText]: [Root.GetName]: event wingbardy.62"}#Auto-logging
@@ -1405,11 +1504,12 @@ country_event = {
 
 	option = { #Send in the Troops!
 		name = wingbardy.62.a
+		#effect_tooltip = {
+		#	WNG = {
+		#		transfer_state = 1201
+		#	}
+		#}
 		add_state_claim = 1201
-		 declare_war_on = {
-		 	type = annex_everything
-		 	target = ABY
-		}
 	}
 }
 
@@ -1425,19 +1525,55 @@ country_event = {
 
 	option = { #Seize it!
 		name = wingbardy.63.a
+		trigger = {
+			NOT = {
+				has_country_leader_with_trait = ABY_melancholic
+			}
+		}
 		ai_chance = {
 			factor = 10
 		}
 		transfer_state = 1200
+		1201 = {
+			set_demilitarized_zone = no
+		}
+		if = {
+			limit = {
+				NOT = {
+					owns_state = 1201
+				}
+			}
+			transfer_state = 1201
+		}
+		if = {
+			limit = {
+				1201 = {
+					has_resources_rights = {
+						receiver = WNG
+					}
+				}
+			}
+			WNG = {
+				remove_resource_rights = 1201 
+			}
+		}
 		WNG = {
 			country_event = { id = wingbardy.64 hours = 1 }
+		}
+		if = {
+			limit = {
+				has_country_flag = ABY_unlock_noble_loyalty
+			}
+			custom_effect_tooltip = ABY_loyalty_notification
+			ABY_duchess_loyal = yes
+			ABY_update_number_of_loyal_disloyal = yes
 		}
 	}
 
 	option = { #Best not to!
 		name = wingbardy.63.b
 		ai_chance = {
-			factor = 0
+			factor = 1
 		}
 	}
 }
@@ -1460,6 +1596,24 @@ country_event = {
 		effect_tooltip = {
 			ABY = {
 				transfer_state = 1200
+			}
+			if = {
+				limit = {
+					1200 = {
+						is_claimed_by = ROOT
+					}
+				}
+				remove_state_claim = 1200
+			}
+			if = {
+				limit = {
+					1201 = {
+						has_resources_rights = {
+							receiver = WNG
+						}
+					}
+				}
+				remove_resource_rights = 1201 
 			}
 		}
 	}
@@ -4622,6 +4776,29 @@ country_event = {
 				}
 				transfer_state_to = ROOT
 			}
+		}
+		1201 = {
+			set_demilitarized_zone = no
+		}
+		if = {
+			limit = {
+				1201 = {
+					has_resources_rights = {
+						receiver = WNG
+					}
+				}
+			}
+			WNG = {
+				remove_resource_rights = 1201 
+			}
+		}
+		if = {
+			limit = {
+				has_country_flag = ABY_unlock_noble_loyalty
+			}
+			custom_effect_tooltip = ABY_loyalty_notification
+			ABY_duchess_loyal = yes
+			ABY_update_number_of_loyal_disloyal = yes
 		}
 		ai_chance = {
 			factor = 100
