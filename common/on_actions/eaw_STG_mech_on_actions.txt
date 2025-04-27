@@ -1,0 +1,228 @@
+on_actions = {
+	on_startup = {
+		effect = {
+			STG = {
+				# set_variable = { stg_max_hunger_lose = 5 }
+				# set_variable = { stg_max_hunger_exp = 6 }
+				# add_dynamic_modifier = {
+				# 	modifier = STG_hunger_modifier
+				# }
+				# country_event = { id = stalliongard.79 days = 1300 }
+				STG_wings_popularity_penalties_check = yes
+				STG_debug_populate_array_needlepos = yes 
+				STG_calculate_party_needle_frame = yes 
+			}
+		}
+	}
+	on_weekly_STG = {
+		effect = {
+			# if = {	
+			# 	limit = {
+			# 		has_country_flag = famine_in_stg_flag
+			# 	}
+			# 	randomize_temp_variable = {
+			# 		var = stg_hunger_lower
+			# 		min = 1
+			# 		max = 5
+			# 		distribution = uniform
+			# 	}
+			# 	subtract_from_variable = { hunger_level_100 = stg_hunger_lower }
+				
+			# 	clamp_variable = {
+			# 		var = hunger_level_100
+			# 		min = 0
+			# 		max = 100 
+			# 	}
+			# 	set_variable = { stg_hunger_influence = hunger_level_100 }
+			# 	subtract_from_variable = { stg_hunger_influence = 100 }
+			# 	divide_variable = { stg_hunger_influence = 100 }
+				
+			# }
+			
+			if = {
+				limit = {
+					OR = {
+						has_dynamic_modifier = {
+							modifier = STG_comecon_leader_vasily
+						}
+						has_dynamic_modifier = {
+							modifier = STG_comecon_leader_karamelka
+						}
+						has_dynamic_modifier = {
+							modifier = STG_comecon_leader_sinister
+						}
+						has_dynamic_modifier = {
+							modifier = STG_comecon_leader_masha
+						}
+					}
+				}
+
+				STG_update_comecon_modifier = yes
+			}
+
+			if = {
+				limit = {
+					has_completed_focus = STG_right_opposition_in_control
+				}
+				set_temp_variable = { tmp_counterref = 0.01 }
+				set_temp_variable = { stg_ref_res_decay_speed_modifier = -1 }
+				subtract_from_temp_variable = { stg_ref_res_decay_speed_modifier = modifier@STG_reforms_resistance_decay_modifier }
+				multiply_temp_variable = { tmp_counterref = stg_ref_res_decay_speed_modifier }
+				STG_expand_counterreforms_progress = yes 
+				
+			}
+			if = {
+                limit = {
+                    has_idea = STG_karamelka_what_for_war 
+                }
+				add_equipment_to_stockpile = {
+					type = support_equipment
+					amount = 100
+				}
+			}
+			if = {
+                limit = {
+                    has_dynamic_modifier = {
+						modifier = STG_karamelka_forge_fires
+					}
+                }
+				add_to_variable = {
+					STG_karamelka_forge_fires_var = 0.01
+				}
+				if = {
+					limit = {
+						check_variable = {
+							STG_karamelka_forge_fires_var = 0
+						}
+					}
+					one_random_arms_factory = yes
+					one_random_arms_factory = yes
+				}
+			}
+		}
+	}
+	
+	on_capitulation_immediate = {
+		
+		effect = {
+			if = {
+				limit = {
+					ROOT = { AND = { original_tag = EQS has_government = democratic } } 
+				}
+				EQS = {
+					set_politics = { ruling_party = communism elections_allowed = no } 
+					annex_country = { target = VAN transfer_troops = no } 
+					annex_country = { target = BAL transfer_troops = no } 
+					annex_country = { target = LSP transfer_troops = no } 
+					annex_country = { target = event_target:EQS_commie transfer_troops = no } 
+				}
+			}
+		}
+		
+	}
+
+	@DW_MINIGAME_STABILITY_UPPER_THRESHOLD = 0.4
+	@DW_MINIGAME_STABILITY_LOWER_THRESHOLD = 0.3
+	on_daily_STG = {
+		effect = {
+			if = {
+				limit = {
+					has_dynamic_modifier = {
+						modifier = STG_left_center_right_buffs
+					}
+				}
+				STG_wings_popularity_penalties_check = yes
+			}
+
+			# DW Reform crisis detection
+			if = {
+				limit = { has_country_flag = STG_DW_minigame_enabled }
+
+				if = { 
+					limit = {
+						NOT = { has_country_flag = STG_DW_reform_decision_in_progress }
+						has_stability < @DW_MINIGAME_STABILITY_LOWER_THRESHOLD
+					}
+
+					set_country_flag = STG_DW_reform_decision_in_progress
+					add_ideas = STG_DW_reform_crisis
+					country_event = stalliongrad_darkwing_reform.0
+				} else_if = {
+					limit = {
+						has_country_flag = STG_DW_reform_decision_in_progress
+						has_stability > @DW_MINIGAME_STABILITY_UPPER_THRESHOLD
+					}
+
+					clr_country_flag = STG_DW_reform_decision_in_progress
+					remove_ideas = STG_DW_reform_crisis
+					country_event = stalliongrad_darkwing_reform.1
+				}
+			}
+
+			### Karamelka's Advisors GUI ###
+	
+			if = {
+				limit = {
+					has_country_flag = KRMLK_active
+				}
+	
+				## Cooldown logic for advisors
+				for_each_loop = {
+					array = KRMLK_advisors_cooldown_tracker
+					value = cool_v
+					index = cool_i
+
+					if = {
+						limit = {
+							is_in_array = { KRMLK_cooldown_array = KRMLK_available_advisors^cool_i }
+						}
+						if = {
+							limit = {
+								check_variable = { var = cool_v value = 0 compare = greater_than_or_equals }
+							}
+							subtract_from_variable = { KRMLK_advisors_cooldown_tracker^cool_i = 1 }
+						}
+						if = {
+							limit = {
+								check_variable = { KRMLK_advisors_cooldown_tracker^cool_i = 0 }
+							}
+							set_temp_variable = { added_index = cool_i }
+							add_ideas = var:KRMLK_available_advisors^cool_i
+							remove_ideas = var:KRMLK_available_advisors^cool_i
+	
+							remove_from_array = { KRMLK_cooldown_array = KRMLK_available_advisors^cool_i }
+						}
+					}
+				}
+	
+				## Ticks for advisors
+				for_each_loop = {
+					array = KRMLK_ticks
+					value = tick_v
+					index = tick_i
+
+					if = {
+						limit = {
+							check_variable = { var = tick_v value = 0 compare = greater_than_or_equals }
+						}
+						subtract_from_variable = { KRMLK_ticks^tick_i = 1 }
+					}
+					if = {
+						limit = {
+							check_variable = { KRMLK_ticks^tick_i = 0 }
+						}
+						set_variable = { KRMLK_ticks^tick_i = -1 }
+						set_temp_variable = { advisor_i = tick_i }
+						meta_effect = {
+							text = {
+								[INPUT]_tick_effect = yes
+							}
+							INPUT = "[?KRMLK_active_advisors^tick_i.GetTokenKey]"
+						}
+					}
+				}
+				add_to_variable = { KRMLK_dirty = 0.01 }
+			}
+		}
+	}
+}

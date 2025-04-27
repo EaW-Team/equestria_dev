@@ -1,0 +1,335 @@
+#==============================#
+### Karamelka's advisors GUI ###
+#==============================#
+# Made by Scars
+
+### Initialization of the GUI itself, compute x and y values, etc.
+STG_advisors_init = {
+	set_country_flag = KRMLK_active
+	## The x and y coordinates of where the advisors are as they rely on a gridbox to render
+	clear_array = KRMLK_advisors_x
+	clear_array = KRMLK_advisors_y
+	add_to_array = { KRMLK_advisors_x = 63 }
+	add_to_array = { KRMLK_advisors_y = 102 }
+	add_to_array = { KRMLK_advisors_x = 116 }
+	add_to_array = { KRMLK_advisors_y = 196 }
+	add_to_array = { KRMLK_advisors_x = 219 }
+	add_to_array = { KRMLK_advisors_y = 208 }
+	add_to_array = { KRMLK_advisors_x = 322 }
+	add_to_array = { KRMLK_advisors_y = 195 }
+	add_to_array = { KRMLK_advisors_x = 375 }
+	add_to_array = { KRMLK_advisors_y = 102 }
+
+	# Number of slots available
+	clear_array = KRMLK_advisors_locked
+	add_to_array = { KRMLK_advisors_locked = 0 }
+	add_to_array = { KRMLK_advisors_locked = 4 }
+
+	## Advisors are tokens of hidden ideas defined in zzz_STG_karamelkas_advisors_ideas.txt
+	clear_array = KRMLK_active_advisors
+	resize_array = { array = KRMLK_active_advisors value = token:STG_KRMLK_no_advisor size = 5 }
+
+	# Cooldowns of each slot, done like this so there can be tooltips and OOPs
+	clear_array = KRMLK_advisor_slot_cooldown
+	resize_array = { array = KRMLK_advisor_slot_cooldown value = 0 size = 5 }
+
+	clear_array = KRMLK_ticks
+	resize_array = { array = KRMLK_ticks size = 5 value = -1 }
+	
+	clear_array = KRMLK_available_advisors
+	clear_array = KRMLK_advisors_cooldown_tracker
+	clear_array = KRMLK_advisors_tick_tracker
+
+	hidden_effect = {
+		set_temp_variable = { temp_advisor = token:STG_KRMLK_Vasily }
+		STG_KRMLK_add_to_available_advisors = yes
+		set_temp_variable = { temp_advisor = token:STG_KRMLK_Morozov }
+		STG_KRMLK_add_to_available_advisors = yes
+		set_temp_variable = { temp_advisor = token:STG_KRMLK_Gold_Muffin }
+		STG_KRMLK_add_to_available_advisors = yes
+		set_temp_variable = { temp_advisor = token:STG_KRMLK_Blyudceva }
+		STG_KRMLK_add_to_available_advisors = yes
+		set_temp_variable = { temp_advisor = token:STG_KRMLK_Apple_Fiddly }
+		STG_KRMLK_add_to_available_advisors = yes
+		set_temp_variable = { temp_advisor = token:STG_KRMLK_Dark_Wing }
+		STG_KRMLK_add_to_available_advisors = yes
+	}
+
+	set_temp_variable = { alert_id = token:eaw_alert_STG_KRMLK_available }
+	set_temp_variable = { alert_color = 1 }
+	add_eaw_alert = yes
+
+	add_to_variable = { KRMLK_dirty = 0.01 }
+}
+
+# Effect to set the tick delay of an idea
+# Arguments: temp_tick_days, temp_id
+KRMLK_set_tick = {
+	set_temp_variable = { temp_value = temp_id }
+	KRMLK_find_index = yes
+
+	set_variable = { KRMLK_ticks^out_index = temp_tick_days }
+}
+
+# Shorthand function to get the index of the value in KRMLK_active_advisors or KRMLK_available_advisors
+# Arguments: temp_value
+# Output: out_index
+
+KRMLK_find_index = {
+	for_each_loop = {
+		array = KRMLK_active_advisors
+		value = find_v
+		index = find_i
+		break = b
+		if = {
+			limit = {
+				check_variable = { find_v = temp_value }
+			}
+			set_temp_variable = { out_index = find_i }
+			set_temp_variable = { b = 1 }
+		}
+	}
+}
+
+KRMLK_find_index_in_available = {
+	for_each_loop = {
+		array = KRMLK_available_advisors
+		value = find_v
+		index = find_i
+		break = b
+		if = {
+			limit = {
+				check_variable = { find_v = temp_value }
+			}
+			set_temp_variable = { out_index = find_i }
+			set_temp_variable = { b = 1 }
+		}
+	}
+}
+
+# Scripted effect for the ideas file
+# Arguments: temp_identity, temp_idea_cooldown, temp_tick_cooldown
+KRMLK_idea_backend_effects = {
+	if = {
+		limit = {
+			is_in_array = { KRMLK_active_advisors = temp_identity }
+		}
+		set_temp_variable = { temp_tick_days = temp_tick_cooldown }
+		set_temp_variable = { temp_id = temp_identity }
+		KRMLK_set_tick = yes
+
+		set_temp_variable = { temp_value = temp_identity }
+		KRMLK_find_index = yes
+
+		set_variable = { KRMLK_advisor_slot_cooldown^out_index = temp_idea_cooldown }
+	}
+	else_if = {
+		limit = {
+			has_variable = added_index
+		}
+		set_variable = { KRMLK_advisors_cooldown_tracker^added_index = temp_idea_cooldown }
+		set_variable = { KRMLK_advisors_tick_tracker^added_index = temp_tick_cooldown }
+	}
+}
+
+#################
+### Front End ###
+#################
+
+## Adds available slots by 1
+STG_KRMLK_add_slot_count = {
+	custom_effect_tooltip = STG_KRMLK_add_slot_count_tt
+	remove_from_array = { array = KRMLK_advisors_locked index = 0 }
+	add_to_variable = { KRMLK_dirty = 0.01 }
+}
+
+## Adds an advisor to the pool of selectable advisors
+# Arguments: temp_advisor
+STG_KRMLK_add_to_available_advisors = {
+	add_to_array = { KRMLK_available_advisors = temp_advisor }
+	add_to_array = { KRMLK_advisors_cooldown_tracker = -1 }
+	add_to_array = { KRMLK_advisors_tick_tracker = -1 }
+
+	set_temp_variable = { added_index = KRMLK_available_advisors^num }
+	subtract_from_temp_variable = { added_index = 1 }
+
+	hidden_effect = {
+		add_ideas = var:temp_advisor
+		remove_ideas = var:temp_advisor
+	}
+
+	custom_effect_tooltip = STG_KRMLK_add_to_available_advisors_tt
+	
+	add_to_variable = { KRMLK_dirty = 0.01 }
+}
+
+## Removes an advisor from the pool of selectable advisors and the active advisor board if active
+# Arguments: temp_advisor
+STG_KRMLK_remove_from_available_advisors = {
+	custom_effect_tooltip = STG_KRMLK_remove_from_available_advisors_tt
+	hidden_effect = {
+		if = {
+			limit = {
+				is_in_array = { KRMLK_available_advisors = temp_advisor }
+			}
+			set_temp_variable = { temp_value = temp_advisor }
+			KRMLK_find_index_in_available = yes
+			remove_from_array = { array = KRMLK_advisors_cooldown_tracker index = out_index }
+			remove_from_array = { array = KRMLK_advisors_tick_tracker index = out_index }
+			remove_from_array = { KRMLK_available_advisors = temp_advisor }
+			if = {
+				limit = {
+					is_in_array = { KRMLK_cooldown_array = temp_advisor }
+				}
+				remove_from_array = { KRMLK_cooldown_array = temp_advisor }
+			}
+		}
+		else_if = {
+			limit = {
+				is_in_array = { KRMLK_active_advisors = temp_advisor }
+			}
+			set_temp_variable = { temp_value = temp_advisor }
+			KRMLK_find_index = yes
+
+			set_variable = { KRMLK_active_advisors^out_index = token:STG_KRMLK_no_advisor }
+			set_variable = { KRMLK_advisor_slot_cooldown^out_index = 0 }
+			set_variable = { KRMLK_ticks^out_index = -1 }
+			remove_ideas = var:temp_advisor
+			
+			set_temp_variable = { alert_id = token:eaw_alert_STG_KRMLK_available }
+			set_temp_variable = { alert_color = 1 }
+			add_eaw_alert_unless_exists = yes
+		}
+	}
+	add_to_variable = { KRMLK_dirty = 0.01 }
+}
+
+## Removes this advisor and puts them on cooldown
+# Arguments: temp_advisor, temp_cooldown
+STG_KRMLK_set_cooldown = {
+	custom_effect_tooltip = STG_KRLMK_set_cooldown_tt
+	set_temp_variable = { advisor_cooldown = 1 }
+
+	hidden_effect = {
+		set_temp_variable = { temp_value = temp_advisor }
+		KRMLK_find_index = yes
+		set_variable = { KRMLK_active_advisors^out_index = token:STG_KRMLK_no_advisor }
+		set_variable = { KRMLK_advisor_slot_cooldown^out_index = 0 }
+		remove_ideas = var:temp_advisor
+
+		add_to_array = { KRMLK_cooldown_array = temp_advisor }
+		STG_KRMLK_add_to_available_advisors = yes
+		set_temp_variable = { temp_value = temp_advisor }
+	}
+	
+	set_temp_variable = { alert_id = token:eaw_alert_STG_KRMLK_available }
+	set_temp_variable = { alert_color = 1 }
+	add_eaw_alert_unless_exists = yes
+
+	if = {
+		limit = {
+			has_variable = KRMLK_confirmation_value
+			check_variable = { KRMLK_confirmation_value = temp_advisor }
+		}
+		clear_array = KRMLK_dummy_confirmation_array
+		clear_variable = KRMLK_confirmation_value
+		clear_variable = KRMLK_confirmation_index
+	}
+
+	add_to_variable = { KRMLK_dirty = 0.01 }
+}
+
+STG_KRMLK_set_cooldown_auto = {
+	set_temp_variable = { temp_advisor = KRMLK_active_advisors^tick_i }
+	set_temp_variable = { temp_cooldown = KRMLK_advisor_slot_cooldown^advisor_i }
+	STG_KRMLK_set_cooldown = yes
+}
+
+STG_KRMLK_remove_alert_check = {
+	for_each_loop = {
+		array = KRMLK_active_advisors
+		break = b
+		if = {
+			limit = {
+				check_variable = { v = token:STG_KRMLK_no_advisor }
+				NOT = {
+					is_in_array = { KRMLK_advisors_locked = i }
+				}
+			}
+			set_temp_variable = { there_is_empty_slot = 1 }
+			set_temp_variable = { b = 1 }
+		}
+	}
+
+	if = {
+		limit = {
+			NOT = {
+				check_variable = { there_is_empty_slot = 1 }
+			}
+		}
+		set_temp_variable = { alert_id = token:eaw_alert_STG_KRMLK_available }
+		remove_eaw_alert = yes
+	}
+}
+
+### Effects for advisor ticks ###
+# Format: <advisor token ID>_effect
+# gets triggered from eaw_on_daily_on_actions.txt when respective tick reaches -1
+# search keyword "Karamelka"
+
+STG_KRMLK_Vasily_tick_effect = {
+	custom_effect_tooltip = STG_KRMLK_Vasily_tick_tt
+	
+	# Resets all cooldowns
+	for_each_loop = {
+		array = KRMLK_available_advisors
+		add_to_array = { advisors_to_reset = v }
+	}
+	clear_array = KRMLK_cooldown_array
+	clear_array = KRMLK_available_advisors
+	clear_array = KRMLK_advisors_cooldown_tracker
+	clear_array = KRMLK_advisors_tick_tracker
+	
+	for_each_loop = {
+		array = advisors_to_reset
+		set_temp_variable = { temp_advisor = v }
+		STG_KRMLK_add_to_available_advisors = yes
+	}
+	clear_array = advisors_to_reset
+
+	STG_KRMLK_set_cooldown_auto = yes
+}
+
+STG_KRMLK_Morozov_tick_effect = {
+	STG_KRMLK_set_cooldown_auto = yes
+}
+
+STG_KRMLK_Gold_Muffin_tick_effect = {
+	add_war_support = 0.05
+	STG_KRMLK_set_cooldown_auto = yes
+}
+
+STG_KRMLK_Blyudceva_tick_effect = {
+	random_core_state = {
+		limit = { is_owned_by = STG }
+		add_extra_state_shared_building_slots = 3
+		add_building_construction = {
+			type = industrial_complex
+			level = 1
+			instant_build = yes
+		}
+	}
+	STG_KRMLK_set_cooldown_auto = yes
+}
+
+STG_KRMLK_Apple_Fiddly_tick_effect = {
+	STG_KRMLK_set_cooldown_auto = yes
+}
+
+STG_KRMLK_Dark_Wing_tick_effect = {
+	STG_KRMLK_set_cooldown_auto = yes
+}
+
+# Ignore
+STG_KRMLK_no_advisor_tick_effect = {
+}

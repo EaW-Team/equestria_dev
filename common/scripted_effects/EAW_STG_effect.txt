@@ -1,24 +1,15 @@
 modify_var_stg_construction_2 = {
 	if = {
 		limit = {
-			OR = { has_food_shortages_STG = yes has_war = yes }
+			has_war = yes
 		}
 		add_to_variable = { var = palace_construction value = 3 }
 	}
 	else_if = {
 		limit = {
 			has_war = no
-			NOT = { has_food_shortages_STG = yes }
 		}
 		add_to_variable = { var = palace_construction value = 4 }
-	}
-	else_if = {
-		limit = {
-			has_war = no
-			NOT = { has_food_shortages_STG = yes }
-			NOT = { has_idea = incomplete_industrialization }
-		}
-		add_to_variable = { var = palace_construction value = 5 }
 	}
 }
 
@@ -76,42 +67,2219 @@ deconstruct_the_palace_stg = {
 		add_resource = { type = steel amount = 3 state = 153 }
 	}
 }
-
-remove_hunger_effect = {
+remove_agrarian_problem_vasya = {
 	if = {
 		limit = {
-			has_idea = severe_famine
+			has_idea = STG_agrarian_problem
 		}
-		swap_ideas = { add_idea = severe_famine2 remove_idea = severe_famine }
+		swap_ideas = {
+			remove_idea = STG_agrarian_problem
+			add_idea = STG_agrarian_problem_vasya_1
+		}
+	}
+}
+remove_agrarian_problem_karamelka = {
+	if = {
+		limit = {
+			has_idea = STG_agrarian_problem
+		}
+		swap_ideas = {
+			remove_idea = STG_agrarian_problem
+			add_idea = STG_agrarian_problem_karamelka_1
+		}
+	}
+}
+remove_workers_army = {
+	if = {
+		limit = {
+			has_idea = STG_workers_army
+		}
+		swap_ideas = {
+			remove_idea = STG_workers_army
+			add_idea = STG_workers_army_1
+		}
+	}
+}
+remove_equestrian_embargo_vasya = {
+	if = {
+		limit = {
+			has_idea = STG_equestrian_embargo
+		}	
+		swap_ideas = {
+			remove_idea = STG_equestrian_embargo
+			add_idea = STG_equestrian_embargo_vasya_1
+		}
+	}
+}
+remove_equestrian_embargo_karamelka = {
+	if = {
+		limit = {
+			has_idea = STG_equestrian_embargo
+		}
+		swap_ideas = {
+			remove_idea = STG_equestrian_embargo
+			add_idea = STG_equestrian_embargo_kar_1
+		}
+	}
+}
+STG_vasya_industry_upd = {
+	if = {
+		limit = {
+			has_idea = STG_reorganization_period
+		}
+		swap_ideas = {
+			remove_idea = STG_reorganization_period
+			add_idea = STG_vasya_industry
+		}
+	}
+}
+STG_sladkova_industry_upd = {
+	if = {
+		limit = {
+			has_idea = STG_reorganization_period
+		}
+		swap_ideas = {
+			remove_idea = STG_reorganization_period
+			add_idea = STG_sladkova_industry
+		}
+	}
+}
+
+STG_check_party_variables = {
+	hidden_effect = {
+		if = { # Left Oppo Clamping
+			limit = {
+				check_variable = {
+					STG_left_opposition_support < 0
+				}
+			}
+			subtract_from_variable = { # subtracting a negative value is adding a positive, which is intended
+				STG_right_opposition_support = STG_left_opposition_support
+			}
+			clamp_variable = {
+				var = STG_left_opposition_support
+				min = 0
+				max = 100
+			}
+		}
+		else_if = {
+			limit = {
+				check_variable = {
+					STG_left_opposition_support > 100
+				}
+			}
+			set_temp_variable = {
+				STG_left_oppo_reduction = STG_left_opposition_support
+			}
+			add_to_temp_variable = { # subtract it by 100, to get how much it's over by
+				STG_left_oppo_reduction = -100
+			}
+			add_to_variable = { # then add it to right oppo - to get back how much was missing
+				STG_right_opposition_support = STG_left_oppo_reduction
+			}
+			clamp_variable = {
+				var = STG_left_opposition_support
+				min = 0
+				max = 100
+			}
+		}
+
+		if = { # Right Oppo Clamping
+			limit = {
+				check_variable = {
+					STG_right_opposition_support < 0
+				}
+			}
+			subtract_from_variable = { # subtracting a negative value is adding a positive, which is intended
+				STG_left_opposition_support = STG_right_opposition_support
+			}
+			clamp_variable = {
+				var = STG_right_opposition_support
+				min = 0
+				max = 100
+			}
+		}
+		else_if = {
+			limit = {
+				check_variable = {
+					STG_right_opposition_support > 100
+				}
+			}
+			set_temp_variable = {
+				STG_right_oppo_reduction = STG_right_opposition_support
+			}
+			add_to_temp_variable = { # subtract it by 100, to get how much it's over by
+				STG_right_oppo_reduction = -100
+			}
+			add_to_variable = { # then add it to right oppo - to get back how much was missing
+				STG_left_opposition_support = STG_right_oppo_reduction
+			}
+			clamp_variable = {
+				var = STG_right_opposition_support
+				min = 0
+				max = 100
+			}
+		}
+
+		if = { # Centre Clamping - if Left is smaller than Right, increase Left, otherwise increase Right
+			limit = {
+				check_variable = {
+					STG_main_party_support < 0
+				}
+				check_variable = {
+					STG_left_opposition_support < STG_right_opposition_support
+				}
+			}
+			subtract_from_variable = { # subtracting a negative value is adding a positive, which is intended
+				STG_left_opposition_support = STG_main_party_support
+			}
+			clamp_variable = {
+				var = STG_main_party_support
+				min = 0
+				max = 100
+			}
+		}
+		else_if = {
+			limit = {
+				check_variable = {
+					STG_main_party_support < 0
+				}
+			}
+			subtract_from_variable = { # subtracting a negative value is adding a positive, which is intended
+				STG_right_opposition_support = STG_main_party_support
+			}
+			clamp_variable = {
+				var = STG_main_party_support
+				min = 0
+				max = 100
+			}
+		}
+		else_if = { # If Left is smaller than Right, increase Left, otherwise increase Right
+			limit = {
+				check_variable = {
+					STG_main_party_support > 100
+				}
+				check_variable = {
+					STG_left_opposition_support < STG_right_opposition_support
+				}
+			}
+			set_temp_variable = {
+				STG_main_party_reduction = STG_main_party_support
+			}
+			add_to_temp_variable = { # subtract it by 100, to get how much it's over by
+				STG_main_party_reduction = -100
+			}
+			add_to_variable = { # then add it to left oppo - to get back how much was missing
+				STG_left_opposition_support = STG_main_party_reduction
+			}
+			clamp_variable = {
+				var = STG_main_party_support
+				min = 0
+				max = 100
+			}
+		}
+		else_if = {
+			limit = {
+				check_variable = {
+					STG_main_party_support > 100
+				}
+			}
+			set_temp_variable = {
+				STG_main_party_reduction = STG_main_party_support
+			}
+			add_to_temp_variable = { # subtract it by 100, to get how much it's over by
+				STG_main_party_reduction = -100
+			}
+			add_to_variable = { # then add it to right oppo - to get back how much was missing
+				STG_right_opposition_support = STG_main_party_reduction
+			}
+			clamp_variable = {
+				var = STG_main_party_support
+				min = 0
+				max = 100
+			}
+		}
+	}
+	STG_calculate_party_needle_frame = yes 
+}
+
+STG_calculate_party_needle_frame = {
+	
+	set_temp_variable = { frame_left = STG_left_opposition_support }
+	set_temp_variable = { frame_center = STG_main_party_support }
+	set_temp_variable = { frame_right = STG_right_opposition_support }
+	
+	divide_temp_variable = { frame_left = 10 } 
+	divide_temp_variable = { frame_center = 10 }
+	divide_temp_variable = { frame_right = 10 }
+	
+	round_temp_variable = frame_left
+	round_temp_variable = frame_center
+	round_temp_variable = frame_right
+	
+	add_to_temp_variable = { frame_left = 1 }
+	add_to_temp_variable = { frame_center = 1 }
+	add_to_temp_variable = { frame_right = 1 }
+	
+	set_variable = { STG_left_op_arrow_frame = frame_left }
+	set_variable = { STG_center_op_arrow_frame = frame_center }
+	set_variable = { STG_right_op_arrow_frame = frame_right }
+	
+}
+#Crutch for party mechanic part 
+#Just delete shit that you don't need. Loc and checks are written in other shit
+#typical_cringe_STG_effect = { #name for your effect and don't forget write in event typacal_cringe_STG_effect = yes
+#	add_to_variable = {
+#		var = STG_main_party_influence
+#		value = x you can use negative number
+#		tooltip = STG_main_party_influence_tt
+#	}
+#	add_to_variable = {
+#		var = STG_main_party_support
+#		value = x you can use negative number
+#		tooltip = STG_main_party_party_support_tt
+#	}
+#	add_to_variable = {
+#		var = STG_opposition_influence
+#		value = x you can use negative number
+#		tooltip = STG_opposition_influence_tt
+#	}
+#	add_to_variable = {
+#		var = STG_opposition_support
+#		value = x you can use negative number
+#		tooltip = STG_opposition_support_tt
+#	}
+#	add_to_variable = {
+#		var = STG_main_party_influence_2
+#		value = x you can use negative number
+#		tooltip = STG_main_party_influence_2_tt
+#	}
+#	add_to_variable = {
+#		var = STG_main_party_influence_2
+#		value = x you can use negative number
+#		tooltip = STG_main_party_support_2_tt
+#	}
+#	add_to_variable = {
+#		var = STG_left_opposition_influence
+#		value = x you can use negative number
+#		tooltip = STG_left_opposition_influence_tt
+#	}
+#	add_to_variable = {
+#		var = STG_left_opposition_support
+#		value = x you can use negative number
+#		tooltip = STG_left_opposition_support_tt
+#	}
+#	add_to_variable = {
+#		var = STG_right_opposition_influence
+#		value = x you can use negative number
+#		tooltip = STG_right_opposition_influence_tt
+#	}
+#	add_to_variable = {
+#		var = STG_right_opposition_support
+#		value = x you can use negative number
+#		tooltip = STG_right_opposition_support_tt
+#	}
+#	STG_check_party_variables = yes
+#}
+#STG_party_recalculating = {
+#	TODO this shit later (don't forget about status quo)
+#	
+vasya_STG_effect = {
+	add_to_variable = {
+		var = STG_main_party_support
+		value = 2
+		tooltip = STG_main_party_party_support_tt
+	}
+	add_to_variable = {
+		var = STG_opposition_support
+		value = -2
+		tooltip = STG_opposition_support_tt
+	}
+	STG_check_party_variables = yes
+}
+opposition_STG_effect = {
+	add_to_variable = {
+		var = STG_main_party_support
+		value = -2
+		tooltip = STG_main_party_party_support_tt
+	}
+	add_to_variable = {
+		var = STG_opposition_support
+		value = 2
+		tooltip = STG_opposition_support_tt
+	}
+	STG_check_party_variables = yes
+}
+vasya_adv_STG_effect = {
+	add_to_variable = {
+		var = STG_main_party_support
+		value = 2
+		tooltip = STG_main_party_party_support_tt
+	}
+	add_to_variable = {
+		var = STG_opposition_support
+		value = -2
+		tooltip = STG_opposition_support_tt
+	}
+	add_to_variable = {
+		var = STG_main_party_influence
+		value = 1 
+		tooltip = STG_main_party_influence_tt
+	}
+	add_to_variable = {
+		var = STG_opposition_influence
+		value = -1 
+		tooltip = STG_opposition_influence_tt
+	}
+	STG_check_party_variables = yes
+}
+opposition_STG_effect_LEFT = {
+	add_to_variable = {
+		var = STG_main_party_support
+		value = -4
+		tooltip = STG_main_party_party_support_tt
+	}
+	add_to_variable = {
+		var = STG_opposition_support
+		value = 4
+		tooltip = STG_opposition_support_tt
+	}
+	STG_check_party_variables = yes
+}
+vasya_STG_effect_2 = {
+	add_to_variable = {
+		var = STG_main_party_support_2
+		value = 2
+		tooltip = STG_main_party_support_2_tt
+	}
+	add_to_variable = {
+		var = STG_left_opposition_support
+		value = -2
+		tooltip = STG_left_opposition_support_tt
+	}
+	add_to_variable = {
+		var = STG_right_opposition_support
+		value = -2
+		tooltip = STG_right_opposition_support_tt
+	}
+	add_to_variable = {
+		var = STG_main_party_influence_2
+		value = 1
+		tooltip = STG_main_party_influence_2_tt
+	}
+	add_to_variable = {
+		var = STG_left_opposition_influence
+		value = -1
+		tooltip = STG_left_opposition_influence_tt
+	}
+	add_to_variable = {
+		var = STG_right_opposition_influence
+		value = -1
+		tooltip = STG_right_opposition_influence_tt
+	}
+	STG_check_party_variables = yes
+}
+left_STG_effect_2 = {
+	add_to_variable = {
+		var = STG_main_party_support_2
+		value = -2
+		tooltip = STG_main_party_support_2_tt
+	}
+	add_to_variable = {
+		var = STG_left_opposition_support
+		value = 2
+		tooltip = STG_left_opposition_support_tt
+	}
+	add_to_variable = {
+		var = STG_right_opposition_support
+		value = -2
+		tooltip = STG_right_opposition_support_tt
+	}
+	add_to_variable = {
+		var = STG_main_party_influence_2
+		value = -1
+		tooltip = STG_main_party_influence_2_tt
+	}
+	add_to_variable = {
+		var = STG_left_opposition_influence
+		value = 1
+		tooltip = STG_left_opposition_influence_tt
+	}
+	add_to_variable = {
+		var = STG_right_opposition_influence
+		value = -1
+		tooltip = STG_right_opposition_influence_tt
+	}
+	STG_check_party_variables = yes
+}
+right_STG_effect_2 = {
+	add_to_variable = {
+		var = STG_main_party_support_2
+		value = -2
+		tooltip = STG_main_party_support_2_tt
+	}
+	add_to_variable = {
+		var = STG_left_opposition_support
+		value = -2
+		tooltip = STG_left_opposition_support_tt
+	}
+	add_to_variable = {
+		var = STG_right_opposition_support
+		value = 2
+		tooltip = STG_right_opposition_support_tt
+	}
+	add_to_variable = {
+		var = STG_main_party_influence_2
+		value = -1
+		tooltip = STG_main_party_influence_2_tt
+	}
+	add_to_variable = {
+		var = STG_left_opposition_influence
+		value = -1
+		tooltip = STG_left_opposition_influence_tt
+	}
+	add_to_variable = {
+		var = STG_right_opposition_influence
+		value = 1
+		tooltip = STG_right_opposition_influence_tt
+	}
+	STG_check_party_variables = yes
+}
+I_WANT_TO_FINISH_THIS_MECHANIC_WHEN_I_AM_ALIVE = {
+	if = {
+		limit = {
+			check_variable = { STG_opposition_support < 30 }
+		}
+		set_country_flag = STG_flag_unity_in_party
+	}
+	else_if = { 
+		limit = {
+			check_variable = { STG_main_party_support < 71 }
+			has_country_flag = STG_EASY_LEFT
+		}
+		set_country_flag = STG_flag_status_quo
+		set_temp_variable = { temp1 = STG_main_party_support }
+		divide_temp_variable = { temp1 = 8 }
+		set_temp_variable = { temp2 = STG_main_party_support_2 }
+		add_to_temp_variable = { temp2 = temp1 }
+		multiply_temp_variable = { temp2 = 4 }
+		set_temp_variable = { temp3 = STG_left_opposition_support }
+		add_to_temp_variable = { temp3 = temp1 }
+		multiply_temp_variable = { temp3 = 3 }
+		set_temp_variable = { temp4 = STG_right_opposition_support }
+		add_to_temp_variable = { temp4 = temp1 }
+		multiply_temp_variable = { temp4 = 1 }
+		set_temp_variable = { temp5 = STG_opposition_support }
+		divide_temp_variable = { temp5 = 2 }
+		add_to_variable = { STG_left_opposition_support = temp5 }
+		add_to_variable = { STG_right_opposition_support = temp5 }
+		add_to_variable = { STG_main_party_support_2 = temp2 }
+		add_to_variable = { STG_left_opposition_support = temp3 }
+		add_to_variable = { STG_right_opposition_support = temp4 }
+		STG_check_party_variables = yes
+	}
+	else_if = { 
+		limit = {
+			check_variable = { STG_main_party_support < 71 }
+		}
+		set_country_flag = STG_flag_status_quo
+		set_temp_variable = { temp1 = STG_main_party_support }
+		divide_temp_variable = { temp1 = 4 }
+		set_temp_variable = { temp2 = STG_main_party_support_2 }
+		add_to_temp_variable = { temp2 = temp1 }
+		multiply_temp_variable = { temp2 = 2 }
+		set_temp_variable = { temp3 = STG_left_opposition_support }
+		add_to_temp_variable = { temp3 = temp1 }
+		multiply_temp_variable = { temp3 = 1 }
+		set_temp_variable = { temp4 = STG_right_opposition_support }
+		add_to_temp_variable = { temp4 = temp1 }
+		multiply_temp_variable = { temp4 = 1 }
+		set_temp_variable = { temp5 = STG_opposition_support }
+		divide_temp_variable = { temp5 = 2 }
+		add_to_variable = { STG_left_opposition_support = temp5 }
+		add_to_variable = { STG_right_opposition_support = temp5 }
+		add_to_variable = { STG_main_party_support_2 = temp2 }
+		add_to_variable = { STG_left_opposition_support = temp3 }
+		add_to_variable = { STG_right_opposition_support = temp4 }
+		STG_check_party_variables = yes
+	}
+}
+opposition_adv_STG_effect = {
+	add_to_variable = {
+		var = STG_main_party_support
+		value = -2
+		tooltip = STG_main_party_party_support_tt
+	}
+	add_to_variable = {
+		var = STG_opposition_support
+		value = 2
+		tooltip = STG_opposition_support_tt
+	}
+	add_to_variable = {
+		var = STG_main_party_influence
+		value = -1 
+		tooltip = STG_main_party_influence_tt
+	}
+	add_to_variable = {
+		var = STG_opposition_influence
+		value = 1 
+		tooltip = STG_opposition_influence_tt
+	}
+	STG_check_party_variables = yes
+}
+karamelkas_reform_increase_5 = {
+	add_to_variable = {
+		var = STG_Karamelkas_reform_progress
+		value = 5
+		tooltip = STG_karamelkas_reform_increase_tt
+	}
+	check_karamelkas_variables = yes
+}
+karamelkas_reform_increase_10 = {
+	add_to_variable = {
+		var = STG_Karamelkas_reform_progress
+		value = 10
+		tooltip = STG_karamelkas_reform_increase_tt
+	}
+	check_karamelkas_variables = yes
+}
+karamelkas_reform_increase_15 = {
+	add_to_variable = {
+		var = STG_Karamelkas_reform_progress
+		value = 15
+		tooltip = STG_karamelkas_reform_increase_tt
+	}
+	check_karamelkas_variables = yes
+}
+karamelkas_reform_decrease_5 = {
+	add_to_variable = {
+		var = STG_Karamelkas_reform_progress
+		value = -5
+		tooltip = STG_karamelkas_reform_decrease_tt
+	}
+	check_karamelkas_variables = yes
+}
+
+karamelkas_reform_decrease_10 = {
+	add_to_variable = {
+		var = STG_Karamelkas_reform_progress
+		value = -10
+		tooltip = STG_karamelkas_reform_decrease_tt
+	}
+	check_karamelkas_variables = yes
+}
+karamelkas_reform_decrease_15 = {
+	add_to_variable = {
+		var = STG_Karamelkas_reform_progress
+		value = -15
+		tooltip = STG_karamelkas_reform_decrease_tt
+		}
+	check_karamelkas_variables = yes
+}
+check_karamelkas_variables = {
+	clamp_variable = {
+		var = STG_Karamelkas_reform_progress
+		min = 0
+		max = 100
+	}
+}
+
+# laborist boost
+STG_karamelka_laborist_increase = {
+	add_to_variable = {
+		STG_karamelka_laborist_influence = 1
+	}
+	custom_effect_tooltip = STG_strengthens_laborist
+}
+
+STG_karamelka_dengist_increase = {
+	add_to_variable = {
+		STG_karamelka_dengist_influence = 1
+	}
+	custom_effect_tooltip = STG_strengthens_dengist
+}
+
+STG_wings_popularity_penalties_check = {
+	
+	##### Left wing influence
+	
+	set_temp_variable = { tmp_factories_change = STG_left_opposition_support }
+	subtract_from_temp_variable = { tmp_factories_change = 50 }
+	multiply_temp_variable = { tmp_factories_change = 0.003 }
+	set_variable = { left_opposition_factory_influence = tmp_factories_change }
+	
+	#### Right wing influence
+	
+	set_temp_variable = { tmp_resource_change = STG_right_opposition_support }
+	subtract_from_temp_variable = { tmp_resource_change = 50 }
+	multiply_temp_variable = { tmp_resource_change = 0.003 }
+	set_variable = { right_opposition_resources_influence = tmp_resource_change }
+	
+	#### Main party influence
+	
+	set_temp_variable = { tmp_politpower_change = STG_main_party_support }
+	subtract_from_temp_variable = { tmp_politpower_change = 50 }
+	multiply_temp_variable = { tmp_politpower_change = 0.003 }
+	set_variable = { centrists_politpower_influence = tmp_politpower_change }
+	
+}
+
+#####
+##### PROPAGANDA SYSTEM #####
+#####
+STG_achievement_propaganda_counter_effect = {
+	if = {
+		limit = {
+			check_variable = { var = propaganda_counter value = 1 compare = less_than }
+		}
+		set_variable = { var = propaganda_counter value = 1 } #setup variable
+	}
+	else = {
+		add_to_variable = {
+			propaganda_counter = 1
+		}
+	}
+}
+
+STG_check_needle_and_value_reforms = {
+	set_temp_variable = { stg_karref_value = STG_reforms_counterpower }
+	multiply_temp_variable = { stg_karref_value = 100 }
+	divide_temp_variable = { stg_karref_value = 5 }
+	subtract_from_temp_variable = { stg_karref_value = 0.5 }
+	round_temp_variable = stg_karref_value
+	if = {
+		limit = {
+			check_variable = { STG_reforms_counterpower > 0 }
+		}
+		add_to_temp_variable = { stg_karref_value = 1 }
+	}
+	set_variable = { STG_reforms_needle_frame = stg_karref_value }
+}
+
+STG_launch_new_counterref_event = {
+	
+	random_list = {
+		1 = {
+			country_event = { id = stalliongrad_reforms.1 days = 50 random_days = 10 }
+		}
+		1 = {
+			country_event = { id = stalliongrad_reforms.2 days = 50 random_days = 10 }
+		}
+		1 = {
+			modifier = {
+				factor = 0
+				check_variable = { STG_reforms_counterpower < 0.3 }
+			}
+			country_event = { id = stalliongrad_reforms.3 days = 50 random_days = 10 }
+		}
+		1 = {
+			modifier = {
+				factor = 0
+				check_variable = { STG_reforms_counterpower < 0.3 }
+			}
+			country_event = { id = stalliongrad_reforms.4 days = 50 random_days = 10 }
+		}
+		1 = {
+			modifier = {
+				factor = 0
+				check_variable = { STG_reforms_counterpower < 0.5 }
+			}
+			country_event = { id = stalliongrad_reforms.5 days = 50 random_days = 10 }
+		
+		}
+		1 = {
+			modifier = {
+				factor = 0
+				check_variable = { STG_reforms_counterpower < 0.5 }
+			}
+			country_event = { id = stalliongrad_reforms.6 days = 50 random_days = 10 }
+		
+		}
+		1 = {
+			modifier = {
+				factor = 0
+				check_variable = { STG_reforms_counterpower < 0.75 }
+			}
+			country_event = { id = stalliongrad_reforms.7 days = 50 random_days = 10 }
+		
+		}
+		1 = {
+			modifier = {
+				factor = 0
+				check_variable = { STG_reforms_counterpower < 0.75 }
+			}
+			country_event = { id = stalliongrad_reforms.8 days = 50 random_days = 10 }
+		
+		}
+	}
+	
+}
+	
+STG_sinnie_madness_check = { # all three events have fire_only_once 
+	if = {
+		limit = {
+			check_variable = {
+				STG_sinnie_madness_points > 8
+			}
+		}
+		hidden_effect = {
+			country_event = {
+				id = stalliongrad_masha.3
+				days = 7
+			}
+		}
 	}
 	else_if = {
 		limit = {
-			has_idea = severe_famine2
+			check_variable = {
+				STG_sinnie_madness_points > 5
+			}
 		}
-		swap_ideas = { add_idea = severe_famine3 remove_idea = severe_famine2 }
+		hidden_effect = {
+			country_event = {
+				id = stalliongrad_masha.2
+				days = 7
+			}
+		}
 	}
 	else_if = {
 		limit = {
-			has_idea = severe_famine3
+			check_variable = {
+				STG_sinnie_madness_points > 2
+			}
 		}
-		swap_ideas = { add_idea = severe_famine4 remove_idea = severe_famine3 }
+		hidden_effect = {
+			country_event = {
+				id = stalliongrad_masha.1
+				days = 7
+			}
+		}
+	}
+}
+
+STG_plan_restart_effect = {
+	if = {
+		limit = {
+			has_country_flag = STG_third_plan_success
+		}
+		# nothing
+	}
+	else_if = {
+		limit = { 
+			has_country_flag = STG_second_plan_success
+		}
+		activate_mission = STG_third_plan
+	}
+	else_if = {
+		limit = { 
+			has_country_flag = STG_first_plan_success
+		}
+		activate_mission = STG_second_plan
+	}
+	else = {
+		activate_mission = STG_first_plan
+	}
+}
+STG_stop_plan_effect = {
+	if = {
+		limit = {
+			has_active_mission = STG_first_plan
+		}
+		remove_mission = STG_first_plan
 	}
 	else_if = {
 		limit = {
-			has_idea = severe_famine4
+			has_active_mission = STG_second_plan
 		}
-		swap_ideas = { add_idea = severe_famine5 remove_idea = severe_famine4 }
+		remove_mission = STG_second_plan
 	}
 	else_if = {
 		limit = {
-			has_idea = severe_famine5
+			has_active_mission = STG_third_plan
 		}
-		swap_ideas = { add_idea = severe_famine6 remove_idea = severe_famine5 }
+		remove_mission = STG_third_plan
+	}
+}
+
+STG_expand_counterreforms_progress = {	
+
+	add_to_variable = {
+		var = STG_reforms_counterpower
+		value = tmp_counterref
+		tooltip = STG_expand_counter_reform_progress
+	}
+	clamp_variable = {
+		var = STG_reforms_counterpower
+		min = 0
+		max = 1
+	}
+	
+	STG_check_needle_and_value_reforms = yes 
+}
+	
+# COMECON effects #
+
+# Function    : STG_add_scope_to_comecon
+# Description : Add the current scope to the COMECON. Exemple : EQS = { STG_add_scope_to_comecon }
+# Inputs      : None
+# Outputs     : None
+STG_add_scope_to_comecon = {
+	# Sanity check - The coutnry is not already in it
+	if = {
+		limit = {
+			NOT = {
+				is_in_array = { STG.STG_COMECON_majors_array = THIS }
+				is_in_array = { STG.STG_COMECON_minors_array = THIS }
+			}
+		}
+		# Update the COMECON SGUI
+		if = {
+			limit = {
+				is_major = yes 
+			}
+
+			add_to_array = {
+				array = STG.STG_COMECON_majors_array
+				value = THIS
+			}
+		} else = {
+			add_to_array = {
+				array = STG.STG_COMECON_minors_array
+				value = THIS
+			}
+		}
+
+		# Update the COMECON modifier
+		STG_update_comecon_modifier = yes
+
+		# Add the dynamic modifier for the nex member of the COMECON
+		STG_add_comecon_dynamic_variable = yes
+	}
+}
+
+
+# Function    : STG_remove_scope_to_comecon
+# Description : Remove the current scope from the COMECON. Exemple : EQS = { STG_remove_scope_to_comecon }
+# Inputs      : None
+# Outputs     : None
+STG_remove_scope_to_comecon = {
+	# Sanity check - The country is in the COMECON
+	if = {
+		limit = {
+			OR = {
+				is_in_array = { STG.STG_COMECON_majors_array = THIS }
+				is_in_array = { STG.STG_COMECON_minors_array = THIS }
+			}
+		}
+		
+		# Update the COMECON SGUI
+		if = {
+			limit = {
+				is_in_array = { STG.STG_COMECON_majors_array = THIS }
+			}
+
+			remove_from_array = {
+				array = STG.STG_COMECON_majors_array
+				value = THIS
+			}
+		} else = {
+			remove_from_array = {
+				array = STG.STG_COMECON_minors_array
+				value = THIS
+			}
+		}
+
+		# Update the COMECON leader dynamic modifier if necessary
+		STG_update_comecon_modifier = yes
+
+		# Remove the COMECON member dynamic modifier for the current scope
+		STG_remove_comecon_dynamic_variable = yes
+	}
+}
+
+# Function    : STG_update_comecon_modifier
+# Description : Update the contribution and the comecon modifier
+# Inputs      : None
+# Outputs     : None
+STG_update_comecon_modifier = {
+	STG_get_total_comecon_strength = yes
+	STG_update_comecon_modifier_values = yes
+	force_update_dynamic_modifier = yes
+}
+
+@COMECON_CONTRIB_MAX_MULT    = 1.2
+@COMECON_CONTRIB_FORM_FACTOR = 0.02
+
+# Function    : STG_scope_comecon_contribution
+# Description : Compute the contribution to the Comecon for the current scope. It is between 1 and @COMECON_CONTRIB_MAX_MULT
+#                A hyperbol : f(x) = (1 + a*b*x) / (1 + b*x) with x the number of civilian factory
+#                                                                 a the maximum contribution
+#                                                                 b the form factor (How fast the function clim to the a value)
+# Inputs      : None
+# Outputs     : o_contribution - The current scope contribution
+STG_scope_comecon_contribution = {
+	set_temp_variable = { temp_den = num_of_civilian_factories }
+	multiply_temp_variable = { temp_den = @COMECON_CONTRIB_FORM_FACTOR }
+	add_to_temp_variable = { temp_den = 1 }
+
+	set_temp_variable = { o_contribution = num_of_civilian_factories }
+	multiply_temp_variable = { o_contribution = @COMECON_CONTRIB_MAX_MULT }
+	multiply_temp_variable = { o_contribution = @COMECON_CONTRIB_FORM_FACTOR }
+	add_to_temp_variable = { o_contribution = 1 }
+
+	divide_temp_variable = { o_contribution = temp_den }
+}
+
+# Function    : STG_get_total_comecon_strength
+# Description : Return the current Comecon strength
+# Inputs      : None
+# Outputs     : STG.STG_comecon_strength - The current Comecon strength
+STG_get_total_comecon_strength = {
+	# Get STG contribution
+	STG = { STG_scope_comecon_contribution = yes }
+	set_variable = { STG.STG_comecon_strength = o_contribution }
+
+	# Get the majors contribution
+	for_each_scope_loop = {
+		array = STG.STG_COMECON_majors_array
+
+		STG_scope_comecon_contribution = yes
+		add_to_variable = { STG.STG_comecon_strength = o_contribution }
+	}
+	# Get the minors contribution
+	for_each_scope_loop = {
+		array = STG.STG_COMECON_minors_array
+
+		STG_scope_comecon_contribution = yes
+		add_to_variable = { STG.STG_comecon_strength = o_contribution }
+	}
+}
+
+@COMECON_CONTRIBUTION_FOR_MAX_BONUS = 10
+
+@COMECON_FACTORY_OUTPUT_MIN   = 0.05
+@COMECON_FACTORY_OUTPUT_BONUS = 0.15 # Max bonus 20% (Min + Bonus)
+
+# Function    : STG_update_comecon_modifier_values
+# Description : Compute the dynamic modifier value depending on the current Comecon value
+# Inputs      : None
+# Outputs     : None
+STG_update_comecon_modifier_values = {
+	# Compute the current contribution factor
+	set_temp_variable = { temp_factor = STG.STG_comecon_strength }
+	clamp_temp_variable = {
+		var = temp_factor
+		min = 1
+		max = @COMECON_CONTRIBUTION_FOR_MAX_BONUS
+	}
+	divide_temp_variable = { temp_factor = @COMECON_CONTRIBUTION_FOR_MAX_BONUS }
+
+	# Factory output
+	set_variable = { STG.STG_comecon_factory_output = @COMECON_FACTORY_OUTPUT_BONUS }
+	multiply_variable = { STG.STG_comecon_factory_output = temp_factor }
+	add_to_variable = { STG.STG_comecon_factory_output = @COMECON_FACTORY_OUTPUT_MIN }
+	
+	set_temp_variable = { STG_cc_manpower_tmp = STG.STG_comecon_factory_output }
+	multiply_temp_variable = { STG_cc_manpower_tmp = 10000 }
+	set_variable = { STG.STG_comecon_manpower_bonus = STG_cc_manpower_tmp }
+}
+
+# Function    : STG_add_comecon_dynamic_variable
+# Description : Adds the correct dynamic variable to the current scope
+# Inputs      : None
+# Outputs     : None
+STG_add_comecon_dynamic_variable = {
+	if = {
+		limit = {
+			STG = {
+				has_country_leader = {
+					character = STG_vasiliy_wheatin
+					ruling_only = yes
+				}
+			}
+		}
+		add_dynamic_modifier = {
+			modifier = STG_comecon_member_vasily
+		}
 	}
 	else_if = {
 		limit = {
-			has_idea = severe_famine6
+			STG = {
+				has_country_leader = {
+					character = STG_caramelka_sladkaya
+					ruling_only = yes
+				}
+			}
 		}
-		remove_ideas = severe_famine6
+		add_dynamic_modifier = {
+			modifier = STG_comecon_member_karamelka
+		}
 	}
+	else_if = {
+		limit = {
+			STG = {
+				has_country_leader = {
+					character = STG_sinister_serov
+					ruling_only = yes
+				}
+			}
+		}
+		add_dynamic_modifier = {
+			modifier = STG_comecon_member_sinister
+		}
+	}
+	else_if = {
+		limit = {
+			STG = {
+				has_country_leader = {
+					character = STG_masha_norushkina
+					ruling_only = yes
+				}
+			}
+		}
+		add_dynamic_modifier = {
+			modifier = STG_comecon_member_masha
+		}
+	}
+}
+
+# Function    : STG_remove_comecon_dynamic_variable
+# Description : Adds the correct dynamic variable to the current scope
+# Inputs      : None
+# Outputs     : None
+STG_remove_comecon_dynamic_variable = {
+	if = {
+		limit = {
+			has_dynamic_modifier = {
+				modifier = STG_comecon_member_vasily
+			}
+		}
+		remove_dynamic_modifier = {
+			modifier = STG_comecon_member_vasily
+		}
+	}
+	else_if = {
+		limit = {
+			has_dynamic_modifier = {
+				modifier = STG_comecon_member_karamelka
+			}
+		}
+		remove_dynamic_modifier = {
+			modifier = STG_comecon_member_karamelka
+		}
+	}
+	else_if = {
+		limit = {
+			has_dynamic_modifier = {
+				modifier = STG_comecon_member_sinister
+			}
+		}
+		remove_dynamic_modifier = {
+			modifier = STG_comecon_member_sinister
+		}
+	}
+	else_if = {
+		limit = {
+			has_dynamic_modifier = {
+				modifier = STG_comecon_member_masha
+			}
+		}
+		remove_dynamic_modifier = {
+			modifier = STG_comecon_member_masha
+		}
+	}
+}
+
+STG_equestrian_revolution_initiate_potential_cores = {
+
+	clear_array = STG_region_pot_cores_array_BAL
+	clear_array = STG_region_pot_cores_array_VAN
+	clear_array = STG_region_pot_cores_array_LSP
+	clear_array = STG_region_pot_cores_array_SOL ### Temporary using a tag
+	
+	### Baltimare states initiation 
+	
+	add_to_array = { STG_region_pot_cores_array_BAL = 13 } ### Capital
+	
+	add_to_array = { STG_region_pot_cores_array_BAL = 28 }
+	add_to_array = { STG_region_pot_cores_array_BAL = 90 }
+	add_to_array = { STG_region_pot_cores_array_BAL = 82 }
+	add_to_array = { STG_region_pot_cores_array_BAL = 27 }
+	add_to_array = { STG_region_pot_cores_array_BAL = 31 } ### Middle states
+	
+	add_to_array = { STG_region_pot_cores_array_BAL = 37 }
+	add_to_array = { STG_region_pot_cores_array_BAL = 84 }
+	add_to_array = { STG_region_pot_cores_array_BAL = 30 }
+	add_to_array = { STG_region_pot_cores_array_BAL = 88 }
+	add_to_array = { STG_region_pot_cores_array_BAL = 348 }
+	add_to_array = { STG_region_pot_cores_array_BAL = 350 }
+	add_to_array = { STG_region_pot_cores_array_BAL = 36 }
+	add_to_array = { STG_region_pot_cores_array_BAL = 16 }
+	add_to_array = { STG_region_pot_cores_array_BAL = 352 }
+	add_to_array = { STG_region_pot_cores_array_BAL = 24 }
+	add_to_array = { STG_region_pot_cores_array_BAL = 25 }
+	add_to_array = { STG_region_pot_cores_array_BAL = 79 }
+	add_to_array = { STG_region_pot_cores_array_BAL = 83 }
+	add_to_array = { STG_region_pot_cores_array_BAL = 17 }
+	
+	### Vanhoover states initiation
+	
+	add_to_array = { STG_region_pot_cores_array_VAN = 14 } ### Capital state
+	
+	add_to_array = { STG_region_pot_cores_array_VAN = 172 }
+	add_to_array = { STG_region_pot_cores_array_VAN = 173 }
+	add_to_array = { STG_region_pot_cores_array_VAN = 73 }
+	add_to_array = { STG_region_pot_cores_array_VAN = 72 }
+	add_to_array = { STG_region_pot_cores_array_VAN = 45 } ### Middle states
+	
+	add_to_array = { STG_region_pot_cores_array_VAN = 59 }
+	add_to_array = { STG_region_pot_cores_array_VAN = 46 }
+	add_to_array = { STG_region_pot_cores_array_VAN = 60 }
+	add_to_array = { STG_region_pot_cores_array_VAN = 61 }
+	add_to_array = { STG_region_pot_cores_array_VAN = 133 }
+	
+	### Las-Pegasus states initiation
+	
+	add_to_array = { STG_region_pot_cores_array_LSP = 66 } ### Capital state
+	
+	add_to_array = { STG_region_pot_cores_array_LSP = 41 }
+	add_to_array = { STG_region_pot_cores_array_LSP = 100 }
+	add_to_array = { STG_region_pot_cores_array_LSP = 118 }
+	add_to_array = { STG_region_pot_cores_array_LSP = 119 }
+	add_to_array = { STG_region_pot_cores_array_LSP = 95 } ### Middle states
+	
+	add_to_array = { STG_region_pot_cores_array_LSP = 66 }
+	add_to_array = { STG_region_pot_cores_array_LSP = 114 }
+	add_to_array = { STG_region_pot_cores_array_LSP = 117 }
+	add_to_array = { STG_region_pot_cores_array_LSP = 87 }
+	add_to_array = { STG_region_pot_cores_array_LSP = 38 }
+	add_to_array = { STG_region_pot_cores_array_LSP = 94 }
+	
+	### Manehattan states initiation
+	
+	add_to_array = { STG_region_pot_cores_array_SOL = 75 } ### Capital state
+	
+	add_to_array = { STG_region_pot_cores_array_SOL = 110 }
+	add_to_array = { STG_region_pot_cores_array_SOL = 187 }
+	add_to_array = { STG_region_pot_cores_array_SOL = 184 }
+	add_to_array = { STG_region_pot_cores_array_SOL = 108 }
+	add_to_array = { STG_region_pot_cores_array_SOL = 185 }
+	
+	add_to_array = { STG_region_pot_cores_array_SOL = 188 } ### Middle states
+	add_to_array = { STG_region_pot_cores_array_SOL = 223 }
+	add_to_array = { STG_region_pot_cores_array_SOL = 226 }
+	add_to_array = { STG_region_pot_cores_array_SOL = 230 }
+	add_to_array = { STG_region_pot_cores_array_SOL = 231 }
+	add_to_array = { STG_region_pot_cores_array_SOL = 228 }
+	add_to_array = { STG_region_pot_cores_array_SOL = 227 }
+	add_to_array = { STG_region_pot_cores_array_SOL = 232 }	
+	add_to_array = { STG_region_pot_cores_array_SOL = 349 }	
+}
+
+STG_initiate_low_support_rebellion = {
+	var:STG.STG_region_pot_cores_array_@THIS^0 = { transfer_state_to = PREV }
+}
+
+STG_initiate_medium_support_rebellion = {
+	for_loop_effect = {
+		value = i
+		end = 6
+		var:STG.STG_region_pot_cores_array_@THIS^i = { transfer_state_to = PREV } 
+	}
+}
+
+STG_initiate_high_support_rebellion = {
+	for_each_scope_loop = {
+		array = STG.STG_region_pot_cores_array_@THIS
+		transfer_state_to = PREV
+	}
+}
+
+
+#THIS is breakaway country tag 
+STG_initiate_proper_level_resistance = {
+	var:STG.STG_region_pot_cores_array_@THIS^0 = {
+		set_temp_variable = { STG_current_resist_str = STG_population_support_level }
+		subtract_from_temp_variable = { STG_current_resist_str = STG_royal_forces_level }
+		clamp_temp_variable = { var = STG_current_resist_str min = 1 }
+		if = {
+			limit = {
+				check_variable = { STG_current_resist_str > 5 }
+			}
+			PREV = { STG_initiate_high_support_rebellion = yes }
+		}
+		else_if = {
+			limit = {
+				check_variable = { STG_current_resist_str > 2 }
+			}
+			PREV = { STG_initiate_medium_support_rebellion = yes }
+		}
+		else_if = {
+			limit = {
+				check_variable = { STG_current_resist_str > 0 }
+			}
+			PREV = { STG_initiate_low_support_rebellion = yes }
+		}
+	}
+	set_politics = {
+		ruling_party = communism
+		elections_allowed = no 
+	}
+	declare_war_on = {
+		target = EQS 
+		type = civil_war
+	}
+}
+
+STG_inititate_manehattan_uprising = {
+	set_temp_variable = { STG_mht_res_power = 75.STG_population_support_level }
+	subtract_from_temp_variable = { STG_mht_res_power = 75.STG_royal_forces_level }
+	clamp_temp_variable = { var = STG_mht_res_power min = 1 } 
+	if = {
+		limit = {
+			check_variable = { STG_mht_res_power > 5 }
+		}
+		for_each_scope_loop = {
+			array = STG.STG_region_pot_cores_array_SOL
+			transfer_state_to = PREV
+		}		
+	}
+	else_if = {
+		limit = {
+			check_variable = { STG_mht_res_power > 2 }
+		}
+		for_loop_effect = {
+			value = i
+			end = 6
+			var:STG.STG_region_pot_cores_array_SOL^i = { transfer_state_to = PREV } 
+		}
+	}
+	else_if = {
+		limit = {
+			check_variable = { STG_mht_res_power > 0 }
+		}
+		var:STG.STG_region_pot_cores_array_SOL^0 = { transfer_state_to = PREV } 
+	}
+	set_politics = {
+		ruling_party = communism
+		elections_allowed = no 
+	}
+	declare_war_on = {
+		target = EQS 
+		type = civil_war
+	}
+	save_event_target_as = EQS_commie
+}
+
+
+### Use STG_ls_change_var 
+
+STG_increase_decrease_labor_strength_effect = {
+	add_to_variable = { THIS.STG_labor_union_power = STG_ls_change_var }
+	custom_effect_tooltip = "[THIS.STGGetLaborChangeStatus]"
+	clamp_variable = { var = THIS.STG_labor_union_power min = 1 max = 7 }
+	STG_calculate_region_revolt_possibility = yes 
+}
+
+### Use STG_ps_change_var 
+
+STG_increase_decrease_popularity_support_effect = {
+	add_to_variable = { THIS.STG_population_support_level = STG_ps_change_var }
+	custom_effect_tooltip = "[THIS.STGGetPopularityChangeStatus]"
+	clamp_variable = { var = THIS.STG_population_support_level min = 1 max = 7 }
+	STG_calculate_region_revolt_possibility = yes 
+}
+
+### Use STG_rr_change_var 
+
+STG_increase_decrease_royal_resistance_effect = {
+	add_to_variable = { THIS.STG_royal_forces_level = STG_rr_change_var }
+	custom_effect_tooltip = "[THIS.STGGetResistanceChangeStatus]"
+	clamp_variable = { var = THIS.STG_royal_forces_level min = 1 max = 7 }
+	STG_calculate_region_revolt_possibility = yes 
+}
+
+
+STG_calculate_region_revolt_possibility = {
+	
+	set_variable = { STG_revolt_chance_state = THIS.STG_labor_union_power }
+	add_to_variable = { STG_revolt_chance_state = THIS.STG_population_support_level }
+	subtract_from_temp_variable = { STG_revolt_chance_state = THIS.STG_royal_forces_level }
+	if = {
+		limit = {
+			check_variable = { STG_labor_union_power < STG_royal_forces_level }
+		}
+		set_variable = { STG_revolt_chance_state = 0 }
+	}
+	clamp_variable = { var = STG_revolt_chance_state min = 0 }
+}
+
+
+STG_eqsrev_check_frame = {
+	
+}
+
+### Temp variable: stg_agp_poster_num
+
+STG_agitprop_populate_next_poster = {
+	
+	if = {
+		limit = {
+			check_variable = { STG_agitprop_posters_array^0 = 2 }
+		}
+		set_variable = { STG_agitprop_posters_array^0 = stg_agp_poster_num }
+		set_country_flag = { flag = STG_flag_here_one value = 1 days = 180 }
+		hidden_effect = { country_event = { id = stalliongrad_propaganda_campaign_events.101 days = 50 } }
+	}
+	else_if = {
+		limit = {
+			check_variable = { STG_agitprop_posters_array^1 = 2 }
+		}
+		set_variable = { STG_agitprop_posters_array^1 = stg_agp_poster_num }
+		set_country_flag = { flag = STG_flag_here_two value = 1 days = 180 }
+		hidden_effect = { country_event = { id = stalliongrad_propaganda_campaign_events.102 days = 50 } }
+	}
+	else_if = {
+		limit = {
+			check_variable = { STG_agitprop_posters_array^2 = 2 }
+		}
+		set_variable = { STG_agitprop_posters_array^2 = stg_agp_poster_num }
+		set_country_flag = { flag = STG_flag_here_three value = 1 days = 180 }
+		hidden_effect = { country_event = { id = stalliongrad_propaganda_campaign_events.103 days = 50 } }
+	}
+}
+
+### Temp variable: stg_agp_poster_num_r
+		
+STG_agitprop_remove_required_poster = {
+	
+	if = {
+		limit = {
+			check_variable = { STG_agitprop_posters_array^0 = stg_agp_poster_num_r }
+		}
+		set_variable = { STG_agitprop_posters_array^0 = 2 }
+		set_variable = { STG_array_aging^0 = 0 }
+	}
+	else_if = {
+		limit = {
+			check_variable = { STG_agitprop_posters_array^1 = stg_agp_poster_num_r }
+		}
+		set_variable = { STG_agitprop_posters_array^1 = 2 }
+		set_variable = { STG_array_aging^1 = 0 }
+	}
+	else_if = {
+		limit = {
+			check_variable = { STG_agitprop_posters_array^2 = stg_agp_poster_num_r }
+		}
+		set_variable = { STG_agitprop_posters_array^2 = 2 }
+		set_variable = { STG_array_aging^2 = 0 }
+	}
+}
+
+STG_unlock_propaganda_campaign_slot_effect = {
+	set_variable = { STG_agitprop_posters_array^STG_num_unlocked_slots_agitprop = 2 }
+	set_variable = { STG_array_aging^STG_num_unlocked_slots_agitprop = 0 }
+}
+
+STG_increase_propaganda_campaign_cost_effect = {
+	multiply_variable = { STG_agitprop_costs_array^stg_agp_cost_increase = STG_propaganda_cost_increase } #Using generic var STG_propaganda_cost so that we only need to change this operation to tweak all propagandas' cost escalation
+}
+
+STG_reset_propaganda_campaign_slot_effect = {
+	hidden_effect = {
+		if = {
+			limit = {
+				check_variable = { STG_poster_left_icon_frame = STG_propaganda_campaign_to_remove }
+			}
+			set_variable = { SOV_poster_left_icon_frame = STG_propaganda_empty_slot_index }
+			#Clear aged posters
+			clear_variable = STG_propaganda_left_poster_to_age
+			clr_country_flag = STG_propaganda_left_slot_is_old_flag
+		}
+		else_if = {
+			limit = {
+				check_variable = { SOV_poster_center_icon_frame = STG_propaganda_campaign_to_remove }
+			}
+			set_variable = { SOV_poster_center_icon_frame = STG_propaganda_empty_slot_index }
+			#Clear aged posters
+			clear_variable = STG_propaganda_center_poster_to_age
+			clr_country_flag = STG_propaganda_center_slot_is_old_flag
+		}
+		else_if = { #This could be turned into an else, but leaving it like this to hopefully make it easier to see
+			limit = {
+				check_variable = { SOV_poster_right_icon_frame = STG_propaganda_campaign_to_remove }
+			}
+			set_variable = { SOV_poster_right_icon_frame = STG_propaganda_empty_slot_index }
+			#Clear aged posters
+			clear_variable = STG_propaganda_right_poster_to_age
+			clr_country_flag = STG_propaganda_right_slot_is_old_flag
+		}
+		set_variable = { STG_propaganda_campaign_to_remove = 0 } # Reset var
+	}
+}
+
+
+STG_sev_effect_0 = {
+	
+	every_country = {
+		limit = {
+			OR = {
+				is_in_array = { STG.STG_comecon_majors_list = THIS }
+				is_in_array = { STG.STG_comecon_minors_list = THIS }
+			}
+		}
+		add_equipment_to_stockpile = {
+			type = infantry_equipment
+			amount = STG.STG_comecon_effect_numbers_array^v
+			producer = THIS 
+		}
+	}
+}
+STG_sev_effect_1 = {
+	
+	every_country = {
+		limit = {
+			OR = {
+				is_in_array = { STG.STG_comecon_majors_list = THIS }
+				is_in_array = { STG.STG_comecon_minors_list = THIS }
+			}
+		}
+		add_equipment_to_stockpile = {
+			type = support_equipment
+			amount = STG.STG_comecon_effect_numbers_array^v
+			producer = THIS 
+		}
+	}
+}
+STG_sev_effect_2 = {
+	
+	every_country = {
+		limit = {
+			OR = {
+				is_in_array = { STG.STG_comecon_majors_list = THIS }
+				is_in_array = { STG.STG_comecon_minors_list = THIS }
+			}
+		}
+		add_equipment_to_stockpile = {
+			type = artillery_equipment
+			amount = STG.STG_comecon_effect_numbers_array^v
+			producer = THIS 
+		}
+	}
+}
+STG_sev_effect_3 = {
+	
+	every_country = {
+		limit = {
+			OR = {
+				is_in_array = { STG.STG_comecon_majors_list = THIS }
+				is_in_array = { STG.STG_comecon_minors_list = THIS }
+			}
+		}
+		add_equipment_to_stockpile = {
+			type = anti_tank_equipment
+			amount = STG.STG_comecon_effect_numbers_array^v
+			producer = THIS 
+		}
+	}
+}
+STG_sev_effect_4 = {
+	
+	every_country = {
+		limit = {
+			OR = {
+				is_in_array = { STG.STG_comecon_majors_list = THIS }
+				is_in_array = { STG.STG_comecon_minors_list = THIS }
+			}
+		}
+		add_equipment_to_stockpile = {
+			type = anti_air_equipment
+			amount = STG.STG_comecon_effect_numbers_array^v
+			producer = THIS 
+		}
+	}
+}
+STG_sev_effect_5 = {
+	
+	every_country = {
+		limit = {
+			OR = {
+				is_in_array = { STG.STG_comecon_majors_list = THIS }
+				is_in_array = { STG.STG_comecon_minors_list = THIS }
+			}
+		}
+		add_equipment_to_stockpile = {
+			type = motorized_equipment
+			amount = STG.STG_comecon_effect_numbers_array^v
+			producer = THIS 
+		}
+	}
+}
+STG_sev_effect_6 = {
+	
+	every_country = {
+		limit = {
+			OR = {
+				is_in_array = { STG.STG_comecon_majors_list = THIS }
+				is_in_array = { STG.STG_comecon_minors_list = THIS }
+			}
+		}
+		add_equipment_to_stockpile = {
+			type = mechanized_equipment
+			amount = STG.STG_comecon_effect_numbers_array^v
+			producer = THIS 
+		}
+	}
+}
+STG_sev_effect_7 = {
+	
+	every_country = {
+		limit = {
+			OR = {
+				is_in_array = { STG.STG_comecon_majors_list = THIS }
+				is_in_array = { STG.STG_comecon_minors_list = THIS }
+			}
+		}
+		add_equipment_to_stockpile = {
+			type = train_equipment
+			amount = STG.STG_comecon_effect_numbers_array^v
+			producer = THIS 
+		}
+	}
+}
+STG_sev_effect_8 = {
+	
+	every_country = {
+		limit = {
+			OR = {
+				is_in_array = { STG.STG_comecon_majors_list = THIS }
+				is_in_array = { STG.STG_comecon_minors_list = THIS }
+			}
+		}
+		add_equipment_to_stockpile = {
+			type = light_tank_chassis
+			amount = STG.STG_comecon_effect_numbers_array^v
+			producer = THIS 
+			### TODO variants
+		}
+	}
+}
+STG_sev_effect_9 = {
+	
+	every_country = {
+		limit = {
+			OR = {
+				is_in_array = { STG.STG_comecon_majors_list = THIS }
+				is_in_array = { STG.STG_comecon_minors_list = THIS }
+			}
+		}
+		add_equipment_to_stockpile = {
+			type = medium_tank_chassis
+			amount = STG.STG_comecon_effect_numbers_array^v
+			producer = THIS 
+			### TODO variants
+		}
+	}
+}
+STG_sev_effect_10 = {
+	
+	every_country = {
+		limit = {
+			OR = {
+				is_in_array = { STG.STG_comecon_majors_list = THIS }
+				is_in_array = { STG.STG_comecon_minors_list = THIS }
+			}
+		}
+		add_equipment_to_stockpile = {
+			type = heavy_tank_chassis
+			amount = STG.STG_comecon_effect_numbers_array^v
+			producer = THIS 
+			### TODO variants
+		}
+	}
+}
+STG_sev_effect_11 = {
+	
+	every_country = {
+		limit = {
+			OR = {
+				is_in_array = { STG.STG_comecon_majors_list = THIS }
+				is_in_array = { STG.STG_comecon_minors_list = THIS }
+			}
+		}
+		add_equipment_to_stockpile = {
+			type = modern_tank_chassis
+			amount = STG.STG_comecon_effect_numbers_array^v
+			producer = THIS 
+			### TODO variants
+		}
+	}
+}
+STG_sev_effect_12 = {
+	
+	every_country = {
+		limit = {
+			OR = {
+				is_in_array = { STG.STG_comecon_majors_list = THIS }
+				is_in_array = { STG.STG_comecon_minors_list = THIS }
+			}
+		}
+		add_equipment_to_stockpile = {
+			type = small_plane_airframe
+			amount = STG.STG_comecon_effect_numbers_array^v
+			producer = THIS 
+			### TODO variants
+		}
+	}
+}
+STG_sev_effect_13 = {
+	
+	every_country = {
+		limit = {
+			OR = {
+				is_in_array = { STG.STG_comecon_majors_list = THIS }
+				is_in_array = { STG.STG_comecon_minors_list = THIS }
+			}
+		}
+		add_equipment_to_stockpile = {
+			type = small_plane_cas_airframe
+			amount = STG.STG_comecon_effect_numbers_array^v
+			producer = THIS 
+			### TODO variants
+		}
+	}
+}
+STG_sev_effect_14 = {
+	
+	every_country = {
+		limit = {
+			OR = {
+				is_in_array = { STG.STG_comecon_majors_list = THIS }
+				is_in_array = { STG.STG_comecon_minors_list = THIS }
+			}
+		}
+		add_equipment_to_stockpile = {
+			type = medium_plane_airframe
+			amount = STG.STG_comecon_effect_numbers_array^v
+			producer = THIS 
+			### TODO variants
+		}
+	}
+}
+STG_sev_effect_15 = {
+	
+	every_country = {
+		limit = {
+			OR = {
+				is_in_array = { STG.STG_comecon_majors_list = THIS }
+				is_in_array = { STG.STG_comecon_minors_list = THIS }
+			}
+		}
+		add_equipment_to_stockpile = {
+			type = large_plane_airframe
+			amount = STG.STG_comecon_effect_numbers_array^v
+			producer = THIS 
+			### TODO variants
+		}
+	}
+}
+STG_sev_effect_16 = {
+	
+	every_country = {
+		limit = {
+			OR = {
+				is_in_array = { STG.STG_comecon_majors_list = THIS }
+				is_in_array = { STG.STG_comecon_minors_list = THIS }
+			}
+		}
+		add_equipment_to_stockpile = {
+			type = transport_plane_equipment
+			amount = STG.STG_comecon_effect_numbers_array^v
+			producer = THIS 
+			### TODO variants
+		}
+	}
+}
+STG_sev_effect_17 = {
+	
+	every_country = {
+		limit = {
+			OR = {
+				is_in_array = { STG.STG_comecon_majors_list = THIS }
+				is_in_array = { STG.STG_comecon_minors_list = THIS }
+			}
+		}
+		set_variable = { sev_industrial_capacity_factory_var = STG.STG_comecon_effect_numbers_array^v }
+		country_event = { id = stalliongrad_comecon.5 days = 180 }
+	}
+}
+STG_sev_effect_18 = {
+	
+	every_country = {
+		limit = {
+			OR = {
+				is_in_array = { STG.STG_comecon_majors_list = THIS }
+				is_in_array = { STG.STG_comecon_minors_list = THIS }
+			}
+		}
+		add_manpower = STG.STG_comecon_effect_numbers_array^v 
+	}
+}
+STG_sev_effect_19 = {
+	
+	every_country = {
+		limit = {
+			OR = {
+				is_in_array = { STG.STG_comecon_majors_list = THIS }
+				is_in_array = { STG.STG_comecon_minors_list = THIS }
+			}
+		}
+		set_variable = { sev_production_speed_buildings_factor_var = STG.STG_comecon_effect_numbers_array^v }
+		country_event = { id = stalliongrad_comecon.5 days = 180 }
+	}
+}
+STG_sev_effect_20 = {
+	
+	every_country = {
+		limit = {
+			OR = {
+				is_in_array = { STG.STG_comecon_majors_list = THIS }
+				is_in_array = { STG.STG_comecon_minors_list = THIS }
+			}
+		}
+		set_variable = { sev_industrial_capacity_dockyard_var = STG.STG_comecon_effect_numbers_array^v }
+		country_event = { id = stalliongrad_comecon.5 days = 180 }
+	}
+}
+STG_sev_effect_21 = {
+	
+	every_country = {
+		limit = {
+			OR = {
+				is_in_array = { STG.STG_comecon_majors_list = THIS }
+				is_in_array = { STG.STG_comecon_minors_list = THIS }
+			}
+		}
+		army_experience = STG.STG_comecon_effect_numbers_array^v
+		navy_experience = STG.STG_comecon_effect_numbers_array^v
+		air_experience = STG.STG_comecon_effect_numbers_array^v
+	}
+}
+STG_sev_effect_22 = {
+	
+	every_country = {
+		limit = {
+			OR = {
+				is_in_array = { STG.STG_comecon_majors_list = THIS }
+				is_in_array = { STG.STG_comecon_minors_list = THIS }
+			}
+		}
+		add_offsite_building = { type = industrial_complex level = STG.STG_comecon_effect_numbers_array^v }
+		country_event = { id = stalliongrad_comecon.2 days = 180 }
+	}
+}
+STG_sev_effect_23 = {
+	
+	every_country = {
+		limit = {
+			OR = {
+				is_in_array = { STG.STG_comecon_majors_list = THIS }
+				is_in_array = { STG.STG_comecon_minors_list = THIS }
+			}
+		}
+		add_offsite_building = { type = arms_factory level = STG.STG_comecon_effect_numbers_array^v }
+		country_event = { id = stalliongrad_comecon.3 days = 180 }
+	}
+}
+STG_sev_effect_24 = {
+	
+	every_country = {
+		limit = {
+			OR = {
+				is_in_array = { STG.STG_comecon_majors_list = THIS }
+				is_in_array = { STG.STG_comecon_minors_list = THIS }
+			}
+			any_owned_state = {
+				is_coastal = yes 
+			}
+		}
+		add_offsite_building = { type = dockyard level = STG.STG_comecon_effect_numbers_array^v }
+		country_event = { id = stalliongrad_comecon.4 days = 180 }
+	}
+}
+STG_sev_effect_25 = {
+	
+	every_country = {
+		limit = {
+			OR = {
+				is_in_array = { STG.STG_comecon_majors_list = THIS }
+				is_in_array = { STG.STG_comecon_minors_list = THIS }
+			}
+			any_owned_state = {
+				is_coastal = yes 
+			}
+		}
+		set_variable = { sev_political_power_gain_var = STG.STG_comecon_effect_numbers_array^v }
+		country_event = { id = stalliongrad_comecon.5 days = 180 }
+	}
+}
+STG_sev_effect_26 = {
+	
+	every_country = {
+		limit = {
+			OR = {
+				is_in_array = { STG.STG_comecon_majors_list = THIS }
+				is_in_array = { STG.STG_comecon_minors_list = THIS }
+			}
+			any_owned_state = {
+				is_coastal = yes 
+			}
+		}
+		set_variable = { sev_research_speed_factor_var = STG.STG_comecon_effect_numbers_array^v }
+		country_event = { id = stalliongrad_comecon.5 days = 180 }
+	}
+}
+
+STG_sev_lock_deicision_effect = { 
+	
+	if = {
+		limit = {
+			is_in_array = { STG.STG_comecon_categories_array = v }
+		}
+		set_country_flag = { flag = STG_active_comecon_decision_inf days = 180 value = 1 }
+		
+	}
+	if = {
+		limit = {
+			is_in_array = { STG.STG_comecon_categories_heavyeq_array = v }
+		}
+		set_country_flag = { flag = STG_active_comecon_decision_heavy days = 180 value = 1 }
+		
+	}
+	if = {
+		limit = {
+			is_in_array = { STG.STG_comecon_categories_misc_array = v }
+		}
+		set_country_flag = { flag = STG_active_comecon_decision_misc days = 180 value = 1 }
+		
+	}	
+}
+
+STG_populate_comecon_decisions = {
+
+	clear_array = STG_comecon_categories_array
+	add_to_array = { STG_comecon_categories_array = 0 }
+	add_to_array = { STG_comecon_categories_array = 1 }
+	add_to_array = { STG_comecon_categories_array = 2 }
+	add_to_array = { STG_comecon_categories_array = 3 }
+	add_to_array = { STG_comecon_categories_array = 4 }
+	add_to_array = { STG_comecon_categories_array = 5 }
+	add_to_array = { STG_comecon_categories_array = 6 }  
+	add_to_array = { STG_comecon_categories_array = 7 }
+	clear_array = STG_comecon_categories_heavyeq_array
+	add_to_array = { STG_comecon_categories_heavyeq_array = 8 }
+	add_to_array = { STG_comecon_categories_heavyeq_array = 9 }
+	add_to_array = { STG_comecon_categories_heavyeq_array = 10 }
+	add_to_array = { STG_comecon_categories_heavyeq_array = 11 }
+	add_to_array = { STG_comecon_categories_heavyeq_array = 12 }
+	add_to_array = { STG_comecon_categories_heavyeq_array = 13 }
+	add_to_array = { STG_comecon_categories_heavyeq_array = 14 }
+	add_to_array = { STG_comecon_categories_heavyeq_array = 15 } 
+	add_to_array = { STG_comecon_categories_heavyeq_array = 16 }
+	clear_array = STG_comecon_categories_misc_array
+	add_to_array = { STG_comecon_categories_misc_array = 17 }
+	add_to_array = { STG_comecon_categories_misc_array = 18 }
+	add_to_array = { STG_comecon_categories_misc_array = 19 }
+	add_to_array = { STG_comecon_categories_misc_array = 20 }
+	add_to_array = { STG_comecon_categories_misc_array = 21 }
+	add_to_array = { STG_comecon_categories_misc_array = 22 }
+	add_to_array = { STG_comecon_categories_misc_array = 23 }
+	add_to_array = { STG_comecon_categories_misc_array = 24 }
+	add_to_array = { STG_comecon_categories_misc_array = 25 }
+	add_to_array = { STG_comecon_categories_misc_array = 26 }
+}
+
+STG_initiate_comecon_lists = {
+	set_variable = { comecon_level = 1 }
+	set_variable = { comecon_xp_to_lvl = 100 }
+	set_variable = { comecon_current_xp = 0 }
+	
+	clear_array = STG_comecon_effect_numbers_array
+	add_to_array = { STG_comecon_effect_numbers_array = 500 } #0
+	add_to_array = { STG_comecon_effect_numbers_array = 50 }
+	add_to_array = { STG_comecon_effect_numbers_array = 50 }
+	add_to_array = { STG_comecon_effect_numbers_array = 50 }
+	add_to_array = { STG_comecon_effect_numbers_array = 50 }
+	add_to_array = { STG_comecon_effect_numbers_array = 25 }
+	add_to_array = { STG_comecon_effect_numbers_array = 25 }
+	add_to_array = { STG_comecon_effect_numbers_array = 1 }
+	
+	add_to_array = { STG_comecon_effect_numbers_array = 25 } #8
+	add_to_array = { STG_comecon_effect_numbers_array = 20 }
+	add_to_array = { STG_comecon_effect_numbers_array = 5 }
+	add_to_array = { STG_comecon_effect_numbers_array = 5 }
+	add_to_array = { STG_comecon_effect_numbers_array = 5 }
+	add_to_array = { STG_comecon_effect_numbers_array = 5 }
+	add_to_array = { STG_comecon_effect_numbers_array = 5 }
+	add_to_array = { STG_comecon_effect_numbers_array = 5 }
+	add_to_array = { STG_comecon_effect_numbers_array = 5 }
+	
+	add_to_array = { STG_comecon_effect_numbers_array = 0.05 } #17
+	add_to_array = { STG_comecon_effect_numbers_array = 500 }
+	add_to_array = { STG_comecon_effect_numbers_array = 0.05 }
+	add_to_array = { STG_comecon_effect_numbers_array = 0.05 }
+	add_to_array = { STG_comecon_effect_numbers_array = 5 }
+	add_to_array = { STG_comecon_effect_numbers_array = 1 }
+	add_to_array = { STG_comecon_effect_numbers_array = 1 }
+	add_to_array = { STG_comecon_effect_numbers_array = 1 }
+	add_to_array = { STG_comecon_effect_numbers_array = 0.1 }
+	add_to_array = { STG_comecon_effect_numbers_array = 0.05 }
+}
+
+STG_add_country_to_COMECON = {
+	if = {
+		limit = {
+			NOT = {
+				is_in_array = { STG.STG_comecon_majors_list = THIS }
+				is_in_array = { STG.STG_comecon_minors_list = THIS }
+			}
+		}
+		set_country_flag = available_comecon_flag
+		add_dynamic_modifier = { modifier = STG_SEV_modifier }	
+		if = {
+			limit = {
+				is_major = yes 
+			}
+			add_to_array = { STG.STG_comecon_majors_list = THIS }
+		}
+		else = {
+			add_to_array = { STG.STG_comecon_minors_list = THIS }
+		}
+	}
+
+	# Update the COMECON modifier
+	STG_update_comecon_modifier = yes
+
+	# Add the dynamic modifier for the nex member of the COMECON
+	STG_add_comecon_dynamic_variable = yes
+}
+
+STG_add_frames = {
+	
+	set_temp_variable = { progress_level_to = comecon_level }
+	add_to_temp_variable = { progress_level_to = 1 }
+	
+	meta_effect = {
+		
+		text = {
+			set_variable = { STG_comecon_progress_l[X]_var = comecon_current_xp }
+			divide_variable = { STG_comecon_progress_l[X]_var = comecon_level }
+		}
+		X = "[?progress_level_to]"
+		
+	}
+	
+}
+
+STG_lvlup_comecon = {
+	add_to_variable = { comecon_level = 1 }
+	add_to_variable = { comecon_xp_to_lvl = 100 }
+	set_variable = { comecon_current_xp = 0 }
+	
+	STG_change_array_values = yes 
+}
+
+STG_change_array_values = {
+	
+	set_variable = { comecon_level_prev = comecon_level }
+	subtract_from_variable = { comecon_level_prev = 1 }
+	
+	for_each_loop = {
+		array = STG.STG_comecon_effect_numbers_array
+		value = v
+		
+		divide_variable = { STG_comecon_effect_numbers_array^i = comecon_level_prev }
+		multiply_variable = { STG_comecon_effect_numbers_array^i = comecon_level }
+	}	
+	
+}
+
+STG_comecon_add_alert = {
+	set_temp_variable = { alert_id = token:eaw_alert_STG_COMECON_available }
+	set_temp_variable = { alert_color = 1 }
+	add_eaw_alert_unless_exists = yes
+}
+
+STG_comecon_remove_alert = {
+	set_temp_variable = { alert_id = token:eaw_alert_STG_COMECON_available }
+	remove_eaw_alert = yes
+}
+
+generals_half_of_the_level = {
+	every_unit_leader = { 
+		if = { 
+			limit = { skill > 7 }
+			gain_xp = 5000
+		}
+		else_if = { 
+			limit = { skill > 6 }
+			gain_xp = 3750
+		}
+		else_if = { 
+			limit = { skill > 5 }
+			gain_xp = 2500
+		}
+		else_if = { 
+			limit = { skill > 4 }
+			gain_xp = 1250
+		}
+		else_if = {
+			limit = { skill > 3 }
+			gain_xp = 750
+		}
+		else_if = {
+			limit = { skill > 2 }
+			gain_xp = 500
+		}
+		else_if = {
+			limit = { skill > 1 }
+			gain_xp = 250
+		}
+		else = {
+			gain_xp = 150
+		}
+	}
+}
+STG_spawn_armies_revolt = {
+	
+	capital_scope = {
+		
+		create_unit = {
+			division = "name = \"Kopytnaya Diviziya\" division_template = \"Kopytnaya Diviziya\" start_experience_factor = 0.5 start_manpower_factor = 1 start_equipment_factor = 0.5"
+			owner = PREV 
+		}
+		create_unit = {
+			division = "name = \"Kopytnaya Diviziya\" division_template = \"Kopytnaya Diviziya\" start_experience_factor = 0.5 start_manpower_factor = 1 start_equipment_factor = 0.5"
+			owner = PREV 
+		}
+		create_unit = {
+			division = "name = \"Kopytnaya Diviziya\" division_template = \"Kopytnaya Diviziya\" start_experience_factor = 0.5 start_manpower_factor = 1 start_equipment_factor = 0.5"
+			owner = PREV 
+		}
+		create_unit = {
+			division = "name = \"Kopytnaya Diviziya\" division_template = \"Kopytnaya Diviziya\" start_experience_factor = 0.5 start_manpower_factor = 1 start_equipment_factor = 0.5"
+			owner = PREV 
+		}
+		create_unit = {
+			division = "name = \"Kopytnaya Diviziya\" division_template = \"Kopytnaya Diviziya\" start_experience_factor = 0.5 start_manpower_factor = 1 start_equipment_factor = 0.5"
+			owner = PREV 
+		}
+		create_unit = {
+			division = "name = \"Kopytnaya Diviziya\" division_template = \"Kopytnaya Diviziya\" start_experience_factor = 0.5 start_manpower_factor = 1 start_equipment_factor = 0.5"
+			owner = PREV 
+		}
+		create_unit = {
+			division = "name = \"Kopytnaya Diviziya\" division_template = \"Kopytnaya Diviziya\" start_experience_factor = 0.5 start_manpower_factor = 1 start_equipment_factor = 0.5"
+			owner = PREV 
+		}
+		create_unit = {
+			division = "name = \"Kopytnaya Diviziya\" division_template = \"Kopytnaya Diviziya\" start_experience_factor = 0.5 start_manpower_factor = 1 start_equipment_factor = 0.5"
+			owner = PREV 
+		}
+		create_unit = {
+			division = "name = \"Kopytnaya Diviziya\" division_template = \"Kopytnaya Diviziya\" start_experience_factor = 0.5 start_manpower_factor = 1 start_equipment_factor = 0.5"
+			owner = PREV 
+		}
+		create_unit = {
+			division = "name = \"Kopytnaya Diviziya\" division_template = \"Kopytnaya Diviziya\" start_experience_factor = 0.5 start_manpower_factor = 1 start_equipment_factor = 0.5"
+			owner = PREV 
+		}
+		create_unit = {
+			division = "name = \"Kopytnaya Diviziya\" division_template = \"Kopytnaya Diviziya\" start_experience_factor = 0.5 start_manpower_factor = 1 start_equipment_factor = 0.5"
+			owner = PREV 
+		}
+		create_unit = {
+			division = "name = \"Kopytnaya Diviziya\" division_template = \"Kopytnaya Diviziya\" start_experience_factor = 0.5 start_manpower_factor = 1 start_equipment_factor = 0.5"
+			owner = PREV 
+		}
+		
+		create_unit = {
+			division = "name = \"Tankovaya Brigada\" division_template = \"Tankovaya Brigada\" start_experience_factor = 0.5 start_manpower_factor = 1 start_equipment_factor = 0.5"
+			owner = PREV 
+		}
+		create_unit = {
+			division = "name = \"Tankovaya Brigada\" division_template = \"Tankovaya Brigada\" start_experience_factor = 0.5 start_manpower_factor = 1 start_equipment_factor = 0.5"
+			owner = PREV 
+		}
+		
+	}
+	
+}	
+
+STG_debug_populate_array_needlepos = {
+	
+	clear_array = STG_left_arrow_x 
+	clear_array = STG_all_arrow_y 
+	add_to_array = { STG_left_arrow_x = 0 }
+	add_to_array = { STG_left_arrow_x = 55 }
+	add_to_array = { STG_left_arrow_x = 58 }
+	add_to_array = { STG_left_arrow_x = 62 }
+	add_to_array = { STG_left_arrow_x = 65 }
+	add_to_array = { STG_left_arrow_x = 69 }
+	add_to_array = { STG_left_arrow_x = 73 }
+	add_to_array = { STG_left_arrow_x = 77 }
+	add_to_array = { STG_left_arrow_x = 81 }
+	add_to_array = { STG_left_arrow_x = 84 }
+	add_to_array = { STG_left_arrow_x = 88 }
+	add_to_array = { STG_left_arrow_x = 91 }
+	add_to_array = { STG_all_arrow_y = 0 }
+	add_to_array = { STG_all_arrow_y = 71 }
+	add_to_array = { STG_all_arrow_y = 71 }
+	add_to_array = { STG_all_arrow_y = 70 }
+	add_to_array = { STG_all_arrow_y = 70 }
+	add_to_array = { STG_all_arrow_y = 69 }
+	add_to_array = { STG_all_arrow_y = 69 }
+	add_to_array = { STG_all_arrow_y = 69 }
+	add_to_array = { STG_all_arrow_y = 70 }
+	add_to_array = { STG_all_arrow_y = 70 }
+	add_to_array = { STG_all_arrow_y = 71 }
+	add_to_array = { STG_all_arrow_y = 71 }
+
+	
+	clear_array = STG_center_arrow_x 
+	add_to_array = { STG_center_arrow_x = 0 }
+	add_to_array = { STG_center_arrow_x = 216 }
+	add_to_array = { STG_center_arrow_x = 219 }
+	add_to_array = { STG_center_arrow_x = 223 }
+	add_to_array = { STG_center_arrow_x = 226 }
+	add_to_array = { STG_center_arrow_x = 230 }
+	add_to_array = { STG_center_arrow_x = 234 }
+	add_to_array = { STG_center_arrow_x = 238 }
+	add_to_array = { STG_center_arrow_x = 242 }
+	add_to_array = { STG_center_arrow_x = 245 }
+	add_to_array = { STG_center_arrow_x = 248 }
+	add_to_array = { STG_center_arrow_x = 251 }
+	
+	
+	clear_array = STG_right_arrow_x 
+	add_to_array = { STG_right_arrow_x = 0 }
+	add_to_array = { STG_right_arrow_x = 377 }
+	add_to_array = { STG_right_arrow_x = 380 }
+	add_to_array = { STG_right_arrow_x = 384 }
+	add_to_array = { STG_right_arrow_x = 387 }
+	add_to_array = { STG_right_arrow_x = 391 }
+	add_to_array = { STG_right_arrow_x = 395 }
+	add_to_array = { STG_right_arrow_x = 399 }
+	add_to_array = { STG_right_arrow_x = 403 }
+	add_to_array = { STG_right_arrow_x = 406 }
+	add_to_array = { STG_right_arrow_x = 410 }
+	add_to_array = { STG_right_arrow_x = 412 }
+}
+
+STG_debug_adjust_arrow_pos_left = {
+	
+	set_variable = { STG_left_op_arrow_frame = args^0 }
+	set_variable = { STG_center_op_arrow_frame = args^1 }
+	set_variable = { STG_right_op_arrow_frame = args^2 }
+
 }
