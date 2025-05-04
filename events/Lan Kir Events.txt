@@ -385,6 +385,131 @@ country_event = {
 	option = {
 	}
 }
+country_event = {
+	id = lan_kir_test.100 ## Fire in order. Prepare for lag.
+	is_triggered_only = yes
+	hidden = yes
+
+	option = {
+		every_subject_country = {
+			limit = { KXN_IS_SATELLITE_TRIGGER = yes }
+			every_core_state = {
+				limit = { is_capital = no }
+				remove_core_of = PREV
+			}
+			every_owned_state = {
+				limit = {
+					is_capital = no
+					is_controlled_by = PREV
+				}
+				transfer_state_to = KXN
+			}
+		}
+	}
+}
+country_event = {
+	id = lan_kir_test.101
+	is_triggered_only = yes
+	hidden = yes
+
+	option = {
+		every_subject_country = {
+			limit = { KXN_IS_SATELLITE_TRIGGER = no }
+			set_variable = { manpower_k_before_KXN_explosion = manpower_k }
+			KXN = {
+				annex_country = {
+					target = PREV
+					transfer_troops = no
+				}
+			}
+		}
+		every_subject_country = {
+			KXN = { end_puppet = PREV }
+			leave_faction = yes
+		}
+	}
+}
+country_event = {
+	id = lan_kir_test.102 ## This needs to be fired several times to get all of them.
+	is_triggered_only = yes
+	hidden = yes
+
+	option = {
+		for_each_scope_loop = {
+			array = KXN.occupied_countries
+			KXN = { release = PREV }
+			add_manpower = manpower_k_before_KXN_explosion
+			drop_cosmetic_tag = yes
+			add_to_array = {
+				array = KXN.KXN_Former_Conquered_Territories
+				value = THIS
+			}
+		}
+	}
+}
+country_event = {
+	id = lan_kir_test.103
+	is_triggered_only = yes
+	hidden = yes
+
+	option = {
+		for_each_scope_loop = {
+			array = KXN.KXN_Former_Conquered_Territories
+			if = {
+				limit = {
+					OR = {
+						has_government = communism
+						has_government = democratic
+						has_government = neutrality
+					}
+				}
+				start_civil_war = {
+					ideology = fascism
+					size = 0.5
+				}
+			}
+			else_if = {
+				limit = { has_government = fascism }
+				start_civil_war = {
+					ideology = neutrality
+					size = 0.5
+				}
+			}
+		}
+	}
+}
+country_event = {
+	id = lan_kir_test.104
+	is_triggered_only = yes
+	hidden = yes
+
+	option = {
+		for_each_scope_loop = {
+			array = KXN.KXN_Former_Conquered_Territories
+			for_each_scope_loop = {
+				array = neighbors
+				if = {
+					limit = {
+						NOT = {
+							has_war_with = PREV
+							is_ally_with = PREV
+							is_guaranteed_by = PREV
+							PREV = { has_wargoal_against = PREV }
+						}
+					}
+					PREV = { create_wargoal = { type = annex_everything target = PREV } }
+					hidden_effect = {
+						add_ai_strategy = {
+							type = prepare_for_war
+							id = PREV
+							value = 1000
+						}
+					}
+				}
+			}
+		}
+	}
+}
 
 ####################################
 ########## Utility Events ##########
