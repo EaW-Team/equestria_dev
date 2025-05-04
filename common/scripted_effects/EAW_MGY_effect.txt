@@ -1,0 +1,493 @@
+###########################
+# POLITICAL UNREST EFFECTS
+###########################
+
+# Effect to get the total number of states susceptible to unrest modifiers
+MGY_Unrest_GetNumberOfPossibleStates_effect = {
+	set_variable = {
+		MGY_OwnedStates_var = 0
+	}
+	hidden_effect = {
+		every_owned_state = {
+			limit = {
+				impassable = no
+			}
+			owner = {
+				add_to_variable = {
+					MGY_OwnedStates_var = 1
+				}
+			}
+		}
+	}
+}
+
+#Effect to sum up the total unrest in the country
+MGY_Unrest_GetTotalSum_effect = {
+	set_variable = {
+		MGY_TotalUnrest_var = 0
+	}
+	hidden_effect = {
+		every_owned_state = {
+			limit = {
+				impassable = no
+				has_dynamic_modifier = {
+					modifier = MGY_MODIFIER_LocalUnrest_Dynmod
+				}
+			}
+			owner = {
+				add_to_variable = {
+					MGY_TotalUnrest_var = PREV.MGY_StateUnrest_var
+				}
+			}
+		}
+	}
+}
+
+#Effect to get the mean total unrest in the country
+MGY_Unrest_GetAverage_effect = {
+	MGY_Unrest_GetNumberOfPossibleStates_effect = yes
+	MGY_Unrest_GetTotalSum_effect = yes
+	set_variable = {
+		MGY_Unrest_Average_var = 0
+	}
+	add_to_variable = {
+		MGY_Unrest_Average_var = MGY_TotalUnrest_var
+	}
+	divide_variable = {
+		MGY_Unrest_Average_var = MGY_OwnedStates_var
+	}
+	set_variable = {
+		MGY_Unrest_DoubleAverage_var = MGY_Unrest_Average_var
+	}
+	multiply_variable = {
+		MGY_Unrest_DoubleAverage_var = 2
+	}
+	log = "[GetDateText] SOTN: Recalculating average unrest out of [?ROOT.MGY_OwnedStates_var] possible states: [?ROOT.MGY_Unrest_Average_var]"
+}
+
+#Effect to get the impact of the average unrest on the country, as variables
+MGY_Unrest_GetImpact_effect = {
+	set_variable = {
+		MGY_UnrestImpact_var = MGY_Unrest_Average_var
+	}
+	divide_variable = {
+		MGY_UnrestImpact_var = -100
+	}
+	set_variable = {
+		MGY_UnrestImpactSmall_var = MGY_UnrestImpact_var
+	}
+	divide_variable = {
+		MGY_UnrestImpactSmall_var = 2
+	}
+}
+
+#Effect to handle state control change for unrest modifiers
+MGY_Unrest_onStateOwnershipChange_effect = {
+	if = {
+		limit = {
+			ROOT = {
+				has_idea = MGY_PoliticalUnrest
+			}
+			FROM.FROM = {
+				NOT = {
+					has_dynamic_modifier = {
+						modifier = MGY_MODIFIER_LocalUnrest_Dynmod
+					}
+				}
+				NOT = {
+					has_state_flag = MGY_Unrest_PacifiedState_flag
+				}
+				check_variable = {
+					MGY_StateUnrest_var = 1
+					compare = greater_than_or_equals
+				}
+				impassable = no
+			}
+		}
+		FROM.FROM = {	
+			log = "[GetDateText] SOTN: Re-enabling unrest modifier in [THIS.GetName], with an unrest value of [?THIS.MGY_StateUnrest_var]."
+			add_dynamic_modifier = {
+				modifier = MGY_MODIFIER_LocalUnrest_Dynmod
+			}
+		}
+	}
+	else_if = {
+		limit = {
+			NOT = {
+				has_idea = MGY_PoliticalUnrest
+			}
+			FROM.FROM = {
+				has_dynamic_modifier = {
+					modifier = MGY_MODIFIER_LocalUnrest_Dynmod
+				}
+				impassable = no
+			}
+		}
+		FROM.FROM = {
+			log = "[GetDateText] SOTN: Removing unrest modifier from [THIS.GetName]"
+			remove_dynamic_modifier = {
+				modifier = MGY_MODIFIER_LocalUnrest_Dynmod
+			}
+		}
+	}
+}
+
+
+# Effects to add unrest to a state (increments are 2, 5 and 10)
+# Needs to be nested within a state for it to work
+
+MGY_IncreaseStateUnrest_small_effect = { #Small unrest increase (2)
+	log = "[GetDateText] SOTN: Increasing unrest in [THIS.GetName] by 10."
+	custom_effect_tooltip = MGY_IncreaseStateUnrest_small_tt
+	hidden_effect = {
+		if = {
+			limit = {
+				NOT = {
+					has_dynamic_modifier = {
+						modifier = MGY_MODIFIER_LocalUnrest_Dynmod
+					}
+				}
+			}
+			add_dynamic_modifier = {
+				modifier = MGY_MODIFIER_LocalUnrest_Dynmod
+			}
+		}
+	}
+	add_to_variable = {
+		MGY_StateUnrest_var = 2
+	}
+	clamp_variable = {
+		var = MGY_StateUnrest_var
+		min = 1 #Unrest should always remain present
+		max = 100 #Unrest should never get over 100
+	}
+	add_to_variable = { #Add to new variable, extract it, multiply it by -200 to get the proper value for the modifier
+		MGY_StateUnrestImpact_var = MGY_StateUnrest_var
+	}
+	divide_variable = {
+		MGY_StateUnrestImpact_var = -100
+	}
+	owner = { #Recalculate the Average unrest and dependent variable for the country itself
+		MGY_Unrest_GetAverage_effect = yes
+		MGY_Unrest_GetImpact_effect = yes
+	}
+}
+
+
+MGY_IncreaseStateUnrest_medium_effect = { #Medium unrest increase (5)
+	log = "[GetDateText] SOTN: Increasing unrest in [THIS.GetName] by 10."
+	custom_effect_tooltip = MGY_IncreaseStateUnrest_medium_tt
+	hidden_effect = {
+		if = {
+			limit = {
+				NOT = {
+					has_dynamic_modifier = {
+						modifier = MGY_MODIFIER_LocalUnrest_Dynmod
+					}
+				}
+			}
+			add_dynamic_modifier = {
+				modifier = MGY_MODIFIER_LocalUnrest_Dynmod
+			}
+		}
+	}
+	add_to_variable = {
+		MGY_StateUnrest_var = 5
+	}
+	clamp_variable = {
+		var = MGY_StateUnrest_var
+		min = 1 #Unrest should always remain present
+		max = 100 #Unrest should never get over 100
+	}
+	add_to_variable = { #Add to new variable, extract it, multiply it by -200 to get the proper value for the modifier
+		MGY_StateUnrestImpact_var = MGY_StateUnrest_var
+	}
+	divide_variable = {
+		MGY_StateUnrestImpact_var = -100
+	}
+	owner = { #Recalculate the Average unrest and dependent variable for the country itself
+		MGY_Unrest_GetAverage_effect = yes
+		MGY_Unrest_GetImpact_effect = yes
+	}
+}
+
+MGY_IncreaseStateUnrest_large_effect = { #Large unrest increase (10)
+	log = "[GetDateText] SOTN: Increasing unrest in [THIS.GetName] by 10."
+	custom_effect_tooltip = MGY_IncreaseStateUnrest_large_tt
+	hidden_effect = {
+		if = {
+			limit = {
+				NOT = {
+					has_dynamic_modifier = {
+						modifier = MGY_MODIFIER_LocalUnrest_Dynmod
+					}
+				}
+			}
+			add_dynamic_modifier = {
+				modifier = MGY_MODIFIER_LocalUnrest_Dynmod
+			}
+		}
+	}
+	add_to_variable = {
+		MGY_StateUnrest_var = 10
+	}
+	clamp_variable = {
+		var = MGY_StateUnrest_var
+		min = 1 #Unrest should always remain present
+		max = 100 #Unrest should never get over 100
+	}
+	add_to_variable = { #Add to new variable, extract it, multiply it by -200 to get the proper value for the modifier
+		MGY_StateUnrestImpact_var = MGY_StateUnrest_var
+	}
+	divide_variable = {
+		MGY_StateUnrestImpact_var = -100
+	}
+	owner = { #Recalculate the Average unrest and dependent variable for the country itself
+		MGY_Unrest_GetAverage_effect = yes
+		MGY_Unrest_GetImpact_effect = yes
+	}
+}
+
+# Effects to lower unrest to a state (increments are -2, -5 and -10)
+# Needs to be nested within a state for it to work
+
+MGY_DecreaseStateUnrest_small_effect = { #Small unrest decrease (-2)
+	log = "[GetDateText] SOTN: Decreasing unrest in [THIS.GetName] by -2."
+	custom_effect_tooltip = MGY_DecreaseStateUnrest_small_tt
+	hidden_effect = {
+		if = {
+			limit = {
+				NOT = {
+					has_dynamic_modifier = {
+						modifier = MGY_MODIFIER_LocalUnrest_Dynmod
+					}
+				}
+			}
+			add_dynamic_modifier = {
+				modifier = MGY_MODIFIER_LocalUnrest_Dynmod
+			}
+		}
+	}
+	add_to_variable = {
+		MGY_StateUnrest_var = -2
+	}
+	clamp_variable = {
+		var = MGY_StateUnrest_var
+		min = 1 #Unrest should always remain present
+		max = 100 #Unrest should never get over 100
+	}
+	add_to_variable = { #Add to new variable, extract it, multiply it by -200 to get the proper value for the modifier
+		MGY_StateUnrestImpact_var = MGY_StateUnrest_var
+	}
+	divide_variable = {
+		MGY_StateUnrestImpact_var = -100
+	}
+	owner = { #Recalculate the Average unrest and dependent variable for the country itself
+		MGY_Unrest_GetAverage_effect = yes
+		MGY_Unrest_GetImpact_effect = yes
+	}
+}
+
+
+MGY_DecreaseStateUnrest_medium_effect = { #Medium unrest decrease (-5)
+	log = "[GetDateText] SOTN: Decreasing unrest in [THIS.GetName] by -5."
+	custom_effect_tooltip = MGY_DecreaseStateUnrest_medium_tt
+	hidden_effect = {
+		if = {
+			limit = {
+				NOT = {
+					has_dynamic_modifier = {
+						modifier = MGY_MODIFIER_LocalUnrest_Dynmod
+					}
+				}
+			}
+			add_dynamic_modifier = {
+				modifier = MGY_MODIFIER_LocalUnrest_Dynmod
+			}
+		}
+	}
+	add_to_variable = {
+		MGY_StateUnrest_var = -5
+	}
+	clamp_variable = {
+		var = MGY_StateUnrest_var
+		min = 1 #Unrest should always remain present
+		max = 100 #Unrest should never get over 100
+	}
+	add_to_variable = { #Add to new variable, extract it, multiply it by -200 to get the proper value for the modifier
+		MGY_StateUnrestImpact_var = MGY_StateUnrest_var
+	}
+	divide_variable = {
+		MGY_StateUnrestImpact_var = -100
+	}
+	owner = { #Recalculate the Average unrest and dependent variable for the country itself
+		MGY_Unrest_GetAverage_effect = yes
+		MGY_Unrest_GetImpact_effect = yes
+	}
+}
+
+MGY_DecreaseStateUnrest_large_effect = { #Large unrest decrease (-10)
+	log = "[GetDateText] SOTN: Decreasing unrest in [THIS.GetName] by -10."
+	custom_effect_tooltip = MGY_DecreaseStateUnrest_large_tt
+	hidden_effect = {
+		if = {
+			limit = {
+				NOT = {
+					has_dynamic_modifier = {
+						modifier = MGY_MODIFIER_LocalUnrest_Dynmod
+					}
+				}
+			}
+			add_dynamic_modifier = {
+				modifier = MGY_MODIFIER_LocalUnrest_Dynmod
+			}
+		}
+	}
+	add_to_variable = {
+		MGY_StateUnrest_var = -10
+	}
+	clamp_variable = {
+		var = MGY_StateUnrest_var
+		min = 1 #Unrest should always remain present
+		max = 100 #Unrest should never get over 100
+	}
+	add_to_variable = { #Add to new variable, extract it, multiply it by -200 to get the proper value for the modifier
+		MGY_StateUnrestImpact_var = MGY_StateUnrest_var
+	}
+	divide_variable = {
+		MGY_StateUnrestImpact_var = -100
+	}
+	owner = { #Recalculate the Average unrest and dependent variable for the country itself
+		MGY_Unrest_GetAverage_effect = yes
+		MGY_Unrest_GetImpact_effect = yes
+	}
+}
+
+#Master effect to enable and setup the urnest mechanics - not all states start with unrest
+MGY_UnrestStartup_effect = {
+	740 = {
+		log = "[GetDateText] SOTN: Enabling unrest in setup for the state of [THIS.GetName]."
+		add_dynamic_modifier = {
+			modifier = MGY_MODIFIER_LocalUnrest_Dynmod
+		}
+		set_variable = {
+			MGY_StateUnrest_var = 20
+		}
+		set_variable = {
+			MGY_StateUnrestImpact_var = -0.2
+		}
+	}
+	738 = {
+		log = "[GetDateText] SOTN: Enabling unrest in setup for the state of [THIS.GetName]."
+		add_dynamic_modifier = {
+			modifier = MGY_MODIFIER_LocalUnrest_Dynmod
+		}
+		set_variable = {
+			MGY_StateUnrest_var = 20
+		}
+		set_variable = {
+			MGY_StateUnrestImpact_var = -0.2
+		}
+	}
+	735 = {
+		log = "[GetDateText] SOTN: Enabling unrest in setup for the state of [THIS.GetName]."
+		add_dynamic_modifier = {
+			modifier = MGY_MODIFIER_LocalUnrest_Dynmod
+		}
+		set_variable = {
+			MGY_StateUnrest_var = 15
+		}
+		set_variable = {
+			MGY_StateUnrestImpact_var = -0.15
+		}
+	}
+	758 = {
+		log = "[GetDateText] SOTN: Enabling unrest in setup for the state of [THIS.GetName]."
+		add_dynamic_modifier = {
+			modifier = MGY_MODIFIER_LocalUnrest_Dynmod
+		}
+		set_variable = {
+			MGY_StateUnrest_var = 10
+		}
+		set_variable = {
+			MGY_StateUnrestImpact_var = -0.1
+		}
+	}
+	759 = {
+		log = "[GetDateText] SOTN: Enabling unrest in setup for the state of [THIS.GetName]."
+		add_dynamic_modifier = {
+			modifier = MGY_MODIFIER_LocalUnrest_Dynmod
+		}
+		set_variable = {
+			MGY_StateUnrest_var = 10
+		}
+		set_variable = {
+			MGY_StateUnrestImpact_var = -0.1
+		}
+	}
+	760 = {
+		log = "[GetDateText] SOTN: Enabling unrest in setup for the state of [THIS.GetName]."
+		add_dynamic_modifier = {
+			modifier = MGY_MODIFIER_LocalUnrest_Dynmod
+		}
+		set_variable = {
+			MGY_StateUnrest_var = 15
+		}
+		set_variable = {
+			MGY_StateUnrestImpact_var = -0.15
+		}
+	}
+	761 = {
+		log = "[GetDateText] SOTN: Enabling unrest in setup for the state of [THIS.GetName]."
+		add_dynamic_modifier = {
+			modifier = MGY_MODIFIER_LocalUnrest_Dynmod
+		}
+		set_variable = {
+			MGY_StateUnrest_var = 15
+		}
+		set_variable = {
+			MGY_StateUnrestImpact_var = -0.15
+		}
+	}
+	763 = {
+		log = "[GetDateText] SOTN: Enabling unrest in setup for the state of [THIS.GetName]."
+		add_dynamic_modifier = {
+			modifier = MGY_MODIFIER_LocalUnrest_Dynmod
+		}
+		set_variable = {
+			MGY_StateUnrest_var = 10
+		}
+		set_variable = {
+			MGY_StateUnrestImpact_var = -0.1
+		}
+	}
+	766 = {
+		log = "[GetDateText] SOTN: Enabling unrest in setup for the state of [THIS.GetName]."
+		add_dynamic_modifier = {
+			modifier = MGY_MODIFIER_LocalUnrest_Dynmod
+		}
+		set_variable = {
+			MGY_StateUnrest_var = 10
+		}
+		set_variable = {
+			MGY_StateUnrestImpact_var = -0.1
+		}
+	}
+	770 = {
+		log = "[GetDateText] SOTN: Enabling unrest in setup for the state of [THIS.GetName]."
+		add_dynamic_modifier = {
+			modifier = MGY_MODIFIER_LocalUnrest_Dynmod
+		}
+		set_variable = {
+			MGY_StateUnrest_var = 15
+		}
+		set_variable = {
+			MGY_StateUnrestImpact_var = -0.15
+		}
+	}
+	MGY_Unrest_GetAverage_effect = yes
+	MGY_Unrest_GetImpact_effect = yes
+	add_dynamic_modifier = {
+		modifier = MGY_PoliticalUnrest_Dynmod
+	}
+}
