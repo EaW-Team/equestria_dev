@@ -77,7 +77,7 @@ NZW_is_unaligned = {
 
 # Is the northern party ready for war
 NZW_is_northern_party_ready = {
-	custom_effect_tooltip = {
+	custom_trigger_tooltip = {
 		tooltip = NZW_is_northern_party_ready_tooltip
 		NOT = { CTH = { NZW_is_unaligned = yes } }
 		NOT = { CVA = { NZW_is_unaligned = yes } }
@@ -88,7 +88,7 @@ NZW_is_northern_party_ready = {
 
 # Is the southern party ready for war
 NZW_is_southern_party_ready = {
-	custom_effect_tooltip = {
+	custom_trigger_tooltip = {
 		tooltip = NZW_is_southern_party_ready_tooltip
 		NOT = { BAT = { NZW_is_unaligned = yes } }
 		NOT = { TBK = { NZW_is_unaligned = yes } }
@@ -287,8 +287,25 @@ NZW_is_hostile_to_NZ3 = {
 
 # NZ1 section
 NZW_is_hostile_to_NZ1_CTH = {
-	# todo
-	always = no
+	if = {
+		limit = {
+			has_country_flag = CTH_colthage_zarcaid
+		}
+		ZUM = {
+			NZW_is_aligned_with_NZ1 = yes
+		}
+	}
+	else_if = {
+		limit = {
+			has_country_flag = CTH_colthage_militarists
+		}
+		ZUM = {
+			NZW_is_aligned_with_NZ1 = yes
+		}
+	}
+	else = {
+		always = no
+	}
 }
 
 NZW_is_hostile_to_NZ1_CVA = {
@@ -326,8 +343,85 @@ NZW_is_hostile_to_NZ1_BAT = {
 }
 
 NZW_is_hostile_to_NZ1_TBK = {
-	# todo
-	always = yes
+	OR = {
+		if = { # Alesia
+			limit = {
+				has_country_flag = TBK_alesia_bat_victory
+			}
+			OR = {
+				ZUM = {
+					NZW_is_aligned_with_NZ1 = yes
+				}
+				WAR = {
+					NZW_is_aligned_with_NZ1 = yes
+				}
+			}
+		}
+		else_if = { # Baragzen
+			limit = {
+				has_country_flag = TBK_baragzen_bat_victory
+			}
+			WAR = {
+				NZW_is_aligned_with_NZ1 = yes
+			}
+		}
+		else_if = { # Wallnut - path not yet decided (hostility so NZW doesn't get bypassed)
+			limit = {
+				has_country_flag = TBK_wallnut_bat_victory
+				NOT = { has_country_flag = TBK_wallnut_harmonist_flag }
+				NOT = { has_country_flag = TBK_wallnut_communist_flag }
+			}
+			always = yes
+		}
+		else_if = { # Wallnut - Harmony
+			limit = {
+				has_country_flag = TBK_wallnut_bat_victory
+				has_country_flag = TBK_wallnut_harmonist_flag
+			}
+			OR = {
+				AND = {
+					WAR = { NOT = { has_government = democratic } }
+					WAR = {
+						NZW_is_aligned_with_NZ1 = yes
+					}
+				}
+				AND = {
+					ZUM = { # There can be diplomacy, but it would end with ZUM being handed over, at which point ZUM is no longer "aligned" with NZ1
+						NZW_is_aligned_with_NZ1 = yes
+					}
+				}
+			}
+		}
+		else_if = { # Wallnut - Communism
+			limit = {
+				has_country_flag = TBK_wallnut_bat_victory
+				has_country_flag = TBK_wallnut_communist_flag
+			}
+			OR = {
+				WAR = {
+					NZW_is_aligned_with_NZ1 = yes
+				}
+				ZUM = { # There can be diplomacy, but it would end with ZUM being handed over, at which point ZUM is no longer "aligned" with NZ1
+					NZW_is_aligned_with_NZ1 = yes
+				}
+			}
+		}
+		else_if = { # Vasile
+			limit = {
+				OR = {
+					has_focus_tree = tobuck_vasile
+					has_focus_tree = tobuck_vasile_legimate_continued
+					has_focus_tree = tobuck_vasile_criminal_continued
+				}
+			}
+			WAR = {
+				NZW_is_aligned_with_NZ1 = yes
+			}
+		}
+		else = { # Path not yet picked or something like that, stop NZW bypassing
+			always = yes
+		}
+	}
 }
 
 NZW_is_hostile_to_NZ1_ZAR = {
@@ -336,14 +430,45 @@ NZW_is_hostile_to_NZ1_ZAR = {
 }
 
 NZW_is_hostile_to_NZ1_WAR = {
-	# todo
-	always = no
+	# Current Warzena content
+	ZUM = {
+		NZW_is_aligned_with_NZ1 = yes
+	}
+	NZ1 = { # Different government
+		NOT = { has_government = WAR }
+	}
 }
 
 # NZ2 section
 NZW_is_hostile_to_NZ2_HIP = {
-	# todo
-	always = no
+	OR = {
+		AND = { # Queen Novo
+			has_government = democratic
+			NZ2 = {
+				OR = {
+					has_government = fascism
+					has_government = neutrality
+				}
+			}
+		}
+		AND = { # Posada
+			has_government = communism
+			NZ2 = {
+				OR = {
+					has_government = fascism
+					has_government = neutrality
+					has_government = democratic
+				}
+			}
+		}
+		AND = { # Aris First
+			OR = {
+				has_government = fascism
+				has_government = neutrality
+			}
+			always = yes # No enemy government condition
+		}
+	}
 }
 
 NZW_is_hostile_to_NZ2_BAT = {
@@ -367,9 +492,52 @@ NZW_is_hostile_to_NZ2_WAR = {
 }
 
 # NZ3 section
+NZW_is_hostile_to_NZ3_HIP = {
+	OR = {
+		AND = { # Queen Novo
+			has_government = democratic
+			NZ3 = {
+				OR = {
+					has_government = fascism
+					has_government = neutrality
+				}
+			}
+		}
+		AND = { # Posada
+			has_government = communism
+			NZ3 = {
+				OR = {
+					has_government = fascism
+					has_government = neutrality
+					has_government = democratic
+				}
+			}
+		}
+		AND = { # Aris First
+			OR = {
+				has_government = fascism
+				has_government = neutrality
+			}
+			always = yes # No enemy government condition
+		}
+	}
+}
+
 NZW_is_hostile_to_NZ3_CTH = {
-	# todo
-	always = no
+	AND = {
+		has_country_flag = CTH_colthage_harmonite
+		NZ3 = {
+			has_government = fascism
+		}
+		OR = { # Ally with the island party (hippogriffia)
+			NZ1 = {
+				NZW_is_hostile_to_NZ3 = yes
+			}
+			NZ3 = {
+				NZW_is_hostile_to_NZ1 = yes
+			}
+		}
+	}
 }
 
 NZW_is_hostile_to_NZ3_CVA = {
@@ -378,7 +546,7 @@ NZW_is_hostile_to_NZ3_CVA = {
 }
 
 NZW_is_hostile_to_NZ3_HIE = {
-	# Star Father hate is towards avians
+	# Star Father's hate is towards avians
 	always = no
 }
 
