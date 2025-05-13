@@ -542,6 +542,63 @@ country_event = {
 		add_command_power = -100
 		add_stability = -0.15
 		country_event = { id = lan_kir.500 days = 3 }
+		hidden_effect = {
+			for_each_scope_loop = {
+				array = KXN.subjects
+				for_each_scope_loop = {
+					array = owned_controlled_states	
+					if = {
+						limit = {
+							is_one_state_island = no
+							is_island_state = no
+							is_capital = no
+						}
+						add_to_array = { KXN.KXN_States_In_Our_Empire = THIS }
+					}
+				}
+			}
+			for_each_scope_loop = {
+				array = owned_controlled_states	
+				if = {
+					limit = {
+						is_one_state_island = no
+						is_island_state = no
+						is_capital = no
+					}
+					add_to_array = { KXN.KXN_States_In_Our_Empire = THIS }
+				}
+			}
+			for_each_scope_loop = {
+				array = KXN.KXN_States_In_Our_Empire
+				if = {
+					limit = {
+						NOT = {
+							any_neighbor_state = {
+								is_capital = yes
+								owner = { KXN_IS_SATELLITE_TRIGGER = yes }
+							}
+						}
+					}
+					set_variable = { state_distance_from_solstice = distance_to@1085 }
+					add_to_array = { KXN.KXN_farthest_state_from_solstice = state_distance_from_solstice }
+				}
+			}
+			find_highest_in_array = {
+				array = KXN.KXN_farthest_state_from_solstice
+				index = KXN_farthest_state_from_solstice_index
+			}
+			random_state = {
+				limit = {
+					is_in_array = { KXN.KXN_States_In_Our_Empire = THIS }
+					check_variable = {
+						var = distance_to@1085
+						value = KXN.KXN_farthest_state_from_solstice^KXN_farthest_state_from_solstice_index
+						compare = greater_than_or_equals
+					}
+				}
+				save_global_event_target_as = KXN_farthest_state_from_solstice_target
+			}
+		}
 	}
 }
 
@@ -551,6 +608,10 @@ country_event = {
 	immediate = {
 		hidden_effect = {
 			set_global_flag = KXN_The_Shattering_Happened
+			every_enemy_country = {
+				set_country_flag = { flag = bypass_on_peaceconference_ended days = 1 value = 1 }
+				white_peace = ROOT
+			}
 			country_event = { id = lan_kir_utility.500 }
 			country_event = { id = lan_kir_utility.501 }
 			country_event = { id = lan_kir_utility.502 }
@@ -846,6 +907,23 @@ country_event = {
 					}
 				}
 			}
+			for_each_scope_loop = {
+				array = KXN.KXN_States_In_Our_Empire
+				if = {
+					limit = {
+						KXN = {
+							divisions_in_state = {
+								size > 0
+								state = PREV
+							}
+						}
+					}
+					teleport_armies = {
+						limit = { tag = KXN }
+						to_state = event_target:KXN_farthest_state_from_solstice_target
+					}
+				}
+			}
 			every_controlled_state = {
 				damage_units = {
 					state = THIS
@@ -855,10 +933,6 @@ country_event = {
 					army = yes
 					navy = yes
 				}
-			}
-			every_enemy_country = {
-				set_country_flag = { flag = bypass_on_peaceconference_ended days = 1 value = 1 }
-				white_peace = ROOT
 			}
 			if = {
 				limit = { KXM = { exists = yes } }
@@ -1657,6 +1731,7 @@ country_event = {
 				type = annex_everything
 			}
 			hidden_effect = {
+				set_country_flag = KXN_Revenge_War_Neighbors_Flag
 				division_template = {
 					name = "Assault Brigade"
 					regiments = {
@@ -3235,38 +3310,6 @@ country_event = {
 	hidden = yes
 
 	option = {
-		for_each_scope_loop = {
-			array = KXN.owned_controlled_states
-			if = {
-				limit = {
-					NOT = {
-						is_one_state_island = yes
-						is_island_state = yes
-						any_neighbor_state = {
-							owner = {
-								KXN_IS_SATELLITE_TRIGGER = yes
-							}
-						}
-					}
-				}
-				set_variable = { state_distance_from_solstice = distance_to@1085 }
-				add_to_array = { KXN.KXN_farthest_state_from_solstice = state_distance_from_solstice }
-			}
-		}
-		find_highest_in_array = {
-			array = KXN.KXN_farthest_state_from_solstice
-			index = KXN_farthest_state_from_solstice_index
-		}
-		random_owned_controlled_state = {
-			limit = {
-				check_variable = {
-					var = distance_to@1085
-					value = KXN.KXN_farthest_state_from_solstice^KXN_farthest_state_from_solstice_index
-					compare = greater_than_or_equals
-				}
-			}
-			save_global_event_target_as = KXN_farthest_state_from_solstice_target
-		}
 		random_controlled_state = {
 			limit = {
 				OR = {
