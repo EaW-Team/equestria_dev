@@ -492,7 +492,9 @@ MGY_UnrestStartup_effect = {
 	}
 }
 
-# Effect to deal with the legacy of the storm
+###########################
+# Legacy of the Storm Change
+###########################
 
 MGY_Misc_DealWithStorm_effect = {
 	if = {
@@ -581,4 +583,136 @@ MGY_Misc_DealWithStorm_effect = {
 		custom_effect_tooltip = MGY_StormEffectsRecovery_tt
 		add_political_power = 50
 	}
+}
+
+###########################
+# Granry of Zebrica Effects
+###########################
+
+MGY_Granary_Setup_effect = {
+	set_variable = {
+		MGY_Grain_var = 50
+	}
+	set_variable = {
+		MGY_Grain_increase_var = 5
+	}
+	set_variable = {
+		MGY_Grain_increase_factor_var = 0
+	}
+	set_variable = {
+		MGY_Grain_max_var = 100
+	}
+	set_variable = {
+		MGY_Grain_max_factor_var = 0
+	}
+	set_variable = {
+		MGY_GranaryPolCost_var = 40
+	}
+	set_variable = {
+		MGY_GranaryPonypowerSmallCost_var = 2000
+	}
+	set_variable = {
+		MGY_GranaryPonypowerLargeCost_var = 4000
+	}
+	add_dynamic_modifier = {
+		modifier = MGY_GranaryFoodImport_Dynmod
+	}
+}
+
+MGY_Granary_CalcPercentageGain_effect = { #Updates the real food gain: MGY_Grain_increase_var x ( MGY_Grain_increase_factor_var + 1) = MGY_WeeklyFoodChange_var
+	# Fetch the Variables
+	set_temp_variable = {
+		# base food gain
+		MGY_Grain_increase_tempvar = MGY_Grain_increase_var
+	}
+	set_temp_variable = {
+		# percentage
+		MGY_Grain_increase_factor_tempvar = MGY_Grain_increase_factor_var
+	}
+	add_to_temp_variable = {
+		#Adjust for multiplier
+		MGY_Grain_increase_factor_tempvar = 1
+	}
+	multiply_temp_variable = {
+		# Multiply
+		var = MGY_Grain_increase_tempvar
+		value = MGY_Grain_increase_factor_tempvar
+	}
+	set_variable = {
+		#Store result in non-temporary variable: THIS is the display variable
+		MGY_WeeklyFoodChange_var = MGY_Grain_increase_tempvar
+	}
+}
+
+MGY_Granary_CalcPercentageMax_effect = { #Updates the real maximum food: MGY_Grain_max_var x ( MGY_Grain_max_factor_var + 1)
+	# Fetch the Variables
+	set_temp_variable = {
+		# base food gain
+		MGY_Grain_max_tempvar = MGY_Grain_max_var
+	}
+	set_temp_variable = {
+		# percentage
+		MGY_Grain_max_factor_tempvar = MGY_Grain_max_factor_var
+	}
+	add_to_temp_variable = {
+		#Adjust for multiplier
+		MGY_Grain_max_factor_tempvar = 1
+	}
+	multiply_temp_variable = {
+		# Multiply
+		var = MGY_Grain_max_tempvar
+		value = MGY_Grain_max_factor_tempvar
+	}
+	set_variable = {
+		#Store result in non-temporary variable: THIS is the display variable
+		MGY_Grain_capacity_var = MGY_Grain_max_tempvar
+	}
+}
+
+MGY_Granary_CheckFoodNeeds_effects = { #Effect only triggers if food is in the negative. The higher the negative, the higher the consumer goods factor penalty
+	if = {
+		limit = {
+			check_variable = {
+				var = MGY_Grain_var
+				value = 0
+				compare = less_than
+			}
+		}
+		set_temp_variable = {
+			MGY_FoodNeedImpact_tempvar = MGY_Grain_var
+		}
+		multiply_temp_variable = {
+			MGY_FoodNeedImpact_tempvar = -0.002
+		}
+		clamp_variable = {
+			var = MGY_FoodNeedImpact_tempvar
+			min = 0
+			max = 100
+		}
+		set_variable = {
+			MGY_FoodNeedImpact_var = MGY_FoodNeedImpact_tempvar
+		}
+	}
+	else = {
+		set_variable = {
+			MGY_FoodNeedImpact_var = 0
+		}
+	}
+}
+
+MGY_Granary_OnWeek_effect = { #As on the tin, updates the food gain per week
+	# Update the variables
+	MGY_Granary_CalcPercentageGain_effect = yes
+	MGY_Granary_CalcPercentageMax_effect = yes
+	# Add to Variable
+	add_to_variable = {
+		MGY_Grain_var = MGY_WeeklyFoodChange_var
+	}
+	# Clamp the Variable to its maximum
+	clamp_variable = {
+		var = MGY_Grain_var
+		max = MGY_Grain_capacity_var
+	}
+	# Check the food need effects
+	MGY_Granary_CheckFoodNeeds_effects = yes
 }
