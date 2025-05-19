@@ -1,7 +1,7 @@
 MGY_GranaryOfZebrica_cat = {
-	# Granary of Zebrica, debug
+	# Granary of Zebrica - debug
 	MGY_debugGranarySetup_dec = {
-		priority = 1000
+		priority = 2000
 		visible = {
 			is_debug = yes
 		}
@@ -14,6 +14,31 @@ MGY_GranaryOfZebrica_cat = {
 				MGY_Granary_CalcPercentageMax_effect = yes
 				MGY_Granary_CheckFoodNeeds_effects = yes
 			}
+		}
+	}
+	MGY_debugFocusUnlock_dec = {
+		priority = 1000
+		complete_effect = {
+			complete_national_focus = MGY_AgrarianCensus
+		}
+		visible = {
+			is_debug = yes
+			NOT = {
+				has_completed_focus = MGY_AgrarianCensus
+			}
+		}
+	}
+	MGY_debugFocusRelock_dec = {
+		priority = 1000
+		complete_effect = {
+			uncomplete_national_focus = {
+				focus = MGY_AgrarianCensus
+				uncomplete_children = yes
+			}
+		}
+		visible = {
+			has_completed_focus = MGY_AgrarianCensus
+			is_debug = yes
 		}
 	}
 	MGY_debugGranaryNegativeFood_dec = {
@@ -79,17 +104,133 @@ MGY_GranaryOfZebrica_cat = {
 		}
 
 	}
-	# Granary of Zebrica decisions
-	MGY_GranaryOfZebrica_ExpandGranaries_Dec = {
+	# Granary of Zebrica
+	MGY_GrannaryOfZebrica_SellGrain_Dec = {
 		priority = 100
-		visible = {
+
+		icon = GFX_decision_generic_political_discourse
+
+		days_remove = 60
+
+		custom_cost_trigger = {
+			always = yes
+		}
+		custom_cost_text = MGY_GranaryWheatCost_tt
+
+		targets_dynamic = yes
+		target_trigger = {
+			FROM = {
+				OR = {
+					tag = EQS
+					tag = HIP
+					is_subject_of = EQS
+					is_subject_of = HIP
+					has_country_flag = MGY_GrainPartner_flag
+				}
+				NOT = {
+					is_subject_of = ROOT
+				}
+			}
+		}
+
+		available = {
+			NOT = {
+				is_embargoing = FROM
+			}
+			FROM = {
+				NOT = {
+					has_war_with = ROOT
+				}
+				NOT = {
+					is_embargoing = ROOT
+				}
+				OR = {
+					has_opinion = {
+						target = ROOT
+						value > 24
+					}
+					is_in_faction_with = ROOT
+				}
+			}
+		}
+
+		cancel_effect = {
+			add_to_variable = {
+				MGY_Grain_var = 100
+				tooltip = MGY_Grain_var_tt
+			}
+		}
+
+		cancel_trigger = {
+			OR = {
+				is_embargoing = FROM
+				FROM = {
+					is_embargoing = ROOT
+				}
+				FROM = {
+					has_war_with = ROOT
+				}
+			}
+		}
+
+		target_root_trigger = {
 			OR = {
 				is_debug = yes
 				has_completed_focus = MGY_AgrarianCensus
 			}
 		}
 
+		complete_effect = {
+			log = "[GetDateText]: [Root.GetName]: COMPLETE EFFECT MGY_GrannaryOfZebrica_SellGrain_Dec"
+			#
+			add_to_variable = {
+				MGY_Grain_var = -100
+				tooltip = MGY_Grain_var_tt
+			}
+		}
+
+		remove_effect = {
+			log = "[GetDateText]: [Root.GetName]: COMPLETE EFFECT MGY_GrannaryOfZebrica_SellGrain_Dec"
+			add_cic = 5000
+			add_political_power = 10
+		}
+	}
+	MGY_GranaryOfZebrica_ExpandGranaries_Dec = {
+		priority = 100
+
+		icon = GFX_MGY_Granary_dec
+		
+		on_map_mode = map_only
+		state_target = yes
+		days_remove = 40
+
+		fire_only_once = yes
+
+		visible = {
+			FROM ={
+				has_state_flag = MGY_clearedforagrigculture_flag
+			}
+		}
+		target_root_trigger = {
+			OR = {
+				is_debug = yes
+				has_completed_focus = MGY_AgrarianCensus
+			}
+		}
+		target_trigger = {
+			FROM = {
+				is_controlled_by = ROOT
+				is_owned_by = ROOT
+			}
+		}
+		target_array = owned_states
+
+		cost = MGY_GranaryPolCost_var
+
 		available = {
+			custom_trigger_tooltip = {
+				tooltip = MGY_CanOnlyTakeOnce_tt
+			}
 			custom_override_tooltip = {
 				tooltip = {
 					localization_key = MGY_AvailableCivilianFactories_tt
@@ -97,306 +238,182 @@ MGY_GranaryOfZebrica_cat = {
 				}
 				num_of_available_civilian_factories > 1
 			}
-			hidden_trigger = {
+			custom_trigger_tooltip = {
+				tooltip = MGY_GranaryPonypowerCostSmall_tt	
 				OR = {
-					has_manpower > MGY_GranaryPonypowerSmallCost_var
 					has_manpower = MGY_GranaryPonypowerSmallCost_var
-				}
-				OR = {
-					has_political_power = MGY_GranaryPolCost_var
-					has_political_power > MGY_GranaryPolCost_var
+					has_manpower > MGY_GranaryPonypowerSmallCost_var
 				}
 			}
 		}
-
-		custom_cost_trigger = {
-			OR = {
-				has_manpower > MGY_GranaryPonypowerSmallCost_var
-				has_manpower = MGY_GranaryPonypowerSmallCost_var
-				}
-			OR = {
-				has_political_power = MGY_GranaryPolCost_var
-				has_political_power > MGY_GranaryPolCost_var
-			}
-		}
-		custom_cost_text = MGY_GranaryPonypowerSmallCost_tt
-
-		days_remove = 40
-
+		
 		modifier = {
-			civilian_factory_use = 2
+			civilian_factory_use = 3
 		}
 
 		complete_effect = {
+			log = "[GetDateText]: [Root.GetName]: COMPLETE EFFECT MGY_GranaryOfZebrica_ExpandGranaries_Dec"
 			hidden_effect = {
-				add_manpower = MGY_GranaryPonypowerSmallCost_loss_var
-				log = "[GetDateText]: [Root.GetName]: COMPLETE EFFECT MGY_GranaryOfZebrica_ExpandGranaries_Dec"
+				# Temp variables to properly handle the cost
+				set_temp_variable = {
+					MGY_decisionCost_tempvar = MGY_GranaryPolCost_var
+				}
+				multiply_temp_variable = {
+					MGY_decisionCost_tempvar = -1
+				}
+				add_political_power = MGY_decisionCost_tempvar
+				set_temp_variable = {
+					MGY_decisionCost_tempvar = MGY_GranaryPonypowerSmallCost_var
+				}
+				multiply_temp_variable = {
+					MGY_decisionCost_tempvar = -1
+				}
+				add_manpower = MGY_decisionCost_tempvar
 			}
 		}
-
 		remove_effect = {
+			log = "[GetDateText]: [Root.GetName]: REMOVE EFFECT MGY_GranaryOfZebrica_ExpandGranaries_Dec"
+			MGY_Granary_CalcPercentageGain_effect = yes
+			MGY_Granary_CalcPercentageMax_effect = yes
+			#
 			add_to_variable = {
-				value = 30
+				value = 45
 				var = MGY_Grain_max_var
 				tooltip = MGY_Grain_max_var_tt
 			}
+			#
 			hidden_effect = {
-				MGY_Granary_CalcPercentageGain_effect = yes
-				MGY_Granary_CalcPercentageMax_effect = yes
 				set_temp_variable = {
-					MGY_GranaryPonyPowerReturn_tempvar = MGY_GranaryPonypowerSmallCost_loss_var
+					MGY_GranaryPonyPowerReturn_tempvar = MGY_GranaryPonypowerSmallCost_var
 				}
 				multiply_temp_variable = {
-					MGY_GranaryPonyPowerReturn_tempvar = -0.9
+					MGY_GranaryPonyPowerReturn_tempvar = 0.9
 				}
-				log = "[GetDateText]: [Root.GetName]: REMOVE EFFECT MGY_GranaryOfZebrica_ExpandGranaries_Dec"
 			}
 			custom_effect_tooltip = MGY_DoubleSpace_tt
 			custom_effect_tooltip = MGY_GranaryPonyPowerReturn_tt
 			add_manpower = MGY_GranaryPonyPowerReturn_tempvar
 		}
-	}
-	MGY_GranaryOfZebrica_RelaxTaxesFarmers_Dec = {
-		visible = {
-			OR = {
-				is_debug = yes
-				has_completed_focus = MGY_AgrarianCensus
-			}
-		}
 
-		available = {
-			hidden_trigger = {
+		cancel_trigger = {
+			FROM = {
 				OR = {
-					has_political_power = MGY_GranaryPolCost_var
-					has_political_power > MGY_GranaryPolCost_var
+					NOT = {
+						is_owned_by = ROOT
+					}
+					NOT = {
+						is_controlled_by = ROOT
+					}
 				}
-			}
-		}
-
-		custom_cost_trigger = {
-			OR = {
-				has_political_power = MGY_GranaryPolCost_var
-				has_political_power > MGY_GranaryPolCost_var
-			}
-		}
-
-		custom_cost_text = MGY_GranaryPoliticalPower_tt
-
-		days_remove = 40
-
-		modifier = {
-			political_power_gain = -0.1
-			MGY_Grain_increase_factor_modifier = 0.2
-		}
-
-		complete_effect = {
-			hidden_effect = {
-				add_to_variable = {
-					MGY_Grain_increase_factor_var = 0.2
-				}
-				MGY_Granary_CalcPercentageGain_effect = yes
-				MGY_Granary_CalcPercentageMax_effect = yes
-				log = "[GetDateText]: [Root.GetName]: COMPLETE EFFECT MGY_GranaryOfZebrica_RelaxTaxesFarmers_Dec"
-			}
-		}
-
-		remove_effect = {
-			hidden_effect = {
-				add_to_variable = {
-					MGY_Grain_increase_factor_var = -0.2
-				}
-				MGY_Granary_CalcPercentageGain_effect = yes
-				MGY_Granary_CalcPercentageMax_effect = yes
-				log = "[GetDateText]: [Root.GetName]: REMOVE EFFECT MGY_GranaryOfZebrica_RelaxTaxesFarmers_Dec"
-			}
-		}
-	}
-	MGY_GranaryOfZebrica_GrainLevies_Dec = {
-		visible = {
-			OR = {
-				is_debug = yes
-				has_completed_focus = MGY_AgrarianCensus
-			}
-		}
-
-		available = {
-			hidden_trigger = {
-				OR = {
-					has_political_power = MGY_GranaryPolCost_var
-					has_political_power > MGY_GranaryPolCost_var
-				}
-			}
-		}
-
-		custom_cost_trigger = {
-			OR = {
-				has_political_power = MGY_GranaryPolCost_var
-				has_political_power > MGY_GranaryPolCost_var
-			}
-		}
-
-		custom_cost_text = MGY_GranaryPoliticalPower_tt
-
-		days_remove = 40
-
-		modifier = {
-			stability_weekly = -0.01
-			MGY_Grain_increase_modifier = 25
-		}
-
-		complete_effect = {
-			hidden_effect = {
-				add_to_variable = {
-					MGY_Grain_increase_var = 25
-				}
-				MGY_Granary_CalcPercentageGain_effect = yes
-				MGY_Granary_CalcPercentageMax_effect = yes
-				log = "[GetDateText]: [Root.GetName]: COMPLETE EFFECT MGY_GranaryOfZebrica_GrainLevies_Dec"
-			}
-		}
-
-		remove_effect = {
-			hidden_effect = {
-				add_to_variable = {
-					MGY_Grain_increase_var = -25
-				}
-				MGY_Granary_CalcPercentageGain_effect = yes
-				MGY_Granary_CalcPercentageMax_effect = yes
-				log = "[GetDateText]: [Root.GetName]: REMOVE EFFECT MGY_GranaryOfZebrica_GrainLevies_Dec"
 			}
 		}
 	}
 	MGY_GranaryOfZebrica_IncreaseProduction_Dec = {
 		priority = 100
-		visible = {
-			OR = {
-				is_debug = yes
-				has_completed_focus = MGY_AgrarianCensus
-			}
-		}
 
-		available = {
-			hidden_trigger = {
-				OR = {
-					has_manpower > MGY_GranaryPonypowerLargeCost_var
-					has_manpower = MGY_GranaryPonypowerLargeCost_var
-				}
-				OR = {
-					has_political_power = MGY_GranaryPolCost_var
-					has_political_power > MGY_GranaryPolCost_var
-				}
-			}
-		}
-
-		custom_cost_trigger = {
-			OR = {
-				has_manpower > MGY_GranaryPonypowerLargeCost_var
-				has_manpower = MGY_GranaryPonypowerLargeCost_var
-				}
-			OR = {
-				has_political_power = MGY_GranaryPolCost_var
-				has_political_power > MGY_GranaryPolCost_var
-			}
-		}
-		custom_cost_text = MGY_GranaryPonypowerLargeCost_tt
-
-		days_remove = 90
-
-		modifier = {
-			conscription_factor = -0.05
-			political_power_gain = -0.2
-		}
-
-		complete_effect = {
-			hidden_effect = {
-				add_manpower = MGY_GranaryPonypowerLargeCost_loss_var
-				log = "[GetDateText]: [Root.GetName]: COMPLETE EFFECT MGY_GranaryOfZebrica_IncreaseProduction_Dec"
-			}
-		}
-
-		remove_effect = {
-			add_to_variable = {
-				value = 0.05
-				var = MGY_Grain_increase_factor_var
-				tooltip = MGY_Grain_increase_factor_var_tt
-			}
-			hidden_effect = {
-				MGY_Granary_CalcPercentageGain_effect = yes
-				MGY_Granary_CalcPercentageMax_effect = yes
-				set_temp_variable = {
-					MGY_GranaryPonyPowerReturn_tempvar = MGY_GranaryPonypowerLargeCost_loss_var
-				}
-				multiply_temp_variable = {
-					MGY_GranaryPonyPowerReturn_tempvar = -0.75
-				}
-			}
-			custom_effect_tooltip = MGY_DoubleSpace_tt
-			custom_effect_tooltip = MGY_GranaryPonyPowerReturn_tt
-			add_manpower = MGY_GranaryPonyPowerReturn_tempvar
-			hidden_effect = {
-				log = "[GetDateText]: [Root.GetName]: REMOVE EFFECT MGY_GranaryOfZebrica_IncreaseProduction_Dec"
-			}
-		}
-	}
-	MGY_GranaryOfZebrica_DistributeGrain_dec = {
-		visible = {
-			OR = {
-				is_debug = yes
-				has_completed_focus = MGY_AgrarianCensus
-			}
-		}
-
-		available = {
-			hidden_trigger = {
-				OR = {
-					has_political_power = MGY_GranaryPolCost_var
-					has_political_power > MGY_GranaryPolCost_var
-				}
-			}
-		}
-
-		custom_cost_trigger = {
-			OR = {
-				has_political_power = MGY_GranaryPolCost_var
-				has_political_power > MGY_GranaryPolCost_var
-			}
-		}
-
-		custom_cost_text = MGY_GranaryPoliticalPower_tt
-
+		icon = GFX_MGY_Ponypower_dec
+		
+		on_map_mode = map_only
+		state_target = yes
 		days_remove = 40
 
+		visible = {
+			FROM ={
+				has_state_flag = MGY_clearedforagrigculture_flag
+			}
+		}
+		target_root_trigger = {
+			OR = {
+				is_debug = yes
+				has_completed_focus = MGY_AgrarianCensus
+			}
+		}
+		target_trigger = {
+			FROM = {
+				is_controlled_by = ROOT
+				is_owned_by = ROOT
+			}
+		}
+		target_array = owned_states
+
+		cost = MGY_GranaryPolCost_var
+
+		available = {
+			custom_trigger_tooltip = {
+				tooltip = MGY_GranaryPonypowerCostLarge_tt
+				OR = {
+					has_manpower = MGY_GranaryPonypowerLargeCost_var
+					has_manpower > MGY_GranaryPonypowerLargeCost_var
+				}
+			}
+		}
+		
 		modifier = {
-			stability_factor = 0.1
-			MGY_Grain_increase_factor_modifier = -0.5
-			MGY_Grain_increase_modifier = -10
+			MGY_Grain_increase_factor_modifier = 0.05
+			war_support_factor = -0.03
 		}
 
 		complete_effect = {
+			log = "[GetDateText]: [Root.GetName]: COMPLETE EFFECT MGY_GranaryOfZebrica_IncreaseProduction_Dec"
 			hidden_effect = {
-				add_to_variable = {
-					MGY_Grain_increase_var = -10
+				# Temp variables to properly handle the cost
+				set_temp_variable = {
+					MGY_decisionCost_tempvar = MGY_GranaryPolCost_var
 				}
-				add_to_variable = {
-					MGY_Grain_increase_factor_var = -0.5
+				multiply_temp_variable = {
+					MGY_decisionCost_tempvar = -1
 				}
-				MGY_Granary_CalcPercentageGain_effect = yes
-				MGY_Granary_CalcPercentageMax_effect = yes
-				log = "[GetDateText]: [Root.GetName]: COMPLETE EFFECT MGY_GranaryOfZebrica_DistributeGrain_dec"
+				add_political_power = MGY_decisionCost_tempvar
+				set_temp_variable = {
+					MGY_decisionCost_tempvar = MGY_GranaryPonypowerLargeCost_var
+				}
+				multiply_temp_variable = {
+					MGY_decisionCost_tempvar = -1
+				}
+				add_manpower = MGY_decisionCost_tempvar
+				#
+				add_to_variable = {
+					MGY_Grain_increase_factor_var = 0.05
+				}
+			}
+		}
+		remove_effect = {
+			log = "[GetDateText]: [Root.GetName]: REMOVE EFFECT MGY_GranaryOfZebrica_IncreaseProduction_Dec"
+			MGY_Granary_CalcPercentageGain_effect = yes
+			MGY_Granary_CalcPercentageMax_effect = yes
+			#
+			hidden_effect = {
+				set_temp_variable = {
+					MGY_GranaryPonyPowerReturn_tempvar = MGY_GranaryPonypowerLargeCost_var
+				}
+				multiply_temp_variable = {
+					MGY_GranaryPonyPowerReturn_tempvar = 0.8
+				}
+				#
+				add_to_variable = {
+					MGY_Grain_increase_factor_var = -0.05
+				}
+			}
+			custom_effect_tooltip = MGY_GranaryPonyPowerReturn_tt
+			add_manpower = MGY_GranaryPonyPowerReturn_tempvar
+		}
+
+		cancel_trigger = {
+			FROM = {
+				OR = {
+					NOT = {
+						is_owned_by = ROOT
+					}
+					NOT = {
+						is_controlled_by = ROOT
+					}
+				}
 			}
 		}
 
-		remove_effect = {
-			hidden_effect = {
-				add_to_variable = {
-					MGY_Grain_increase_var = 10
-				}
-				add_to_variable = {
-					MGY_Grain_increase_factor_var = 0.5
-				}
-				MGY_Granary_CalcPercentageGain_effect = yes
-				MGY_Granary_CalcPercentageMax_effect = yes
-				log = "[GetDateText]: [Root.GetName]: REMOVE EFFECT MGY_GranaryOfZebrica_DistributeGrain_dec"
+		cancel_effect = {
+			add_to_variable = {
+				MGY_Grain_increase_factor_var = -0.1
 			}
 		}
 	}
