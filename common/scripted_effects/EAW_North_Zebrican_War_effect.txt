@@ -1,0 +1,89 @@
+# This needs to be called if a focus starts the NZW
+NZW_on_start_effect = {
+	custom_effect_tooltip = NZW_starts_the_NZW
+	
+	set_global_flag = NZW_started
+	set_global_flag = NZW_in_progress
+	
+	if = {
+		limit = {
+			NZ2 = {
+				tag = HIE # Star Father is at it
+			}
+		}
+		set_global_flag = NZW_war_status_total
+		set_global_flag = NZW_war_status_partial_blocked
+	}
+	else = {
+		set_global_flag = NZW_war_status_partial
+	}
+	
+	if = {
+		limit = {
+			WNG = {
+				has_government = fascism
+			}
+		}
+		WNG = {
+			# TODO: Wingbardy invitation
+		}
+	}
+	if = {
+		limit = {
+			NZ1 = {
+				tag = HIP
+			}
+			
+			NOT = {
+				has_global_flag = HIP_north_war_news_event_fired
+			}
+		}
+		set_global_flag = HIP_north_war_news_event_fired
+		news_event = {
+			id = north_war.101
+			hours = 8
+		}
+	}
+	
+	# IMPORTANT:
+	# War participation is set in the in eaw_on_actions.txt -> on_war_relation_added
+	# If you want to change something, look at the on_action itself
+	# It is called for every player once they enter the war, that's why its used (more flexible)
+}
+
+NZW_amend_list_of_mainland_states_by_THIS = {
+	if = {
+		limit = {
+			has_country_flag = NZW_is_island_nation
+		}
+		every_owned_state = {
+			limit = {
+				NOT = {
+					any_state_in = {
+						# Funnily enough, these two PREVs don't refer to the same object, because the array argument is scoped
+						# in the surroundig scope, while the trigger (so the `state = PREV` line) is scoped in the state that is 
+						# targeted by the array
+						
+						# What this code really means is simply: The any state we are currently checking is the list
+						
+						array = PREV.original_cores
+						
+						state = PREV
+					}
+				}
+			}
+			add_to_array = {
+				global.NZW_mainland_state_array = THIS
+			}
+			log = "[GetDateText]: [Root.GetName]: add [THIS.GetName] to NZW Mainland State Array"
+		}
+	}
+	else = {
+		every_owned_state = {
+			add_to_array = {
+				global.NZW_mainland_state_array = THIS
+			}
+			log = "[GetDateText]: [Root.GetName]: add [THIS.GetName] to NZW Mainland State Array"
+		}
+	}
+}
