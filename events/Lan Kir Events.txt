@@ -735,6 +735,7 @@ country_event = {
 				}
 				save_global_event_target_as = KXN_farthest_state_from_solstice_target
 			}
+			set_global_flag = KXN_has_set_farthest_state_from_solstice
 		}
 	}
 	title = lan_kir.496.t
@@ -760,6 +761,7 @@ country_event = {
 
 	option = {
 		name = lan_kir.496.a
+		goto_state = event_target:KXN_farthest_state_from_solstice_target
 		retire_character = KXN_Zebra_Sage
 		add_political_power = -75
 		hidden_effect = {
@@ -826,8 +828,26 @@ country_event = {
 	immediate = {log = "[GetDateText]: [Root.GetName]: event lan_kir.499"}
 	immediate = {
 		hidden_effect = {
-			for_each_scope_loop = {
-				array = KXN.subjects
+			if = {
+				limit = {
+					NOT = {
+						has_global_flag = KXN_has_set_farthest_state_from_solstice
+					}
+				}
+				for_each_scope_loop = {
+					array = KXN.subjects
+					for_each_scope_loop = {
+						array = owned_controlled_states	
+						if = {
+							limit = {
+								is_one_state_island = no
+								is_island_state = no
+								is_capital = no
+							}
+							add_to_array = { KXN.KXN_States_In_Our_Empire = THIS }
+						}
+					}
+				}
 				for_each_scope_loop = {
 					array = owned_controlled_states	
 					if = {
@@ -839,47 +859,37 @@ country_event = {
 						add_to_array = { KXN.KXN_States_In_Our_Empire = THIS }
 					}
 				}
-			}
-			for_each_scope_loop = {
-				array = owned_controlled_states	
-				if = {
-					limit = {
-						is_one_state_island = no
-						is_island_state = no
-						is_capital = no
-					}
-					add_to_array = { KXN.KXN_States_In_Our_Empire = THIS }
-				}
-			}
-			for_each_scope_loop = {
-				array = KXN.KXN_States_In_Our_Empire
-				if = {
-					limit = {
-						NOT = {
-							any_neighbor_state = {
-								is_capital = yes
-								owner = { KXN_IS_SATELLITE_TRIGGER = yes }
+				for_each_scope_loop = {
+					array = KXN.KXN_States_In_Our_Empire
+					if = {
+						limit = {
+							NOT = {
+								any_neighbor_state = {
+									is_capital = yes
+									owner = { KXN_IS_SATELLITE_TRIGGER = yes }
+								}
 							}
 						}
-					}
-					set_variable = { state_distance_from_solstice = distance_to@1085 }
-					add_to_array = { KXN.KXN_farthest_state_from_solstice = state_distance_from_solstice }
-				}
-			}
-			find_highest_in_array = {
-				array = KXN.KXN_farthest_state_from_solstice
-				index = KXN_farthest_state_from_solstice_index
-			}
-			random_state = {
-				limit = {
-					is_in_array = { KXN.KXN_States_In_Our_Empire = THIS }
-					check_variable = {
-						var = distance_to@1085
-						value = KXN.KXN_farthest_state_from_solstice^KXN_farthest_state_from_solstice_index
-						compare = greater_than_or_equals
+						set_variable = { state_distance_from_solstice = distance_to@1085 }
+						add_to_array = { KXN.KXN_farthest_state_from_solstice = state_distance_from_solstice }
 					}
 				}
-				save_global_event_target_as = KXN_farthest_state_from_solstice_target
+				find_highest_in_array = {
+					array = KXN.KXN_farthest_state_from_solstice
+					index = KXN_farthest_state_from_solstice_index
+				}
+				random_state = {
+					limit = {
+						is_in_array = { KXN.KXN_States_In_Our_Empire = THIS }
+						check_variable = {
+							var = distance_to@1085
+							value = KXN.KXN_farthest_state_from_solstice^KXN_farthest_state_from_solstice_index
+							compare = greater_than_or_equals
+						}
+					}
+					save_global_event_target_as = KXN_farthest_state_from_solstice_target
+				}
+				set_global_flag = KXN_has_set_farthest_state_from_solstice
 			}
 		}
 	}
@@ -3781,6 +3791,7 @@ country_event = {
 	option = {
 		every_subject_country = {
 			limit = { KXN_IS_SATELLITE_TRIGGER = yes }
+			add_ideas = KXN_Satellite_Focus_On_Defense
 			every_core_state = {
 				limit = { is_capital = no }
 				remove_core_of = PREV
