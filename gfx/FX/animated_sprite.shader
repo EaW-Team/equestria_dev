@@ -74,12 +74,6 @@ PixelShader =
 	MainCode PixelShader
 	[[
 
-		// These additional extensions are here for OpenGL compatibility
-		#ifdef PDX_OPENGL
-			#extension GL_ARB_shader_texture_lod : enable
-			#extension GL_EXT_gpu_shader4 : enable
-		#endif
-
         float part_dec(float x) {
             return x - floor(x);
         }
