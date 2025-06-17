@@ -144,3 +144,143 @@ MCW_add_xfl_template = {
 		icon = "gfx/interface/equipmentdesigner/planes/designer/lamp_USA/small_1/usa_p_39d.dds"
 	}
 }
+
+MCW_auto_focus_start = {
+
+	hidden_effect = {
+		set_country_flag = MCW_auto_focus_active
+		
+		#Set the length of time for each focus to complete
+		set_variable = { MCW_auto_focus_time@token:MCW_fuel_water_fire = 25 }
+		set_variable = { MCW_auto_focus_time@token:MCW_conscript_pegasi_spotters = 25 }
+		set_variable = { MCW_auto_focus_time@token:MCW_slash_the_cruiser_budget = 25 }
+		set_variable = { MCW_auto_focus_time@token:MCW_bombastic_speeches = 25 }
+		set_variable = { MCW_auto_focus_time@token:MCW_bigger_better_battleships = 25 }
+		set_variable = { MCW_auto_focus_time@token:MCW_coward_weapon = 25 }
+		set_variable = { MCW_auto_focus_time@token:MCW_chokehold_mines = 25 }
+		set_variable = { MCW_auto_focus_time@token:MCW_destroyer_escorts = 25 }
+		set_variable = { MCW_auto_focus_time@token:MCW_cruiser_escorts = 25 }
+		set_variable = { MCW_auto_focus_time@token:MCW_small_carriers = 25 }
+		set_variable = { MCW_auto_focus_time@token:MCW_every_cog = 25 }
+		set_variable = { MCW_auto_focus_time@token:MCW_shieldbashing = 25 }
+		set_variable = { MCW_auto_focus_time@token:MCW_battleship_stronk_coup = 25 }
+		set_variable = { MCW_auto_focus_time@token:MCW_control_skies_coup = 25 }
+		set_variable = { MCW_auto_focus_time@token:MCW_carrier_stronk_coup = 25 }
+		set_variable = { MCW_auto_focus_time@token:MCW_bigger_bigger_battleships = 25 }
+		set_variable = { MCW_auto_focus_time@token:MCW_ramming_speed = 25 }
+		set_variable = { MCW_auto_focus_time@token:MCW_bigger_bigger_carriers = 25 }
+		
+		add_to_array = { MCW_auto_focus_available_foci = token:MCW_fuel_water_fire }
+		
+		#Scramble the random variable effect since it has a set seed for some reason.
+		random_state = {
+			meta_effect = {
+				text = {
+					set_temp_variable = { temp_count = [STATE_ID] }
+				}
+				STATE_ID = "[THIS.GetID]"
+			}
+			modulo_temp_variable = { temp_count = 600 }
+			for_loop_effect = {
+				end = temp_count
+				set_temp_variable_to_random = {
+					var = dummy_temp
+					max = 1
+					integer = yes
+				}
+			}
+		}
+		
+		MCW_auto_focus_select_focus = yes
+	}
+}
+
+#Randomly select and activate an available focus.
+MCW_auto_focus_select_focus = {
+	log = "[GetDateText]: [Root.GetName]: Scripted effect: MCW_auto_focus_select_focus."
+	
+	if = {
+		limit = {
+			check_variable = { MCW_auto_focus_available_foci^num = 0 }
+		}
+		MCW_auto_focus_stop = yes #Because otherwise it creates an infinite loop and crashes the game.
+	}
+	else = {
+		#Choose a random focus from the array
+		set_variable_to_random = {
+			var = MCW_active_focus_index
+			max = MCW_auto_focus_available_foci^num
+			integer = yes
+		}
+
+		meta_effect = {
+			text = {
+				activate_shine_on_focus = [FOCUS_ID]
+			}
+			FOCUS_ID = "[?MCW_auto_focus_available_foci^MCW_active_focus_index.GetTokenKey]"
+		}
+		
+		MCW_auto_focus_select_effect = yes
+		
+		#Set up the country flag and the untility event to fire when the focus is complete
+		set_temp_variable = { temp_focus_token = MCW_auto_focus_available_foci^MCW_active_focus_index } #Have to do this thanks to PDX weirdness
+		set_temp_variable = { temp_timer = MCW_auto_focus_time@var:temp_focus_token }
+		add_to_temp_variable = { temp_timer = 1 }
+		meta_effect = { #This is a meta-effect because otherwise it generates errors for some reason.
+			text = {
+				set_country_flag = {
+					flag = MCW_auto_focus_in_progress_flag
+					days = [TIME_FLAG]
+					value = 1 
+				}
+				country_event = {
+					id = macawia_debug.15
+					days = [TIME]
+				}
+			}
+			TIME_FLAG = "[?temp_timer]"
+			TIME = "[?MCW_auto_focus_time@var:temp_focus_token]"
+		}
+	}
+}
+
+#Activate the select effects of the focuses that have them.
+MCW_auto_focus_select_effect = {
+	if = {
+		limit = {
+			check_variable = { MCW_auto_focus_available_foci^MCW_active_focus_index = token:MCW_fuel_water_fire }
+		}
+		#insert effect of their first focus
+	}
+	#else_if = {
+		#limit = {
+			#check_variable = { MCW_auto_focus_available_foci^MCW_active_focus_index = token:M_balance_shifts_moderate }
+		#}
+		#hidden_effect = { 
+			#country_event = { id = meridiennes_m_rev.3 days = 0 }
+		#}
+	#}
+	#else_if = {
+		#limit = {
+			#check_variable = { MCW_auto_focus_available_foci^MCW_active_focus_index = token:MCW_balance_shifts_radical }
+		#}
+		#hidden_effect = {
+			#country_event = { id = meridiennes_m_rev.7 days = 0 }
+		#}
+	#}
+}
+
+#Stops the auto-focus process and cancels all ongoing foci 
+MCW_auto_focus_stop = {
+	log = "[GetDateText]: [Root.GetName]: Scripted effect: MCW_auto_focus_stop."
+
+	clr_country_flag = MCW_auto_focus_active
+	clr_country_flag = MCW_auto_focus_in_progress_flag
+	
+	meta_effect = {
+		text = {
+			deactivate_shine_on_focus = [FOCUS_ID]
+		}
+		FOCUS_ID = "[?MCW_auto_focus_available_foci^MCW_active_focus_index.GetTokenKey]"
+	}
+}
