@@ -432,6 +432,7 @@ CHN_kriegsmarine = {
 			has_air_experience > 4
 			has_political_power > 14
 		}
+		ai_hint_pp_cost = 15
 		custom_cost_text = decision_cost_navy_xp_50_air_xp_5_pp_15
 
 		fire_only_once = yes
@@ -475,7 +476,7 @@ CHN_kriegsmarine = {
 			has_navy_experience > 49
 			has_political_power > 29
 		}
-
+		ai_hint_pp_cost = 30
 		custom_cost_text = decision_cost_navy_xp_50_pp_30
 
 		available = {
@@ -797,9 +798,7 @@ CHN_war_time_actions = {
 		}
 		fire_only_once = yes
 		visible = {
-			any_enemy_country = {
-				is_major = yes
-			}
+			has_war_with_major = yes
 		}
 		days_remove = 20
 		complete_effect = {
@@ -886,9 +885,7 @@ CHN_war_time_actions = {
 		}
 		fire_only_once = yes
 		visible = {
-			any_enemy_country = {
-				is_major = yes
-			}
+			has_war_with_major = yes
 		}
 		days_remove = 10
 		complete_effect = {
@@ -976,9 +973,7 @@ CHN_war_time_actions = {
 		}
 		fire_only_once = yes
 		visible = {
-			any_enemy_country = {
-				is_major = yes
-			}
+			has_war_with_major = yes
 		}
 		days_remove = 20
 		complete_effect = {
@@ -1065,9 +1060,7 @@ CHN_war_time_actions = {
 		}
 		fire_only_once = yes
 		visible = {
-			any_enemy_country = {
-				is_major = yes
-			}
+			has_war_with_major = yes
 		}
 		days_remove = 30
 		complete_effect = {
@@ -1154,9 +1147,7 @@ CHN_war_time_actions = {
 		}
 		fire_only_once = yes
 		visible = {
-			any_enemy_country = {
-				is_major = yes
-			}
+			has_war_with_major = yes
 		}
 		days_remove = 40
 		complete_effect = {
@@ -1243,9 +1234,7 @@ CHN_war_time_actions = {
 		}
 		fire_only_once = yes
 		visible = {
-			any_enemy_country = {
-				is_major = yes
-			}
+			has_war_with_major = yes
 		}
 		days_remove = 50
 		complete_effect = {
@@ -1337,7 +1326,7 @@ CHN_war_time_actions = {
 		complete_effect = {
 			log = "[GetDateText]: [Root.GetName]: Decision CHN_AI_early_mobilization"
 			add_ideas = {
-				tot_economic_mobilisation
+				war_economy
 				extensive_conscription
 				vaspier
 			}
@@ -3548,16 +3537,21 @@ CHN_protectorates = {
 			has_government = fascism
 			custom_trigger_tooltip = {
 				tooltip = CHN_eqc_prot_decision_req_tt
-				all_of_scopes = {
-					array = EQC.core_states
+				356 = {
 					owner = {
 						OR = {
 							tag = CHN
 							is_subject_of = CHN
 						}
 						PREV = { is_fully_controlled_by = PREV }
-					}	
+					}
 				}
+				EQC = {
+					OR = {
+						is_subject_of = ROOT
+						exists = no
+					}
+				}				
 			}
 		}
 		cost = 20
@@ -3565,7 +3559,7 @@ CHN_protectorates = {
 		fire_only_once = yes
         ai_will_do = {
 			factor = 15
-        }		
+        }
 	
 		visible = {
 			has_government = fascism
@@ -3590,35 +3584,93 @@ CHN_protectorates = {
 		}	
 		remove_effect = {
 			log = "[GetDateText]: [Root.GetName]: Decision remove CHN_eqc_prot_decision"
-			release_puppet = EQC
-			CHN = {
-				CHN_limacus_uptrich = {
-					set_nationality = EQC
-				}
-			}
-			EQC = {
+			hidden_effect = {
 				if = {
-					limit = {
-						has_character = CHN_limacus_uptrich
-					}
-					add_country_leader_role = {
-						character = CHN_limacus_uptrich
-						country_leader = {
-							desc = ""
-							expire = "1965.1.1"
-							ideology = stratocracy
-							#traits = {  }
+					limit = { EQC = { is_subject_of = CHN } }
+					CHN = {
+						if = {
+							limit = {
+								EQC = {
+									is_subject_of = CHN
+								}
+							}
+							annex_country = { target = EQC transfer_troops = no }
 						}
-						promote_leader = yes
 					}
 				}
-				set_cosmetic_tag = EQC_CHN
-				load_focus_tree = generic_griffon_focus
-				add_ideas = CHN_puppet_economic_control
-				set_party_name = {
-					ideology = fascism
-					long_name = CHN_puppet_changeling_administration
-					name = CHN_puppet_changeling_administration
+				EQC = {
+					every_core_state = {
+						limit = {
+							is_on_continent = europe #Equus
+						}
+						remove_core_of = EQC
+					}
+				}
+				create_dynamic_country = {
+					original_tag = EQC
+					transfer_state = 360
+					transfer_state = 361
+					transfer_state = 675
+					transfer_state = 676
+					transfer_state = 362
+					transfer_state = 363
+					transfer_state = 364
+					transfer_state = 365
+					transfer_state = 354
+					transfer_state = 355
+					transfer_state = 356
+					transfer_state = 357
+					transfer_state = 358
+					transfer_state = 359
+					set_capital = {
+						state = 356 # Sunset
+					}
+					ROOT = {
+						set_autonomy = {
+							target = PREV
+							autonomy_state = autonomy_reichsprotectorate
+						}
+					}
+					add_ideas = {
+						proper_science_base
+						no_lack_of_scientists
+						no_poverty
+						pony_race
+						modern_society
+						
+						changeling_garrison
+						civilian_economy
+						export_focus
+						CHN_puppet_economic_control
+					}
+					every_possible_country = {
+						limit = {
+							has_character = CHN_limacus_uptrich
+						}
+						CHN_limacus_uptrich = {
+							set_nationality = PREV.PREV
+						}
+					}
+					if = {
+						limit = {
+							has_character = CHN_limacus_uptrich
+						}
+						add_country_leader_role = {
+							character = CHN_limacus_uptrich
+							country_leader = {
+								expire = "1965.1.1"
+								ideology = stratocracy
+							}
+							promote_leader = yes
+						}
+					}
+					set_cosmetic_tag = EQC_CHN
+					load_focus_tree = generic_griffon_focus
+					set_party_name = {
+						ideology = fascism
+						long_name = CHN_puppet_changeling_administration
+						name = CHN_puppet_changeling_administration
+					}
 				}
 			}
 		}
@@ -4868,7 +4920,7 @@ CHN_love_consumption_mechanic = {
 			has_political_power > 49
 			check_variable = { var = command_power value = 30 compare = greater_than_or_equals }
 		}
-
+		ai_hint_pp_cost = 50
 		custom_cost_text = decision_cost_pp_50_30_cp
 
 		days_remove = 70
@@ -4943,7 +4995,7 @@ CHN_love_consumption_mechanic = {
 			has_political_power > 49
 			check_variable = { var = command_power value = 30 compare = greater_than_or_equals }
 		}
-
+		ai_hint_pp_cost = 50
 		custom_cost_text = decision_cost_pp_50_30_cp
 
 		days_remove = 70
@@ -5066,6 +5118,7 @@ CHN_love_consumption_mechanic = {
 				compare = greater_than_or_equals
 			}
 		}
+		ai_hint_pp_cost = 30
 		custom_cost_text = decision_cost_pp_30_love_05
 
 		days_remove = 90
@@ -5117,6 +5170,7 @@ CHN_love_consumption_mechanic = {
 				compare = greater_than_or_equals
 			}
 		}
+		ai_hint_pp_cost = 30
 		custom_cost_text = decision_cost_pp_30_love_05
 
 		days_remove = 90
@@ -5154,6 +5208,7 @@ CHN_love_consumption_mechanic = {
 				compare = greater_than_or_equals
 			}
 		}
+		ai_hint_pp_cost = 30
 		custom_cost_text = decision_cost_pp_30_love_05
 
 		days_remove = 90
@@ -5191,6 +5246,7 @@ CHN_love_consumption_mechanic = {
 				compare = greater_than_or_equals
 			}
 		}
+		ai_hint_pp_cost = 30
 		custom_cost_text = decision_cost_pp_30_love_05
 
 		days_remove = 90
@@ -5229,6 +5285,7 @@ CHN_love_consumption_mechanic = {
 				compare = greater_than_or_equals
 			}
 		}
+		ai_hint_pp_cost = 30
 		custom_cost_text = decision_cost_pp_30_love_075
 
 		days_remove = 180
@@ -5270,6 +5327,7 @@ CHN_love_consumption_mechanic = {
 				compare = greater_than_or_equals
 			}
 		}
+		ai_hint_pp_cost = 30
 		custom_cost_text = decision_cost_pp_30_love_075
 
 		days_remove = 180
@@ -5311,6 +5369,7 @@ CHN_love_consumption_mechanic = {
 				compare = greater_than_or_equals
 			}
 		}
+		ai_hint_pp_cost = 30
 		custom_cost_text = decision_cost_pp_30_love_075
 
 		days_remove = 180
@@ -5353,6 +5412,7 @@ CHN_love_consumption_mechanic = {
 				compare = greater_than_or_equals
 			}
 		}
+		ai_hint_pp_cost = 30
 		custom_cost_text = decision_cost_pp_30_love_075
 
 		days_remove = 180
@@ -6813,6 +6873,7 @@ CHN_chaos_in_the_everfree = {
 			check_variable = { var = command_power value = 30 compare = greater_than_or_equals }
 			has_political_power > 24
 		}
+		ai_hint_pp_cost = 25
 		custom_cost_text = decision_cost_CP_30_pp_25
 
 		days_remove = 14
@@ -6849,6 +6910,7 @@ CHN_chaos_in_the_everfree = {
 			check_variable = { var = command_power value = 30 compare = greater_than_or_equals }
 			has_political_power > 24
 		}
+		ai_hint_pp_cost = 25
 		custom_cost_text = decision_cost_CP_30_pp_25
 
 		days_remove = 14
