@@ -12,6 +12,10 @@ import json
 
 from config import *
 
+DB_DATA = 0
+DB_FILE = 1
+DB_LINE = 2
+
 def parse_argument():
     """Command line options management"""
     parser = argparse.ArgumentParser(description="A flexible spell checker for Paradox localisation")
@@ -43,7 +47,7 @@ def list_files(target, extension=None):
 def download_wordlist(filename, url):
     """Download the text file stored in the URL into a file"""
     try:
-        with open(filename, "w") as fd, urllib.request.urlopen(url) as url:
+        with open(filename, "w", encoding="utf-8") as fd, urllib.request.urlopen(url) as url:
             for line in url:
                 word = line.decode("utf-8").strip().lower()
                 fd.write(word)
@@ -56,11 +60,35 @@ or run with the option --no-wordlist-update if the file has already been downloa
 
 def parse_dict_file(filename, out_set):
     """Open a dictionnary file and add all the words into a set"""
-    with open(filename, "r") as fd:
+    with open(filename, "r", encoding="utf-8") as fd:
         line = fd.readline().strip().lower()
         while line:
             out_set.add(line)
             line = fd.readline().strip().lower()
+
+def parse_loc_file(filename, database):
+    """Read a localization file, and fill the database with the new entries read.
+
+    The database is a dictionnary with the following format:
+    database["loc_key"] = ("loc string", "filename", "line").
+    Return the number of entries found in the file"""
+
+    with open(filename, "r", encoding="utf-8") as fd:
+        line_nb = 1
+        nb_entry = 0
+        line = fd.readline()
+        while line:
+            match = RE_LOC_FILE_ENTRY.match(line)
+            if match:
+                if match.group(1) in database:
+                    print(f'WARNING: Already defined localization key "{match.group(1)}" in file {filename} line {line_nb}. Overriding previous value')
+                    print(f'Previously defined in {database[match.group(1)][DB_FILE]} line {database[match.group(1)][DB_LINE]}')
+                database[match.group(1)] = (match.group(2), filename, line_nb)
+                nb_entry += 1
+            line = fd.readline()
+            line_nb += 1
+
+    return nb_entry
 
 if __name__ == "__main__":
     args = parse_argument()
@@ -93,8 +121,15 @@ if __name__ == "__main__":
 
     print(f"The library contains {len(dict_words)} different words")
 
+    # Get the list of localization file to parse
+    loc_files = list_files(args.target, extension=LOC_FILE_EXTENSION)
+    print(f"Found {len(loc_files)} localization files")
+    loc_database = {}
+    for file in loc_files:
+        entry = parse_loc_file(file, loc_database)
+        print(f"{file}: {entry} entries found")
 
-
+    print(f"A total of {len(loc_database)} loc entries has been found")
 
 exit()
 
