@@ -1,6 +1,7 @@
 # -*- coding: utf-8 -*-
 
 import urllib.request
+from urllib.error import URLError
 import os
 import glob
 import pathlib
@@ -41,11 +42,17 @@ def list_files(target, extension=None):
 
 def download_wordlist(filename, url):
     """Download the text file stored in the URL into a file"""
-    with open(filename, "w") as fd, urllib.request.urlopen(url) as url:
-        for line in url:
-            word = line.decode("utf-8").strip().lower()
-            fd.write(word)
-            fd.write('\n')
+    try:
+        with open(filename, "w") as fd, urllib.request.urlopen(url) as url:
+            for line in url:
+                word = line.decode("utf-8").strip().lower()
+                fd.write(word)
+                fd.write('\n')
+    except URLError:
+        print(f"Cannot acces {url}.\n\
+Check your internet connection, the availability of the ressources \
+or run with the option --no-wordlist-update if the file has already been downloaded")
+        exit()
 
 def parse_dict_file(filename, out_set):
     """Open a dictionnary file and add all the words into a set"""
@@ -84,7 +91,9 @@ if __name__ == "__main__":
     for file in dict_files:
         parse_dict_file(file, dict_words)
 
-    print(len(dict_words))
+    print(f"The library contains {len(dict_words)} different words")
+
+
 
 
 exit()
