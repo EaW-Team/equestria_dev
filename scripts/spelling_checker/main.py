@@ -90,6 +90,30 @@ def parse_loc_file(filename, database):
 
     return nb_entry
 
+def parse_keys_exception(language):
+    """Given the language, return a dictionary with all the exceptions.
+
+    The exception dictionary follows this format:
+    exceptions["loc_hey"] = { "word": nb_of_exception, ...}"""
+
+    result = {}
+
+    directory_name = os.path.join("exception", language)
+    os.makedirs(directory_name, exist_ok=True)
+
+    file_list = list_files(directory_name, extension=".json")
+    print(file_list)
+    for file in file_list:
+        with open(file, "r") as fd:
+            work = json.load(fd)
+        for key, data in work.items():
+            if key in result:
+                print(f"{key} key has already an exception defined. Multiple exceptions for one key")
+            result[key] = data
+
+    return result
+
+
 if __name__ == "__main__":
     args = parse_argument()
 
@@ -130,6 +154,27 @@ if __name__ == "__main__":
         print(f"{file}: {entry} entries found")
 
     print(f"A total of {len(loc_database)} loc entries has been found")
+
+    # Get and parse the exception JSON
+    exception_filter = []
+    with open(FILTER_JSON_NAME, "r", encoding="utf-8") as fd:
+        exception_str = json.load(fd)
+    print(f"Applying {len(exception_str)} filters to the localization:")
+    for key, data in exception_str.items():
+        print(f"\t{key}")
+        exception_filter.append(re.compile(data))
+
+    # test_str = r"[ok|Y] big-word ok$test_AZ$\n\n?!£oklijqsd \\§ 569mm\£,,,sqdzeze§Y§!"
+    # print(test_str)
+    # for elmt in exception_filter:
+    #     test_str = elmt.sub(' ', test_str)
+    # print(test_str)
+
+    # Get exceptions
+    exceptions = parse_keys_exception(args.language)
+
+    print(exceptions)
+
 
 exit()
 
