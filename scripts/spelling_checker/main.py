@@ -102,7 +102,6 @@ def parse_keys_exception(language):
     os.makedirs(directory_name, exist_ok=True)
 
     file_list = list_files(directory_name, extension=".json")
-    print(file_list)
     for file in file_list:
         with open(file, "r") as fd:
             work = json.load(fd)
@@ -164,17 +163,63 @@ if __name__ == "__main__":
         print(f"\t{key}")
         exception_filter.append(re.compile(data))
 
-    # test_str = r"[ok|Y] big-word ok$test_AZ$\n\n?!£oklijqsd \\§ 569mm\£,,,sqdzeze§Y§!"
-    # print(test_str)
-    # for elmt in exception_filter:
-    #     test_str = elmt.sub(' ', test_str)
-    # print(test_str)
+    # Get and parse the word exception JSON
+    word_exception_filter = []
+    with open(WORD_FILTER_JSON_NAME, "r", encoding="utf-8") as fd:
+        exception_str = json.load(fd)
+    print(f"Applying {len(exception_str)} filters to the words:")
+    for key, data in exception_str.items():
+        print(f"\t{key}")
+        word_exception_filter.append(re.compile(data))
 
     # Get exceptions
     exceptions = parse_keys_exception(args.language)
+    print(f"Found {len(exceptions)} exceptions for {args.language}")
 
+    # Parse the localisation
+
+    tot_words = 0
+    dict_errors = {}
+    dict_errors_capitalized = {}
+    for key, (data, file, line_nb) in loc_database.items():
+        # Filtering
+        for elmt in exception_filter:
+            data = elmt.sub(' ', data)
+
+        words = data.split(' ')
+        for word in words:
+            # Word filtering (Deleting hyphen, numbers, etc)
+            for elmt in word_exception_filter:
+                word = elmt.sub(' ', word)
+            word = word.strip()
+            if not word:
+                continue
+            tot_words += 1
+            word_lower = word.lower()
+            is_capitalized = word[0].isupper()
+            is_known_word = word_lower in dict_words
+            if is_known_word:
+                continue
+            exceptions_t = exceptions
+            if key in exceptions_t and word in exceptions_t[key] and exceptions_t[key][word] > 0:
+                exceptions_t[key][word] -= 1
+                continue
+
+            target = dict_errors
+            if is_capitalized:
+                target = dict_errors_capitalized
+            if word_lower in target:
+                target[word_lower] += 1
+            else:
+                target[word_lower] = 1
+
+
+    print(tot_words)
     print(exceptions)
-
+    print(dict_errors_capitalized)
+    print(dict_errors)
+    print(len(dict_errors_capitalized))
+    print(len(dict_errors))
 
 exit()
 

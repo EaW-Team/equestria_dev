@@ -7,7 +7,8 @@ DICT_EXTENSION = ".txt"
 DEFAULT_WORDLIST_JSON = "word_list.json"
 
 # Regex for what is the entry in a loc file
-RE_LOC_FILE_ENTRY = re.compile(r'\s*([\w\.]+):\d*\s+"(.*)".*$')
+RE_LOC_FILE_ENTRY = re.compile(r'\s*([\w\.]+):\d*\s+"(.*)".*')
 
 FILTER_JSON_NAME = "exception/filters.json"
+WORD_FILTER_JSON_NAME = "exception/word_filters.json"
 EXCEPTION_FILE_EXTENSION = ".json"
