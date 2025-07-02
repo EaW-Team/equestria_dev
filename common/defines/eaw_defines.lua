@@ -34,7 +34,9 @@ NDefines.NResistance.GARRISON_TEMPLATE_SCORE_MANPOWER_FACTOR = 0.4  -- formula i
 NDefines.NProduction.FLOATING_HARBOR_MAX_NAV_FACTORIES_PER_LINE = 10 -- vanilla is 5
 NDefines.NProduction.CAPITAL_SHIP_MAX_NAV_FACTORIES_PER_LINE = 10 -- vanilla is 5
 NDefines.NProduction.RAILWAY_GUN_MAX_MIL_FACTORIES_PER_LINE = 10 -- vanilla is 5
-NDefines.NProduction.BASE_FACTORY_SPEED_NAV = 3.5 -- vanilla is 2.5
+NDefines.NProduction.BASE_FACTORY_SPEED_NAV = 3.0 -- vanilla is 2.0
+NDefines.NProduction.POWERED_FACTORY_SPEED_NAV = 3.5 			--Powered factory speed multiplier. Vanilla is 2.5 -- TODO SEA change the value
+
 NDefines.NProduction.MINIMUM_NUMBER_OF_FACTORIES_TAKEN_BY_CONSUMER_GOODS_PERCENT = 0.05 -- vanilla is 0.1
 NDefines.NProduction.MAX_EQUIPMENT_RESOURCES_NEED = 4
 
