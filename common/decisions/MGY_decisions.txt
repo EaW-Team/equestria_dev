@@ -17,6 +17,8 @@ MGY_EconomyDebts_cat = {
 		}
 
 		complete_effect = {
+			log = "[GetDateText]: [Root.GetName]: Decision MGY_EconomyDevelopment_PayDebt_dec"
+			#
 			remove_ideas = MGY_IndebtedEconomy
 
 			#TODO: add event
@@ -47,6 +49,9 @@ MGY_EconomyDebts_cat = {
 	MGY_EconomyDevelopment_ImposeTariffs_dec = {
 		icon = GFX_MGY_Foodstuffs_dec
 
+		days_remove = 120
+		fire_only_once = yes
+
 		visible = {
 			OR = {
 				is_debug = yes
@@ -54,25 +59,169 @@ MGY_EconomyDebts_cat = {
 			}
 		}
 
-		# TODO: remove industrial advisor
+		cancel_trigger = {
+			NOT = {
+				has_idea = MGY_IndebtedEconomy
+			}
+		}
+
+		modifier = {
+			# Total Trade Cutoff
+			consumer_goods_factor = 0.25
+			custom_modifier_tooltip = MGY_NoMarket_tt
+		}
+
+		complete_effect = {
+			log = "[GetDateText]: [Root.GetName]: Decision MGY_EconomyDevelopment_ImposeTariffs_dec"
+			# Decreases the cost of the debt repayment decision by 50
+			add_to_variable = {
+				var = MGY_DebtPaymentCost_var
+				value = -50
+				tooltip = MGY_DebtPaymentCost_var_tt
+			}
+			custom_effect_tooltip = MGY_DoubleSpace_tt
+			# Hidden rule to remove market access
+			hidden_effect = {
+				set_rule = {
+					can_access_market = no
+				}
+			}
+		}
+
+		cancel_effect = {
+			# Hidden rule to restore market access
+			hidden_effect = {
+				set_rule = {
+					can_access_market = yes
+				}
+			}
+		}
+
+		remove_effect = {
+			# Hidden rule to restore market access
+			hidden_effect = {
+				set_rule = {
+					can_access_market = yes
+				}
+			}
+		}
 	}
 	MGY_EconomyDevelopment_NationaliseIndustries_dec = {
 		icon = GFX_decision_generic_confiscation
+
+		days_remove = 120
+		fire_only_once = yes
 
 		visible = {
 			OR = {
 				is_debug = yes
 				has_completed_focus = MGY_FinancialAusterity
 			}
+		}
+
+		cancel_trigger = {
+			NOT = {
+				has_idea = MGY_IndebtedEconomy
+			}
+		}
+
+		modifier = {
+			# Investors are fleeing
+			industrial_capacity_factory = -0.2
+			industrial_capacity_dockyard = -0.2
+			local_resources_factor = -0.1
+		}
+
+		complete_effect = {
+			log = "[GetDateText]: [Root.GetName]: Decision MGY_EconomyDevelopment_NationaliseIndustries_dec"
+			# Decreases the cost of the debt repayment decision by 50
+			add_to_variable = {
+				var = MGY_DebtPaymentCost_var
+				value = -50
+				tooltip = MGY_DebtPaymentCost_var_tt
+			}
+			custom_effect_tooltip = MGY_DoubleSpace_tt
 		}
 	}
 	MGY_EconomyDevelopment_ApproachEquestria_dec = {
 		icon = GFX_decision_generic_political_discourse
 
+		targets = {
+			EQS
+		}
+
+		available = {
+			# Check if any investment decisions ahve been taken before
+			custom_trigger_tooltip = {
+				tooltip = MGY_NoInvestors_tt
+				NOT = {
+					has_country_flag = MGY_EconomyDevelopment_ApproachEquestria_flag
+				}
+				NOT = {
+					has_country_flag = MGY_EconomyDevelopment_ApproachHippogriff_flag
+				}
+				NOT = {
+					has_country_flag = MGY_EconomyDevelopment_ApproachWingbardy_flag
+				}
+				NOT = {
+					has_country_flag = MGY_EconomyDevelopment_KulgetownConnections_flag
+				}
+			}
+			# Check if the target exists and is not embargoed, embargoing with or at war with Maregypt
+			custom_trigger_tooltip = {
+				tooltip = MGY_NotWarNotEmbargoTarget_tt
+				EQS = {
+					has_opinion = {
+						target = ROOT
+						value > 29
+					}
+					NOT = {
+						has_war_with = ROOT
+					}
+					NOT = {
+						is_embargoing = ROOT
+					}
+					NOT = {
+						is_embargoed_by = ROOT
+					}
+					NOT = {
+						is_subject_of = ROOT
+					}
+					exists = yes
+				}
+			}
+		}
+
 		visible = {
+			EQS = {
+				exists = yes
+			}
 			OR = {
 				is_debug = yes
 				has_completed_focus = MGY_SeekInvestments
+			}
+		}
+
+		complete_effect = {
+			log = "[GetDateText]: [Root.GetName]: Decision MGY_EconomyDevelopment_ApproachEquestria_dec"
+			# Decreases the cost of the debt repayment decision by 50
+			add_to_variable = {
+				var = MGY_DebtPaymentCost_var
+				value = -50
+				tooltip = MGY_DebtPaymentCost_var_tt
+			}
+			custom_effect_tooltip = MGY_DoubleSpace_tt
+			# Oops, debt repayment
+			add_timed_idea = {
+				idea = MGY_PayingDebtsToCountry_EQS
+				days = 400
+			}
+			custom_effect_tooltip = MGY_DoubleSpace_tt
+			custom_effect_tooltip = MGY_ForeignDebtWarning_tt
+			# Set the country flag to block future decisions
+			hidden_effect = {
+				set_country_flag = MGY_EconomyDevelopment_ApproachEquestria_flag
+				# TODO: event for "traders protest equestrian monopolies"
 			}
 		}
 	}
@@ -84,19 +233,43 @@ MGY_EconomyDebts_cat = {
 		}
 
 		available = {
-			NOT = {
-				has_war_with = HIP
+			# Check if any investment decisions ahve been taken before
+			custom_trigger_tooltip = {
+				tooltip = MGY_NoInvestors_tt
+				NOT = {
+					has_country_flag = MGY_EconomyDevelopment_ApproachEquestria_flag
+				}
+				NOT = {
+					has_country_flag = MGY_EconomyDevelopment_ApproachHippogriff_flag
+				}
+				NOT = {
+					has_country_flag = MGY_EconomyDevelopment_ApproachWingbardy_flag
+				}
+				NOT = {
+					has_country_flag = MGY_EconomyDevelopment_KulgetownConnections_flag
+				}
 			}
-			NOT = {
-				is_embargoing = HIP
-			}
-			NOT = {
-				is_embargoed_by = HIP
-			}
-			HIP = {
-				has_opinion = {
-					target = ROOT
-					value > 29
+			# Check if the target exists and is not embargoed, embargoing with or at war with Maregypt
+			custom_trigger_tooltip = {
+				tooltip = MGY_NotWarNotEmbargoTarget_tt
+				HIP = {
+					has_opinion = {
+						target = ROOT
+						value > 29
+					}
+					NOT = {
+						has_war_with = ROOT
+					}
+					NOT = {
+						is_embargoing = ROOT
+					}
+					NOT = {
+						is_embargoed_by = ROOT
+					}
+					NOT = {
+						is_subject_of = ROOT
+					}
+					exists = yes
 				}
 			}
 		}
@@ -112,54 +285,189 @@ MGY_EconomyDebts_cat = {
 		}
 
 		complete_effect = {
-			# Decreases the cost of the debt repayment decision by 25
+			log = "[GetDateText]: [Root.GetName]: Decision MGY_EconomyDevelopment_ApproachHippogriff_dec"
+			# Decreases the cost of the debt repayment decision by 50
 			add_to_variable = {
 				var = MGY_DebtPaymentCost_var
-				value = -25
+				value = -50
 				tooltip = MGY_DebtPaymentCost_var_tt
 			}
 			custom_effect_tooltip = MGY_DoubleSpace_tt
-			add_ideas = {
-				MGY_PayingDebtsToCountry_HIP
+			# Oops, debt repayment
+			add_timed_idea = {
+				idea = MGY_PayingDebtsToCountry_HIP
+				days = 400
 			}
 			custom_effect_tooltip = MGY_DoubleSpace_tt
-			custom_override_tooltip = {
-				tooltip = {
-					localization_key = MGY_DisableDecision_tt
-					DECISION = MGY_EconomyDevelopment_ApproachEquestria_dec
-				}
-			}
-			custom_override_tooltip = {
-				tooltip = {
-					localization_key = MGY_DisableDecision_tt
-					DECISION = MGY_EconomyDevelopment_ApproachWingbardy_dec
-				}
-			}
-			custom_override_tooltip = {
-				tooltip = {
-					localization_key = MGY_DisableDecision_tt
-					DECISION = MGY_EconomyDevelopment_KulgetownConnections_dec
-				}
+			custom_effect_tooltip = MGY_ForeignDebtWarning_tt
+			# Set the country flag to block future decisions
+			hidden_effect = {
+				set_country_flag = MGY_EconomyDevelopment_ApproachHippogriff_flag
+				# TODO: event for "farmers hippogriffian monopolies"
 			}
 		}
 	}
 	MGY_EconomyDevelopment_ApproachWingbardy_dec = {
 		icon = GFX_decision_generic_political_discourse
 
+		targets = {
+			WNG
+		}
+
+		available = {
+			# Check if any investment decisions ahve been taken before
+			custom_trigger_tooltip = {
+				tooltip = MGY_NoInvestors_tt
+				NOT = {
+					has_country_flag = MGY_EconomyDevelopment_ApproachEquestria_flag
+				}
+				NOT = {
+					has_country_flag = MGY_EconomyDevelopment_ApproachHippogriff_flag
+				}
+				NOT = {
+					has_country_flag = MGY_EconomyDevelopment_ApproachWingbardy_flag
+				}
+				NOT = {
+					has_country_flag = MGY_EconomyDevelopment_KulgetownConnections_flag
+				}
+			}
+			# Check if the target exists and is not embargoed, embargoing with or at war with Maregypt
+			custom_trigger_tooltip = {
+				tooltip = MGY_NotWarNotEmbargoTarget_tt
+				WNG = {
+					has_opinion = {
+						target = ROOT
+						value > 29
+					}
+					NOT = {
+						has_war_with = ROOT
+					}
+					NOT = {
+						is_embargoing = ROOT
+					}
+					NOT = {
+						is_embargoed_by = ROOT
+					}
+					NOT = {
+						is_subject_of = ROOT
+					}
+					exists = yes
+				}
+			}
+		}
+
 		visible = {
+			HIP = {
+				exists = yes
+			}
 			OR = {
 				is_debug = yes
 				has_completed_focus = MGY_SeekInvestments
+			}
+		}
+
+		complete_effect = {
+			log = "[GetDateText]: [Root.GetName]: Decision MGY_EconomyDevelopment_ApproachWingbardy_dec"
+			# Decreases the cost of the debt repayment decision by 50
+			add_to_variable = {
+				var = MGY_DebtPaymentCost_var
+				value = -50
+				tooltip = MGY_DebtPaymentCost_var_tt
+			}
+			custom_effect_tooltip = MGY_DoubleSpace_tt
+			# Oops, debt repayment
+			add_timed_idea = {
+				idea = MGY_PayingDebtsToCountry_WNG
+				days = 400
+			}
+			custom_effect_tooltip = MGY_DoubleSpace_tt
+			custom_effect_tooltip = MGY_ForeignDebtWarning_tt
+			# Set the country flag to block future decisions
+			hidden_effect = {
+				set_country_flag = MGY_EconomyDevelopment_ApproachWingbardy_flag
+				# TODO: event for "abyssinia protests*"
 			}
 		}
 	}
 	MGY_EconomyDevelopment_KulgetownConnections_dec = {
 		icon = GFX_decision_generic_political_discourse
 
+		targets = {
+			KLG
+		}
+
+		available = {
+			# Check if any investment decisions ahve been taken before
+			custom_trigger_tooltip = {
+				tooltip = MGY_NoInvestors_tt
+				NOT = {
+					has_country_flag = MGY_EconomyDevelopment_ApproachEquestria_flag
+				}
+				NOT = {
+					has_country_flag = MGY_EconomyDevelopment_ApproachHippogriff_flag
+				}
+				NOT = {
+					has_country_flag = MGY_EconomyDevelopment_ApproachWingbardy_flag
+				}
+				NOT = {
+					has_country_flag = MGY_EconomyDevelopment_KulgetownConnections_flag
+				}
+			}
+			# Check if the target exists and is not embargoed, embargoing with or at war with Maregypt
+			custom_trigger_tooltip = {
+				tooltip = MGY_NotWarNotEmbargoTarget_tt
+				KLG = {
+					has_opinion = {
+						target = ROOT
+						value > 29
+					}
+					NOT = {
+						has_war_with = ROOT
+					}
+					NOT = {
+						is_embargoing = ROOT
+					}
+					NOT = {
+						is_embargoed_by = ROOT
+					}
+					NOT = {
+						is_subject_of = ROOT
+					}
+					exists = yes
+				}
+			}
+		}
+
 		visible = {
+			KLG = {
+				exists = yes
+			}
 			OR = {
 				is_debug = yes
 				has_completed_focus = MGY_SeekInvestments
+			}
+		}
+
+		complete_effect = {
+			log = "[GetDateText]: [Root.GetName]: Decision MGY_EconomyDevelopment_KulgetownConnections_dec"
+			# Decreases the cost of the debt repayment decision by 50
+			add_to_variable = {
+				var = MGY_DebtPaymentCost_var
+				value = -50
+				tooltip = MGY_DebtPaymentCost_var_tt
+			}
+			custom_effect_tooltip = MGY_DoubleSpace_tt
+			# Oops, debt repayment
+			add_timed_idea = {
+				idea = MGY_PayingDebtsToCountry_KLG
+				days = 400
+			}
+			custom_effect_tooltip = MGY_DoubleSpace_tt
+			custom_effect_tooltip = MGY_ForeignDebtWarning_tt
+			# Set the country flag to block future decisions
+			hidden_effect = {
+				set_country_flag = MGY_EconomyDevelopment_KulgetownConnections_flag
+				# TODO: event for "Criminal inflitrators*"
 			}
 		}
 	}
@@ -209,6 +517,8 @@ MGY_EconomySociety_cat = {
 		}
 
 		complete_effect = {
+			log = "[GetDateText]: [Root.GetName]: Decision MGY_EconomyDevelopment_ImproveTrotanis_dec"
+			#
 			hidden_effect = {
 				FROM = {
 					add_dynamic_modifier = {
@@ -304,6 +614,8 @@ MGY_EconomySociety_cat = {
 		}
 
 		complete_effect = {
+			log = "[GetDateText]: [Root.GetName]: Decision MGY_EconomyDevelopment_ImproveDelta_dec"
+			#
 			hidden_effect = {
 				FROM = {
 					add_dynamic_modifier = {
@@ -399,6 +711,8 @@ MGY_EconomySociety_cat = {
 		}
 
 		complete_effect = {
+			log = "[GetDateText]: [Root.GetName]: Decision MGY_EconomyDevelopment_ImproveManephis_dec"
+			#
 			hidden_effect = {
 				FROM = {
 					add_dynamic_modifier = {
@@ -494,6 +808,8 @@ MGY_EconomySociety_cat = {
 		}
 
 		complete_effect = {
+			log = "[GetDateText]: [Root.GetName]: Decision MGY_EconomyDevelopment_ImproveHaxyor_dec"
+			#
 			hidden_effect = {
 				FROM = {
 					add_dynamic_modifier = {
@@ -589,6 +905,8 @@ MGY_EconomySociety_cat = {
 		}
 
 		complete_effect = {
+			log = "[GetDateText]: [Root.GetName]: Decision MGY_EconomyDevelopment_ImproveDahshoof_dec"
+			#
 			hidden_effect = {
 				FROM = {
 					add_dynamic_modifier = {
@@ -684,6 +1002,8 @@ MGY_EconomySociety_cat = {
 		}
 
 		complete_effect = {
+			log = "[GetDateText]: [Root.GetName]: Decision MGY_EconomyDevelopment_ImproveAssyut_dec"
+			#
 			hidden_effect = {
 				FROM = {
 					add_dynamic_modifier = {
@@ -779,6 +1099,8 @@ MGY_EconomySociety_cat = {
 		}
 
 		complete_effect = {
+			log = "[GetDateText]: [Root.GetName]: Decision MGY_EconomyDevelopment_ImproveKoltnak_dec"
+			#
 			hidden_effect = {
 				FROM = {
 					add_dynamic_modifier = {
@@ -874,6 +1196,8 @@ MGY_EconomySociety_cat = {
 		}
 
 		complete_effect = {
+			log = "[GetDateText]: [Root.GetName]: Decision MGY_EconomyDevelopment_ImproveMareydum_dec"
+			#
 			hidden_effect = {
 				FROM = {
 					add_dynamic_modifier = {
@@ -958,6 +1282,8 @@ MGY_EconomySociety_cat = {
 		}
 
 		complete_effect = {
+			log = "[GetDateText]: [Root.GetName]: Decision MGY_EconomyDevelopment_LitteracyCampaign_dec"
+			#
 			hidden_effect = {
 				set_country_flag = MGY_litteracyCampaignInProgress_flag
 			}
@@ -994,6 +1320,8 @@ MGY_EconomySociety_cat = {
 		}
 
 		complete_effect = {
+			log = "[GetDateText]: [Root.GetName]: Decision MGY_EconomyDevelopment_RevokeScribalPrivileges_dec"
+			#
 			if = {
 				limit = {
 					has_idea = MGY_PoliticalUnrest
@@ -1075,6 +1403,11 @@ MGY_EconomyDevelopment_cat = {
 			}
 		}
 
+		complete_effect = {
+			log = "[GetDateText]: [Root.GetName]: Decision MGY_EconomyDevelopment_RataphetSteelIndustry_dec"
+			#
+		}
+
 		remove_effect = {
 			737 = {
 				add_extra_state_shared_building_slots = 2
@@ -1145,6 +1478,11 @@ MGY_EconomyDevelopment_cat = {
 			}
 		}
 
+		complete_effect = {
+			log = "[GetDateText]: [Root.GetName]: Decision MGY_EconomyDevelopment_ExploitWadi_dec"
+			#
+		}
+
 		remove_effect = {
 			build_railway = {
 				level = 3
@@ -1212,6 +1550,11 @@ MGY_EconomyDevelopment_cat = {
 			}
 		}
 
+		complete_effect = {
+			log = "[GetDateText]: [Root.GetName]: Decision MGY_EconomyDevelopment_ManephisTruckFactory_dec"
+			#
+		}
+
 		remove_effect = {
 			735 = {
 				add_extra_state_shared_building_slots = 3
@@ -1272,6 +1615,11 @@ MGY_EconomyDevelopment_cat = {
 				is_debug = yes
 				has_completed_focus = MGY_EconomyDevelopment
 			}
+		}
+
+		complete_effect = {
+			log = "[GetDateText]: [Root.GetName]: Decision MGY_EconomyDevelopment_Bucksiris_dec"
+			#
 		}
 
 		remove_effect = {
@@ -1339,6 +1687,11 @@ MGY_EconomyDevelopment_cat = {
 			}
 		}
 
+		complete_effect = {
+			log = "[GetDateText]: [Root.GetName]: Decision MGY_EconomyDevelopment_SomnambulaMetalworks_dec"
+			#
+		}
+
 		remove_effect = {
 			733 = {
 				add_extra_state_shared_building_slots = 1
@@ -1404,6 +1757,11 @@ MGY_EconomyDevelopment_cat = {
 			}
 		}
 
+		complete_effect = {
+			log = "[GetDateText]: [Root.GetName]: Decision MGY_EconomyDevelopment_SomnambulaFishieries_dec"
+			#
+		}
+
 		remove_effect = {
 			733 = {
 				add_extra_state_shared_building_slots = 4
@@ -1464,6 +1822,11 @@ MGY_EconomyDevelopment_cat = {
 				is_debug = yes
 				has_completed_focus = MGY_RoyalOfficeOfWorks
 			}
+		}
+
+		complete_effect = {
+			log = "[GetDateText]: [Root.GetName]: Decision MGY_EconomyDevelopment_SouthernDevelopment_dec"
+			#
 		}
 
 		remove_effect = {
@@ -1537,6 +1900,11 @@ MGY_EconomyDevelopment_cat = {
 			}
 		}
 
+		complete_effect = {
+			log = "[GetDateText]: [Root.GetName]: Decision MGY_EconomyDevelopment_SineighiDevelopment_dec"
+			#
+		}
+
 		remove_effect = {
 			738 = {
 				if = {
@@ -1602,6 +1970,11 @@ MGY_EconomyDevelopment_cat = {
 				is_debug = yes
 				has_completed_focus = MGY_RoyalOfficeOfWorks
 			}
+		}
+
+		complete_effect = {
+			log = "[GetDateText]: [Root.GetName]: Decision MGY_EconomyDevelopment_ManeisrataDevelopment_dec"
+			#
 		}
 
 		remove_effect = {
@@ -1675,6 +2048,11 @@ MGY_EconomyDevelopment_cat = {
 			}
 		}
 
+		complete_effect = {
+			log = "[GetDateText]: [Root.GetName]: Decision MGY_EconomyDevelopment_AssyutDam_dec"
+			#
+		}
+
 		remove_effect = {
 			761 = {
 				add_building_construction = {
@@ -1742,6 +2120,11 @@ MGY_EconomyDevelopment_cat = {
 				is_debug = yes
 				has_completed_focus = MGY_ExploitTheNeighle
 			}
+		}
+
+		complete_effect = {
+			log = "[GetDateText]: [Root.GetName]: Decision MGY_EconomyDevelopment_DahshoofDam_dec"
+			#
 		}
 
 		remove_effect = {
@@ -1816,6 +2199,11 @@ MGY_EconomyDevelopment_cat = {
 			}
 		}
 
+		complete_effect = {
+			log = "[GetDateText]: [Root.GetName]: Decision MGY_EconomyDevelopment_ManephisElectrification_dec"
+			#
+		}
+
 		remove_effect = {
 			custom_effect_tooltip = MGY_ModifyMaregyptEco_tt
 			add_to_variable = {
@@ -1884,6 +2272,11 @@ MGY_EconomyDevelopment_cat = {
 				is_debug = yes
 				has_completed_focus = MGY_LightIndustry
 			}
+		}
+
+		complete_effect = {
+			log = "[GetDateText]: [Root.GetName]: Decision MGY_EconomyDevelopment_HaxyorFertiliserPlant_dec"
+			#
 		}
 
 		remove_effect = {
@@ -1963,6 +2356,11 @@ MGY_EconomyDevelopment_cat = {
 				is_debug = yes
 				has_completed_focus = MGY_LightIndustry
 			}
+		}
+
+		complete_effect = {
+			log = "[GetDateText]: [Root.GetName]: Decision MGY_EconomyDevelopment_KoltnakIndustrialComplex_dec"
+			#
 		}
 
 		remove_effect = {
@@ -2050,6 +2448,11 @@ MGY_EconomyDevelopment_cat = {
 			}
 		}
 
+		complete_effect = {
+			log = "[GetDateText]: [Root.GetName]: Decision MGY_EconomyDevelopment_TrotanisPaperMill_dec"
+			#
+		}
+
 		remove_effect = {
 			custom_effect_tooltip = MGY_ModifyMaregyptEco_tt
 			add_to_variable = {
@@ -2106,6 +2509,11 @@ MGY_EconomyDevelopment_cat = {
 
 		modifier = {
 			civilian_factory_use = 2
+		}
+
+		complete_effect = {
+			log = "[GetDateText]: [Root.GetName]: Decision MGY_EconomyDevelopment_KoltnakToMeroeRail_dec"
+			#
 		}
 
 		remove_effect = {
@@ -2169,6 +2577,11 @@ MGY_EconomyDevelopment_cat = {
 			civilian_factory_use = 2
 		}
 
+		complete_effect = {
+			log = "[GetDateText]: [Root.GetName]: Decision MGY_EconomyDevelopment_SomnambulaToBuckSiris_dec"
+			#
+		}
+
 		remove_effect = {
 			custom_effect_tooltip = MGY_ModifyMaregyptEco_tt
 			add_to_variable = {
@@ -2228,6 +2641,11 @@ MGY_EconomyDevelopment_cat = {
 
 		modifier = {
 			civilian_factory_use = 2
+		}
+
+		complete_effect = {
+			log = "[GetDateText]: [Root.GetName]: Decision MGY_EconomyDevelopment_RataPhetToManeisrata_dec"
+			#
 		}
 
 		remove_effect = {
@@ -2295,6 +2713,11 @@ MGY_EconomyDevelopment_cat = {
 			civilian_factory_use = 2
 		}
 
+		complete_effect = {
+			log = "[GetDateText]: [Root.GetName]: Decision MGY_EconomyDevelopment_MareoeToKlugetown_dec"
+			#
+		}
+
 		remove_effect = {
 			custom_effect_tooltip = MGY_ModifyMaregyptEco_tt
 			add_to_variable = {
@@ -2358,6 +2781,11 @@ MGY_EconomyDevelopment_cat = {
 
 		modifier = {
 			civilian_factory_use = 2
+		}
+
+		complete_effect = {
+			log = "[GetDateText]: [Root.GetName]: Decision MGY_EconomyDevelopment_BucksirisToMenzaka_dec"
+			#
 		}
 
 		remove_effect = {
