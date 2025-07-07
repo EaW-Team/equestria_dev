@@ -217,36 +217,45 @@ EQC_calculate_total_relations = {
 	add_to_variable = { EQC_parliament_dirty = 0.01 }
 }
 
-EQC_break_current_coalition = {				
-	for_each_loop = {
-		array = EQC_party_opinion_loc@var:EQC_coalition_partner
-		value = v
-		index = i
-		break = b
-			
-		if = {
-			limit = {
-				check_variable = { v = token:in_coalition_modifier }
+#Use variable temp_target to select the party to break coalition with.
+EQC_break_coalition_with_temp_target = {		
+	if = {
+		limit = {
+			is_in_array = {
+				array = EQC_coalition_partners
+				value = temp_target
 			}
-			remove_from_array = { 
-				array = EQC_party_opinion_breakdown@var:EQC_coalition_partner
-				index = i 
-			}
-			remove_from_array = { 
-				array = EQC_party_opinion_loc@var:EQC_coalition_partner
-				index = i
-			}
-			set_temp_variable = { b = 1 }
 		}
+		for_each_loop = {
+			array = EQC_party_opinion_loc@var:temp_target
+			value = v
+			index = i
+			break = b
+				
+			if = {
+				limit = {
+					check_variable = { v = token:in_coalition_modifier }
+				}
+				remove_from_array = { 
+					array = EQC_party_opinion_breakdown@var:temp_target
+					index = i 
+				}
+				remove_from_array = { 
+					array = EQC_party_opinion_loc@var:temp_target
+					index = i
+				}
+				set_temp_variable = { b = 1 }
+			}
+		}
+		
+		add_to_array = { EQC_party_opinion_breakdown@var:temp_target = -25 }
+		add_to_array = { EQC_party_opinion_loc@var:temp_target = token:broke_coalition_modifier }
+		EQC_calculate_total_relations = yes
+		
+		set_variable = { EQC_party_coalition_btn_frame@var:temp_target = 1 }
+		
+		remove_from_array = { EQC_coalition_partners = temp_target }
 	}
-	
-	add_to_array = { EQC_party_opinion_breakdown@var:EQC_coalition_partner = -25 }
-	add_to_array = { EQC_party_opinion_loc@var:EQC_coalition_partner = token:broke_coalition_modifier }
-	EQC_calculate_total_relations = yes
-	
-	set_variable = { EQC_party_coalition_btn_frame@var:EQC_coalition_partner = 1 }
-	
-	clear_variable = EQC_coalition_partner
 }
 
 #Use temp_target for the targert
@@ -254,7 +263,7 @@ EQC_form_coalition = {
 	add_to_array = { EQC_party_opinion_breakdown@var:temp_target = 15 }
 	add_to_array = { EQC_party_opinion_loc@var:temp_target = token:in_coalition_modifier }
 	
-	set_variable = { EQC_coalition_partner = temp_target }
+	add_to_array = { EQC_coalition_partners = temp_target }
 	
 	EQC_calculate_total_relations = yes
 }
