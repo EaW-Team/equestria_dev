@@ -150,6 +150,25 @@ MCW_auto_focus_start = {
 	hidden_effect = {
 		set_country_flag = MCW_auto_focus_active
 		
+		#Scramble the random variable effect since it has a set seed for some reason.
+		random_state = {
+			meta_effect = {
+				text = {
+					set_temp_variable = { temp_count = [STATE_ID] }
+				}
+				STATE_ID = "[THIS.GetID]"
+			}
+			modulo_temp_variable = { temp_count = 600 }
+			for_loop_effect = {
+				end = temp_count
+				set_temp_variable_to_random = {
+					var = dummy_temp
+					max = 1
+					integer = yes
+				}
+			}
+		}
+		
 		#Set the length of time for each focus to complete
 		set_variable = { MCW_auto_focus_time@token:MCW_fuel_water_fire = 25 }
 		set_variable = { MCW_auto_focus_time@token:MCW_conscript_pegasi_spotters = 25 }
@@ -170,27 +189,12 @@ MCW_auto_focus_start = {
 		set_variable = { MCW_auto_focus_time@token:MCW_ramming_speed = 25 }
 		set_variable = { MCW_auto_focus_time@token:MCW_bigger_bigger_carriers = 25 }
 		
-		add_to_array = { MCW_auto_focus_available_foci = token:MCW_fuel_water_fire }
+		add_to_array = { MCW_auto_focus_available_foci@token:MCW_heitor = token:MCW_fuel_water_fire }
 		
-		#Scramble the random variable effect since it has a set seed for some reason.
-		random_state = {
-			meta_effect = {
-				text = {
-					set_temp_variable = { temp_count = [STATE_ID] }
-				}
-				STATE_ID = "[THIS.GetID]"
-			}
-			modulo_temp_variable = { temp_count = 600 }
-			for_loop_effect = {
-				end = temp_count
-				set_temp_variable_to_random = {
-					var = dummy_temp
-					max = 1
-					integer = yes
-				}
-			}
+		MCW_heitor = {
+			set_variable = { character_token = token:MCW_heitor }
 		}
-		
+		set_temp_variable = { temp_character = token:MCW_heitor }
 		MCW_auto_focus_select_focus = yes
 	}
 }
@@ -201,15 +205,12 @@ MCW_auto_focus_select_focus = {
 	
 	if = {
 		limit = {
-			check_variable = { MCW_auto_focus_available_foci^num = 0 }
+			check_variable = { MCW_auto_focus_available_foci@var:temp_character^num > 0 }
 		}
-		MCW_auto_focus_stop = yes #Because otherwise it creates an infinite loop and crashes the game.
-	}
-	else = {
 		#Choose a random focus from the array
 		set_variable_to_random = {
-			var = MCW_active_focus_index
-			max = MCW_auto_focus_available_foci^num
+			var = MCW_active_focus_index@var:temp_character
+			max = MCW_auto_focus_available_foci@var:temp_character^num
 			integer = yes
 		}
 
@@ -217,21 +218,25 @@ MCW_auto_focus_select_focus = {
 			text = {
 				activate_shine_on_focus = [FOCUS_ID]
 			}
-			FOCUS_ID = "[?MCW_auto_focus_available_foci^MCW_active_focus_index.GetTokenKey]"
+			FOCUS_ID = "[?MCW_auto_focus_available_foci@var:temp_character^MCW_active_focus_index@var:temp_character.GetTokenKey]"
+			debug = yes
 		}
 		
 		MCW_auto_focus_select_effect = yes
 		
 		#Set up the country flag and the untility event to fire when the focus is complete
-		set_temp_variable = { temp_focus_token = MCW_auto_focus_available_foci^MCW_active_focus_index } #Have to do this thanks to PDX weirdness
+		set_temp_variable = { temp_focus_token = MCW_auto_focus_available_foci@var:temp_character^MCW_active_focus_index@var:temp_character } #Have to do this thanks to PDX weirdness
 		set_temp_variable = { temp_timer = MCW_auto_focus_time@var:temp_focus_token }
 		add_to_temp_variable = { temp_timer = 1 }
 		meta_effect = { #This is a meta-effect because otherwise it generates errors for some reason.
 			text = {
 				set_country_flag = {
-					flag = MCW_auto_focus_in_progress_flag
+					flag = MCW_auto_focus_in_progress_[CHARACTER]
 					days = [TIME_FLAG]
 					value = 1 
+				}
+				[CHARACTER] = {
+					save_event_target_as = focus_originator
 				}
 				country_event = {
 					id = macawia_debug.15
@@ -240,6 +245,8 @@ MCW_auto_focus_select_focus = {
 			}
 			TIME_FLAG = "[?temp_timer]"
 			TIME = "[?MCW_auto_focus_time@var:temp_focus_token]"
+			CHARACTER = "[?temp_character.GetTokenKey]"
+			debug = yes
 		}
 	}
 }
@@ -275,7 +282,6 @@ MCW_auto_focus_stop = {
 	log = "[GetDateText]: [Root.GetName]: Scripted effect: MCW_auto_focus_stop."
 
 	clr_country_flag = MCW_auto_focus_active
-	clr_country_flag = MCW_auto_focus_in_progress_flag
 	
 	meta_effect = {
 		text = {
