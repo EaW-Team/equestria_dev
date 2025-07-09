@@ -591,7 +591,7 @@ EQC_become_blueberry = {
 	add_to_array = { EQC_party_opinion_breakdown@token:picket_fence_party = -25 }
 	add_to_array = { EQC_party_opinion_loc@token:picket_fence_party = token:different_ideology_modifier }
 	
-	add_to_array = { EQC_party_opinion_breakdown@token:picket_fence_party = -80 }
+	add_to_array = { EQC_party_opinion_breakdown@token:picket_fence_party = -100 }
 	add_to_array = { EQC_party_opinion_loc@token:picket_fence_party = token:mortal_enemies_modifier }
 	
 	EQC_calculate_total_relations = yes
@@ -645,7 +645,7 @@ EQC_become_maresoc = {
 	add_to_array = { EQC_party_opinion_breakdown@token:duke_haygle_party = -25 }
 	add_to_array = { EQC_party_opinion_loc@token:duke_haygle_party = token:different_ideology_modifier }
 	
-	add_to_array = { EQC_party_opinion_breakdown@token:duke_haygle_party = -80 }
+	add_to_array = { EQC_party_opinion_breakdown@token:duke_haygle_party = -100 }
 	add_to_array = { EQC_party_opinion_loc@token:duke_haygle_party = token:mortal_enemies_modifier }
 
 	add_to_array = { EQC_party_opinion_breakdown@token:picket_fence_party = -25 }
@@ -675,7 +675,7 @@ EQC_become_picket = {
 	add_to_array = { EQC_party_opinion_breakdown@token:blueberry_frost_party = -25 }
 	add_to_array = { EQC_party_opinion_loc@token:blueberry_frost_party = token:different_ideology_modifier }
 	
-	add_to_array = { EQC_party_opinion_breakdown@token:blueberry_frost_party = -80 }
+	add_to_array = { EQC_party_opinion_breakdown@token:blueberry_frost_party = -100 }
 	add_to_array = { EQC_party_opinion_loc@token:blueberry_frost_party = token:mortal_enemies_modifier }
 	
 	add_to_array = { EQC_party_opinion_breakdown@token:maresoc_party = -25 }
@@ -728,7 +728,7 @@ EQC_become_haygle = {
 	add_to_array = { EQC_party_opinion_breakdown@token:maresoc_party = -25 }
 	add_to_array = { EQC_party_opinion_loc@token:maresoc_party = token:different_ideology_modifier }
 	
-	add_to_array = { EQC_party_opinion_breakdown@token:maresoc_party = -80 }
+	add_to_array = { EQC_party_opinion_breakdown@token:maresoc_party = -100 }
 	add_to_array = { EQC_party_opinion_loc@token:maresoc_party = token:mortal_enemies_modifier }
 	
 	add_to_array = { EQC_party_opinion_breakdown@token:lufty_star_party = -25 }
@@ -792,9 +792,22 @@ EQC_hold_election = {
 				}
 			}	
 			# maresoc path
+			country_event = mareland.29
 		}
 		else = {
 			# haygleians path
+			# their popularity is doubled
+			set_temp_variable = { temp_amount = EQC_party_projected_popularity@token:duke_haygle_party }
+			set_temp_variable = { temp_target = token:duke_haygle_party }
+			EQC_add_support_for_party = yes
+			for_each_loop = {
+				array = EQC_party_token_array
+				value = v
+				index = i
+				
+				set_variable = { EQC_party_popularity@var:v = EQC_party_projected_popularity@var:v }
+			}
+			country_event = mareland_new.5
 		}
 	}
 	else = { # otherwise elections are free and fair
@@ -804,6 +817,48 @@ EQC_hold_election = {
 			index = i
 			
 			set_variable = { EQC_party_popularity@var:v = EQC_party_projected_popularity@var:v }
+		}
+		# choosing who you play as
+		if = {
+			limit = {
+				# if the Haygleians didn't make the 20% threshold they will not be able to secure absolute power
+				has_completed_focus = EQC_the_government_of_national_salvation
+			}
+			EQC_become_picket = yes # even if the NMPP got more votes Picket is a very loud voice
+		}
+		else_if = {
+			limit = {
+				has_completed_focus = EQC_no_deals_with_extremists
+				check_variable = {
+					EQC_party_popularity@token:kingfisher_party > 50
+				}
+			}
+			EQC_become_kingfisher = yes
+		}
+		else_if = {
+			limit = {
+				has_completed_focus = EQC_no_deals_with_extremists
+			}
+			EQC_become_jet_set = yes # you will probably already be him but this is being careful
+		}
+		else_if = {
+			limit = {
+				has_completed_focus = EQC_unite_the_left
+				
+				set_temp_variable = {
+					EQC_blueberry_level = EQC_party_popularity@token:blueberry_frost_party
+				}
+				subtract_from_temp_variable = {
+					EQC_blueberry_level = EQC_party_popularity@token:lufty_star_party
+				}
+				check_variable = {
+					EQC_blueberry_level < 0
+				}
+			}
+			EQC_become_lufty_star = yes
+		}
+		else = {
+			EQC_become_blueberry = yes
 		}
 	}
 
