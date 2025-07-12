@@ -154,12 +154,14 @@ EQC_initialize_parliament = {
 		set_variable = { EQC_party_improve_relations_frame@var:v = 1 }
 	}
 	
-	add_dynamic_modifier = { modifier = EQC_parliament_effects }
-	
+	hidden_effect = {
+		add_dynamic_modifier = { modifier = EQC_parliament_effects }
+	}
 	set_variable = { EQC_parliament_tab_0_frame = 1 }
 	set_variable = { EQC_parliament_tab_1_frame = 2 }
 	add_to_array = { EQC_dummy_tab_array = 0 }
 	
+	EQC_become_jet_set = yes
 	set_temp_variable = {
 		temp_target = token:lufty_star_party
 	}
@@ -234,6 +236,7 @@ EQC_break_coalition_with_temp_target = {
 				value = temp_target
 			}
 		}
+		custom_effect_tooltip = EQC_break_coalition_scripted_tt
 		for_each_loop = {
 			array = EQC_party_opinion_loc@var:temp_target
 			value = v
@@ -278,11 +281,27 @@ EQC_delete_all_coalitions = {
 
 #Set temp_target for the target
 EQC_ban_target_party = {		
-	set_temp_variable = {
-		temp_amount = EQC_party_popularity@var:temp_target 
+	hidden_effect = { # needed for tooltip purposes
+
+		set_temp_variable = {
+			temp_amount = EQC_party_popularity@var:temp_target 
+		}
+		multiply_temp_variable = {
+			temp_amount = -1
+		}
+		EQC_add_rep_for_party = yes
+		set_temp_variable = {
+			temp_amount = EQC_party_projected_popularity@var:temp_target 
+		}
+		multiply_temp_variable = {
+			temp_amount = -1
+		}
+		EQC_add_support_for_party = yes
+
+		EQC_break_coalition_with_temp_target = yes
+
 	}
-	EQC_add_rep_for_party = yes
-	EQC_break_coalition_with_temp_target = yes
+	custom_effect_tooltip = EQC_ban_target_party_tt 
 	clear_array = EQC_party_opinion_breakdown@var:temp_target
 	clear_array = EQC_party_opinion_loc@var:temp_target
 
@@ -294,6 +313,7 @@ EQC_ban_target_party = {
 
 #Use temp_target for the targert
 EQC_form_coalition = {
+	custom_effect_tooltip = EQC_form_coalition_scripted_tt
 	add_to_array = { EQC_party_opinion_breakdown@var:temp_target = 15 }
 	add_to_array = { EQC_party_opinion_loc@var:temp_target = token:in_coalition_modifier }
 	
@@ -307,6 +327,8 @@ EQC_form_coalition = {
 #Set temp_amount for amount
 #Set temp_target for the target
 EQC_add_rep_for_party = {
+	custom_effect_tooltip = EQC_add_rep_for_party_tt
+
 	add_to_variable = { EQC_party_popularity@var:temp_target = temp_amount }
 	
 	set_temp_variable = { total_value_check = 100 }
@@ -354,11 +376,29 @@ EQC_calculate_coalition_size = {
 		
 		add_to_variable = { coalition_size = EQC_party_popularity@var:v }
 	}
+	EQC_update_coalition_bonuses = yes 
+}
+
+EQC_update_coalition_bonuses = {
+	set_temp_variable = {
+		temp_modifier = coalition_size
+	}
+	subtract_from_temp_variable = {  # 50 is neutral
+		temp_modifier = 50
+	}
+	divide_temp_variable = { # 0 is -25%, 100 is +25%
+		temp_modifier = 200
+	}
+	set_variable = {
+		EQC_parliament_coalition_modifier = temp_modifier
+	}
 }
 
 #Set temp_amount for amount
 #Set temp_target for the target
 EQC_add_support_for_party = {
+	custom_effect_tooltip = EQC_add_support_for_party_tt
+
 	add_to_variable = { EQC_party_projected_popularity@var:temp_target = temp_amount }
 	
 	set_temp_variable = { total_value_check = 100 }
@@ -807,6 +847,7 @@ EQC_hold_election = {
 				
 				set_variable = { EQC_party_popularity@var:v = EQC_party_projected_popularity@var:v }
 			}
+			EQC_update_parliament_chart = yes
 			country_event = mareland_new.5
 		}
 	}
@@ -818,6 +859,7 @@ EQC_hold_election = {
 			
 			set_variable = { EQC_party_popularity@var:v = EQC_party_projected_popularity@var:v }
 		}
+		EQC_update_parliament_chart = yes
 		# choosing who you play as
 		if = {
 			limit = {
