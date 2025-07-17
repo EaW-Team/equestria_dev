@@ -292,16 +292,24 @@ faction_template_id = {
 - *faction_initiative X* - adds X faction initiative (FI) points to current player's faction (shortcut: "fi X")
 
 # Faction Upgrades
-# Important: 
- - to know the order that you unlock each upgrade in is based on the order inside of the database
- - The first entry in the database will be given to the faction on creation
- 
 Faction_Upgrade_Id = {
-	Name = the localization string key for the screen name
-	Desc = the localization string key for the screen description
+	name = the localization string key for the screen name while active. will override the group's name
+	desc = the localization string key for the screen description while active. will override the group's desc
+	icon = the icon that will be displayed while active. will override the group's icon
 	upgrade_cost = the amount of faction initiative that it cost to get to this level from the previous one
 	bonus = a numerical value to dictate the boost the country gets based on the type of upgrade
-	upgrade_type = the type of upgrade this is
-### List of faction-upgrade-types
+}
+# Faction Upgrade Group
+
+Faction_Upgrade_Group_Id = {
+	name = the default localization string key for the screen name
+	desc = the default localization string key for the screen description
+	icon = the default icon that will be displayed 
+	upgrades = {
+		the faction upgrades within this group, this list will be sorted on their bonus
+	}
+
+   ### List of faction-upgrade-types, that have code support
 	upgrade_research = an upgrade that increases the faction sharing research, first one unlocks the research
 }
+
