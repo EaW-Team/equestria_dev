@@ -3,6 +3,7 @@
 **Subdoctrines** are at the root of each doctrine *Track*. The player can choose any available subdoctrine for that track and activate it by paying an XP cost. Activating a subdoctrine gives immediate effects, like unit stat bonuses or unlocking tactics. Also, activating a subdoctrine starts the automatic activation of a sequence of *Rewards*.
 
 ### TODO - how unlocking of rewards works
+###reward keys are sub_doctrine_key_reward_key(_desc) - this is because they're not really database objects and this will help us avoid collisions.
 
 ## Script Examples
 
@@ -11,7 +12,8 @@ bicycle_heroes = {
     track = infantry   # Refers to the script name of a track
     name = SUBDOCTRINE_BICYCLE_HEROES   # Bindable loc
     icon = GFX_subdoctrine_bicycle_heroes   # Refers to the script name of an icon
-    available = yes
+    available = yes # Trigger that determines whether the doctrine can be selected
+    visible = yes # Trigger that determines whether the doctrine is shown in the list at all
 
     xp_cost = 100
     xp_type = army   # army, navy or air
