@@ -1463,7 +1463,7 @@ country_event = { # Government of National Unity event (option to play as)
 	}
 }
 
-country_event = { # Ask the player if they want to offer an alliance (called in NZW_alliance_effect) - TODO: Finish event chain
+country_event = { # Ask the player if they want to offer an alliance (called in NZW_alliance_effect) - TODO: Write event chain loc
 	id = north_war_alliance.1
 	immediate = {log = "[GetDateText]: [Root.GetName]: event north_war_alliance.1"}
 	title = north_war_alliance.1.t
@@ -1487,18 +1487,139 @@ country_event = { # Ask the player if they want to offer an alliance (called in 
 			}
 		}
 		else = {
-			# generico TODO
+			if = {
+				limit = {
+					has_global_flag = NZW_NZ1_alliance_proposer
+				}
+				NZ2 = {
+					country_event = north_war_alliance.2
+				}
+			}
+			else = {
+				NZ1 = {
+					country_event = north_war_alliance.2
+				}
+			}
 		}
 	}
 	
-	option = { #Refuse
+	option = { #Don't send the offer
 		ai_chance = {
 			factor = 0
 		}
 	}
 }
 
-country_event = { # Ask the player if they want to dissolve an alliance (called in north_war.2 event) - TODO: Finish event chain
+country_event = { # Gets asked about if they want to join alliance
+	id = north_war_alliance.2
+	immediate = {log = "[GetDateText]: [Root.GetName]: event north_war_alliance.2"}
+	title = north_war_alliance.2.t
+	desc = north_war_alliance.2.d
+
+	picture = GFX_event_sao_macaw
+	is_triggered_only = yes
+
+	option = { #Accept
+		ai_chance = {
+			factor = 10
+		}
+		name = north_war_alliance.2.a
+		
+		NZ1 = {
+			if = {
+				limit = {
+					is_faction_leader = yes
+				}
+				every_other_country = {
+					limit = {
+						is_in_faction_with = NZ1
+					}
+					set_country_flag = NZW_was_in_NZ1_faction
+				}
+				set_country_flag = NZW_was_faction_leader
+				
+				dismantle_faction = yes
+			}
+		}
+		NZ2 = {
+			if = {
+				limit = {
+					is_faction_leader = yes
+				}
+				every_other_country = {
+					limit = {
+						is_in_faction_with = NZ2
+					}
+					set_country_flag = NZW_was_in_NZ2_faction
+				}
+				set_country_flag = NZW_was_faction_leader
+				
+				dismantle_faction = yes
+			}
+		}
+		
+		# FROM is proposer of the alliance and gets to lead it
+		FROM = {
+			create_faction = NZW_anti_aris_axis
+		}
+		every_other_country = {
+			limit = {
+				OR = {
+					has_country_flag = NZW_was_in_NZ1_faction
+					has_country_flag = NZW_was_in_NZ2_faction
+					has_country_flag = NZW_was_faction_leader
+				}
+			}
+			FROM = {
+				add_to_faction = PREV
+			}
+		}
+		
+		FROM = {
+			country_event = north_war_alliance.3 # Inform
+		}
+	}
+	
+	option = { #Decline
+		ai_chance = {
+			factor = 0
+		}
+		
+		FROM = {
+			country_event = north_war_alliance.4 # Inform
+		}
+	}
+}
+
+country_event = { # Alliance got accepted
+	id = north_war_alliance.3
+	immediate = {log = "[GetDateText]: [Root.GetName]: event north_war_alliance.3"}
+	title = north_war_alliance.3.t
+	desc = north_war_alliance.3.d
+
+	picture = GFX_event_sao_macaw
+	is_triggered_only = yes
+		
+	option = { # Yay
+		name = north_war_alliance.3.a
+	}
+}
+
+country_event = { # Alliance got rejected
+	id = north_war_alliance.4
+	immediate = {log = "[GetDateText]: [Root.GetName]: event north_war_alliance.4"}
+	title = north_war_alliance.4.t
+	desc = north_war_alliance.4.d
+
+	picture = GFX_event_sao_macaw
+	is_triggered_only = yes
+		
+	option = { # Regrettable
+		name = north_war_alliance.4.a
+	}
+}
+
+country_event = { # Ask the player if they want to dissolve an alliance (called in north_war.2 event) - TODO: Write event chain loc
 	id = north_war_alliance.5
 	immediate = {log = "[GetDateText]: [Root.GetName]: event north_war_alliance.5"}
 	title = north_war_alliance.5.t
@@ -1509,7 +1630,7 @@ country_event = { # Ask the player if they want to dissolve an alliance (called 
 		
 	option = { # Dissolve Alliance
 		ai_chance = {
-			factor = 10
+			factor = 1
 		}
 		name = north_war_alliance.5.a
 		
@@ -1526,7 +1647,7 @@ country_event = { # Ask the player if they want to dissolve an alliance (called 
 	
 	option = { # Keep Alliance
 		ai_chance = {
-			factor = 0
+			factor = 9
 		}
 		name = north_war_alliance.5.b
 		
@@ -1539,5 +1660,141 @@ country_event = { # Ask the player if they want to dissolve an alliance (called 
 				days = 1
 			}
 		}
+	}
+}
+
+country_event = {
+	id = north_war_alliance.6
+	immediate = {log = "[GetDateText]: [Root.GetName]: event north_war_alliance.5"}
+	
+	hidden = yes
+	
+	is_triggered_only = yes
+	trigger = { check_variable = { NZW_countries_alliance_event_option_counter = 2 } } # Only after both have responded
+		
+	option = { # Dissolve Alliance
+		ai_chance = {
+			factor = 10
+		}
+		name = north_war_alliance.5.a
+		
+		if = {
+			limit = {
+				NZ1 = {
+					has_country_flag = NZW_keep_alliance_flag
+				}
+				NZ2 = {
+					has_country_flag = NZW_keep_alliance_flag
+				}
+			}
+			# Rename alliance and keep it
+			set_faction_name = BAT_aghzat_pact
+			
+			NZ1 = {
+				country_event = north_war_alliance.7 # Yay event
+			}
+			NZ2 = {
+				country_event = north_war_alliance.7 # Yay event
+			}
+		}
+		else_if = {
+			limit = {
+				NZ1 = {
+					has_country_flag = NZW_keep_alliance_flag
+				}
+				NZ2 = {
+					has_country_flag = NZW_dissolve_alliance_flag
+				}
+			}
+			NZW_alliance_dissolve_effect = yes
+			NZ1 = {
+				country_event = north_war_alliance.8 # How sad event
+			}
+			NZ2 = {
+				country_event = north_war_alliance.9 # Good riddance event
+			}
+		}
+		else_if = {
+			limit = {
+				NZ1 = {
+					has_country_flag = NZW_dissolve_alliance_flag
+				}
+				NZ2 = {
+					has_country_flag = NZW_keep_alliance_flag
+				}
+			}
+			NZW_alliance_dissolve_effect = yes
+			NZ1 = {
+				country_event = north_war_alliance.9 # Good riddance event
+			}
+			NZ2 = {
+				country_event = north_war_alliance.8 # How sad event
+			}
+		}
+		else = {
+			NZW_alliance_dissolve_effect = yes
+			NZ1 = {
+				country_event = north_war_alliance.10 # Good riddance to you too event
+			}
+			NZ2 = {
+				country_event = north_war_alliance.10 # Good riddance to you too event
+			}
+		}
+	}
+}
+
+country_event = { # Both sides agreed to keep the alliance
+	id = north_war_alliance.7
+	immediate = {log = "[GetDateText]: [Root.GetName]: event north_war_alliance.7"}
+	title = north_war_alliance.7.t
+	desc = north_war_alliance.7.d
+
+	picture = GFX_event_sao_macaw
+	is_triggered_only = yes
+		
+	option = { # Yay
+		name = north_war_alliance.7.a
+	}
+}
+
+country_event = { # The other side wanted to dissolve the alliance, so it goes
+	id = north_war_alliance.8
+	immediate = {log = "[GetDateText]: [Root.GetName]: event north_war_alliance.8"}
+	title = north_war_alliance.8.t
+	desc = north_war_alliance.8.d
+
+	picture = GFX_event_sao_macaw
+	is_triggered_only = yes
+		
+	option = { # How sad
+		name = north_war_alliance.8.a
+	}
+}
+
+country_event = { # We wanted to dissolve the alliance, so it goes
+	id = north_war_alliance.9
+	immediate = {log = "[GetDateText]: [Root.GetName]: event north_war_alliance.9"}
+	title = north_war_alliance.9.t
+	desc = north_war_alliance.9.d
+
+	picture = GFX_event_sao_macaw
+	is_triggered_only = yes
+		
+	option = { # Good riddance
+		name = north_war_alliance.9.a
+	}
+}
+
+country_event = { # Both wanted to dissolve the alliance, so it goes
+	id = north_war_alliance.10
+	immediate = {log = "[GetDateText]: [Root.GetName]: event north_war_alliance.10"}
+	title = north_war_alliance.10.t
+	desc = north_war_alliance.10.d
+
+	picture = GFX_event_sao_macaw
+	is_triggered_only = yes
+		
+	option = { # Good riddance
+		name = north_war_alliance.10.a
 	}
 }
