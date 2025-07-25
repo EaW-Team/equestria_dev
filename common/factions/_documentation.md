@@ -300,7 +300,6 @@ Faction_Upgrade_Id = {
 	bonus = a numerical value to dictate the boost the country gets based on the type of upgrade
 }
 # Faction Upgrade Group
-
 Faction_Upgrade_Group_Id = {
 	name = the default localization string key for the screen name
 	desc = the default localization string key for the screen description
@@ -311,5 +310,27 @@ Faction_Upgrade_Group_Id = {
 
    ### List of faction-upgrade-types, that have code support
 	upgrade_research = an upgrade that increases the faction sharing research, first one unlocks the research
+}
+
+# Faction Member Upgrades
+Faction_Member_Upgrade_Id = {
+	name = the localization string key for the screen name while active. will override the group's name
+	desc = the localization string key for the screen description while active. will override the group's desc
+	icon = the icon that will be displayed while active. will override the group's icon
+	upgrade_cost = the amount of faction initiative that it cost to replace this upgrade with another
+	bonus = a numerical value to dictate the boost the country gets based on the type of upgrade
+}
+
+# Faction Member Upgrade Group
+Faction_Upgrade_Group_Id = {
+	name = the default localization string key for the screen name
+	desc = the default localization string key for the screen description
+	icon = the default icon that will be displayed 
+	upgrades = {
+		the faction upgrades within this group, this list will be sorted on their bonus
+	}
+
+   ### List of faction-member-upgrade-types, that have code support
+	faction_member_upgrade_manpower = bonus will be the % that you take from your own countries manpower and put into the faction manpower pool
 }
 
