@@ -7,12 +7,10 @@ north_zebrican_war = {
 			}
 		}
 		allowed = {
-			NZW_is_north_zebrican_tag = yes
-		}
-		visible = { # Should this even be used?
-			has_country_flag = NZW_war_participant
-			has_global_flag = NZW_in_progress
-			has_global_flag = NZW_war_status_partial
+			OR = {
+				NZW_is_north_zebrican_tag = yes
+				original_tag = WNG
+			}
 		}
 		activation = {
 			is_subject = no
@@ -20,11 +18,32 @@ north_zebrican_war = {
 			has_global_flag = NZW_in_progress
 			has_global_flag = NZW_war_status_partial
 			NZW_no_mainland_control_for_HIP = yes # Can be called from any scope
+
+			OR = { # Only once, except for all human players
+				is_ai = no # If human player, show here
+				if = { # If not human player, pick Chiropterra over Colthage (never Wingbardy)
+					limit = {
+						NZ2 = {
+							has_country_flag = NZW_war_participant
+						}
+					}
+					AND = {
+						tag = NZ2
+						is_ai = yes
+					}
+				}
+				else = {
+					AND = {
+						tag = NZ1
+						is_ai = yes
+					}
+				}
+			}
 		}
 		cancel_trigger = {
 			OR = {
 				has_global_flag = NZW_war_status_total
-				NZW_no_mainland_control_for_HIP = yes
+				NZW_no_mainland_control_for_HIP = no
 				hidden_trigger = {
 			  		ROOT = {
 						NOT = {
@@ -35,17 +54,50 @@ north_zebrican_war = {
 			}
 		}
 		cancel_effect = {
+			log = "[GetDateText]: [Root.GetName]: Decision cancel northern_war_peace_timer"
 			hidden_effect = {
 				if = {
 					limit = {
-						has_global_flag = NZW_encircle_HIP
+						has_global_flag = NZW_encircled_HIP
 					}
-					clr_global_flag = NZW_encircle_HIP
+					clr_global_flag = NZW_encircled_HIP
+				}
+				if = {
+					limit = {
+						has_country_flag = NZW_war_participant
+					}
+					clr_global_flag = NZW_first_north_war_peacer_time_active
 				}
 			}
 		}
 		is_good = yes
 		days_mission_timeout = 180
+#		complete_effect = { # TODO: Figure out where to put this code
+#			log = "[GetDateText]: [Root.GetName]: Decision complete northern_war_peace_timer"
+#
+#			# Correct mission length
+#			if = {
+#				limit = {
+#					has_global_flag = NZW_first_north_war_peacer_time_active
+#				}
+#				set_temp_variable = { # Current date
+#					days_to_remove = global.num_days
+#				}
+#				subtract_from_temp_variable = { # Date peace timer got activated
+#					days_to_remove = global.NZW_peace_timer_activated
+#				}
+#				add_days_mission_timeout = {
+#					mission = northern_war_peace_timer
+#					days = days_to_remove
+#				}
+#			}
+#			else = {
+##			set_global_flag = NZW_first_north_war_peacer_time_active
+#				set_variable = {
+#					global.NZW_peace_timer_activated = global.num_days
+#				}
+#			}
+#		}
 		timeout_effect = {
 			log = "[GetDateText]: [Root.GetName]: Decision timeout northern_war_peace_timer"
 			
@@ -264,22 +316,22 @@ north_zebrican_war = {
                 target = HIP
                 type = annex_everything
             }
+			set_country_flag = NZW_war_participant
 		}
 	}
 	
 	# If the regions in question got snatched by somebody else
-	# TODO
 	north_war_edge_case_white_peace = {
 		icon = eng_trade_unions_support
 		allowed = {
-			OR = {
-				original_tag = BAT
-				original_tag = TBK
-				original_tag = WNG
-				original_tag = CTH
-			}
+			NZW_is_north_zebrican_tag = yes
 		}
 		visible = {
+			OR = {
+				tag = NZ1
+				tag = NZ2
+				tag = WNG
+			}
 			NOT = {
 				OR = {
 					697 = {
@@ -364,12 +416,27 @@ north_zebrican_war = {
 		            }
 				}
 			}
-			has_country_flag = partial_war
+			has_global_flag = NZW_war_status_partial
 			has_country_flag = NZW_war_participant
 		}
 		fire_only_once = yes
 		available = {
-			has_country_flag = partial_war
+			has_global_flag = NZW_war_status_partial
+			if = { # If any human player is part of the NZW, abandoning the NZW is only available to said human player
+				limit = {
+					any_country = {
+						has_country_flag = NZW_war_participant
+						OR = {
+							tag = NZ1
+							tag = NZ2
+							tag = WNG
+						}
+						is_ai = no
+					}
+				}
+				is_ai = no
+			}
+
 			custom_trigger_tooltip = {
 				tooltip = nzw_white_peace_tt
 				NOT = {
@@ -481,52 +548,9 @@ north_zebrican_war = {
 			}
 		}
 		complete_effect = {
-			every_country = {
-				limit = {
-					has_war_with = HIP
-					has_country_flag = partial_war
-				}
-				set_country_flag = { flag = bypass_on_peaceconference_ended days = 1 value = 1 }
-				white_peace = HIP
-				clr_country_flag = NZW_war_participant
-				clr_country_flag = partial_war
-			}
-			every_other_country = {
-				limit = {
-					OR = {
-						is_subject_of = BAT
-						is_in_faction_with = BAT
-					}
-				}
-				set_country_flag = { flag = bypass_on_peaceconference_ended days = 1 value = 1 }
-				white_peace = HIP
-				clr_country_flag = NZW_war_participant
-				clr_country_flag = partial_war
-			}
-			every_other_country = {
-				limit = {
-					OR = {
-						is_subject_of = WNG
-						is_in_faction_with = WNG
-					}
-				}
-				set_country_flag = { flag = bypass_on_peaceconference_ended days = 1 value = 1 }
-				white_peace = HIP
-				clr_country_flag = NZW_war_participant
-				clr_country_flag = partial_war
-			}
-			every_other_country = {
-				limit = {
-					OR = {
-						is_subject_of = ROOT
-						is_in_faction_with = ROOT
-					}
-				}
-				set_country_flag = { flag = bypass_on_peaceconference_ended days = 1 value = 1 }
-				white_peace = WNG
-				clr_country_flag = NZW_war_participant
-				clr_country_flag = partial_war
-			}
+			NZW_make_peace_with_HIP = yes
+			NZW_on_end_effect = yes
+
 			hidden_effect = {
 				HIP = {
 					if = {
@@ -550,7 +574,10 @@ north_zebrican_war = {
 			}
 		}
 	}
-	HIP_white_peace_WNG = {#HIP can peace WNG by defeating allies
+
+	#HIP can peace WNG by defeating allies
+	#This is active during the NZW (if Wingbardy joined)
+	HIP_white_peace_WNG = {
 		icon = griffon_claw
 		allowed = {
 			original_tag = HIP
@@ -569,7 +596,7 @@ north_zebrican_war = {
 			}
 		}
 		available = {
-			CTH = {
+			NZ1 = {
 				OR = {
 					exists = no
 					is_subject = yes
@@ -577,7 +604,7 @@ north_zebrican_war = {
 					has_war = no
 				}
 			}
-			BAT = {
+			NZ2 = {
 				OR = {
 					exists = no
 					is_subject = yes
@@ -597,7 +624,7 @@ north_zebrican_war = {
 			}
 		}
 		complete_effect = {
-			country_event = hippogriff.64
+			country_event = hippogriff.64 # HIP gets option to sign peace with WNG
 		}
 		timeout_effect = {
 			if = {
@@ -661,7 +688,7 @@ north_zebrican_war = {
 			}
 		}
 		available = {
-			CTH = {
+			NZ1 = {
 				OR = {
 					exists = no
 					is_subject = yes
@@ -669,7 +696,7 @@ north_zebrican_war = {
 					has_war = no
 				}
 			}
-			BAT = {
+			NZ2 = {
 				OR = {
 					exists = no
 					is_subject = yes
@@ -746,7 +773,7 @@ north_zebrican_war = {
 		timeout_effect = {
 			hidden_effect = {
 				clr_country_flag = HIP_dismantling_WNG
-				country_event = north_war.30
+				country_event = north_war.30 # White peace with WNG (and NZW end)
 			}
 			custom_effect_tooltip = HIP_WNG_timeout_tt
 			add_war_support = -0.05
@@ -802,7 +829,7 @@ north_zebrican_war = {
 		visible = {
 			has_active_mission = northern_war_peace_timer 
 			NOT = {
-				has_country_flag = NZW_encircled_HIP
+				has_global_flag = NZW_encircled_HIP
 			}
 		}
 		available = {
@@ -892,12 +919,7 @@ north_zebrican_war = {
 			factor = 100
 		}
 		complete_effect = {
-			every_country = {
-				limit = {
-					has_country_flag = NZW_war_participant
-				}
-				set_country_flag = NZW_encircled_HIP
-			}
+			set_global_flag = NZW_encircled_HIP
 			every_country = {
 				limit = {
 					has_active_mission = northern_war_peace_timer
@@ -989,7 +1011,7 @@ political_actions = { # Keep that restrained to CTH/BAT/WNG for now
 					freedom_level = 0.5
 				}
 			}
-			country_event = north_war.102
+			country_event = north_war.8
 		}
 	}
 }

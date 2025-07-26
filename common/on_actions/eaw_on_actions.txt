@@ -5,41 +5,66 @@ on_actions = {
 			log = "[GetDateText]: ROOT: [Root.GetName] FROM: [From.GetName] on_war_relation_added"
 			if = { # NZW code start
 				limit = {
-					OR = {
+					NOT = { has_global_flag = NZW_ended }
+					NOT = {
+						has_global_flag = BAT_won_civil_war # TODO: think about this (for now not a NZW)
+					}
+					OR = { # WNG gets it flag set otherwise, and its subjects/allies don't get the flag
 						NZW_is_aligned_with_HIP = yes
 						NZW_is_aligned_with_NZ1 = yes
 						NZW_is_aligned_with_NZ2 = yes
 					}
-					NOT = { has_global_flag = NZW_ended }
-					NOT = {
-						has_global_flag = BAT_won_civil_war # TODO: think about this
-					}
 					FROM = {
 						OR = {
-							tag = HIP
-							tag = NZ1
-							tag = NZ2
+							NZW_is_aligned_with_HIP = yes
+							NZW_is_aligned_with_NZ1 = yes
+							NZW_is_aligned_with_NZ2 = yes
 						}
 					}
 				}
-				
-				# Participation trophy
+
+				# This is so that the NZ1 and NZ2 tag aliases still work during/after the war
+				# Because the states that define them can be owned by somebody else
+				# The NZW_is_NZ[1/2]_tag flag is here to still able to identify them
+				# The flag OVERRIDES the normal condition
+				# As its important that it doesn't change anymore
 				if = {
-					limit = { # Only once
-						NOT = { has_country_flag = NZW_war_participant }
+					limit = {
+						tag = NZ1
 					}
-					set_country_flag = NZW_war_participant
+					set_country_flag = NZW_is_NZ1_tag
+					set_global_flag =  NZW_NZ1_tag_fixed
 				}
 				FROM = {
 					if = {
-						limit = { # Only once
-							NOT = { has_country_flag = NZW_war_participant }
+						limit = {
+							OR = {
+								tag = NZ1
+							}
 						}
-						set_country_flag = NZW_war_participant
+						set_country_flag = NZW_is_NZ1_tag
+						set_global_flag =  NZW_NZ1_tag_fixed
 					}
 				}
-				
-				# Island nations go here (important for limited peace condition)
+				if = {
+					limit = {
+						tag = NZ2
+					}
+					set_country_flag = NZW_is_NZ2_tag
+					set_global_flag =  NZW_NZ2_tag_fixed
+				}
+				FROM = {
+					if = {
+						limit = {
+							OR = {
+								tag = NZ2
+							}
+						}
+						set_country_flag = NZW_is_NZ2_tag
+						set_global_flag =  NZW_NZ2_tag_fixed
+					}
+				}
+
 				if = {
 					limit = {
 						OR = {
@@ -49,16 +74,13 @@ on_actions = {
 					}
 					set_country_flag = NZW_is_island_nation
 				}
+				
+				# Participation trophy
+				set_country_flag = NZW_war_participant
+				NZW_amend_list_of_mainland_states_by_THIS = yes
 				FROM = {
-					if = {
-						limit = {
-							OR = {
-								original_tag = HIP
-								original_tag = MCW
-							}
-						}
-						set_country_flag = NZW_is_island_nation
-					}
+					set_country_flag = NZW_war_participant
+					NZW_amend_list_of_mainland_states_by_THIS = yes
 				}
 				
 				# Special HIP-HIE interaction
@@ -89,7 +111,7 @@ on_actions = {
 					}
 					HIP = {
 						country_event = {
-							id = hippogriff.63
+							id = hippogriff.63 # War of Survival
 							days = 30
 						}
 					}
