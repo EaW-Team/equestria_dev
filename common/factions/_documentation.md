@@ -16,6 +16,8 @@ faction_goal_id = {
 		# SCOPE = faction leader: COUNTRY
 	}
 	
+	auto_complete = yes # automatically complete goal if the progress reaches 100%
+	
 	complete_effect = {
 		# Effect - runs once when the goal is completed
 		#
