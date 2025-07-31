@@ -102,6 +102,7 @@ raid_type_id = {
     # Conditions on the starting point:
     starting_point = {
         types = { air_base, naval_base, rocket_site, carrier, submarine }
+        		building_types = { supply_node } # list of building ids or tags
     }
 
 	show_target = {  }
