@@ -1114,37 +1114,19 @@ news_event = {
 
 
 	desc = {
-		text = north_war.101.d1
+		text = north_war.101.d1 # Colthage and Chiropterra - historical, alliance (or both at war)
 		trigger = {
-			CTH = {
-				has_war_with = HIP
+			NZ1 = {
+				tag = CTH
 			}
-			BAT = {
-				has_war_with = HIP
+			NZ2 = {
+				tag = BAT
 			}
 			OR = {
-				HIP = {
-					has_defensive_war = yes
-				}
-				WAR = {
-					AND = {
-						has_defensive_war = yes
-						NOT = {has_war_with = HIP}
-					}
-				}
-			}
-		}
-	}
-
-	desc = {
-		text = north_war.101.d2
-		trigger = {
-			CTH = {
-				has_war_with = HIP
-			}
-			NOT = {
-				BAT = {
-					has_war_with = HIP
+				has_global_flag = NZW_alliance_signed
+				AND = {
+					CTH = { has_war_with = HIP }
+					BAT = { has_war_with = HIP }
 				}
 			}
 			OR = {
@@ -1162,16 +1144,41 @@ news_event = {
 	}
 
 	desc = {
-		text = north_war.101.d3
+		text = north_war.101.d2 # Colthage alone
 		trigger = {
-			NOT = {
-				CTH = {
-					has_war_with = HIP
-				}
-			}
-			BAT = {
+			NZ1 = {
+				tag = CTH
 				has_war_with = HIP
 			}
+			NZ2 = {
+				NOT = { has_war_with = HIP }
+			}
+			NOT = { has_global_flag = NZW_alliance_signed }
+			OR = {
+				HIP = {
+					has_defensive_war = yes
+				}
+				WAR = {
+					AND = {
+						has_defensive_war = yes
+						NOT = {has_war_with = HIP}
+					}
+				}
+			}
+		}
+	}
+
+	desc = {
+		text = north_war.101.d3 # Chiropterra alone
+		trigger = {
+			NZ2 = {
+				tag = BAT
+				has_war_with = HIP
+			}
+			NZ1 = {
+				NOT = { has_war_with = HIP }
+			}
+			NOT = { has_global_flag = NZW_alliance_signed }
 			OR = {
 				HIP = {
 					has_defensive_war = yes
@@ -1202,16 +1209,29 @@ news_event = {
 	}
 
 	desc = {
-		text = north_war.101.d5
+		text = north_war.101.d5 # Some other war
 		trigger = {
-			NOT = {
-				CTH = {
-					has_war_with = HIP
+			OR = { # Either of the two main tags is not historical
+				NZ1 = {
+					NOT = { tag = CTH }
+				}
+				NZ2 = {
+					NOT = { tag = BAT }
 				}
 			}
-			NOT = {
-				BAT = {
-					has_war_with = HIP
+			OR = { # A war participant is not historical
+				has_global_flag = NZW_alliance_signed
+				NZ1 = {
+					AND = {
+						NOT = { tag = CTH }
+						has_war_with = HIP
+					}
+				}
+				NZ2 = {
+					AND = {
+						NOT = { tag = CTH }
+						has_war_with = HIP
+					}
 				}
 			}
 			OR = {
@@ -1406,27 +1426,17 @@ country_event = { # Ask the player if they want to offer an alliance (called in 
 		
 		if = {
 			limit = {
-				tag = BAT
+				THIS = {
+					tag = NZ1
+				}
 			}
-			NZ1 = {
-				country_event = bat.67
+			NZ2 = {
+				country_event = north_war_alliance.2
 			}
 		}
 		else = {
-			if = {
-				limit = {
-					THIS = {
-						tag = NZ1
-					}
-				}
-				NZ2 = {
-					country_event = north_war_alliance.2
-				}
-			}
-			else = {
-				NZ1 = {
-					country_event = north_war_alliance.2
-				}
+			NZ1 = {
+				country_event = north_war_alliance.2
 			}
 		}
 	}
@@ -1448,6 +1458,18 @@ country_event = { # Ask the player if they want to offer an alliance (called in 
 			complete_national_focus = CTH_on_our_own
 			add_political_power = -50 # Taken from CTH event
 			add_ideas = CTH_preparing_for_war # Focus effect
+		}
+		else_if = { # Special case for if Chiropterra doesn't want to
+			limit = {
+				tag = BAT
+			}
+			create_faction = BAT_lunar_hegemony
+			every_subject_country = {
+				BAT = {
+					add_to_faction = PREV
+				}
+			}
+			set_country_flag = BAT_CTH_made_a_mistake
 		}
 	}
 }
@@ -1522,6 +1544,21 @@ country_event = { # Gets asked about if they want to join alliance
 			}
 		}
 
+		NZ1 = {
+			add_ai_strategy = {
+				id = NZ2
+				type = alliance
+				value = 200
+			}
+		}
+		NZ2 = {
+		 	add_ai_strategy = {
+				id = NZ1
+				type = alliance
+				value = 200
+		  	}
+		}
+
 		if = { # If Warzena is allied with the Hippogriffs, exchange Zinder
 			limit = {
 				WAR = { NZW_is_aligned_with_HIP = yes }
@@ -1530,6 +1567,10 @@ country_event = { # Gets asked about if they want to join alliance
 				transfer_state = 748 # Zinder
 			}
 		}
+
+		# Make sure that both need to capitulate
+		NZ1 = { set_major = yes }
+		NZ2 = { set_major = yes }
 		
 		FROM = {
 			country_event = north_war_alliance.3 # Inform
@@ -1585,6 +1626,18 @@ country_event = { # Alliance got rejected
 			complete_national_focus = CTH_on_our_own
 			add_political_power = -50 # Taken from CTH event
 			add_ideas = CTH_preparing_for_war # Focus effect
+		}
+		else_if = { # Special case for if Chiropterra got rejected
+			limit = {
+				tag = BAT
+			}
+			create_faction = BAT_lunar_hegemony
+			every_subject_country = {
+				BAT = {
+					add_to_faction = PREV
+				}
+			}
+			set_country_flag = BAT_CTH_made_a_mistake
 		}
 	}
 }
