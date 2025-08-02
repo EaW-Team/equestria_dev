@@ -131,7 +131,7 @@ def formatpaperclip(name, race = None, doctrine = None):
     if doctrine:
         output_lines.append(tabformat + "\t\t\t\tadd_doctrine_cost_reduction = {")
         output_lines.append(tabformat + "\t\t\t\t\tname = paperclip_tech_bonus")
-        output_lines.append(tabformat + "\t\t\t\t\tbonus = 0.5")
+        output_lines.append(tabformat + "\t\t\t\t\tcost_reduction = 0.5")
         output_lines.append(tabformat + "\t\t\t\t\tuses = 1")
         output_lines.append(tabformat + f"\t\t\t\t\ttechnology = {name}")
         output_lines.append(tabformat + "\t\t\t\t}")
