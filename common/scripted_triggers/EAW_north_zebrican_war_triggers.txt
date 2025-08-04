@@ -1,0 +1,413 @@
+# All the triggers for the NZW War
+
+# NZ1 = northern party = normally Colthage
+# NZ2 = southern party = normally Chiropterra
+
+NZW_is_north_zebrican_tag = {
+	OR = {
+		original_tag = HIP # Hippogriffia
+		original_tag = CTH # Colthage
+		original_tag = CVA # Coltva
+		original_tag = CDR # Coltdar
+		original_tag = HIE # Hippone (Star Father)
+		original_tag = TRO # Trotkat (Gerza)
+		original_tag = CGI # Quaggatai
+		original_tag = BKH # Buckhara
+		original_tag = BAT # Chiropterra
+		original_tag = TBK # Tobuck
+		original_tag = ZAR # Zarantia
+		original_tag = WAR # Warzena
+	}
+}
+
+#### Alignment/readyness conditions ####
+
+# Is the country aligned with the hippogriffia
+NZW_is_aligned_with_HIP = {
+	OR = {
+		has_country_flag = NZW_country_is_aligned_with_HIP # Country flag for special situations
+		
+		# Anything that would cause a common war if attacked
+		is_subject_of = HIP
+		is_in_faction_with = HIP
+		is_guaranteed_by = HIP
+		
+		# Owned by HIP
+		AND = {
+			exists = no
+			all_of_scopes = {
+				array = original_cores
+				OR = {
+					owner = {
+						OR = {
+							tag = HIP
+							is_subject_of = HIP
+						}
+					}
+					state = 1205 # Miharzehir (I hate that this is necessary)
+				}
+			}
+		}
+	}
+}
+
+# Is the country aligned with the northern party
+NZW_is_aligned_with_NZ1 = {
+	OR = {
+		has_country_flag = NZW_country_is_aligned_with_NZ1 # Country flag for special situations
+		
+		# Anything that would cause a common war if attacked
+		is_subject_of = NZ1
+		is_in_faction_with = NZ1
+		is_guaranteed_by = NZ1
+		
+		# Owned by NZ1
+		all_of_scopes = {
+			array = original_cores
+			owner = {
+				OR = {
+					tag = NZ1
+					is_subject_of = NZ1
+				}
+			}
+		}
+	}
+}
+
+# Is the country aligned with the southern party
+NZW_is_aligned_with_NZ2 = {
+	OR = {
+		has_country_flag = NZW_country_is_aligned_with_NZ2 # Country flag for special situations
+		
+		# Anything that would cause a common war if attacked
+		is_subject_of = NZ2
+		is_in_faction_with = NZ2
+		is_guaranteed_by = NZ2
+		
+		# Owned by NZ2
+		all_of_scopes = {
+			array = original_cores
+			owner = {
+				OR = {
+					tag = NZ2
+					is_subject_of = NZ2
+				}
+			}
+		}
+	}
+}
+
+# Is the country not aligned with anyone
+NZW_is_unaligned = {
+	AND = {
+		NOT = { NZW_is_aligned_with_HIP = yes }
+		NOT = { NZW_is_aligned_with_NZ1 = yes }
+		NOT = { NZW_is_aligned_with_NZ2 = yes }
+	}
+}
+
+# Is the northern party ready for war
+NZW_is_northern_party_ready = {
+	custom_trigger_tooltip = {
+		tooltip = NZW_is_northern_party_ready_tooltip
+		NOT = { CTH = { NZW_is_unaligned = yes } }
+		NOT = { CVA = { NZW_is_unaligned = yes } }
+		NOT = { CDR = { NZW_is_unaligned = yes } }
+		NOT = { ZUM = { NZW_is_unaligned = yes } }
+		NOT = { HIE = { NZW_is_unaligned = yes } }
+		NOT = { TRO = { NZW_is_unaligned = yes } }
+	}
+}
+
+# Is the southern party ready for war
+NZW_is_southern_party_ready = {
+	custom_trigger_tooltip = {
+		tooltip = NZW_is_southern_party_ready_tooltip
+		NOT = { BAT = { NZW_is_unaligned = yes } }
+		NOT = { TBK = { NZW_is_unaligned = yes } }
+		NOT = { ZAR = { NZW_is_unaligned = yes } }
+		NOT = { WAR = { NZW_is_unaligned = yes } }
+	}
+}
+
+#### TAG alias conditions ####
+
+# Is this country NZ1 (Northern party tag)
+NZW_is_NZ1_trigger = {
+	if = {
+		limit = {
+			# This flag is set at the start of the NZW for the then NZ1 tag
+			# Because the ownership condition might break at the end of the war
+			has_global_flag = NZW_NZ1_tag_fixed
+		}
+		has_country_flag = NZW_is_NZ1_tag
+	}
+	else = {
+		# For now, this should be a sufficent condition to figure out the dominant power in North NZ
+		875 = { # Colthage
+			owner = {
+				# first prev -> Colthage state scope, second prev -> scope prior to Colthage state scope (meaning caller scope)	
+				OR = {
+					tag = PREV.PREV
+					is_subject_of = PREV.PREV
+				}
+				# If you're worried that the subject condition allows outsiders to become a NZW participant, 
+				# it doesn't because the tag alias itself is constraint to certain tags
+			}
+		}
+	}
+}
+
+# Is this country NZ2 (Southern party tag)
+NZW_is_NZ2_trigger = {
+	if = {
+		limit = {
+			# This flag is set at the start of the NZW for the then NZ2 tag
+			# Because the ownership condition might break at the end of the war
+			has_global_flag = NZW_NZ2_tag_fixed
+		}
+		has_country_flag = NZW_is_NZ2_tag
+	}
+	else = {
+		# This one is a bit of a funny one, but everyone winning against BAT takes 691 from them, so this works
+		# Can be made more complicated if needed
+		691 = { # New Mareidian
+			owner = {
+				# first prev -> New Mareidian state scope, second prev -> scope prior to Colthage state scope (meaning caller scope)
+				OR = {
+					tag = PREV.PREV
+					is_subject_of = PREV.PREV
+				}
+				# If you're worried that the subject condition allows outsiders to become a NZW participant, 
+				# it doesn't because the tag alias itself is constraint to certain tags
+			}
+		}
+	}
+}
+
+#### Hostility conditions ####
+# Note: To add hostility conditions add them under NZW_is_hostile_to_HIP_TAG, where TAG is the relevant tag
+# Do check if your tag is correctly distributed in NZW_is_hostile_to_HIP
+# Don't write hostility conditions directly into NZW_is_hostile_to_HIP, because it makes a mess
+
+NZW_is_hostile_to_HIP = {
+	custom_trigger_tooltip = {
+		tooltip = NZW_wants_to_fight_HIP
+		if = {
+			limit = {
+				original_tag = CTH
+			}
+			NZW_is_hostile_to_HIP_CTH = yes
+		}
+		else_if = {
+			limit = {
+				original_tag = CVA
+			}
+			NZW_is_hostile_to_HIP_CVA = yes
+		}
+		else_if = {
+			limit = {
+				original_tag = HIE
+			}
+			NZW_is_hostile_to_HIP_HIE = yes
+		}
+		else_if = {
+			limit = {
+				original_tag = TRO
+			}
+			NZW_is_hostile_to_HIP_TRO = yes
+		}
+		else_if = {
+			limit = {
+				original_tag = CGI
+			}
+			NZW_is_hostile_to_HIP_CGI = yes
+		}
+		else_if = {
+			limit = {
+				original_tag = BAT
+			}
+			NZW_is_hostile_to_HIP_BAT = yes
+		}
+		else_if = {
+			limit = {
+				original_tag = TBK
+			}
+			NZW_is_hostile_to_HIP_TBK = yes
+		}
+		else_if = {
+			limit = {
+				original_tag = ZAR
+			}
+			NZW_is_hostile_to_HIP_ZAR = yes
+		}
+		else_if = {
+			limit = {
+				original_tag = WAR
+			}
+			NZW_is_hostile_to_HIP_WAR = yes
+		}
+		else = { # default
+			always = no
+		}
+	}
+}
+
+NZW_is_hostile_to_HIP_CTH = {
+	if = {
+		limit = {
+			has_country_flag = CTH_colthage_zarcaid
+		}
+		ZUM = {
+			NZW_is_aligned_with_HIP = yes
+		}
+	}
+	else_if = {
+		limit = {
+			has_country_flag = CTH_colthage_militarists
+		}
+		ZUM = {
+			NZW_is_aligned_with_HIP = yes
+		}
+	}
+	else = {
+		always = no
+	}
+}
+
+NZW_is_hostile_to_HIP_CVA = {
+	# No Coltva path has interest Zumidia / other territory
+	always = no
+}
+
+NZW_is_hostile_to_HIP_HIE = {
+	# Star Father always hostile
+	always = yes
+}
+
+NZW_is_hostile_to_HIP_TRO = {
+	# Gerza has no interest in NZW
+	always = no
+}
+
+NZW_is_hostile_to_HIP_CGI = {
+	# Quaggatai wants Zumidia
+	ZUM = {
+		NZW_is_aligned_with_HIP = yes
+	}
+}
+
+NZW_is_hostile_to_HIP_BAT = {
+	# Either Warzena or Zumidia
+	OR = {
+		ZUM = {
+			NZW_is_aligned_with_HIP = yes
+		}
+		WAR = {
+			NZW_is_aligned_with_HIP = yes
+		}
+	}
+}
+
+NZW_is_hostile_to_HIP_TBK = {
+	OR = {
+		if = { # Alesia
+			limit = {
+				has_country_flag = TBK_alesia_bat_victory
+			}
+			OR = {
+				ZUM = {
+					NZW_is_aligned_with_HIP = yes
+				}
+				WAR = {
+					NZW_is_aligned_with_HIP = yes
+				}
+			}
+		}
+		else = { # Other paths
+			always = no # They can go to war with HIP, but its not a NZW
+			# Note: We don't have to care about pre-Alesia, because only if this flag is set TBK even becomes party leader
+		}
+	}
+}
+
+NZW_is_hostile_to_HIP_ZAR = {
+	always = no
+}
+
+NZW_is_hostile_to_HIP_WAR = {
+	# Current Warzena content
+	ZUM = {
+		NZW_is_aligned_with_HIP = yes
+	}
+	HIP = { # Different government
+		NOT = { has_government = WAR }
+	}
+}
+
+#### Alliance Trigger condition ####
+# Checks if the current scope can create the NZW anti-aris axis
+NZW_alliance_possible = {
+	if = {
+		limit = {
+			tag = NZ1 # North
+		}
+		NOT = { has_country_flag = NZW_no_alliance }
+		NZW_is_southern_party_ready = yes # South is ready
+		NZ2 = { # South wants to fight
+			NZW_is_hostile_to_HIP = yes
+			NOT = { has_country_flag = NZW_no_alliance }
+		}
+	}
+	else_if = {
+		limit = {
+			tag = NZ2 # South
+		}
+		NOT = { has_country_flag = NZW_no_alliance }
+		NZW_is_northern_party_ready = yes # North is ready
+		NZ1 = { # North wants to fight
+			NZW_is_hostile_to_HIP = yes
+			NOT = { has_country_flag = NZW_no_alliance }
+		}
+	}
+	else = {
+		always = no
+	}
+	
+	# If they are not faction leader, the can't ally
+	NZ1 = {
+		OR = {
+			is_faction_leader = yes
+			is_in_faction = no
+		}
+	}
+	NZ2 = {
+		OR = {
+			is_faction_leader = yes
+			is_in_faction = no
+		}
+	}
+	
+	NOT = { has_global_flag = NZW_alliance_effect_done } # Don't double trigger
+}
+
+#### Limited Peace Trigger conditions ####
+NZW_no_mainland_control_for_HIP = {
+	custom_trigger_tooltip = {
+		tooltip = northern_zebrica_cancel_tp
+		
+		NOT = {
+			any_state_in = {
+				# This is defined in common/ai_areas and excludes all islands
+				array = global.NZW_mainland_state_array
+				
+				controller = {
+					OR = {
+						tag = HIP
+						is_ally_with = HIP
+					}
+				}
+			}
+		}
+	}
+}
