@@ -5,6 +5,10 @@ Folders are the top-level categorization of doctrines, e.g. *land*, *air* and *n
 ## Script Example
 ```
 land = { 
-    allowed = yes    # If this trigger evaluates to False, the folder won't be available
+    allowed = { # If this trigger evaluates to False, the folder won't be available
+        always = yes    
+    }
+    name = LOC_KEY
+    tab_gfx = GFX
 }
 ```
