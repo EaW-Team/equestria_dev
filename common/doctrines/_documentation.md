@@ -8,4 +8,4 @@
 * **Milestone** - an additional reward for completing a track
 * **Subdoctrine** - can be slotted as the root of a specific track, unlocked with XP
 * **Mastery** - the progress made within a track
-* **Reward** - a reward for making gaining mastery within a track
+* **Reward** - a reward for making gaining mastery within a track, belongs to a subdoctrine
