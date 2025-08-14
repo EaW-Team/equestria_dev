@@ -57,6 +57,8 @@ Try to keep this reasonably up-to-date, please.
 - `naval_invasion_supremacy_weight`
 - `naval_mission_threshold`
 - `strike_force_home_base`
+- `naval_dominance`
+- `convoy_raiding_target`
 
 ### Related to intelligence
 - `activate_crypto`
@@ -664,5 +666,25 @@ Used to set weight for a faction leader to become spymaster if not already a spy
 ai_strategy = {
 	type = become_spymaster
 	value = 30 # Weight value for pp spend to become spymaster
+}
+```
+
+### `naval_dominance`
+Used to set the naval dominance for a strategic region
+```
+ai_strategy = {
+	type = naval_dominance
+	id = 78 # Strategic region Id
+	value = 99 # Percentage between 0 and 100
+}
+```
+
+### `convoy_raiding_target`
+Used to set the objective importance for convoy raiding
+```
+ai_strategy = {
+	type = convoy_raiding_target
+	id = FRA
+	value = 80 # Percentage between 0 and 100
 }
 ```
