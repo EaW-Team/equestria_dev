@@ -22,7 +22,7 @@ infantry = {
 	        category_all_infantry
 	        category_cavalry
         }
-        equipment = [ # Subunits with this equipment category will contribute to mastery gain
+        equipment = { # Subunits with this equipment category will contribute to mastery gain
             screen
             capital
         }

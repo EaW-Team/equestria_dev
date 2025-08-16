@@ -83,8 +83,17 @@ raid_type_id = {
 		# var:target_state and var:target_province can also be used when applicable
 	}
 
-	# Available represents being able to start a raid
+	# Launchable represents being able to start a raid
 	launchable = {
+		# Use FROM to refer to the target country, e.g. to require being at war
+		# var:target_state and var:target_province can also be used when applicable
+	}
+	
+	# Optional launchable trigger
+	# The scope is the country controlling the starting point used for raid, for example:
+	#  - the country that controls the territory where the starting base is located
+	#  - OR the country owning the fleet that is used to start the raid
+	launchable_from = {
 		# Use FROM to refer to the target country, e.g. to require being at war
 		# var:target_state and var:target_province can also be used when applicable
 	}
@@ -102,7 +111,8 @@ raid_type_id = {
     # Conditions on the starting point:
     starting_point = {
         types = { air_base, naval_base, rocket_site, carrier, submarine }
-        		building_types = { supply_node } # list of building ids or tags
+		building_types = { supply_node } # list of building ids or tags
+		allow_faction_buildings = yes # whether buildings on allied territories can be used
     }
 
 	show_target = {  }
