@@ -88,11 +88,6 @@ VertexShader =
 	MainCode VertexShader
 	[[
 
-		// These additional extensions are here for OpenGL compatibility
-		#ifdef PDX_OPENGL
-			#extension GL_EXT_gpu_shader4 : enable
-		#endif
-
 		VS_OUTPUT main(const VS_INPUT v )
 		{
 			VS_OUTPUT Out;
