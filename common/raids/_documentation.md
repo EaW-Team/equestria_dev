@@ -31,7 +31,7 @@ raid_type_id = {
 	command_power = 20 # command power allocation cost
 
 	arrow = {
-		type = line # arrow type: line, ballistic, air or naval
+		type = line # arrow type: line, ballistic, air, naval or land
 	}
 
 	unit_model = {
