@@ -231,11 +231,6 @@ faction_template_id = {
 		# NOTE : Can be a DB reference or an inline definition
 	}
 
-	rule_groups = {
-		# List of rule groups available for this faction
-		# NOTE : Can be a DB reference or an inline definition
-	}
-
 	default_rules = {
 		# List of rules to be set by default
 		# This overrides default rules defined in rule groups

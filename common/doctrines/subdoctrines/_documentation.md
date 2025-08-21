@@ -11,6 +11,7 @@
 bicycle_heroes = {
     track = infantry   # Refers to the script name of a track
     name = SUBDOCTRINE_BICYCLE_HEROES   # Bindable loc
+    description = SUBDOCTRINE_BICYCLE_HEROES_DESC   # Bindable loc
     icon = GFX_subdoctrine_bicycle_heroes   # Refers to the script name of an icon
     available = yes # Trigger that determines whether the doctrine can be selected
     visible = yes # Trigger that determines whether the doctrine is shown in the list at all

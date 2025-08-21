@@ -8,6 +8,7 @@
 mobile_warfare = {
     folder = land   # Refers to the script name of a folder
     name = GRAND_DOCTRINE_MOBILE_WARFARE   # Bindable loc
+    description = GRAND_DOCTRINE_MOBILE_WARFARE_DESC   # Bindable loc
     icon = GFX_mobile_warfare_medium  # Refers to the script name of an icon
     available = yes # Trigger that determines whether the doctrine can be selected
     visible = yes # Trigger that determines whether the doctrine is shown in the list at all

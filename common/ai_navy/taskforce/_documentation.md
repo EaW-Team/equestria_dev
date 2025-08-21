@@ -8,6 +8,9 @@ Script the amount of ships for a specific taskforce and its possible available m
 
 ```
 generic_taskforce_1 = {
+	allowed = {
+		original_tag = ENG
+	}
 	mission = { naval_patrol } # A list of applicable missions this taskforce can perform
 	min_composition = { # The minimum composition needed (Need more clarification here. Is the minimum before the goal system can use the taskforce?)
 		carrier = 1 # Ship types and the amount needed
