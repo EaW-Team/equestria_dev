@@ -358,31 +358,67 @@ country_event = {
 		text = MGY_FocusEconomy.32.desc_nationalisation
 	}
 
+	trigger = {
+		has_idea = MGY_IndebtedEconomy
+	}
+
 	is_triggered_only = yes
 
+	# option = {
+	# 	# Bribe the investors (this leads to an investigation)
+	# 	name = MGY_FocusEconomy.32.a
+
+	# 	custom_effect_tooltip = MGY_FocusEconomy.32_investigationrisk_tt
+	# 	custom_effect_tooltip = MGY_DoubleSpace_tt
+	# 	add_political_power = -20
+	# 	hidden_effect = {
+	# 		random_list = {
+	# 			20 = { # Investigation will be clean
+					
+	# 			}
+	# 			80 = { # Investigation will expose the bribe
+	# 				set_country_flag = MGY_corruptcommission_flag
+	# 			}
+	# 		}
+	# 		country_event = {
+	# 			id = MGY_FocusEconomy.35
+	# 			days = 40
+	# 			random_days = 120
+	# 		}
+	# 	}
+	# }
+
 	option = {
-		# Bribe the investors (this leads to an investigation)
+		# Bribe the investors
 		name = MGY_FocusEconomy.32.a
 
-		custom_effect_tooltip = MGY_FocusEconomy.32_investigationrisk_tt
-		custom_effect_tooltip = MGY_DoubleSpace_tt
-		add_political_power = -20
-		hidden_effect = {
-			random_list = {
-				20 = { # Investigation will be clean
-					
-				}
-				80 = { # Investigation will expose the bribe
-					set_country_flag = MGY_corruptcommission_flag
-				}
-			}
-			country_event = {
-				id = MGY_FocusEconomy.35
-				days = 40
-				random_days = 120
-			}
+		trigger = {
+			has_idea = MGY_industrialconcern_nationalisedcommission
+		}
+
+		swap_ideas = {
+			remove_idea = MGY_industrialconcern_nationalisedcommission
+			add_idea = MGY_industrialconcern_corruptcommission
 		}
 	}
+
+	option = {
+		# Bribe the investors - alt
+		name = MGY_FocusEconomy.32.a
+
+		trigger = {
+			NOT = {
+				has_idea = MGY_industrialconcern_nationalisedcommission
+			}
+		}
+
+		add_political_power = -25
+		add_popularity = {
+			ideology = ROOT
+			popularity = -0.05
+		}
+	}
+
 
 	option = {
 		# Offer them expemtions - leads to protests from the farmers
@@ -413,11 +449,42 @@ country_event = {
 		if = {
 			limit = {
 				has_idea = MGY_IndebtedEconomy
+				NOT = {
+					has_idea = MGY_industrialconcern_nationalisedcommission
+				}
 			}
 			add_to_variable = {
 				var = MGY_DebtPaymentCost_var
 				value = 50
 				tooltip = MGY_DebtPaymentCost_var_tt
+			}
+		}
+		else_if = {
+			limit = {
+				has_idea = MGY_PoliticalUnrest
+				NOT = {
+					has_idea = MGY_industrialconcern_nationalisedcommission
+				}
+			}
+			if = {
+				limit = {
+					industrial_complex > 1
+					any_owned_state = {
+						industrial_complex > 0
+					}
+				}
+				random_owned_state = {
+					MGY_IncreaseStateUnrest_medium_effect = yes
+					remove_building = {
+						type = industrial_complex
+						level = 1
+					}
+				}
+			}
+			else = {
+				random_owned_state = {
+					MGY_IncreaseStateUnrest_medium_effect = yes
+				}
 			}
 		}
 		else = {
@@ -514,6 +581,16 @@ country_event  = {
 
 	is_triggered_only = yes
 
+	trigger = {
+		OR ={
+			has_idea = MGY_IndebtedEconomy
+			has_idea = MGY_industrialconcern_nationalisedcommission
+			has_idea = MGY_industrialconcern_corruptcommission
+			has_idea = MGY_industrialconcern_deflatedcommission
+			has_idea = MGY_industrialconcern_bankruptcommission
+		}
+	}
+
 	immediate = {
 		hidden_effect = {
 			if = {
@@ -540,6 +617,8 @@ country_event  = {
 	option = {
 		# Send soldiers!
 		name = MGY_FocusEconomy.321.a
+
+		add_stability = -0.025	
 
 		hidden_effect = {
 			add_to_temp_variable = {
@@ -575,7 +654,7 @@ country_event  = {
 		# let them riot...
 		name = MGY_FocusEconomy.321.b
 	
-		add_stability = -0.02
+		add_stability = -0.05
 		event_target:MGY_EVENT_TARGET = {
 			if = {
 				limit = {
@@ -611,7 +690,11 @@ country_event = {
 	is_triggered_only = yes
 
 	trigger = {
-		has_idea = MGY_industrialconcern_nationalisedcommission
+		OR = {
+			has_idea = MGY_industrialconcern_nationalisedcommission
+			has_idea = MGY_industrialconcern_corruptcommission
+		}
+		has_idea = MGY_IndebtedEconomy
 		NOT = {
 			has_completed_focus = MGY_MaregyptBank
 		}
@@ -623,7 +706,7 @@ country_event = {
 
 		add_to_variable = {
 			var = MGY_DebtPaymentCost_var
-			value = 50
+			value = 25
 			tooltip = MGY_DebtPaymentCost_var_tt
 		}
 	}
@@ -632,111 +715,154 @@ country_event = {
 		# Slash the Budget
 		name = MGY_FocusEconomy.33.b
 		
-		swap_ideas = {
-			remove_idea = MGY_industrialconcern_nationalisedcommission
-			add_idea = MGY_industrialconcern_deflatedcommission
-		}
-	}
-}
-
-# Corruption in the commission
-country_event = {
-	id = MGY_FocusEconomy.35
-	title = {
-		trigger = {
-			has_country_flag = MGY_corruptcommission_flag
-		}
-		text = MGY_FocusEconomy.35_corruptionexposed_title
-	}
-	title = {
-		trigger = {
-			NOT = {
-				has_country_flag = MGY_corruptcommission_flag
+		if = {
+			limit = {
+				has_idea = MGY_industrialconcern_nationalisedcommission
+			}
+			swap_ideas = {
+				remove_idea = MGY_industrialconcern_nationalisedcommission
+				add_idea = MGY_industrialconcern_deflatedcommission
 			}
 		}
-		text = MGY_FocusEconomy.35_cleancommission_title
-	}
-	desc = {
-		trigger = {
-			has_country_flag = MGY_corruptcommission_flag
-		}
-		text = MGY_FocusEconomy.35_corruptionexposed_desc
-	}
-	desc = {
-		trigger = {
-			NOT = {
-				has_country_flag = MGY_corruptcommission_flag
+		else = {
+			swap_ideas = {
+				remove_idea = MGY_industrialconcern_corruptcommission
+				add_idea = MGY_industrialconcern_bankruptcommission
 			}
-		}
-		text = MGY_FocusEconomy.35_cleancommission_desc
-	}
-
-	is_triggered_only = yes
-
-	option = {
-		# Can't believe we got caught...
-		trigger = {
-			has_country_flag = MGY_corruptcommission_flag
-		}
-
-		name = MGY_FocusEconomy.35.a
-
-		add_political_power = -50
-		add_war_support = -0.03
-		add_stability = -0.03
-		custom_effect_tooltip = MGY_DoubleSpace_tt
-		add_popularity = {
-			ideology = ROOT
-			popularity = -0.05
 		}
 	}
 
 	option = {
-		# Cover it up!
+		# Cut back on public spending!
+		name = MGY_FocusEconomy.33.c
+		
 		trigger = {
-			has_country_flag = MGY_corruptcommission_flag
+			OR = {
+				has_idea = MGY_PoliticalUnrest
+				has_stability > 0
+			}
 		}
-
-		name = MGY_FocusEconomy.35.b
 
 		if = {
 			limit = {
-				has_country_flag = MGY_PoliticalUnrest
+				has_idea = MGY_PoliticalUnrest
 			}
-			add_stability = -0.025
-			custom_effect_tooltip = MGY_DoubleSpace_tt
-			every_state = {
+			every_owned_state = {
 				limit = {
 					is_core_of = ROOT
 					check_variable = {
 						MGY_StateUnrest_var < 100
 					}
 				}
-				random_select_amount = 3
+				random_select_amount = 4
 				MGY_IncreaseStateUnrest_small_effect = yes
 			}
 		}
 		else = {
-			add_stability = -0.025
-			custom_effect_tooltip = MGY_DoubleSpace_tt
-			add_popularity = {
-				ideology = ROOT
-				popularity = -0.05
-			}	
+			add_stability = -0.05
+			add_war_support = -0.05
 		}
-	}
-
-	option = {
-		# can't believe we got away with it!
-		trigger = {
-			NOT = {
-				has_country_flag = MGY_corruptcommission_flag
-			}
-		}
-
-		name = MGY_FocusEconomy.35.c
 	}
 }
+
+# Corruption in the commission
+# country_event = {
+# 	id = MGY_FocusEconomy.35
+# 	title = {
+# 		trigger = {
+# 			has_country_flag = MGY_corruptcommission_flag
+# 		}
+# 		text = MGY_FocusEconomy.35_corruptionexposed_title
+# 	}
+# 	title = {
+# 		trigger = {
+# 			NOT = {
+# 				has_country_flag = MGY_corruptcommission_flag
+# 			}
+# 		}
+# 		text = MGY_FocusEconomy.35_cleancommission_title
+# 	}
+# 	desc = {
+# 		trigger = {
+# 			has_country_flag = MGY_corruptcommission_flag
+# 		}
+# 		text = MGY_FocusEconomy.35_corruptionexposed_desc
+# 	}
+# 	desc = {
+# 		trigger = {
+# 			NOT = {
+# 				has_country_flag = MGY_corruptcommission_flag
+# 			}
+# 		}
+# 		text = MGY_FocusEconomy.35_cleancommission_desc
+# 	}
+
+# 	is_triggered_only = yes
+
+# 	option = {
+# 		# Can't believe we got caught...
+# 		trigger = {
+# 			has_country_flag = MGY_corruptcommission_flag
+# 		}
+
+# 		name = MGY_FocusEconomy.35.a
+
+# 		add_political_power = -50
+# 		add_war_support = -0.03
+# 		add_stability = -0.03
+# 		custom_effect_tooltip = MGY_DoubleSpace_tt
+# 		add_popularity = {
+# 			ideology = ROOT
+# 			popularity = -0.05
+# 		}
+# 	}
+
+# 	option = {
+# 		# Cover it up!
+# 		trigger = {
+# 			has_country_flag = MGY_corruptcommission_flag
+# 		}
+
+# 		name = MGY_FocusEconomy.35.b
+
+# 		if = {
+# 			limit = {
+# 				has_country_flag = MGY_PoliticalUnrest
+# 			}
+# 			add_stability = -0.025
+# 			custom_effect_tooltip = MGY_DoubleSpace_tt
+# 			every_state = {
+# 				limit = {
+# 					is_core_of = ROOT
+# 					check_variable = {
+# 						MGY_StateUnrest_var < 100
+# 					}
+# 				}
+# 				random_select_amount = 3
+# 				MGY_IncreaseStateUnrest_small_effect = yes
+# 			}
+# 		}
+# 		else = {
+# 			add_stability = -0.025
+# 			custom_effect_tooltip = MGY_DoubleSpace_tt
+# 			add_popularity = {
+# 				ideology = ROOT
+# 				popularity = -0.05
+# 			}	
+# 		}
+# 	}
+
+# 	option = {
+# 		# can't believe we got away with it!
+# 		trigger = {
+# 			NOT = {
+# 				has_country_flag = MGY_corruptcommission_flag
+# 			}
+# 		}
+
+# 		name = MGY_FocusEconomy.35.c
+# 	}
+# }
 
 
 # Census of [YEAR]
