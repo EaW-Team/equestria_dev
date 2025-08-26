@@ -35,10 +35,20 @@ raid_type_id = {
 	}
 
 	unit_model = {
-	    # equipment, transport or convoy
-	    type = equipment # (will use the majority equipment type of the airwing)
-	    scale = 0.5 # scale of the entity, is also multiplied by the global RAID_UNIT_ENTITY_BASE_SCALE define
-	}
+		# Entities to use as raid unit models, the game will try to find suitable entity in the following order:
+		#	1. First, a country-specific override, for example: GER_entity_name
+		#	2. Second, a culture-specific override, for example: westerngfx_entity_name
+		#	3. Then, the basic entity: entity_name
+		#	4. If still not found, the game will try to find the default_entity_name
+		entity = entity_name
+		default_entity = default_entity_name
+		
+		# Tells the game to use specific equipment's model as raid unit
+		# NOTE - only air equipment is currently supported!
+		equipment = air_transport
+
+	    start_offset = 15 # offsets the starting position of a unit by an amount, mostly needed so that convoy entities start in the sea and not on the shore
+    }
 
 	ai_will_do = {
 		# AI only wants to do raids if resulting AI weight is > 0

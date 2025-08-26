@@ -15,3 +15,7 @@
 * set_grand_doctrine
 * set_sub_doctrine
 * add_mastery
+
+## Doctrine Triggers
+
+* has_completed_subdoctrine
