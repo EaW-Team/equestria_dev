@@ -196,7 +196,7 @@ if is_dir:
             names_race = names_race + [(parsed_file, "diamond_dog")]
         elif filename.startswith("generic_"):
             print("Added " + filename + " to race list")
-            names_race = names_race + [(parsed_file, "feneric")]
+            names_race = names_race + [(parsed_file, "generic")]
         elif filename.startswith("griffon_"):
             print("Added " + filename + " to race list")
             names_race = names_race + [(parsed_file, "griffon")]
