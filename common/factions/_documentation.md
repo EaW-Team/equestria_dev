@@ -132,8 +132,11 @@ faction_rule_id = {
 	#         SCOPE = country calling to the war: COUNTRY
 	#         FROM = target country: COUNTRY
 	#
-	#    member_rules - checks whether a member can become governmen in exile
+	#    member_rules - checks whether a member can become government in exile
 	#        SCOPE = faction leader: COUNTRY
+	#
+	#	 change_leader_rules - checks which country can become the faction leader
+	#	 	 SCOPE = country that becomes the faction leader: COUNTRY
 	#
 	#    peace_conference_rules - is supposed to contain a list of peace_action_modifiers to apply during a peace conferences
 	#
@@ -270,6 +273,8 @@ faction_template_id = {
 - *has_faction_goal* - checks if the current country's faction has an active or completed goal
 - *has_completed_faction_goal* - checks if the current country's faction has completed a goal
 - *faction_goal_fulfillment* - checks goal fulfillment for the current country's faction
+- *has_manpower_to_become_leader* - checks if the current country exceeds the current faction leader and its subjects in deployed manpower
+- *has_industry_to_become_leader* - checks if the current country exceeds the faction leader in number of factories
 
 ### List of faction-related modifiers
 - *faction_influence_war_score_factor* - war score modifier for faction influence
@@ -330,4 +335,3 @@ Faction_Upgrade_Group_Id = {
    ### List of faction-member-upgrade-types, that have code support
 	faction_member_upgrade_manpower = bonus will be the % that you take from your own countries manpower and put into the faction manpower pool
 }
-
