@@ -11,6 +11,13 @@ generic_taskforce_1 = {
 	allowed = {
 		original_tag = ENG
 	}
+	ai_will_do = {
+		# AI weight modifier for this template
+		# If <= 0, the AI will not use this template
+		#
+		# SCOPE = COUNTRY
+		factor = 1
+	}
 	mission = { naval_patrol } # A list of applicable missions this taskforce can perform
 	min_composition = { # The minimum composition needed (Need more clarification here. Is the minimum before the goal system can use the taskforce?)
 		carrier = 1 # Ship types and the amount needed
