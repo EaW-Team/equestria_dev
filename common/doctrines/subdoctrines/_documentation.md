@@ -40,7 +40,7 @@ bicycle_heroes = {
     }
     
     mastery = { # This will override the default mastery conditions for the track
-        multiplier = 10.0 # Scales how much XP is converted to mastery
+        multiplier = 5.0 # Multiplies manpower contribution to mastery gain (in this case, 5 times less manpower is needed to gain the same amount of mastery)
         sub_units = { # Which subunits contribute to mastery gain?
             bicycle_battalion
         }
