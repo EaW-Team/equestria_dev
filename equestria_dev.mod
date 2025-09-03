@@ -12,6 +12,7 @@ replace_path="common/characters"
 replace_path="common/countries"
 replace_path="common/country_tags"
 replace_path="common/ideas"
+replace_path="common/intelligence_agencies"
 replace_path="common/names"
 replace_path="common/national_focus"
 replace_path="common/scripted_effects"
@@ -42,4 +43,4 @@ tags={
 }
 picture="equestria.jpg"
 remote_file_id="1826643372"
-supported_version="1.15.*"
+supported_version="1.16.*"

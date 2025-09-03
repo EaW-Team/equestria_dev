@@ -13,8 +13,9 @@
 #    d) add an entry in operative_add_starting_nationalities_and_race
 #    e) depending on tag, add an entry in operative_add_secondary_nationalities and operative_handle_secondary_cultures_races
 # 3. Update the culture map mode to include the new group by:
-#    a) adding an entry to define the color in common/map_mods/eaw_culture_map_mode.txt
-#    b) adding an entry to define the name of the group on the map in common/scripted_localisation/EAW_map_mode_scripted_localisations.txt
+#    a) adding an entry to define the color index in common\scripted_effects\EAW_on_action_effects.txt under startup_set_state_culture
+#    b) adding an entry to define the color itself in common\scripted_effects\EAW_on_action_effects.txt under initialize_culture_map_mod_color_array
+#    c) adding an entry to define the name of the group on the map in common/scripted_localisation/EAW_map_mode_scripted_localisations.txt
 # 4. In common/decisions/lar_agent_recruitment_decisions, add a new decision for hiring agents for the new culture group
 
 operative_add_nationalities_changeling = {
@@ -2304,9 +2305,6 @@ operative_handle_secondary_cultures_races = {
 				}
 				random_list = {
 					20 = {
-						remove_unit_leader_trait = griffon_race_trait
-						clr_unit_leader_flag = griffon_race_flag
-						operative_add_starting_nationalities_and_race = yes
 					}
 					80 = {
 						FROM = {
@@ -2314,6 +2312,12 @@ operative_handle_secondary_cultures_races = {
 						}
 					}
 				}
+				# Remove what we just added to allow for operative_add_starting_nationalities_and_race
+				# to work
+				# Probably should refactor the if...else to remove the need for it but eh
+				remove_unit_leader_trait = griffon_race_trait
+				clr_unit_leader_flag = griffon_race_flag
+				operative_add_starting_nationalities_and_race = yes
 			}
 			else_if = {
 				limit = {
@@ -3043,6 +3047,7 @@ operative_bat_chance = {
 				factor = 0
 				NOT = {
 					has_nationality = EQS
+					has_nationality = STG
 					has_nationality = NLR
 					has_nationality = EQC
 					has_nationality = TEM
@@ -3406,11 +3411,11 @@ set_operative_to_zebra = {
 			is_female = yes
 		}
 		set_temp_variable = {
-			name_idx = 18
+			name_idx = 13
 		}
 		get_random_name_idx = yes
 		set_temp_variable = {
-			surname_idx = 12
+			surname_idx = 14
 		}
 		get_random_surname_idx = yes
 		meta_effect = {
@@ -3433,11 +3438,11 @@ set_operative_to_zebra = {
 	}
 	else = {
 		set_temp_variable = {
-			name_idx = 10
+			name_idx = 13
 		}
 		get_random_name_idx = yes
 		set_temp_variable = {
-			surname_idx = 12
+			surname_idx = 14
 		}
 		get_random_surname_idx = yes
 		meta_effect = {
@@ -3448,7 +3453,7 @@ set_operative_to_zebra = {
 			SURNAME = "[?surname_idx.GetZebraSurname]"
 		}
 		set_temp_variable = {
-			name_idx = 3
+			name_idx = 4
 		}
 		get_random_name_idx = yes
 		meta_effect = {
@@ -3915,6 +3920,44 @@ set_unit_leader_to_JER_pony = {
 	add_unit_leader_trait = pony_race_trait
 }
 
+set_unit_leader_to_STG_bat = {
+	if = {
+		limit = {
+			is_female = yes
+		}
+		if = {
+			limit = {
+				is_navy_leader = yes
+			}
+			#for possible female stg navy bats
+		}
+		else = {
+			set_temp_variable = {
+				name_idx = 3
+			}
+			get_random_name_idx = yes
+			meta_effect = {
+				text = {
+					set_portraits = { operative = { large = "[PORTRAIT]" small = "[PORTRAIT]_small" } army = { large = "[PORTRAIT]" small = "[PORTRAIT]_small" }  navy = { large = "[PORTRAIT]" small = "[PORTRAIT]_small" } civilian = { large = "[PORTRAIT]" small = "[PORTRAIT]_small" } }
+				}
+				PORTRAIT = "[?name_idx.Get_bat_STG_army_female_portrait]"
+			}
+		}
+	}
+	else = {
+		if = {
+			limit = {
+				is_navy_leader = yes
+			}
+			#For possible male stg navy bats
+		}
+		else = {
+			#For possible male stg army bats
+		}
+	}
+	add_unit_leader_trait = thestral_race_trait
+}
+
 set_unit_leader_to_diamond_dog = {
 	if = {
 		limit = {
@@ -4344,6 +4387,101 @@ set_unit_leader_to_hippogriff = {
 	add_unit_leader_trait = hippogriff_race_trait
 }
 
+set_unit_leader_to_zebra = {
+	if = {
+		limit = {
+			is_female = yes
+		}
+		set_temp_variable = {
+			name_idx = 13
+		}
+		get_random_name_idx = yes
+		set_temp_variable = {
+			surname_idx = 14
+		}
+		get_random_surname_idx = yes
+		meta_effect = {
+			text = {
+				set_leader_name = "[NAME] [SURNAME]"
+			}
+			NAME = "[?name_idx.GetZebraFemaleName]"
+			SURNAME = "[?surname_idx.GetZebraSurname]"
+		}
+		if = {
+			limit = {
+				is_navy_leader = yes
+			}
+			set_temp_variable = {
+				name_idx = 5
+			}
+			get_random_name_idx = yes
+			meta_effect = {
+				text = {
+					set_portraits = { operative = { large = "[PORTRAIT]" small = "[PORTRAIT]_small" } army = { large = "[PORTRAIT]" small = "[PORTRAIT]_small" }  navy = { large = "[PORTRAIT]" small = "[PORTRAIT]_small" } civilian = { large = "[PORTRAIT]" small = "[PORTRAIT]_small" } }
+				}
+				PORTRAIT = "[?name_idx.Get_zebra_navy_female_portrait]"
+			}
+		}
+		else = {
+			set_temp_variable = {
+				name_idx = 3
+			}
+			get_random_name_idx = yes
+			meta_effect = {
+				text = {
+					set_portraits = { operative = { large = "[PORTRAIT]" small = "[PORTRAIT]_small" } army = { large = "[PORTRAIT]" small = "[PORTRAIT]_small" }  navy = { large = "[PORTRAIT]" small = "[PORTRAIT]_small" } civilian = { large = "[PORTRAIT]" small = "[PORTRAIT]_small" } }
+				}
+				PORTRAIT = "[?name_idx.Get_zebra_army_female_portrait]"
+			}
+		}
+	}
+	else = {
+		set_temp_variable = {
+			name_idx = 13
+		}
+		get_random_name_idx = yes
+		set_temp_variable = {
+			surname_idx = 14
+		}
+		get_random_surname_idx = yes
+		meta_effect = {
+			text = {
+				set_leader_name = "[NAME] [SURNAME]"
+			}
+			NAME = "[?name_idx.GetZebraMaleName]"
+			SURNAME = "[?surname_idx.GetZebraSurname]"
+		}
+		if = {
+			limit = {
+				is_navy_leader = yes
+			}
+			set_temp_variable = {
+				name_idx = 7
+			}
+			get_random_name_idx = yes
+			meta_effect = {
+				text = {
+					set_portraits = { operative = { large = "[PORTRAIT]" small = "[PORTRAIT]_small" } army = { large = "[PORTRAIT]" small = "[PORTRAIT]_small" }  navy = { large = "[PORTRAIT]" small = "[PORTRAIT]_small" } civilian = { large = "[PORTRAIT]" small = "[PORTRAIT]_small" } }
+				}
+				PORTRAIT = "[?name_idx.Get_zebra_navy_male_portrait]"
+			}
+		}
+		else = {
+			set_temp_variable = {
+				name_idx = 3
+			}
+			get_random_name_idx = yes
+			meta_effect = {
+				text = {
+					set_portraits = { operative = { large = "[PORTRAIT]" small = "[PORTRAIT]_small" } army = { large = "[PORTRAIT]" small = "[PORTRAIT]_small" }  navy = { large = "[PORTRAIT]" small = "[PORTRAIT]_small" } civilian = { large = "[PORTRAIT]" small = "[PORTRAIT]_small" } }
+				}
+				PORTRAIT = "[?name_idx.Get_zebra_army_male_portrait]"
+			}
+		}
+	}
+	add_unit_leader_trait = zebra_race_trait
+}
+
 set_unit_leader_to_cat = {
 	if = {
 		limit = {
@@ -4381,7 +4519,7 @@ set_unit_leader_to_cat = {
 		}
 		else = {
 			set_temp_variable = {
-				name_idx = 6
+				name_idx = 8
 			}
 			get_random_name_idx = yes
 			meta_effect = {
@@ -4844,7 +4982,7 @@ set_unit_leader_to_fire_dragon = {
 				is_navy_leader = yes
 			}
 			set_temp_variable = {
-				name_idx = 3
+				name_idx = 4
 			}
 			get_random_name_idx = yes
 			meta_effect = {
@@ -4856,7 +4994,7 @@ set_unit_leader_to_fire_dragon = {
 		}
 		else = {
 			set_temp_variable = {
-				name_idx = 3
+				name_idx = 4
 			}
 			get_random_name_idx = yes
 			meta_effect = {
@@ -4888,7 +5026,7 @@ set_unit_leader_to_fire_dragon = {
 				is_navy_leader = yes
 			}
 			set_temp_variable = {
-				name_idx = 3
+				name_idx = 4
 			}
 			get_random_name_idx = yes
 			meta_effect = {
@@ -4900,7 +5038,7 @@ set_unit_leader_to_fire_dragon = {
 		}
 		else = {
 			set_temp_variable = {
-				name_idx = 3
+				name_idx = 4
 			}
 			get_random_name_idx = yes
 			meta_effect = {
@@ -4939,26 +5077,26 @@ set_unit_leader_to_gargoyle = {
 				is_navy_leader = yes
 			}
 			set_temp_variable = {
-				name_idx = 1
+				name_idx = 2
 			}
 			get_random_name_idx = yes
 			meta_effect = {
 				text = {
 					set_portraits = { operative = { large = "[PORTRAIT]" small = "[PORTRAIT]_small" } army = { large = "[PORTRAIT]" small = "[PORTRAIT]_small" }  navy = { large = "[PORTRAIT]" small = "[PORTRAIT]_small" } civilian = { large = "[PORTRAIT]" small = "[PORTRAIT]_small" } }
 				}
-				PORTRAIT = "[?name_idx.Get_GAR_operative_female_portrait]"
+				PORTRAIT = "[?name_idx.Get_GAR_army_female_portrait]"
 			}
 		}
 		else = {
 			set_temp_variable = {
-				name_idx = 1
+				name_idx = 3
 			}
 			get_random_name_idx = yes
 			meta_effect = {
 				text = {
 					set_portraits = { operative = { large = "[PORTRAIT]" small = "[PORTRAIT]_small" } army = { large = "[PORTRAIT]" small = "[PORTRAIT]_small" }  navy = { large = "[PORTRAIT]" small = "[PORTRAIT]_small" } civilian = { large = "[PORTRAIT]" small = "[PORTRAIT]_small" } }
 				}
-				PORTRAIT = "[?name_idx.Get_GAR_operative_female_portrait]"
+				PORTRAIT = "[?name_idx.Get_GAR_army_female_portrait]"
 			}
 		}
 	}
@@ -4983,26 +5121,26 @@ set_unit_leader_to_gargoyle = {
 				is_navy_leader = yes
 			}
 			set_temp_variable = {
-				name_idx = 1
+				name_idx = 4
 			}
 			get_random_name_idx = yes
 			meta_effect = {
 				text = {
 					set_portraits = { operative = { large = "[PORTRAIT]" small = "[PORTRAIT]_small" } army = { large = "[PORTRAIT]" small = "[PORTRAIT]_small" }  navy = { large = "[PORTRAIT]" small = "[PORTRAIT]_small" } civilian = { large = "[PORTRAIT]" small = "[PORTRAIT]_small" } }
 				}
-				PORTRAIT = "[?name_idx.Get_GAR_operative_male_portrait]"
+				PORTRAIT = "[?name_idx.Get_GAR_army_male_portrait]"
 			}
 		}
 		else = {
 			set_temp_variable = {
-				name_idx = 1
+				name_idx = 4
 			}
 			get_random_name_idx = yes
 			meta_effect = {
 				text = {
 					set_portraits = { operative = { large = "[PORTRAIT]" small = "[PORTRAIT]_small" } army = { large = "[PORTRAIT]" small = "[PORTRAIT]_small" }  navy = { large = "[PORTRAIT]" small = "[PORTRAIT]_small" } civilian = { large = "[PORTRAIT]" small = "[PORTRAIT]_small" } }
 				}
-				PORTRAIT = "[?name_idx.Get_GAR_operative_male_portrait]"
+				PORTRAIT = "[?name_idx.Get_GAR_army_male_portrait]"
 			}
 		}
 	}
@@ -6230,7 +6368,7 @@ setup_generic_advisor_portraits = {
 	every_possible_country = {
 		if = {
 			limit = {
-				NOT = { country_with_custom_advisors = yes }
+				NOT = { has_country_flag = has_custom_advisors }
 			}
 
 			if = {
@@ -6745,6 +6883,8 @@ setup_generic_advisor_portraits = {
 					limit = {
 						is_advisor = yes
 						NOT = {
+							has_army_ledger = yes
+							has_navy_ledger = yes
 							is_army_leader = yes
 							is_navy_leader = yes
 							is_country_leader = yes
@@ -6914,10 +7054,43 @@ setup_generic_advisor_portraits = {
 							}
 						}
 
-						set_portraits = {
-							civilian = { small = "GFX_idea_unknown_advisor_yeti" }
-							army = { small = "GFX_idea_unknown_advisor_yeti" }
-							navy = { small = "GFX_idea_unknown_advisor_yeti" }
+						random_list = {
+							seed = random
+							1 = {
+								set_portraits = {
+									civilian = { small = "GFX_portrait_storm_creature_generic_scientist_2_small" }
+									army = { small = "GFX_portrait_storm_creature_generic_scientist_2_small" }
+									navy = { small = "GFX_portrait_storm_creature_generic_scientist_2_small" }
+								}
+							}
+							1 = {
+								set_portraits = {
+									civilian = { small = "GFX_portrait_storm_creature_generic_operative_male_1_small" }
+									army = { small = "GFX_portrait_storm_creature_generic_operative_male_1_small" }
+									navy = { small = "GFX_portrait_storm_creature_generic_operative_male_1_small" }
+								}
+							}
+							1 = {
+								set_portraits = {
+									civilian = { small = "GFX_portrait_yeti_generic_scientist_1_small" }
+									army = { small = "GFX_portrait_yeti_generic_scientist_1_small" }
+									navy = { small = "GFX_portrait_yeti_generic_scientist_1_small" }
+								}
+							}
+							1 = {
+								set_portraits = {
+									civilian = { small = "GFX_portrait_yeti_generic_scientist_2_small" }
+									army = { small = "GFX_portrait_yeti_generic_scientist_2_small" }
+									navy = { small = "GFX_portrait_yeti_generic_scientist_2_small" }
+								}
+							}
+							1 = {
+								set_portraits = {
+									civilian = { small = "GFX_portrait_yeti_generic_operative_male_1_small" }
+									army = { small = "GFX_portrait_yeti_generic_operative_male_1_small" }
+									navy = { small = "GFX_portrait_yeti_generic_operative_male_1_small" }
+								}
+							}
 						}
 					}
 				}
@@ -6947,7 +7120,7 @@ setup_generic_advisor_portraits = {
 		}
 		if = {
 			limit = {
-				NOT = { country_with_custom_spymaster = yes }
+				NOT = { has_country_flag = has_custom_spymaster }
 			}
 
 			if = {
@@ -7355,6 +7528,13 @@ setup_generic_advisor_portraits = {
 								civilian = { small = "GFX_portrait_penguin_generic_operative_male_2_small" }
 								army = { small = "GFX_portrait_penguin_generic_operative_male_2_small" }
 								navy = { small = "GFX_portrait_penguin_generic_operative_male_2_small" }
+							}
+						}
+						1 = {
+							set_portraits = {
+								civilian = { small = "GFX_portrait_penguin_generic_operative_male_3_small" }
+								army = { small = "GFX_portrait_penguin_generic_operative_male_3_small" }
+								navy = { small = "GFX_portrait_penguin_generic_operative_male_3_small" }
 							}
 						}
 					}
@@ -8011,6 +8191,19 @@ handle_generated_unit_leader_non_operative = {
 		else_if = {
 			limit = {
 				var:creator = {
+					original_tag = STG
+				}
+			}
+			random_list = {
+				90 = { }
+				10 = {
+					set_unit_leader_to_STG_bat = yes
+				}
+			}
+		}
+		else_if = {
+			limit = {
+				var:creator = {
 					original_tag = CYA
 					has_government = communism
 				}
@@ -8038,7 +8231,8 @@ handle_generated_unit_leader_non_operative = {
 					give_WNG_name = yes
 				}
 				25 = {
-					set_unit_leader_to_hippogriff = yes
+					set_unit_leader_to_zebra = yes
+					give_north_zebra_name = yes
 				}
 			}
 		}
@@ -8641,6 +8835,21 @@ handle_generated_unit_leader_non_operative = {
 				}
 			}
 		}
+	}
+	if = {
+		limit = {
+			var:creator = {
+				original_tag = ZAI
+				OR = {
+					has_cosmetic_tag = Terathopia
+					has_cosmetic_tag = Terathopia_2
+					has_cosmetic_tag = Terathopia_3
+				}
+			}
+			has_trait = zebra_race_trait
+		}
+		remove_unit_leader_trait = zebra_race_trait
+		add_unit_leader_trait = unspecified_race_trait
 	}
 	clr_unit_leader_flag = generated
 }
