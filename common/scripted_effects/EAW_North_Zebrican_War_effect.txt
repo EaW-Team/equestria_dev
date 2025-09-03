@@ -1,0 +1,818 @@
+# This needs to be called if a focus starts the NZW
+NZW_on_start_effect = {
+	log = "[GetDateText]: [Root.GetName]: NZW_on_start_effect called NZ1: [NZ1.GetName] NZ2: [NZ2.GetName]"
+
+	if = {
+		limit = {
+			NOT = { has_global_flag = NZW_started }
+		}
+
+		custom_effect_tooltip = NZW_starts_the_NZW
+		
+		set_global_flag = NZW_started
+		set_global_flag = NZW_in_progress
+		
+		if = {
+			limit = {
+				NZ1 = {
+					tag = HIE # Star Father is at it
+				}
+			}
+			set_global_flag = NZW_war_status_total
+			set_global_flag = NZW_war_status_partial_blocked
+		}
+		else = {
+			set_global_flag = NZW_war_status_partial
+		}
+
+		# Wingbardy gets a decision to join if they are fascist and NZW_in_progess is set
+
+		if = {
+			limit = {
+				NOT = {
+					has_global_flag = HIP_north_war_news_event_fired
+				}
+			}
+			set_global_flag = HIP_north_war_news_event_fired
+			hidden_effect = {
+				news_event = {
+					id = north_war.101
+					hours = 8
+				}
+			}
+		}
+	}
+	
+	# IMPORTANT:
+	# War participation is set in the in eaw_on_actions.txt -> on_war_relation_added
+	# If you want to change something, look at the on_action itself
+	# It is called for every nation once they enter the war, that's why its used (more flexible)
+}
+
+# Limited peacedeal with HIP
+# Outcome depends on participating parties
+NZW_HIP_surrender_peace_deal_effect = {
+	if = {
+		limit = {
+			WNG = {
+				has_country_flag = NZW_war_participant
+			}
+		}
+		set_global_flag = NZW_WNG_participated
+		
+		# WNG receives its islands
+		if = {
+			limit = {
+				687 = {
+					is_owned_by = HIP
+				}
+			}
+			WNG = {
+				transfer_state = 687
+			}
+		}
+		if = {
+			limit = {
+				694 = {
+					is_owned_by = HIP
+				}
+			}
+			WNG = {
+				transfer_state = 694
+			}
+		}
+		if = {
+			limit = {
+				693 = {
+					is_owned_by = HIP
+				}
+			}
+			WNG = {
+				transfer_state = 693
+			}
+		}
+	}
+	if = {
+		limit = { # Split peacedeal
+			NZ1 = {
+				has_country_flag = NZW_war_participant
+			}
+			NZ2 = {
+				has_country_flag = NZW_war_participant
+			}
+		}
+		
+		NZ1 = {
+			# Northern Zumidia
+			transfer_state = 711
+			transfer_state = 698
+			transfer_state = 697
+		}
+		
+		NZ2 = {	
+			# Warzena
+			if = {
+				limit = {
+					WAR = { 
+						NZW_is_aligned_with_HIP = yes
+						OR = {
+							has_country_flag = NZW_war_participant
+							exists = no # Occupied by HIP
+						}
+					}
+				}
+				transfer_state = 688
+				transfer_state = 1206
+				transfer_state = 743
+				transfer_state = 744
+			}
+			
+			# Southern Zumidia
+			transfer_state = 710
+
+			# Trots and Canters
+			transfer_state = 1199
+		}
+		
+		if = {
+			limit = {
+				AND = {
+					NZ1 = {
+						tag = CTH
+					}
+					NZ2 = {
+						tag = BAT
+					}
+					has_global_flag = NZW_WNG_participated
+				}
+			}
+			
+			# Establish Winggarten
+			NZW_establish_winggarten_effect = yes
+		}
+	}
+	else_if = { # Northern peacedeal
+		limit = {
+			NZ1 = {
+				has_country_flag = NZW_war_participant
+			}
+		}
+		
+		NZ1 = {
+			# Zumidia
+			transfer_state = 711
+			transfer_state = 698
+			transfer_state = 697
+			transfer_state = 710
+			
+			# Warzena
+			if = {
+				limit = {
+					WAR = { 
+						NZW_is_aligned_with_HIP = yes
+						OR = {
+							has_country_flag = NZW_war_participant
+							exists = no # Occupied by HIP
+						}
+					}
+				}
+				transfer_state = 688
+				transfer_state = 1206
+				transfer_state = 743
+				transfer_state = 744
+			}
+		}
+	}
+	else_if = { # Southern peacedeal
+		limit = {
+			NZ2 = {
+				has_country_flag = NZW_war_participant
+			}
+		}
+		
+		NZ2 = {
+			# Zumidia
+			transfer_state = 711
+			transfer_state = 698
+			transfer_state = 697
+			transfer_state = 710
+			
+			# Warzena
+			if = {
+				limit = {
+					WAR = { 
+						NZW_is_aligned_with_HIP = yes
+						OR = {
+							has_country_flag = NZW_war_participant
+							exists = no # Occupied by HIP
+						}
+					}
+				}
+				transfer_state = 688
+				transfer_state = 1206
+				transfer_state = 743
+				transfer_state = 744
+			}
+
+			# Trots and Canters
+			transfer_state = 1199
+		}
+	}
+	else = {
+		custom_effect_tooltip = NZW_error_tp # Nobody at war - this shouldn't happen
+	}
+	
+	ZUM = {
+		every_core_state = {
+			remove_core_of = HIP
+		}
+	}
+	WAR = {
+		every_core_state = {
+			remove_core_of = HIP
+		}
+	}
+	
+	NZW_on_end_effect = yes # North Zebrican War has officially ended, remove all war participations
+}
+
+NZW_establish_winggarten_effect = {
+	log = "[GetDateText]: [Root.GetName]: NZW_establish_winggarten_effect called"
+
+	set_global_flag = NZW_winggarten_established
+	1204 = {
+		add_core_of = WIN
+	}
+	WIN = {
+		transfer_state = 1204
+		load_oob = "WIN_1007"
+		give_military_access = BAT
+		give_military_access = CTH
+		give_military_access = WNG
+		diplomatic_relation = {
+			country = BAT
+			relation = docking_rights
+			active = yes
+		}
+		diplomatic_relation = {
+			country = CTH
+			relation = docking_rights
+			active = yes
+		}
+		diplomatic_relation = {
+			country = WNG
+			relation = docking_rights
+			active = yes
+		}
+		add_opinion_modifier = {
+			target = BAT
+			modifier = WIN_glorified_colony_2
+		}
+		add_opinion_modifier = {
+			target = CTH
+			modifier = WIN_glorified_colony_2
+		}
+		add_opinion_modifier = {
+			target = WNG
+			modifier = WIN_glorified_colony_2
+		}
+		set_variable = {
+			var = WIN_WNG_influence
+			value = 0.33
+		}
+		set_variable = {
+			var = WIN_BAT_influence
+			value = 0.34
+		}
+		set_variable = {
+			var = WIN_CTH_influence
+			value = 0.33
+		}
+		clamp_variable = {
+			var = WIN_WNG_influence
+			min = 0
+			max = 1
+		}
+		clamp_variable = {
+			var = WIN_BAT_influence
+			min = 0
+			max = 1
+		}
+		clamp_variable = {
+			var = WIN_CTH_influence
+			min = 0
+			max = 1
+		}
+	}
+	BAT = {
+		give_guarantee = WIN
+		diplomatic_relation = {
+			country = WIN
+			relation = docking_rights
+			active = yes
+		}
+		WIN = {
+			transfer_technology = yes
+		}
+		add_opinion_modifier = {
+			target = WIN
+			modifier = WIN_glorified_colony
+		}
+	}
+	CTH = {
+		give_guarantee = WIN
+		diplomatic_relation = {
+			country = WIN
+			relation = docking_rights
+			active = yes
+		}
+		WIN = {
+			transfer_technology = yes
+		}
+		add_opinion_modifier = {
+			target = WIN
+			modifier = WIN_glorified_colony
+		}
+		CTH_azizelquart_zahummid = {
+			set_nationality = WIN
+			add_country_leader_role = {
+				country_leader = {
+					desc = WIN_AZIZELQUART_ZAHUMIND_DESC
+					ideology = plutocracy
+					expire = "1965.1.1.1"
+					traits = {
+						financial_expert
+					}
+				}
+			}
+		}
+	}
+	WNG = {
+		give_guarantee = WIN
+		diplomatic_relation = {
+			country = WIN
+			relation = docking_rights
+			active = yes
+		}
+		WIN = {
+			transfer_technology = yes
+		}
+		add_opinion_modifier = {
+			target = WIN
+			modifier = WIN_glorified_colony
+		}
+	}
+	HIP = {
+		add_ideas = WIN_economic_concessions
+	}
+	WIN = {
+		complete_national_focus = WIN_the_establishment
+		add_ideas = CTH_azizelquart_zahummid
+	}
+	1164 = {
+		set_demilitarized_zone = yes
+	}
+}
+
+# Purely for tooltip generation
+NZW_show_projected_peacedeal = {
+
+	# NOTE: The order matters here. The game picks the FIRST out of the list (else_if behaviour)
+
+	if = {
+		limit = {
+			NZ1 = {
+				tag = BAT
+				has_country_flag = NZW_war_participant
+			}
+			NZ2 = {
+				tag = CTH
+				has_country_flag = NZW_war_participant
+			}
+			WNG = {
+				has_country_flag = NZW_war_participant
+			}
+		}
+		custom_effect_tooltip = peace_split_and_with_wingbardy_and_winggarten_tp
+	}
+	else_if = {	
+		limit = {
+			NZ1 = {
+				has_country_flag = NZW_war_participant
+			}
+			NZ2 = {
+				has_country_flag = NZW_war_participant
+			}
+			WNG = {
+				has_country_flag = NZW_war_participant
+			}
+		}
+		custom_effect_tooltip = peace_split_and_with_wingbardy_tp
+	}
+	else_if = {
+		limit = {
+			NZ1 = {
+				has_country_flag = NZW_war_participant
+			}
+			NZ2 = {
+				has_country_flag = NZW_war_participant
+			}
+		}
+		custom_effect_tooltip = peace_split_tp
+	}
+	else_if = {
+		limit = {
+			NZ1 = {
+				has_country_flag = NZW_war_participant
+			}
+			WNG = {
+				has_country_flag = NZW_war_participant
+			}
+		}
+		custom_effect_tooltip = peace_north_and_with_wingbardy
+	}
+	else_if = {
+		limit = {
+			NZ2 = {
+				has_country_flag = NZW_war_participant
+			}
+			WNG = {
+				has_country_flag = NZW_war_participant
+			}
+		}
+		custom_effect_tooltip = peace_south_and_with_wingbardy
+	}
+	else_if = {
+		limit = {
+			NZ1 = {
+				has_country_flag = NZW_war_participant
+			}
+		}
+		custom_effect_tooltip = peace_north
+	}
+	else_if = {
+		limit = {
+			NZ2 = {
+				has_country_flag = NZW_war_participant
+			}
+		}
+		custom_effect_tooltip = peace_south
+	}
+	else = {
+		custom_effect_tooltip = NZW_error_tp
+	}
+}
+
+# This effect makes peace between HIP and the anti-HIP parties of the NZW
+# Only use if HIP lost (limited) or white peace (for some reason)
+NZW_make_peace_with_HIP = {
+	log = "[GetDateText]: [Root.GetName]: NZW_make_peace_with_HIP called NZ1: [NZ1.GetName] NZ2: [NZ2.GetName]"
+	
+	if = { # Everybody allied with the north (if the north was at war)
+		limit = {
+			NZ1 = {
+				has_country_flag = NZW_war_participant
+			}
+		}
+		every_other_country = {
+			limit = {
+				NZW_is_aligned_with_NZ1 = yes
+				has_war_with = HIP
+			}
+			set_country_flag = { flag = bypass_on_peaceconference_ended days = 1 value = 1 }
+			white_peace = HIP
+		}
+	}
+	if = { # Everybody allied with the south (if the south was at war)
+		limit = {
+			NZ2 = {
+				has_country_flag = NZW_war_participant
+			}
+		}
+		every_other_country = {
+			limit = {
+				NZW_is_aligned_with_NZ1 = yes
+				has_war_with = HIP
+			}
+			set_country_flag = { flag = bypass_on_peaceconference_ended days = 1 value = 1 }
+			white_peace = HIP
+		}
+	}
+	if = { # Everybody allied with Wingbardy (if Wingbardy was at war)
+		limit = {
+			WNG = {
+				has_country_flag = NZW_war_participant
+			}
+		}
+		every_other_country = {
+			limit = {
+				OR = {
+					is_in_faction_with = WNG
+					is_subject_of = WNG
+				}
+				has_war_with = HIP
+			}
+			set_country_flag = { flag = bypass_on_peaceconference_ended days = 1 value = 1 }
+			white_peace = HIP
+		}
+	}
+	
+	# Hippogriffia allies make peace
+	every_other_country = {
+		limit = {
+			NZW_is_aligned_with_HIP = yes
+			has_war_with = NZ1
+		}
+		set_country_flag = { flag = bypass_on_peaceconference_ended days = 1 value = 1 }
+		white_peace = NZ1
+	}
+	every_other_country = {
+		limit = {
+			NZW_is_aligned_with_HIP = yes
+			has_war_with = NZ2
+		}
+		set_country_flag = { flag = bypass_on_peaceconference_ended days = 1 value = 1 }
+		white_peace = NZ2
+	}
+	every_other_country = {
+		limit = {
+			NZW_is_aligned_with_HIP = yes
+			has_war_with = WNG
+		}
+		set_country_flag = { flag = bypass_on_peaceconference_ended days = 1 value = 1 }
+		white_peace = WNG
+	}
+}
+
+NZW_on_end_effect = {
+	log = "[GetDateText]: [Root.GetName]: NZW_on_end_effect called NZ1: [NZ1.GetName] NZ2: [NZ2.GetName]"
+	set_global_flag = NZW_ended
+	clr_global_flag = NZW_in_progress
+
+	if = {
+		limit = {
+			has_global_flag = NZW_alliance_signed
+		}
+		NZ1 = { set_major = no }
+		NZ2 = { set_major = no }
+	}
+	
+	every_possible_country = { # We don't want resurrected countries to cause shenanigans
+		clr_country_flag = NZW_war_participant
+	}
+}
+
+NZW_on_bypass_effect = { # For some reason, the NZW got avoided altogether - currently unused
+	log = "[GetDateText]: [Root.GetName]: NZW_on_bypass_effect called NZ1: [NZ1.GetName] NZ2: [NZ2.GetName]"
+	set_global_flag = NZW_started
+	set_global_flag = NZW_ended
+	set_global_flag = NZW_bypassed
+}
+
+# Effect for having NZ1 or NZ2 sign an alliance
+# Alliance leader is the scope form which it is called (if NZ1 or NZ2), or otherwise NZ2
+NZW_alliance_effect = {
+	if = {
+		limit = {
+			NOT = {
+				OR = {
+					tag = NZ1
+					tag = NZ2
+				}
+			}
+		}
+		NZ2 = { # NZ2 is default leader of the alliance
+			if = { # We can't assume NZ2 to be ready/willing, so check
+				limit = {
+					NZW_is_hostile_to_HIP = yes
+					NZW_is_southern_party_ready = yes
+				}
+				NZW_alliance_effect_scoped = yes
+			}
+		}
+	}
+	else = {
+		NZW_alliance_effect_scoped = yes
+	}
+}
+
+# This is the core code of the NZW_alliance_effect and assumes to be in either NZ1 or NZ2 scope
+# Never call this directly, call NZW_alliance_effect which automatically checks for the correct scope
+NZW_alliance_effect_scoped = {
+	if = {
+		limit = {
+			NZW_alliance_possible = yes
+		}
+		set_global_flag = NZW_alliance_effect_done
+		
+		if = {
+			limit = {
+				tag = NZ1
+			}
+			custom_effect_tooltip = NZW_alliance_effect_tooltip_NZ2
+		}
+		else = {
+			custom_effect_tooltip = NZW_alliance_effect_tooltip_NZ1
+		}
+
+		
+		country_event = north_war_alliance.1 # Get offer for signing an alliance
+	}
+	else = {
+		if = {
+			limit = {
+				tag = NZ1
+			}
+			custom_effect_tooltip = NZW_alliance_blocked_tooltip_NZ2
+		}
+		else = {
+			custom_effect_tooltip = NZW_alliance_blocked_tooltip_NZ1
+		}
+	}
+}
+
+# Provides a TOOLTIP (and only a tooltip) for the alliance effect as a select effect (to be added to completion_reward )
+NZW_on_select_alliance_tooltip = {
+	custom_effect_tooltip = NZW_on_select
+
+	effect_tooltip = {
+		NZW_alliance_effect = yes
+	}
+}
+
+NZW_HIP_war_prep_effect = {
+	if = {
+		limit = {
+			WAR = {
+				OR = {
+					is_in_faction_with = HIP
+					is_guaranteed_by = HIP
+				}
+			}
+		}
+		HIP = {
+			country_event = {
+				id = bat.71
+			}
+		}
+	}
+}
+
+# THIS IS THE DISSOLVING CODE
+# Called by north_war_alliance.6 (if either partner wanted to dissolve)
+# For giving the option to dissolve, call north_war_alliance.5 (only works if called for both)
+NZW_alliance_dissolve_effect = {
+
+	faction_leader = {
+
+		dismantle_faction = yes
+		
+		NZ1 = {
+			if = {
+				limit = {
+					has_country_flag = NZW_was_faction_leader
+				}
+				create_faction = CTH_anti_bat_faction
+				every_country = {
+					limit = {
+						has_country_flag = NZW_was_in_NZ1_faction
+					}
+					NZ1 = {
+						add_to_faction = PREV
+					}
+				}
+			}
+		}
+		
+		NZ2 = {
+			if = {
+				limit = {
+					OR = {
+						has_country_flag = NZW_was_faction_leader
+						tag = BAT # Bat always forms a faction
+					}
+				}
+				if = {
+					limit = {
+						tag = BAT
+					}
+					create_faction = BAT_lunar_hegemony
+					set_country_flag = BAT_CTH_made_a_mistake # NZ1 is now a threat
+				}
+				else_if = {
+					limit = {
+						tag = TBK
+					}
+					create_faction = TBK_alesia_faction
+				}
+				else = {
+					create_faction = "Nothing to see here"
+				}
+				every_country = {
+					limit = {
+						has_country_flag = NZW_was_in_NZ2_faction
+					}
+					NZ1 = {
+						add_to_faction = PREV
+					}
+				}
+			}
+		}
+
+		# Allies to enemies
+		# Copied from Colthage events
+		NZ1 = {
+			add_ai_strategy = {
+				id = NZ2
+				type = alliance
+				value = -200
+			}
+			add_ai_strategy = {
+				type = antagonize
+				id = NZ2
+				value = 200
+			}
+		}
+		NZ2 = {
+			add_ai_strategy = {
+				id = NZ1
+				type = alliance
+				value = -200
+			}
+			add_ai_strategy = {
+				type = antagonize
+				id = NZ1
+				value = 200
+			}
+		}
+		NZ1 = {
+			add_opinion_modifier = {
+				target = NZ2
+				modifier = enemies
+			}
+			reverse_add_opinion_modifier = {
+				target = NZ2
+				modifier = enemies
+			}
+		}
+		
+		set_country_flag = CTH_war_with_bats
+		BAT = {set_country_flag = CTH_war_with_bats}
+
+	}
+}
+
+### Important for the NZW_no_mainland_control_for_HIP trigger
+NZW_amend_list_of_mainland_states_by_THIS = {
+	if = {
+		limit = {
+			has_country_flag = NZW_is_island_nation
+		}
+		every_owned_state = {
+			limit = {
+				NOT = {
+					any_state_in = {
+						# Funnily enough, these two PREVs don't refer to the same object, because the array argument is scoped
+						# in the surroundig scope, while the trigger (so the `state = PREV` line) is scoped in the state that is 
+						# targeted by the array
+						
+						# What this code really means is simply: The any state we are currently checking is the list
+						
+						array = PREV.original_cores
+						
+						state = PREV
+					}
+				}
+				is_on_continent = africa # Zebrica (this is a sanity check)
+			}
+			add_to_array = {
+				global.NZW_mainland_state_array = THIS
+			}
+			log = "[GetDateText]: [Root.GetName]: add [THIS.GetName] to NZW Mainland State Array"
+		}
+	}
+	else = {
+		every_owned_state = {
+			add_to_array = {
+				global.NZW_mainland_state_array = THIS
+			}
+			log = "[GetDateText]: [Root.GetName]: add [THIS.GetName] to NZW Mainland State Array"
+		}
+	}
+}
+
+NZW_debug_effect_create_mainland_state_array = {
+	HIP = { set_country_flag = NZW_is_island_nation }
+
+	HIP = { NZW_amend_list_of_mainland_states_by_THIS = yes }
+	WAR = { NZW_amend_list_of_mainland_states_by_THIS = yes }
+	BAT = { NZW_amend_list_of_mainland_states_by_THIS = yes }
+	TBK = { NZW_amend_list_of_mainland_states_by_THIS = yes }
+	ZAR = { NZW_amend_list_of_mainland_states_by_THIS = yes }
+	CTH = { NZW_amend_list_of_mainland_states_by_THIS = yes }
+}
+
+NZW_debug_make_them_major = {
+	NZ1 = { set_major = yes }
+	NZ2 = { set_major = yes }
+}
