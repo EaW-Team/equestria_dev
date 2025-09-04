@@ -1,23 +1,177 @@
 scripted_gui = {
-	eaw_AET_helldivers_gui = {
-		window_name = AET_helldivers_gui
-		context_type = decision_category
+	eaw_AET_helldivers_book_open = {
+		window_name = AET_helldivers_book_open_gui
+		context_type = top_bar
+		visible = {
+			has_country_flag = AET_HLDV_active
+			original_tag = AET
+		}
+		effects = {
+			button_open_click = {
+				clr_country_flag = AET_arrows_show
+				if = {
+					limit = {
+						has_country_flag = AET_book_open
+					}
+					clr_country_flag = AET_book_open
+					clear_array = AET_HLDV_current_arrows
+				}
+				else = {
+					set_country_flag = AET_book_open
+
+					set_variable = { AET_book_frame = 1 }
+					set_variable = { AET_book_current_page = 0 }
+					clear_array = AET_HLDV_stratagem_list_display
+				}
+				add_to_variable = { AET_HLDV_dirty = 0.01 }
+			}
+		}
+		triggers = {
+			button_alert_visible = {
+				has_country_flag = AET_arrows_show
+			}
+		}
+	}
+	eaw_AET_book = {
+		window_name = AET_book_gui
+		visible = {
+			has_country_flag = AET_HLDV_active
+			has_country_flag = AET_book_open
+		}
 		dirty = AET_HLDV_dirty
-		
 		dynamic_lists = {
-			stratagems_grid = {
-				entry_container = AET_helldivers_gui_stratagmes_entry
-				array = AET_HLDV_stratagem_list
+			ingredient_placed_gridbox = {
+				array = AET_book_pages_dummy_array
+				entry_container = "AET_book_page_[?AET_book_current_page]"
+			}
+			book_stratagem = {
+				array = AET_HLDV_stratagem_list_display
+				entry_container = AET_book_stratagem
 				index = i
 				value = j
 			}
 			stratagems_code_grid = {
-				entry_container = AET_helldivers_gui_stratagmes_code_entry
+				entry_container = AET_book_stratagem_code_entry
 				array = AET_HLDV_stratagem_code_list_@var:j
 				index = k
 				value = l
 			}
 		}
+		effects = {
+			flip_page_backward_click = {				
+				if = {
+					limit = {
+						check_variable = { AET_book_current_page = 1 }
+					}
+					set_variable = { AET_book_frame = 1 }
+				}
+				# Alternate between variations of open book sprites
+				else_if = {
+					limit = {
+						check_variable = { AET_book_frame = 2 }
+					}
+					set_variable = { AET_book_frame = 3 }
+				}
+				else = {
+					set_variable = { AET_book_frame = 2 }
+				}
+
+				scoped_sound_effect = "HIE_journal_flips"
+				set_variable = { AET_book_prev_page = AET_book_current_page }
+				add_to_variable = { AET_book_current_page = -1 }
+
+				# Change which spell is being displayed
+				clear_array = AET_HLDV_stratagem_list_display
+				add_to_array = { AET_HLDV_stratagem_list_display = AET_HLDV_stratagem_list^AET_book_current_page }
+
+				# Reset currently pressed buttons
+				clear_array = AET_HLDV_current_arrows
+				
+				add_to_variable = { AET_HLDV_dirty = 0.001 }
+			}
+			flip_page_forward_click = {
+				# Alternate between variations of open book sprites
+				if = {
+					limit = {
+						check_variable = { AET_book_frame = 2 }
+					}
+					set_variable = { AET_book_frame = 3 }
+				}
+				else = {
+					set_variable = { AET_book_frame = 2 }
+				}
+
+				if = {
+					limit = {
+						check_variable = { AET_book_frame = 1 }
+					}
+					scoped_sound_effect = "HIE_journal_open"
+				}
+				else = {
+					scoped_sound_effect = "HIE_journal_flips"
+				}
+				set_variable = { AET_book_prev_page = AET_book_current_page }
+				add_to_variable = { AET_book_current_page = 1 }
+
+				# Change which spell is being displayed
+				clear_array = AET_HLDV_stratagem_list_display
+				add_to_array = { AET_HLDV_stratagem_list_display = AET_HLDV_stratagem_list^AET_book_current_page }
+
+				# Reset currently pressed buttons
+				clear_array = AET_HLDV_current_arrows
+				
+				add_to_variable = { AET_HLDV_dirty = 0.001 }
+			}
+		}
+		triggers = {
+			flip_page_backward_visible = {
+				check_variable = { AET_book_current_page > 0 }
+			}
+			flip_page_forward_visible = {
+				set_temp_variable = { page_num = AET_HLDV_stratagem_list^num }
+				add_to_temp_variable = { page_num = -1 }
+				check_variable = { AET_book_current_page < page_num }
+			}
+			code_arrow_icon_visible = {
+				if = {
+					limit = {
+						check_variable = { AET_HLDV_current_arrows^k = AET_HLDV_stratagem_code_list_@var:j^k }
+						all_of = {
+							array = AET_HLDV_stratagem_code_list_@var:j
+							index = check_i
+							value = check_v
+
+							if = {
+								limit = {
+									check_variable = { AET_HLDV_current_arrows^check_i > 0 }
+								}
+								check_variable = { check_v = AET_HLDV_current_arrows^check_i }
+							}
+						}
+						check_variable = { var = AET_HLDV_current_arrows^num value = AET_HLDV_stratagem_code_list_@var:j^num compare = less_than_or_equals }
+					}
+					set_temp_variable = { code_arrow_icon_frame = 2 }
+				}
+				else = {
+					set_temp_variable = { code_arrow_icon_frame = 1 }
+				}
+			}
+		}
+		properties = {
+			book = {
+				frame = AET_book_frame
+			}
+			code_arrow_icon = {
+				frame = code_arrow_icon_frame
+				image = "GFX_AET_HLDV_key_small_[?l]"
+			}
+		}
+	}
+	eaw_AET_helldivers_gui = {
+		window_name = AET_helldivers_gui
+		context_type = decision_category
+		dirty = AET_HLDV_dirty
+		
 		effects = {
 			key_left_click = {
 				log = "AET Helldivers Reference: Left"
@@ -44,30 +198,6 @@ scripted_gui = {
 			}
 		}
 		triggers = {
-			code_arrow_icon_visible = {
-				if = {
-					limit = {
-						check_variable = { AET_HLDV_current_arrows^k = AET_HLDV_stratagem_code_list_@var:j^k }
-						all_of = {
-							array = AET_HLDV_stratagem_code_list_@var:j
-							index = check_i
-							value = check_v
-
-							if = {
-								limit = {
-									check_variable = { AET_HLDV_current_arrows^check_i > 0 }
-								}
-								check_variable = { check_v = AET_HLDV_current_arrows^check_i }
-							}
-						}
-						check_variable = { var = AET_HLDV_current_arrows^num value = AET_HLDV_stratagem_code_list_@var:j^num compare = less_than_or_equals }
-					}
-					set_temp_variable = { code_arrow_icon_frame = 2 }
-				}
-				else = {
-					set_temp_variable = { code_arrow_icon_frame = 1 }
-				}
-			}
 			code_arrow_icon_click_enabled = {
 				all_of = {
 					array = AET_HLDV_stratagem_code_list_@var:j
@@ -82,6 +212,18 @@ scripted_gui = {
 					}
 				}
 				check_variable = { var = AET_HLDV_current_arrows^num value = AET_HLDV_stratagem_code_list_@var:j^num compare = less_than_or_equals }
+			}
+			key_left_click_enabled = {
+				check_variable = { AET_HLDV_stratagem_list_display^0 > 0 }
+			}
+			key_up_click_enabled = {
+				check_variable = { AET_HLDV_stratagem_list_display^0 > 0 }
+			}
+			key_right_click_enabled = {
+				check_variable = { AET_HLDV_stratagem_list_display^0 > 0 }
+			}
+			key_down_click_enabled = {
+				check_variable = { AET_HLDV_stratagem_list_display^0 > 0 }
 			}
 		}
 		properties = {
