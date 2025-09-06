@@ -688,3 +688,14 @@ ai_strategy = {
 	value = 80 # Percentage between 0 and 100
 }
 ```
+
+### `naval_blockade`
+Used to set the naval blockade for a strategic region
+```
+ai_strategy = {
+	type = naval_blockade
+	target_country = GER
+	id = 35 # Strategic region Id
+	value = 100 # Percentage between 0 and 100
+}
+```

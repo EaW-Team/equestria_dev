@@ -312,6 +312,8 @@ Faction_Upgrade_Group_Id = {
 
    ### List of faction-upgrade-types, that have code support
 	upgrade_research = an upgrade that increases the faction sharing research, first one unlocks the research
+	upgrade_intelligence = an upgrade that makes agency upgrades quicker if another faction member has unlocked the upgrade already
+	upgrade_doctrine = makes the doctrines quicker to unlock if another member in the faction already has the upgrade
 }
 
 # Faction Member Upgrades
