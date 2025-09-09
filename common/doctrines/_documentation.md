@@ -15,6 +15,8 @@
 * set_grand_doctrine
 * set_sub_doctrine
 * add_mastery
+* add_daily_mastery
+* add_mastery_bonus
 
 ## Doctrine Triggers
 

@@ -310,6 +310,8 @@ Faction_Upgrade_Group_Id = {
 		the faction upgrades within this group, this list will be sorted on their bonus
 	}
 
+	display_as_percentage = (default yes) whether to show the value as a percentage or flat value in the UI
+
    ### List of faction-upgrade-types, that have code support
 	upgrade_research = an upgrade that increases the faction sharing research, first one unlocks the research
 	upgrade_intelligence = an upgrade that makes agency upgrades quicker if another faction member has unlocked the upgrade already
