@@ -1,4 +1,7 @@
+### For the special triggers used here, see common/scripted_triggers/EAW_raid_triggers.txt
+
 types = {
+	### CREATED DURING GAME ###
 	queens_tower_bombing = {
 
 		days_to_prepare = 30
@@ -27,7 +30,7 @@ types = {
 
 		fire_only_once = yes
 
-		visible = {
+		visible = { # Done differently because it is created in the game
 			is_major = yes
 			251 = {
 				landmark_queens_tower > 0
@@ -36,14 +39,14 @@ types = {
 
 		show_target = {
 			251 = {
-				is_owned_and_controlled_by = CHN
+				is_owned_and_controlled_by_queens_tower_user = yes
 			}
 		}
 		available = {
 
 		}
 		launchable = {
-			has_war_with = CHN
+			can_raid_queens_tower = yes
 		}
 
 		target_type = {
@@ -330,14 +333,14 @@ types = {
 			}
 		}
 
-		show_target = {
+		show_target = { # Done differently because it is created in the game
 			153 = {
-				is_owned_and_controlled_by = STG
+				is_owned_and_controlled_by_palace_of_the_soviets_user = yes
 			}
 		}
 		
 		launchable = {
-			has_war_with = STG
+			can_raid_palace_of_the_soviets = yes
 		}
 		available = {
 
@@ -592,6 +595,304 @@ types = {
 			}
 		}
 	}
+	monument_to_revolution_bombing = {
+
+		days_to_prepare = 30
+		allowed = {
+			has_dlc = "Gotterdammerung"
+		}
+		category = air_raids
+		custom_map_icon = GFX_raid_type_icon_other_raid
+
+		ai_will_do = {
+			base = 5 # unique raid
+			modifier = {
+				# Don't target anyone who is not a potential enemy
+				factor = 0
+				NOT = {
+					is_in_array = {
+						array = potential_and_current_enemies
+						value = FROM  # Target country
+					}
+				}
+			}
+		}
+
+		command_power = 15
+
+		fire_only_once = yes
+
+		visible = {
+			is_major = yes
+			875 = {
+				landmark_monument_to_revolution > 0
+			}
+		}
+
+		show_target = { # Done differently because it is created in the game
+			875 = {
+				is_owned_and_controlled_by = CTH
+			}
+		}
+		
+		launchable = {
+			has_war_with = CTH
+		}
+		available = {
+
+		}
+
+		target_type = {
+			building = {
+				type = landmark_monument_to_revolution 
+			}
+		}
+		target_icon = GFX_palace_of_the_soviets_icon # TO CHANGE 
+		launch_sound = raid_launch_air
+
+		arrow = {
+		    type = air
+		}
+        unit_model = {
+            type = equipment
+        }
+
+		unit_requirements = {
+			equipment = {
+				type = { strategic_bomber }
+				amount = { min = 75 }
+			}
+		}
+
+		starting_point = {
+		    types = { air_base }
+		}
+
+		success_factors = {
+			success = {
+				base = 0.7
+
+				# Raiding unit modifiers
+				experience = {
+					weight = 0.05
+					start_weight = -0.05
+					reference = 1.0
+				}
+				air_agility = {
+					reference = 100.0 # As air unit agility approaches 100 (as defined by the value above), increase chance by this value
+					weight = 0.05 # At 0 agility, the modifier will have negative effect.
+					start_weight = -0.05 # The modifier will scale linearly, meaning at 50 agility, the modifier will be 0.
+				}
+				reliability = {
+					reference = 1
+					weight = 0.05
+					start_weight = -0.1
+				}
+				air_defence = {
+					reference = 100
+					weight = 0.05
+					start_weight = -0.05
+				}
+
+				air_superiority = {
+					reference = 1
+					weight = 0.1
+					start_weight = -0.1
+				}
+
+				### Target Modifiers
+				anti_air = {
+					reference = 5
+					weight = -0.1
+				}
+				interception = {
+					reference = 500 # More than 500 fighters won't really make any difference
+					weight = -0.2
+				}
+				intel = {
+					weight = 0.2
+					#start_reference = 50
+					reference = 100
+				}
+
+			}
+
+			critical = {
+				base = 0.1
+
+			}
+		}
+
+		success_levels = {
+			failure = {
+				victim_effects = {
+					var:target_state = {
+						damage_building = {
+							type = landmark_monument_to_revolution
+							damage = 0.05 # levels of damage
+							province = var:ROOT.target_province
+						}
+					}
+				}
+				actor_effects = {
+					raid_damage_units = {
+						plane_loss = 65
+					}
+					raid_add_unit_experience = 0.05
+
+					var:actor_country = { #a failure doesn't help morale
+						add_war_support = -0.05
+					}
+				}
+				visual_effect = {
+					entity = "raid_failed_entity"
+					animation = "attack"
+				}
+			}
+			limited_success = {
+				victim_effects = {
+					var:target_state = {
+						damage_building = {
+							type = landmark_monument_to_revolution
+							damage = 0.15 # levels of damage
+							province = var:ROOT.target_province
+							repair_speed_modifier = -0.05
+						}
+					}
+				}
+				actor_effects = {
+					raid_damage_units = {
+						plane_loss = 50
+					}
+					raid_add_unit_experience = 0.1
+
+					var:actor_country = {
+						add_war_support = 0.02
+					}
+				}
+				visual_effect = {
+					entity = "air_raids_2_limited_success_entity"
+					animation = "attack"
+				}
+			}
+			success = {
+				victim_effects = {
+					var:target_state = {
+						damage_building = {
+							type = landmark_monument_to_revolution
+							damage = 0.65 # levels of damage
+							province = var:ROOT.target_province
+							repair_speed_modifier = -0.15
+						}
+					}
+				}
+				actor_effects = {
+					raid_damage_units = {
+						plane_loss = 35
+					}
+					raid_add_unit_experience = 0.2
+
+					var:actor_country = {
+						add_war_support = 0.05
+
+					}
+				}
+				visual_effect = {
+					entity = "air_raids_2_success_entity"
+					animation = "attack"
+				}
+			}
+			critical_success = {
+				victim_effects = {
+					var:target_state = {
+						damage_building = {
+							type = landmark_monument_to_revolution
+							damage = 0.85 # levels of damage
+							province = var:ROOT.target_province
+							repair_speed_modifier = -0.25
+						}
+					}
+				}
+				actor_effects = {
+					raid_damage_units = {
+						plane_loss = 10
+					}
+					raid_add_unit_experience = 0.35
+
+					var:actor_country = {
+						add_war_support = 0.05
+						IF = {
+							limit = { has_government = neutrality }
+							add_popularity = {
+								ideology = neutrality #these do not take FROM/ROOTs
+								popularity = 0.1
+							}
+						}
+						ELSE_IF = {
+							limit = { has_government = communism }
+							add_popularity = {
+								ideology = communism #these do not take FROM/ROOTs
+								popularity = 0.1
+							}
+						}
+						ELSE_IF = {
+							limit = { has_government = democratic }
+							add_popularity = {
+								ideology = democratic #these do not take FROM/ROOTs
+								popularity = 0.1
+							}
+						}
+						ELSE_IF = {
+							limit = { has_government = fascism }
+							add_popularity = {
+								ideology = fascism #these do not take FROM/ROOTs
+								popularity = 0.1
+							}
+						}
+					}
+
+					var:victim_country = {
+						add_war_support = -0.05
+
+						IF = {
+							limit = { has_government = neutrality }
+							add_popularity = {
+								ideology = neutrality #these do not take FROM/ROOTs
+								popularity = -0.05
+							}
+						}
+						ELSE_IF = {
+							limit = { has_government = communism }
+							add_popularity = {
+								ideology = communism #these do not take FROM/ROOTs
+								popularity = -0.05
+							}
+						}
+						ELSE_IF = {
+							limit = { has_government = democratic }
+							add_popularity = {
+								ideology = democratic #these do not take FROM/ROOTs
+								popularity = -0.05
+							}
+						}
+						ELSE_IF = {
+							limit = { has_government = fascism }
+							add_popularity = {
+								ideology = fascism #these do not take FROM/ROOTs
+								popularity = -0.05
+							}
+						}
+					}
+				}
+				visual_effect = {
+					entity = "air_raids_2_critical_success_entity"
+					animation = "attack"
+				}
+			}
+		}
+	}
+
+	### EXISTS AT GAME START ###
 	griffenheim_palace_bombing = {
 
 		days_to_prepare = 30
@@ -624,14 +925,13 @@ types = {
 		}
 
 		show_target = {
-			has_war_with = GRI
 			382 = {
-				is_owned_and_controlled_by = GRI
+				is_owned_and_controlled_by_griffenheim_palace_user = yes
 			}
 		}
 		
 		launchable = {
-			has_war_with = GRI
+			can_raid_griffenheim_palace = yes
 		}
 		available = {
 
@@ -918,14 +1218,13 @@ types = {
 		}
 
 		show_target = {
-			has_war_with = EQS
 			3 = {
-				is_owned_and_controlled_by = EQS
+				is_owned_and_controlled_by_canterlot_castle_user = yes
 			}
 		}
 		
 		launchable = {
-			has_war_with = EQS
+			can_raid_canterlot_castle = yes
 		}
 		available = {
 
@@ -1212,14 +1511,13 @@ types = {
 		}
 
 		show_target = {
-			has_war_with = HIP
 			1165 = {
-				is_owned_and_controlled_by = HIP
+				is_owned_and_controlled_by_mount_aris_user = yes
 			}
 		}
 		
 		launchable = {
-			has_war_with = HIP
+			can_raid_mount_aris = yes
 		}
 		available = {
 
@@ -1474,6 +1772,299 @@ types = {
 			}
 		}
 	}
+	cothon_colthage_bombing = {
+		
+		days_to_prepare = 30
+		allowed = {
+			has_dlc = "Gotterdammerung"
+		}
+		category = air_raids
+		custom_map_icon = GFX_raid_type_icon_other_raid
+
+		ai_will_do = {
+			base = 5 # unique raid
+			modifier = {
+				# Don't target anyone who is not a potential enemy
+				factor = 0
+				NOT = {
+					is_in_array = {
+						array = potential_and_current_enemies
+						value = FROM  # Target country
+					}
+				}
+			}
+		}
+
+		command_power = 15
+
+		fire_only_once = yes
+
+		visible = {
+			is_major = yes
+		}
+
+		show_target = {
+			875 = {
+				is_owned_and_controlled_by_cothon_colthage_user = yes
+			}
+		}
+		
+		launchable = {
+			can_raid_cothon_colthage = yes
+		}
+		available = {
+
+		}
+
+		target_type = {
+			building = {
+				type = landmark_cothon_colthage
+			}
+		}
+		target_icon = GFX_palace_of_the_soviets_icon # TO CHANGE
+		launch_sound = raid_launch_air
+
+		arrow = {
+		    type = air
+		}
+        unit_model = {
+            type = equipment
+        }
+
+		unit_requirements = {
+			equipment = {
+				type = { strategic_bomber }
+				amount = { min = 75 }
+			}
+		}
+
+		starting_point = {
+		    types = { air_base }
+		}
+
+		success_factors = {
+			success = {
+				base = 0.7
+
+				# Raiding unit modifiers
+				experience = {
+					weight = 0.05
+					start_weight = -0.05
+					reference = 1.0
+				}
+				air_agility = {
+					reference = 100.0 # As air unit agility approaches 100 (as defined by the value above), increase chance by this value
+					weight = 0.05 # At 0 agility, the modifier will have negative effect.
+					start_weight = -0.05 # The modifier will scale linearly, meaning at 50 agility, the modifier will be 0.
+				}
+				reliability = {
+					reference = 1
+					weight = 0.05
+					start_weight = -0.1
+				}
+				air_defence = {
+					reference = 100
+					weight = 0.05
+					start_weight = -0.05
+				}
+
+				air_superiority = {
+					reference = 1
+					weight = 0.1
+					start_weight = -0.1
+				}
+
+				### Target Modifiers
+				anti_air = {
+					reference = 5
+					weight = -0.1
+				}
+				interception = {
+					reference = 500 # More than 500 fighters won't really make any difference
+					weight = -0.2
+				}
+				intel = {
+					weight = 0.2
+					#start_reference = 50
+					reference = 100
+				}
+
+			}
+
+			critical = {
+				base = 0.1
+
+			}
+		}
+
+		success_levels = {
+			failure = {
+				victim_effects = {
+					var:target_state = {
+						damage_building = {
+							type = landmark_cothon_colthage
+							damage = 0.05 # levels of damage
+							province = var:ROOT.target_province
+						}
+					}
+				}
+				actor_effects = {
+					raid_damage_units = {
+						plane_loss = 65
+					}
+					raid_add_unit_experience = 0.05
+
+					var:actor_country = { #a failure doesn't help morale
+						add_war_support = -0.05
+					}
+				}
+				visual_effect = {
+					entity = "raid_failed_entity"
+					animation = "attack"
+				}
+			}
+			limited_success = {
+				victim_effects = {
+					var:target_state = {
+						damage_building = {
+							type = landmark_cothon_colthage
+							damage = 0.15 # levels of damage
+							province = var:ROOT.target_province
+							repair_speed_modifier = -0.05
+						}
+					}
+				}
+				actor_effects = {
+					raid_damage_units = {
+						plane_loss = 50
+					}
+					raid_add_unit_experience = 0.1
+
+					var:actor_country = {
+						add_war_support = 0.02
+					}
+				}
+				visual_effect = {
+					entity = "air_raids_2_limited_success_entity"
+					animation = "attack"
+				}
+			}
+			success = {
+				victim_effects = {
+					var:target_state = {
+						damage_building = {
+							type = landmark_cothon_colthage
+							damage = 0.65 # levels of damage
+							province = var:ROOT.target_province
+							repair_speed_modifier = -0.15
+						}
+					}
+				}
+				actor_effects = {
+					raid_damage_units = {
+						plane_loss = 35
+					}
+					raid_add_unit_experience = 0.2
+
+					var:actor_country = {
+						add_war_support = 0.05
+
+					}
+				}
+				visual_effect = {
+					entity = "air_raids_2_success_entity"
+					animation = "attack"
+				}
+			}
+			critical_success = {
+				victim_effects = {
+					var:target_state = {
+						damage_building = {
+							type = landmark_cothon_colthage
+							damage = 0.85 # levels of damage
+							province = var:ROOT.target_province
+							repair_speed_modifier = -0.25
+						}
+					}
+				}
+				actor_effects = {
+					raid_damage_units = {
+						plane_loss = 10
+					}
+					raid_add_unit_experience = 0.35
+
+					var:actor_country = {
+						add_war_support = 0.05
+						IF = {
+							limit = { has_government = neutrality }
+							add_popularity = {
+								ideology = neutrality #these do not take FROM/ROOTs
+								popularity = 0.1
+							}
+						}
+						ELSE_IF = {
+							limit = { has_government = communism }
+							add_popularity = {
+								ideology = communism #these do not take FROM/ROOTs
+								popularity = 0.1
+							}
+						}
+						ELSE_IF = {
+							limit = { has_government = democratic }
+							add_popularity = {
+								ideology = democratic #these do not take FROM/ROOTs
+								popularity = 0.1
+							}
+						}
+						ELSE_IF = {
+							limit = { has_government = fascism }
+							add_popularity = {
+								ideology = fascism #these do not take FROM/ROOTs
+								popularity = 0.1
+							}
+						}
+					}
+
+					var:victim_country = {
+						add_war_support = -0.05
+
+						IF = {
+							limit = { has_government = neutrality }
+							add_popularity = {
+								ideology = neutrality #these do not take FROM/ROOTs
+								popularity = -0.05
+							}
+						}
+						ELSE_IF = {
+							limit = { has_government = communism }
+							add_popularity = {
+								ideology = communism #these do not take FROM/ROOTs
+								popularity = -0.05
+							}
+						}
+						ELSE_IF = {
+							limit = { has_government = democratic }
+							add_popularity = {
+								ideology = democratic #these do not take FROM/ROOTs
+								popularity = -0.05
+							}
+						}
+						ELSE_IF = {
+							limit = { has_government = fascism }
+							add_popularity = {
+								ideology = fascism #these do not take FROM/ROOTs
+								popularity = -0.05
+							}
+						}
+					}
+				}
+				visual_effect = {
+					entity = "air_raids_2_critical_success_entity"
+					animation = "attack"
+				}
+			}
+		}
+	}
 	
 	storm_kings_palace_bombing = {
 
@@ -1507,14 +2098,13 @@ types = {
 		}
 
 		show_target = {
-			has_war_with = STM
 			982 = {
-				is_owned_and_controlled_by = STM
+				is_owned_and_controlled_by_storm_kings_palace_user = yes
 			}
 		}
 		
 		launchable = {
-			has_war_with = STM
+			can_raid_storm_kings_palace = yes
 		}
 		available = {
 
@@ -1801,14 +2391,13 @@ types = {
 		}
 
 		show_target = {
-			has_war_with = YAK
 			11 = {
-				is_owned_and_controlled_by = YAK
+				is_owned_and_controlled_by_yak_statues_user = yes
 			}
 		}
 		
 		launchable = {
-			has_war_with = YAK
+			can_raid_yak_statues = yes
 		}
 		available = {
 
@@ -2063,6 +2652,1178 @@ types = {
 			}
 		}
 	}
+	dragon_throne_bombing = {
+
+		days_to_prepare = 30
+		allowed = {
+			has_dlc = "Gotterdammerung"
+		}
+		category = air_raids
+		custom_map_icon = GFX_raid_type_icon_other_raid
+
+		ai_will_do = {
+			base = 5 # unique raid
+			modifier = {
+				# Don't target anyone who is not a potential enemy
+				factor = 0
+				NOT = {
+					is_in_array = {
+						array = potential_and_current_enemies
+						value = FROM  # Target country
+					}
+				}
+			}
+		}
+
+		command_power = 15
+
+		fire_only_once = yes
+
+		visible = {
+			is_major = yes
+		}
+
+		show_target = {
+			7 = {
+				is_owned_and_controlled_by_dragon_throne_user = yes
+			}
+		}
+		
+		launchable = {
+			can_raid_dragon_throne = yes
+		}
+		available = {
+
+		}
+
+		target_type = {
+			building = {
+				type = landmark_dragon_throne
+			}
+		}
+		target_icon = GFX_yak_statues_icon
+		launch_sound = raid_launch_air
+
+		arrow = {
+		    type = air
+		}
+        unit_model = {
+            type = equipment
+        }
+
+		unit_requirements = {
+			equipment = {
+				type = { strategic_bomber }
+				amount = { min = 75 }
+			}
+		}
+
+		starting_point = {
+		    types = { air_base }
+		}
+
+		success_factors = {
+			success = {
+				base = 0.7
+
+				# Raiding unit modifiers
+				experience = {
+					weight = 0.05
+					start_weight = -0.05
+					reference = 1.0
+				}
+				air_agility = {
+					reference = 100.0 # As air unit agility approaches 100 (as defined by the value above), increase chance by this value
+					weight = 0.05 # At 0 agility, the modifier will have negative effect.
+					start_weight = -0.05 # The modifier will scale linearly, meaning at 50 agility, the modifier will be 0.
+				}
+				reliability = {
+					reference = 1
+					weight = 0.05
+					start_weight = -0.1
+				}
+				air_defence = {
+					reference = 100
+					weight = 0.05
+					start_weight = -0.05
+				}
+
+				air_superiority = {
+					reference = 1
+					weight = 0.1
+					start_weight = -0.1
+				}
+
+				### Target Modifiers
+				anti_air = {
+					reference = 5
+					weight = -0.1
+				}
+				interception = {
+					reference = 500 # More than 500 fighters won't really make any difference
+					weight = -0.2
+				}
+				intel = {
+					weight = 0.2
+					#start_reference = 50
+					reference = 100
+				}
+
+			}
+
+			critical = {
+				base = 0.1
+
+			}
+		}
+
+		success_levels = {
+			failure = {
+				victim_effects = {
+					var:target_state = {
+						damage_building = {
+							type = landmark_dragon_throne
+							damage = 0.05 # levels of damage
+							province = var:ROOT.target_province
+						}
+					}
+				}
+				actor_effects = {
+					raid_damage_units = {
+						plane_loss = 65
+					}
+					raid_add_unit_experience = 0.05
+
+					var:actor_country = { #a failure doesn't help morale
+						add_war_support = -0.05
+					}
+				}
+				visual_effect = {
+					entity = "raid_failed_entity"
+					animation = "attack"
+				}
+			}
+			limited_success = {
+				victim_effects = {
+					var:target_state = {
+						damage_building = {
+							type = landmark_dragon_throne
+							damage = 0.15 # levels of damage
+							province = var:ROOT.target_province
+							repair_speed_modifier = -0.05
+						}
+					}
+				}
+				actor_effects = {
+					raid_damage_units = {
+						plane_loss = 50
+					}
+					raid_add_unit_experience = 0.1
+
+					var:actor_country = {
+						add_war_support = 0.02
+					}
+				}
+				visual_effect = {
+					entity = "air_raids_2_limited_success_entity"
+					animation = "attack"
+				}
+			}
+			success = {
+				victim_effects = {
+					var:target_state = {
+						damage_building = {
+							type = landmark_dragon_throne
+							damage = 0.65 # levels of damage
+							province = var:ROOT.target_province
+							repair_speed_modifier = -0.15
+						}
+					}
+				}
+				actor_effects = {
+					raid_damage_units = {
+						plane_loss = 35
+					}
+					raid_add_unit_experience = 0.2
+
+					var:actor_country = {
+						add_war_support = 0.05
+
+					}
+				}
+				visual_effect = {
+					entity = "air_raids_2_success_entity"
+					animation = "attack"
+				}
+			}
+			critical_success = {
+				victim_effects = {
+					var:target_state = {
+						damage_building = {
+							type = landmark_dragon_throne
+							damage = 0.85 # levels of damage
+							province = var:ROOT.target_province
+							repair_speed_modifier = -0.25
+						}
+					}
+				}
+				actor_effects = {
+					raid_damage_units = {
+						plane_loss = 10
+					}
+					raid_add_unit_experience = 0.35
+
+					var:actor_country = {
+						add_war_support = 0.05
+						IF = {
+							limit = { has_government = neutrality }
+							add_popularity = {
+								ideology = neutrality #these do not take FROM/ROOTs
+								popularity = 0.1
+							}
+						}
+						ELSE_IF = {
+							limit = { has_government = communism }
+							add_popularity = {
+								ideology = communism #these do not take FROM/ROOTs
+								popularity = 0.1
+							}
+						}
+						ELSE_IF = {
+							limit = { has_government = democratic }
+							add_popularity = {
+								ideology = democratic #these do not take FROM/ROOTs
+								popularity = 0.1
+							}
+						}
+						ELSE_IF = {
+							limit = { has_government = fascism }
+							add_popularity = {
+								ideology = fascism #these do not take FROM/ROOTs
+								popularity = 0.1
+							}
+						}
+					}
+
+					var:victim_country = {
+						add_war_support = -0.05
+
+						IF = {
+							limit = { has_government = neutrality }
+							add_popularity = {
+								ideology = neutrality #these do not take FROM/ROOTs
+								popularity = -0.05
+							}
+						}
+						ELSE_IF = {
+							limit = { has_government = communism }
+							add_popularity = {
+								ideology = communism #these do not take FROM/ROOTs
+								popularity = -0.05
+							}
+						}
+						ELSE_IF = {
+							limit = { has_government = democratic }
+							add_popularity = {
+								ideology = democratic #these do not take FROM/ROOTs
+								popularity = -0.05
+							}
+						}
+						ELSE_IF = {
+							limit = { has_government = fascism }
+							add_popularity = {
+								ideology = fascism #these do not take FROM/ROOTs
+								popularity = -0.05
+							}
+						}
+					}
+				}
+				visual_effect = {
+					entity = "air_raids_2_critical_success_entity"
+					animation = "attack"
+				}
+			}
+		}
+	}
+	magehold_bombing = {
+
+		days_to_prepare = 30
+		allowed = {
+			has_dlc = "Gotterdammerung"
+		}
+		category = air_raids
+		custom_map_icon = GFX_raid_type_icon_other_raid
+
+		ai_will_do = {
+			base = 5 # unique raid
+			modifier = {
+				# Don't target anyone who is not a potential enemy
+				factor = 0
+				NOT = {
+					is_in_array = {
+						array = potential_and_current_enemies
+						value = FROM  # Target country
+					}
+				}
+			}
+		}
+
+		command_power = 15
+
+		fire_only_once = yes
+
+		visible = {
+			is_major = yes
+		}
+
+		show_target = {
+			415 = {
+				is_owned_and_controlled_by_magehold_user = yes
+			}
+		}
+		
+		launchable = {
+			can_raid_magehold = yes
+		}
+		available = {
+
+		}
+
+		target_type = {
+			building = {
+				type = landmark_magehold
+			}
+		}
+		target_icon = GFX_yak_statues_icon
+		launch_sound = raid_launch_air
+
+		arrow = {
+		    type = air
+		}
+        unit_model = {
+            type = equipment
+        }
+
+		unit_requirements = {
+			equipment = {
+				type = { strategic_bomber }
+				amount = { min = 75 }
+			}
+		}
+
+		starting_point = {
+		    types = { air_base }
+		}
+
+		success_factors = {
+			success = {
+				base = 0.7
+
+				# Raiding unit modifiers
+				experience = {
+					weight = 0.05
+					start_weight = -0.05
+					reference = 1.0
+				}
+				air_agility = {
+					reference = 100.0 # As air unit agility approaches 100 (as defined by the value above), increase chance by this value
+					weight = 0.05 # At 0 agility, the modifier will have negative effect.
+					start_weight = -0.05 # The modifier will scale linearly, meaning at 50 agility, the modifier will be 0.
+				}
+				reliability = {
+					reference = 1
+					weight = 0.05
+					start_weight = -0.1
+				}
+				air_defence = {
+					reference = 100
+					weight = 0.05
+					start_weight = -0.05
+				}
+
+				air_superiority = {
+					reference = 1
+					weight = 0.1
+					start_weight = -0.1
+				}
+
+				### Target Modifiers
+				anti_air = {
+					reference = 5
+					weight = -0.1
+				}
+				interception = {
+					reference = 500 # More than 500 fighters won't really make any difference
+					weight = -0.2
+				}
+				intel = {
+					weight = 0.2
+					#start_reference = 50
+					reference = 100
+				}
+
+			}
+
+			critical = {
+				base = 0.1
+
+			}
+		}
+
+		success_levels = {
+			failure = {
+				victim_effects = {
+					var:target_state = {
+						damage_building = {
+							type = landmark_magehold
+							damage = 0.05 # levels of damage
+							province = var:ROOT.target_province
+						}
+					}
+				}
+				actor_effects = {
+					raid_damage_units = {
+						plane_loss = 65
+					}
+					raid_add_unit_experience = 0.05
+
+					var:actor_country = { #a failure doesn't help morale
+						add_war_support = -0.05
+					}
+				}
+				visual_effect = {
+					entity = "raid_failed_entity"
+					animation = "attack"
+				}
+			}
+			limited_success = {
+				victim_effects = {
+					var:target_state = {
+						damage_building = {
+							type = landmark_magehold
+							damage = 0.15 # levels of damage
+							province = var:ROOT.target_province
+							repair_speed_modifier = -0.05
+						}
+					}
+				}
+				actor_effects = {
+					raid_damage_units = {
+						plane_loss = 50
+					}
+					raid_add_unit_experience = 0.1
+
+					var:actor_country = {
+						add_war_support = 0.02
+					}
+				}
+				visual_effect = {
+					entity = "air_raids_2_limited_success_entity"
+					animation = "attack"
+				}
+			}
+			success = {
+				victim_effects = {
+					var:target_state = {
+						damage_building = {
+							type = landmark_magehold
+							damage = 0.65 # levels of damage
+							province = var:ROOT.target_province
+							repair_speed_modifier = -0.15
+						}
+					}
+				}
+				actor_effects = {
+					raid_damage_units = {
+						plane_loss = 35
+					}
+					raid_add_unit_experience = 0.2
+
+					var:actor_country = {
+						add_war_support = 0.05
+
+					}
+				}
+				visual_effect = {
+					entity = "air_raids_2_success_entity"
+					animation = "attack"
+				}
+			}
+			critical_success = {
+				victim_effects = {
+					var:target_state = {
+						damage_building = {
+							type = landmark_magehold
+							damage = 0.85 # levels of damage
+							province = var:ROOT.target_province
+							repair_speed_modifier = -0.25
+						}
+					}
+				}
+				actor_effects = {
+					raid_damage_units = {
+						plane_loss = 10
+					}
+					raid_add_unit_experience = 0.35
+
+					var:actor_country = {
+						add_war_support = 0.05
+						IF = {
+							limit = { has_government = neutrality }
+							add_popularity = {
+								ideology = neutrality #these do not take FROM/ROOTs
+								popularity = 0.1
+							}
+						}
+						ELSE_IF = {
+							limit = { has_government = communism }
+							add_popularity = {
+								ideology = communism #these do not take FROM/ROOTs
+								popularity = 0.1
+							}
+						}
+						ELSE_IF = {
+							limit = { has_government = democratic }
+							add_popularity = {
+								ideology = democratic #these do not take FROM/ROOTs
+								popularity = 0.1
+							}
+						}
+						ELSE_IF = {
+							limit = { has_government = fascism }
+							add_popularity = {
+								ideology = fascism #these do not take FROM/ROOTs
+								popularity = 0.1
+							}
+						}
+					}
+
+					var:victim_country = {
+						add_war_support = -0.05
+
+						IF = {
+							limit = { has_government = neutrality }
+							add_popularity = {
+								ideology = neutrality #these do not take FROM/ROOTs
+								popularity = -0.05
+							}
+						}
+						ELSE_IF = {
+							limit = { has_government = communism }
+							add_popularity = {
+								ideology = communism #these do not take FROM/ROOTs
+								popularity = -0.05
+							}
+						}
+						ELSE_IF = {
+							limit = { has_government = democratic }
+							add_popularity = {
+								ideology = democratic #these do not take FROM/ROOTs
+								popularity = -0.05
+							}
+						}
+						ELSE_IF = {
+							limit = { has_government = fascism }
+							add_popularity = {
+								ideology = fascism #these do not take FROM/ROOTs
+								popularity = -0.05
+							}
+						}
+					}
+				}
+				visual_effect = {
+					entity = "air_raids_2_critical_success_entity"
+					animation = "attack"
+				}
+			}
+		}
+	}
+	tomb_of_arantigos_bombing = {
+
+		days_to_prepare = 30
+		allowed = {
+			has_dlc = "Gotterdammerung"
+		}
+		category = air_raids
+		custom_map_icon = GFX_raid_type_icon_other_raid
+
+		ai_will_do = {
+			base = 5 # unique raid
+			modifier = {
+				# Don't target anyone who is not a potential enemy
+				factor = 0
+				NOT = {
+					is_in_array = {
+						array = potential_and_current_enemies
+						value = FROM  # Target country
+					}
+				}
+			}
+		}
+
+		command_power = 15
+
+		fire_only_once = yes
+
+		visible = {
+			is_major = yes
+		}
+
+		show_target = {
+			408 = {
+				is_owned_and_controlled_by_tomb_of_arantigos_user = yes
+			}
+		}
+		
+		launchable = {
+			can_raid_tomb_of_arantigos = yes
+		}
+		available = {
+
+		}
+
+		target_type = {
+			building = {
+				type = landmark_tomb_of_arantigos
+			}
+		}
+		target_icon = GFX_yak_statues_icon
+		launch_sound = raid_launch_air
+
+		arrow = {
+		    type = air
+		}
+        unit_model = {
+            type = equipment
+        }
+
+		unit_requirements = {
+			equipment = {
+				type = { strategic_bomber }
+				amount = { min = 75 }
+			}
+		}
+
+		starting_point = {
+		    types = { air_base }
+		}
+
+		success_factors = {
+			success = {
+				base = 0.7
+
+				# Raiding unit modifiers
+				experience = {
+					weight = 0.05
+					start_weight = -0.05
+					reference = 1.0
+				}
+				air_agility = {
+					reference = 100.0 # As air unit agility approaches 100 (as defined by the value above), increase chance by this value
+					weight = 0.05 # At 0 agility, the modifier will have negative effect.
+					start_weight = -0.05 # The modifier will scale linearly, meaning at 50 agility, the modifier will be 0.
+				}
+				reliability = {
+					reference = 1
+					weight = 0.05
+					start_weight = -0.1
+				}
+				air_defence = {
+					reference = 100
+					weight = 0.05
+					start_weight = -0.05
+				}
+
+				air_superiority = {
+					reference = 1
+					weight = 0.1
+					start_weight = -0.1
+				}
+
+				### Target Modifiers
+				anti_air = {
+					reference = 5
+					weight = -0.1
+				}
+				interception = {
+					reference = 500 # More than 500 fighters won't really make any difference
+					weight = -0.2
+				}
+				intel = {
+					weight = 0.2
+					#start_reference = 50
+					reference = 100
+				}
+
+			}
+
+			critical = {
+				base = 0.1
+
+			}
+		}
+
+		success_levels = {
+			failure = {
+				victim_effects = {
+					var:target_state = {
+						damage_building = {
+							type = landmark_tomb_of_arantigos
+							damage = 0.05 # levels of damage
+							province = var:ROOT.target_province
+						}
+					}
+				}
+				actor_effects = {
+					raid_damage_units = {
+						plane_loss = 65
+					}
+					raid_add_unit_experience = 0.05
+
+					var:actor_country = { #a failure doesn't help morale
+						add_war_support = -0.05
+					}
+				}
+				visual_effect = {
+					entity = "raid_failed_entity"
+					animation = "attack"
+				}
+			}
+			limited_success = {
+				victim_effects = {
+					var:target_state = {
+						damage_building = {
+							type = landmark_tomb_of_arantigos
+							damage = 0.15 # levels of damage
+							province = var:ROOT.target_province
+							repair_speed_modifier = -0.05
+						}
+					}
+				}
+				actor_effects = {
+					raid_damage_units = {
+						plane_loss = 50
+					}
+					raid_add_unit_experience = 0.1
+
+					var:actor_country = {
+						add_war_support = 0.02
+					}
+				}
+				visual_effect = {
+					entity = "air_raids_2_limited_success_entity"
+					animation = "attack"
+				}
+			}
+			success = {
+				victim_effects = {
+					var:target_state = {
+						damage_building = {
+							type = landmark_tomb_of_arantigos
+							damage = 0.65 # levels of damage
+							province = var:ROOT.target_province
+							repair_speed_modifier = -0.15
+						}
+					}
+				}
+				actor_effects = {
+					raid_damage_units = {
+						plane_loss = 35
+					}
+					raid_add_unit_experience = 0.2
+
+					var:actor_country = {
+						add_war_support = 0.05
+
+					}
+				}
+				visual_effect = {
+					entity = "air_raids_2_success_entity"
+					animation = "attack"
+				}
+			}
+			critical_success = {
+				victim_effects = {
+					var:target_state = {
+						damage_building = {
+							type = landmark_tomb_of_arantigos
+							damage = 0.85 # levels of damage
+							province = var:ROOT.target_province
+							repair_speed_modifier = -0.25
+						}
+					}
+				}
+				actor_effects = {
+					raid_damage_units = {
+						plane_loss = 10
+					}
+					raid_add_unit_experience = 0.35
+
+					var:actor_country = {
+						add_war_support = 0.05
+						IF = {
+							limit = { has_government = neutrality }
+							add_popularity = {
+								ideology = neutrality #these do not take FROM/ROOTs
+								popularity = 0.1
+							}
+						}
+						ELSE_IF = {
+							limit = { has_government = communism }
+							add_popularity = {
+								ideology = communism #these do not take FROM/ROOTs
+								popularity = 0.1
+							}
+						}
+						ELSE_IF = {
+							limit = { has_government = democratic }
+							add_popularity = {
+								ideology = democratic #these do not take FROM/ROOTs
+								popularity = 0.1
+							}
+						}
+						ELSE_IF = {
+							limit = { has_government = fascism }
+							add_popularity = {
+								ideology = fascism #these do not take FROM/ROOTs
+								popularity = 0.1
+							}
+						}
+					}
+
+					var:victim_country = {
+						add_war_support = -0.05
+
+						IF = {
+							limit = { has_government = neutrality }
+							add_popularity = {
+								ideology = neutrality #these do not take FROM/ROOTs
+								popularity = -0.05
+							}
+						}
+						ELSE_IF = {
+							limit = { has_government = communism }
+							add_popularity = {
+								ideology = communism #these do not take FROM/ROOTs
+								popularity = -0.05
+							}
+						}
+						ELSE_IF = {
+							limit = { has_government = democratic }
+							add_popularity = {
+								ideology = democratic #these do not take FROM/ROOTs
+								popularity = -0.05
+							}
+						}
+						ELSE_IF = {
+							limit = { has_government = fascism }
+							add_popularity = {
+								ideology = fascism #these do not take FROM/ROOTs
+								popularity = -0.05
+							}
+						}
+					}
+				}
+				visual_effect = {
+					entity = "air_raids_2_critical_success_entity"
+					animation = "attack"
+				}
+			}
+		}
+	}
+	vermilion_palace_bombing = {
+
+		days_to_prepare = 30
+		allowed = {
+			has_dlc = "Gotterdammerung"
+		}
+		category = air_raids
+		custom_map_icon = GFX_raid_type_icon_other_raid
+
+		ai_will_do = {
+			base = 5 # unique raid
+			modifier = {
+				# Don't target anyone who is not a potential enemy
+				factor = 0
+				NOT = {
+					is_in_array = {
+						array = potential_and_current_enemies
+						value = FROM  # Target country
+					}
+				}
+			}
+		}
+
+		command_power = 15
+
+		fire_only_once = yes
+
+		visible = {
+			is_major = yes
+		}
+
+		show_target = {
+			1059 = {
+				is_owned_and_controlled_by_vermilion_palace_user = yes
+			}
+		}
+		
+		launchable = {
+			can_raid_vermilion_palace = yes
+		}
+		available = {
+
+		}
+
+		target_type = {
+			building = {
+				type = landmark_vermilion_palace
+			}
+		}
+		target_icon = GFX_yak_statues_icon
+		launch_sound = raid_launch_air
+
+		arrow = {
+		    type = air
+		}
+        unit_model = {
+            type = equipment
+        }
+
+		unit_requirements = {
+			equipment = {
+				type = { strategic_bomber }
+				amount = { min = 75 }
+			}
+		}
+
+		starting_point = {
+		    types = { air_base }
+		}
+
+		success_factors = {
+			success = {
+				base = 0.7
+
+				# Raiding unit modifiers
+				experience = {
+					weight = 0.05
+					start_weight = -0.05
+					reference = 1.0
+				}
+				air_agility = {
+					reference = 100.0 # As air unit agility approaches 100 (as defined by the value above), increase chance by this value
+					weight = 0.05 # At 0 agility, the modifier will have negative effect.
+					start_weight = -0.05 # The modifier will scale linearly, meaning at 50 agility, the modifier will be 0.
+				}
+				reliability = {
+					reference = 1
+					weight = 0.05
+					start_weight = -0.1
+				}
+				air_defence = {
+					reference = 100
+					weight = 0.05
+					start_weight = -0.05
+				}
+
+				air_superiority = {
+					reference = 1
+					weight = 0.1
+					start_weight = -0.1
+				}
+
+				### Target Modifiers
+				anti_air = {
+					reference = 5
+					weight = -0.1
+				}
+				interception = {
+					reference = 500 # More than 500 fighters won't really make any difference
+					weight = -0.2
+				}
+				intel = {
+					weight = 0.2
+					#start_reference = 50
+					reference = 100
+				}
+
+			}
+
+			critical = {
+				base = 0.1
+
+			}
+		}
+
+		success_levels = {
+			failure = {
+				victim_effects = {
+					var:target_state = {
+						damage_building = {
+							type = landmark_vermilion_palace
+							damage = 0.05 # levels of damage
+							province = var:ROOT.target_province
+						}
+					}
+				}
+				actor_effects = {
+					raid_damage_units = {
+						plane_loss = 65
+					}
+					raid_add_unit_experience = 0.05
+
+					var:actor_country = { #a failure doesn't help morale
+						add_war_support = -0.05
+					}
+				}
+				visual_effect = {
+					entity = "raid_failed_entity"
+					animation = "attack"
+				}
+			}
+			limited_success = {
+				victim_effects = {
+					var:target_state = {
+						damage_building = {
+							type = landmark_vermilion_palace
+							damage = 0.15 # levels of damage
+							province = var:ROOT.target_province
+							repair_speed_modifier = -0.05
+						}
+					}
+				}
+				actor_effects = {
+					raid_damage_units = {
+						plane_loss = 50
+					}
+					raid_add_unit_experience = 0.1
+
+					var:actor_country = {
+						add_war_support = 0.02
+					}
+				}
+				visual_effect = {
+					entity = "air_raids_2_limited_success_entity"
+					animation = "attack"
+				}
+			}
+			success = {
+				victim_effects = {
+					var:target_state = {
+						damage_building = {
+							type = landmark_vermilion_palace
+							damage = 0.65 # levels of damage
+							province = var:ROOT.target_province
+							repair_speed_modifier = -0.15
+						}
+					}
+				}
+				actor_effects = {
+					raid_damage_units = {
+						plane_loss = 35
+					}
+					raid_add_unit_experience = 0.2
+
+					var:actor_country = {
+						add_war_support = 0.05
+
+					}
+				}
+				visual_effect = {
+					entity = "air_raids_2_success_entity"
+					animation = "attack"
+				}
+			}
+			critical_success = {
+				victim_effects = {
+					var:target_state = {
+						damage_building = {
+							type = landmark_vermilion_palace
+							damage = 0.85 # levels of damage
+							province = var:ROOT.target_province
+							repair_speed_modifier = -0.25
+						}
+					}
+				}
+				actor_effects = {
+					raid_damage_units = {
+						plane_loss = 10
+					}
+					raid_add_unit_experience = 0.35
+
+					var:actor_country = {
+						add_war_support = 0.05
+						IF = {
+							limit = { has_government = neutrality }
+							add_popularity = {
+								ideology = neutrality #these do not take FROM/ROOTs
+								popularity = 0.1
+							}
+						}
+						ELSE_IF = {
+							limit = { has_government = communism }
+							add_popularity = {
+								ideology = communism #these do not take FROM/ROOTs
+								popularity = 0.1
+							}
+						}
+						ELSE_IF = {
+							limit = { has_government = democratic }
+							add_popularity = {
+								ideology = democratic #these do not take FROM/ROOTs
+								popularity = 0.1
+							}
+						}
+						ELSE_IF = {
+							limit = { has_government = fascism }
+							add_popularity = {
+								ideology = fascism #these do not take FROM/ROOTs
+								popularity = 0.1
+							}
+						}
+					}
+
+					var:victim_country = {
+						add_war_support = -0.05
+
+						IF = {
+							limit = { has_government = neutrality }
+							add_popularity = {
+								ideology = neutrality #these do not take FROM/ROOTs
+								popularity = -0.05
+							}
+						}
+						ELSE_IF = {
+							limit = { has_government = communism }
+							add_popularity = {
+								ideology = communism #these do not take FROM/ROOTs
+								popularity = -0.05
+							}
+						}
+						ELSE_IF = {
+							limit = { has_government = democratic }
+							add_popularity = {
+								ideology = democratic #these do not take FROM/ROOTs
+								popularity = -0.05
+							}
+						}
+						ELSE_IF = {
+							limit = { has_government = fascism }
+							add_popularity = {
+								ideology = fascism #these do not take FROM/ROOTs
+								popularity = -0.05
+							}
+						}
+					}
+				}
+				visual_effect = {
+					entity = "air_raids_2_critical_success_entity"
+					animation = "attack"
+				}
+			}
+		}
+	}
 	home_of_griffons_bombing = {
 
 		days_to_prepare = 30
@@ -2095,14 +3856,13 @@ types = {
 		}
 
 		show_target = {
-			has_war_with = BOI
 			389 = {
-				is_owned_and_controlled_by = BOI
+				is_owned_and_controlled_by_home_of_griffons_user = yes
 			}
 		}
 		
 		launchable = {
-			has_war_with = BOI
+			can_raid_home_of_griffons = yes
 		}
 		available = {
 
@@ -2113,7 +3873,7 @@ types = {
 				type = landmark_home_of_griffons
 			}
 		}
-		target_icon = GFX_home_of_griffons_icon
+		target_icon = GFX_home_of_griffons_icon 
 		launch_sound = raid_launch_air
 
 		arrow = {
@@ -2273,6 +4033,5001 @@ types = {
 					var:target_state = {
 						damage_building = {
 							type = landmark_home_of_griffons
+							damage = 0.85 # levels of damage
+							province = var:ROOT.target_province
+							repair_speed_modifier = -0.25
+						}
+					}
+				}
+				actor_effects = {
+					raid_damage_units = {
+						plane_loss = 10
+					}
+					raid_add_unit_experience = 0.35
+
+					var:actor_country = {
+						add_war_support = 0.05
+						IF = {
+							limit = { has_government = neutrality }
+							add_popularity = {
+								ideology = neutrality #these do not take FROM/ROOTs
+								popularity = 0.1
+							}
+						}
+						ELSE_IF = {
+							limit = { has_government = communism }
+							add_popularity = {
+								ideology = communism #these do not take FROM/ROOTs
+								popularity = 0.1
+							}
+						}
+						ELSE_IF = {
+							limit = { has_government = democratic }
+							add_popularity = {
+								ideology = democratic #these do not take FROM/ROOTs
+								popularity = 0.1
+							}
+						}
+						ELSE_IF = {
+							limit = { has_government = fascism }
+							add_popularity = {
+								ideology = fascism #these do not take FROM/ROOTs
+								popularity = 0.1
+							}
+						}
+					}
+
+					var:victim_country = {
+						add_war_support = -0.05
+
+						IF = {
+							limit = { has_government = neutrality }
+							add_popularity = {
+								ideology = neutrality #these do not take FROM/ROOTs
+								popularity = -0.05
+							}
+						}
+						ELSE_IF = {
+							limit = { has_government = communism }
+							add_popularity = {
+								ideology = communism #these do not take FROM/ROOTs
+								popularity = -0.05
+							}
+						}
+						ELSE_IF = {
+							limit = { has_government = democratic }
+							add_popularity = {
+								ideology = democratic #these do not take FROM/ROOTs
+								popularity = -0.05
+							}
+						}
+						ELSE_IF = {
+							limit = { has_government = fascism }
+							add_popularity = {
+								ideology = fascism #these do not take FROM/ROOTs
+								popularity = -0.05
+							}
+						}
+					}
+				}
+				visual_effect = {
+					entity = "air_raids_2_critical_success_entity"
+					animation = "attack"
+				}
+			}
+		}
+	}
+	grand_temple_arcturius_bombing = {
+		
+		days_to_prepare = 30
+		allowed = {
+			has_dlc = "Gotterdammerung"
+		}
+		category = air_raids
+		custom_map_icon = GFX_raid_type_icon_other_raid
+
+		ai_will_do = {
+			base = 5 # unique raid
+			modifier = {
+				# Don't target anyone who is not a potential enemy
+				factor = 0
+				NOT = {
+					is_in_array = {
+						array = potential_and_current_enemies
+						value = FROM  # Target country
+					}
+				}
+			}
+		}
+
+		command_power = 15
+
+		fire_only_once = yes
+
+		visible = {
+			is_major = yes
+		}
+
+		show_target = {
+			435 = {
+				is_owned_and_controlled_by_grand_temple_arcturius_user = yes
+			}
+		}
+		
+		launchable = {
+			can_raid_grand_temple_arcturius = yes
+		}
+		available = {
+
+		}
+
+		target_type = {
+			building = {
+				type = landmark_grand_temple_arcturius
+			}
+		}
+		target_icon = GFX_palace_of_the_soviets_icon # TO CHANGE
+		launch_sound = raid_launch_air
+
+		arrow = {
+		    type = air
+		}
+        unit_model = {
+            type = equipment
+        }
+
+		unit_requirements = {
+			equipment = {
+				type = { strategic_bomber }
+				amount = { min = 75 }
+			}
+		}
+
+		starting_point = {
+		    types = { air_base }
+		}
+
+		success_factors = {
+			success = {
+				base = 0.7
+
+				# Raiding unit modifiers
+				experience = {
+					weight = 0.05
+					start_weight = -0.05
+					reference = 1.0
+				}
+				air_agility = {
+					reference = 100.0 # As air unit agility approaches 100 (as defined by the value above), increase chance by this value
+					weight = 0.05 # At 0 agility, the modifier will have negative effect.
+					start_weight = -0.05 # The modifier will scale linearly, meaning at 50 agility, the modifier will be 0.
+				}
+				reliability = {
+					reference = 1
+					weight = 0.05
+					start_weight = -0.1
+				}
+				air_defence = {
+					reference = 100
+					weight = 0.05
+					start_weight = -0.05
+				}
+
+				air_superiority = {
+					reference = 1
+					weight = 0.1
+					start_weight = -0.1
+				}
+
+				### Target Modifiers
+				anti_air = {
+					reference = 5
+					weight = -0.1
+				}
+				interception = {
+					reference = 500 # More than 500 fighters won't really make any difference
+					weight = -0.2
+				}
+				intel = {
+					weight = 0.2
+					#start_reference = 50
+					reference = 100
+				}
+
+			}
+
+			critical = {
+				base = 0.1
+
+			}
+		}
+
+		success_levels = {
+			failure = {
+				victim_effects = {
+					var:target_state = {
+						damage_building = {
+							type = landmark_grand_temple_arcturius
+							damage = 0.05 # levels of damage
+							province = var:ROOT.target_province
+						}
+					}
+				}
+				actor_effects = {
+					raid_damage_units = {
+						plane_loss = 65
+					}
+					raid_add_unit_experience = 0.05
+
+					var:actor_country = { #a failure doesn't help morale
+						add_war_support = -0.05
+					}
+				}
+				visual_effect = {
+					entity = "raid_failed_entity"
+					animation = "attack"
+				}
+			}
+			limited_success = {
+				victim_effects = {
+					var:target_state = {
+						damage_building = {
+							type = landmark_grand_temple_arcturius
+							damage = 0.15 # levels of damage
+							province = var:ROOT.target_province
+							repair_speed_modifier = -0.05
+						}
+					}
+				}
+				actor_effects = {
+					raid_damage_units = {
+						plane_loss = 50
+					}
+					raid_add_unit_experience = 0.1
+
+					var:actor_country = {
+						add_war_support = 0.02
+					}
+				}
+				visual_effect = {
+					entity = "air_raids_2_limited_success_entity"
+					animation = "attack"
+				}
+			}
+			success = {
+				victim_effects = {
+					var:target_state = {
+						damage_building = {
+							type = landmark_grand_temple_arcturius
+							damage = 0.65 # levels of damage
+							province = var:ROOT.target_province
+							repair_speed_modifier = -0.15
+						}
+					}
+				}
+				actor_effects = {
+					raid_damage_units = {
+						plane_loss = 35
+					}
+					raid_add_unit_experience = 0.2
+
+					var:actor_country = {
+						add_war_support = 0.05
+
+					}
+				}
+				visual_effect = {
+					entity = "air_raids_2_success_entity"
+					animation = "attack"
+				}
+			}
+			critical_success = {
+				victim_effects = {
+					var:target_state = {
+						damage_building = {
+							type = landmark_grand_temple_arcturius
+							damage = 0.85 # levels of damage
+							province = var:ROOT.target_province
+							repair_speed_modifier = -0.25
+						}
+					}
+				}
+				actor_effects = {
+					raid_damage_units = {
+						plane_loss = 10
+					}
+					raid_add_unit_experience = 0.35
+
+					var:actor_country = {
+						add_war_support = 0.05
+						IF = {
+							limit = { has_government = neutrality }
+							add_popularity = {
+								ideology = neutrality #these do not take FROM/ROOTs
+								popularity = 0.1
+							}
+						}
+						ELSE_IF = {
+							limit = { has_government = communism }
+							add_popularity = {
+								ideology = communism #these do not take FROM/ROOTs
+								popularity = 0.1
+							}
+						}
+						ELSE_IF = {
+							limit = { has_government = democratic }
+							add_popularity = {
+								ideology = democratic #these do not take FROM/ROOTs
+								popularity = 0.1
+							}
+						}
+						ELSE_IF = {
+							limit = { has_government = fascism }
+							add_popularity = {
+								ideology = fascism #these do not take FROM/ROOTs
+								popularity = 0.1
+							}
+						}
+					}
+
+					var:victim_country = {
+						add_war_support = -0.05
+
+						IF = {
+							limit = { has_government = neutrality }
+							add_popularity = {
+								ideology = neutrality #these do not take FROM/ROOTs
+								popularity = -0.05
+							}
+						}
+						ELSE_IF = {
+							limit = { has_government = communism }
+							add_popularity = {
+								ideology = communism #these do not take FROM/ROOTs
+								popularity = -0.05
+							}
+						}
+						ELSE_IF = {
+							limit = { has_government = democratic }
+							add_popularity = {
+								ideology = democratic #these do not take FROM/ROOTs
+								popularity = -0.05
+							}
+						}
+						ELSE_IF = {
+							limit = { has_government = fascism }
+							add_popularity = {
+								ideology = fascism #these do not take FROM/ROOTs
+								popularity = -0.05
+							}
+						}
+					}
+				}
+				visual_effect = {
+					entity = "air_raids_2_critical_success_entity"
+					animation = "attack"
+				}
+			}
+		}
+	}
+	
+	castle_of_the_order_brothers_of_the_griffon_house_of_prelate_aloysious_in_cloudbury_bombing = {
+		
+		days_to_prepare = 30
+		allowed = {
+			has_dlc = "Gotterdammerung"
+		}
+		category = air_raids
+		custom_map_icon = GFX_raid_type_icon_other_raid
+
+		ai_will_do = {
+			base = 5 # unique raid
+			modifier = {
+				# Don't target anyone who is not a potential enemy
+				factor = 0
+				NOT = {
+					is_in_array = {
+						array = potential_and_current_enemies
+						value = FROM  # Target country
+					}
+				}
+			}
+		}
+
+		command_power = 15
+
+		fire_only_once = yes
+
+		visible = {
+			is_major = yes
+		}
+
+		show_target = {
+			537 = {
+				is_owned_and_controlled_by_castle_of_the_order_brothers_of_the_griffon_house_of_prelate_aloysious_in_cloudbury_user = yes
+			}
+		}
+		
+		launchable = {
+			can_raid_castle_of_the_order_brothers_of_the_griffon_house_of_prelate_aloysious_in_cloudbury = yes
+		}
+		available = {
+
+		}
+
+		target_type = {
+			building = {
+				type = landmark_castle_of_the_order_brothers_of_the_griffon_house_of_prelate_aloysious_in_cloudbury
+			}
+		}
+		target_icon = GFX_palace_of_the_soviets_icon # TO CHANGE
+		launch_sound = raid_launch_air
+
+		arrow = {
+		    type = air
+		}
+        unit_model = {
+            type = equipment
+        }
+
+		unit_requirements = {
+			equipment = {
+				type = { strategic_bomber }
+				amount = { min = 75 }
+			}
+		}
+
+		starting_point = {
+		    types = { air_base }
+		}
+
+		success_factors = {
+			success = {
+				base = 0.7
+
+				# Raiding unit modifiers
+				experience = {
+					weight = 0.05
+					start_weight = -0.05
+					reference = 1.0
+				}
+				air_agility = {
+					reference = 100.0 # As air unit agility approaches 100 (as defined by the value above), increase chance by this value
+					weight = 0.05 # At 0 agility, the modifier will have negative effect.
+					start_weight = -0.05 # The modifier will scale linearly, meaning at 50 agility, the modifier will be 0.
+				}
+				reliability = {
+					reference = 1
+					weight = 0.05
+					start_weight = -0.1
+				}
+				air_defence = {
+					reference = 100
+					weight = 0.05
+					start_weight = -0.05
+				}
+
+				air_superiority = {
+					reference = 1
+					weight = 0.1
+					start_weight = -0.1
+				}
+
+				### Target Modifiers
+				anti_air = {
+					reference = 5
+					weight = -0.1
+				}
+				interception = {
+					reference = 500 # More than 500 fighters won't really make any difference
+					weight = -0.2
+				}
+				intel = {
+					weight = 0.2
+					#start_reference = 50
+					reference = 100
+				}
+
+			}
+
+			critical = {
+				base = 0.1
+
+			}
+		}
+
+		success_levels = {
+			failure = {
+				victim_effects = {
+					var:target_state = {
+						damage_building = {
+							type = landmark_castle_of_the_order_brothers_of_the_griffon_house_of_prelate_aloysious_in_cloudbury
+							damage = 0.05 # levels of damage
+							province = var:ROOT.target_province
+						}
+					}
+				}
+				actor_effects = {
+					raid_damage_units = {
+						plane_loss = 65
+					}
+					raid_add_unit_experience = 0.05
+
+					var:actor_country = { #a failure doesn't help morale
+						add_war_support = -0.05
+					}
+				}
+				visual_effect = {
+					entity = "raid_failed_entity"
+					animation = "attack"
+				}
+			}
+			limited_success = {
+				victim_effects = {
+					var:target_state = {
+						damage_building = {
+							type = landmark_castle_of_the_order_brothers_of_the_griffon_house_of_prelate_aloysious_in_cloudbury
+							damage = 0.15 # levels of damage
+							province = var:ROOT.target_province
+							repair_speed_modifier = -0.05
+						}
+					}
+				}
+				actor_effects = {
+					raid_damage_units = {
+						plane_loss = 50
+					}
+					raid_add_unit_experience = 0.1
+
+					var:actor_country = {
+						add_war_support = 0.02
+					}
+				}
+				visual_effect = {
+					entity = "air_raids_2_limited_success_entity"
+					animation = "attack"
+				}
+			}
+			success = {
+				victim_effects = {
+					var:target_state = {
+						damage_building = {
+							type = landmark_castle_of_the_order_brothers_of_the_griffon_house_of_prelate_aloysious_in_cloudbury
+							damage = 0.65 # levels of damage
+							province = var:ROOT.target_province
+							repair_speed_modifier = -0.15
+						}
+					}
+				}
+				actor_effects = {
+					raid_damage_units = {
+						plane_loss = 35
+					}
+					raid_add_unit_experience = 0.2
+
+					var:actor_country = {
+						add_war_support = 0.05
+
+					}
+				}
+				visual_effect = {
+					entity = "air_raids_2_success_entity"
+					animation = "attack"
+				}
+			}
+			critical_success = {
+				victim_effects = {
+					var:target_state = {
+						damage_building = {
+							type = landmark_castle_of_the_order_brothers_of_the_griffon_house_of_prelate_aloysious_in_cloudbury
+							damage = 0.85 # levels of damage
+							province = var:ROOT.target_province
+							repair_speed_modifier = -0.25
+						}
+					}
+				}
+				actor_effects = {
+					raid_damage_units = {
+						plane_loss = 10
+					}
+					raid_add_unit_experience = 0.35
+
+					var:actor_country = {
+						add_war_support = 0.05
+						IF = {
+							limit = { has_government = neutrality }
+							add_popularity = {
+								ideology = neutrality #these do not take FROM/ROOTs
+								popularity = 0.1
+							}
+						}
+						ELSE_IF = {
+							limit = { has_government = communism }
+							add_popularity = {
+								ideology = communism #these do not take FROM/ROOTs
+								popularity = 0.1
+							}
+						}
+						ELSE_IF = {
+							limit = { has_government = democratic }
+							add_popularity = {
+								ideology = democratic #these do not take FROM/ROOTs
+								popularity = 0.1
+							}
+						}
+						ELSE_IF = {
+							limit = { has_government = fascism }
+							add_popularity = {
+								ideology = fascism #these do not take FROM/ROOTs
+								popularity = 0.1
+							}
+						}
+					}
+
+					var:victim_country = {
+						add_war_support = -0.05
+
+						IF = {
+							limit = { has_government = neutrality }
+							add_popularity = {
+								ideology = neutrality #these do not take FROM/ROOTs
+								popularity = -0.05
+							}
+						}
+						ELSE_IF = {
+							limit = { has_government = communism }
+							add_popularity = {
+								ideology = communism #these do not take FROM/ROOTs
+								popularity = -0.05
+							}
+						}
+						ELSE_IF = {
+							limit = { has_government = democratic }
+							add_popularity = {
+								ideology = democratic #these do not take FROM/ROOTs
+								popularity = -0.05
+							}
+						}
+						ELSE_IF = {
+							limit = { has_government = fascism }
+							add_popularity = {
+								ideology = fascism #these do not take FROM/ROOTs
+								popularity = -0.05
+							}
+						}
+					}
+				}
+				visual_effect = {
+					entity = "air_raids_2_critical_success_entity"
+					animation = "attack"
+				}
+			}
+		}
+	}
+	
+	great_library_bombing = {
+		
+		days_to_prepare = 30
+		allowed = {
+			has_dlc = "Gotterdammerung"
+		}
+		category = air_raids
+		custom_map_icon = GFX_raid_type_icon_other_raid
+
+		ai_will_do = {
+			base = 5 # unique raid
+			modifier = {
+				# Don't target anyone who is not a potential enemy
+				factor = 0
+				NOT = {
+					is_in_array = {
+						array = potential_and_current_enemies
+						value = FROM  # Target country
+					}
+				}
+			}
+		}
+
+		command_power = 15
+
+		fire_only_once = yes
+
+		visible = {
+			is_major = yes
+		}
+
+		show_target = {
+			617 = {
+				is_owned_and_controlled_by_great_library_user = yes
+			}
+		}
+		
+		launchable = {
+			can_raid_great_library = yes
+		}
+		available = {
+
+		}
+
+		target_type = {
+			building = {
+				type = landmark_great_library
+			}
+		}
+		target_icon = GFX_palace_of_the_soviets_icon # TO CHANGE
+		launch_sound = raid_launch_air
+
+		arrow = {
+		    type = air
+		}
+        unit_model = {
+            type = equipment
+        }
+
+		unit_requirements = {
+			equipment = {
+				type = { strategic_bomber }
+				amount = { min = 75 }
+			}
+		}
+
+		starting_point = {
+		    types = { air_base }
+		}
+
+		success_factors = {
+			success = {
+				base = 0.7
+
+				# Raiding unit modifiers
+				experience = {
+					weight = 0.05
+					start_weight = -0.05
+					reference = 1.0
+				}
+				air_agility = {
+					reference = 100.0 # As air unit agility approaches 100 (as defined by the value above), increase chance by this value
+					weight = 0.05 # At 0 agility, the modifier will have negative effect.
+					start_weight = -0.05 # The modifier will scale linearly, meaning at 50 agility, the modifier will be 0.
+				}
+				reliability = {
+					reference = 1
+					weight = 0.05
+					start_weight = -0.1
+				}
+				air_defence = {
+					reference = 100
+					weight = 0.05
+					start_weight = -0.05
+				}
+
+				air_superiority = {
+					reference = 1
+					weight = 0.1
+					start_weight = -0.1
+				}
+
+				### Target Modifiers
+				anti_air = {
+					reference = 5
+					weight = -0.1
+				}
+				interception = {
+					reference = 500 # More than 500 fighters won't really make any difference
+					weight = -0.2
+				}
+				intel = {
+					weight = 0.2
+					#start_reference = 50
+					reference = 100
+				}
+
+			}
+
+			critical = {
+				base = 0.1
+
+			}
+		}
+
+		success_levels = {
+			failure = {
+				victim_effects = {
+					var:target_state = {
+						damage_building = {
+							type = landmark_great_library
+							damage = 0.05 # levels of damage
+							province = var:ROOT.target_province
+						}
+					}
+				}
+				actor_effects = {
+					raid_damage_units = {
+						plane_loss = 65
+					}
+					raid_add_unit_experience = 0.05
+
+					var:actor_country = { #a failure doesn't help morale
+						add_war_support = -0.05
+					}
+				}
+				visual_effect = {
+					entity = "raid_failed_entity"
+					animation = "attack"
+				}
+			}
+			limited_success = {
+				victim_effects = {
+					var:target_state = {
+						damage_building = {
+							type = landmark_great_library
+							damage = 0.15 # levels of damage
+							province = var:ROOT.target_province
+							repair_speed_modifier = -0.05
+						}
+					}
+				}
+				actor_effects = {
+					raid_damage_units = {
+						plane_loss = 50
+					}
+					raid_add_unit_experience = 0.1
+
+					var:actor_country = {
+						add_war_support = 0.02
+					}
+				}
+				visual_effect = {
+					entity = "air_raids_2_limited_success_entity"
+					animation = "attack"
+				}
+			}
+			success = {
+				victim_effects = {
+					var:target_state = {
+						damage_building = {
+							type = landmark_great_library
+							damage = 0.65 # levels of damage
+							province = var:ROOT.target_province
+							repair_speed_modifier = -0.15
+						}
+					}
+				}
+				actor_effects = {
+					raid_damage_units = {
+						plane_loss = 35
+					}
+					raid_add_unit_experience = 0.2
+
+					var:actor_country = {
+						add_war_support = 0.05
+
+					}
+				}
+				visual_effect = {
+					entity = "air_raids_2_success_entity"
+					animation = "attack"
+				}
+			}
+			critical_success = {
+				victim_effects = {
+					var:target_state = {
+						damage_building = {
+							type = landmark_great_library
+							damage = 0.85 # levels of damage
+							province = var:ROOT.target_province
+							repair_speed_modifier = -0.25
+						}
+					}
+				}
+				actor_effects = {
+					raid_damage_units = {
+						plane_loss = 10
+					}
+					raid_add_unit_experience = 0.35
+
+					var:actor_country = {
+						add_war_support = 0.05
+						IF = {
+							limit = { has_government = neutrality }
+							add_popularity = {
+								ideology = neutrality #these do not take FROM/ROOTs
+								popularity = 0.1
+							}
+						}
+						ELSE_IF = {
+							limit = { has_government = communism }
+							add_popularity = {
+								ideology = communism #these do not take FROM/ROOTs
+								popularity = 0.1
+							}
+						}
+						ELSE_IF = {
+							limit = { has_government = democratic }
+							add_popularity = {
+								ideology = democratic #these do not take FROM/ROOTs
+								popularity = 0.1
+							}
+						}
+						ELSE_IF = {
+							limit = { has_government = fascism }
+							add_popularity = {
+								ideology = fascism #these do not take FROM/ROOTs
+								popularity = 0.1
+							}
+						}
+					}
+
+					var:victim_country = {
+						add_war_support = -0.05
+
+						IF = {
+							limit = { has_government = neutrality }
+							add_popularity = {
+								ideology = neutrality #these do not take FROM/ROOTs
+								popularity = -0.05
+							}
+						}
+						ELSE_IF = {
+							limit = { has_government = communism }
+							add_popularity = {
+								ideology = communism #these do not take FROM/ROOTs
+								popularity = -0.05
+							}
+						}
+						ELSE_IF = {
+							limit = { has_government = democratic }
+							add_popularity = {
+								ideology = democratic #these do not take FROM/ROOTs
+								popularity = -0.05
+							}
+						}
+						ELSE_IF = {
+							limit = { has_government = fascism }
+							add_popularity = {
+								ideology = fascism #these do not take FROM/ROOTs
+								popularity = -0.05
+							}
+						}
+					}
+				}
+				visual_effect = {
+					entity = "air_raids_2_critical_success_entity"
+					animation = "attack"
+				}
+			}
+		}
+	}
+	
+	grand_temple_of_eviliana_bombing = {
+		
+		days_to_prepare = 30
+		allowed = {
+			has_dlc = "Gotterdammerung"
+		}
+		category = air_raids
+		custom_map_icon = GFX_raid_type_icon_other_raid
+
+		ai_will_do = {
+			base = 5 # unique raid
+			modifier = {
+				# Don't target anyone who is not a potential enemy
+				factor = 0
+				NOT = {
+					is_in_array = {
+						array = potential_and_current_enemies
+						value = FROM  # Target country
+					}
+				}
+			}
+		}
+
+		command_power = 15
+
+		fire_only_once = yes
+
+		visible = {
+			is_major = yes
+		}
+
+		show_target = {
+			508 = {
+				is_owned_and_controlled_by_grand_temple_of_eviliana_user = yes
+			}
+		}
+		
+		launchable = {
+			can_raid_grand_temple_of_eviliana = yes
+		}
+		available = {
+
+		}
+
+		target_type = {
+			building = {
+				type = landmark_grand_temple_of_eviliana
+			}
+		}
+		target_icon = GFX_palace_of_the_soviets_icon # TO CHANGE
+		launch_sound = raid_launch_air
+
+		arrow = {
+		    type = air
+		}
+        unit_model = {
+            type = equipment
+        }
+
+		unit_requirements = {
+			equipment = {
+				type = { strategic_bomber }
+				amount = { min = 75 }
+			}
+		}
+
+		starting_point = {
+		    types = { air_base }
+		}
+
+		success_factors = {
+			success = {
+				base = 0.7
+
+				# Raiding unit modifiers
+				experience = {
+					weight = 0.05
+					start_weight = -0.05
+					reference = 1.0
+				}
+				air_agility = {
+					reference = 100.0 # As air unit agility approaches 100 (as defined by the value above), increase chance by this value
+					weight = 0.05 # At 0 agility, the modifier will have negative effect.
+					start_weight = -0.05 # The modifier will scale linearly, meaning at 50 agility, the modifier will be 0.
+				}
+				reliability = {
+					reference = 1
+					weight = 0.05
+					start_weight = -0.1
+				}
+				air_defence = {
+					reference = 100
+					weight = 0.05
+					start_weight = -0.05
+				}
+
+				air_superiority = {
+					reference = 1
+					weight = 0.1
+					start_weight = -0.1
+				}
+
+				### Target Modifiers
+				anti_air = {
+					reference = 5
+					weight = -0.1
+				}
+				interception = {
+					reference = 500 # More than 500 fighters won't really make any difference
+					weight = -0.2
+				}
+				intel = {
+					weight = 0.2
+					#start_reference = 50
+					reference = 100
+				}
+
+			}
+
+			critical = {
+				base = 0.1
+
+			}
+		}
+
+		success_levels = {
+			failure = {
+				victim_effects = {
+					var:target_state = {
+						damage_building = {
+							type = landmark_grand_temple_of_eviliana
+							damage = 0.05 # levels of damage
+							province = var:ROOT.target_province
+						}
+					}
+				}
+				actor_effects = {
+					raid_damage_units = {
+						plane_loss = 65
+					}
+					raid_add_unit_experience = 0.05
+
+					var:actor_country = { #a failure doesn't help morale
+						add_war_support = -0.05
+					}
+				}
+				visual_effect = {
+					entity = "raid_failed_entity"
+					animation = "attack"
+				}
+			}
+			limited_success = {
+				victim_effects = {
+					var:target_state = {
+						damage_building = {
+							type = landmark_grand_temple_of_eviliana
+							damage = 0.15 # levels of damage
+							province = var:ROOT.target_province
+							repair_speed_modifier = -0.05
+						}
+					}
+				}
+				actor_effects = {
+					raid_damage_units = {
+						plane_loss = 50
+					}
+					raid_add_unit_experience = 0.1
+
+					var:actor_country = {
+						add_war_support = 0.02
+					}
+				}
+				visual_effect = {
+					entity = "air_raids_2_limited_success_entity"
+					animation = "attack"
+				}
+			}
+			success = {
+				victim_effects = {
+					var:target_state = {
+						damage_building = {
+							type = landmark_grand_temple_of_eviliana
+							damage = 0.65 # levels of damage
+							province = var:ROOT.target_province
+							repair_speed_modifier = -0.15
+						}
+					}
+				}
+				actor_effects = {
+					raid_damage_units = {
+						plane_loss = 35
+					}
+					raid_add_unit_experience = 0.2
+
+					var:actor_country = {
+						add_war_support = 0.05
+
+					}
+				}
+				visual_effect = {
+					entity = "air_raids_2_success_entity"
+					animation = "attack"
+				}
+			}
+			critical_success = {
+				victim_effects = {
+					var:target_state = {
+						damage_building = {
+							type = landmark_grand_temple_of_eviliana
+							damage = 0.85 # levels of damage
+							province = var:ROOT.target_province
+							repair_speed_modifier = -0.25
+						}
+					}
+				}
+				actor_effects = {
+					raid_damage_units = {
+						plane_loss = 10
+					}
+					raid_add_unit_experience = 0.35
+
+					var:actor_country = {
+						add_war_support = 0.05
+						IF = {
+							limit = { has_government = neutrality }
+							add_popularity = {
+								ideology = neutrality #these do not take FROM/ROOTs
+								popularity = 0.1
+							}
+						}
+						ELSE_IF = {
+							limit = { has_government = communism }
+							add_popularity = {
+								ideology = communism #these do not take FROM/ROOTs
+								popularity = 0.1
+							}
+						}
+						ELSE_IF = {
+							limit = { has_government = democratic }
+							add_popularity = {
+								ideology = democratic #these do not take FROM/ROOTs
+								popularity = 0.1
+							}
+						}
+						ELSE_IF = {
+							limit = { has_government = fascism }
+							add_popularity = {
+								ideology = fascism #these do not take FROM/ROOTs
+								popularity = 0.1
+							}
+						}
+					}
+
+					var:victim_country = {
+						add_war_support = -0.05
+
+						IF = {
+							limit = { has_government = neutrality }
+							add_popularity = {
+								ideology = neutrality #these do not take FROM/ROOTs
+								popularity = -0.05
+							}
+						}
+						ELSE_IF = {
+							limit = { has_government = communism }
+							add_popularity = {
+								ideology = communism #these do not take FROM/ROOTs
+								popularity = -0.05
+							}
+						}
+						ELSE_IF = {
+							limit = { has_government = democratic }
+							add_popularity = {
+								ideology = democratic #these do not take FROM/ROOTs
+								popularity = -0.05
+							}
+						}
+						ELSE_IF = {
+							limit = { has_government = fascism }
+							add_popularity = {
+								ideology = fascism #these do not take FROM/ROOTs
+								popularity = -0.05
+							}
+						}
+					}
+				}
+				visual_effect = {
+					entity = "air_raids_2_critical_success_entity"
+					animation = "attack"
+				}
+			}
+		}
+	}
+	university_of_timbucktu_bombing = {
+
+		days_to_prepare = 30
+		allowed = {
+			has_dlc = "Gotterdammerung"
+		}
+		category = air_raids
+		custom_map_icon = GFX_raid_type_icon_other_raid
+
+		ai_will_do = {
+			base = 5 # unique raid
+			modifier = {
+				# Don't target anyone who is not a potential enemy
+				factor = 0
+				NOT = {
+					is_in_array = {
+						array = potential_and_current_enemies
+						value = FROM  # Target country
+					}
+				}
+			}
+		}
+
+		command_power = 15
+
+		fire_only_once = yes
+
+		visible = {
+			is_major = yes
+		}
+
+		show_target = {
+			937 = {
+				is_owned_and_controlled_by_university_of_timbucktu_user = yes
+			}
+		}
+		
+		launchable = {
+			can_raid_university_of_timbucktu = yes
+		}
+		available = {
+
+		}
+
+		target_type = {
+			building = {
+				type = landmark_university_of_timbucktu
+			}
+		}
+		target_icon = GFX_palace_of_the_soviets_icon # TO CHANGE
+		launch_sound = raid_launch_air
+
+		arrow = {
+		    type = air
+		}
+        unit_model = {
+            type = equipment
+        }
+
+		unit_requirements = {
+			equipment = {
+				type = { strategic_bomber }
+				amount = { min = 75 }
+			}
+		}
+
+		starting_point = {
+		    types = { air_base }
+		}
+
+		success_factors = {
+			success = {
+				base = 0.7
+
+				# Raiding unit modifiers
+				experience = {
+					weight = 0.05
+					start_weight = -0.05
+					reference = 1.0
+				}
+				air_agility = {
+					reference = 100.0 # As air unit agility approaches 100 (as defined by the value above), increase chance by this value
+					weight = 0.05 # At 0 agility, the modifier will have negative effect.
+					start_weight = -0.05 # The modifier will scale linearly, meaning at 50 agility, the modifier will be 0.
+				}
+				reliability = {
+					reference = 1
+					weight = 0.05
+					start_weight = -0.1
+				}
+				air_defence = {
+					reference = 100
+					weight = 0.05
+					start_weight = -0.05
+				}
+
+				air_superiority = {
+					reference = 1
+					weight = 0.1
+					start_weight = -0.1
+				}
+
+				### Target Modifiers
+				anti_air = {
+					reference = 5
+					weight = -0.1
+				}
+				interception = {
+					reference = 500 # More than 500 fighters won't really make any difference
+					weight = -0.2
+				}
+				intel = {
+					weight = 0.2
+					#start_reference = 50
+					reference = 100
+				}
+
+			}
+
+			critical = {
+				base = 0.1
+
+			}
+		}
+
+		success_levels = {
+			failure = {
+				victim_effects = {
+					var:target_state = {
+						damage_building = {
+							type = landmark_university_of_timbucktu
+							damage = 0.05 # levels of damage
+							province = var:ROOT.target_province
+						}
+					}
+				}
+				actor_effects = {
+					raid_damage_units = {
+						plane_loss = 65
+					}
+					raid_add_unit_experience = 0.05
+
+					var:actor_country = { #a failure doesn't help morale
+						add_war_support = -0.05
+					}
+				}
+				visual_effect = {
+					entity = "raid_failed_entity"
+					animation = "attack"
+				}
+			}
+			limited_success = {
+				victim_effects = {
+					var:target_state = {
+						damage_building = {
+							type = landmark_university_of_timbucktu
+							damage = 0.15 # levels of damage
+							province = var:ROOT.target_province
+							repair_speed_modifier = -0.05
+						}
+					}
+				}
+				actor_effects = {
+					raid_damage_units = {
+						plane_loss = 50
+					}
+					raid_add_unit_experience = 0.1
+
+					var:actor_country = {
+						add_war_support = 0.02
+					}
+				}
+				visual_effect = {
+					entity = "air_raids_2_limited_success_entity"
+					animation = "attack"
+				}
+			}
+			success = {
+				victim_effects = {
+					var:target_state = {
+						damage_building = {
+							type = landmark_university_of_timbucktu
+							damage = 0.65 # levels of damage
+							province = var:ROOT.target_province
+							repair_speed_modifier = -0.15
+						}
+					}
+				}
+				actor_effects = {
+					raid_damage_units = {
+						plane_loss = 35
+					}
+					raid_add_unit_experience = 0.2
+
+					var:actor_country = {
+						add_war_support = 0.05
+
+					}
+				}
+				visual_effect = {
+					entity = "air_raids_2_success_entity"
+					animation = "attack"
+				}
+			}
+			critical_success = {
+				victim_effects = {
+					var:target_state = {
+						damage_building = {
+							type = landmark_university_of_timbucktu
+							damage = 0.85 # levels of damage
+							province = var:ROOT.target_province
+							repair_speed_modifier = -0.25
+						}
+					}
+				}
+				actor_effects = {
+					raid_damage_units = {
+						plane_loss = 10
+					}
+					raid_add_unit_experience = 0.35
+
+					var:actor_country = {
+						add_war_support = 0.05
+						IF = {
+							limit = { has_government = neutrality }
+							add_popularity = {
+								ideology = neutrality #these do not take FROM/ROOTs
+								popularity = 0.1
+							}
+						}
+						ELSE_IF = {
+							limit = { has_government = communism }
+							add_popularity = {
+								ideology = communism #these do not take FROM/ROOTs
+								popularity = 0.1
+							}
+						}
+						ELSE_IF = {
+							limit = { has_government = democratic }
+							add_popularity = {
+								ideology = democratic #these do not take FROM/ROOTs
+								popularity = 0.1
+							}
+						}
+						ELSE_IF = {
+							limit = { has_government = fascism }
+							add_popularity = {
+								ideology = fascism #these do not take FROM/ROOTs
+								popularity = 0.1
+							}
+						}
+					}
+
+					var:victim_country = {
+						add_war_support = -0.05
+
+						IF = {
+							limit = { has_government = neutrality }
+							add_popularity = {
+								ideology = neutrality #these do not take FROM/ROOTs
+								popularity = -0.05
+							}
+						}
+						ELSE_IF = {
+							limit = { has_government = communism }
+							add_popularity = {
+								ideology = communism #these do not take FROM/ROOTs
+								popularity = -0.05
+							}
+						}
+						ELSE_IF = {
+							limit = { has_government = democratic }
+							add_popularity = {
+								ideology = democratic #these do not take FROM/ROOTs
+								popularity = -0.05
+							}
+						}
+						ELSE_IF = {
+							limit = { has_government = fascism }
+							add_popularity = {
+								ideology = fascism #these do not take FROM/ROOTs
+								popularity = -0.05
+							}
+						}
+					}
+				}
+				visual_effect = {
+					entity = "air_raids_2_critical_success_entity"
+					animation = "attack"
+				}
+			}
+		}
+	}
+	# The following have only one country that can ever make use of them. As such they do not need scripted triggers
+	
+	crystal_heart_bombing = {
+		
+		days_to_prepare = 30
+		allowed = {
+			has_dlc = "Gotterdammerung"
+		}
+		category = air_raids
+		custom_map_icon = GFX_raid_type_icon_other_raid
+
+		ai_will_do = {
+			base = 5 # unique raid
+			modifier = {
+				# Don't target anyone who is not a potential enemy
+				factor = 0
+				NOT = {
+					is_in_array = {
+						array = potential_and_current_enemies
+						value = FROM  # Target country
+					}
+				}
+			}
+		}
+
+		command_power = 15
+
+		fire_only_once = yes
+
+		visible = {
+			is_major = yes
+		}
+
+		show_target = {
+			344 = {
+				is_owned_and_controlled_by = CRY
+			}
+		}
+		
+		launchable = {
+			has_war_with = CRY
+		}
+		available = {
+
+		}
+
+		target_type = {
+			building = {
+				type = landmark_crystal_heart
+			}
+		}
+		target_icon = GFX_palace_of_the_soviets_icon # TO CHANGE
+		launch_sound = raid_launch_air
+
+		arrow = {
+		    type = air
+		}
+        unit_model = {
+            type = equipment
+        }
+
+		unit_requirements = {
+			equipment = {
+				type = { strategic_bomber }
+				amount = { min = 75 }
+			}
+		}
+
+		starting_point = {
+		    types = { air_base }
+		}
+
+		success_factors = {
+			success = {
+				base = 0.7
+
+				# Raiding unit modifiers
+				experience = {
+					weight = 0.05
+					start_weight = -0.05
+					reference = 1.0
+				}
+				air_agility = {
+					reference = 100.0 # As air unit agility approaches 100 (as defined by the value above), increase chance by this value
+					weight = 0.05 # At 0 agility, the modifier will have negative effect.
+					start_weight = -0.05 # The modifier will scale linearly, meaning at 50 agility, the modifier will be 0.
+				}
+				reliability = {
+					reference = 1
+					weight = 0.05
+					start_weight = -0.1
+				}
+				air_defence = {
+					reference = 100
+					weight = 0.05
+					start_weight = -0.05
+				}
+
+				air_superiority = {
+					reference = 1
+					weight = 0.1
+					start_weight = -0.1
+				}
+
+				### Target Modifiers
+				anti_air = {
+					reference = 5
+					weight = -0.1
+				}
+				interception = {
+					reference = 500 # More than 500 fighters won't really make any difference
+					weight = -0.2
+				}
+				intel = {
+					weight = 0.2
+					#start_reference = 50
+					reference = 100
+				}
+
+			}
+
+			critical = {
+				base = 0.1
+
+			}
+		}
+
+		success_levels = {
+			failure = {
+				victim_effects = {
+					var:target_state = {
+						damage_building = {
+							type = landmark_crystal_heart
+							damage = 0.05 # levels of damage
+							province = var:ROOT.target_province
+						}
+					}
+				}
+				actor_effects = {
+					raid_damage_units = {
+						plane_loss = 65
+					}
+					raid_add_unit_experience = 0.05
+
+					var:actor_country = { #a failure doesn't help morale
+						add_war_support = -0.05
+					}
+				}
+				visual_effect = {
+					entity = "raid_failed_entity"
+					animation = "attack"
+				}
+			}
+			limited_success = {
+				victim_effects = {
+					var:target_state = {
+						damage_building = {
+							type = landmark_crystal_heart
+							damage = 0.15 # levels of damage
+							province = var:ROOT.target_province
+							repair_speed_modifier = -0.05
+						}
+					}
+				}
+				actor_effects = {
+					raid_damage_units = {
+						plane_loss = 50
+					}
+					raid_add_unit_experience = 0.1
+
+					var:actor_country = {
+						add_war_support = 0.02
+					}
+				}
+				visual_effect = {
+					entity = "air_raids_2_limited_success_entity"
+					animation = "attack"
+				}
+			}
+			success = {
+				victim_effects = {
+					var:target_state = {
+						damage_building = {
+							type = landmark_crystal_heart
+							damage = 0.65 # levels of damage
+							province = var:ROOT.target_province
+							repair_speed_modifier = -0.15
+						}
+					}
+				}
+				actor_effects = {
+					raid_damage_units = {
+						plane_loss = 35
+					}
+					raid_add_unit_experience = 0.2
+
+					var:actor_country = {
+						add_war_support = 0.05
+
+					}
+				}
+				visual_effect = {
+					entity = "air_raids_2_success_entity"
+					animation = "attack"
+				}
+			}
+			critical_success = {
+				victim_effects = {
+					var:target_state = {
+						damage_building = {
+							type = landmark_crystal_heart
+							damage = 0.85 # levels of damage
+							province = var:ROOT.target_province
+							repair_speed_modifier = -0.25
+						}
+					}
+				}
+				actor_effects = {
+					raid_damage_units = {
+						plane_loss = 10
+					}
+					raid_add_unit_experience = 0.35
+
+					var:actor_country = {
+						add_war_support = 0.05
+						IF = {
+							limit = { has_government = neutrality }
+							add_popularity = {
+								ideology = neutrality #these do not take FROM/ROOTs
+								popularity = 0.1
+							}
+						}
+						ELSE_IF = {
+							limit = { has_government = communism }
+							add_popularity = {
+								ideology = communism #these do not take FROM/ROOTs
+								popularity = 0.1
+							}
+						}
+						ELSE_IF = {
+							limit = { has_government = democratic }
+							add_popularity = {
+								ideology = democratic #these do not take FROM/ROOTs
+								popularity = 0.1
+							}
+						}
+						ELSE_IF = {
+							limit = { has_government = fascism }
+							add_popularity = {
+								ideology = fascism #these do not take FROM/ROOTs
+								popularity = 0.1
+							}
+						}
+					}
+
+					var:victim_country = {
+						add_war_support = -0.05
+
+						IF = {
+							limit = { has_government = neutrality }
+							add_popularity = {
+								ideology = neutrality #these do not take FROM/ROOTs
+								popularity = -0.05
+							}
+						}
+						ELSE_IF = {
+							limit = { has_government = communism }
+							add_popularity = {
+								ideology = communism #these do not take FROM/ROOTs
+								popularity = -0.05
+							}
+						}
+						ELSE_IF = {
+							limit = { has_government = democratic }
+							add_popularity = {
+								ideology = democratic #these do not take FROM/ROOTs
+								popularity = -0.05
+							}
+						}
+						ELSE_IF = {
+							limit = { has_government = fascism }
+							add_popularity = {
+								ideology = fascism #these do not take FROM/ROOTs
+								popularity = -0.05
+							}
+						}
+					}
+				}
+				visual_effect = {
+					entity = "air_raids_2_critical_success_entity"
+					animation = "attack"
+				}
+			}
+		}
+	}
+	tarpian_rock_bombing = {
+		
+		days_to_prepare = 30
+		allowed = {
+			has_dlc = "Gotterdammerung"
+		}
+		category = air_raids
+		custom_map_icon = GFX_raid_type_icon_other_raid
+
+		ai_will_do = {
+			base = 5 # unique raid
+			modifier = {
+				# Don't target anyone who is not a potential enemy
+				factor = 0
+				NOT = {
+					is_in_array = {
+						array = potential_and_current_enemies
+						value = FROM  # Target country
+					}
+				}
+			}
+		}
+
+		command_power = 15
+
+		fire_only_once = yes
+
+		visible = {
+			is_major = yes
+		}
+
+		show_target = {
+			425 = {
+				is_owned_and_controlled_by = HLR
+			}
+		}
+		
+		launchable = {
+			has_war_with = HLR
+		}
+		available = {
+
+		}
+
+		target_type = {
+			building = {
+				type = landmark_tarpian_rock
+			}
+		}
+		target_icon = GFX_palace_of_the_soviets_icon # TO CHANGE
+		launch_sound = raid_launch_air
+
+		arrow = {
+		    type = air
+		}
+        unit_model = {
+            type = equipment
+        }
+
+		unit_requirements = {
+			equipment = {
+				type = { strategic_bomber }
+				amount = { min = 75 }
+			}
+		}
+
+		starting_point = {
+		    types = { air_base }
+		}
+
+		success_factors = {
+			success = {
+				base = 0.7
+
+				# Raiding unit modifiers
+				experience = {
+					weight = 0.05
+					start_weight = -0.05
+					reference = 1.0
+				}
+				air_agility = {
+					reference = 100.0 # As air unit agility approaches 100 (as defined by the value above), increase chance by this value
+					weight = 0.05 # At 0 agility, the modifier will have negative effect.
+					start_weight = -0.05 # The modifier will scale linearly, meaning at 50 agility, the modifier will be 0.
+				}
+				reliability = {
+					reference = 1
+					weight = 0.05
+					start_weight = -0.1
+				}
+				air_defence = {
+					reference = 100
+					weight = 0.05
+					start_weight = -0.05
+				}
+
+				air_superiority = {
+					reference = 1
+					weight = 0.1
+					start_weight = -0.1
+				}
+
+				### Target Modifiers
+				anti_air = {
+					reference = 5
+					weight = -0.1
+				}
+				interception = {
+					reference = 500 # More than 500 fighters won't really make any difference
+					weight = -0.2
+				}
+				intel = {
+					weight = 0.2
+					#start_reference = 50
+					reference = 100
+				}
+
+			}
+
+			critical = {
+				base = 0.1
+
+			}
+		}
+
+		success_levels = {
+			failure = {
+				victim_effects = {
+					var:target_state = {
+						damage_building = {
+							type = landmark_tarpian_rock
+							damage = 0.05 # levels of damage
+							province = var:ROOT.target_province
+						}
+					}
+				}
+				actor_effects = {
+					raid_damage_units = {
+						plane_loss = 65
+					}
+					raid_add_unit_experience = 0.05
+
+					var:actor_country = { #a failure doesn't help morale
+						add_war_support = -0.05
+					}
+				}
+				visual_effect = {
+					entity = "raid_failed_entity"
+					animation = "attack"
+				}
+			}
+			limited_success = {
+				victim_effects = {
+					var:target_state = {
+						damage_building = {
+							type = landmark_tarpian_rock
+							damage = 0.15 # levels of damage
+							province = var:ROOT.target_province
+							repair_speed_modifier = -0.05
+						}
+					}
+				}
+				actor_effects = {
+					raid_damage_units = {
+						plane_loss = 50
+					}
+					raid_add_unit_experience = 0.1
+
+					var:actor_country = {
+						add_war_support = 0.02
+					}
+				}
+				visual_effect = {
+					entity = "air_raids_2_limited_success_entity"
+					animation = "attack"
+				}
+			}
+			success = {
+				victim_effects = {
+					var:target_state = {
+						damage_building = {
+							type = landmark_tarpian_rock
+							damage = 0.65 # levels of damage
+							province = var:ROOT.target_province
+							repair_speed_modifier = -0.15
+						}
+					}
+				}
+				actor_effects = {
+					raid_damage_units = {
+						plane_loss = 35
+					}
+					raid_add_unit_experience = 0.2
+
+					var:actor_country = {
+						add_war_support = 0.05
+
+					}
+				}
+				visual_effect = {
+					entity = "air_raids_2_success_entity"
+					animation = "attack"
+				}
+			}
+			critical_success = {
+				victim_effects = {
+					var:target_state = {
+						damage_building = {
+							type = landmark_tarpian_rock
+							damage = 0.85 # levels of damage
+							province = var:ROOT.target_province
+							repair_speed_modifier = -0.25
+						}
+					}
+				}
+				actor_effects = {
+					raid_damage_units = {
+						plane_loss = 10
+					}
+					raid_add_unit_experience = 0.35
+
+					var:actor_country = {
+						add_war_support = 0.05
+						IF = {
+							limit = { has_government = neutrality }
+							add_popularity = {
+								ideology = neutrality #these do not take FROM/ROOTs
+								popularity = 0.1
+							}
+						}
+						ELSE_IF = {
+							limit = { has_government = communism }
+							add_popularity = {
+								ideology = communism #these do not take FROM/ROOTs
+								popularity = 0.1
+							}
+						}
+						ELSE_IF = {
+							limit = { has_government = democratic }
+							add_popularity = {
+								ideology = democratic #these do not take FROM/ROOTs
+								popularity = 0.1
+							}
+						}
+						ELSE_IF = {
+							limit = { has_government = fascism }
+							add_popularity = {
+								ideology = fascism #these do not take FROM/ROOTs
+								popularity = 0.1
+							}
+						}
+					}
+
+					var:victim_country = {
+						add_war_support = -0.05
+
+						IF = {
+							limit = { has_government = neutrality }
+							add_popularity = {
+								ideology = neutrality #these do not take FROM/ROOTs
+								popularity = -0.05
+							}
+						}
+						ELSE_IF = {
+							limit = { has_government = communism }
+							add_popularity = {
+								ideology = communism #these do not take FROM/ROOTs
+								popularity = -0.05
+							}
+						}
+						ELSE_IF = {
+							limit = { has_government = democratic }
+							add_popularity = {
+								ideology = democratic #these do not take FROM/ROOTs
+								popularity = -0.05
+							}
+						}
+						ELSE_IF = {
+							limit = { has_government = fascism }
+							add_popularity = {
+								ideology = fascism #these do not take FROM/ROOTs
+								popularity = -0.05
+							}
+						}
+					}
+				}
+				visual_effect = {
+					entity = "air_raids_2_critical_success_entity"
+					animation = "attack"
+				}
+			}
+		}
+	}
+	palaca_rijeke_bombing = {
+		
+		days_to_prepare = 30
+		allowed = {
+			has_dlc = "Gotterdammerung"
+		}
+		category = air_raids
+		custom_map_icon = GFX_raid_type_icon_other_raid
+
+		ai_will_do = {
+			base = 5 # unique raid
+			modifier = {
+				# Don't target anyone who is not a potential enemy
+				factor = 0
+				NOT = {
+					is_in_array = {
+						array = potential_and_current_enemies
+						value = FROM  # Target country
+					}
+				}
+			}
+		}
+
+		command_power = 15
+
+		fire_only_once = yes
+
+		visible = {
+			is_major = yes
+		}
+
+		show_target = {
+			619 = {
+				is_owned_and_controlled_by = RCT
+			}
+		}
+		
+		launchable = {
+			has_war_with = RCT
+		}
+		available = {
+
+		}
+
+		target_type = {
+			building = {
+				type = landmark_palaca_rijeke
+			}
+		}
+		target_icon = GFX_palace_of_the_soviets_icon # TO CHANGE
+		launch_sound = raid_launch_air
+
+		arrow = {
+		    type = air
+		}
+        unit_model = {
+            type = equipment
+        }
+
+		unit_requirements = {
+			equipment = {
+				type = { strategic_bomber }
+				amount = { min = 75 }
+			}
+		}
+
+		starting_point = {
+		    types = { air_base }
+		}
+
+		success_factors = {
+			success = {
+				base = 0.7
+
+				# Raiding unit modifiers
+				experience = {
+					weight = 0.05
+					start_weight = -0.05
+					reference = 1.0
+				}
+				air_agility = {
+					reference = 100.0 # As air unit agility approaches 100 (as defined by the value above), increase chance by this value
+					weight = 0.05 # At 0 agility, the modifier will have negative effect.
+					start_weight = -0.05 # The modifier will scale linearly, meaning at 50 agility, the modifier will be 0.
+				}
+				reliability = {
+					reference = 1
+					weight = 0.05
+					start_weight = -0.1
+				}
+				air_defence = {
+					reference = 100
+					weight = 0.05
+					start_weight = -0.05
+				}
+
+				air_superiority = {
+					reference = 1
+					weight = 0.1
+					start_weight = -0.1
+				}
+
+				### Target Modifiers
+				anti_air = {
+					reference = 5
+					weight = -0.1
+				}
+				interception = {
+					reference = 500 # More than 500 fighters won't really make any difference
+					weight = -0.2
+				}
+				intel = {
+					weight = 0.2
+					#start_reference = 50
+					reference = 100
+				}
+
+			}
+
+			critical = {
+				base = 0.1
+
+			}
+		}
+
+		success_levels = {
+			failure = {
+				victim_effects = {
+					var:target_state = {
+						damage_building = {
+							type = landmark_palaca_rijeke
+							damage = 0.05 # levels of damage
+							province = var:ROOT.target_province
+						}
+					}
+				}
+				actor_effects = {
+					raid_damage_units = {
+						plane_loss = 65
+					}
+					raid_add_unit_experience = 0.05
+
+					var:actor_country = { #a failure doesn't help morale
+						add_war_support = -0.05
+					}
+				}
+				visual_effect = {
+					entity = "raid_failed_entity"
+					animation = "attack"
+				}
+			}
+			limited_success = {
+				victim_effects = {
+					var:target_state = {
+						damage_building = {
+							type = landmark_palaca_rijeke
+							damage = 0.15 # levels of damage
+							province = var:ROOT.target_province
+							repair_speed_modifier = -0.05
+						}
+					}
+				}
+				actor_effects = {
+					raid_damage_units = {
+						plane_loss = 50
+					}
+					raid_add_unit_experience = 0.1
+
+					var:actor_country = {
+						add_war_support = 0.02
+					}
+				}
+				visual_effect = {
+					entity = "air_raids_2_limited_success_entity"
+					animation = "attack"
+				}
+			}
+			success = {
+				victim_effects = {
+					var:target_state = {
+						damage_building = {
+							type = landmark_palaca_rijeke
+							damage = 0.65 # levels of damage
+							province = var:ROOT.target_province
+							repair_speed_modifier = -0.15
+						}
+					}
+				}
+				actor_effects = {
+					raid_damage_units = {
+						plane_loss = 35
+					}
+					raid_add_unit_experience = 0.2
+
+					var:actor_country = {
+						add_war_support = 0.05
+
+					}
+				}
+				visual_effect = {
+					entity = "air_raids_2_success_entity"
+					animation = "attack"
+				}
+			}
+			critical_success = {
+				victim_effects = {
+					var:target_state = {
+						damage_building = {
+							type = landmark_palaca_rijeke
+							damage = 0.85 # levels of damage
+							province = var:ROOT.target_province
+							repair_speed_modifier = -0.25
+						}
+					}
+				}
+				actor_effects = {
+					raid_damage_units = {
+						plane_loss = 10
+					}
+					raid_add_unit_experience = 0.35
+
+					var:actor_country = {
+						add_war_support = 0.05
+						IF = {
+							limit = { has_government = neutrality }
+							add_popularity = {
+								ideology = neutrality #these do not take FROM/ROOTs
+								popularity = 0.1
+							}
+						}
+						ELSE_IF = {
+							limit = { has_government = communism }
+							add_popularity = {
+								ideology = communism #these do not take FROM/ROOTs
+								popularity = 0.1
+							}
+						}
+						ELSE_IF = {
+							limit = { has_government = democratic }
+							add_popularity = {
+								ideology = democratic #these do not take FROM/ROOTs
+								popularity = 0.1
+							}
+						}
+						ELSE_IF = {
+							limit = { has_government = fascism }
+							add_popularity = {
+								ideology = fascism #these do not take FROM/ROOTs
+								popularity = 0.1
+							}
+						}
+					}
+
+					var:victim_country = {
+						add_war_support = -0.05
+
+						IF = {
+							limit = { has_government = neutrality }
+							add_popularity = {
+								ideology = neutrality #these do not take FROM/ROOTs
+								popularity = -0.05
+							}
+						}
+						ELSE_IF = {
+							limit = { has_government = communism }
+							add_popularity = {
+								ideology = communism #these do not take FROM/ROOTs
+								popularity = -0.05
+							}
+						}
+						ELSE_IF = {
+							limit = { has_government = democratic }
+							add_popularity = {
+								ideology = democratic #these do not take FROM/ROOTs
+								popularity = -0.05
+							}
+						}
+						ELSE_IF = {
+							limit = { has_government = fascism }
+							add_popularity = {
+								ideology = fascism #these do not take FROM/ROOTs
+								popularity = -0.05
+							}
+						}
+					}
+				}
+				visual_effect = {
+					entity = "air_raids_2_critical_success_entity"
+					animation = "attack"
+				}
+			}
+		}
+	}
+	palace_of_grand_prince_bombing = {
+		
+		days_to_prepare = 30
+		allowed = {
+			has_dlc = "Gotterdammerung"
+		}
+		category = air_raids
+		custom_map_icon = GFX_raid_type_icon_other_raid
+
+		ai_will_do = {
+			base = 5 # unique raid
+			modifier = {
+				# Don't target anyone who is not a potential enemy
+				factor = 0
+				NOT = {
+					is_in_array = {
+						array = potential_and_current_enemies
+						value = FROM  # Target country
+					}
+				}
+			}
+		}
+
+		command_power = 15
+
+		fire_only_once = yes
+
+		visible = {
+			is_major = yes
+		}
+
+		show_target = {
+			387 = {
+				is_owned_and_controlled_by = LCT
+			}
+		}
+		
+		launchable = {
+			has_war_with = LCT
+		}
+		available = {
+
+		}
+
+		target_type = {
+			building = {
+				type = landmark_palace_of_grand_prince
+			}
+		}
+		target_icon = GFX_palace_of_the_soviets_icon # TO CHANGE
+		launch_sound = raid_launch_air
+
+		arrow = {
+		    type = air
+		}
+        unit_model = {
+            type = equipment
+        }
+
+		unit_requirements = {
+			equipment = {
+				type = { strategic_bomber }
+				amount = { min = 75 }
+			}
+		}
+
+		starting_point = {
+		    types = { air_base }
+		}
+
+		success_factors = {
+			success = {
+				base = 0.7
+
+				# Raiding unit modifiers
+				experience = {
+					weight = 0.05
+					start_weight = -0.05
+					reference = 1.0
+				}
+				air_agility = {
+					reference = 100.0 # As air unit agility approaches 100 (as defined by the value above), increase chance by this value
+					weight = 0.05 # At 0 agility, the modifier will have negative effect.
+					start_weight = -0.05 # The modifier will scale linearly, meaning at 50 agility, the modifier will be 0.
+				}
+				reliability = {
+					reference = 1
+					weight = 0.05
+					start_weight = -0.1
+				}
+				air_defence = {
+					reference = 100
+					weight = 0.05
+					start_weight = -0.05
+				}
+
+				air_superiority = {
+					reference = 1
+					weight = 0.1
+					start_weight = -0.1
+				}
+
+				### Target Modifiers
+				anti_air = {
+					reference = 5
+					weight = -0.1
+				}
+				interception = {
+					reference = 500 # More than 500 fighters won't really make any difference
+					weight = -0.2
+				}
+				intel = {
+					weight = 0.2
+					#start_reference = 50
+					reference = 100
+				}
+
+			}
+
+			critical = {
+				base = 0.1
+
+			}
+		}
+
+		success_levels = {
+			failure = {
+				victim_effects = {
+					var:target_state = {
+						damage_building = {
+							type = landmark_palace_of_grand_prince
+							damage = 0.05 # levels of damage
+							province = var:ROOT.target_province
+						}
+					}
+				}
+				actor_effects = {
+					raid_damage_units = {
+						plane_loss = 65
+					}
+					raid_add_unit_experience = 0.05
+
+					var:actor_country = { #a failure doesn't help morale
+						add_war_support = -0.05
+					}
+				}
+				visual_effect = {
+					entity = "raid_failed_entity"
+					animation = "attack"
+				}
+			}
+			limited_success = {
+				victim_effects = {
+					var:target_state = {
+						damage_building = {
+							type = landmark_palace_of_grand_prince
+							damage = 0.15 # levels of damage
+							province = var:ROOT.target_province
+							repair_speed_modifier = -0.05
+						}
+					}
+				}
+				actor_effects = {
+					raid_damage_units = {
+						plane_loss = 50
+					}
+					raid_add_unit_experience = 0.1
+
+					var:actor_country = {
+						add_war_support = 0.02
+					}
+				}
+				visual_effect = {
+					entity = "air_raids_2_limited_success_entity"
+					animation = "attack"
+				}
+			}
+			success = {
+				victim_effects = {
+					var:target_state = {
+						damage_building = {
+							type = landmark_palace_of_grand_prince
+							damage = 0.65 # levels of damage
+							province = var:ROOT.target_province
+							repair_speed_modifier = -0.15
+						}
+					}
+				}
+				actor_effects = {
+					raid_damage_units = {
+						plane_loss = 35
+					}
+					raid_add_unit_experience = 0.2
+
+					var:actor_country = {
+						add_war_support = 0.05
+
+					}
+				}
+				visual_effect = {
+					entity = "air_raids_2_success_entity"
+					animation = "attack"
+				}
+			}
+			critical_success = {
+				victim_effects = {
+					var:target_state = {
+						damage_building = {
+							type = landmark_palace_of_grand_prince
+							damage = 0.85 # levels of damage
+							province = var:ROOT.target_province
+							repair_speed_modifier = -0.25
+						}
+					}
+				}
+				actor_effects = {
+					raid_damage_units = {
+						plane_loss = 10
+					}
+					raid_add_unit_experience = 0.35
+
+					var:actor_country = {
+						add_war_support = 0.05
+						IF = {
+							limit = { has_government = neutrality }
+							add_popularity = {
+								ideology = neutrality #these do not take FROM/ROOTs
+								popularity = 0.1
+							}
+						}
+						ELSE_IF = {
+							limit = { has_government = communism }
+							add_popularity = {
+								ideology = communism #these do not take FROM/ROOTs
+								popularity = 0.1
+							}
+						}
+						ELSE_IF = {
+							limit = { has_government = democratic }
+							add_popularity = {
+								ideology = democratic #these do not take FROM/ROOTs
+								popularity = 0.1
+							}
+						}
+						ELSE_IF = {
+							limit = { has_government = fascism }
+							add_popularity = {
+								ideology = fascism #these do not take FROM/ROOTs
+								popularity = 0.1
+							}
+						}
+					}
+
+					var:victim_country = {
+						add_war_support = -0.05
+
+						IF = {
+							limit = { has_government = neutrality }
+							add_popularity = {
+								ideology = neutrality #these do not take FROM/ROOTs
+								popularity = -0.05
+							}
+						}
+						ELSE_IF = {
+							limit = { has_government = communism }
+							add_popularity = {
+								ideology = communism #these do not take FROM/ROOTs
+								popularity = -0.05
+							}
+						}
+						ELSE_IF = {
+							limit = { has_government = democratic }
+							add_popularity = {
+								ideology = democratic #these do not take FROM/ROOTs
+								popularity = -0.05
+							}
+						}
+						ELSE_IF = {
+							limit = { has_government = fascism }
+							add_popularity = {
+								ideology = fascism #these do not take FROM/ROOTs
+								popularity = -0.05
+							}
+						}
+					}
+				}
+				visual_effect = {
+					entity = "air_raids_2_critical_success_entity"
+					animation = "attack"
+				}
+			}
+		}
+	}
+	dvash_bombing = {
+		
+		days_to_prepare = 30
+		allowed = {
+			has_dlc = "Gotterdammerung"
+		}
+		category = air_raids
+		custom_map_icon = GFX_raid_type_icon_other_raid
+
+		ai_will_do = {
+			base = 5 # unique raid
+			modifier = {
+				# Don't target anyone who is not a potential enemy
+				factor = 0
+				NOT = {
+					is_in_array = {
+						array = potential_and_current_enemies
+						value = FROM  # Target country
+					}
+				}
+			}
+		}
+
+		command_power = 15
+
+		fire_only_once = yes
+
+		visible = {
+			is_major = yes
+		}
+
+		show_target = {
+			680 = {
+				is_owned_and_controlled_by = ZES
+			}
+		}
+		
+		launchable = {
+			has_war_with = ZES
+		}
+		available = {
+
+		}
+
+		target_type = {
+			building = {
+				type = landmark_dvash
+			}
+		}
+		target_icon = GFX_palace_of_the_soviets_icon # TO CHANGE
+		launch_sound = raid_launch_air
+
+		arrow = {
+		    type = air
+		}
+        unit_model = {
+            type = equipment
+        }
+
+		unit_requirements = {
+			equipment = {
+				type = { strategic_bomber }
+				amount = { min = 75 }
+			}
+		}
+
+		starting_point = {
+		    types = { air_base }
+		}
+
+		success_factors = {
+			success = {
+				base = 0.7
+
+				# Raiding unit modifiers
+				experience = {
+					weight = 0.05
+					start_weight = -0.05
+					reference = 1.0
+				}
+				air_agility = {
+					reference = 100.0 # As air unit agility approaches 100 (as defined by the value above), increase chance by this value
+					weight = 0.05 # At 0 agility, the modifier will have negative effect.
+					start_weight = -0.05 # The modifier will scale linearly, meaning at 50 agility, the modifier will be 0.
+				}
+				reliability = {
+					reference = 1
+					weight = 0.05
+					start_weight = -0.1
+				}
+				air_defence = {
+					reference = 100
+					weight = 0.05
+					start_weight = -0.05
+				}
+
+				air_superiority = {
+					reference = 1
+					weight = 0.1
+					start_weight = -0.1
+				}
+
+				### Target Modifiers
+				anti_air = {
+					reference = 5
+					weight = -0.1
+				}
+				interception = {
+					reference = 500 # More than 500 fighters won't really make any difference
+					weight = -0.2
+				}
+				intel = {
+					weight = 0.2
+					#start_reference = 50
+					reference = 100
+				}
+
+			}
+
+			critical = {
+				base = 0.1
+
+			}
+		}
+
+		success_levels = {
+			failure = {
+				victim_effects = {
+					var:target_state = {
+						damage_building = {
+							type = landmark_dvash
+							damage = 0.05 # levels of damage
+							province = var:ROOT.target_province
+						}
+					}
+				}
+				actor_effects = {
+					raid_damage_units = {
+						plane_loss = 65
+					}
+					raid_add_unit_experience = 0.05
+
+					var:actor_country = { #a failure doesn't help morale
+						add_war_support = -0.05
+					}
+				}
+				visual_effect = {
+					entity = "raid_failed_entity"
+					animation = "attack"
+				}
+			}
+			limited_success = {
+				victim_effects = {
+					var:target_state = {
+						damage_building = {
+							type = landmark_dvash
+							damage = 0.15 # levels of damage
+							province = var:ROOT.target_province
+							repair_speed_modifier = -0.05
+						}
+					}
+				}
+				actor_effects = {
+					raid_damage_units = {
+						plane_loss = 50
+					}
+					raid_add_unit_experience = 0.1
+
+					var:actor_country = {
+						add_war_support = 0.02
+					}
+				}
+				visual_effect = {
+					entity = "air_raids_2_limited_success_entity"
+					animation = "attack"
+				}
+			}
+			success = {
+				victim_effects = {
+					var:target_state = {
+						damage_building = {
+							type = landmark_dvash
+							damage = 0.65 # levels of damage
+							province = var:ROOT.target_province
+							repair_speed_modifier = -0.15
+						}
+					}
+				}
+				actor_effects = {
+					raid_damage_units = {
+						plane_loss = 35
+					}
+					raid_add_unit_experience = 0.2
+
+					var:actor_country = {
+						add_war_support = 0.05
+
+					}
+				}
+				visual_effect = {
+					entity = "air_raids_2_success_entity"
+					animation = "attack"
+				}
+			}
+			critical_success = {
+				victim_effects = {
+					var:target_state = {
+						damage_building = {
+							type = landmark_dvash
+							damage = 0.85 # levels of damage
+							province = var:ROOT.target_province
+							repair_speed_modifier = -0.25
+						}
+					}
+				}
+				actor_effects = {
+					raid_damage_units = {
+						plane_loss = 10
+					}
+					raid_add_unit_experience = 0.35
+
+					var:actor_country = {
+						add_war_support = 0.05
+						IF = {
+							limit = { has_government = neutrality }
+							add_popularity = {
+								ideology = neutrality #these do not take FROM/ROOTs
+								popularity = 0.1
+							}
+						}
+						ELSE_IF = {
+							limit = { has_government = communism }
+							add_popularity = {
+								ideology = communism #these do not take FROM/ROOTs
+								popularity = 0.1
+							}
+						}
+						ELSE_IF = {
+							limit = { has_government = democratic }
+							add_popularity = {
+								ideology = democratic #these do not take FROM/ROOTs
+								popularity = 0.1
+							}
+						}
+						ELSE_IF = {
+							limit = { has_government = fascism }
+							add_popularity = {
+								ideology = fascism #these do not take FROM/ROOTs
+								popularity = 0.1
+							}
+						}
+					}
+
+					var:victim_country = {
+						add_war_support = -0.05
+
+						IF = {
+							limit = { has_government = neutrality }
+							add_popularity = {
+								ideology = neutrality #these do not take FROM/ROOTs
+								popularity = -0.05
+							}
+						}
+						ELSE_IF = {
+							limit = { has_government = communism }
+							add_popularity = {
+								ideology = communism #these do not take FROM/ROOTs
+								popularity = -0.05
+							}
+						}
+						ELSE_IF = {
+							limit = { has_government = democratic }
+							add_popularity = {
+								ideology = democratic #these do not take FROM/ROOTs
+								popularity = -0.05
+							}
+						}
+						ELSE_IF = {
+							limit = { has_government = fascism }
+							add_popularity = {
+								ideology = fascism #these do not take FROM/ROOTs
+								popularity = -0.05
+							}
+						}
+					}
+				}
+				visual_effect = {
+					entity = "air_raids_2_critical_success_entity"
+					animation = "attack"
+				}
+			}
+		}
+	}
+	akropolis_bombing = {
+		days_to_prepare = 30
+		allowed = {
+			has_dlc = "Gotterdammerung"
+		}
+		category = air_raids
+		custom_map_icon = GFX_raid_type_icon_other_raid
+
+		ai_will_do = {
+			base = 5 # unique raid
+			modifier = {
+				# Don't target anyone who is not a potential enemy
+				factor = 0
+				NOT = {
+					is_in_array = {
+						array = potential_and_current_enemies
+						value = FROM  # Target country
+					}
+				}
+			}
+		}
+
+		command_power = 15
+
+		fire_only_once = yes
+
+		visible = {
+			is_major = yes
+		}
+
+		show_target = {
+			645 = {
+				is_owned_and_controlled_by = NIM
+			}
+		}
+		
+		launchable = {
+			has_war_with = NIM
+		}
+		available = {
+
+		}
+
+		target_type = {
+			building = {
+				type = landmark_akropolis
+			}
+		}
+		target_icon = GFX_palace_of_the_soviets_icon # TO CHANGE
+		launch_sound = raid_launch_air
+
+		arrow = {
+		    type = air
+		}
+        unit_model = {
+            type = equipment
+        }
+
+		unit_requirements = {
+			equipment = {
+				type = { strategic_bomber }
+				amount = { min = 75 }
+			}
+		}
+
+		starting_point = {
+		    types = { air_base }
+		}
+
+		success_factors = {
+			success = {
+				base = 0.7
+
+				# Raiding unit modifiers
+				experience = {
+					weight = 0.05
+					start_weight = -0.05
+					reference = 1.0
+				}
+				air_agility = {
+					reference = 100.0 # As air unit agility approaches 100 (as defined by the value above), increase chance by this value
+					weight = 0.05 # At 0 agility, the modifier will have negative effect.
+					start_weight = -0.05 # The modifier will scale linearly, meaning at 50 agility, the modifier will be 0.
+				}
+				reliability = {
+					reference = 1
+					weight = 0.05
+					start_weight = -0.1
+				}
+				air_defence = {
+					reference = 100
+					weight = 0.05
+					start_weight = -0.05
+				}
+
+				air_superiority = {
+					reference = 1
+					weight = 0.1
+					start_weight = -0.1
+				}
+
+				### Target Modifiers
+				anti_air = {
+					reference = 5
+					weight = -0.1
+				}
+				interception = {
+					reference = 500 # More than 500 fighters won't really make any difference
+					weight = -0.2
+				}
+				intel = {
+					weight = 0.2
+					#start_reference = 50
+					reference = 100
+				}
+
+			}
+
+			critical = {
+				base = 0.1
+
+			}
+		}
+
+		success_levels = {
+			failure = {
+				victim_effects = {
+					var:target_state = {
+						damage_building = {
+							type = landmark_akropolis
+							damage = 0.05 # levels of damage
+							province = var:ROOT.target_province
+						}
+					}
+				}
+				actor_effects = {
+					raid_damage_units = {
+						plane_loss = 65
+					}
+					raid_add_unit_experience = 0.05
+
+					var:actor_country = { #a failure doesn't help morale
+						add_war_support = -0.05
+					}
+				}
+				visual_effect = {
+					entity = "raid_failed_entity"
+					animation = "attack"
+				}
+			}
+			limited_success = {
+				victim_effects = {
+					var:target_state = {
+						damage_building = {
+							type = landmark_akropolis
+							damage = 0.15 # levels of damage
+							province = var:ROOT.target_province
+							repair_speed_modifier = -0.05
+						}
+					}
+				}
+				actor_effects = {
+					raid_damage_units = {
+						plane_loss = 50
+					}
+					raid_add_unit_experience = 0.1
+
+					var:actor_country = {
+						add_war_support = 0.02
+					}
+				}
+				visual_effect = {
+					entity = "air_raids_2_limited_success_entity"
+					animation = "attack"
+				}
+			}
+			success = {
+				victim_effects = {
+					var:target_state = {
+						damage_building = {
+							type = landmark_akropolis
+							damage = 0.65 # levels of damage
+							province = var:ROOT.target_province
+							repair_speed_modifier = -0.15
+						}
+					}
+				}
+				actor_effects = {
+					raid_damage_units = {
+						plane_loss = 35
+					}
+					raid_add_unit_experience = 0.2
+
+					var:actor_country = {
+						add_war_support = 0.05
+
+					}
+				}
+				visual_effect = {
+					entity = "air_raids_2_success_entity"
+					animation = "attack"
+				}
+			}
+			critical_success = {
+				victim_effects = {
+					var:target_state = {
+						damage_building = {
+							type = landmark_akropolis
+							damage = 0.85 # levels of damage
+							province = var:ROOT.target_province
+							repair_speed_modifier = -0.25
+						}
+					}
+				}
+				actor_effects = {
+					raid_damage_units = {
+						plane_loss = 10
+					}
+					raid_add_unit_experience = 0.35
+
+					var:actor_country = {
+						add_war_support = 0.05
+						IF = {
+							limit = { has_government = neutrality }
+							add_popularity = {
+								ideology = neutrality #these do not take FROM/ROOTs
+								popularity = 0.1
+							}
+						}
+						ELSE_IF = {
+							limit = { has_government = communism }
+							add_popularity = {
+								ideology = communism #these do not take FROM/ROOTs
+								popularity = 0.1
+							}
+						}
+						ELSE_IF = {
+							limit = { has_government = democratic }
+							add_popularity = {
+								ideology = democratic #these do not take FROM/ROOTs
+								popularity = 0.1
+							}
+						}
+						ELSE_IF = {
+							limit = { has_government = fascism }
+							add_popularity = {
+								ideology = fascism #these do not take FROM/ROOTs
+								popularity = 0.1
+							}
+						}
+					}
+
+					var:victim_country = {
+						add_war_support = -0.05
+
+						IF = {
+							limit = { has_government = neutrality }
+							add_popularity = {
+								ideology = neutrality #these do not take FROM/ROOTs
+								popularity = -0.05
+							}
+						}
+						ELSE_IF = {
+							limit = { has_government = communism }
+							add_popularity = {
+								ideology = communism #these do not take FROM/ROOTs
+								popularity = -0.05
+							}
+						}
+						ELSE_IF = {
+							limit = { has_government = democratic }
+							add_popularity = {
+								ideology = democratic #these do not take FROM/ROOTs
+								popularity = -0.05
+							}
+						}
+						ELSE_IF = {
+							limit = { has_government = fascism }
+							add_popularity = {
+								ideology = fascism #these do not take FROM/ROOTs
+								popularity = -0.05
+							}
+						}
+					}
+				}
+				visual_effect = {
+					entity = "air_raids_2_critical_success_entity"
+					animation = "attack"
+				}
+			}
+		}
+	}
+	
+	grand_temple_eyr_bombing = {
+		days_to_prepare = 30
+		allowed = {
+			has_dlc = "Gotterdammerung"
+		}
+		category = air_raids
+		custom_map_icon = GFX_raid_type_icon_other_raid
+
+		ai_will_do = {
+			base = 5 # unique raid
+			modifier = {
+				# Don't target anyone who is not a potential enemy
+				factor = 0
+				NOT = {
+					is_in_array = {
+						array = potential_and_current_enemies
+						value = FROM  # Target country
+					}
+				}
+			}
+		}
+
+		command_power = 15
+
+		fire_only_once = yes
+
+		visible = {
+			is_major = yes
+		}
+
+		show_target = {
+			674 = {
+				is_owned_and_controlled_by = ROU
+			}
+		}
+		
+		launchable = {
+			has_war_with = ROU
+		}
+		available = {
+
+		}
+
+		target_type = {
+			building = {
+				type = landmark_grand_temple_eyr
+			}
+		}
+		target_icon = GFX_palace_of_the_soviets_icon # TO CHANGE
+		launch_sound = raid_launch_air
+
+		arrow = {
+		    type = air
+		}
+        unit_model = {
+            type = equipment
+        }
+
+		unit_requirements = {
+			equipment = {
+				type = { strategic_bomber }
+				amount = { min = 75 }
+			}
+		}
+
+		starting_point = {
+		    types = { air_base }
+		}
+
+		success_factors = {
+			success = {
+				base = 0.7
+
+				# Raiding unit modifiers
+				experience = {
+					weight = 0.05
+					start_weight = -0.05
+					reference = 1.0
+				}
+				air_agility = {
+					reference = 100.0 # As air unit agility approaches 100 (as defined by the value above), increase chance by this value
+					weight = 0.05 # At 0 agility, the modifier will have negative effect.
+					start_weight = -0.05 # The modifier will scale linearly, meaning at 50 agility, the modifier will be 0.
+				}
+				reliability = {
+					reference = 1
+					weight = 0.05
+					start_weight = -0.1
+				}
+				air_defence = {
+					reference = 100
+					weight = 0.05
+					start_weight = -0.05
+				}
+
+				air_superiority = {
+					reference = 1
+					weight = 0.1
+					start_weight = -0.1
+				}
+
+				### Target Modifiers
+				anti_air = {
+					reference = 5
+					weight = -0.1
+				}
+				interception = {
+					reference = 500 # More than 500 fighters won't really make any difference
+					weight = -0.2
+				}
+				intel = {
+					weight = 0.2
+					#start_reference = 50
+					reference = 100
+				}
+
+			}
+
+			critical = {
+				base = 0.1
+
+			}
+		}
+
+		success_levels = {
+			failure = {
+				victim_effects = {
+					var:target_state = {
+						damage_building = {
+							type = landmark_grand_temple_eyr
+							damage = 0.05 # levels of damage
+							province = var:ROOT.target_province
+						}
+					}
+				}
+				actor_effects = {
+					raid_damage_units = {
+						plane_loss = 65
+					}
+					raid_add_unit_experience = 0.05
+
+					var:actor_country = { #a failure doesn't help morale
+						add_war_support = -0.05
+					}
+				}
+				visual_effect = {
+					entity = "raid_failed_entity"
+					animation = "attack"
+				}
+			}
+			limited_success = {
+				victim_effects = {
+					var:target_state = {
+						damage_building = {
+							type = landmark_grand_temple_eyr
+							damage = 0.15 # levels of damage
+							province = var:ROOT.target_province
+							repair_speed_modifier = -0.05
+						}
+					}
+				}
+				actor_effects = {
+					raid_damage_units = {
+						plane_loss = 50
+					}
+					raid_add_unit_experience = 0.1
+
+					var:actor_country = {
+						add_war_support = 0.02
+					}
+				}
+				visual_effect = {
+					entity = "air_raids_2_limited_success_entity"
+					animation = "attack"
+				}
+			}
+			success = {
+				victim_effects = {
+					var:target_state = {
+						damage_building = {
+							type = landmark_grand_temple_eyr
+							damage = 0.65 # levels of damage
+							province = var:ROOT.target_province
+							repair_speed_modifier = -0.15
+						}
+					}
+				}
+				actor_effects = {
+					raid_damage_units = {
+						plane_loss = 35
+					}
+					raid_add_unit_experience = 0.2
+
+					var:actor_country = {
+						add_war_support = 0.05
+
+					}
+				}
+				visual_effect = {
+					entity = "air_raids_2_success_entity"
+					animation = "attack"
+				}
+			}
+			critical_success = {
+				victim_effects = {
+					var:target_state = {
+						damage_building = {
+							type = landmark_grand_temple_eyr
+							damage = 0.85 # levels of damage
+							province = var:ROOT.target_province
+							repair_speed_modifier = -0.25
+						}
+					}
+				}
+				actor_effects = {
+					raid_damage_units = {
+						plane_loss = 10
+					}
+					raid_add_unit_experience = 0.35
+
+					var:actor_country = {
+						add_war_support = 0.05
+						IF = {
+							limit = { has_government = neutrality }
+							add_popularity = {
+								ideology = neutrality #these do not take FROM/ROOTs
+								popularity = 0.1
+							}
+						}
+						ELSE_IF = {
+							limit = { has_government = communism }
+							add_popularity = {
+								ideology = communism #these do not take FROM/ROOTs
+								popularity = 0.1
+							}
+						}
+						ELSE_IF = {
+							limit = { has_government = democratic }
+							add_popularity = {
+								ideology = democratic #these do not take FROM/ROOTs
+								popularity = 0.1
+							}
+						}
+						ELSE_IF = {
+							limit = { has_government = fascism }
+							add_popularity = {
+								ideology = fascism #these do not take FROM/ROOTs
+								popularity = 0.1
+							}
+						}
+					}
+
+					var:victim_country = {
+						add_war_support = -0.05
+
+						IF = {
+							limit = { has_government = neutrality }
+							add_popularity = {
+								ideology = neutrality #these do not take FROM/ROOTs
+								popularity = -0.05
+							}
+						}
+						ELSE_IF = {
+							limit = { has_government = communism }
+							add_popularity = {
+								ideology = communism #these do not take FROM/ROOTs
+								popularity = -0.05
+							}
+						}
+						ELSE_IF = {
+							limit = { has_government = democratic }
+							add_popularity = {
+								ideology = democratic #these do not take FROM/ROOTs
+								popularity = -0.05
+							}
+						}
+						ELSE_IF = {
+							limit = { has_government = fascism }
+							add_popularity = {
+								ideology = fascism #these do not take FROM/ROOTs
+								popularity = -0.05
+							}
+						}
+					}
+				}
+				visual_effect = {
+					entity = "air_raids_2_critical_success_entity"
+					animation = "attack"
+				}
+			}
+		}
+	}
+	
+	grand_temple_boreas_bombing = {
+		days_to_prepare = 30
+		allowed = {
+			has_dlc = "Gotterdammerung"
+		}
+		category = air_raids
+		custom_map_icon = GFX_raid_type_icon_other_raid
+
+		ai_will_do = {
+			base = 5 # unique raid
+			modifier = {
+				# Don't target anyone who is not a potential enemy
+				factor = 0
+				NOT = {
+					is_in_array = {
+						array = potential_and_current_enemies
+						value = FROM  # Target country
+					}
+				}
+			}
+		}
+
+		command_power = 15
+
+		fire_only_once = yes
+
+		visible = {
+			is_major = yes
+		}
+
+		show_target = {
+			382 = {
+				is_owned_and_controlled_by = GRI
+			}
+		}
+		
+		launchable = {
+			has_war_with = GRI
+		}
+		available = {
+
+		}
+
+		target_type = {
+			building = {
+				type = landmark_grand_temple_boreas
+			}
+		}
+		target_icon = GFX_palace_of_the_soviets_icon # TO CHANGE
+		launch_sound = raid_launch_air
+
+		arrow = {
+		    type = air
+		}
+        unit_model = {
+            type = equipment
+        }
+
+		unit_requirements = {
+			equipment = {
+				type = { strategic_bomber }
+				amount = { min = 75 }
+			}
+		}
+
+		starting_point = {
+		    types = { air_base }
+		}
+
+		success_factors = {
+			success = {
+				base = 0.7
+
+				# Raiding unit modifiers
+				experience = {
+					weight = 0.05
+					start_weight = -0.05
+					reference = 1.0
+				}
+				air_agility = {
+					reference = 100.0 # As air unit agility approaches 100 (as defined by the value above), increase chance by this value
+					weight = 0.05 # At 0 agility, the modifier will have negative effect.
+					start_weight = -0.05 # The modifier will scale linearly, meaning at 50 agility, the modifier will be 0.
+				}
+				reliability = {
+					reference = 1
+					weight = 0.05
+					start_weight = -0.1
+				}
+				air_defence = {
+					reference = 100
+					weight = 0.05
+					start_weight = -0.05
+				}
+
+				air_superiority = {
+					reference = 1
+					weight = 0.1
+					start_weight = -0.1
+				}
+
+				### Target Modifiers
+				anti_air = {
+					reference = 5
+					weight = -0.1
+				}
+				interception = {
+					reference = 500 # More than 500 fighters won't really make any difference
+					weight = -0.2
+				}
+				intel = {
+					weight = 0.2
+					#start_reference = 50
+					reference = 100
+				}
+
+			}
+
+			critical = {
+				base = 0.1
+
+			}
+		}
+
+		success_levels = {
+			failure = {
+				victim_effects = {
+					var:target_state = {
+						damage_building = {
+							type = landmark_grand_temple_boreas
+							damage = 0.05 # levels of damage
+							province = var:ROOT.target_province
+						}
+					}
+				}
+				actor_effects = {
+					raid_damage_units = {
+						plane_loss = 65
+					}
+					raid_add_unit_experience = 0.05
+
+					var:actor_country = { #a failure doesn't help morale
+						add_war_support = -0.05
+					}
+				}
+				visual_effect = {
+					entity = "raid_failed_entity"
+					animation = "attack"
+				}
+			}
+			limited_success = {
+				victim_effects = {
+					var:target_state = {
+						damage_building = {
+							type = landmark_grand_temple_boreas
+							damage = 0.15 # levels of damage
+							province = var:ROOT.target_province
+							repair_speed_modifier = -0.05
+						}
+					}
+				}
+				actor_effects = {
+					raid_damage_units = {
+						plane_loss = 50
+					}
+					raid_add_unit_experience = 0.1
+
+					var:actor_country = {
+						add_war_support = 0.02
+					}
+				}
+				visual_effect = {
+					entity = "air_raids_2_limited_success_entity"
+					animation = "attack"
+				}
+			}
+			success = {
+				victim_effects = {
+					var:target_state = {
+						damage_building = {
+							type = landmark_grand_temple_boreas
+							damage = 0.65 # levels of damage
+							province = var:ROOT.target_province
+							repair_speed_modifier = -0.15
+						}
+					}
+				}
+				actor_effects = {
+					raid_damage_units = {
+						plane_loss = 35
+					}
+					raid_add_unit_experience = 0.2
+
+					var:actor_country = {
+						add_war_support = 0.05
+
+					}
+				}
+				visual_effect = {
+					entity = "air_raids_2_success_entity"
+					animation = "attack"
+				}
+			}
+			critical_success = {
+				victim_effects = {
+					var:target_state = {
+						damage_building = {
+							type = landmark_grand_temple_boreas
+							damage = 0.85 # levels of damage
+							province = var:ROOT.target_province
+							repair_speed_modifier = -0.25
+						}
+					}
+				}
+				actor_effects = {
+					raid_damage_units = {
+						plane_loss = 10
+					}
+					raid_add_unit_experience = 0.35
+
+					var:actor_country = {
+						add_war_support = 0.05
+						IF = {
+							limit = { has_government = neutrality }
+							add_popularity = {
+								ideology = neutrality #these do not take FROM/ROOTs
+								popularity = 0.1
+							}
+						}
+						ELSE_IF = {
+							limit = { has_government = communism }
+							add_popularity = {
+								ideology = communism #these do not take FROM/ROOTs
+								popularity = 0.1
+							}
+						}
+						ELSE_IF = {
+							limit = { has_government = democratic }
+							add_popularity = {
+								ideology = democratic #these do not take FROM/ROOTs
+								popularity = 0.1
+							}
+						}
+						ELSE_IF = {
+							limit = { has_government = fascism }
+							add_popularity = {
+								ideology = fascism #these do not take FROM/ROOTs
+								popularity = 0.1
+							}
+						}
+					}
+
+					var:victim_country = {
+						add_war_support = -0.05
+
+						IF = {
+							limit = { has_government = neutrality }
+							add_popularity = {
+								ideology = neutrality #these do not take FROM/ROOTs
+								popularity = -0.05
+							}
+						}
+						ELSE_IF = {
+							limit = { has_government = communism }
+							add_popularity = {
+								ideology = communism #these do not take FROM/ROOTs
+								popularity = -0.05
+							}
+						}
+						ELSE_IF = {
+							limit = { has_government = democratic }
+							add_popularity = {
+								ideology = democratic #these do not take FROM/ROOTs
+								popularity = -0.05
+							}
+						}
+						ELSE_IF = {
+							limit = { has_government = fascism }
+							add_popularity = {
+								ideology = fascism #these do not take FROM/ROOTs
+								popularity = -0.05
+							}
+						}
+					}
+				}
+				visual_effect = {
+					entity = "air_raids_2_critical_success_entity"
+					animation = "attack"
+				}
+			}
+		}
+	}
+	temple_of_sphinx_bombing = {
+		days_to_prepare = 30
+		allowed = {
+			has_dlc = "Gotterdammerung"
+		}
+		category = air_raids
+		custom_map_icon = GFX_raid_type_icon_other_raid
+
+		ai_will_do = {
+			base = 5 # unique raid
+			modifier = {
+				# Don't target anyone who is not a potential enemy
+				factor = 0
+				NOT = {
+					is_in_array = {
+						array = potential_and_current_enemies
+						value = FROM  # Target country
+					}
+				}
+			}
+		}
+
+		command_power = 15
+
+		fire_only_once = yes
+
+		visible = {
+			is_major = yes
+		}
+
+		show_target = {
+			733 = {
+				is_owned_and_controlled_by = MGY
+			}
+		}
+		
+		launchable = {
+			has_war_with = MGY
+		}
+		available = {
+
+		}
+
+		target_type = {
+			building = {
+				type = landmark_temple_of_sphinx
+			}
+		}
+		target_icon = GFX_pyramid_of_the_sphinx_icon
+		launch_sound = raid_launch_air
+
+		arrow = {
+		    type = air
+		}
+        unit_model = {
+            type = equipment
+        }
+
+		unit_requirements = {
+			equipment = {
+				type = { strategic_bomber }
+				amount = { min = 75 }
+			}
+		}
+
+		starting_point = {
+		    types = { air_base }
+		}
+
+		success_factors = {
+			success = {
+				base = 0.7
+
+				# Raiding unit modifiers
+				experience = {
+					weight = 0.05
+					start_weight = -0.05
+					reference = 1.0
+				}
+				air_agility = {
+					reference = 100.0 # As air unit agility approaches 100 (as defined by the value above), increase chance by this value
+					weight = 0.05 # At 0 agility, the modifier will have negative effect.
+					start_weight = -0.05 # The modifier will scale linearly, meaning at 50 agility, the modifier will be 0.
+				}
+				reliability = {
+					reference = 1
+					weight = 0.05
+					start_weight = -0.1
+				}
+				air_defence = {
+					reference = 100
+					weight = 0.05
+					start_weight = -0.05
+				}
+
+				air_superiority = {
+					reference = 1
+					weight = 0.1
+					start_weight = -0.1
+				}
+
+				### Target Modifiers
+				anti_air = {
+					reference = 5
+					weight = -0.1
+				}
+				interception = {
+					reference = 500 # More than 500 fighters won't really make any difference
+					weight = -0.2
+				}
+				intel = {
+					weight = 0.2
+					#start_reference = 50
+					reference = 100
+				}
+
+			}
+
+			critical = {
+				base = 0.1
+
+			}
+		}
+
+		success_levels = {
+			failure = {
+				victim_effects = {
+					var:target_state = {
+						damage_building = {
+							type = landmark_temple_of_sphinx
+							damage = 0.05 # levels of damage
+							province = var:ROOT.target_province
+						}
+					}
+				}
+				actor_effects = {
+					raid_damage_units = {
+						plane_loss = 65
+					}
+					raid_add_unit_experience = 0.05
+
+					var:actor_country = { #a failure doesn't help morale
+						add_war_support = -0.05
+					}
+				}
+				visual_effect = {
+					entity = "raid_failed_entity"
+					animation = "attack"
+				}
+			}
+			limited_success = {
+				victim_effects = {
+					var:target_state = {
+						damage_building = {
+							type = landmark_temple_of_sphinx
+							damage = 0.15 # levels of damage
+							province = var:ROOT.target_province
+							repair_speed_modifier = -0.05
+						}
+					}
+				}
+				actor_effects = {
+					raid_damage_units = {
+						plane_loss = 50
+					}
+					raid_add_unit_experience = 0.1
+
+					var:actor_country = {
+						add_war_support = 0.02
+					}
+				}
+				visual_effect = {
+					entity = "air_raids_2_limited_success_entity"
+					animation = "attack"
+				}
+			}
+			success = {
+				victim_effects = {
+					var:target_state = {
+						damage_building = {
+							type = landmark_temple_of_sphinx
+							damage = 0.65 # levels of damage
+							province = var:ROOT.target_province
+							repair_speed_modifier = -0.15
+						}
+					}
+				}
+				actor_effects = {
+					raid_damage_units = {
+						plane_loss = 35
+					}
+					raid_add_unit_experience = 0.2
+
+					var:actor_country = {
+						add_war_support = 0.05
+
+					}
+				}
+				visual_effect = {
+					entity = "air_raids_2_success_entity"
+					animation = "attack"
+				}
+			}
+			critical_success = {
+				victim_effects = {
+					var:target_state = {
+						damage_building = {
+							type = landmark_temple_of_sphinx
+							damage = 0.85 # levels of damage
+							province = var:ROOT.target_province
+							repair_speed_modifier = -0.25
+						}
+					}
+				}
+				actor_effects = {
+					raid_damage_units = {
+						plane_loss = 10
+					}
+					raid_add_unit_experience = 0.35
+
+					var:actor_country = {
+						add_war_support = 0.05
+						IF = {
+							limit = { has_government = neutrality }
+							add_popularity = {
+								ideology = neutrality #these do not take FROM/ROOTs
+								popularity = 0.1
+							}
+						}
+						ELSE_IF = {
+							limit = { has_government = communism }
+							add_popularity = {
+								ideology = communism #these do not take FROM/ROOTs
+								popularity = 0.1
+							}
+						}
+						ELSE_IF = {
+							limit = { has_government = democratic }
+							add_popularity = {
+								ideology = democratic #these do not take FROM/ROOTs
+								popularity = 0.1
+							}
+						}
+						ELSE_IF = {
+							limit = { has_government = fascism }
+							add_popularity = {
+								ideology = fascism #these do not take FROM/ROOTs
+								popularity = 0.1
+							}
+						}
+					}
+
+					var:victim_country = {
+						add_war_support = -0.05
+
+						IF = {
+							limit = { has_government = neutrality }
+							add_popularity = {
+								ideology = neutrality #these do not take FROM/ROOTs
+								popularity = -0.05
+							}
+						}
+						ELSE_IF = {
+							limit = { has_government = communism }
+							add_popularity = {
+								ideology = communism #these do not take FROM/ROOTs
+								popularity = -0.05
+							}
+						}
+						ELSE_IF = {
+							limit = { has_government = democratic }
+							add_popularity = {
+								ideology = democratic #these do not take FROM/ROOTs
+								popularity = -0.05
+							}
+						}
+						ELSE_IF = {
+							limit = { has_government = fascism }
+							add_popularity = {
+								ideology = fascism #these do not take FROM/ROOTs
+								popularity = -0.05
+							}
+						}
+					}
+				}
+				visual_effect = {
+					entity = "air_raids_2_critical_success_entity"
+					animation = "attack"
+				}
+			}
+		}
+	}
+	
+	### APRIL FOOLS STUFF ###
+	KTZ_katown_pyramid_bombing = {
+
+		days_to_prepare = 30
+		allowed = {
+			has_dlc = "Gotterdammerung"
+		}
+		category = air_raids
+		custom_map_icon = GFX_raid_type_icon_other_raid
+
+		ai_will_do = {
+			base = 5 # unique raid
+			modifier = {
+				# Don't target anyone who is not a potential enemy
+				factor = 0
+				NOT = {
+					is_in_array = {
+						array = potential_and_current_enemies
+						value = FROM  # Target country
+					}
+				}
+			}
+		}
+
+		command_power = 15
+
+		fire_only_once = yes
+
+		visible = {
+			is_major = yes
+			775 = {
+				landmark_KTZ_katown_pyramid > 0
+			}
+		}
+
+		show_target = { # Done differently because it is created in the game
+			775 = {
+				is_owned_and_controlled_by = KTZ
+			}
+		}
+		
+		launchable = {
+			has_war_with = KTZ
+		}
+		available = {
+
+		}
+
+		target_type = {
+			building = {
+				type = landmark_KTZ_katown_pyramid 
+			}
+		}
+		target_icon = GFX_palace_of_the_soviets_icon # TO CHANGE 
+		launch_sound = raid_launch_air
+
+		arrow = {
+		    type = air
+		}
+        unit_model = {
+            type = equipment
+        }
+
+		unit_requirements = {
+			equipment = {
+				type = { strategic_bomber }
+				amount = { min = 75 }
+			}
+		}
+
+		starting_point = {
+		    types = { air_base }
+		}
+
+		success_factors = {
+			success = {
+				base = 0.7
+
+				# Raiding unit modifiers
+				experience = {
+					weight = 0.05
+					start_weight = -0.05
+					reference = 1.0
+				}
+				air_agility = {
+					reference = 100.0 # As air unit agility approaches 100 (as defined by the value above), increase chance by this value
+					weight = 0.05 # At 0 agility, the modifier will have negative effect.
+					start_weight = -0.05 # The modifier will scale linearly, meaning at 50 agility, the modifier will be 0.
+				}
+				reliability = {
+					reference = 1
+					weight = 0.05
+					start_weight = -0.1
+				}
+				air_defence = {
+					reference = 100
+					weight = 0.05
+					start_weight = -0.05
+				}
+
+				air_superiority = {
+					reference = 1
+					weight = 0.1
+					start_weight = -0.1
+				}
+
+				### Target Modifiers
+				anti_air = {
+					reference = 5
+					weight = -0.1
+				}
+				interception = {
+					reference = 500 # More than 500 fighters won't really make any difference
+					weight = -0.2
+				}
+				intel = {
+					weight = 0.2
+					#start_reference = 50
+					reference = 100
+				}
+
+			}
+
+			critical = {
+				base = 0.1
+
+			}
+		}
+
+		success_levels = {
+			failure = {
+				victim_effects = {
+					var:target_state = {
+						damage_building = {
+							type = landmark_KTZ_katown_pyramid
+							damage = 0.05 # levels of damage
+							province = var:ROOT.target_province
+						}
+					}
+				}
+				actor_effects = {
+					raid_damage_units = {
+						plane_loss = 65
+					}
+					raid_add_unit_experience = 0.05
+
+					var:actor_country = { #a failure doesn't help morale
+						add_war_support = -0.05
+					}
+				}
+				visual_effect = {
+					entity = "raid_failed_entity"
+					animation = "attack"
+				}
+			}
+			limited_success = {
+				victim_effects = {
+					var:target_state = {
+						damage_building = {
+							type = landmark_KTZ_katown_pyramid
+							damage = 0.15 # levels of damage
+							province = var:ROOT.target_province
+							repair_speed_modifier = -0.05
+						}
+					}
+				}
+				actor_effects = {
+					raid_damage_units = {
+						plane_loss = 50
+					}
+					raid_add_unit_experience = 0.1
+
+					var:actor_country = {
+						add_war_support = 0.02
+					}
+				}
+				visual_effect = {
+					entity = "air_raids_2_limited_success_entity"
+					animation = "attack"
+				}
+			}
+			success = {
+				victim_effects = {
+					var:target_state = {
+						damage_building = {
+							type = landmark_KTZ_katown_pyramid
+							damage = 0.65 # levels of damage
+							province = var:ROOT.target_province
+							repair_speed_modifier = -0.15
+						}
+					}
+				}
+				actor_effects = {
+					raid_damage_units = {
+						plane_loss = 35
+					}
+					raid_add_unit_experience = 0.2
+
+					var:actor_country = {
+						add_war_support = 0.05
+
+					}
+				}
+				visual_effect = {
+					entity = "air_raids_2_success_entity"
+					animation = "attack"
+				}
+			}
+			critical_success = {
+				victim_effects = {
+					var:target_state = {
+						damage_building = {
+							type = landmark_KTZ_katown_pyramid
+							damage = 0.85 # levels of damage
+							province = var:ROOT.target_province
+							repair_speed_modifier = -0.25
+						}
+					}
+				}
+				actor_effects = {
+					raid_damage_units = {
+						plane_loss = 10
+					}
+					raid_add_unit_experience = 0.35
+
+					var:actor_country = {
+						add_war_support = 0.05
+						IF = {
+							limit = { has_government = neutrality }
+							add_popularity = {
+								ideology = neutrality #these do not take FROM/ROOTs
+								popularity = 0.1
+							}
+						}
+						ELSE_IF = {
+							limit = { has_government = communism }
+							add_popularity = {
+								ideology = communism #these do not take FROM/ROOTs
+								popularity = 0.1
+							}
+						}
+						ELSE_IF = {
+							limit = { has_government = democratic }
+							add_popularity = {
+								ideology = democratic #these do not take FROM/ROOTs
+								popularity = 0.1
+							}
+						}
+						ELSE_IF = {
+							limit = { has_government = fascism }
+							add_popularity = {
+								ideology = fascism #these do not take FROM/ROOTs
+								popularity = 0.1
+							}
+						}
+					}
+
+					var:victim_country = {
+						add_war_support = -0.05
+
+						IF = {
+							limit = { has_government = neutrality }
+							add_popularity = {
+								ideology = neutrality #these do not take FROM/ROOTs
+								popularity = -0.05
+							}
+						}
+						ELSE_IF = {
+							limit = { has_government = communism }
+							add_popularity = {
+								ideology = communism #these do not take FROM/ROOTs
+								popularity = -0.05
+							}
+						}
+						ELSE_IF = {
+							limit = { has_government = democratic }
+							add_popularity = {
+								ideology = democratic #these do not take FROM/ROOTs
+								popularity = -0.05
+							}
+						}
+						ELSE_IF = {
+							limit = { has_government = fascism }
+							add_popularity = {
+								ideology = fascism #these do not take FROM/ROOTs
+								popularity = -0.05
+							}
+						}
+					}
+				}
+				visual_effect = {
+					entity = "air_raids_2_critical_success_entity"
+					animation = "attack"
+				}
+			}
+		}
+	}
+	KTZ_zebtropa_dam_bombing = {
+
+		days_to_prepare = 30
+		allowed = {
+			has_dlc = "Gotterdammerung"
+		}
+		category = air_raids
+		custom_map_icon = GFX_raid_type_icon_other_raid
+
+		ai_will_do = {
+			base = 5 # unique raid
+			modifier = {
+				# Don't target anyone who is not a potential enemy
+				factor = 0
+				NOT = {
+					is_in_array = {
+						array = potential_and_current_enemies
+						value = FROM  # Target country
+					}
+				}
+			}
+		}
+
+		command_power = 15
+
+		fire_only_once = yes
+
+		visible = {
+			is_major = yes
+			869 = {
+				landmark_KTZ_zebtropa_dam > 0
+			}
+		}
+
+		show_target = { # Done differently because it is created in the game
+			869 = {
+				is_owned_and_controlled_by = KTZ
+			}
+		}
+		
+		launchable = {
+			has_war_with = KTZ
+		}
+		available = {
+
+		}
+
+		target_type = {
+			building = {
+				type = landmark_KTZ_zebtropa_dam 
+			}
+		}
+		target_icon = GFX_palace_of_the_soviets_icon # TO CHANGE 
+		launch_sound = raid_launch_air
+
+		arrow = {
+		    type = air
+		}
+        unit_model = {
+            type = equipment
+        }
+
+		unit_requirements = {
+			equipment = {
+				type = { strategic_bomber }
+				amount = { min = 75 }
+			}
+		}
+
+		starting_point = {
+		    types = { air_base }
+		}
+
+		success_factors = {
+			success = {
+				base = 0.7
+
+				# Raiding unit modifiers
+				experience = {
+					weight = 0.05
+					start_weight = -0.05
+					reference = 1.0
+				}
+				air_agility = {
+					reference = 100.0 # As air unit agility approaches 100 (as defined by the value above), increase chance by this value
+					weight = 0.05 # At 0 agility, the modifier will have negative effect.
+					start_weight = -0.05 # The modifier will scale linearly, meaning at 50 agility, the modifier will be 0.
+				}
+				reliability = {
+					reference = 1
+					weight = 0.05
+					start_weight = -0.1
+				}
+				air_defence = {
+					reference = 100
+					weight = 0.05
+					start_weight = -0.05
+				}
+
+				air_superiority = {
+					reference = 1
+					weight = 0.1
+					start_weight = -0.1
+				}
+
+				### Target Modifiers
+				anti_air = {
+					reference = 5
+					weight = -0.1
+				}
+				interception = {
+					reference = 500 # More than 500 fighters won't really make any difference
+					weight = -0.2
+				}
+				intel = {
+					weight = 0.2
+					#start_reference = 50
+					reference = 100
+				}
+
+			}
+
+			critical = {
+				base = 0.1
+
+			}
+		}
+
+		success_levels = {
+			failure = {
+				victim_effects = {
+					var:target_state = {
+						damage_building = {
+							type = landmark_KTZ_zebtropa_dam
+							damage = 0.05 # levels of damage
+							province = var:ROOT.target_province
+						}
+					}
+				}
+				actor_effects = {
+					raid_damage_units = {
+						plane_loss = 65
+					}
+					raid_add_unit_experience = 0.05
+
+					var:actor_country = { #a failure doesn't help morale
+						add_war_support = -0.05
+					}
+				}
+				visual_effect = {
+					entity = "raid_failed_entity"
+					animation = "attack"
+				}
+			}
+			limited_success = {
+				victim_effects = {
+					var:target_state = {
+						damage_building = {
+							type = landmark_KTZ_zebtropa_dam
+							damage = 0.15 # levels of damage
+							province = var:ROOT.target_province
+							repair_speed_modifier = -0.05
+						}
+					}
+				}
+				actor_effects = {
+					raid_damage_units = {
+						plane_loss = 50
+					}
+					raid_add_unit_experience = 0.1
+
+					var:actor_country = {
+						add_war_support = 0.02
+					}
+				}
+				visual_effect = {
+					entity = "air_raids_2_limited_success_entity"
+					animation = "attack"
+				}
+			}
+			success = {
+				victim_effects = {
+					var:target_state = {
+						damage_building = {
+							type = landmark_KTZ_zebtropa_dam
+							damage = 0.65 # levels of damage
+							province = var:ROOT.target_province
+							repair_speed_modifier = -0.15
+						}
+					}
+				}
+				actor_effects = {
+					raid_damage_units = {
+						plane_loss = 35
+					}
+					raid_add_unit_experience = 0.2
+
+					var:actor_country = {
+						add_war_support = 0.05
+
+					}
+				}
+				visual_effect = {
+					entity = "air_raids_2_success_entity"
+					animation = "attack"
+				}
+			}
+			critical_success = {
+				victim_effects = {
+					var:target_state = {
+						damage_building = {
+							type = landmark_KTZ_zebtropa_dam
+							damage = 0.85 # levels of damage
+							province = var:ROOT.target_province
+							repair_speed_modifier = -0.25
+						}
+					}
+				}
+				actor_effects = {
+					raid_damage_units = {
+						plane_loss = 10
+					}
+					raid_add_unit_experience = 0.35
+
+					var:actor_country = {
+						add_war_support = 0.05
+						IF = {
+							limit = { has_government = neutrality }
+							add_popularity = {
+								ideology = neutrality #these do not take FROM/ROOTs
+								popularity = 0.1
+							}
+						}
+						ELSE_IF = {
+							limit = { has_government = communism }
+							add_popularity = {
+								ideology = communism #these do not take FROM/ROOTs
+								popularity = 0.1
+							}
+						}
+						ELSE_IF = {
+							limit = { has_government = democratic }
+							add_popularity = {
+								ideology = democratic #these do not take FROM/ROOTs
+								popularity = 0.1
+							}
+						}
+						ELSE_IF = {
+							limit = { has_government = fascism }
+							add_popularity = {
+								ideology = fascism #these do not take FROM/ROOTs
+								popularity = 0.1
+							}
+						}
+					}
+
+					var:victim_country = {
+						add_war_support = -0.05
+
+						IF = {
+							limit = { has_government = neutrality }
+							add_popularity = {
+								ideology = neutrality #these do not take FROM/ROOTs
+								popularity = -0.05
+							}
+						}
+						ELSE_IF = {
+							limit = { has_government = communism }
+							add_popularity = {
+								ideology = communism #these do not take FROM/ROOTs
+								popularity = -0.05
+							}
+						}
+						ELSE_IF = {
+							limit = { has_government = democratic }
+							add_popularity = {
+								ideology = democratic #these do not take FROM/ROOTs
+								popularity = -0.05
+							}
+						}
+						ELSE_IF = {
+							limit = { has_government = fascism }
+							add_popularity = {
+								ideology = fascism #these do not take FROM/ROOTs
+								popularity = -0.05
+							}
+						}
+					}
+				}
+				visual_effect = {
+					entity = "air_raids_2_critical_success_entity"
+					animation = "attack"
+				}
+			}
+		}
+	}
+	tbk_af_eduz_tobuck_bombing = {
+
+		days_to_prepare = 30
+		allowed = {
+			has_dlc = "Gotterdammerung"
+		}
+		category = air_raids
+		custom_map_icon = GFX_raid_type_icon_other_raid
+
+		ai_will_do = {
+			base = 5 # unique raid
+			modifier = {
+				# Don't target anyone who is not a potential enemy
+				factor = 0
+				NOT = {
+					is_in_array = {
+						array = potential_and_current_enemies
+						value = FROM  # Target country
+					}
+				}
+			}
+		}
+
+		command_power = 15
+
+		fire_only_once = yes
+
+		visible = {
+			is_major = yes
+			728 = {
+				landmark_tbk_af_eduz_tobuck > 0
+			}
+		}
+
+		show_target = { # Done differently because it is created in the game
+			728 = {
+				is_owned_and_controlled_by = TBK
+			}
+		}
+		
+		launchable = {
+			has_war_with = TBK
+		}
+		available = {
+
+		}
+
+		target_type = {
+			building = {
+				type = landmark_tbk_af_eduz_tobuck 
+			}
+		}
+		target_icon = GFX_palace_of_the_soviets_icon # TO CHANGE 
+		launch_sound = raid_launch_air
+
+		arrow = {
+		    type = air
+		}
+        unit_model = {
+            type = equipment
+        }
+
+		unit_requirements = {
+			equipment = {
+				type = { strategic_bomber }
+				amount = { min = 75 }
+			}
+		}
+
+		starting_point = {
+		    types = { air_base }
+		}
+
+		success_factors = {
+			success = {
+				base = 0.7
+
+				# Raiding unit modifiers
+				experience = {
+					weight = 0.05
+					start_weight = -0.05
+					reference = 1.0
+				}
+				air_agility = {
+					reference = 100.0 # As air unit agility approaches 100 (as defined by the value above), increase chance by this value
+					weight = 0.05 # At 0 agility, the modifier will have negative effect.
+					start_weight = -0.05 # The modifier will scale linearly, meaning at 50 agility, the modifier will be 0.
+				}
+				reliability = {
+					reference = 1
+					weight = 0.05
+					start_weight = -0.1
+				}
+				air_defence = {
+					reference = 100
+					weight = 0.05
+					start_weight = -0.05
+				}
+
+				air_superiority = {
+					reference = 1
+					weight = 0.1
+					start_weight = -0.1
+				}
+
+				### Target Modifiers
+				anti_air = {
+					reference = 5
+					weight = -0.1
+				}
+				interception = {
+					reference = 500 # More than 500 fighters won't really make any difference
+					weight = -0.2
+				}
+				intel = {
+					weight = 0.2
+					#start_reference = 50
+					reference = 100
+				}
+
+			}
+
+			critical = {
+				base = 0.1
+
+			}
+		}
+
+		success_levels = {
+			failure = {
+				victim_effects = {
+					var:target_state = {
+						damage_building = {
+							type = landmark_tbk_af_eduz_tobuck
+							damage = 0.05 # levels of damage
+							province = var:ROOT.target_province
+						}
+					}
+				}
+				actor_effects = {
+					raid_damage_units = {
+						plane_loss = 65
+					}
+					raid_add_unit_experience = 0.05
+
+					var:actor_country = { #a failure doesn't help morale
+						add_war_support = -0.05
+					}
+				}
+				visual_effect = {
+					entity = "raid_failed_entity"
+					animation = "attack"
+				}
+			}
+			limited_success = {
+				victim_effects = {
+					var:target_state = {
+						damage_building = {
+							type = landmark_tbk_af_eduz_tobuck
+							damage = 0.15 # levels of damage
+							province = var:ROOT.target_province
+							repair_speed_modifier = -0.05
+						}
+					}
+				}
+				actor_effects = {
+					raid_damage_units = {
+						plane_loss = 50
+					}
+					raid_add_unit_experience = 0.1
+
+					var:actor_country = {
+						add_war_support = 0.02
+					}
+				}
+				visual_effect = {
+					entity = "air_raids_2_limited_success_entity"
+					animation = "attack"
+				}
+			}
+			success = {
+				victim_effects = {
+					var:target_state = {
+						damage_building = {
+							type = landmark_tbk_af_eduz_tobuck
+							damage = 0.65 # levels of damage
+							province = var:ROOT.target_province
+							repair_speed_modifier = -0.15
+						}
+					}
+				}
+				actor_effects = {
+					raid_damage_units = {
+						plane_loss = 35
+					}
+					raid_add_unit_experience = 0.2
+
+					var:actor_country = {
+						add_war_support = 0.05
+
+					}
+				}
+				visual_effect = {
+					entity = "air_raids_2_success_entity"
+					animation = "attack"
+				}
+			}
+			critical_success = {
+				victim_effects = {
+					var:target_state = {
+						damage_building = {
+							type = landmark_tbk_af_eduz_tobuck
 							damage = 0.85 # levels of damage
 							province = var:ROOT.target_province
 							repair_speed_modifier = -0.25
