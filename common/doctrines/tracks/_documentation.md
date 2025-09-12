@@ -12,6 +12,8 @@ and the grand doctrine that defines which tracks it contains.
 ```
 infantry = { 
     name = DOCTRINE_TRACK_INFANTRY   # Bindable loc
+    background = GFX_NAME             # Background image for the track
+    frame = GFX_NAME                  # Frame image around the track
     
     mastery = {
         multiplier = 2.0 # Multiplies manpower contribution to mastery gain (in this case, 2 times less manpower is needed to gain the same amount of mastery)
