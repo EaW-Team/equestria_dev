@@ -10051,7 +10051,10 @@ KXN_Griffonland_Category = {
 		allowed = { tag = KXN }
 		ai_will_do = { factor = 0 }
 		
-		available = {
+		visible = {
+			any_subject_country = {
+				is_griffon_continent_griffon_country = yes
+			}
 		}
 
 		custom_cost_trigger = {
@@ -10066,6 +10069,119 @@ KXN_Griffonland_Category = {
 		complete_effect = {
 			log = "[GetDateText]: [Root.GetName]: Decision Form_KXN_Griffonland"
 			hidden_effect = { add_manpower = -25000 add_political_power = -50 }
+			set_country_flag = Form_KXN_Griffonland_Choose_Flag
+			custom_effect_tooltip = Form_KXN_Griffonland_TT
+			every_subject_country = {
+				display_individual_scopes = yes
+				limit = {
+					is_griffon_continent_griffon_country = yes
+				}
+				set_country_flag = Form_KXN_Griffonland_Target_Flag
+				hidden_effect = {
+					capital_scope = {
+						add_to_array = { KXN.Form_KXN_Griffonland_Choose_States_Array = THIS }
+					}
+				}
+			}
+		}
+	}
+	Form_KXN_Griffonland_Choose = {
+		icon = SOV_place_hq
+		allowed = { tag = KXN }
+		ai_will_do = { factor = 0 }
+		
+		state_target = yes
+		target_array = KXN.Form_KXN_Griffonland_Choose_States_Array
+		on_map_mode = map_only
+		
+		fire_only_once = yes
+		
+		visible = {
+			has_country_flag = Form_KXN_Griffonland_Choose_Flag
+		}
+		
+		available = {
+			FROM = {
+				OWNER = {
+					is_subject_of = ROOT
+					PREV = { is_fully_controlled_by = PREV }
+				}
+			}
+		}
+		
+		target_trigger = {
+			FROM = {
+				OWNER = {
+					is_subject_of = ROOT
+					PREV = { is_fully_controlled_by = PREV }
+				}
+			}
+		}
+		
+		highlight_states = {
+			highlight_states_trigger = {
+				state = FROM
+			}
+		}
+		
+		complete_effect = {
+			log = "[GetDateText]: [Root.GetName]: Decision Form_KXN_Griffonland_Choose target: [From.GetName]"
+			custom_effect_tooltip = Form_KXN_Griffonland_Choose_tt
+			hidden_effect = { clr_country_flag = Form_KXN_Griffonland_Choose_Flag }
+			FROM = {
+				OWNER = {
+					drop_cosmetic_tag = yes
+					set_cosmetic_tag = KXN_Griffonland
+					set_country_flag = KXN_Griffonland_Flag
+					add_ideas = KXN_Griffonland_Buff
+					custom_effect_tooltip = Form_KXN_Griffonland_Choose_Div_TT
+					capital_scope = {
+						add_extra_state_shared_building_slots = 2
+						add_building_construction = {
+							type = arms_factory
+							level = 2
+							instant_build = yes
+						}
+						add_building_construction = {
+							type = air_base
+							level = 2
+							instant_build = yes
+						}
+					}
+					hidden_effect = {
+						set_technology = { tech_support = 1 popup = no }
+						set_technology = { tech_kirin_vanguard = 1 popup = no }
+						set_technology = { tech_kirin_brave = 1 popup = no }
+						fix_weapon_techs = yes
+						division_template = {
+							name = "Griffonland War-Banner"
+							division_names_group = KIR_BANNER
+							regiments = {
+								kirin_vanguards = { x = 0 y = 0 }
+								kirin_vanguards = { x = 0 y = 1 }
+								kirin_vanguards = { x = 0 y = 2 }
+								kirin_vanguards = { x = 0 y = 3 }
+								kirin_vanguards = { x = 1 y = 0 }
+								kirin_vanguards = { x = 1 y = 1 }
+								kirin_vanguards = { x = 1 y = 2 }
+								kirin_vanguards = { x = 1 y = 3 }
+							}
+							support = {
+								kirin_braves = { x = 0 y = 0 }
+								artillery = { x = 0 y = 1 }
+							}
+						}
+						capital_scope = {
+							create_unit = {
+								division = "name = \"Dextral Griffonland War-Banner 'of the Ice Wind'\" division_template = \"Griffonland War-Banner\" start_experience_factor = 0.3 start_equipment_factor = 1" owner = PREV count = 1
+							}
+							create_unit = {
+								division = "name = \"Sinistral Griffonland War-Banner 'of the Fire Wind'\" division_template = \"Griffonland War-Banner\" start_experience_factor = 0.3 start_equipment_factor = 1" owner = PREV count = 1
+							}
+						}
+					}
+				}
+			}
 		}
 	}
 	KXN_Incite_Revolt_Griffonland = {
@@ -10073,15 +10189,20 @@ KXN_Griffonland_Category = {
 		allowed = { tag = KXN }
 		ai_will_do = { factor = 0 }
 		
+		target_root_trigger = { has_war_with = GRD }
+		visible = { has_war_with = GRD }
+		
 		target_trigger = {
 			FROM = {
+				NOT = {
+					has_country_flag = KXN_Griffon_Country_In_Revolt_Flag
+					check_variable = { KXN_Incite_Revolt_Griffonland_Var > 3 }
+				}
 				is_griffon_continent_griffon_country = yes
 				exists = no
 			}
 		}
 		
-		visible = {
-		}
 		
 		available = {
 		}
@@ -10089,11 +10210,65 @@ KXN_Griffonland_Category = {
 		target_array = GRD.occupied_countries
 		target_non_existing = yes
 
-		cost = 15
-		fire_only_once = yes
-		
+		custom_cost_trigger = {
+			has_equipment = {
+				infantry_equipment > 499
+			}
+			has_political_power > 49
+		}
+
+		custom_cost_text = decision_cost_500_guns_50_pp
+		days_remove = 30
+
 		complete_effect = {
 			log = "[GetDateText]: [Root.GetName]: Decision KXN_Incite_Revolt_Griffonland"
+			hidden_effect = {
+				add_equipment_to_stockpile = {
+					type = infantry_equipment
+					amount = -500
+				}
+				add_political_power = -50
+			}
+		}
+
+		remove_effect = {
+			log = "[GetDateText]: [Root.GetName]: Decision remove KXN_Incite_Revolt_Griffonland"
+			FROM = {
+				add_to_variable = { KXN_Incite_Revolt_Griffonland_Var = 1 }
+				custom_effect_tooltip = KXN_Incite_Revolt_Griffonland_TT
+				if = {
+					limit = {
+						check_variable = { KXN_Incite_Revolt_Griffonland_Var > 2 }
+					}
+					custom_effect_tooltip = KIR_line_break
+					set_country_flag = KXN_Griffon_Country_In_Revolt_Flag
+					GRD = { release_on_controlled = PREV }
+					FROM = {
+						declare_war_on = {
+							target = GRD
+							type = independence_wargoal
+						}
+					}
+					KXN = { puppet = PREV }
+					hidden_effect = {
+						drop_cosmetic_tag = yes
+						set_cosmetic_tag = KXN_Tributary
+						KXN_SPAWN_REVOLT_UNITS = yes
+						capital_scope = {
+							create_unit = {
+								division = "division_template = \"Rebel Infantry\" start_experience_factor = 0.25 start_equipment_factor = 1"
+								owner = PREV
+								count = 3
+							}
+							create_unit = {
+								division = "division_template = \"Rebel Militia\" start_experience_factor = 0.15 start_equipment_factor = 1"
+								owner = PREV
+								count = 4
+							}
+						}
+					}
+				}
+			}
 		}
 	}
 }
