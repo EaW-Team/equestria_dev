@@ -10,5 +10,7 @@ land = {
     }
     name = LOC_KEY
     tab_gfx = GFX
+    color_frame = 1 # This is used as frame index for various UI elements where e.g. background colors depend on the folder
+
 }
 ```
