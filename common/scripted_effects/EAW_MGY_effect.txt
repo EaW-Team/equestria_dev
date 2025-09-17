@@ -939,6 +939,7 @@ MGY_VariablesSetup_effect = {
 
 MGY_RoyalDiet_setupStart_effect = {
 	MGY_RoyalDiet_setupArrays_effect = yes # Setup the arrays
+	MGY_RoyalDiet_CalculateSupport_effect = yes # Calculates how many seats support the govenrment at the start
 }
 
 MGY_RoyalDiet_setupArrays_effect = { # Master effect to handle the initialising of the arrays used in the Royal Diet scripted GUI at the start
@@ -986,4 +987,62 @@ MGY_RoyalDiet_setupArrays_effect = { # Master effect to handle the initialising 
 	add_to_array = { MGY_RoyalDiet_coalition_array = 2 } # SNB - Agrarian
 	add_to_array = { MGY_RoyalDiet_coalition_array = 2 } # SNB - Nomarchs
 	add_to_array = { MGY_RoyalDiet_coalition_array = 1 } # IMH - Veterans
+}
+
+MGY_RoyalDiet_CalculateCoalition_effect = { # Iterates in the MGY_RoyalDiet_coalition_array, and determines how many seats your coalition partners contribute to
+	set_variable = {
+		MGY_RoyalDiet_coalitionSeats_var = 0
+	}
+	for_each_loop = {
+		array = MGY_RoyalDiet_coalition_array
+		value = MGY_RoyalDiet_CalculateCoalition_value
+		index = MGY_RoyalDiet_CalculateCoalition_index
+		log = "[GetDateText] Coalition index [?MGY_RoyalDiet_CalculateCoalition_index] with value of [?MGY_RoyalDiet_CalculateCoalition_value]"
+		if = {
+			limit = {
+				check_variable = {  # If the current faction is in a coalition, add its seats to the coialition variables
+					MGY_RoyalDiet_CalculateCoalition_value = 2
+				}
+			}
+			add_to_variable = {
+				MGY_RoyalDiet_coalitionSeats_var = MGY_RoyalDiet_seats_array^MGY_RoyalDiet_CalculateCoalition_index
+			}
+		}
+	}
+}
+
+MGY_RoyalDiet_CalculateLeading_effect = { # Iterates in the MGY_RoyalDiet_coalition_array, and determines how many seats your own faciton contribute to
+	set_variable = {
+		MGY_RoyalDiet_leadingSeats_var = 0
+	}
+	for_each_loop = {
+		array = MGY_RoyalDiet_coalition_array
+		value = MGY_RoyalDiet_CalculateLeading_value
+		index = MGY_RoyalDiet_CalculateLeading_index
+		log = "[GetDateText] Coalition index [?MGY_RoyalDiet_CalculateLeading_index] with value of [?MGY_RoyalDiet_CalculateLeading_value]"
+		if = {
+			limit = {
+				check_variable = {  # If the current faction is leading, add its seats to the leading variable
+					MGY_RoyalDiet_CalculateLeading_value = 3
+				}
+			}
+			add_to_variable = {
+				MGY_RoyalDiet_leadingSeats_var = MGY_RoyalDiet_seats_array^MGY_RoyalDiet_CalculateLeading_index
+			}
+		}
+	}
+}
+
+MGY_RoyalDiet_CalculateSupport_effect = { # Calculates the BASELINe support
+	set_variable = {
+		MGY_RoyalDiet_support_var = 0
+	}
+	MGY_RoyalDiet_CalculateCoalition_effect = yes
+	add_to_variable = {
+		MGY_RoyalDiet_support_var = MGY_RoyalDiet_coalitionSeats_var
+	}
+	MGY_RoyalDiet_CalculateLeading_effect = yes
+	add_to_variable = {
+		MGY_RoyalDiet_support_var = MGY_RoyalDiet_leadingSeats_var
+	}
 }
