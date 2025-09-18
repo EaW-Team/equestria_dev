@@ -8,6 +8,7 @@ faction_goal_id = {
 
 	name = [...] # Goal name (Loc Environment = faction + player country)
 	description = [...] # Goal description (Loc Environment = faction + player country)
+	category = [...] # Goal's category (short_term, medium_term or long_term)
 
 	completed = {
 		# Trigger - checks if goal completion condition is fulfilled
