@@ -1,6 +1,10 @@
 add_namespace = north_war
+add_namespace = north_war_alliance
 
-country_event = { #Hippogriffia Receives the White Peace Offer from Chiropterra and Colthage
+#Hippogriffia Receives the White Peace Offer from Chiropterra and Colthage
+#Called by northern_war_peace_timer in northern_zebrican_war_decision.txt
+#Event chain from 1 - 4
+country_event = { 
 	id = north_war.1
 	immediate = {log = "[GetDateText]: [Root.GetName]: event north_war.1"}
 	title = north_war.1.t
@@ -8,6 +12,7 @@ country_event = { #Hippogriffia Receives the White Peace Offer from Chiropterra 
 
 	picture = GFX_event_sao_macaw
 	is_triggered_only = yes
+	fire_only_once = yes
 
 	option = { #Accept
 		ai_chance = {
@@ -16,7 +21,7 @@ country_event = { #Hippogriffia Receives the White Peace Offer from Chiropterra 
 		name = north_war.1.a
 		hidden_effect = {
 			country_event = {
-				id = north_war.3
+				id = north_war.3 # Smooth transition event (hidden)
 			}
 		}
 		hidden_effect = {
@@ -24,7 +29,7 @@ country_event = { #Hippogriffia Receives the White Peace Offer from Chiropterra 
 				limit = {
 					has_war_with = HIP
 					NOT = {
-						has_country_flag = north_zebrican_war_participant
+						has_country_flag = NZW_war_participant
 					}
 					OR = {
 						is_faction_leader = yes
@@ -40,14 +45,14 @@ country_event = { #Hippogriffia Receives the White Peace Offer from Chiropterra 
 					}
 				}
 				country_event = {
-					id = north_war.33
+					id = north_war.7 # Gets the opportunity to offer white peace to HIP
 					days = 2
 				}
 			}
 		}
 		hidden_effect = {
 			country_event = {
-				id = hippogriff.1002
+				id = hippogriff.1002 # NZW defeat event sender
 				days = 3
 			}
 		}
@@ -66,25 +71,51 @@ country_event = { #Hippogriffia Receives the White Peace Offer from Chiropterra 
 			popularity = -0.1
 		}
 		hidden_effect = {
-			BAT = {
-				country_event = {
-					id = north_war.4
+			if = {
+				limit = {
+					NZ1 = {
+						has_country_flag = NZW_war_participant
+					}
+				}
+				NZ1 = {
+					country_event = {
+						id = north_war.4 # Informed that peace was declined
+					}
 				}
 			}
-			CTH = {
-				country_event = {
-					id = north_war.4
+			if = {
+				limit = {
+					NZ2 = {
+						has_country_flag = NZW_war_participant
+					}
+				}
+				NZ2 = {
+					country_event = {
+						id = north_war.4 # Informed that peace was declined
+					}
+				}
+			}
+			if = {
+				limit = {
+					WNG = {
+						has_country_flag = NZW_war_participant
+					}
+				}
+				WNG = {
+					country_event = {
+						id = north_war.4 # Informed that peace was declined
+					}
 				}
 			}
 		}
 		country_event = {
-			id = hippogriff.66
+			id = hippogriff.66 # Beginning of Defeatism
 			days = 2
 		}
 	}
 }
 
-country_event = { #Chiropterra and Colthage receive what they demanded from Hippogriffia
+country_event = { # The parties involved receive what they demanded from Hippogriffia
 	id = north_war.2
 	immediate = {log = "[GetDateText]: [Root.GetName]: event north_war.2"}
 	title = north_war.2.t
@@ -92,73 +123,72 @@ country_event = { #Chiropterra and Colthage receive what they demanded from Hipp
 
 	picture = GFX_event_sao_macaw
 	is_triggered_only = yes
-
+	
+	immediate = {
+		hidden_effect = {
+			if = {
+				limit = {
+					has_global_flag = NZW_alliance_signed
+					OR = {
+						tag = NZ1
+						tag = NZ2
+					}
+				}
+				country_event = {
+					id = north_war_alliance.5 # Option to dissolve alliance
+					days = 2
+				}
+			}
+			if = {
+				limit = {
+					has_global_flag = NZW_winggarten_established
+					is_ai = no
+				}
+				country_event = {
+					id = north_war.6 # Option to play as Winggarten
+					days = 1
+				}
+			}
+		}
+	}
+	
 	option = {
 		trigger = {
 			original_tag = BAT
 		}
 		name = north_war.2.a
+				
 		hidden_effect = {
 			set_country_flag = BAT_HIP_defeated
-			clr_country_flag = north_zebrican_war_participant
-			clr_country_flag = partial_war
+			
 			if = {
-				limit = {
+				limit = { # Controls the home region
 					NOT = {
-						OR = {
-							WAR = {
-								exists = yes
-								is_subject = no
-							}
-							ZAR = {
-								exists = yes
-								is_subject = no
-							}
-							TBK = {
-								exists = yes
-								is_subject = no
-							}
+						WAR = {
+							exists = yes
+							is_subject = no
 						}
 					}
-					CTH = {
-						has_country_leader = {
-							character = CTH_zalathel_zarca
-							ruling_only = yes
-						}
-					}
-				}
-				CTH = {
-					country_event = colthage_other.211
-				}
-			}
-			else_if = {
-				limit = {
 					NOT = {
-						OR = {
-							WAR = {
-								exists = yes
-								is_subject = no
-							}
-							ZAR = {
-								exists = yes
-								is_subject = no
-							}
-							TBK = {
-								exists = yes
-								is_subject = no
-							}
+						ZAR = {
+							exists = yes
+							is_subject = no
 						}
 					}
-					CTH = {
-						has_country_leader = {
-							character = CTH_zalathel_zarca
-							ruling_only = yes
+					NOT = {
+						TBK = {
+							exists = yes
+							is_subject = no
 						}
 					}
 				}
-				country_event = bat.81
+				country_event = {
+					id = bat.81 # Chiropterran commonwealth proclaimed
+				}
 			}
 			else = {
+				# This shouldn't happen because BAT shouldn't be able to start the war without controlling its sourroundings
+				# But better save than sorry
 				country_event = {
 					id = bat.79
 				}
@@ -167,13 +197,12 @@ country_event = { #Chiropterra and Colthage receive what they demanded from Hipp
 	}
 	option = {
 		trigger = {
-			original_tag = CTH
+			NOT = { original_tag = BAT }
 		}
 		name = north_war.2.b
+		
 		hidden_effect = {
 			set_country_flag = BAT_HIP_defeated
-			clr_country_flag = north_zebrican_war_participant
-			clr_country_flag = partial_war
 		}
 	}
 }
@@ -187,105 +216,60 @@ country_event = { #Hidden Event for smooth transition
 
 	option = {
 		name = north_war.3.a
-		HIP = {
+		
+		# Peacemaking
+		HIP = { # The main contenders
 			set_country_flag = { flag = bypass_on_peaceconference_ended days = 1 value = 1 }
-			white_peace = BAT
-			white_peace = CTH
-		}
-		every_other_country = {
-			limit = {
-				OR = {
-					is_subject_of = BAT
-					is_in_faction_with = BAT
-				}
-			}
-			set_country_flag = { flag = bypass_on_peaceconference_ended days = 1 value = 1 }
-			white_peace = HIP
-		}
-		every_other_country = {
-			limit = {
-				OR = {
-					is_subject_of = CTH
-					is_in_faction_with = CTH
-				}
-			}
-			set_country_flag = { flag = bypass_on_peaceconference_ended days = 1 value = 1 }
-			white_peace = HIP
-		}
-		every_other_country = {
-			limit = {
-				OR = {
-					is_subject_of = ROOT
-					is_in_faction_with = ROOT
-				}
-			}
-			set_country_flag = { flag = bypass_on_peaceconference_ended days = 1 value = 1 }
-			white_peace = BAT
-			white_peace = CTH
-		}
-		BAT = {
 			if = {
 				limit = {
-					OR = {
-						AND = {
-							country_exists = WAR
-							WAR = {
-								has_war_with = BAT
-								has_war_with = CTH
-							}
-						}
-						AND = {
-							country_exists = WAR
-							OR = {
-								is_subject_of = HIP
-								is_in_faction_with = HIP
-							}
-						}
+					NZ1 = {
+						has_country_flag = NZW_war_participant
 					}
 				}
-				transfer_state = 688
-				transfer_state = 1206
-				transfer_state = 743
-				transfer_state = 744
-			}
-			else_if = {
-				limit = {
-					NOT = {
-						688 = { owner = { tag = BAT }}
-						1206 = { owner = { tag = BAT }}
-						743 = { owner = { tag = BAT }}
-						744 = { owner = { tag = BAT }}
+				white_peace = NZ1
+				
+				NZ1 = {
+					country_event = {
+						id = north_war.2
+						hours = 6
 					}
 				}
-				transfer_state = 688
-				transfer_state = 1206
-				transfer_state = 743
-				transfer_state = 744
 			}
-			transfer_state = 710
 			if = {
 				limit = {
-					1199 = { owner = { tag = HIP }}
+					NZ2 = {
+						has_country_flag = NZW_war_participant
+					}
 				}
-				transfer_state = 1199
+				white_peace = NZ2
+				
+				NZ2 = {
+					country_event = {
+						id = north_war.2
+						hours = 6
+					}
+				}
 			}
-			country_event = { 
-				id = north_war.2
+			if = {
+				limit = {
+					WNG = {
+						has_country_flag = NZW_war_participant
+					}
+				}
+				white_peace = WNG
+				
+				WNG = {
+					country_event = {
+						id = north_war.2
+						hours = 6
+					}
+				}
 			}
 		}
-		CTH = {
-			transfer_state = 711
-			transfer_state = 698
-			transfer_state = 697
-			country_event = {
-				id = north_war.2
-			}
-		}
-		ZUM = {
-			every_core_state = {
-				remove_core_of = HIP
-			}
-		}
+		NZW_make_peace_with_HIP = yes
+		
+		# The peace deal
+		NZW_HIP_surrender_peace_deal_effect = yes
 	}
 }
 
@@ -306,25 +290,29 @@ country_event = { #Chiropterra and Colthage receive the news that Hippogriffia w
 		custom_effect_tooltip = northern_total_war_2_tp
 		add_war_support = 0.10
 		hidden_effect = {
-		    clr_country_flag = partial_war
-			set_country_flag = permenant_total_war
+		    clr_global_flag = NZW_war_status_partial
+			set_global_flag = NZW_war_status_total
+			set_global_flag = NZW_war_status_partial_blocked
 		}
 	}
 	option = {
 		trigger = {
-			original_tag = CTH
+			NOT = { original_tag = BAT }
 		}
 		name = north_war.4.b
 		custom_effect_tooltip = northern_total_war_2_tp
 		add_war_support = 0.10
 		hidden_effect = {
-			clr_country_flag = partial_war
-			set_country_flag = permenant_total_war
+		    clr_global_flag = NZW_war_status_partial
+			set_global_flag = NZW_war_status_total
+			set_global_flag = NZW_war_status_partial_blocked
 		}
 	}
 }
 
-country_event = { #Hippogriffia Receives the White Peace Offer from Chiropterra
+#Hippogriffia is asking for peace
+#Called by HIP_beg_for_peace (HIP decision)
+country_event = {
 	id = north_war.5
 	immediate = {log = "[GetDateText]: [Root.GetName]: event north_war.5"}
 	title = north_war.5.t
@@ -333,62 +321,83 @@ country_event = { #Hippogriffia Receives the White Peace Offer from Chiropterra
 	picture = GFX_event_sao_macaw
 	is_triggered_only = yes
 
-	option = { #Accept
+	option = {#accept
 		ai_chance = {
 			factor = 90
 		}
 		name = north_war.5.a
-		hidden_effect = {
-			country_event = {
-				id = north_war.7
-			}
-		}
-		hidden_effect = {
-			every_other_country = {
+
+		# Peacemaking
+		HIP = { # The main contenders
+			set_country_flag = { flag = bypass_on_peaceconference_ended days = 1 value = 1 }
+			if = {
 				limit = {
-					has_war_with = HIP
-					NOT = {
-						has_country_flag = north_zebrican_war_participant
+					has_war_with = NZ1
+				}
+				white_peace = NZ1
+				
+				NZ1 = {
+					country_event = {
+						id = north_war.2
+						hours = 6
 					}
 				}
-				country_event = {
-					id = north_war.20
-					days = 2
+			}
+			if = {
+				limit = {
+					has_war_with = NZ2
+				}
+				white_peace = NZ2
+				
+				NZ2 = {
+					country_event = {
+						id = north_war.2
+						hours = 6
+					}
+				}
+			}
+			if = {
+				limit = {
+					has_war_with = WNG
+				}
+				white_peace = WNG
+				
+				WNG = {
+					country_event = {
+						id = north_war.2
+						hours = 6
+					}
 				}
 			}
 		}
-		hidden_effect = {
-			country_event = hippogriff.1002
+		NZW_make_peace_with_HIP = yes
+		
+		# The peace deal
+		NZW_HIP_surrender_peace_deal_effect = yes
+		# Special penalty for refusing to surrender earlier
+		if = {
+			limit = {
+				NZ2 = {
+					has_country_flag = NZW_war_participant
+				}
+			}
+			NZ2 = { transfer_state = 695 } 
 		}
+		else = {
+			NZ1 = { transfer_state = 695 } 
+		}
+
 	}
 
-	option = { #Refuse
+	option = {#Refuse
+		name = north_war.5.b
 		ai_chance = {
 			factor = 10
-		}
-		name = north_war.5.b
-		custom_effect_tooltip = northern_total_war_tp
-		add_stability = -0.05
-		add_war_support = -0.05
-		add_popularity = {
-			ideology = var:current_party_ideology_group
-			popularity = -0.05
-		}
-		country_event = {
-			id = hippogriff.66
-			days = 2
-		}
-		hidden_effect = {
-			BAT = {
-				country_event = {
-					id = north_war.8
-				}
-			}
 		}
 	}
 }
 
-country_event = { #Chiropterra Recieves News that it got what it wanted
+country_event = { #Player Receives Option to play as Winggarden (called by north_war.2)
 	id = north_war.6
 	immediate = {log = "[GetDateText]: [Root.GetName]: event north_war.6"}
 	title = north_war.6.t
@@ -399,1072 +408,11 @@ country_event = { #Chiropterra Recieves News that it got what it wanted
 
 	option = {
 		name = north_war.6.a
-		hidden_effect = {
-			set_country_flag = BAT_HIP_defeated
-			clr_country_flag = north_zebrican_war_participant
-			if = {
-				limit = {
-					NOT = {
-						OR = {
-							WAR = {
-								exists = yes
-								is_subject = no
-							}
-							ZAR = {
-								exists = yes
-								is_subject = no
-							}
-							TBK = {
-								exists = yes
-								is_subject = no
-							}
-						}
-					}
-				}
-				country_event = {
-					id = bat.81
-				}
-			}
-			else = {
-				country_event = {
-					id = bat.79
-				}
-			}
-		}
-	}
-}
-
-country_event = { #Hidden Event for smooth transition
-	id = north_war.7
-	immediate = {log = "[GetDateText]: [Root.GetName]: event north_war.24"}
-	hidden = yes
-
-	is_triggered_only = yes
-
-	option = {
-		name = north_war.7.a
-		HIP = {
-			set_country_flag = { flag = bypass_on_peaceconference_ended days = 1 value = 1 }
-			white_peace = BAT
-		}
-		every_other_country = {
-			limit = {
-				OR = {
-					is_subject_of = BAT
-					is_in_faction_with = BAT
-				}
-			}
-			set_country_flag = { flag = bypass_on_peaceconference_ended days = 1 value = 1 }
-			white_peace = HIP
-		}
-		every_other_country = {
-			limit = {
-				OR = {
-					is_subject_of = ROOT
-					is_in_faction_with = ROOT
-				}
-			}
-			set_country_flag = { flag = bypass_on_peaceconference_ended days = 1 value = 1 }
-			white_peace = BAT
-		}
-		BAT = {
-			if = {
-				limit = {
-					OR = {
-						AND = {
-							country_exists = WAR
-							WAR = {
-								has_war_with = BAT
-								has_war_with = CTH
-							}
-						}
-						AND = {
-							country_exists = WAR
-							OR = {
-								is_subject_of = HIP
-								is_in_faction_with = HIP
-							}
-						}
-					}
-				}
-				transfer_state = 688
-				transfer_state = 1206
-				transfer_state = 743
-				transfer_state = 744
-			}
-			else_if = {
-				limit = {
-					NOT = {
-						688 = { owner = { tag = BAT }}
-						1206 = { owner = { tag = BAT }}
-						743 = { owner = { tag = BAT }}
-						744 = { owner = { tag = BAT }}
-					}
-				}
-				transfer_state = 688
-				transfer_state = 1206
-				transfer_state = 743
-				transfer_state = 744
-			}
-			if = {
-				limit = {
-					1199 = { owner = { tag = HIP }}
-				}
-				transfer_state = 1199
-			}
-			country_event = { 
-				id = north_war.6
-			}
-		}
-		if = {
-		    limit = {
-			    710 = {
-			        owner = {
-				        OR = {
-				            tag = HIP
-				            OR = {
-						        is_subject_of = HIP
-						        is_in_faction_with = HIP
-					        }
-				        }
-			        }
-		        }
-			}
-			BAT = {
-				transfer_state = 710
-			}
-		}
-		if = {
-		    limit = {
-			    711 = {
-			        owner = {
-				        OR = {
-				            tag = HIP
-				            OR = {
-						        is_subject_of = HIP
-						        is_in_faction_with = HIP
-					        }
-				        }
-			        }
-		        }
-			}
-			BAT = {
-				transfer_state = 711
-			}
-		}
-		if = {
-		    limit = {
-			    698 = {
-			        owner = {
-				        OR = {
-				            tag = HIP
-				            OR = {
-						        is_subject_of = HIP
-						        is_in_faction_with = HIP
-					        }
-				        }
-			        }
-		        }
-			}
-			BAT = {
-				transfer_state = 698
-			}
-		}
-		if = {
-		    limit = {
-			    697 = {
-			        owner = {
-				        OR = {
-				            tag = HIP
-				            OR = {
-						        is_subject_of = HIP
-						        is_in_faction_with = HIP
-					        }
-				        }
-			        }
-		        }
-			}
-			BAT = {
-				transfer_state = 697
-			}
-		}
-		ZUM = {
-			every_core_state = {
-				remove_core_of = HIP
-			}
-		}
-	}
-}
-
-country_event = { #Chiropterra receives the news that Hippogriffia will not surrender
-	id = north_war.8
-	immediate = {log = "[GetDateText]: [Root.GetName]: event north_war.8"}
-	title = north_war.8.t
-	desc = north_war.8.d
-
-	picture = GFX_event_sao_macaw
-	is_triggered_only = yes
-
-	option = {
-		name = north_war.8.a
-		custom_effect_tooltip = northern_total_war_2_tp
-		add_war_support = 0.10
-		hidden_effect = {
-			clr_country_flag = partial_war
-			set_country_flag = permenant_total_war
-		}
-	}
-}
-
-country_event = { #Hippogriffia Receives the White Peace Offer from Colthage
-	id = north_war.9
-	immediate = {log = "[GetDateText]: [Root.GetName]: event north_war.9"}
-	title = north_war.9.t
-	desc = north_war.9.d
-
-	picture = GFX_event_sao_macaw
-	is_triggered_only = yes
-
-	option = { #Accept
-		ai_chance = {
-			factor = 90
-		}
-		name = north_war.9.a
-		hidden_effect = {
-			country_event = {
-				id = north_war.11
-			}
-		}
-		hidden_effect = {
-			every_other_country = {
-				limit = {
-					has_war_with = HIP
-					NOT = {
-						has_country_flag = north_zebrican_war_participant
-					}
-					OR = {
-						is_faction_leader = yes
-						is_in_faction = no
-						AND = {
-							is_in_faction = yes
-							var:faction_leader = {
-							NOT = {
-								has_war_with = HIP
-								}
-							}
-						}
-					}
-				}
-				country_event = {
-					id = north_war.33
-					days = 2
-				}
-			}
-		}
-		hidden_effect = {
-			country_event = {
-				id = hippogriff.1002
-				days = 3
-			}
-		}
-	}
-
-	option = { #Refuse
-		ai_chance = {
-			factor = 10
-		}
-		name = north_war.9.b
-		custom_effect_tooltip = northern_total_war_tp
-		add_stability = -0.05
-		add_war_support = -0.05
-		add_popularity = {
-			ideology = var:current_party_ideology_group
-			popularity = -0.05
-		}
-		country_event = {
-			id = hippogriff.66
-			days = 2
-		}
-		hidden_effect = {
-			CTH = {
-				country_event = {
-					id = north_war.12
-				}
-			}
-		}
-	}
-}
-
-country_event = { #Colthage receive what they demanded from Hippogriffia
-	id = north_war.10
-	immediate = {log = "[GetDateText]: [Root.GetName]: event north_war.10"}
-	title = north_war.10.t
-	desc = north_war.10.d
-
-	picture = GFX_event_sao_macaw
-	is_triggered_only = yes
-
-	option = {
-		name = north_war.10.a
-		hidden_effect = {
-			set_country_flag = BAT_HIP_defeated
-			clr_country_flag = north_zebrican_war_participant
-		}
-		clr_country_flag = partial_war
-	}
-}
-
-country_event = { #Hidden Event for smooth transition
-	id = north_war.11
-	immediate = {log = "[GetDateText]: [Root.GetName]: event north_war.11"}
-	hidden = yes
-
-	is_triggered_only = yes
-
-	option = {
-		name = north_war.11.a
-		HIP = {
-			set_country_flag = { flag = bypass_on_peaceconference_ended days = 1 value = 1 }
-			white_peace = CTH
-		}
-		every_other_country = {
-			limit = {
-				OR = {
-					is_subject_of = CTH
-					is_in_faction_with = CTH
-				}
-			}
-			set_country_flag = { flag = bypass_on_peaceconference_ended days = 1 value = 1 }
-			white_peace = HIP
-		}
-		every_other_country = {
-			limit = {
-				OR = {
-					is_subject_of = ROOT
-					is_in_faction_with = ROOT
-				}
-			}
-			set_country_flag = { flag = bypass_on_peaceconference_ended days = 1 value = 1 }
-			white_peace = CTH
-		}
-		CTH = {
-			transfer_state = 710
-			transfer_state = 711
-			transfer_state = 698
-			transfer_state = 697
-			country_event = {
-				id = north_war.10
-			}
-		}
-		ZUM = {
-			every_core_state = {
-				remove_core_of = HIP
-			}
-		}
-		CTH = {
-			if = {
-				limit = {
-					country_exists = WAR
-					WAR = {
-						OR = {
-							is_in_faction_with = HIP
-							is_subject_of = HIP
-						}
-					}
-				}
-				annex_country = {
-					target = WAR
-					transfer_troops = no
-				}
-			}
-			else_if = {
-				limit = {
-					688 = { owner = { tag = HIP }}
-					1206 = { owner = { tag = HIP }}
-					743 = { owner = { tag = HIP }}
-					744 = { owner = { tag = HIP }}
-				}
-				transfer_state = 688
-				transfer_state = 1206
-				transfer_state = 743
-				transfer_state = 744
-			}
-		}
-	}
-}
-
-country_event = { #Colthage receives the news that Hippogriffia will not surrender
-	id = north_war.12
-	immediate = {log = "[GetDateText]: [Root.GetName]: event north_war.12"}
-	title = north_war.12.t
-	desc = north_war.12.d
-
-	picture = GFX_event_sao_macaw
-	is_triggered_only = yes
-
-	option = {
-		name = north_war.12.a
-		custom_effect_tooltip = northern_total_war_2_tp
-		add_war_support = 0.10
-		hidden_effect = {
-			clr_country_flag = partial_war
-			set_country_flag = permenant_total_war
-		}
-	}
-}
-
-country_event = { #Hippogriffia Receives the White Peace Offer from Colthage, Wingbardy and Chiropterra
-	id = north_war.13
-	immediate = {log = "[GetDateText]: [Root.GetName]: event north_war.13"}
-	title = north_war.13.t
-	desc = north_war.13.d
-
-	picture = GFX_event_sao_macaw
-	is_triggered_only = yes
-
-	option = { #Accept
-		ai_chance = {
-			factor = 90
-		}
-		name = north_war.13.a
-		hidden_effect = {
-			country_event = {
-				id = north_war.15
-			}
-		}
-		hidden_effect = {
-			every_other_country = {
-				limit = {
-					has_war_with = HIP
-					NOT = {
-						has_country_flag = north_zebrican_war_participant
-					}
-					OR = {
-						is_faction_leader = yes
-						is_in_faction = no
-						AND = {
-							is_in_faction = yes
-							var:faction_leader = {
-							NOT = {
-								has_war_with = HIP
-								}
-							}
-						}
-					}
-				}
-				country_event = {
-					id = north_war.33
-					days = 2
-				}
-			}
-		}
-		hidden_effect = {
-			country_event = {
-				id = hippogriff.1002
-				days = 3
-			}
-		}
-	}
-
-	option = { #Refuse
-		ai_chance = {
-			factor = 10
-		}
-		name = north_war.13.b
-		custom_effect_tooltip = northern_total_war_tp
-		add_stability = -0.10
-		add_war_support = -0.10
-		add_popularity = {
-			ideology = var:current_party_ideology_group
-			popularity = -0.1
-		}
-		country_event = {
-			id = hippogriff.66
-			days = 2
-		}
-		hidden_effect = {
-			BAT = {
-				country_event = {
-					id = north_war.16
-				}
-			}
-			CTH = {
-				country_event = {
-					id = north_war.16
-				}
-			}
-			WNG = {
-				country_event = {
-					id = north_war.16
-				}
-			}
-		}
-	}
-}
-
-country_event = { #Chiropterra, Wingbardy and Colthage receive what they demanded from Hippogriffia
-	id = north_war.14
-	immediate = {log = "[GetDateText]: [Root.GetName]: event north_war.14"}
-	title = north_war.14.t
-	desc = north_war.14.d
-
-	picture = GFX_event_sao_macaw
-	is_triggered_only = yes
-
-	option = {
-		trigger = {
-			original_tag = BAT
-		}
-		name = north_war.14.a
-		hidden_effect = {
-			set_country_flag = BAT_HIP_defeated
-			clr_country_flag = north_zebrican_war_participant
-			clr_country_flag = partial_war
-			if = {
-				limit = {
-					is_ai = no
-				}
-				country_event = {
-					id = north_war.21
-				}
-			}
-			if = {
-				limit = {
-					NOT = {
-						OR = {
-							WAR = {
-								exists = yes
-								is_subject = no
-							}
-							ZAR = {
-								exists = yes
-								is_subject = no
-							}
-							TBK = {
-								exists = yes
-								is_subject = no
-							}
-						}
-					}
-				}
-				country_event = {
-					id = bat.81
-				}
-			}
-			else = {
-				country_event = {
-					id = bat.79
-				}
-			}
-		}
-	}
-	option = {
-		trigger = {
-			original_tag = CTH
-		}
-		name = north_war.14.b
-		hidden_effect = {
-			set_country_flag = BAT_HIP_defeated
-			clr_country_flag = north_zebrican_war_participant
-			clr_country_flag = partial_war
-			if = {
-				limit = {
-					is_ai = no
-				}
-				country_event = {
-					id = north_war.21
-				}
-			}
-		}
-	}
-	option = {
-		trigger = {
-			original_tag = WNG
-		}
-		name = north_war.14.c
-		hidden_effect = {
-			set_country_flag = BAT_HIP_defeated
-			clr_country_flag = north_zebrican_war_participant
-			clr_country_flag = partial_war
-			if = {
-				limit = {
-					is_ai = no
-				}
-				country_event = {
-					id = north_war.21
-				}
-			}
-		}
-	}
-}
-
-country_event = { #Hidden Event for smooth transition
-	id = north_war.15
-	immediate = {log = "[GetDateText]: [Root.GetName]: event north_war.15"}
-	hidden = yes
-
-	is_triggered_only = yes
-
-	option = {
-		name = north_war.15.a
-		HIP = {
-			set_country_flag = { flag = bypass_on_peaceconference_ended days = 1 value = 1 }
-			white_peace = BAT
-			white_peace = CTH
-			white_peace = WNG
-		}
-		every_other_country = {
-			limit = {
-				OR = {
-					is_subject_of = BAT
-					is_in_faction_with = BAT
-				}
-			}
-			set_country_flag = { flag = bypass_on_peaceconference_ended days = 1 value = 1 }
-			white_peace = HIP
-		}
-		every_other_country = {
-			limit = {
-				OR = {
-					is_subject_of = CTH
-					is_in_faction_with = CTH
-				}
-			}
-			set_country_flag = { flag = bypass_on_peaceconference_ended days = 1 value = 1 }
-			white_peace = HIP
-		}
-		every_other_country = {
-			limit = {
-				OR = {
-					is_subject_of = WNG
-					is_in_faction_with = WNG
-				}
-			}
-			set_country_flag = { flag = bypass_on_peaceconference_ended days = 1 value = 1 }
-			white_peace = HIP
-		}
-		every_other_country = {
-			limit = {
-				OR = {
-					is_subject_of = ROOT
-					is_in_faction_with = ROOT
-				}
-			}
-			set_country_flag = { flag = bypass_on_peaceconference_ended days = 1 value = 1 }
-			white_peace = BAT
-			white_peace = CTH
-			white_peace = WNG
-		}
-		1204 = {
-			add_core_of = WIN
-		}
-		WIN = {
-			transfer_state = 1204
-			load_oob = "WIN_1007"
-			give_military_access = BAT
-			give_military_access = CTH
-			give_military_access = WNG
-			diplomatic_relation = {
-				country = BAT
-				relation = docking_rights
-				active = yes
-			}
-			diplomatic_relation = {
-				country = CTH
-				relation = docking_rights
-				active = yes
-			}
-			diplomatic_relation = {
-				country = WNG
-				relation = docking_rights
-				active = yes
-			}
-			add_opinion_modifier = {
-				target = BAT
-				modifier = WIN_glorified_colony_2
-			}
-			add_opinion_modifier = {
-				target = CTH
-				modifier = WIN_glorified_colony_2
-			}
-			add_opinion_modifier = {
-				target = WNG
-				modifier = WIN_glorified_colony_2
-			}
-			set_variable = {
-				var = WIN_WNG_influence
-				value = 0.33
-			}
-			set_variable = {
-				var = WIN_BAT_influence
-				value = 0.34
-			}
-			set_variable = {
-				var = WIN_CTH_influence
-				value = 0.33
-			}
-			clamp_variable = {
-				var = WIN_WNG_influence
-				min = 0
-				max = 1
-			}
-			clamp_variable = {
-				var = WIN_BAT_influence
-				min = 0
-				max = 1
-			}
-			clamp_variable = {
-				var = WIN_CTH_influence
-				min = 0
-				max = 1
-			}
-		}
-		BAT = {
-			if = {
-				limit = {
-					OR = {
-						AND = {
-							country_exists = WAR
-							WAR = {
-								has_war_with = BAT
-								has_war_with = CTH
-							}
-						}
-						AND = {
-							country_exists = WAR
-							OR = {
-								is_subject_of = HIP
-								is_in_faction_with = HIP
-							}
-						}
-					}
-				}
-				transfer_state = 688
-				transfer_state = 1206
-				transfer_state = 743
-				transfer_state = 744
-			}
-			else_if = {
-				limit = {
-					NOT = {
-						688 = { owner = { tag = BAT }}
-						1206 = { owner = { tag = BAT }}
-						743 = { owner = { tag = BAT }}
-						744 = { owner = { tag = BAT }}
-					}
-				}
-				transfer_state = 688
-				transfer_state = 1206
-				transfer_state = 743
-				transfer_state = 744
-			}
-			transfer_state = 710
-			if = {
-				limit = {
-					1199 = { owner = { tag = HIP }}
-				}
-				transfer_state = 1199
-			}
-			country_event = { 
-				id = north_war.14
-			}
-			give_guarantee = WIN
-			diplomatic_relation = {
-				country = WIN
-				relation = docking_rights
-				active = yes
-			}
-			WIN = {
-				transfer_technology = yes
-			}
-			add_opinion_modifier = {
-				target = WIN
-				modifier = WIN_glorified_colony
-			}
-		}
-		CTH = {
-			transfer_state = 711
-			transfer_state = 698
-			transfer_state = 697
-			country_event = {
-				id = north_war.14
-			}
-			give_guarantee = WIN
-			diplomatic_relation = {
-				country = WIN
-				relation = docking_rights
-				active = yes
-			}
-			WIN = {
-				transfer_technology = yes
-			}
-			add_opinion_modifier = {
-				target = WIN
-				modifier = WIN_glorified_colony
-			}
-			CTH_azizelquart_zahummid = {
-				set_nationality = WIN
-				add_country_leader_role = {
-					country_leader = {
-						desc = WIN_AZIZELQUART_ZAHUMIND_DESC
-						ideology = plutocracy
-						expire = "1965.1.1.1"
-						traits = {
-							financial_expert
-						}
-					}
-				}
-			}
-		}
-		WNG = {
-			transfer_state = 687
-			transfer_state = 694
-			transfer_state = 693
-			country_event = {
-				id = north_war.14
-			}
-			give_guarantee = WIN
-			diplomatic_relation = {
-				country = WIN
-				relation = docking_rights
-				active = yes
-			}
-			WIN = {
-				transfer_technology = yes
-			}
-			add_opinion_modifier = {
-				target = WIN
-				modifier = WIN_glorified_colony
-			}
-		}
-		HIP = {
-		    add_ideas = WIN_economic_concessions
-		}
-		WIN = {
-		    complete_national_focus = WIN_the_establishment
-			add_ideas = CTH_azizelquart_zahummid
-		}
-		1164 = {
-		    set_demilitarized_zone = yes
-		}
-		ZUM = {
-			every_core_state = {
-				remove_core_of = HIP
-			}
-		}
-	}
-}
-
-country_event = { #Chiropterra, Wingbardy and Colthage receive the news that Hippogriffia will not surrender
-	id = north_war.16
-	immediate = {log = "[GetDateText]: [Root.GetName]: event north_war.16"}
-	title = north_war.16.t
-	desc = north_war.16.d
-
-	picture = GFX_event_sao_macaw
-	is_triggered_only = yes
-
-	option = {
-		trigger = {
-			original_tag = BAT
-		}
-		name = north_war.16.a
-		custom_effect_tooltip = northern_total_war_2_tp
-		add_war_support = 0.10
-		hidden_effect = {
-			clr_country_flag = partial_war
-			set_country_flag = permenant_total_war
-		}
-	}
-	option = {
-		trigger = {
-			original_tag = CTH
-		}
-		name = north_war.16.b
-		custom_effect_tooltip = northern_total_war_2_tp
-		add_war_support = 0.10
-		hidden_effect = {
-			clr_country_flag = partial_war
-			set_country_flag = permenant_total_war
-		}
-	}
-	option = {
-		trigger = {
-			original_tag = WNG
-		}
-		name = north_war.16.c
-		custom_effect_tooltip = northern_total_war_2_tp
-		add_war_support = 0.10
-		hidden_effect = {
-			clr_country_flag = partial_war
-			set_country_flag = permenant_total_war
-		}
-	}
-}
-
-#country_event = { #Hippogriffia Receives the White Peace Offer from Wingbardy
-#	id = north_war.17
-#	immediate = {log = "[GetDateText]: [Root.GetName]: event north_war.17"}
-#	title = north_war.17.t
-#	desc = north_war.17.d
-#
-#	picture = GFX_event_sao_macaw
-#	is_triggered_only = yes
-#
-#	option = { #Accept
-#		ai_chance = {
-#			factor = 90
-#		}
-#		name = north_war.17.a
-#		hidden_effect = {
-#			country_event = {
-#				id = north_war.19
-#			}
-#		}
-#		hidden_effect = {
-#			if = {
-#				limit = {
-#					NOT = {
-#						has_government = communism
-#					}
-#				}
-#				country_event = {
-#					id = hippogriff.25
-#					days = 7
-#				}
-#			}
-#			else = {
-#				country_event = {
-#					id = hippocommie.68
-#				}
-#			}
-#		}
-#	}
-#
-#	option = { #Refuse
-#		ai_chance = {
-#			factor = 10
-#		}
-#		name = north_war.17.b
-#		custom_effect_tooltip = northern_total_war_tp
-#		add_stability = -0.05
-#		add_war_support = -0.05
-#		add_popularity = {
-#			ideology = var:current_party_ideology_group
-#			popularity = -0.05
-#		}
-#		country_event = {
-#			id = hippogriff.66
-#			days = 2
-#		}
-#		hidden_effect = {
-#			WNG = {
-#				country_event = {
-#					id = north_war.20
-#				}
-#			}
-#		}
-#	}
-#}
-
-#country_event = { #Wingbardy Recieves News that it got what it wanted
-#	id = north_war.18
-#	immediate = {log = "[GetDateText]: [Root.GetName]: event north_war.18"}
-#	title = north_war.18.t
-#	desc = north_war.18.d
-#
-#	picture = GFX_event_sao_macaw
-#	is_triggered_only = yes
-#
-#	option = {
-#		name = north_war.18.a
-#		hidden_effect = {
-#			set_country_flag = BAT_HIP_defeated
-#			clr_country_flag = north_zebrican_war_participant
-#		}
-#	}
-#}
-
-#country_event = { #Hidden Event for smooth transition
-#	id = north_war.19
-#	immediate = {log = "[GetDateText]: [Root.GetName]: event north_war.19"}
-#	hidden = yes
-#
-#	is_triggered_only = yes
-#
-#	option = {
-#		name = north_war.19.a
-#		HIP = {
-#			set_country_flag = { flag = bypass_on_peaceconference_ended days = 1 value = 1 }
-#			white_peace = WNG
-#		}
-#		every_other_country = {
-#			limit = {
-#				OR = {
-#					is_subject_of = WNG
-#					is_in_faction_with = WNG
-#				}
-#			}
-#			set_country_flag = { flag = bypass_on_peaceconference_ended days = 1 value = 1 }
-#			white_peace = HIP
-#		}
-#		every_other_country = {
-#			limit = {
-#				OR = {
-#					is_subject_of = ROOT
-#					is_in_faction_with = ROOT
-#				}
-#			}
-#			set_country_flag = { flag = bypass_on_peaceconference_ended days = 1 value = 1 }
-#			white_peace = WNG
-#		}
-#		WNG = {
-#			transfer_state = 687
-#			transfer_state = 694
-#			transfer_state = 693
-#			country_event = {
-#				id = north_war.17
-#			}
-#		}
-#	}
-#}
-
-country_event = { #Chiropterra receives the news that Hippogriffia will not surrender
-	id = north_war.20
-	immediate = {log = "[GetDateText]: [Root.GetName]: event north_war.20"}
-	title = north_war.20.t
-	desc = north_war.20.d
-
-	picture = GFX_event_sao_macaw
-	is_triggered_only = yes
-
-	option = {
-		name = north_war.20.a
-		custom_effect_tooltip = northern_total_war_2_tp
-		add_war_support = 0.10
-		hidden_effect = {
-			clr_country_flag = partial_war
-			set_country_flag = permenant_total_war
-		}
-	}
-}
-
-country_event = { #Player Receives Option to play as Winggarden
-	id = north_war.21
-	immediate = {log = "[GetDateText]: [Root.GetName]: event north_war.21"}
-	title = north_war.21.t
-	desc = north_war.21.d
-
-	picture = GFX_event_sao_macaw
-	is_triggered_only = yes
-
-	option = {
-		name = north_war.21.a
 		add_political_power = 5
 	}
 
 	option = {
-		name = north_war.21.b
+		name = north_war.6.b
 		custom_effect_tooltip = switch_to_winggarden_tp
 		hidden_effect = {
 			WIN = {
@@ -1476,156 +424,24 @@ country_event = { #Player Receives Option to play as Winggarden
 		}
 	}
 }
-country_event = { #Hippogriffia Receives the White Peace Offer from Novaya Severyana and Colthage
-	id = north_war.22
-	immediate = {log = "[GetDateText]: [Root.GetName]: event north_war.22"}
-	title = north_war.22.t
-	desc = north_war.22.d
 
-	picture = GFX_event_sao_macaw
+# NZW is over do we white peace HIP?
+# Called by north_war.1 (only if HIP accepts peace)
+country_event = {
+	id = north_war.7
+	immediate = {log = "[GetDateText]: [Root.GetName]: event north_war.7"}
+	title = north_war.7.t
+	desc = north_war.7.d
+
+	picture = GFX_event_HIP_warzone
 	is_triggered_only = yes
 
-	option = { #Accept
-		ai_chance = {
-			factor = 90
-		}
-		name = north_war.22.a
-		hidden_effect = {
-			country_event = {
-				id = north_war.24
-			}
-		}
-		hidden_effect = {
-			every_other_country = {
-				limit = {
-					has_war_with = HIP
-					NOT = {
-						has_country_flag = north_zebrican_war_participant
-					}
-					OR = {
-						is_faction_leader = yes
-						is_in_faction = no
-						AND = {
-							is_in_faction = yes
-							var:faction_leader = {
-							NOT = {
-								has_war_with = HIP
-								}
-							}
-						}
-					}
-				}
-				country_event = {
-					id = north_war.33
-					days = 2
-				}
-			}
-		}
-		hidden_effect = {
-			country_event = {
-				id = hippogriff.1002
-				days = 3
-			}
-		}
-	}
-
-	option = { #Refuse
-		ai_chance = {
-			factor = 10
-		}
-		name = north_war.22.b
-		custom_effect_tooltip = northern_total_war_tp
-		add_stability = -0.10
-		add_war_support = -0.10
-		add_popularity = {
-			ideology = var:current_party_ideology_group
-			popularity = -0.1
-		}
-		country_event = {
-			id = hippogriff.66
-			days = 2
-		}
-		hidden_effect = {
-			TBK = {
-				country_event = {
-					id = north_war.25
-				}
-			}
-			CTH = {
-				country_event = {
-					id = north_war.25
-				}
-			}
-		}
-	}
-}
-
-country_event = { #Novaya Severyana and Colthage receive what they demanded from Hippogriffia
-	id = north_war.23
-	immediate = {log = "[GetDateText]: [Root.GetName]: event north_war.23"}
-	title = north_war.23.t
-	desc = north_war.23.d
-
-	picture = GFX_event_sao_macaw
-	is_triggered_only = yes
-
-	option = {
-		trigger = {
-			original_tag = TBK
-		}
-		name = north_war.23.a
-		hidden_effect = {
-			set_country_flag = BAT_HIP_defeated
-			clr_country_flag = north_zebrican_war_participant
-			clr_country_flag = partial_war
-		}
-	}
-	option = {
-		trigger = {
-			original_tag = CTH
-		}
-		name = north_war.23.b
-		hidden_effect = {
-			set_country_flag = BAT_HIP_defeated
-			clr_country_flag = north_zebrican_war_participant
-			clr_country_flag = partial_war
-		}
-	}
-}
-
-country_event = { #Hidden Event for smooth transition
-	id = north_war.24
-	immediate = {log = "[GetDateText]: [Root.GetName]: event north_war.24"}
-	hidden = yes
-
-	is_triggered_only = yes
-
-	option = {
-		name = north_war.24.a
+	option = {#Yeah sure
+		name = north_war.7.a
+		ai_chance = { factor = 1 }
 		HIP = {
 			set_country_flag = { flag = bypass_on_peaceconference_ended days = 1 value = 1 }
-			white_peace = TBK
-			white_peace = CTH
-		}
-		every_other_country = {
-			limit = {
-				OR = {
-					is_subject_of = TBK
-					is_in_faction_with = TBK
-				}
-			}
-			set_country_flag = { flag = bypass_on_peaceconference_ended days = 1 value = 1 }
-			white_peace = HIP
-		}
-		every_other_country = {
-			limit = {
-				OR = {
-					is_subject_of = CTH
-					is_in_faction_with = CTH
-				}
-			}
-			set_country_flag = { flag = bypass_on_peaceconference_ended days = 1 value = 1 }
-			white_peace = HIP
+			white_peace = ROOT
 		}
 		every_other_country = {
 			limit = {
@@ -1635,380 +451,244 @@ country_event = { #Hidden Event for smooth transition
 				}
 			}
 			set_country_flag = { flag = bypass_on_peaceconference_ended days = 1 value = 1 }
-			white_peace = TBK
-			white_peace = CTH
-		}
-		TBK = {
-			if = {
-				limit = {
-					OR = {
-						AND = {
-							country_exists = WAR
-							WAR = {
-								has_war_with = BAT
-								has_war_with = CTH
-							}
-						}
-						AND = {
-							country_exists = WAR
-							OR = {
-								is_subject_of = HIP
-								is_in_faction_with = HIP
-							}
-						}
-					}
-				}
-			}
-			else_if = {
-				limit = {
-					NOT = {
-						688 = { owner = { tag = TBK }}
-						1206 = { owner = { tag = TBK }}
-						743 = { owner = { tag = TBK }}
-						744 = { owner = { tag = TBK }}
-					}
-				}
-				transfer_state = 688
-				transfer_state = 1206
-				transfer_state = 743
-				transfer_state = 744
-			}
-			transfer_state = 710
-			if = {
-				limit = {
-					1199 = { owner = { tag = HIP }}
-				}
-				transfer_state = 1199
-			}
-			country_event = { 
-				id = north_war.23
-			}
-		}
-		CTH = {
-			transfer_state = 711
-			transfer_state = 698
-			transfer_state = 697
-			country_event = {
-				id = north_war.23
-			}
-		}
-		ZUM = {
-			every_core_state = {
-				remove_core_of = HIP
-			}
-		}
-	}
-}
-
-country_event = { #Novaya Severyana and Colthage receive the news that Hippogriffia will not surrender
-	id = north_war.25
-	immediate = {log = "[GetDateText]: [Root.GetName]: event north_war.25"}
-	title = north_war.25.t
-	desc = north_war.25.d
-
-	picture = GFX_event_sao_macaw
-	is_triggered_only = yes
-
-	option = {
-		trigger = {
-			original_tag = TBK
-		}
-		name = north_war.25.a
-		custom_effect_tooltip = northern_total_war_2_tp
-		add_war_support = 0.10
-		hidden_effect = {
-		    clr_country_flag = partial_war
-			set_country_flag = permenant_total_war
-		}
-	}
-	option = {
-		trigger = {
-			original_tag = CTH
-		}
-		name = north_war.25.b
-		custom_effect_tooltip = northern_total_war_2_tp
-		add_war_support = 0.10
-		hidden_effect = {
-			clr_country_flag = partial_war
-			set_country_flag = permenant_total_war
-		}
-	}
-}
-
-country_event = { #Hippogriffia Receives the White Peace Offer from Novaya Severyana
-	id = north_war.26
-	immediate = {log = "[GetDateText]: [Root.GetName]: event north_war.26"}
-	title = north_war.26.t
-	desc = north_war.26.d
-
-	picture = GFX_event_sao_macaw
-	is_triggered_only = yes
-
-	option = { #Accept
-		ai_chance = {
-			factor = 90
-		}
-		name = north_war.26.a
-		hidden_effect = {
-			country_event = {
-				id = north_war.28
-			}
-		}
-		hidden_effect = {
-			every_other_country = {
-				limit = {
-					has_war_with = HIP
-					NOT = {
-						has_country_flag = north_zebrican_war_participant
-					}
-					OR = {
-						is_faction_leader = yes
-						is_in_faction = no
-						AND = {
-							is_in_faction = yes
-							var:faction_leader = {
-							NOT = {
-								has_war_with = HIP
-								}
-							}
-						}
-					}
-				}
-				country_event = {
-					id = north_war.33
-					days = 2
-				}
-			}
-		}
-		hidden_effect = {
-			country_event = {
-				id = hippogriff.1002
-				days = 3
-			}
-		}
-	}
-
-	option = { #Refuse
-		ai_chance = {
-			factor = 10
-		}
-		name = north_war.26.b
-		custom_effect_tooltip = northern_total_war_tp
-		add_stability = -0.05
-		add_war_support = -0.05
-		add_popularity = {
-			ideology = var:current_party_ideology_group
-			popularity = -0.05
-		}
-		country_event = {
-			id = hippogriff.66
-			days = 2
-		}
-		hidden_effect = {
-			BAT = {
-				country_event = {
-					id = north_war.8
-				}
-			}
-		}
-	}
-}
-
-country_event = { #Novaya Severyana Recieves News that it got what it wanted
-	id = north_war.27
-	immediate = {log = "[GetDateText]: [Root.GetName]: event north_war.27"}
-	title = north_war.27.t
-	desc = north_war.27.d
-
-	picture = GFX_event_sao_macaw
-	is_triggered_only = yes
-
-	option = {
-		name = north_war.27.a
-		set_country_flag = BAT_HIP_defeated
-		clr_country_flag = north_zebrican_war_participant
-	}
-}
-
-country_event = { #Hidden Event for smooth transition
-	id = north_war.28
-	immediate = {log = "[GetDateText]: [Root.GetName]: event north_war.28"}
-	hidden = yes
-
-	is_triggered_only = yes
-
-	option = {
-		name = north_war.28.a
-		HIP = {
-			set_country_flag = { flag = bypass_on_peaceconference_ended days = 1 value = 1 }
-			white_peace = TBK
-		}
-		every_other_country = {
-			limit = {
-				OR = {
-					is_subject_of = TBK
-					is_in_faction_with = TBK
-				}
-			}
-			set_country_flag = { flag = bypass_on_peaceconference_ended days = 1 value = 1 }
 			white_peace = HIP
 		}
-		every_other_country = {
-			limit = {
-				OR = {
-					is_subject_of = ROOT
-					is_in_faction_with = ROOT
-				}
-			}
-			set_country_flag = { flag = bypass_on_peaceconference_ended days = 1 value = 1 }
-			white_peace = BAT
-		}
-		TBK = {
-			if = {
-				limit = {
+	}
+	option = {#No way
+		name = north_war.7.b
+		ai_chance = {
+			factor = 1000
+			modifier = {
+				NOT = {
 					OR = {
-						AND = {
-							country_exists = WAR
-							WAR = {
-								has_war_with = BAT
-								has_war_with = CTH
-							}
+						has_country_leader = {
+							ruling_only = yes
+							character = BAT_ocean_spray
 						}
-						AND = {
-							country_exists = WAR
-							OR = {
-								is_subject_of = HIP
-								is_in_faction_with = HIP
-							}
+						has_country_leader = {
+							ruling_only = yes
+							character = CTH_hiram_zerranid
 						}
+						original_tag = DED
+						has_country_flag = ZAR_wormy
 					}
 				}
-			}
-			else_if = {
-				limit = {
-					NOT = {
-						688 = { owner = { tag = TBK }}
-						1206 = { owner = { tag = TBK }}
-						743 = { owner = { tag = TBK }}
-						744 = { owner = { tag = TBK }}
-					}
-				}
-				transfer_state = 688
-				transfer_state = 1206
-				transfer_state = 743
-				transfer_state = 744
-			}
-			if = {
-				limit = {
-					1199 = { owner = { tag = HIP }}
-				}
-				transfer_state = 1199
-			}
-			country_event = { 
-				id = north_war.6
+				factor = 0
 			}
 		}
-		if = {
-		    limit = {
-			    710 = {
-			        owner = {
-				        OR = {
-				            tag = HIP
-				            OR = {
-						        is_subject_of = HIP
-						        is_in_faction_with = HIP
-					        }
-				        }
-			        }
-		        }
-			}
-			TBK = {
-				transfer_state = 710
-			}
-		}
-		if = {
-		    limit = {
-			    711 = {
-			        owner = {
-				        OR = {
-				            tag = HIP
-				            OR = {
-						        is_subject_of = HIP
-						        is_in_faction_with = HIP
-					        }
-				        }
-			        }
-		        }
-			}
-			TBK = {
-				transfer_state = 711
-			}
-		}
-		if = {
-		    limit = {
-			    698 = {
-			        owner = {
-				        OR = {
-				            tag = HIP
-				            OR = {
-						        is_subject_of = HIP
-						        is_in_faction_with = HIP
-					        }
-				        }
-			        }
-		        }
-			}
-			TBK = {
-				transfer_state = 698
-			}
-		}
-		if = {
-		    limit = {
-			    697 = {
-			        owner = {
-				        OR = {
-				            tag = HIP
-				            OR = {
-						        is_subject_of = HIP
-						        is_in_faction_with = HIP
-					        }
-				        }
-			        }
-		        }
-			}
-			TBK = {
-				transfer_state = 697
-			}
-		}
-		ZUM = {
-			every_core_state = {
-				remove_core_of = HIP
-			}
-		}
+		add_war_support = 0.05
 	}
 }
 
-country_event = { #Novaya Severyana receives the news that Hippogriffia will not surrender
-	id = north_war.29
-	immediate = {log = "[GetDateText]: [Root.GetName]: event north_war.29"}
-	title = north_war.29.t
-	desc = north_war.29.d
+country_event = { # Government of National Unity event (option to play as)
+	id = north_war.8
+	immediate = {log = "[GetDateText]: [Root.GetName]: event north_war.8"}
+	title = north_war.8.t
+	desc = north_war.8.d
 
-	picture = GFX_event_sao_macaw
+	picture = GFX_event_mt_aris
 	is_triggered_only = yes
 
 	option = {
-		name = north_war.29.a
-		custom_effect_tooltip = northern_total_war_2_tp
-		add_war_support = 0.10
-		hidden_effect = {
-			clr_country_flag = partial_war
-			set_country_flag = permenant_total_war
+		name = north_war.8.a
+		HIP = {
+			transfer_state = 683
+			transfer_state = 684
+			transfer_state = 685
+			transfer_state = 686
+			transfer_state = 1164
+			transfer_state = 1165
+			transfer_state = 1202
+			transfer_state = 1203
+			transfer_state = 1204
+
+			if = {
+				limit = {
+					has_government = communism
+				}
+				HIP_remove_all_posadist_ideas = yes
+			}
+			hidden_effect = {
+				if = {
+					limit = {
+						has_idea = HIP_phalanx_assault_teams
+					}
+					remove_ideas = HIP_phalanx_assault_teams
+				}
+				if = {
+					limit = {
+						has_idea = HIP_her_majestys_government
+					}
+					remove_ideas = HIP_her_majestys_government
+				}
+				if = {
+					limit = {
+						has_idea = HIP_royal_advisory_council
+					}
+					remove_ideas = HIP_royal_advisory_council
+				}
+				if = {
+					limit = {
+						has_idea = HIP_natsynd_idea
+					}
+					remove_ideas = HIP_natsynd_idea
+				}
+				remove_dynamic_modifier = {
+					modifier = HIP_phalangist_rule
+				}
+			}
+			add_country_leader_role = {
+				character = HIP_SIR_plumage_moonfeather
+				promote_leader = yes
+
+				country_leader = {
+					ideology = corporatocracy
+					desc = HIP_MOONFEATHER_DESC
+					expire = "1965.1.1"
+					traits = {
+						comically_corrupt_kleptocrat
+					}
+				}
+			}
+			set_party_name = {
+				ideology = fascism
+				long_name = HIP_moonfeather_clique_long
+				name = HIP_moonfeather_clique
+			}
+			set_party_name = {
+				ideology = democratic
+				long_name = HIP_resistance_party_long
+				name = HIP_resistance_party
+			}
+			set_party_name = {
+				ideology = neutrality
+				long_name = HIP_resistance_party_long
+				name = HIP_resistance_party
+			}
+			set_party_name = {
+				ideology = communism
+				long_name = HIP_resistance_party_long
+				name = HIP_resistance_party
+			}
+			set_politics = {
+				ruling_party = fascism
+				elections_allowed = no
+			}
+			set_cosmetic_tag = HIP_GNU
+			add_popularity = {
+				ideology = fascism
+				popularity = -1
+			}
+			load_focus_tree = HIP_GNU_tree
+		}
+	}
+	option = {
+		trigger = { is_ai = no }
+		name = north_war.8.b
+		HIP = { change_tag_from = ROOT }
+		HIP = {
+			transfer_state = 683
+			transfer_state = 684
+			transfer_state = 685
+			transfer_state = 686
+			transfer_state = 1164
+			transfer_state = 1165
+			transfer_state = 1202
+			transfer_state = 1203
+			transfer_state = 1204
+
+			if = {
+				limit = {
+					has_government = communism
+				}
+				HIP_remove_all_posadist_ideas = yes
+			}
+			hidden_effect = {
+				if = {
+					limit = {
+						has_idea = HIP_phalanx_assault_teams
+					}
+					remove_ideas = HIP_phalanx_assault_teams
+				}
+				if = {
+					limit = {
+						has_idea = HIP_her_majestys_government
+					}
+					remove_ideas = HIP_her_majestys_government
+				}
+				if = {
+					limit = {
+						has_idea = HIP_royal_advisory_council
+					}
+					remove_ideas = HIP_royal_advisory_council
+				}
+				if = {
+					limit = {
+						has_idea = HIP_natsynd_idea
+					}
+					remove_ideas = HIP_natsynd_idea
+				}
+				remove_dynamic_modifier = {
+					modifier = HIP_phalangist_rule
+				}
+			}
+			add_country_leader_role = {
+				character = HIP_SIR_plumage_moonfeather
+				promote_leader = yes
+
+				country_leader = {
+					ideology = corporatocracy
+					expire = "1965.1.1"
+					traits = {
+						comically_corrupt_kleptocrat
+					}
+				}
+			}
+			set_party_name = {
+				ideology = fascism
+				long_name = HIP_moonfeather_clique_long
+				name = HIP_moonfeather_clique
+			}
+			set_party_name = {
+				ideology = democratic
+				long_name = HIP_resistance_party_long
+				name = HIP_resistance_party
+			}
+			set_party_name = {
+				ideology = neutrality
+				long_name = HIP_resistance_party_long
+				name = HIP_resistance_party
+			}
+			set_party_name = {
+				ideology = communism
+				long_name = HIP_resistance_party_long
+				name = HIP_resistance_party
+			}
+			set_politics = {
+				ruling_party = fascism
+				elections_allowed = no
+			}
+			set_cosmetic_tag = HIP_GNU
+			add_popularity = {
+				ideology = fascism
+				popularity = -1
+			}
+			load_focus_tree = HIP_GNU_tree
 		}
 	}
 }
 
-country_event = { #Hidden event for WNG-HIP white peace
+# Hippogriffia-Wingbardy peace section
+# No 30 - white peace (hidden)
+# No 31 - Hippogriffia enforces ABY demands (hidden)
+# No 32 - Hippogriffia decides whata to do with ABY
+# No 34 - One year of war
+# No 35 - Two years of war
+# No 36 - More years of war
+
+# Hidden event for WNG-HIP white peace
+# Called by HIP_WNG_war_countdown and hippogriff.64
+country_event = { 
 	id = north_war.30
 	immediate = {log = "[GetDateText]: [Root.GetName]: event north_war.30"}
 	hidden = yes
@@ -2025,17 +705,7 @@ country_event = { #Hidden event for WNG-HIP white peace
 		WNG = {
 			set_country_flag = { flag = bypass_on_peaceconference_ended days = 1 value = 1 }
 			white_peace = HIP
-			clr_country_flag = north_zebrican_war_participant
-		}
-		every_other_country = {
-			limit = {
-				OR = {
-					is_subject_of = BAT
-					is_in_faction_with = BAT
-				}
-			}
-			set_country_flag = { flag = bypass_on_peaceconference_ended days = 1 value = 1 }
-			white_peace = HIP
+			clr_country_flag = NZW_war_participant
 		}
 		every_other_country = {
 			limit = {
@@ -2050,13 +720,17 @@ country_event = { #Hidden event for WNG-HIP white peace
 		every_other_country = {
 			limit = {
 				OR = {
-					is_subject_of = ROOT
-					is_in_faction_with = ROOT
+					is_subject_of = HIP
+					is_in_faction_with = HIP
 				}
 			}
 			set_country_flag = { flag = bypass_on_peaceconference_ended days = 1 value = 1 }
 			white_peace = WNG
 		}
+		
+		# NOTE: This event should ONLY ever fire if WNG is the last one to be defeated
+		# Therefore this marks the end of the NZW
+		NZW_on_end_effect = yes
 	}
 }
 
@@ -2075,7 +749,7 @@ country_event = { #Hidden event for HIP enforcing demands on WNG
 		WNG = {
 			set_country_flag = { flag = bypass_on_peaceconference_ended days = 1 value = 1 }
 			white_peace = HIP
-			clr_country_flag = north_zebrican_war_participant
+			clr_country_flag = NZW_war_participant
 		}
 		every_other_country = {
 			limit = {
@@ -2201,9 +875,11 @@ country_event = { #Hidden event for HIP enforcing demands on WNG
 			}
 		}
 		country_event = {
-			id = north_war.32
+			id = north_war.32 # Player gets informed
 			hours = 6
 		}
+
+		NZW_on_end_effect = yes
 	}
 }
 
@@ -2342,59 +1018,6 @@ country_event = {
 	}
 }
 
-country_event = {#NZW is over do we white peace HIP?
-	id = north_war.33
-	immediate = {log = "[GetDateText]: [Root.GetName]: event north_war.33"}
-	title = north_war.33.t
-	desc = north_war.33.d
-
-	picture = GFX_event_HIP_warzone
-	is_triggered_only = yes
-
-	option = {#Yeah sure
-		name = north_war.33.a
-		ai_chance = { factor = 1 }
-		HIP = {
-			set_country_flag = { flag = bypass_on_peaceconference_ended days = 1 value = 1 }
-			white_peace = ROOT
-		}
-		every_other_country = {
-			limit = {
-				OR = {
-					is_subject_of = ROOT
-					is_in_faction_with = ROOT
-				}
-			}
-			set_country_flag = { flag = bypass_on_peaceconference_ended days = 1 value = 1 }
-			white_peace = HIP
-		}
-	}
-	option = {#No way
-		name = north_war.33.b
-		ai_chance = {
-			factor = 1000
-			modifier = {
-				NOT = {
-					OR = {
-						has_country_leader = {
-							ruling_only = yes
-							character = BAT_ocean_spray
-						}
-						has_country_leader = {
-							ruling_only = yes
-							character = CTH_hiram_zerranid
-						}
-						original_tag = DED
-						has_country_flag = ZAR_wormy
-					}
-				}
-				factor = 0
-			}
-		}
-		add_war_support = 0.05
-	}
-}
-
 country_event = {#year one of war
 	id = north_war.34
 	immediate = {log = "[GetDateText]: [Root.GetName]: event north_war.34"}
@@ -2477,143 +1100,8 @@ country_event = {#another year of war
 	}
 }
 
-country_event = {#Hippogriffia is asking for peace
-	id = north_war.50
-	immediate = {log = "[GetDateText]: [Root.GetName]: event north_war.50"}
-	title = north_war.50.t
-	desc = north_war.50.d
-
-	picture = GFX_event_sao_macaw
-	is_triggered_only = yes
-
-	option = {#accept
-		ai_chance = {
-			factor = 90
-		}
-		name = north_war.50.a
-		hidden_effect = {
-			HIP = {
-				country_event = {
-					id = hippogriff.1002
-					days = 3
-				}
-			}
-		}
-		if = {
-			limit = {
-				AND = {
-					CTH = {
-						has_country_flag = north_zebrican_war_participant
-					}
-					BAT = {
-						has_country_flag = north_zebrican_war_participant
-					}
-					WNG = {
-						has_country_flag = north_zebrican_war_participant
-					}
-				}
-			}
-			hidden_effect = {
-				HIP = {
-					country_event = {
-						id = north_war.15
-					}
-				}
-			}
-			BAT = {transfer_state = 695}
-		}
-		else_if = {
-			limit = {
-				AND = {
-					CTH = {
-						has_country_flag = north_zebrican_war_participant
-					}
-					BAT = {
-						has_country_flag = north_zebrican_war_participant
-					}
-				}
-			}
-			hidden_effect = {
-				HIP = {
-					country_event = {
-						id = north_war.3
-					}
-				}
-				CTH = {transfer_state = 695}
-			}
-		}
-		else_if = {
-			limit = {
-				BAT = {
-					has_country_flag = north_zebrican_war_participant
-				}
-			}
-			hidden_effect = {
-				HIP = {
-					country_event = {
-						id = north_war.7
-					}
-				}
-				BAT = {transfer_state = 695}
-			}
-		}
-		else_if = {
-			limit = {
-				TBK = {
-					has_country_flag = north_zebrican_war_participant
-				}
-				CTH = {
-					has_country_flag = north_zebrican_war_participant
-				}
-			}
-			hidden_effect = {
-				HIP = {
-					country_event = {
-						id = north_war.24
-					}
-				}
-				TBK = {transfer_state = 695}
-			}
-		}
-		else_if = {
-			limit = {
-				CTH = {
-					has_country_flag = north_zebrican_war_participant
-				}
-			}
-			hidden_effect = {
-				HIP = {
-					country_event = {
-						id = north_war.11
-					}
-				}
-				CTH = {transfer_state = 695}
-			}
-		}
-		else_if = {
-			limit = {
-				TBK = {
-					has_country_flag = north_zebrican_war_participant
-				}
-			}
-			hidden_effect = {
-				HIP = {
-					country_event = {
-						id = north_war.28
-					}
-				}
-			}
-			TBK = {transfer_state = 695}
-		}
-	}
-	option = {#refuse
-		name = north_war.50.b
-		ai_chance = {
-			factor = 10
-		}
-	}
-}
-
+# North Zebrican War breakout news
+# Called by NZW_on_start_effect
 news_event = {
 	id = north_war.101
 	immediate = {log = "[GetDateText]: [Root.GetName]: event north_war.101"}
@@ -2626,37 +1114,19 @@ news_event = {
 
 
 	desc = {
-		text = north_war.101.d1
+		text = north_war.101.d1 # Colthage and Chiropterra - historical, alliance (or both at war)
 		trigger = {
-			CTH = {
-				has_war_with = HIP
+			NZ1 = {
+				tag = CTH
 			}
-			BAT = {
-				has_war_with = HIP
+			NZ2 = {
+				tag = BAT
 			}
 			OR = {
-				HIP = {
-					has_defensive_war = yes
-				}
-				WAR = {
-					AND = {
-						has_defensive_war = yes
-						NOT = {has_war_with = HIP}
-					}
-				}
-			}
-		}
-	}
-
-	desc = {
-		text = north_war.101.d2
-		trigger = {
-			CTH = {
-				has_war_with = HIP
-			}
-			NOT = {
-				BAT = {
-					has_war_with = HIP
+				has_global_flag = NZW_alliance_signed
+				AND = {
+					CTH = { has_war_with = HIP }
+					BAT = { has_war_with = HIP }
 				}
 			}
 			OR = {
@@ -2674,16 +1144,41 @@ news_event = {
 	}
 
 	desc = {
-		text = north_war.101.d3
+		text = north_war.101.d2 # Colthage alone
 		trigger = {
-			NOT = {
-				CTH = {
-					has_war_with = HIP
-				}
-			}
-			BAT = {
+			NZ1 = {
+				tag = CTH
 				has_war_with = HIP
 			}
+			NZ2 = {
+				NOT = { has_war_with = HIP }
+			}
+			NOT = { has_global_flag = NZW_alliance_signed }
+			OR = {
+				HIP = {
+					has_defensive_war = yes
+				}
+				WAR = {
+					AND = {
+						has_defensive_war = yes
+						NOT = {has_war_with = HIP}
+					}
+				}
+			}
+		}
+	}
+
+	desc = {
+		text = north_war.101.d3 # Chiropterra alone
+		trigger = {
+			NZ2 = {
+				tag = BAT
+				has_war_with = HIP
+			}
+			NZ1 = {
+				NOT = { has_war_with = HIP }
+			}
+			NOT = { has_global_flag = NZW_alliance_signed }
 			OR = {
 				HIP = {
 					has_defensive_war = yes
@@ -2714,16 +1209,29 @@ news_event = {
 	}
 
 	desc = {
-		text = north_war.101.d5
+		text = north_war.101.d5 # Some other war
 		trigger = {
-			NOT = {
-				CTH = {
-					has_war_with = HIP
+			OR = { # Either of the two main tags is not historical
+				NZ1 = {
+					NOT = { tag = CTH }
+				}
+				NZ2 = {
+					NOT = { tag = BAT }
 				}
 			}
-			NOT = {
-				BAT = {
-					has_war_with = HIP
+			OR = { # A war participant is not historical
+				has_global_flag = NZW_alliance_signed
+				NZ1 = {
+					AND = {
+						NOT = { tag = CTH }
+						has_war_with = HIP
+					}
+				}
+				NZ2 = {
+					AND = {
+						NOT = { tag = CTH }
+						has_war_with = HIP
+					}
 				}
 			}
 			OR = {
@@ -2776,7 +1284,7 @@ news_event = {
 	option = {
 		name = north_war.101.c
 		trigger = {
-			has_country_flag = north_zebrican_war_participant
+			has_country_flag = NZW_war_participant
 			has_war_with = HIP
 		}
 	}
@@ -2822,7 +1330,7 @@ news_event = {
 			original_tag = WNG
 			has_government = fascism
 			NOT = {
-				has_country_flag = north_zebrican_war_participant
+				has_country_flag = NZW_war_participant
 			}
 			BAT = {
 				has_war_with = HIP
@@ -2836,7 +1344,7 @@ news_event = {
 		name = north_war.101.g
 		trigger = {
 			NOT = {
-				has_country_flag = north_zebrican_war_participant
+				has_country_flag = NZW_war_participant
 				has_country_leader = {
 					character = EQC_big_sister
 					ruling_only = yes
@@ -2885,200 +1393,498 @@ news_event = {
 	}
 }
 
-country_event = { #GNU
-	id = north_war.102
-	immediate = {log = "[GetDateText]: [Root.GetName]: event north_war.102"}
-	title = north_war.102.t
-	desc = north_war.102.d
+country_event = { # Ask the player if they want to offer an alliance (called in NZW_alliance_effect) - TODO: Write event chain loc
+	id = north_war_alliance.1
+	immediate = {log = "[GetDateText]: [Root.GetName]: event north_war_alliance.1"}
+	title = north_war_alliance.1.t
+	desc = north_war_alliance.1.d
 
-	picture = GFX_event_mt_aris
+	picture = GFX_event_sao_macaw
 	is_triggered_only = yes
 
-	option = {
-		name = north_war.102.a
-		HIP = {
-			transfer_state = 683
-			transfer_state = 684
-			transfer_state = 685
-			transfer_state = 686
-			transfer_state = 1164
-			transfer_state = 1165
-			transfer_state = 1202
-			transfer_state = 1203
-			transfer_state = 1204
-
-			if = {
-				limit = {
-					has_government = communism
-				}
-				HIP_remove_all_posadist_ideas = yes
+	immediate = {
+		if = {
+			limit = {
+				tag = NZ1
 			}
-			hidden_effect = {
-				if = {
-					limit = {
-						has_idea = HIP_phalanx_assault_teams
-					}
-					remove_ideas = HIP_phalanx_assault_teams
-				}
-				if = {
-					limit = {
-						has_idea = HIP_her_majestys_government
-					}
-					remove_ideas = HIP_her_majestys_government
-				}
-				if = {
-					limit = {
-						has_idea = HIP_royal_advisory_council
-					}
-					remove_ideas = HIP_royal_advisory_council
-				}
-				if = {
-					limit = {
-						has_idea = HIP_natsynd_idea
-					}
-					remove_ideas = HIP_natsynd_idea
-				}
-				remove_dynamic_modifier = {
-					modifier = HIP_phalangist_rule
-				}
+			set_variable = {
+				NZW_alliance_receiver = NZ2
 			}
-			add_country_leader_role = {
-				character = HIP_SIR_plumage_moonfeather
-				promote_leader = yes
-
-				country_leader = {
-					ideology = corporatocracy
-					desc = HIP_MOONFEATHER_DESC
-					expire = "1965.1.1"
-					traits = {
-						comically_corrupt_kleptocrat
-					}
-				}
+		}
+		else = {
+			set_variable = {
+				NZW_alliance_receiver = NZ1
 			}
-			set_party_name = {
-				ideology = fascism
-				long_name = HIP_moonfeather_clique_long
-				name = HIP_moonfeather_clique
-			}
-			set_party_name = {
-				ideology = democratic
-				long_name = HIP_resistance_party_long
-				name = HIP_resistance_party
-			}
-			set_party_name = {
-				ideology = neutrality
-				long_name = HIP_resistance_party_long
-				name = HIP_resistance_party
-			}
-			set_party_name = {
-				ideology = communism
-				long_name = HIP_resistance_party_long
-				name = HIP_resistance_party
-			}
-			set_politics = {
-				ruling_party = fascism
-				elections_allowed = no
-			}
-			set_cosmetic_tag = HIP_GNU
-			add_popularity = {
-				ideology = fascism
-				popularity = -1
-			}
-			load_focus_tree = HIP_GNU_tree
 		}
 	}
-	option = {
-		trigger = { is_ai = no }
-		name = north_war.102.b
-		HIP = { change_tag_from = ROOT }
-		HIP = {
-			transfer_state = 683
-			transfer_state = 684
-			transfer_state = 685
-			transfer_state = 686
-			transfer_state = 1164
-			transfer_state = 1165
-			transfer_state = 1202
-			transfer_state = 1203
-			transfer_state = 1204
 
+	option = { #Send the offer
+		ai_chance = {
+			base = 10
+		}
+		name = north_war_alliance.1.a
+		
+		if = {
+			limit = {
+				THIS = {
+					tag = NZ1
+				}
+			}
+			NZ2 = {
+				country_event = north_war_alliance.2
+			}
+		}
+		else = {
+			NZ1 = {
+				country_event = north_war_alliance.2
+			}
+		}
+	}
+	
+	option = { #Don't send the offer
+		ai_chance = {
+			base = 0
+		}
+		name = north_war_alliance.1.b
+
+		if = { # Special case for if Colthage doesn't want have the alliance (why would you do that???)
+			limit = {
+				tag = CTH
+				has_completed_focus = CTH_the_batfag_alliance
+			}
+			uncomplete_national_focus = {
+				focus = CTH_the_batfag_alliance
+			}
+			complete_national_focus = CTH_on_our_own
+			add_political_power = -50 # Taken from CTH event
+			add_ideas = CTH_preparing_for_war # Focus effect
+		}
+		else_if = { # Special case for if Chiropterra doesn't want to
+			limit = {
+				tag = BAT
+			}
+			create_faction = BAT_lunar_hegemony
+			every_subject_country = {
+				BAT = {
+					add_to_faction = PREV
+				}
+			}
+			set_country_flag = BAT_CTH_made_a_mistake
+		}
+	}
+}
+
+country_event = { # Gets asked about if they want to join alliance
+	id = north_war_alliance.2
+	immediate = {log = "[GetDateText]: [Root.GetName]: event north_war_alliance.2"}
+	title = north_war_alliance.2.t
+	desc = north_war_alliance.2.d
+
+	picture = GFX_event_sao_macaw
+	is_triggered_only = yes
+
+	option = { #Accept
+		ai_chance = {
+			base = 10
+		}
+		name = north_war_alliance.2.a
+		
+		NZ1 = {
 			if = {
 				limit = {
-					has_government = communism
+					is_faction_leader = yes
 				}
-				HIP_remove_all_posadist_ideas = yes
-			}
-			hidden_effect = {
-				if = {
+				every_other_country = {
 					limit = {
-						has_idea = HIP_phalanx_assault_teams
+						is_in_faction_with = NZ1
 					}
-					remove_ideas = HIP_phalanx_assault_teams
+					set_country_flag = NZW_was_in_NZ1_faction
 				}
-				if = {
-					limit = {
-						has_idea = HIP_her_majestys_government
-					}
-					remove_ideas = HIP_her_majestys_government
-				}
-				if = {
-					limit = {
-						has_idea = HIP_royal_advisory_council
-					}
-					remove_ideas = HIP_royal_advisory_council
-				}
-				if = {
-					limit = {
-						has_idea = HIP_natsynd_idea
-					}
-					remove_ideas = HIP_natsynd_idea
-				}
-				remove_dynamic_modifier = {
-					modifier = HIP_phalangist_rule
-				}
+				set_country_flag = NZW_was_faction_leader
+				
+				dismantle_faction = yes
 			}
-			add_country_leader_role = {
-				character = HIP_SIR_plumage_moonfeather
-				promote_leader = yes
-
-				country_leader = {
-					ideology = corporatocracy
-					expire = "1965.1.1"
-					traits = {
-						comically_corrupt_kleptocrat
-					}
-				}
-			}
-			set_party_name = {
-				ideology = fascism
-				long_name = HIP_moonfeather_clique_long
-				name = HIP_moonfeather_clique
-			}
-			set_party_name = {
-				ideology = democratic
-				long_name = HIP_resistance_party_long
-				name = HIP_resistance_party
-			}
-			set_party_name = {
-				ideology = neutrality
-				long_name = HIP_resistance_party_long
-				name = HIP_resistance_party
-			}
-			set_party_name = {
-				ideology = communism
-				long_name = HIP_resistance_party_long
-				name = HIP_resistance_party
-			}
-			set_politics = {
-				ruling_party = fascism
-				elections_allowed = no
-			}
-			set_cosmetic_tag = HIP_GNU
-			add_popularity = {
-				ideology = fascism
-				popularity = -1
-			}
-			load_focus_tree = HIP_GNU_tree
 		}
+		NZ2 = {
+			if = {
+				limit = {
+					is_faction_leader = yes
+				}
+				every_other_country = {
+					limit = {
+						is_in_faction_with = NZ2
+					}
+					set_country_flag = NZW_was_in_NZ2_faction
+				}
+				set_country_flag = NZW_was_faction_leader
+				
+				dismantle_faction = yes
+			}
+		}
+
+		set_global_flag = NZW_alliance_signed
+		
+		# FROM is proposer of the alliance and gets to lead it
+		FROM = {
+			create_faction = NZW_anti_aris_axis
+			every_other_country = {
+				limit = {
+					OR = {
+						tag = NZ1
+						tag = NZ2
+						is_subject_of = NZ1
+						is_subject_of = NZ2
+						has_country_flag = NZW_was_in_NZ1_faction
+						has_country_flag = NZW_was_in_NZ2_faction
+					}
+				}
+				FROM = {
+					add_to_faction = PREV
+				}
+			}
+		}
+
+		NZ1 = {
+			add_ai_strategy = {
+				id = NZ2
+				type = alliance
+				value = 200
+			}
+		}
+		NZ2 = {
+		 	add_ai_strategy = {
+				id = NZ1
+				type = alliance
+				value = 200
+		  	}
+		}
+
+		if = { # If Warzena is allied with the Hippogriffs, exchange Zinder
+			limit = {
+				WAR = { NZW_is_aligned_with_HIP = yes }
+			}
+			NZ1 = {
+				transfer_state = 748 # Zinder
+			}
+		}
+
+		# Make sure that both need to capitulate
+		NZ1 = { set_major = yes }
+		NZ2 = { set_major = yes }
+		
+		FROM = {
+			country_event = north_war_alliance.3 # Inform
+		}
+	}
+	
+	option = { #Decline
+		ai_chance = {
+			base = 0
+		}
+		name = north_war_alliance.2.b
+		
+		FROM = {
+			country_event = north_war_alliance.4 # Inform
+		}
+	}
+}
+
+country_event = { # Alliance got accepted
+	id = north_war_alliance.3
+	immediate = {log = "[GetDateText]: [Root.GetName]: event north_war_alliance.3"}
+	title = north_war_alliance.3.t
+	desc = north_war_alliance.3.d
+
+	picture = GFX_event_sao_macaw
+	is_triggered_only = yes
+		
+	option = { # Yay
+		name = north_war_alliance.3.a
+	}
+}
+
+country_event = { # Alliance got rejected
+	id = north_war_alliance.4
+	immediate = {log = "[GetDateText]: [Root.GetName]: event north_war_alliance.4"}
+	title = north_war_alliance.4.t
+	desc = north_war_alliance.4.d
+
+	picture = GFX_event_sao_macaw
+	is_triggered_only = yes
+		
+	option = { # Regrettable
+		name = north_war_alliance.4.a
+
+		if = { # Special case for if Colthage got rejected
+			limit = {
+				tag = CTH
+				has_completed_focus = CTH_the_batfag_alliance
+			}
+			uncomplete_national_focus = {
+				focus = CTH_the_batfag_alliance
+			}
+			complete_national_focus = CTH_on_our_own
+			add_political_power = -50 # Taken from CTH event
+			add_ideas = CTH_preparing_for_war # Focus effect
+		}
+		else_if = { # Special case for if Chiropterra got rejected
+			limit = {
+				tag = BAT
+			}
+			create_faction = BAT_lunar_hegemony
+			every_subject_country = {
+				BAT = {
+					add_to_faction = PREV
+				}
+			}
+			set_country_flag = BAT_CTH_made_a_mistake
+		}
+	}
+}
+
+# Ask the player if they want to dissolve an alliance - TODO: Write event chain loc
+# Called in north_war.2 (if limited victory) OR in eaw_peaceconference_end_on_actions.txt (if total victory)
+country_event = { 
+	id = north_war_alliance.5
+	immediate = {log = "[GetDateText]: [Root.GetName]: event north_war_alliance.5"}
+	title = { # zarca special case
+		text = north_war_alliance.5.t_CTH
+		trigger = {
+			tag = CTH
+			has_country_flag = CTH_colthage_zarcaid
+		}
+	} 
+	title = { # default
+		text = north_war_alliance.5.t
+		trigger = {
+			NOT = {
+				tag = CTH
+				has_country_flag = CTH_colthage_zarcaid
+			}
+		}
+	}
+	desc = { # zarca special case
+		text = north_war_alliance.5.d_CTH
+		trigger = {
+			tag = CTH
+			has_country_flag = CTH_colthage_zarcaid
+		}
+	}
+	desc = { # default
+		text = north_war_alliance.5.d
+		trigger = {
+			NOT = {
+				tag = CTH
+				has_country_flag = CTH_colthage_zarcaid
+			}
+		}
+	}
+
+	picture = GFX_event_sao_macaw
+	is_triggered_only = yes
+		
+	option = { # Keep Alliance
+		ai_chance = {
+			base = 9
+		}
+		name = north_war_alliance.5.a
+		
+		set_country_flag = NZW_keep_alliance_flag
+		add_to_variable = { global.NZW_countries_alliance_event_option_counter = 1 }
+		
+		hidden_effect = {
+			country_event = {
+				id = north_war_alliance.6
+				days = 1
+			}
+		}
+	}
+
+	option = { # Dissolve Alliance
+		ai_chance = {
+			base = 1
+		}
+		trigger = { 
+			NOT = { 
+				tag = CTH
+				has_country_flag = CTH_colthage_zarcaid 
+			} 
+		}
+		name = north_war_alliance.5.b
+		
+		set_country_flag = NZW_dissolve_alliance_flag
+		add_to_variable = { global.NZW_countries_alliance_event_option_counter = 1 }
+		
+		hidden_effect = {
+			country_event = {
+				id = north_war_alliance.6
+				days = 1
+			}
+		}
+	}
+
+	option = { # Dissolve Alliance - CTH version
+		ai_chance = {
+			base = 1
+		}
+		name = north_war_alliance.5.c
+		trigger = { 
+			tag = CTH
+			has_country_flag = CTH_colthage_zarcaid
+		}
+		
+		set_country_flag = NZW_dissolve_alliance_flag
+		add_to_variable = { global.NZW_countries_alliance_event_option_counter = 1 }
+		
+		hidden_effect = {
+			country_event = {
+				id = north_war_alliance.6
+				days = 1
+			}
+		}
+	}
+}
+
+country_event = {
+	id = north_war_alliance.6
+	immediate = {log = "[GetDateText]: [Root.GetName]: event north_war_alliance.6"}
+	
+	hidden = yes
+	
+	is_triggered_only = yes
+	fire_only_once = yes
+	trigger = { check_variable = { global.NZW_countries_alliance_event_option_counter = 2 } } # Only after both have responded
+		
+	option = {
+		name = north_war_alliance.5.a
+		
+		if = {
+			limit = {
+				NZ1 = {
+					has_country_flag = NZW_keep_alliance_flag
+				}
+				NZ2 = {
+					has_country_flag = NZW_keep_alliance_flag
+				}
+			}
+			# Rename alliance and keep it
+			set_faction_name = BAT_aghzat_pact
+			
+			NZ1 = {
+				country_event = north_war_alliance.7 # Yay event
+			}
+			NZ2 = {
+				country_event = north_war_alliance.7 # Yay event
+			}
+		}
+		else_if = {
+			limit = {
+				NZ1 = {
+					has_country_flag = NZW_keep_alliance_flag
+				}
+				NZ2 = {
+					has_country_flag = NZW_dissolve_alliance_flag
+				}
+			}
+
+			set_variable = {
+				NZW_alliance_dissolver = NZ2
+			}
+
+			NZW_alliance_dissolve_effect = yes
+			NZ1 = {
+				country_event = north_war_alliance.8 # How sad event
+			}
+			NZ2 = {
+				country_event = north_war_alliance.9 # Good riddance event
+			}
+		}
+		else_if = {
+			limit = {
+				NZ1 = {
+					has_country_flag = NZW_dissolve_alliance_flag
+				}
+				NZ2 = {
+					has_country_flag = NZW_keep_alliance_flag
+				}
+			}
+
+			set_variable = {
+				NZW_alliance_dissolver = NZ1
+			}
+
+			NZW_alliance_dissolve_effect = yes
+			NZ1 = {
+				country_event = north_war_alliance.9 # Good riddance event
+			}
+			NZ2 = {
+				country_event = north_war_alliance.8 # How sad event
+			}
+		}
+		else = {
+			NZW_alliance_dissolve_effect = yes
+			NZ1 = {
+				country_event = north_war_alliance.10 # Good riddance to you too event
+			}
+			NZ2 = {
+				country_event = north_war_alliance.10 # Good riddance to you too event
+			}
+		}
+	}
+}
+
+country_event = { # Both sides agreed to keep the alliance
+	id = north_war_alliance.7
+	immediate = {log = "[GetDateText]: [Root.GetName]: event north_war_alliance.7"}
+	title = north_war_alliance.7.t
+	desc = north_war_alliance.7.d
+
+	picture = GFX_event_sao_macaw
+	is_triggered_only = yes
+		
+	option = { # Yay
+		name = north_war_alliance.7.a
+	}
+}
+
+country_event = { # The other side wanted to dissolve the alliance, so it goes
+	id = north_war_alliance.8
+	immediate = {log = "[GetDateText]: [Root.GetName]: event north_war_alliance.8"}
+	title = north_war_alliance.8.t
+	desc = north_war_alliance.8.d
+
+	picture = GFX_event_sao_macaw
+	is_triggered_only = yes
+		
+	option = { # How sad
+		name = north_war_alliance.8.a
+	}
+}
+
+country_event = { # We wanted to dissolve the alliance, so it goes
+	id = north_war_alliance.9
+	immediate = {log = "[GetDateText]: [Root.GetName]: event north_war_alliance.9"}
+	title = north_war_alliance.9.t
+	desc = north_war_alliance.9.d
+
+	picture = GFX_event_sao_macaw
+	is_triggered_only = yes
+		
+	option = { # Good riddance
+		name = north_war_alliance.9.a
+	}
+}
+
+country_event = { # Both wanted to dissolve the alliance, so it goes
+	id = north_war_alliance.10
+	immediate = {log = "[GetDateText]: [Root.GetName]: event north_war_alliance.10"}
+	title = north_war_alliance.10.t
+	desc = north_war_alliance.10.d
+
+	picture = GFX_event_sao_macaw
+	is_triggered_only = yes
+		
+	option = { # Good riddance
+		name = north_war_alliance.10.a
 	}
 }
