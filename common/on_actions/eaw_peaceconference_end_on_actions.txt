@@ -833,14 +833,15 @@ on_actions = {
 					set_global_flag = prywhen_civil_war_is_over
 				}
 
-				if = {
+				# NZW related code start
+				if = { # Hippogriff loss
 					limit = {
 						ROOT = {
 							OR = {
-								has_country_flag = north_zebrican_war_participant
+								has_country_flag = NZW_war_participant
 								AND = {
 									original_tag = BAT
-									has_global_flag = BAT_won_civil_war
+									has_global_flag = BAT_won_civil_war # Lunar Civil War
 								}
 							}
 						}
@@ -852,9 +853,24 @@ on_actions = {
 						}
 					}
 					set_country_flag = BAT_HIP_defeated
-					clr_country_flag = north_zebrican_war_participant
+					if = {
+						limit = {
+							NOT = { has_global_flag = NZW_ended }
+						}
+						NZW_on_end_effect = yes
+					}
+					if = {
+						limit = { # Major alliance partner
+							OR = {
+								tag = NZ1
+								tag = NZ2
+							}
+							has_global_flag = NZW_alliance_signed
+						}
+						country_event = north_war_alliance.5 # Option to dissolve alliance
+					}
 				}
-				if = {
+				if = { # Hippogriff victory
 					limit = {
 						ROOT = {
 							original_tag = HIP
@@ -866,39 +882,37 @@ on_actions = {
 							OR = {
 								AND = {
 									OR = {
-										tag = BAT
-										tag = CTH
-										tag = TBK
+										tag = NZ1
+										tag = NZ2
 										tag = WNG
 									}
-									has_country_flag = north_zebrican_war_participant
+									has_country_flag = NZW_war_participant
 								}
 								tag = HIE
 							}
 						}
-						NOT = {
+						NOT = { # No one remaining
 							ROOT = {
 								any_enemy_country = {
 									is_subject = no
-									has_country_flag = north_zebrican_war_participant
+									has_country_flag = NZW_war_participant
 									has_capitulated = no
 								}
 							}
 						}
 					}
 					set_country_flag = HIP_won_north_zebrican_war
-					ROOT = {clr_country_flag = north_zebrican_war_participant}
-					FROM = {clr_country_flag = north_zebrican_war_participant}
+					NZW_on_end_effect = yes
 					mark_focus_tree_layout_dirty = yes
 				}
-				else_if = {
+				else_if = { # Hippogriffs started the war (south)
 					limit = {
 						ROOT = {
 							original_tag = HIP
 							has_completed_focus = HIP_strike_first
 						}
 						FROM = {
-							OR = {
+							OR = { # Southern tag
 								original_tag = TBK
 								original_tag = ZAR
 								original_tag = BAT
@@ -917,7 +931,7 @@ on_actions = {
 					set_country_flag = HIP_won_north_zebrican_war
 					mark_focus_tree_layout_dirty = yes
 				}
-				if = {
+				if = { # Chiropterra defeated, remove cored regions
 					limit = {
 						FROM = {
 							original_tag = BAT
@@ -943,7 +957,7 @@ on_actions = {
 						}
 					}
 				}
-				if = {
+				if = { # Chiropterra as victor in the NZW (not Lunar victory)
 					limit = {
 						original_tag = BAT
 						NOT = {
@@ -951,151 +965,92 @@ on_actions = {
 							has_country_flag = BAT_national_catastrophe
 						}
 						NOT = {
-							WAR = {
-								exists = yes
-								is_subject = no
-							}
-							ZAR = {
-								exists = yes
-								is_subject = no
-							}
-							TBK = {
-								exists = yes
-								is_subject = no
-							}
-						}
-						NOT = {
 						    has_global_flag = BAT_won_civil_war
 						}
-						OR = {
-						    has_country_flag = total_war
-							has_country_flag = partial_war
-							has_country_flag = permenant_total_war
-						    has_country_flag = HIE_BAT_alliance
+						OR = { # Was in North Zebrican War
+							has_global_flag = NZW_in_progress
+							has_global_flag = NZW_ended
 						}
+						NOT = { has_country_flag = NZW_BAT_victory_handled }
 						FROM = {
 						    original_tag = HIP
 						}
+					}
+					set_country_flag = NZW_BAT_victory_handled # fire only once
+					# If not in an alliance, you get this now, otherwise after the alliance is either kept or NZ1 defeated
+					if = { 
+						limit = {
+							NOT = { has_global_flag = NZW_alliance_signed }
+						}
+						if = {
+							limit = { # Controls the home region
+								NOT = {
+									WAR = {
+										exists = yes
+										is_subject = no
+									}
+								}
+								NOT = {
+									ZAR = {
+										exists = yes
+										is_subject = no
+									}
+								}
+								NOT = {
+									TBK = {
+										exists = yes
+										is_subject = no
+									}
+								}
+							}
+							country_event = bat.81 # Chiropterran Commonwealth proclaimed
+						}
+						else = {
+							country_event = bat.79 # Declare war on rest of your home region (should never happen)
+						}
+					}
+				}
+				if = { # Chiropterra triumphed over HIP (with Lunar victory)
+					limit = {
+						original_tag = BAT
+						NOT = {
+							has_country_flag = BAT_commonwealth_established
+							has_country_flag = BAT_national_catastrophe
+						}
+						has_global_flag = BAT_won_civil_war
+						FROM = {
+						    original_tag = HIP
+						}
+
 					}
 					if = {
 						limit = {
-							is_in_faction_with = CTH
-							CTH = {
-								has_country_leader = {
-									character = CTH_zalathel_zarca
-									ruling_only = yes
+							NOT = {
+								WAR = {
+									exists = yes
+									is_subject = no
+								}
+								ZAR = {
+									exists = yes
+									is_subject = no
+								}
+								TBK = {
+									exists = yes
+									is_subject = no
 								}
 							}
 						}
-						CTH = {
-							country_event = {
-								id = colthage_other.211
-							}
+						country_event = {
+							id = bat.130
 						}
 					}
 					else = {
-						country_event = bat.81
-					}
-				}
-				if = {
-					limit = {
-						original_tag = BAT
-						NOT = {
-							has_country_flag = BAT_commonwealth_established
-							has_country_flag = BAT_national_catastrophe
-						}
-						OR = {
-							WAR = {
-								exists = yes
-								is_subject = no
-							}
-							ZAR = {
-								exists = yes
-								is_subject = no
-							}
-							TBK = {
-								exists = yes
-								is_subject = no
-							}
-						}
-						NOT = {
-						    has_global_flag = BAT_won_civil_war
-						}
-						OR = {
-						    has_country_flag = total_war
-							has_country_flag = partial_war
-							has_country_flag = permenant_total_war
-						    has_country_flag = HIE_BAT_alliance
-						}
-						FROM = {
-						    original_tag = HIP
+						country_event = {
+							id = bat.79
 						}
 					}
-					country_event = {
-						id = bat.79
-					}
-				}
-				if = {
-					limit = {
-						original_tag = BAT
-						NOT = {
-							has_country_flag = BAT_commonwealth_established
-							has_country_flag = BAT_national_catastrophe
-						}
-						has_global_flag = BAT_won_civil_war
-						FROM = {
-						    original_tag = HIP
-						}
-						NOT = {
-							WAR = {
-								exists = yes
-								is_subject = no
-							}
-							ZAR = {
-								exists = yes
-								is_subject = no
-							}
-							TBK = {
-								exists = yes
-								is_subject = no
-							}
-						}
-					}
-					country_event = {
-						id = bat.130
-					}
-				}
-				if = {
-					limit = {
-						original_tag = BAT
-						NOT = {
-							has_country_flag = BAT_commonwealth_established
-							has_country_flag = BAT_national_catastrophe
-						}
-						has_global_flag = BAT_won_civil_war
-						FROM = {
-						    original_tag = HIP
-						}
-						NOT = {
-							WAR = {
-								exists = yes
-								is_subject = no
-							}
-							ZAR = {
-								exists = yes
-								is_subject = no
-							}
-							TBK = {
-								exists = yes
-								is_subject = no
-							}
-						}
-					}
-					country_event = {
-						id = bat.79
-					}
-				}
-				if = {
+				} # NZW related code end
+				if = { # Chiropterra victory in sweeping the remainder
 					limit = {
 						original_tag = BAT
 						NOT = {
@@ -1179,9 +1134,9 @@ on_actions = {
 							}
 						}
 					}
-					country_event = bat.81
+					country_event = bat.81 # Chiropterran Commonwealth Proclaimed
 				}
-				if = {
+				if = { # Chiropterran victory in sweeping the remainder (Lunar victory variant)
 					limit = {
 						original_tag = BAT
 						NOT = {
@@ -1246,7 +1201,7 @@ on_actions = {
 							}
 						}
 					}
-					country_event = bat.130
+					country_event = bat.130 # Chiropterran Commonwealth proclaimed
 				}
 				if = {
 					limit = {
@@ -1303,7 +1258,7 @@ on_actions = {
 				if = {
 					limit = {
 						original_tag = HIE
-						has_country_flag = HIE_BAT_alliance
+						has_global_flag = NZW_alliance_signed
 						NOT = {
 						    has_global_flag = BAT_won_civil_war
 						}
@@ -1313,7 +1268,7 @@ on_actions = {
 						}
 					}
 					country_event = {
-						id = hippone_sekrit.38
+						id = hippone_sekrit.38 # Special peacedeal event
 					}
 				}
 				if = {
@@ -1581,7 +1536,6 @@ on_actions = {
 						if = {
 							limit = {
 								BAT = {
-									exists = yes
 									is_subject_of = ZAR
 								}
 							}
@@ -1618,7 +1572,6 @@ on_actions = {
 						if = {
 							limit = {
 								BAT = {
-									exists = yes
 									is_subject_of = ZAR
 								}
 							}
