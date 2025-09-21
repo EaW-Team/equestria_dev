@@ -518,7 +518,7 @@ country_event = {
 	
 	immediate = {
 		hidden_effect = {
-			set_country_flag = CGI_war_with_colthage
+			set_country_flag = CGI_war_with_colthage_started
 
 			CGI_end_bop_and_apply_idea = yes
 
@@ -592,7 +592,7 @@ country_event = {
 
 	immediate = {
 		hidden_effect = {
-			set_country_flag = CGI_war_with_colthage
+			set_country_flag = CGI_war_with_colthage_started
 
 			CGI_end_bop_and_apply_idea = yes
 
@@ -734,6 +734,8 @@ country_event = {
 				add_idea = CGI_lingering_clan_unrest
 			}
 		}
+
+		set_country_flag = CGI_war_with_colthage_ended
 		
 		set_variable = { CGI_colthaginian_resistance_consumer_goods = 0.15 }
 		set_variable = { CGI_colthaginian_resistance_construction_speed = -0.15 }
@@ -935,7 +937,7 @@ country_event = {
 		}
 
 		set_country_flag = CGI_supported_BLT
-			
+		
 		add_to_variable = {
 			var = CGI_diamond_road_strength
 			value = 7
@@ -1114,7 +1116,6 @@ country_event = {
 	option = {
 		name = quaggatai_camelia.8.a
 		
-		# TODO: Add effect for more situations
 		add_political_power = 15
 		
 		add_to_variable = {
@@ -1144,19 +1145,35 @@ country_event = {
 	option = {
 		name = quaggatai_camelia.9.a
 		
-		# TODO: Add effect for more situations
 		add_political_power = -50
 		
-		add_to_variable = {
-			var = CGI_diamond_road_strength
-			value = -8
+		if = {
+			limit = {
+				NOT = { has_country_flag = CGI_war_with_colthage_started }
+			}
+			add_to_variable = {
+				var = CGI_diamond_road_strength
+				value = -8
+			}
+			custom_effect_tooltip = {
+				localization_key = CGI_diamond_road_remove
+				VALUE = "8"
+				POINT_POINTS = CGI_points
+			}
+			CGI_update_diamond_road = yes
 		}
-		custom_effect_tooltip = {
-			localization_key = CGI_diamond_road_remove
-			VALUE = "8"
-			POINT_POINTS = CGI_points
+		else = { # Diamond Road trade already suffered
+			add_to_variable = {
+				var = CGI_diamond_road_strength
+				value = -5
+			}
+			custom_effect_tooltip = {
+				localization_key = CGI_diamond_road_remove
+				VALUE = "5"
+				POINT_POINTS = CGI_points
+			}
+			CGI_update_diamond_road = yes
 		}
-		CGI_update_diamond_road = yes
 	}
 }
 
@@ -1183,9 +1200,24 @@ country_event = {
 		
 		if = {
 			limit = {
+				has_country_flag = CGI_war_with_colthage_started
+			}
+			add_to_temp_variable = { diamond_road_buff = -4 } # Diamond Road trade already collapsed
+		}
+
+		if = {
+			limit = {
 				has_country_flag = CGI_camelia_has_send_military_mission
 			}
-			add_to_temp_variable = { diamond_road_buff = 2 }
+			if = {
+				limit = {
+					has_country_flag = CGI_war_with_colthage_started
+				}
+				add_to_temp_variable = { diamond_road_buff = 1 }
+			}
+			else = {
+				add_to_temp_variable = { diamond_road_buff = 2 }
+			}
 			add_to_temp_variable = { pp_gain = 25 }
 			add_to_temp_variable = { army_xp_gain = 25 }
 		}
@@ -1207,13 +1239,13 @@ country_event = {
 		add_political_power = pp_gain
 		if = {
 			limit = {
-				check_temp_variable = { army_xp_gain > 0 }
+				check_variable = { army_xp_gain > 0 }
 			}
 			army_experience = army_xp_gain
 		}
 		if = {
 			limit = {
-				check_temp_variable = { manpower_gain > 0 }
+				check_variable = { manpower_gain > 0 }
 			}
 			add_manpower = manpower_gain
 		}
