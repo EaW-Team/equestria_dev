@@ -19,7 +19,7 @@ import datetime
 ### The above copyright notice and this permission notice shall be included in all copies or substantial portions of the Software.
 ### THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 ###
-### usage: hoi4transfertechsegen.py [-h] [-en effectname] [-a | -o] input output
+### usage: transfertechgen.py [-h] [-en effectname] [-a | -o] input output
 ###
 ### Given an input technology file or folder, generate a Transfer Technology
 ### scripted effect.
@@ -33,9 +33,11 @@ import datetime
 ###   -en effectname, --effectname effectname
 ###                         Name of the scripted effect
 ###                         (default:"transfer_technology")
+###                         (papaerclip default:"paperclip_tech")
 ###   -a, --add             Will add new technologies to an already existing
 ###                         transfer_technology effect (first set name with -en)
 ###   -o, --overwrite       Will overwrite the output file if it already exists
+###   -p, --paperclip       Will format the tech for the paperclip_tech scritped effect
 ###
 #############################
 
@@ -75,13 +77,84 @@ def readfile(name):
         return
 
 #############################
+
+def formattechtransfer(name, race = None):
+    tabformat = ""
+    if race:
+        tabformat = "\t"
+    output_lines.append(tabformat + "\t\tif = {")
+    output_lines.append(tabformat + "\t\t\tlimit = {")
+    output_lines.append(tabformat + "\t\t\t\tPREV = {")
+    output_lines.append(tabformat + "\t\t\t\t\thas_tech = " + name + "")
+    output_lines.append(tabformat + "\t\t\t\t}")
+    output_lines.append(tabformat + "\t\t\t}")
+    output_lines.append(tabformat + "\t\t\tset_technology = {")
+    output_lines.append(tabformat + "\t\t\t\tpopup = no")
+    output_lines.append(tabformat + "\t\t\t\t" + name + " = 1")
+    output_lines.append(tabformat + "\t\t\t}")
+    output_lines.append(tabformat + "\t\t}")
+
+def formatpaperclip(name, race = None, doctrine = None):
+    tabformat = ""
+    if race:
+        tabformat = "\t"
+    output_lines.append(tabformat + "\t\tif = {")
+    output_lines.append(tabformat + "\t\t\tlimit = {")
+    output_lines.append(tabformat + "\t\t\t\tNOT = {")
+    output_lines.append(tabformat + "\t\t\t\t\thas_tech = " + name + "")
+    output_lines.append(tabformat + "\t\t\t\t}")
+    output_lines.append(tabformat + "\t\t\t\tPREV = {")
+    output_lines.append(tabformat + "\t\t\t\t\thas_tech = " + name + "")
+    output_lines.append(tabformat + "\t\t\t\t}")
+    output_lines.append(tabformat + "\t\t\t}")
+    output_lines.append(tabformat + "\t\t\tset_variable = {")
+    output_lines.append(tabformat + "\t\t\t\trand = random")
+    output_lines.append(tabformat + "\t\t\t}")
+    output_lines.append(tabformat + "\t\t\tmultiply_variable = {")
+    output_lines.append(tabformat + "\t\t\t\trand = 100")
+    output_lines.append(tabformat + "\t\t\t}")
+    output_lines.append(tabformat + "\t\t\tround_variable = rand")
+    output_lines.append(tabformat + "\t\t\tclamp_variable = {")
+    output_lines.append(tabformat + "\t\t\t\tvar = rand")
+    output_lines.append(tabformat + "\t\t\t\tmin = 0")
+    output_lines.append(tabformat + "\t\t\t\tmax = 100")
+    output_lines.append(tabformat + "\t\t\t}")
+    output_lines.append(tabformat + "\t\t\tif = {")
+    output_lines.append(tabformat + "\t\t\t\tlimit = {")
+    output_lines.append(tabformat + "\t\t\t\t\tcheck_variable = {")
+    output_lines.append(tabformat + "\t\t\t\t\t\tvar = rand")
+    output_lines.append(tabformat + "\t\t\t\t\t\tvalue = PREV.PREV.previous_owner_industry_ratio")
+    output_lines.append(tabformat + "\t\t\t\t\t\tcompare = less_than_or_equals")
+    output_lines.append(tabformat + "\t\t\t\t\t}")
+    output_lines.append(tabformat + "\t\t\t\t}")
+
+    if doctrine:
+        output_lines.append(tabformat + "\t\t\t\tadd_doctrine_cost_reduction = {")
+        output_lines.append(tabformat + "\t\t\t\t\tname = paperclip_tech_bonus")
+        output_lines.append(tabformat + "\t\t\t\t\tcost_reduction = 0.5")
+        output_lines.append(tabformat + "\t\t\t\t\tuses = 1")
+        output_lines.append(tabformat + f"\t\t\t\t\ttechnology = {name}")
+        output_lines.append(tabformat + "\t\t\t\t}")
+    else:
+        output_lines.append(tabformat + "\t\t\t\tadd_tech_bonus = {")
+        output_lines.append(tabformat + "\t\t\t\t\tname = paperclip_tech_bonus")
+        output_lines.append(tabformat + "\t\t\t\t\tbonus = 2")
+        output_lines.append(tabformat + "\t\t\t\t\tuses = 1")
+        output_lines.append(tabformat + f"\t\t\t\t\ttechnology = {name}")
+        output_lines.append(tabformat + "\t\t\t\t}")
+
+    output_lines.append(tabformat + "\t\t\t}")
+    output_lines.append(tabformat + "\t\t}")
+
+#############################
+
 parser = argparse.ArgumentParser(description='Given an input technology file or folder, generate a Transfer Technology scripted effect.')
 parser.add_argument('input', metavar='input',
                     help='Technology file name/folder containing files')
 parser.add_argument( 'output', metavar='output',
                     help='File name to write the scripted effect to')
 parser.add_argument( '-en', '--effectname', metavar='effectname', default="transfer_technology", required=False,
-                    help='Name of the scripted effect (default:\"transfer_technology\")')
+                    help='Name of the scripted effect (default:\"transfer_technology\", paperclip default:\"paperclip_tech\")')
 action = parser.add_mutually_exclusive_group(required=False)                    
 action.add_argument( '-a', '--add', action='store_true',
                     help='Will add new technologies to an already existing transfer_technology effect (first set name with -en)')
@@ -89,11 +162,11 @@ action.add_argument( '-o', '--overwrite', action='store_true',
                     help='Will overwrite the output file if it already exists')
 parser.add_argument( '-p', '--paperclip', action='store_true',
                     help='When creating for paperclip bonus effect')
-parser.add_argument( '-r', '--race', metavar='race', required=False,
-                    help='name of race tech when using for race techs')
 
 args = parser.parse_args()
 names_global = list()
+names_race = list()
+names_doctrine = list()
 is_dir = False
 try:
     dir = readable_dir(args.input)
@@ -104,12 +177,100 @@ except:
 if is_dir:
     for file in glob.glob(dir+"/*.*"):
         parsed_file = readfile(file)
-        if parsed_file:
+        filename = os.path.splitext(os.path.basename(file))[0]
+        print(filename)
+        if filename.endswith("doctrine"):
+            names_doctrine = names_doctrine + parsed_file
+            print("Added " + filename + " to doctrine list")
+        elif filename.startswith("cat_"):
+            print("Added " + filename + " to race list")
+            names_race = names_race + [(parsed_file, "cat")]
+        elif filename.startswith("changeling_"):
+            print("Added " + filename + " to race list")
+            names_race = names_race + [(parsed_file, "changeling")]
+        elif filename.startswith("deer_"):
+            print("Added " + filename + " to race list")
+            names_race = names_race + [(parsed_file, "deer")]
+        elif filename.startswith("diamond_"):
+            print("Added " + filename + " to race list")
+            names_race = names_race + [(parsed_file, "diamond_dog")]
+        elif filename.startswith("generic_"):
+            print("Added " + filename + " to race list")
+            names_race = names_race + [(parsed_file, "generic")]
+        elif filename.startswith("griffon_"):
+            print("Added " + filename + " to race list")
+            names_race = names_race + [(parsed_file, "griffon")]
+        elif filename.startswith("hippogriff_"):
+            print("Added " + filename + " to race list")
+            names_race = names_race + [(parsed_file, "hippogriff")]
+        elif filename.startswith("horse_"):
+            print("Added " + filename + " to race list")
+            names_race = names_race + [(parsed_file, "horse")]
+        elif filename.startswith("kirin_"):
+            print("Added " + filename + " to race list")
+            names_race = names_race + [(parsed_file, "kirin")]
+        elif filename.startswith("polar_"):
+            print("Added " + filename + " to race list")
+            names_race = names_race + [(parsed_file, "polar")]
+        elif filename.startswith("pony_"):
+            print("Added " + filename + " to race list")
+            names_race = names_race + [(parsed_file, "pony")]
+        elif filename.startswith("yak_"):
+            print("Added " + filename + " to race list")
+            names_race = names_race + [(parsed_file, "yak")]
+        elif filename.startswith("zebra_"):
+            print("Added " + filename + " to race list")
+            names_race = names_race + [(parsed_file, "zebra")]
+        elif parsed_file:
             names_global = names_global + parsed_file
 else:
     parsed_file = readfile(args.input)
-    if parsed_file:
-            names_global = names_global + parsed_file
+    filename = os.path.splitext(os.path.basename(file))[0]
+    print(filename)
+    if filename.endswith("doctrine"):
+        names_doctrine = names_doctrine + parsed_file
+        print("Added " + filename + " to doctrine list")
+    elif filename.startswith("cat_"):
+        print("Added " + filename + " to race list")
+        names_race = names_race + [(parsed_file, "cat")]
+    elif filename.startswith("changeling_"):
+        print("Added " + filename + " to race list")
+        names_race = names_race + [(parsed_file, "changeling")]
+    elif filename.startswith("deer_"):
+        print("Added " + filename + " to race list")
+        names_race = names_race + [(parsed_file, "deer")]
+    elif filename.startswith("diamond_"):
+        print("Added " + filename + " to race list")
+        names_race = names_race + [(parsed_file, "diamond_dog")]
+    elif filename.startswith("generic_"):
+        print("Added " + filename + " to race list")
+        names_race = names_race + [(parsed_file, "feneric")]
+    elif filename.startswith("griffon_"):
+        print("Added " + filename + " to race list")
+        names_race = names_race + [(parsed_file, "griffon")]
+    elif filename.startswith("hippogriff_"):
+        print("Added " + filename + " to race list")
+        names_race = names_race + [(parsed_file, "hippogriff")]
+    elif filename.startswith("horse_"):
+        print("Added " + filename + " to race list")
+        names_race = names_race + [(parsed_file, "horse")]
+    elif filename.startswith("kirin_"):
+        print("Added " + filename + " to race list")
+        names_race = names_race + [(parsed_file, "kirin")]
+    elif filename.startswith("polar_"):
+        print("Added " + filename + " to race list")
+        names_race = names_race + [(parsed_file, "polar")]
+    elif filename.startswith("pony_"):
+        print("Added " + filename + " to race list")
+        names_race = names_race + [(parsed_file, "pony")]
+    elif filename.startswith("yak_"):
+        print("Added " + filename + " to race list")
+        names_race = names_race + [(parsed_file, "yak")]
+    elif filename.startswith("zebra_"):
+        print("Added " + filename + " to race list")
+        names_race = names_race + [(parsed_file, "zebra")]
+    elif parsed_file:
+        names_global = names_global + parsed_file
 
 if os.path.exists(args.output):
     if not args.overwrite and not args.add:
@@ -131,6 +292,8 @@ if args.add:
 if not names_global or all(False for item in names_global):
     sys.exit("Nothing to add - every technology is already in " + args.output)    
 output_lines = list()
+if args.paperclip and args.effectname == "transfer_technology":
+    args.effectname = "paperclip_tech"
 if not args.add:
     output_lines.append("### DO NOT REMOVE OR CHANGE THE COMMENTS BELOW")
     output_lines.append("### Transfer Technology Effect (" + args.effectname + ")")
@@ -143,119 +306,42 @@ if not args.add:
 
 output_lines.append("")
 if args.paperclip:
-    if args.race:
-        output_lines.append("\t\tif = {")
-        output_lines.append("\t\t\tlimit = {")
-        output_lines.append("\t\t\t\thas_" + args.race[1:] + "_race_tech = yes")
-        output_lines.append("\t\t\t}")
-        for name in names_global:
-            output_lines.append("\t\t\tif = {")
-            output_lines.append("\t\t\t\tlimit = {")
-            output_lines.append("\t\t\t\t\tNOT = {")
-            output_lines.append("\t\t\t\t\t\thas_tech = " + name + "")
-            output_lines.append("\t\t\t\t\t}")
-            output_lines.append("\t\t\t\t\tPREV = {")
-            output_lines.append("\t\t\t\t\t\thas_tech = " + name + "")
-            output_lines.append("\t\t\t\t\t}")
-            output_lines.append("\t\t\t\t}")
-            output_lines.append("\t\t\t\tset_variable = {")
-            output_lines.append("\t\t\t\t\trand = random")
-            output_lines.append("\t\t\t\t}")
-            output_lines.append("\t\t\t\tmultiply_variable = {")
-            output_lines.append("\t\t\t\t\trand = 100")
-            output_lines.append("\t\t\t\t}")
-            output_lines.append("\t\t\t\tround_variable = rand")
-            output_lines.append("\t\t\t\tclamp_variable = {")
-            output_lines.append("\t\t\t\t\tvar = rand")
-            output_lines.append("\t\t\t\t\tmin = 0")
-            output_lines.append("\t\t\t\t\tmax = 100")
-            output_lines.append("\t\t\t\t}")
-            output_lines.append("\t\t\t\tif = {")
-            output_lines.append("\t\t\t\t\tlimit = {")
-            output_lines.append("\t\t\t\t\t\tcheck_variable = {")
-            output_lines.append("\t\t\t\t\t\t\tvar = rand")
-            output_lines.append("\t\t\t\t\t\t\tvalue = PREV.PREV.previous_owner_industry_ratio")
-            output_lines.append("\t\t\t\t\t\t\tcompare = less_than_or_equals")
-            output_lines.append("\t\t\t\t\t\t}")
-            output_lines.append("\t\t\t\t\t}")
-            output_lines.append("\t\t\t\t\tadd_tech_bonus = {")
-            output_lines.append("\t\t\t\t\t\tname = paperclip_tech_bonus")
-            output_lines.append("\t\t\t\t\t\tbonus = 2")
-            output_lines.append("\t\t\t\t\t\tuses = 1")
-            output_lines.append(f"\t\t\t\t\t\ttechnology = {name}")
-            output_lines.append("\t\t\t\t\t}")
-            output_lines.append("\t\t\t\t}")
-            output_lines.append("\t\t\t}")
-        output_lines.append("\t\t}")
-    else:
-        output_lines.append("\t\tif = {")
-        output_lines.append("\t\t\tlimit = {")
-        output_lines.append("\t\t\t\tNOT = {")
-        output_lines.append("\t\t\t\t\thas_tech = " + name + "")
-        output_lines.append("\t\t\t\t}")
-        output_lines.append("\t\t\t\tPREV = {")
-        output_lines.append("\t\t\t\t\thas_tech = " + name + "")
-        output_lines.append("\t\t\t\t}")
-        output_lines.append("\t\t\t}")
-        output_lines.append("\t\t\tset_variable = {")
-        output_lines.append("\t\t\t\trand = random")
-        output_lines.append("\t\t\t}")
-        output_lines.append("\t\t\tmultiply_variable = {")
-        output_lines.append("\t\t\t\trand = 100")
-        output_lines.append("\t\t\t}")
-        output_lines.append("\t\t\tround_variable = rand")
-        output_lines.append("\t\t\tclamp_variable = {")
-        output_lines.append("\t\t\t\tvar = rand")
-        output_lines.append("\t\t\t\tmin = 0")
-        output_lines.append("\t\t\t\tmax = 100")
-        output_lines.append("\t\t\t}")
-        output_lines.append("\t\t\tif = {")
-        output_lines.append("\t\t\t\tlimit = {")
-        output_lines.append("\t\t\t\t\tcheck_variable = {")
-        output_lines.append("\t\t\t\t\t\tvar = rand")
-        output_lines.append("\t\t\t\t\t\tvalue = PREV.PREV.previous_owner_industry_ratio")
-        output_lines.append("\t\t\t\t\t\tcompare = less_than_or_equals")
-        output_lines.append("\t\t\t\t\t}")
-        output_lines.append("\t\t\t\t}")
-        output_lines.append("\t\t\t\tadd_tech_bonus = {")
-        output_lines.append("\t\t\t\t\tname = paperclip_tech_bonus")
-        output_lines.append("\t\t\t\t\tbonus = 2")
-        output_lines.append("\t\t\t\t\tuses = 1")
-        output_lines.append(f"\t\t\t\t\ttechnology = {name}")
-        output_lines.append("\t\t\t\t}")
-        output_lines.append("\t\t\t}")
-        output_lines.append("\t\t}")
-elif args.race:
-    output_lines.append("\t\tif = {")
-    output_lines.append("\t\t\tlimit = {")
-    output_lines.append("\t\t\t\thas_" + args.race[1:] + "_race_tech = yes")
-    output_lines.append("\t\t\t}")
     for name in names_global:
-        output_lines.append("\t\t\tif = {")
-        output_lines.append("\t\t\t\tlimit = {")
-        output_lines.append("\t\t\t\t\tPREV = {")
-        output_lines.append("\t\t\t\t\t\thas_tech = " + name + "")
-        output_lines.append("\t\t\t\t\t}")
-        output_lines.append("\t\t\t\t}")
-        output_lines.append("\t\t\t\tset_technology = {")
-        output_lines.append("\t\t\t\t\tpopup = no")
-        output_lines.append("\t\t\t\t\t" + name + " = 1")
-        output_lines.append("\t\t\t\t}")
+        if name.endswith("_race"):
+            continue
+        formatpaperclip(name)
+    for namerace in names_race:
+        names, race = namerace
+        output_lines.append("\t\tif = {")
+        output_lines.append("\t\t\tlimit = {")
+        output_lines.append("\t\t\t\thas_" + race + "_race_tech = yes")
         output_lines.append("\t\t\t}")
-    output_lines.append("\t\t}")
+        for name in names:
+            if name.endswith("_race"):
+                continue
+            formatpaperclip(name, race)
+        output_lines.append("\t\t}")
+    for name in names_doctrine:
+        formatpaperclip(name, doctrine = True)
 else:
     for name in names_global:
+        if name.endswith("_race"):
+            continue
+        formattechtransfer(name)
+    for namerace in names_race:
+        names, race = namerace
+        
         output_lines.append("\t\tif = {")
         output_lines.append("\t\t\tlimit = {")
-        output_lines.append("\t\t\t\tPREV = {")
-        output_lines.append("\t\t\t\t\thas_tech = " + name + "")
-        output_lines.append("\t\t\t\t}")
+        output_lines.append("\t\t\t\thas_" + race + "_race_tech = yes")
         output_lines.append("\t\t\t}")
-        output_lines.append("\t\t\tset_technology = {")
-        output_lines.append("\t\t\t\tpopup = no")
-        output_lines.append("\t\t\t\t" + name + " = 1")
-        output_lines.append("\t\t\t}")
+        for name in names:
+            if name.endswith("_race"):
+                continue
+            formattechtransfer(name, race)
         output_lines.append("\t\t}")
+    for name in names_doctrine:
+        formattechtransfer(name)
 
 if not args.add:
     output_lines.append("\t}")
