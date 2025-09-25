@@ -16,6 +16,11 @@ faction_goal_id = {
 		#
 		# SCOPE = faction leader: COUNTRY
 	}
+
+	ai_will_do = { #how likely the faction leader AI is to select this goal if there is a free slot
+		factor = 200 
+	}
+
 	
 	auto_complete = yes # automatically complete goal if the progress reaches 100%
 	
