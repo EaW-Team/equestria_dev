@@ -9,21 +9,19 @@ faction_goal_id = {
 	name = [...] # Goal name (Loc Environment = faction + player country)
 	description = [...] # Goal description (Loc Environment = faction + player country)
 	category = [...] # Goal's category (short_term, medium_term or long_term)
-
 	completed = {
 		# Trigger - checks if goal completion condition is fulfilled
 		# NOTE if empty - the goal is never completed!
 		#
 		# SCOPE = faction leader: COUNTRY
 	}
-
+	
+	auto_complete = yes # automatically complete goal if the progress reaches 100%
+	
 	ai_will_do = { #how likely the faction leader AI is to select this goal if there is a free slot
 		factor = 200 
 	}
 
-	
-	auto_complete = yes # automatically complete goal if the progress reaches 100%
-	
 	complete_effect = {
 		# Effect - runs once when the goal is completed
 		#
