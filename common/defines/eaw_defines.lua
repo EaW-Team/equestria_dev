@@ -118,6 +118,14 @@ NDefines.NSupply.AVAILABLE_MANPOWER_STATE_SUPPLY = 0.5 --Factor for state supply
 NDefines.NSupply.NODE_STARTING_PENALTY_PER_PROVINCE = 0.30 -- default is 0.5
 NDefines.NSupply.NODE_ADDED_PENALTY_PER_PROVINCE = 0.50 -- default is 0.7
 
+-- BREAKTHROUGH DOUBLED
+
+NDefines.NProject.BREAKTHROUGH_DAILY_TECHNOLOGY_GAIN = 24 -- default is 12
+NDefines.NProject.BREAKTHROUGH_DAILY_SCIENTIST_SKILL_GAIN = 10 -- default is 10
+NDefines.NProject.BREAKTHROUGH_DAILY_ROCKET_SITE_GAIN = 2 -- default is 1
+NDefines.NProject.BREAKTHROUGH_DAILY_NUCLEAR_REACTOR_GAIN = 2 -- default is 1
+NDefines.NProject.BREAKTHROUGH_GAIN_ANIMATION_SPEED_MAX = 2.0 -- default is 1
+
 
 NDefines.NTechnology.BASE_TECH_COST = 80					-- Base cost for a tech. multiplied with tech cost and ahead of time penalties. 100 in vanilla
 NDefines.NTechnology.BASE_YEAR_AHEAD_PENALTY_FACTOR = 2.25	-- Base year ahead penalty. Vanilla is 2
