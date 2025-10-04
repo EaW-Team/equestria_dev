@@ -367,6 +367,134 @@ BRZ_anti_pacifism_campaign_cat = {
 
 # Restauration of the Empire
 BRZ_restauration_of_the_empire = {
+	BRZ_to_rescue_the_emperor = {
+		# Contingency in case somebody took Griffenheim in the peace conference
+		icon = GFX_decision_crossed_swords
+		
+		allowed = {
+			original_tag = BRZ
+		}
+		
+		visible = {
+			has_country_flag = can_declare_empire
+			is_subject = no
+			
+			NOT = { owns_state = 382 } # Griffenheim
+			
+			# Note: Ignatius has his own decision, with special requirements
+			if = {
+				limit = {
+					NOT = { has_country_flag = BRZ_revenge_tree_loaded }
+				}
+				has_completed_focus = BRZ_march_on_griffenheim
+			}
+			else = {
+				has_completed_focus = BRZ_war_on_the_maarspawn
+			}
+			
+			NOT = {
+				OR = {
+					has_war_with = 382.owner
+					has_wargoal_against = 382.owner
+				}
+			}
+		}
+		
+		cost = 25
+		
+		ai_will_do = {
+			factor = 200
+		}
+		
+		days_remove = 30
+		
+		# War warning
+		complete_effect = {
+			log = "[GetDateText]: [Root.GetName]: Decision complete BRZ_to_rescue_the_emperor"
+			hidden_effect = {
+				382 = {
+					owner = {
+						country_event = {
+							id = bronzehill.6
+							days = 2
+						}
+						ROOT = {
+							add_ai_strategy = {
+								type = prepare_for_war
+								id = PREV # owner of 382 (Griffenheim)
+								value = 100
+							}
+						}
+					}
+				}
+				#Don't warn the same country twice
+				if = {
+					limit = {
+						NOT = { 
+							437 = { # Crona (connection to Griffenheim)
+								owner = { 
+									owns_state = 382 # Griffenheim
+									NOT = { tag = ROOT } 
+								} 
+							} 
+						}
+					}
+					437 = {
+						owner = {
+							country_event = {
+								id = bronzehill.6
+								days = 2
+							}
+							ROOT = {
+								add_ai_strategy = {
+									type = prepare_for_war
+									id = PREV # owner of 473 (Crona)
+									value = 100
+								}
+							}
+						}
+					}
+				}
+			}
+		}
+		
+		remove_effect = {
+			log = "[GetDateText]: [Root.GetName]: Decision remove BRZ_to_rescue_the_emperor"
+
+			hidden_effect = {
+				# Give wargoals
+				create_wargoal = {
+					type = take_state_focus
+					target = 382.owner
+					generator = { 382 }
+				}
+				#Don't give wargoal on same country twice
+				if = {
+					limit = {
+						NOT = { 
+							437 = { # Crona (connection to Griffenheim)
+								owner = { 
+									owns_state = 382 # Griffenheim
+									NOT = { tag = ROOT } 
+								} 
+							} 
+						}
+					}
+					create_wargoal = {
+						type = take_state_focus
+						target = 437.owner
+						generator = { 437 }
+					}
+				}
+			}
+		
+			declare_war_on = {
+				target = 382.owner
+				type = annex_everything
+			}
+		}
+	}
+
 	BRZ_proclaim_the_bronzehill_regency = {
 		icon = GFX_decision_category_form_griffon_empire
 		
@@ -395,6 +523,7 @@ BRZ_restauration_of_the_empire = {
 		}
 		
 		complete_effect = {
+			log = "[GetDateText]: [Root.GetName]: Decision complete BRZ_proclaim_the_bronzehill_regency"
 			every_possible_country = {
 				limit = {
 					has_character = GRI_emperor_grover_vi
@@ -707,6 +836,8 @@ BRZ_restauration_of_the_empire = {
 		fire_only_once = yes
 		
 		complete_effect = {
+			log = "[GetDateText]: [Root.GetName]: Decision complete BRZ_declare_unification_of_the_herzland"
+			
 			add_timed_idea = {
 				idea = BRZ_unified_the_herzland
 				days = 180
@@ -720,8 +851,8 @@ BRZ_restauration_of_the_empire = {
 				limit = {
 					has_country_flag = BRZ_revenge_tree_loaded
 				}
-				add_to_variable = { BRZ_revenge_army_fervour = 1 }
-				custom_effect_tooltip = BRZ_revenge_army_fervour_add_1
+				add_to_variable = { BRZ_revenge_army_fervour = 3 }
+				custom_effect_tooltip = BRZ_revenge_army_fervour_add_3
 				BRZ_update_fervour = yes
 			}
 			
@@ -1003,6 +1134,16 @@ BRZ_imperial_economic_development_cat = {
 		}
 		
 		available = {
+			OR = { # Skynavia can submit
+				any_subject_country = {
+					controls_state = 522 # Skynavia
+					owns_state = 522 # Skynavia
+				}
+				AND = {
+					controls_state = 522 # Skynavia
+					owns_state = 522 # Skynavia
+				}
+			}
 			controls_state = 429 # Kungland
 			owns_state = 429 # Kungland
 			controls_state = 482 # Snälland
@@ -1011,8 +1152,6 @@ BRZ_imperial_economic_development_cat = {
 			owns_state = 483 # Skyrim
 			controls_state = 430 # Borasland
 			owns_state = 430 # Borasland
-			controls_state = 522 # Skynavia
-			owns_state = 522 # Skynavia
 			num_of_civilian_factories_available_for_projects > 5
 			has_country_flag = BRZ_build_trains_to_cloudbury
 		}
@@ -3566,7 +3705,7 @@ foreign_politics = {
 		
 		visible = {
 			has_completed_focus = BRZ_in_defence_of_tradition
-			is_puppet = no
+			is_subject = no
 			NOT = { has_war_with = GRI }
 			NOT = { owns_state = 382 } # Griffenheim
 		}
@@ -3601,7 +3740,55 @@ foreign_politics = {
 		cost = 50
 		days_remove = 30
 		
-		war_with_on_remove = GRD
+		# War warning
+		complete_effect = {
+			log = "[GetDateText]: [Root.GetName]: Decision complete BRZ_attack_the_empire_if_gabriela_doesnt_do_it"
+			hidden_effect = {
+				382 = {
+					owner = {
+						country_event = {
+							id = bronzehill.6
+							days = 2
+						}
+						ROOT = {
+							add_ai_strategy = {
+								type = prepare_for_war
+								id = PREV # owner of 382 (Griffenheim)
+								value = 100
+							}
+						}
+					}
+				}
+				#Don't warn the same country twice
+				if = {
+					limit = {
+						NOT = { 
+							437 = { # Crona (connection to Griffenheim)
+								owner = { 
+									owns_state = 382 # Griffenheim
+									NOT = { tag = ROOT } 
+								} 
+							} 
+						}
+					}
+					437 = {
+						owner = {
+							country_event = {
+								id = bronzehill.6
+								days = 2
+							}
+							ROOT = {
+								add_ai_strategy = {
+									type = prepare_for_war
+									id = PREV # owner of 473 (Crona)
+									value = 100
+								}
+							}
+						}
+					}
+				}
+			}
+		}
 		
 		remove_effect = {
 			log = "[GetDateText]: [Root.GetName]: Decision remove BRZ_attack_the_empire_if_gabriela_doesnt_do_it"
@@ -3797,6 +3984,31 @@ political_actions = {
 			increase_science_base = yes
 		}
 	}
+
+	BRZ_integrate_diamond_mountain = {
+		icon = GFX_decision_generic
+
+		allowed = { tag = BRZ }
+
+		ai_will_do = {
+			base = 200
+		}
+
+		fire_only_once = yes
+
+		cost = 100
+
+		visible = {
+			owns_state = 637 # Diamond Mountain capital
+			NOT = { has_country_flag = BRZ_has_declared_the_empire }
+		}
+
+		complete_effect = {
+			log = "[GetDateText]: [Root.GetName]: Decision complete BRZ_integrate_diamond_mountain"
+			
+			DMT = { add_to_ROOT_potential_cores = yes } # Diamond Mountain
+		}
+	}
 	
 	BRZ_integrate_the_lost_colony = {
 		icon = GFX_decision_generic
@@ -3811,6 +4023,7 @@ political_actions = {
 		
 		visible = {
 			owns_state = 243
+			is_subject = no
 		}
 		
 		complete_effect = {
@@ -4132,8 +4345,8 @@ BRZ_bronzehill_council_cat = {
 			
 			add_to_variable = {
 				var = BRZ_council_powerstruggle_influence_softfur
-				value = 6
-				tooltip = BRZ_softfur_influence_rise_6
+				value = 8
+				tooltip = BRZ_softfur_influence_rise_8
 			}
 			
 			# reduces Copperhill
@@ -4201,197 +4414,6 @@ BRZ_bronzehill_council_cat = {
 			add_stability = -0.02
 		}
 	}
-	
-	BRZ_rally_for_peace_and_harmony = {
-		icon = GFX_decision_generic
-		
-		allowed = { tag = BRZ }
-		
-		priority = 20
-		
-		visible = { has_idea = BRZ_powerstruggle_in_the_council }
-		
-		available = {
-		}
-		
-		days_remove = 25
-		
-		ai_will_do = {
-			base = 0 # Not naturally - naturally we rely only on the events
-			modifier = { # If gamerule, then let's go
-				OR = {
-					has_game_rule = {
-						rule = BRZ_ai_behavior 
-						option = HARMONY_BARNABY
-					}
-					has_country_flag = BRZ_AI_RANDOM_HARMONY_BARNABY
-				}
-				add = 100
-			}
-		}
-		
-		remove_effect = {
-			log = "[GetDateText]: [Root.GetName]: Decision remove BRZ_rally_for_peace_and_harmony"
-			
-			add_to_variable = {
-				var = BRZ_council_powerstruggle_influence_copperhill
-				value = 5
-				tooltip = BRZ_copperhill_influence_rise_5
-			}
-			
-			add_popularity = {
-				ideology = democratic
-				popularity = 0.02
-			}
-		}
-	}
-	
-	BRZ_contacts_in_the_army = {
-		icon = GFX_decision_generic
-		
-		allowed = { tag = BRZ }
-		
-		priority = 20
-		
-		visible = { has_idea = BRZ_powerstruggle_in_the_council }
-		
-		available = {
-		}
-		
-		days_remove = 25
-		
-		ai_will_do = {
-			base = 0 # Not naturally - naturally we rely only on the events
-			modifier = { # If gamerule, then let's go
-				OR = {
-					has_game_rule = {
-						rule = BRZ_ai_behavior 
-						option = FASCISM_LOUDBARK
-					}
-					has_country_flag = BRZ_AI_RANDOM_FASCIST_LOUDBARK
-				}
-				add = 100
-			}
-		}
-		
-		remove_effect = {
-			log = "[GetDateText]: [Root.GetName]: Decision remove BRZ_contacts_in_the_army"
-			
-			add_to_variable = {
-				var = BRZ_council_powerstruggle_influence_loudbark
-				value = 5
-				tooltip = BRZ_loudbark_influence_rise_5
-			}
-			
-			add_popularity = {
-				ideology = fascism
-				popularity = 0.02
-			}
-		}
-	}
-	
-	BRZ_workers_march = {
-		icon = GFX_decision_generic
-		
-		allowed = { tag = BRZ }
-		
-		priority = 20
-		
-		visible = { 
-			has_idea = BRZ_powerstruggle_in_the_council 
-			has_country_flag = BRZ_softfur_in_the_council
-		}
-		
-		available = {
-		}
-		
-		days_remove = 25
-		
-		ai_will_do = {
-			base = 0 # Not naturally - naturally we rely only on the events
-			modifier = { # If gamerule, then let's go
-				OR = {
-					has_game_rule = {
-						rule = BRZ_ai_behavior 
-						option = COMMUNIST_SOFTFUR
-					}
-					has_country_flag = BRZ_AI_RANDOM_COMMUNIST_SOFTFUR
-				}
-				add = 100
-			}
-		}
-		
-		remove_effect = {
-			log = "[GetDateText]: [Root.GetName]: Decision remove BRZ_workers_march"
-			
-			add_to_variable = {
-				var = BRZ_council_powerstruggle_influence_softfur
-				value = 7
-				tooltip = BRZ_softfur_influence_rise_7
-			}
-			
-			add_popularity = {
-				ideology = communism
-				popularity = 0.02
-			}
-		}
-	}
-	
-	BRZ_payraise_for_workers = {
-		icon = GFX_decision_generic
-		
-		allowed = { tag = BRZ }
-		
-		priority = 20
-		
-		visible = { 
-			has_idea = BRZ_powerstruggle_in_the_council 
-			NOT = { has_country_flag = BRZ_softfur_in_the_council }
-		}
-		
-		available = {
-		}
-		
-		days_remove = 25
-		
-		ai_will_do = {
-			base = 10
-			modifier = {
-				OR = {
-					has_game_rule = {
-						rule = BRZ_ai_behavior 
-						option = COMMUNIST_STEELPAW
-					}
-					has_country_flag = BRZ_AI_RANDOM_COMMUNIST_STEELPAW
-				}
-				factor = 0
-			}
-			modifier = {
-				check_variable = {
-					BRZ_council_powerstruggle_radicalization > 40
-				}
-				factor = 10 # Total 100
-			}
-		}
-		
-		complete_effect = {
-			add_ideas = BRZ_workers_payraise
-		}
-		
-		remove_effect = {
-			log = "[GetDateText]: [Root.GetName]: Decision remove BRZ_payraise_for_workers"
-			
-			remove_ideas = BRZ_workers_payraise
-			
-			subtract_from_variable = {
-				var = BRZ_council_powerstruggle_radicalization
-				value = 5
-				tooltip = BRZ_radicalization_shrink_5
-			}
-			
-			add_stability = 0.02
-		}
-	}
 }
 
 BRZ_recruit_griffon_generals = {
@@ -4413,7 +4435,7 @@ BRZ_recruit_griffon_generals = {
 			GRI = { exists = no }
 		}
 		
-		cost = 75
+		cost = 50
 		
 		available = {
 		}
@@ -4454,7 +4476,7 @@ BRZ_recruit_griffon_generals = {
 			GRI = { exists = no }
 		}
 		
-		cost = 50
+		cost = 30
 		
 		available = {
 		}
@@ -4495,7 +4517,7 @@ BRZ_recruit_griffon_generals = {
 			GRI = { exists = no }
 		}
 		
-		cost = 50
+		cost = 30
 		
 		available = {
 		}
@@ -4536,7 +4558,7 @@ BRZ_recruit_griffon_generals = {
 			STW = { exists = no }
 		}
 		
-		cost = 50
+		cost = 30
 		
 		available = {
 		}
@@ -4577,7 +4599,7 @@ BRZ_recruit_griffon_generals = {
 			STW = { exists = no }
 		}
 		
-		cost = 50
+		cost = 30
 		
 		available = {
 		}
@@ -4627,7 +4649,7 @@ BRZ_recruit_griffon_generals = {
 			YAL = { exists = no }
 		}
 		
-		cost = 50
+		cost = 30
 		
 		available = {
 		}
@@ -4904,6 +4926,8 @@ BRZ_ignatius_noble_virtue = {
 			has_completed_focus = BRZ_das_patriziat
 		}
 		
+		days_re_enable = 120
+		
 		# Custom cost: 5 noble virtue
 		custom_cost_trigger = {
 			check_variable = { 
@@ -4923,6 +4947,8 @@ BRZ_ignatius_noble_virtue = {
 			log = "[GetDateText]: [Root.GetName]: Decision complete BRZ_urban_philantropy"
 						
 			one_random_industrial_complex = yes
+			
+			custom_effect_tooltip = BRZ_reenable_120_days_tt
 		}
 	}
 	
@@ -4940,6 +4966,8 @@ BRZ_ignatius_noble_virtue = {
 				has_idea = BRZ_temple_reform_lvl_3
 			}
 		}
+		
+		days_re_enable = 120
 		
 		# Custom cost: 5 noble virtue
 		custom_cost_trigger = {
@@ -4960,6 +4988,8 @@ BRZ_ignatius_noble_virtue = {
 			log = "[GetDateText]: [Root.GetName]: Decision complete BRZ_support_from_the_knights"
 			
 			add_manpower = 25000
+			
+			custom_effect_tooltip = BRZ_reenable_120_days_tt
 		}
 	}
 	
@@ -5665,7 +5695,7 @@ BRZ_barnaby_public_trust = {
 	}
 	
 	BRZ_promote_constitutionalism = {
-		icon = GFX_decision_SWI_swiss_democratic_tradition_campaign
+		icon = GFX_decision_liberty
 		
 		allowed = { original_tag = BRZ }
 		
@@ -5679,29 +5709,63 @@ BRZ_barnaby_public_trust = {
 			custom_effect_tooltip = BRZ_lower_effetiveness_at_high_trust
 			if = {
 				limit = {
-					check_variable = { BRZ_barnaby_public_trust < 25 }
+					has_completed_focus = BRZ_the_new_court
 				}
-				add_to_variable = {
-					var = BRZ_barnaby_public_trust
-					value = 15
-					tooltip = BRZ_barnaby_public_trust_add_15
+				if = {
+					limit = {
+						check_variable = { BRZ_barnaby_public_trust < 25 }
+					}
+					add_to_variable = {
+						var = BRZ_barnaby_public_trust
+						value = 20
+						tooltip = BRZ_barnaby_public_trust_add_20
+					}
 				}
-			}
-			else_if = {
-				limit = {
-					check_variable = { BRZ_barnaby_public_trust < 50 }
+				else_if = {
+					limit = {
+						check_variable = { BRZ_barnaby_public_trust < 50 }
+					}
+					add_to_variable = {
+						var = BRZ_barnaby_public_trust
+						value = 15
+						tooltip = BRZ_barnaby_public_trust_add_15
+					}
 				}
-				add_to_variable = {
-					var = BRZ_barnaby_public_trust
-					value = 10
-					tooltip = BRZ_barnaby_public_trust_add_10
+				else = {
+					add_to_variable = {
+						var = BRZ_barnaby_public_trust
+						value = 10
+						tooltip = BRZ_barnaby_public_trust_add_10
+					}
 				}
 			}
 			else = {
-				add_to_variable = {
-					var = BRZ_barnaby_public_trust
-					value = 5
-					tooltip = BRZ_barnaby_public_trust_add_5
+				if = {
+					limit = {
+						check_variable = { BRZ_barnaby_public_trust < 25 }
+					}
+					add_to_variable = {
+						var = BRZ_barnaby_public_trust
+						value = 15
+						tooltip = BRZ_barnaby_public_trust_add_15
+					}
+				}
+				else_if = {
+					limit = {
+						check_variable = { BRZ_barnaby_public_trust < 50 }
+					}
+					add_to_variable = {
+						var = BRZ_barnaby_public_trust
+						value = 10
+						tooltip = BRZ_barnaby_public_trust_add_10
+					}
+				}
+				else = {
+					add_to_variable = {
+						var = BRZ_barnaby_public_trust
+						value = 5
+						tooltip = BRZ_barnaby_public_trust_add_5
+					}
 				}
 			}
 			
