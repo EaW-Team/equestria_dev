@@ -3,119 +3,115 @@ on_actions = {
 	on_war_relation_added = {
 		effect = {
 			log = "[GetDateText]: ROOT: [Root.GetName] FROM: [From.GetName] on_war_relation_added"
-			if = {
+			if = { # NZW code start
 				limit = {
-					OR = {
-						original_tag = BAT
-						original_tag = HIP
-						AND = {
-							original_tag = WNG
-							has_government = fascism
-						}
-						original_tag = CTH
-						original_tag = TBK
-					}
-					NOT = {
-						has_country_flag = BAT_HIP_defeated
-					}
-					NOT = {
-						has_global_flag = BAT_won_civil_war
-					}
-					NOT = {
-						has_country_flag = HIE_BAT_alliance
-					}
-					FROM = {
-						OR = {
-							original_tag = BAT
-							original_tag = HIP
-							AND = {
-								original_tag = WNG
-								has_government = fascism
+					NOT = { has_global_flag = NZW_ended }
+					if = {
+						limit = {
+							OR = {
+								tag = BAT
+								FROM = {
+									tag = BAT
+								}
 							}
-							original_tag = CTH
-							original_tag = TBK
 						}
-						NOT = {
-							has_country_flag = BAT_HIP_defeated
+						NOT = { has_global_flag = BAT_won_civil_war } # NMM Victory TODO: think about this (for now not a NZW)
+					}
+
+					NZW_is_north_zebrican_tag = yes
+					FROM = { NZW_is_north_zebrican_tag = yes }
+					
+					OR = { # WNG gets it flag set otherwise, and its subjects/allies don't get the flag
+						AND = {
+							NZW_is_aligned_with_HIP = yes
+							FROM = {
+								OR = {
+									NZW_is_aligned_with_NZ1 = yes
+									NZW_is_aligned_with_NZ2 = yes
+								}
+							}
 						}
-						NOT = {
-							has_country_flag = HIP_won_north_zebrican_war
+						AND = {
+							OR = {
+								NZW_is_aligned_with_NZ1 = yes
+								NZW_is_aligned_with_NZ2 = yes
+							}
+							FROM = {
+								NZW_is_aligned_with_HIP = yes
+							}
 						}
-						NOT = {
-							has_global_flag = BAT_won_civil_war
+					}
+				}
+
+				# This is so that the NZ1 and NZ2 tag aliases still work during/after the war
+				# Because the states that define them can be owned by somebody else
+				# The NZW_is_NZ[1/2]_tag flag is here to still able to identify them
+				# The flag OVERRIDES the normal condition
+				# As its important that it doesn't change anymore
+				if = {
+					limit = {
+						tag = NZ1
+					}
+					set_country_flag = NZW_is_NZ1_tag
+					set_global_flag =  NZW_NZ1_tag_fixed
+				}
+				FROM = {
+					if = {
+						limit = {
+							tag = NZ1
 						}
+						set_country_flag = NZW_is_NZ1_tag
+						set_global_flag =  NZW_NZ1_tag_fixed
 					}
 				}
 				if = {
 					limit = {
-						OR = {
-							original_tag = BAT
-							AND = {
-								original_tag = WNG
-								has_government = fascism
-							}
-							original_tag = CTH
-							original_tag = TBK
-						}
-						NOT = {
-							OR = {
-								has_country_flag = BAT_national_catastrophe
-								AND = {
-									original_tag = WNG
-									NOT = { has_government = fascism }
-								}
-							}
-						}
-						FROM = {
-							original_tag = HIP
-							is_subject = no
-							NOT = {
-								has_country_flag = HIP_siren_takeover
-							}
-							NOT = {
-								has_country_flag = HIP_second_war
-							}
-							NOT = {
-								has_country_flag = HIP_won_north_zebrican_war
-							}
-							NOT = {
-								has_country_flag = BAT_HIP_defeated
-							}
-						}
+						tag = NZ2
 					}
-					set_country_flag = partial_war
-					set_country_flag = north_zebrican_war_participant
-					FROM = {
-						set_country_flag = north_zebrican_war_participant
-					}
+					set_country_flag = NZW_is_NZ2_tag
+					set_global_flag =  NZW_NZ2_tag_fixed
+				}
+				FROM = {
 					if = {
 						limit = {
-							NOT = {
-								has_global_flag = HIP_north_war_news_event_fired
-							}
+							tag = NZ2
 						}
-						set_global_flag = HIP_north_war_news_event_fired
-						news_event = {
-							id = north_war.101
-							hours = 8
-						}
-					}
-					if = {
-						limit = {
-							OR = {
-								tag = CTH
-								tag = HIE
-								tag = CVA
-								tag = TRO
-								tag = BAT
-							}
-							is_in_faction = yes
-							is_major = no
-						}
-						set_major = yes
+						set_country_flag = NZW_is_NZ2_tag
+						set_global_flag =  NZW_NZ2_tag_fixed
 					}
 				}
+
 				if = {
+					limit = {
+						OR = {
+							original_tag = HIP
+							original_tag = MCW
+						}
+					}
+					set_country_flag = NZW_is_island_nation
+				}
+				FROM = {
+					if = {
+						limit = {
+							OR = {
+								original_tag = HIP
+								original_tag = MCW
+							}
+						}
+						set_country_flag = NZW_is_island_nation
+					}
+				}
+				
+				# Participation trophy
+				set_country_flag = NZW_war_participant
+				NZW_amend_list_of_mainland_states_by_THIS = yes
+				FROM = {
+					set_country_flag = NZW_war_participant
+					NZW_amend_list_of_mainland_states_by_THIS = yes
+				}
+				
+				# Special HIP-HIE interaction
+				if = { 
 					limit = {
 						OR = {
 							AND = {
@@ -144,67 +140,12 @@ on_actions = {
 					}
 					HIP = {
 						country_event = {
-							id = hippogriff.63
+							id = hippogriff.63 # War of Survival
 							days = 30
 						}
 					}
 				}
-				if = {
-					limit = {
-						original_tag = HIP
-						is_subject = no
-						NOT = {
-							has_country_flag = HIP_siren_takeover
-						}
-						NOT = {
-							has_country_flag = HIP_second_war
-						}
-						NOT = {
-							has_country_flag = BAT_HIP_defeated
-						}
-						NOT = {
-							has_country_flag = HIP_won_north_zebrican_war
-						}
-						FROM = {
-							OR = {
-								original_tag = BAT
-								AND = {
-									original_tag = WNG
-									has_government = fascism
-								}
-								original_tag = CTH
-								original_tag = TBK
-							}
-							NOT = {
-								OR = {
-									has_country_flag = BAT_national_catastrophe
-									AND = {
-										original_tag = WNG
-										NOT = {has_government = fascism}
-									}
-								}
-							}
-						}
-					}
-					set_country_flag = north_zebrican_war_participant
-					FROM = {
-						set_country_flag = partial_war
-						set_country_flag = north_zebrican_war_participant
-					}
-					if = {
-						limit = {
-							NOT = {
-								has_global_flag = HIP_north_war_news_event_fired
-							}
-						}
-						set_global_flag = HIP_north_war_news_event_fired
-						news_event = {
-							id = north_war.101
-							hours = 8
-						}
-					}
-				}
-			}
+			} # NZW code end
 			if = {
 				limit = {
 					original_tag = HIP
@@ -2996,11 +2937,7 @@ on_actions = {
 			}
 			if = {
 				limit = {
-					OR = {
-						original_tag = CES
-						original_tag = BAL
-						original_tag = JUN
-					}
+					original_tag = CES
 					FROM = {
 						tag = NMS
 					}
@@ -3380,18 +3317,6 @@ on_actions = {
 					}
 				}
 			}
-			else_if = {
-				limit = {
-					tag = CTC
-					FROM = {
-						tag = CTA
-					}
-				}
-				every_controlled_state = {
-					remove_core_of = CTA
-					remove_claim_by = CTA
-				}
-			}
 		}
 	}
 
@@ -3598,6 +3523,14 @@ on_actions = {
 					}
 				}
 				country_event = colthage_civil_war.8
+				every_core_state = {
+					limit = {
+						is_core_of = FROM
+					}
+					remove_core_of = FROM
+					remove_claim_by = FROM
+					add_core_of = ROOT
+				}
 			}
 			else_if = {
 				limit = {
@@ -3616,6 +3549,14 @@ on_actions = {
 					CVA = {
 						country_event = colthage_civil_war.16
 					}
+				}
+				every_core_state = {
+					limit = {
+						is_core_of = FROM
+					}
+					remove_core_of = FROM
+					remove_claim_by = FROM
+					add_core_of = ROOT
 				}
 			}
 			else_if = {
@@ -3655,6 +3596,14 @@ on_actions = {
 					}
 				}
 				country_event = colthage_civil_war.13
+				every_core_state = {
+					limit = {
+						is_core_of = FROM
+					}
+					remove_core_of = FROM
+					remove_claim_by = FROM
+					add_core_of = ROOT
+				}
 			}
 			else_if = {
 				limit = {
@@ -3664,6 +3613,14 @@ on_actions = {
 					}
 				}
 				country_event = colthage_civil_war.14
+				every_core_state = {
+					limit = {
+						is_core_of = FROM
+					}
+					remove_core_of = FROM
+					remove_claim_by = FROM
+					add_core_of = ROOT
+				}
 			}
 			else_if = {
 				limit = {
@@ -3769,6 +3726,19 @@ on_actions = {
 						}
 					}
 					country_event = abyssinia.183
+				}
+				if = {
+					limit = {
+						has_cosmetic_tag = ABY_patriotic_revolt
+					}
+					drop_cosmetic_tag = yes
+				}
+				every_core_state = { 
+					limit = {
+						is_core_of = FROM
+					}
+					remove_core_of = FROM
+					add_core_of = ROOT
 				}
 			}
 			else_if = {
@@ -4787,6 +4757,12 @@ on_actions = {
 				FROM = {
 					set_country_flag = { flag = bypass_annex_compliance days = 1 value = 1 }
 					annex_country = { target = ROOT }
+				}
+				if = {
+					limit = {
+						has_cosmetic_tag = ABY_patriotic_revolt
+					}
+					drop_cosmetic_tag = yes
 				}
 			}
 			if = {
@@ -5907,6 +5883,7 @@ on_actions = {
 					FROM.FROM = { state = 1036 }
 					ROOT = {
 						original_tag = HYE
+						is_subject = no
 					}
 				}
 				country_event = storm.3
@@ -6254,11 +6231,6 @@ on_actions = {
 			#	limit = { tag = PCB }
 			#	country_event = { id = caballo.20 }
 			#}
-			### Bronzehill ###
-			else_if = {
-				limit = { tag = BRZ }
-				country_event = { id = bronzehill_election_event.3 }
-			}
 			else_if = {
 				limit = {
 					tag = CTH

@@ -40,10 +40,6 @@ focus_tree = {
 	#		continue_if_invalid = no
 	#		available_if_capitulated = no
 	#
-	#		complete_tooltip = {
-	#
-	#		}
-	#
 	#		completion_reward = {
 	#
 	#		}
@@ -1254,7 +1250,7 @@ focus_tree = {
 		}
 
 		ai_will_do = {
-			factor = 5
+			factor = 8
 		}
 
 		cancel_if_invalid = yes
@@ -2581,16 +2577,10 @@ focus_tree = {
 
 		available = {
 			has_war = no
-			BAT = {
-				OR = {
-					exists = no
-					is_subject = yes
-					AND = {
-						is_in_faction = yes
-						is_faction_leader = no
-					}
-					has_country_flag = BAT_national_catastrophe
-				}
+			NOT = { has_global_flag = NZW_alliance_signed }
+			OR = {
+				has_global_flag = NZW_alliance_effect_done # Tried alliance unsuccessfully
+				NZW_alliance_possible = no
 			}
 		}
 		bypass = {
@@ -2609,6 +2599,10 @@ focus_tree = {
 		}
 		ai_will_do = {
 			factor = 10
+			modifier = { # if early, prefer to wait on the alliance focus
+				factor = 0
+				date < 1011.1.1
+			}
 		}
 
 		cancel_if_invalid = yes
@@ -2635,33 +2629,7 @@ focus_tree = {
 
 		available = {
 			has_war = no
-			BAT = {
-				exists = yes
-				is_subject = no
-				OR = {
-					has_war = no
-					has_war_with = HIP
-				}
-				NOT = {
-					AND = {
-						is_in_faction = yes
-						is_faction_leader = no
-					}
-					has_country_flag = BAT_national_catastrophe
-				}
-			}
-			TBK = {
-				OR = {
-					exists = no
-					is_subject_of = BAT
-				}
-			}
-			ZAR = {
-				OR = {
-					exists = no
-					is_subject_of = BAT
-				}
-			}
+			NZW_alliance_possible = yes
 		}
 		bypass = {
 			OR = {
@@ -2670,9 +2638,7 @@ focus_tree = {
 					owns_state = 698
 					owns_state = 711
 				}
-				BAT = {
-					is_in_faction_with = ROOT
-				}
+				has_global_flag = NZW_alliance_signed
 				ZUM = {
 					exists = yes
 					is_subject = no
@@ -2689,11 +2655,10 @@ focus_tree = {
 		available_if_capitulated = no
 
 		completion_reward = {
-			BAT = {
-				country_event = {
-					id = colthage_other.20
-				}
+			hidden_effect = {
+				NZW_alliance_effect = yes
 			}
+			custom_effect_tooltip = NZW_alliance_effect_tooltip_NZ2
 		}
 	}
 	focus = {
@@ -2710,6 +2675,7 @@ focus_tree = {
 
 		available = {
 			has_war = no
+			is_subject = no
 			has_war_support > 0.8
 			OR = {
 				has_army_manpower = {
@@ -2722,6 +2688,7 @@ focus_tree = {
 				}
 			}
 		}
+
 		bypass = {
 			OR = {
 				AND = {
@@ -2761,6 +2728,13 @@ focus_tree = {
 		completion_reward = {
 			if = {
 				limit = {
+					ZUM = { NZW_is_aligned_with_HIP = yes }
+				}
+				NZW_on_start_effect = yes
+			}
+
+			if = {
+				limit = {
 					ZUM = {
 						exists = no
 					}
@@ -2787,7 +2761,6 @@ focus_tree = {
 			else_if = {
 				limit = {
 					ZUM = {
-						exists = yes
 						is_subject = yes
 						NOT = {
 							is_subject_of = ROOT
@@ -2975,7 +2948,6 @@ focus_tree = {
 			else_if = {
 				limit = {
 					WAR = {
-						exists = yes
 						is_subject = yes
 						NOT = {
 							is_subject_of = ROOT
@@ -3774,6 +3746,10 @@ focus_tree = {
 					instant_build = yes
 					province = 18304
 				}
+			}
+			custom_effect_tooltip = {
+				localization_key = building_state_modifier|dam
+				INDENT = "    "
 			}
 		}
 	}
@@ -5050,9 +5026,14 @@ focus_tree = {
 						has_character = CTH_xikala_gunslinger
 					}
 				}
-				event_target:CTH_Xikala_target = { 
-					remove_unit_leader_trait = constitutionalist_supporter
-					set_nationality = ROOT 
+				every_possible_country = {
+					limit = {
+						has_character = CTH_xikala_gunslinger
+					}
+					CTH_xikala_gunslinger = {
+						remove_unit_leader_trait = constitutionalist_supporter
+						set_nationality = ROOT
+					}
 				}
 			}
 			if = {
@@ -5061,9 +5042,14 @@ focus_tree = {
 						has_character = CTH_ziliad_annizalid
 					}
 				}
-				event_target:CTH_Ziliad_Annizalid = { 
-					remove_unit_leader_trait = constitutionalist_supporter
-					set_nationality = ROOT 
+				every_possible_country = {
+					limit = {
+						has_character = CTH_ziliad_annizalid
+					}
+					CTH_ziliad_annizalid = {
+						remove_unit_leader_trait = constitutionalist_supporter
+						set_nationality = ROOT
+					}
 				}
 			}
 			if = {
@@ -5072,9 +5058,14 @@ focus_tree = {
 						has_character = CTH_batnoam_zarza
 					}
 				}
-				event_target:CTH_Batnoam_Zarza_target = { 
-					remove_unit_leader_trait = constitutionalist_supporter
-					set_nationality = ROOT 
+				every_possible_country = {
+					limit = {
+						has_character = CTH_batnoam_zarza
+					}
+					CTH_batnoam_zarza = {
+						remove_unit_leader_trait = constitutionalist_supporter
+						set_nationality = ROOT
+					}
 				}
 			}
 			add_political_power = 100
@@ -5664,6 +5655,9 @@ focus_tree = {
 			OR = {
 				has_idea = CTH_interservice_rivalry_army_dominant
 				has_idea = CTH_interservice_rivalry_army_strengthened
+				hidden_trigger = {
+					is_ai = yes
+				}
 			}
 			OR = {
 				owns_state = 1092
@@ -5739,7 +5733,12 @@ focus_tree = {
 			factor = 20
 		}
 		available = {
-			has_idea = CTH_interservice_rivalry_army_dominant
+			OR = {
+				has_idea = CTH_interservice_rivalry_army_dominant
+				hidden_trigger = {
+					is_ai = yes
+				}
+			}
 		}
 		cancel_if_invalid = yes
 		continue_if_invalid = no
@@ -5770,7 +5769,12 @@ focus_tree = {
 		available = {
 			is_subject = no
 			has_war = no
-			has_idea = CTH_interservice_rivalry_army_dominant
+			OR = {
+				has_idea = CTH_interservice_rivalry_army_dominant
+				hidden_trigger = {
+					is_ai = yes
+				}
+			}
 		}
 		bypass = {
 			HIN = {
@@ -5815,7 +5819,12 @@ focus_tree = {
 		available = {
 			is_subject = no
 			has_war = no
-			has_idea = CTH_interservice_rivalry_army_dominant
+			OR = {
+				has_idea = CTH_interservice_rivalry_army_dominant
+				hidden_trigger = {
+					is_ai = yes
+				}
+			}
 		}
 		bypass = {
 			CTL = {
@@ -5878,7 +5887,12 @@ focus_tree = {
 		available = {
 			is_subject = no
 			has_war = no
-			has_idea = CTH_interservice_rivalry_army_dominant
+			OR = {
+				has_idea = CTH_interservice_rivalry_army_dominant
+				hidden_trigger = {
+					is_ai = yes
+				}
+			}
 		}
 		bypass = {
 			BRS = {
@@ -5924,7 +5938,12 @@ focus_tree = {
 			factor = 20
 		}
 		available = {
-			has_idea = CTH_interservice_rivalry_army_dominant
+			OR = {
+				has_idea = CTH_interservice_rivalry_army_dominant
+				hidden_trigger = {
+					is_ai = yes
+				}
+			}
 			SAM = {
 				OR = {
 					exists = no
@@ -5972,7 +5991,12 @@ focus_tree = {
 			factor = 20
 		}
 		available = {
-			has_idea = CTH_interservice_rivalry_navy_dominant
+			OR = {
+				has_idea = CTH_interservice_rivalry_navy_dominant
+				hidden_trigger = {
+					is_ai = yes
+				}
+			}
 		}
 		cancel_if_invalid = yes
 		continue_if_invalid = no
@@ -6000,7 +6024,12 @@ focus_tree = {
 		available = {
 			is_subject = no
 			has_war = no
-			has_idea = CTH_interservice_rivalry_navy_dominant
+			OR = {
+				has_idea = CTH_interservice_rivalry_navy_dominant
+				hidden_trigger = {
+					is_ai = yes
+				}
+			}
 		}
 		bypass = {
 			MCW = {
@@ -6045,7 +6074,12 @@ focus_tree = {
 		available = {
 			is_subject = no
 			has_war = no
-			has_idea = CTH_interservice_rivalry_navy_dominant
+			OR = {
+				has_idea = CTH_interservice_rivalry_navy_dominant
+				hidden_trigger = {
+					is_ai = yes
+				}
+			}
 		}
 		bypass = {
 			MIT = {
@@ -6090,7 +6124,12 @@ focus_tree = {
 		available = {
 			is_subject = no
 			has_war = no
-			has_idea = CTH_interservice_rivalry_navy_dominant
+			OR = {
+				has_idea = CTH_interservice_rivalry_navy_dominant
+				hidden_trigger = {
+					is_ai = yes
+				}
+			}
 		}
 		bypass = {
 			SIC = {
@@ -6136,7 +6175,12 @@ focus_tree = {
 			factor = 20
 		}
 		available = {
-			has_idea = CTH_interservice_rivalry_navy_dominant
+			OR = {
+				has_idea = CTH_interservice_rivalry_navy_dominant
+				hidden_trigger = {
+					is_ai = yes
+				}
+			}
 			MCW = {
 				OR = {
 					exists = no
@@ -9977,21 +10021,7 @@ focus_tree = {
 					has_war = no
 				}
 			}
-			OR = {
-				HIP = {
-					OR = {
-						has_country_flag = HIP_won_north_zebrican_war 
-						has_country_flag = BAT_HIP_defeated 
-					}
-				}
-				BAT = {
-					OR = {
-						has_country_flag = BAT_national_catastrophe 
-						exists = no
-						is_subject = yes
-					}
-				}
-			}
+			has_global_flag = NZW_ended
 		}
 		bypass = {
 			OR = {
@@ -10014,6 +10044,7 @@ focus_tree = {
 		continue_if_invalid = no
 		available_if_capitulated = no
 		will_lead_to_war_with = ZUM
+		will_lead_to_war_with = HIP
 		completion_reward = {
 			if = {
 				limit = {
@@ -10052,7 +10083,6 @@ focus_tree = {
 			else_if = {
 				limit = {
 					ZUM = {
-						exists = yes
 						is_subject = yes
 					}
 				}
@@ -11843,6 +11873,13 @@ focus_tree = {
 		relative_position_id = CTH_the_constitutional_convention
 		x = 0
 		y = 1
+		available = {
+			hidden_trigger = {
+				NOT = {
+					has_country_flag = CTH_pause_focus_to_avoid_player_breaking_everything
+				}
+			}
+		}
 		prerequisite = {
 			focus = CTH_the_constitutional_convention
 		}
@@ -11858,7 +11895,7 @@ focus_tree = {
 			factor = 20
 		}
 
-		cancel_if_invalid = yes
+		cancel_if_invalid = no
 		continue_if_invalid = no
 		available_if_capitulated = no
 
