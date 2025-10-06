@@ -7226,7 +7226,11 @@ KXN_Tributaries_Category = {
 		ai_will_do = { factor = 50 }
 		
 		visible = {
-			has_full_control_of_state = 1012
+			OR = {
+				has_global_flag = Form_KXN_Satellite_Flag
+				has_global_flag = Form_KXN_Colony_Flag
+				has_full_control_of_state = 1012
+			}
 		}
 		
 		available = {
@@ -7408,15 +7412,27 @@ KXN_Tributaries_Category = {
 								artillery = { x = 0 y = 1 }
 							}
 						}
-					}
-					956 = {
-						create_unit = {
-							division = "name = \"Right-Flank Banner of the Consororal Watch\" division_template = \"Consororal Watch\" start_experience_factor = 0.3 start_equipment_factor = 1" owner = KXC count = 1
+						save_current_manpower = yes
+						956 = {
+							add_manpower = -16000
+							create_unit = {
+								division = "name = \"Right-Flank Banner of the Consororal Watch\" division_template = \"Consororal Watch\" start_experience_factor = 0.3 start_equipment_factor = 1" owner = KXC count = 1
+							}
+							create_unit = {
+								division = "name = \"Left-Flank Banner of the Consororal Watch\" division_template = \"Consororal Watch\" start_experience_factor = 0.3 start_equipment_factor = 1" owner = KXC count = 1
+							}
 						}
-						create_unit = {
-							division = "name = \"Left-Flank Banner of the Consororal Watch\" division_template = \"Consororal Watch\" start_experience_factor = 0.3 start_equipment_factor = 1" owner = KXC count = 1
+						restore_previous_manpower = yes
+					}
+				}
+				every_other_country = {
+					limit = {
+						OR = {
+							original_tag = HMR
+							original_tag = YMN
 						}
 					}
+					add_relation_modifier = { target = KXN modifier = KXN_Deep_Hatred }
 				}
 			}
 		}
@@ -7557,7 +7573,9 @@ KXN_Tributaries_Category = {
 								artillery = { x = 0 y = 1 }
 							}
 						}
+						save_current_manpower = yes
 						capital_scope = {
+							add_manpower = -16000
 							create_unit = {
 								division = "name = \"Dextral Griffonic War-Banner 'of the Ice Wind'\" division_template = \"Griffonic War-Banner\" start_experience_factor = 0.3 start_equipment_factor = 1" owner = PREV count = 1
 							}
@@ -7565,6 +7583,7 @@ KXN_Tributaries_Category = {
 								division = "name = \"Sinistral Griffonic War-Banner 'of the Fire Wind'\" division_template = \"Griffonic War-Banner\" start_experience_factor = 0.3 start_equipment_factor = 1" owner = PREV count = 1
 							}
 						}
+						restore_previous_manpower = yes
 					}
 				}
 			}
@@ -7978,6 +7997,62 @@ KXN_Aerostat_Category = {
 }
 
 KXN_The_Long_March_Home_Category = {
+	KXN_Move_Capital_Decision = {
+		icon = SOV_place_hq
+		allowed = { tag = KXN }
+		ai_will_do = { factor = 25 }
+		
+		state_target = yes
+		target_array = KXN.KXN_Remnant_Capital_Array
+		on_map_mode = map_and_decisions_view
+		
+		visible = {
+			FROM = {
+				is_capital = no
+				OR = {
+					is_fully_controlled_by = KXN
+					has_state_flag = KXN_Remnant_Saved_Capital_Flag
+				}
+			}
+		}
+		
+		highlight_states = {
+			highlight_states_trigger = {
+				state = FROM
+			}
+		}
+		
+		available = {
+			FROM = { is_fully_controlled_by = KXN }
+		}
+
+		cost = 30
+		ai_hint_pp_cost = 30
+		days_remove = 30
+		
+		modifier = {
+			political_power_factor = -0.15
+		}
+		
+		remove_effect = {
+			log = "[GetDateText]: [Root.GetName]: Decision remove KXN_Move_Capital_Decision target: [From.GetName]"
+			effect_tooltip = { set_capital = { state = FROM } }
+			custom_effect_tooltip = KXN_Move_Capital_Decision_TT
+			hidden_effect = {
+				capital_scope = { start_resistance = KXN force_enable_resistance = KXN }
+				set_capital = { state = FROM }
+				FROM = { force_disable_resistance = KXN }
+			}
+		}
+
+		cancel_trigger = {
+			FROM = {
+				NOT = {
+					is_controlled_by = KXN
+				}
+			}
+		}
+	}
 	KXN_Airlift_To_Remnant = {
 		icon = generic_intelligence_operation
 		allowed = { tag = KXN }
@@ -7987,7 +8062,10 @@ KXN_The_Long_March_Home_Category = {
 			FROM = {
 				exists = yes
 				original_tag = KXN
-				NOT = { has_war_with = KXN }
+				NOT = {
+					has_war_with = KXN
+					has_country_flag = KXN_Successor_Flag
+				}
 				check_variable = { KXN_Airlift_To_Remnant_Success_Var < 3 }
 				OR = {
 					has_country_flag = KXN_Vermilion_Flag
@@ -8218,6 +8296,7 @@ KXN_The_Long_March_Home_Category = {
 				NOT = {
 					has_war_with = KXN
 					is_subject_of = KXN
+					has_country_flag = KXN_Successor_Flag
 				}
 				OR = {
 					has_country_flag = KXN_Vermilion_Flag
@@ -8304,7 +8383,10 @@ KXN_The_Long_March_Home_Category = {
 			FROM = {
 				exists = yes
 				original_tag = KXN
-				NOT = { has_war_with = KXN }
+				NOT = {
+					has_war_with = KXN
+					has_country_flag = KXN_Successor_Flag
+				}
 				OR = {
 					has_country_flag = KXN_Vermilion_Flag
 					has_country_flag = KXN_Fragrance_Flag
@@ -8380,6 +8462,14 @@ KXN_The_Long_March_Home_Category = {
 				}
 				FROM = {
 					set_country_flag = KXN_Remnant_Saved_Flag
+					capital_scope = { set_state_flag = KXN_Remnant_Saved_Capital_Flag }
+					random_state = {
+						limit = {
+							is_in_array = { KXN.KXN_Remnant_Capital_Array = THIS }
+							is_core_of = PREV
+						}
+						set_state_flag = KXN_Remnant_Saved_Capital_Flag
+					}
 					every_core_state = {
 						remove_core_of = PREV
 					}
@@ -8501,7 +8591,6 @@ KXN_The_Long_March_Home_Category = {
 				if = {
 					limit = {
 						has_global_flag = Form_KXN_Colony_Flag
-						KXC = { has_country_flag = KXN_Remnant_Saved_Flag }
 					}
 					NOT = {
 						original_tag = HMR
@@ -8565,7 +8654,6 @@ KXN_The_Long_March_Home_Category = {
 			has_country_flag = KXN_Commonweal_Flag
 			has_full_control_of_state = 956
 			has_global_flag = Form_KXN_Colony_Flag
-			KXC = { has_country_flag = KXN_Remnant_Saved_Flag }
 			any_of_scopes = {
 				array = KXN.owned_controlled_states
 				NOT = {
@@ -8611,6 +8699,7 @@ KXN_The_Long_March_Home_Category = {
 			}
 			KXC = {
 				set_cosmetic_tag = KXN_Successor
+				set_country_flag = KXN_Successor_Flag
 				set_capital = {
 					state = 956
 				}
@@ -8678,13 +8767,13 @@ KXN_The_Long_March_Home_Category = {
 		
 		state_target = yes
 		fire_only_once = yes
-		target_array = KXN.owned_controlled_states
+		target_array = KXN.KXN_States_In_Our_Empire
 		on_map_mode = map_only
 		
 		visible = {
 			has_country_flag = KXN_Rebuild_State_Flag
 			has_country_flag = KXN_Rebuild_State_Show_Flag
-			FROM = { is_controlled_by = KXN }
+			FROM = { is_controlled_by_ROOT_or_ally = yes }
 		}
 		
 		highlight_states = {
@@ -8694,7 +8783,7 @@ KXN_The_Long_March_Home_Category = {
 		}
 		
 		available = {
-			FROM = { is_fully_controlled_by = KXN }
+			FROM = { is_controlled_by_ROOT_or_ally = yes }
 		}
 
 		custom_cost_trigger = {
@@ -8761,7 +8850,7 @@ KXN_The_Long_March_Home_Category = {
 		cancel_trigger = {
 			FROM = {
 				NOT = {
-					is_controlled_by = KXN
+					is_controlled_by_ROOT_or_ally = yes
 				}
 			}
 		}
@@ -8788,7 +8877,10 @@ KXN_The_Long_March_Home_Category = {
 			NOT = { has_country_flag = KXN_Airlift_To_Remnant_Show_Flag }
 			any_other_country = {
 				original_tag = KXN
-				NOT = { has_war_with = KXN }
+				NOT = {
+					has_war_with = KXN
+					has_country_flag = KXN_Successor_Flag
+				}
 				check_variable = { KXN_Airlift_To_Remnant_Success_Var < 3 }
 				OR = {
 					has_country_flag = KXN_Vermilion_Flag
@@ -8836,6 +8928,7 @@ KXN_The_Long_March_Home_Category = {
 				NOT = {
 					has_war_with = KXN
 					is_subject_of = KXN
+					has_country_flag = KXN_Successor_Flag
 				}
 				OR = {
 					has_country_flag = KXN_Vermilion_Flag
@@ -8881,7 +8974,10 @@ KXN_The_Long_March_Home_Category = {
 			any_other_country = {
 				original_tag = KXN
 				is_subject_of = KXN
-				NOT = { has_war_with = KXN }
+				NOT = {
+					has_war_with = KXN
+					has_country_flag = KXN_Successor_Flag
+				}
 				OR = {
 					has_country_flag = KXN_Vermilion_Flag
 					has_country_flag = KXN_Fragrance_Flag
@@ -9113,6 +9209,28 @@ operations = {
 		
 		visible = {
 			has_country_flag = KXN_Battle_Plan_Hin_Doe_Flag
+			OR = {
+				HIN = {
+					exists = yes
+					is_subject = no
+					has_capitulated = no
+				}
+				CTL = {
+					exists = yes
+					is_subject = no
+					has_capitulated = no
+				}
+				BRS = {
+					exists = yes
+					is_subject = no
+					has_capitulated = no
+				}
+				SAM = {
+					exists = yes
+					is_subject = no
+					has_capitulated = no
+				}
+			}
 		}
 		
 		available = {
@@ -9165,7 +9283,7 @@ operations = {
 		}
 
 		remove_effect = {
-			KXN_SPAWN_BANNER_LEVY = yes
+			#KXN_SPAWN_BANNER_LEVY = yes
 			every_other_country = {
 				limit = {
 					NOT = {
@@ -9241,14 +9359,17 @@ operations = {
 					}
 				}
 				fix_weapon_techs = yes
+				save_current_manpower = yes
 				capital_scope = {
+					add_manpower = -20000
 					create_unit = {
 						division = "name = \"Motor Storm Banner 'of the Infernal Cavalcade'\" division_template = \"Motor Storm Banner\" start_experience_factor = 0.3 start_equipment_factor = 1" owner = KXN count = 1
 					}
 					create_unit = {
 						division = "name = \"Motor Storm Banner 'of the Galloping Steed'\" division_template = \"Motor Storm Banner\" start_experience_factor = 0.3 start_equipment_factor = 1" owner = KXN count = 1
 					}
-				} 
+				}
+				restore_previous_manpower = yes
 			}
 		}
 	}
@@ -9300,7 +9421,9 @@ operations = {
 					}
 				}
 				fix_weapon_techs = yes
+				save_current_manpower = yes
 				capital_scope = {
+					add_manpower = -26000
 					create_unit = {
 						division = "name = \"Motor Cannon Banner 'of the Iron Thunder'\" division_template = \"Motor Cannon Banner\" start_experience_factor = 0.3 start_equipment_factor = 1" owner = KXN count = 1
 					}
@@ -9308,6 +9431,7 @@ operations = {
 						division = "name = \"Motor Cannon Banner 'of the Iron Storm'\" division_template = \"Motor Cannon Banner\" start_experience_factor = 0.3 start_equipment_factor = 1" owner = KXN count = 1
 					}
 				}
+				restore_previous_manpower = yes
 			}
 		}
 	}
@@ -9356,7 +9480,9 @@ operations = {
 					}
 				}
 				fix_weapon_techs = yes
+				save_current_manpower = yes
 				capital_scope = {
+					add_manpower = -24000
 					create_unit = {
 						division = "name = \"Fire Arrow Banner 'of the Flaming Spear'\" division_template = \"Fire Arrow Banner\" start_experience_factor = 0.3 start_equipment_factor = 1" owner = KXN count = 1
 					}
@@ -9364,6 +9490,7 @@ operations = {
 						division = "name = \"Fire Arrow Banner 'of the Searing Lance'\" division_template = \"Fire Arrow Banner\" start_experience_factor = 0.3 start_equipment_factor = 1" owner = KXN count = 1
 					}
 				}
+				restore_previous_manpower = yes
 			}
 		}
 	}
@@ -9490,6 +9617,13 @@ operations = {
 			log = "[GetDateText]: [Root.GetName]: Decision KXN_Consecrate_State_Decision target: [From.GetName]"
 			FROM = {
 				add_manpower = 25000
+				if = {
+					limit = { state = 1158 }
+					set_province_name = {
+						id = 13371
+						name = KXN_AZURE_NAME
+					}
+				}
 				force_disable_resistance = KXN
 				custom_effect_tooltip = KXN_Becomes_Colony_State_tt
 				add_dynamic_modifier = { modifier = KXN_Settler_Communities }
@@ -9619,9 +9753,162 @@ operations = {
 			custom_effect_tooltip = KXN_Form_Tributary_SHOW_tt
 		}
 	}
+	
+	KXN_Nirik_Storm_For_AI_Decision = {
+		allowed = { tag = KXN }
+		ai_will_do = { factor = 30 }
+		
+		visible = {
+			is_ai = yes
+		}
+		
+		available = {
+			is_ai = yes
+			has_war = yes
+		}
+
+		cost = 15
+		days_remove = 75
+		days_re_enable = 150
+		modifier = {
+			army_speed_factor = 0.15
+			initiative_factor = 0.15
+			breakthrough_factor = 0.15
+			no_supply_grace = 240
+			org_loss_when_moving = -0.1
+			land_night_attack = 0.1
+		}
+		complete_effect = {
+			KXN_SET_NIRIK_PORTRAITS_EFFECT = yes
+			add_country_leader_trait = nirik_fury
+			if = {
+				limit = { has_country_flag = KXNNirikStormValiantBuff_Flag }
+				set_technology = {
+					popup = no
+					KXN_Super_Valiants = 1
+				}
+				KXN_REFRESH_VALIANTS_EFFECT = yes
+			}
+		}
+		remove_effect = {
+			KXN_SET_KIRIN_PORTRAITS_EFFECT = yes
+			remove_country_leader_trait = nirik_fury
+			if = {
+				limit = {
+					has_tech = KXN_Super_Valiants
+				}
+				set_technology = {
+					popup = no
+					KXN_Super_Valiants = 0
+				}
+				KXN_REFRESH_VALIANTS_EFFECT = yes
+			}
+		}
+	}
 }
 
 special_projects = {
+	KXN_Trans_Zebrica_Railway_Decision = {
+		icon = generic_train
+		allowed = { tag = KXN }
+		ai_will_do = { factor = 10 }
+		
+		visible = {
+			has_completed_focus = KXN_Focus_DESTINY
+		}
+		
+		available = {
+			1085 = { custom_trigger_tooltip = { is_controlled_by_ROOT_or_ally = yes } }
+			1086 = { custom_trigger_tooltip = { is_controlled_by_ROOT_or_ally = yes } }
+			1130 = { custom_trigger_tooltip = { is_controlled_by_ROOT_or_ally = yes } }
+			1132 = { custom_trigger_tooltip = { is_controlled_by_ROOT_or_ally = yes } }
+			1128 = { custom_trigger_tooltip = { is_controlled_by_ROOT_or_ally = yes } }
+			912 = { custom_trigger_tooltip = { is_controlled_by_ROOT_or_ally = yes } }
+			913 = { custom_trigger_tooltip = { is_controlled_by_ROOT_or_ally = yes } }
+			914 = { custom_trigger_tooltip = { is_controlled_by_ROOT_or_ally = yes } }
+			916 = { custom_trigger_tooltip = { is_controlled_by_ROOT_or_ally = yes } }
+			330 = { custom_trigger_tooltip = { is_controlled_by_ROOT_or_ally = yes } }
+			1048 = { custom_trigger_tooltip = { is_controlled_by_ROOT_or_ally = yes } }
+			1049 = { custom_trigger_tooltip = { is_controlled_by_ROOT_or_ally = yes } }
+			1045 = { custom_trigger_tooltip = { is_controlled_by_ROOT_or_ally = yes } }
+			1043 = { custom_trigger_tooltip = { is_controlled_by_ROOT_or_ally = yes } }
+			1042 = { custom_trigger_tooltip = { is_controlled_by_ROOT_or_ally = yes } }
+			1038 = { custom_trigger_tooltip = { is_controlled_by_ROOT_or_ally = yes } }
+			974 = { custom_trigger_tooltip = { is_controlled_by_ROOT_or_ally = yes } }
+			971 = { custom_trigger_tooltip = { is_controlled_by_ROOT_or_ally = yes } }
+			970 = { custom_trigger_tooltip = { is_controlled_by_ROOT_or_ally = yes } }
+			968 = { custom_trigger_tooltip = { is_controlled_by_ROOT_or_ally = yes } }
+			935 = { custom_trigger_tooltip = { is_controlled_by_ROOT_or_ally = yes } }
+			953 = { custom_trigger_tooltip = { is_controlled_by_ROOT_or_ally = yes } }
+			957 = { custom_trigger_tooltip = { is_controlled_by_ROOT_or_ally = yes } }
+			956 = { is_controlled_by_ROOT_or_ally = yes }
+			num_of_civilian_factories_available_for_projects > 5
+		}
+
+		cost = 150
+		days_remove = 365
+		fire_only_once = yes
+		
+		highlight_states = {
+			highlight_state_targets = {
+				state = 1085
+				state = 1086
+				state = 1130
+				state = 1132
+				state = 1128
+				state = 912
+				state = 913
+				state = 914
+				state = 916
+				state = 330
+				state = 1048
+				state = 1049
+				state = 1045
+				state = 1043
+				state = 1042
+				state = 1038
+				state = 974
+				state = 971
+				state = 970
+				state = 968
+				state = 935
+				state = 953
+				state = 957
+				state = 956
+			}
+		}
+		
+		modifier = {
+			civilian_factory_use = 5
+		}
+
+		remove_effect = {
+			log = "[GetDateText]: [Root.GetName]: Decision remove KXN_Trans_Zebrica_Railway_Decision"
+			every_country = {
+				limit = { tag = KXN }
+				build_railway = {
+					level = 3
+					build_only_on_allied = yes
+					controller_priority = {
+						base = 1
+						modifier = {
+							tag = KXN
+							add = 2
+						}
+					}
+					fallback = yes
+					start_province = 16573
+					target_province = 18985
+					start_state = 1085
+					target_state = 956
+				}
+			}
+			add_equipment_to_stockpile = {
+				type = train_equipment
+				amount = 150
+			}
+		}
+	}
 	KXN_Marekong_Dam_Decision = {
 		icon = GFX_decision_ktz_dam
 		allowed = { always = no }
@@ -9649,9 +9936,6 @@ special_projects = {
 		
 		modifier = {
 			civilian_factory_use = 10
-		}
-
-		modifier = {
 		}
 
 		remove_effect = {
