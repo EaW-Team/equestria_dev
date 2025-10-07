@@ -74,7 +74,7 @@ my_MIO_token = {
     # current MIO scope - FROM = country
     # AI weight modifier for this organization - optional
     # For documentation, see examples of ai_will_do throughout the content
-    # the value is used as a MULTIPLIER, based on the weights set in `ai_bonus_weights`
+	# the value is used as a MULTIPLIER, based on the weights set in `ai_bonus_weights`
 
     # Flavor texts are displayed above the trait tree.
     # They are typically here to describe a column of traits - there is only room for 1 line!
