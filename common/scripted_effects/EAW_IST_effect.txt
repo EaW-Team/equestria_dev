@@ -1,4 +1,19 @@
 INS_civil_war_effect = {
+	every_controlled_state = {
+		limit = {
+			IST_initial_uprising_states = yes
+		}
+		transfer_state_to = ZOO
+		add_to_temp_array = {
+			initial_uprising_states_temp_array = THIS
+		}
+		if = {
+			limit = {
+				NOT = { is_core_of = IST }
+			}
+			add_core_of = ZOO
+		}
+	}
 	ZOO = { # TODO - decide which TAG will be the Resistance
 		division_template = {
 			name = "Militia"
@@ -14,36 +29,21 @@ INS_civil_war_effect = {
 			}
 			priority = 0
 		}
-		for_each_scope_loop = { # Transfers States and gives Cores
-			array = IST.controlled_states
-			if = {
-				limit = {
-					IST_initial_uprising_states = yes
-				}
-				add_to_temp_array = {
-					initial_uprising_states_temp_array = THIS
-				}
-				transfer_state_to = PREV
-			}
-			if = {
-				limit = {
-					NOT = { is_core_of = IST }
-				}
-				add_core_of = PREV
-			}
-		}
 		for_each_scope_loop = { # Creates Divisions
 			array = initial_uprising_states_temp_array
 			set_temp_variable = { divs_amount_var = resistance }
-			divide_temp_variable = { divs_amount_var = 10 }
+			subtract_from_temp_variable = { divs_amount_var = compliance }
+			divide_temp_variable = { divs_amount_var = 5 }
+			add_to_temp_variable = { divs_amont_var = 2 }
 			round_temp_variable = divs_amount_var
 			create_unit = {
 				division = "division_template = \"Militia\" start_experience_factor = 0.1"
 				owner = PREV
-				count = 1 # var:divs_amount_var
+				count = divs_amount_var
 				allow_spawning_on_enemy_provs = yes
 			}
 		}
+		add_civil_war_target = IST
 		declare_war_on = {
 			target = IST
 			type = civil_war
