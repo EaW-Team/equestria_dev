@@ -35,6 +35,31 @@ faction_goal_one_germany = {
 	}
 }
 
+
+# USA
+faction_goal_building_up_guam = {
+	name = building_up_guam_goal_name
+	description = building_up_guam_goal_desc
+	category = short_term
+	visible = {
+		ROOT = { tag = USA}
+	}
+	cancel = { 
+		ROOT = { NOT = { controls_state = 638 } }
+	}
+	completed = {
+		638 = { naval_base > 3 }
+	}
+	complete_effect = {
+		add_faction_power_projection = 50 
+		custom_effect_tooltip = THE_FACTION_LEADER
+		add_war_support = 0.02
+	}
+	ai_will_do = {
+		base = 10
+	}
+}
+
 ###########################################################
 
  ##  ### #  # ### ###  ###  ##       ##   ##   ##  #    ## 
@@ -48,49 +73,84 @@ faction_goal_one_germany = {
 
 # Faction Growth
 
-#faction_goal_military_infrastructure = {
-#	name = military_infrastructure_goal_name
-#	description = military_infrastructure_goal_desc
-#	completed = {
-#		OR = {
-#			ROOT = {
-#				has_tech = coastal_fort_tech_2
-#				has_tech = land_fort_tech_2
-#			}
-#			any_allied_country = {
-#				has_tech = coastal_fort_tech_2
-#				has_tech = land_fort_tech_2
-#			}
-#			count_in_collection = {
-#				collection = {
-#					input = game:scope
-#					operators = { faction_members }
-#					name = FACTION_NAME
-#				}
-#				buildings = { bunker coastal_bunker }
-#				size > 29
-#			}
-#		}
-#	}
-#	complete_effect = {
-#		add_faction_power_projection = 100
-#		custom_effect_tooltip = generic_skip_one_line_tt
-#		custom_effect_tooltip = THE_FACTION_LEADER
-#		add_faction_initiative = 1
-#		custom_effect_tooltip = generic_skip_one_line_tt
-#		custom_effect_tooltip = ALL_FACTION_MEMBERS
-#		every_faction_member = {
-#			army_experience = 50
-#		}
-#
-#	}
-#}
+faction_goal_military_infrastructure = {
+	name = military_infrastructure_goal_name
+	description = military_infrastructure_goal_desc
+	category = short_term
+	visible = {
+		collection_size = {
+			input = {
+				input = game:all_states
+				operators = {
+					limit = {
+						is_core_of = CONTROLLER
+						is_controlled_by_ROOT_or_ally = yes 
+						any_neighbor_state = {
+							controller = {
+								NOT = { is_in_faction_with = ROOT }
+							}
+						}
+						infrastructure < 5
+					}
+				}
+				name = COLLECTION_FACTION_BORDER_STATES_FULL_INFRASTRUCTURE
+			}
+			value > 0
+		}
+	}
+	completed = {
+		collection_size = {
+			input = {
+				input = game:all_states
+				operators = {
+					limit = {
+						is_controlled_by_ROOT_or_ally = yes 
+						any_neighbor_state = {
+							controller = {
+								NOT = { is_in_faction_with = ROOT }
+							}
+						}
+						infrastructure < 5
+					}
+				}
+				name = COLLECTION_FACTION_BORDER_STATES_FULL_INFRASTRUCTURE
+			}
+			value < 1
+		}
+	}
+	complete_effect = {
+		add_faction_power_projection = 100
+		custom_effect_tooltip = generic_skip_one_line_tt
+		custom_effect_tooltip = THE_FACTION_LEADER
+		add_faction_initiative = 1
+		custom_effect_tooltip = generic_skip_one_line_tt
+		custom_effect_tooltip = ALL_FACTION_MEMBERS
+		every_faction_member = {
+			army_experience = 50
+		}
+	}
+	ai_will_do = {
+		base = 0
+		modifier = {  
+			add = 1
+			has_war = no
+		}
+	}
+}
+
 
 faction_goal_spy_master = {
 	name = spy_master_goal_name
 	description = spy_master_goal_desc
+	category = short_term
 	allowed = {
 		has_dlc = "La Resistance"
+	}
+	visible = {
+		is_spymaster = no
+		any_allied_country = {
+			is_spymaster = no
+		}
 	}
 	completed = {
 		OR = {
@@ -107,6 +167,7 @@ faction_goal_spy_master = {
 		add_faction_initiative = 1
 		custom_effect_tooltip = generic_skip_one_line_tt
 		every_faction_member = { 
+			visible_when_empty = yes
 			limit = {
 				has_intelligence_agency = no
 			}
@@ -199,8 +260,12 @@ faction_goal_spy_master = {
 faction_goal_growing_the_faction = {
 	name = growing_the_faction
 	description = growing_the_faction_desc
-	category = short_term
-	visible = { always = no } # Should only be for small content creeated factions, not something you can pick 
+	category = short_term 
+	visible = { always = no } # Should only be for small content creeated factions, not something you can pick
+	visible = {
+		num_faction_members < 5
+	}
+
 	completed = {
 		num_faction_members > 4
 	}
@@ -212,6 +277,197 @@ faction_goal_growing_the_faction = {
 	}
 }
 
+
+
+faction_goal_ensure_military_r_d = {
+	name = ensure_military_r_d_goal_name
+	description = ensure_military_r_d_goal_desc
+	category = short_term
+	visible = {
+		collection_size = {
+			input = {
+				input = game:all_states
+				operators = {
+					limit = {
+						is_controlled_by_ROOT_or_ally = yes 
+						land_facility > 0
+					}
+				}
+				name = COLLECTION_FACTION_LAND_FACILITY
+			}
+			value < 1
+		}
+		collection_size = {
+			input = {
+				input = game:all_states
+				operators = {
+					limit = {
+						is_controlled_by_ROOT_or_ally = yes 
+						naval_facility > 0
+					}
+				}
+				name = COLLECTION_FACTION_NAVAL_FACILITY
+			}
+			value < 1
+		}
+		collection_size = {
+			input = {
+				input = game:all_states
+				operators = {
+					limit = {
+						is_controlled_by_ROOT_or_ally = yes 
+						air_facility > 0
+					}
+				}
+				name = COLLECTION_FACTION_LAND_FACILITY
+			}
+			value < 1
+		}
+	}
+	completed = {
+		collection_size = {
+			input = {
+				input = game:all_states
+				operators = {
+					limit = {
+						is_controlled_by_ROOT_or_ally = yes 
+						land_facility > 0
+					}
+				}
+				name = COLLECTION_FACTION_LAND_FACILITY
+			}
+			value > 0
+		}
+		collection_size = {
+			input = {
+				input = game:all_states
+				operators = {
+					limit = {
+						is_controlled_by_ROOT_or_ally = yes 
+						naval_facility > 0
+					}
+				}
+				name = COLLECTION_FACTION_NAVAL_FACILITY
+			}
+			value > 0
+		}
+		collection_size = {
+			input = {
+				input = game:all_states
+				operators = {
+					limit = {
+						is_controlled_by_ROOT_or_ally = yes 
+						air_facility > 0
+					}
+				}
+				name = COLLECTION_FACTION_LAND_FACILITY
+			}
+			value > 0
+		}
+		collection_size = {
+			input = {
+				input = game:all_states
+				operators = {
+					limit = {
+						is_controlled_by_ROOT_or_ally = yes 
+						magical_facility > 0
+					}
+				}
+				name = COLLECTION_FACTION_MAGICAL_FACILITYs
+			}
+			value < 1
+		}
+	}
+	complete_effect = {
+		add_faction_power_projection = 100
+		custom_effect_tooltip = generic_skip_one_line_tt
+		custom_effect_tooltip = THE_FACTION_LEADER
+		add_faction_initiative = 1
+		custom_effect_tooltip = generic_skip_one_line_tt
+		custom_effect_tooltip = ALL_FACTION_MEMBERS
+		every_collection_element = {
+			input = {
+				input = game:all_states
+				operators = {
+					limit = {
+						is_controlled_by_ROOT_or_ally = yes
+						OR = {
+							air_facility > 0
+							land_facility > 0
+							naval_facility > 0
+							magical_facility > 0
+						}
+					}
+				}
+				name = OWNS_LISTED_STATE
+			}
+			custom_effect_tooltip = OWNS_LISTED_STATE
+			add_faction_initiative = 1
+			add_faction_influence_ratio = 0.05
+		}
+		every_faction_member = {
+			every_scientist = {
+				visible_when_empty = yes
+				limit = {
+					has_scientist_level = {
+						level > 0
+						specialization = specialization_land
+					}
+					is_active_scientist = yes
+				}
+				add_scientist_xp = {
+					experience = constant:sp_scientist_xp_gain.very_high
+					specialization = specialization_land
+				}
+			}
+			every_scientist = {
+				visible_when_empty = yes
+				limit = {
+					has_scientist_level = {
+						level > 0
+						specialization = specialization_naval
+					}
+					is_active_scientist = yes
+				}
+				add_scientist_xp = {
+					experience = constant:sp_scientist_xp_gain.very_high
+					specialization = specialization_naval
+				}
+			}
+			every_scientist = {
+				visible_when_empty = yes
+				limit = {
+					has_scientist_level = {
+						level > 0
+						specialization = specialization_air
+					}
+					is_active_scientist = yes
+				}
+				add_scientist_xp = {
+					experience = constant:sp_scientist_xp_gain.very_high
+					specialization = specialization_air
+				}
+			}
+			every_scientist = {
+				visible_when_empty = yes
+				limit = {
+					has_scientist_level = {
+						level > 0
+						specialization = specialization_magical
+					}
+					is_active_scientist = yes
+				}
+				add_scientist_xp = {
+					experience = constant:sp_scientist_xp_gain.very_high
+					specialization = specialization_magical
+				}
+			}
+		}
+	}
+	ai_will_do = {
+		base = 1
+	}
+}
 
 
 ### EAW TIME

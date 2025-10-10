@@ -11,6 +11,247 @@
 
 ##########################################################
 
+### Units/Deployment
+
+faction_goal_strategic_bombing_campaign = {
+	name = strategic_bombing_campaign_goal_name
+	description = strategic_bombing_campaign_goal_desc
+	category = long_term
+	available = {
+		OR = {
+			count_in_collection = {
+				collection = {
+					input = game:scope
+					operators = { faction_members }
+					name = FACTION
+			    }
+				unit = strategic_bomber
+				size < 200
+			}
+			collection_size = {
+				input = {
+					input = game:all_states
+					operators = {
+						limit = {
+							owner = {
+								has_war_with = root
+							}
+							is_core_of = OWNER
+							days_since_last_strategic_bombing < 30
+						}
+					}
+					name = ENEMY_FACTION_STATES_BOMBED
+				}
+				value < 3
+			}
+		}
+	}
+	completed = {
+		count_in_collection = {
+			collection = {
+				input = game:scope
+				operators = { faction_members }
+				name = FACTION
+		    }
+			unit = strategic_bomber
+			size > 199
+		}
+		collection_size = {
+			input = {
+				input = game:all_states
+				operators = {
+					limit = {
+						owner = {
+							has_war_with = root
+						}
+						is_core_of = OWNER
+						days_since_last_strategic_bombing < 30
+					}
+				}
+				name = ENEMY_FACTION_STATES_BOMBED
+			}
+			value > 2
+		}
+	}
+	complete_effect = {
+		add_faction_power_projection = 100
+		custom_effect_tooltip = generic_skip_one_line_tt
+		every_collection_element = {
+			input = {
+				input = game:scope
+				operators = { 
+					faction_members 
+					limit = {
+						has_army_size = {
+						    size > 49
+						    type = strategic_bomber
+						}
+					}
+				}
+				name = ALL_FACTION_MEMBERS_WITH_50_BOMBERS
+			}
+			add_faction_initiative = 1
+			add_war_support = 0.1
+			air_experience = 50
+			add_mastery = {
+				amount = 100
+				track = heavy_aircraft
+			}
+		}
+	}
+}
+
+
+### War Waging
+
+faction_goal_liberate_territory = {
+	name = liberate_territory_goal_name
+	description = liberate_territory_goal_desc
+	category = long_term
+	visible = {
+		collection_size = {
+			input = {
+				input = collection:faction_owned_core_states
+				operators = {
+					limit = {
+						NOT = { is_fully_controlled_by = OWNER }
+					}
+				}
+				name = FACTION_CORE_STATES_NOT_FULLY_CONTROLLED
+			}
+			value > 0
+		}
+	}
+	completed = {
+		collection_size = {
+			input = {
+				input = collection:faction_owned_core_states
+				operators = {
+					limit = {
+						NOT = { is_fully_controlled_by = OWNER }
+					}
+				}
+				name = FACTION_CORE_STATES_NOT_FULLY_CONTROLLED
+			}
+			value < 1
+		}
+	}
+	complete_effect = {
+		add_faction_power_projection = 100
+		custom_effect_tooltip = generic_skip_one_line_tt
+		custom_effect_tooltip = THE_FACTION_LEADER
+		add_faction_initiative = 1
+		custom_effect_tooltip = generic_skip_one_line_tt
+		custom_effect_tooltip = ALL_FACTION_MEMBERS
+		every_faction_member = {
+			add_stability = 0.1
+		}
+	}
+}
+
+faction_goal_great_offensive = {
+	name = great_offensive_goal_name
+	description = great_offensive_goal_desc
+	category = long_term
+	visible = {
+		has_war = yes
+		collection_size = {
+			input = {
+				input = game:all_states
+				operators = {
+					limit = {
+						owner = {
+							has_war_with = ROOT
+						}
+						is_core_of = OWNER
+						is_controlled_by_ROOT_or_ally = yes
+					}
+				}
+				name = ENEMY_FACTION_CORE_STATES_CONTROLLED_BY_US
+			}
+			value < 1
+		}
+	}
+	completed = {
+		collection_size = {
+			input = {
+				input = game:all_states
+				operators = {
+					limit = {
+						owner = {
+							has_war_with = ROOT
+						}
+						is_core_of = OWNER
+						is_controlled_by_ROOT_or_ally = yes
+					}
+				}
+				name = ENEMY_FACTION_CORE_STATES_CONTROLLED_BY_US
+			}
+			value > 0
+		}
+	}
+	complete_effect = {
+		add_faction_power_projection = 100
+		custom_effect_tooltip = generic_skip_one_line_tt
+		custom_effect_tooltip = THE_FACTION_LEADER
+		add_faction_initiative = 1
+		custom_effect_tooltip = generic_skip_one_line_tt
+		custom_effect_tooltip = ALL_FACTION_MEMBERS
+		every_faction_member = {
+			add_war_support = 0.1
+		}
+		custom_effect_tooltip = generic_skip_one_line_tt
+		custom_effect_tooltip = TARGET_STATE_CONTROLLERS
+		every_faction_member = {
+			visible_when_empty = yes
+			limit = {
+				any_controlled_state = {
+					owner = {
+						has_war_with = ROOT
+					}
+					is_core_of = OWNER
+				}
+			}
+			add_faction_initiative = 1
+		}
+	}
+}
+
+faction_goal_defeating_our_enemies = {
+	name = defeating_our_enemies_goal_name
+	description = defeating_our_enemies_goal_desc
+	category = long_term
+	visible = {
+		NOT = { has_country_flag = peace_winner_flag}
+	}
+	completed = {
+		custom_trigger_tooltip = {
+			tooltip = is_victor_in_pc_tt
+			ROOT = { has_country_flag = peace_winner_flag }
+		}
+		
+	}
+	complete_effect = {
+		add_faction_power_projection = 200
+		custom_effect_tooltip = generic_skip_one_line_tt
+		custom_effect_tooltip = ALL_FACTION_MEMBERS
+		every_faction_member = {
+			add_war_support = 0.1
+		}
+		custom_effect_tooltip = generic_skip_one_line_tt
+		custom_effect_tooltip = PEACE_CONFERENCE_WINNERS
+		every_faction_member = {
+			visible_when_empty = yes
+			limit = {
+				has_country_flag = peace_winner_flag
+			}
+			add_faction_initiative = 1
+		}
+	}
+}
+
+
+
 
 ### Ideology based
 
@@ -21,16 +262,27 @@ faction_goal_defeat_of_communism = {
 	category = long_term
 
 	visible = {
-		NOT = { has_government = communism }
+		collection_size = {
+			input = {
+				input = game:scope
+				operators = {
+					faction_members
+					limit = {
+						has_government = communism
+					}
+				}
+				name = FACTION
+			}
+			value < 1
+		}
 	}
 	available = {
-		NOT = { has_government = communism }
 		collection_size = {
 			input = {
 				input = collection:communist_controlled_states_my_continent
 				name = COLLECTION_AMOUNT_OF_COMMUNIST_CONTROLLED_STATES_SAME_CONTINENT
 			}
-			value > 4
+			value > 8
 		}
 	}
 	completed = {
@@ -53,6 +305,128 @@ faction_goal_defeat_of_communism = {
 		every_faction_member = {
 			add_popularity = {
 				ideology = communism
+				popularity = -0.2
+			}
+			add_political_power = 100
+		}
+	}
+}
+
+
+# Defeat of Fascism 
+faction_goal_defeat_of_fascism = {
+	name = defeat_of_fascism_goal_name
+	description = defeat_of_fascism_goal_desc
+	category = long_term
+
+	visible = {
+		collection_size = {
+			input = {
+				input = game:scope
+				operators = {
+					faction_members
+					limit = {
+						has_government = fascism
+					}
+				}
+				name = FACTION
+			}
+			value < 1
+		}
+	}
+	available = {
+		collection_size = {
+			input = {
+				input = collection:fascist_controlled_states_my_continent
+				name = COLLECTION_AMOUNT_OF_FASCIST_CONTROLLED_STATES_SAME_CONTINENT
+			}
+			value > 0
+		}
+	}
+	completed = {
+		collection_size = {
+			input = {
+				input = collection:fascist_controlled_states_my_continent
+				name = COLLECTION_AMOUNT_OF_FASCIST_CONTROLLED_STATES_SAME_CONTINENT
+			}
+			value < 1
+		}
+		
+	}
+	complete_effect = {
+		add_faction_power_projection = 500
+		custom_effect_tooltip = generic_skip_one_line_tt
+		custom_effect_tooltip = THE_FACTION_LEADER
+		add_faction_initiative = 1
+		custom_effect_tooltip = generic_skip_one_line_tt
+		custom_effect_tooltip = ALL_FACTION_MEMBERS
+		every_faction_member = {
+			add_popularity = {
+				ideology = fascism
+				popularity = -0.2
+			}
+			add_political_power = 100
+		}
+	}
+}
+
+# Defeat of Anti-communists
+faction_goal_defeat_of_anti_communists = {
+	name = defeat_of_anti_communists_goal_name
+	description = defeat_of_anti_communists_goal_desc
+	category = long_term
+
+	visible = {
+		collection_size = {
+			input = {
+				input = game:scope
+				operators = {
+					faction_members
+					limit = {
+						OR = {
+							has_government = fascism
+							has_government = democratic
+						}
+					}
+				}
+				name = FACTION
+			}
+			value < 1
+		}
+	}
+	available = {
+		collection_size = {
+			input = {
+				input = collection:anti_communist_controlled_states_my_continent
+				name = COLLECTION_AMOUNT_OF_ANTI_COMMUNIST_CONTROLLED_STATES_SAME_CONTINENT
+			}
+			value > 0
+		}
+	}
+	completed = {
+		collection_size = {
+			input = {
+				input = collection:anti_communist_controlled_states_my_continent
+				name = COLLECTION_AMOUNT_OF_ANTI_COMMUNIST_CONTROLLED_STATES_SAME_CONTINENT
+			}
+			value < 1
+		}
+		
+	}
+	complete_effect = {
+		add_faction_power_projection = 500
+		custom_effect_tooltip = generic_skip_one_line_tt
+		custom_effect_tooltip = THE_FACTION_LEADER
+		add_faction_initiative = 1
+		custom_effect_tooltip = generic_skip_one_line_tt
+		custom_effect_tooltip = ALL_FACTION_MEMBERS
+		every_faction_member = {
+			add_popularity = {
+				ideology = fascism
+				popularity = -0.1
+			}
+			add_popularity = {
+				ideology = democratic
 				popularity = -0.1
 			}
 			add_political_power = 100
@@ -73,6 +447,79 @@ faction_goal_resource_control = {
 	name = resource_control_goal_name
 	description = resource_control_goal_desc
 	category = long_term
+	
+	available = {
+		has_resources_in_collection = {
+			collection = {
+					input = game:scope
+					operators =  { faction_members }
+					name = FACTION
+			}
+			resource = oil
+			amount < 500
+			extracted = yes # (optional, default: no) checks extracted amount instead of country balance
+		}
+		has_resources_in_collection = {
+			collection = {
+					input = game:scope
+					operators =  { faction_members }
+					name = FACTION
+			}
+			resource = coal
+			amount < 500
+			extracted = yes # (optional, default: no) checks extracted amount instead of country balance
+		}
+		has_resources_in_collection = {
+			collection = {
+					input = game:scope
+					operators =  { faction_members }
+					name = FACTION
+			}
+			resource = rubber
+			amount < 200
+			extracted = yes # (optional, default: no) checks extracted amount instead of country balance
+		}
+		has_resources_in_collection = {
+			collection = {
+					input = game:scope
+					operators =  { faction_members }
+					name = FACTION
+			}
+			resource = aluminium
+			amount < 200
+			extracted = yes # (optional, default: no) checks extracted amount instead of country balance
+		}
+		has_resources_in_collection = {
+			collection = {
+					input = game:scope
+					operators =  { faction_members }
+					name = FACTION
+			}
+			resource = chromium
+			amount < 200
+			extracted = yes # (optional, default: no) checks extracted amount instead of country balance
+		}
+		has_resources_in_collection = {
+			collection = {
+					input = game:scope
+					operators =  { faction_members }
+					name = FACTION
+			}
+			resource = tungsten
+			amount < 200
+			extracted = yes # (optional, default: no) checks extracted amount instead of country balance
+		}
+		has_resources_in_collection = {
+			collection = {
+					input = game:scope
+					operators =  { faction_members }
+					name = FACTION
+			}
+			resource = crystals
+			amount < 200
+			extracted = yes # (optional, default: no) checks extracted amount instead of country balance
+		}
+	}
 	completed = {
 		
 		has_resources_in_collection = {
@@ -102,6 +549,16 @@ faction_goal_resource_control = {
 					name = FACTION
 			}
 			resource = rubber
+			amount > 199
+			extracted = yes # (optional, default: no) checks extracted amount instead of country balance
+		}
+		has_resources_in_collection = {
+			collection = {
+					input = game:scope
+					operators =  { faction_members }
+					name = FACTION
+			}
+			resource = aluminium
 			amount > 199
 			extracted = yes # (optional, default: no) checks extracted amount instead of country balance
 		}

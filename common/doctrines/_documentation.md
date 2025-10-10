@@ -24,6 +24,7 @@
 * has_doctrine
 * has_completed_track
 * has_subdoctrine_in_track
+* has_mastery
 
 ## Doctrine Modifiers
 
