@@ -1,17 +1,22 @@
 INS_civil_war_effect = {
-	every_controlled_state = {
+	every_controlled_state = { # Transfers States and gives Cores
 		limit = {
-			IST_initial_uprising_states = yes
+			not_a_core_of_ROOT = yes
 		}
-		transfer_state_to = ZOO
-		add_to_temp_array = {
-			initial_uprising_states_temp_array = THIS
-		}
+		add_core_of = ZOO
 		if = {
 			limit = {
-				NOT = { is_core_of = IST }
+				IST_initial_uprising_states = yes
 			}
-			add_core_of = ZOO
+			transfer_state_to = ZOO 
+			add_to_temp_array = {
+				initial_uprising_states_temp_array = THIS
+			}
+		}
+		else = {
+			add_to_temp_array = {
+				potential_uprising_states_temp_array = THIS
+			}
 		}
 	}
 	ZOO = { # TODO - decide which TAG will be the Resistance
@@ -29,13 +34,71 @@ INS_civil_war_effect = {
 			}
 			priority = 0
 		}
+		for_each_scope_loop = { # Makes an array of non-initial states states with enought resistance
+			array = potential_uprising_states_temp_array
+			set_temp_variable = { rebellion_var = resistance }
+			#subtract_from_temp_variable = { rebellion_var = compliance } # TODO
+			if = {
+				limit = {
+					check_variable = { rebellion_var > 20 } # TODO
+				}
+				add_to_temp_array = {
+					probable_uprising_states_temp_array = THIS
+				}
+			}
+		}
+		while_loop_effect = { # Add every state with enought resistance and at least 2 nearby rebelious states to the uprising
+			limit = {
+				any_state = {
+					is_in_array = { probable_uprising_states_temp_array = THIS }
+				}
+			}
+			for_each_scope_loop = {
+				array = probable_uprising_states_temp_array
+				if = {
+					limit = {
+						any_neighbor_state = {
+							count = 2
+							is_in_array = { initial_uprising_states_temp_array = THIS }
+						}
+					}
+					transfer_state_to = ZOO
+					remove_from_temp_array = {
+						probable_uprising_states_temp_array = THIS
+					}
+					add_to_temp_array = {
+						initial_uprising_states_temp_array = THIS
+					}
+				}
+			}
+		}
+		for_each_scope_loop = { # Make sure there will be no enclaves
+			array = IST.controlled_states
+			if = {
+				limit = {
+					any_neighbor_state = {
+						is_in_array = { initial_uprising_states_temp_array = THIS }
+					}
+					NOT = {
+						any_neighbor_state = {
+							is_in_array = { IST.controlled_states = THIS }
+						}
+					}
+				}
+				transfer_state_to = ZOO
+			}
+		}
 		for_each_scope_loop = { # Creates Divisions
 			array = initial_uprising_states_temp_array
 			set_temp_variable = { divs_amount_var = resistance }
 			subtract_from_temp_variable = { divs_amount_var = compliance }
 			divide_temp_variable = { divs_amount_var = 5 }
-			add_to_temp_variable = { divs_amont_var = 2 }
+			add_to_temp_variable = { divs_amount_var = 2 }
 			round_temp_variable = divs_amount_var
+			clamp_temp_variable = {
+    			var = divs_amount_var 
+   				min = 1
+			}
 			create_unit = {
 				division = "division_template = \"Militia\" start_experience_factor = 0.1"
 				owner = PREV
