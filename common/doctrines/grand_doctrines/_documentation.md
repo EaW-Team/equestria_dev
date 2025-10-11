@@ -85,6 +85,7 @@ effect = {
         bonus = 0.5
         uses = 1
         category = cat_light_armor
+        name = [GRAND_DOCTRINE_NAME_LOC_KEY]
     }
 }
 ```
