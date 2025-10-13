@@ -4,6 +4,7 @@ Includes = {
 	"shadow.fxh"
 	"tiled_pointlights.fxh"
 	"fow.fxh"
+	"zzz_eaw_functions.fxh"
 }
 
 PixelShader =
@@ -442,12 +443,7 @@ PixelShader =
 		float4 main( VS_OUTPUT_PDXMESHSTANDARD In ) : PDX_COLOR
 		{
 			//Check to see if any day/night overrides are needed
-			float HalfPix = 0.5f / GB_TextureHeight;
-			float3 colorTest = tex2D( GradientBorderChannel1, float2(0.20386f,0.27197f*(0.5f - HalfPix)));
-			int dayNightStatus = 0;
-			if ((0.036865f < colorTest.x && colorTest.x < 0.036966f) && (0.034423f < colorTest.y && colorTest.y < 0.034424f) && (0.097656f < colorTest.z && colorTest.z < 0.097657f)) {
-				dayNightStatus = 1;
-			}
+			int dayNightStatus = dayNightOverrideCheck(GradientBorderChannel1);
 			
 			float2 vUV0 = In.vUV0;
 
@@ -607,12 +603,7 @@ PixelShader =
 		float4 main( VS_OUTPUT_PDXMESHSTANDARD In ) : PDX_COLOR
 		{
 			//Check to see if any day/night overrides are needed
-			float HalfPix = 0.5f / GB_TextureHeight;
-			float3 colorTest = tex2D( GradientBorderChannel1, float2(0.20386f,0.27197f*(0.5f - HalfPix)));
-			int dayNightStatus = 0;
-			if ((0.036865f < colorTest.x && colorTest.x < 0.036966f) && (0.034423f < colorTest.y && colorTest.y < 0.034424f) && (0.097656f < colorTest.z && colorTest.z < 0.097657f)) {
-				dayNightStatus = 1;
-			}
+			int dayNightStatus = dayNightOverrideCheck(GradientBorderChannel1);
 			
 			float4 vDiffuse = tex2D( DiffuseMap, In.vUV0 );
 			
