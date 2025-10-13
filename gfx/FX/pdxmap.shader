@@ -228,6 +228,14 @@ PixelShader =
 	[[
 		float4 main( VS_OUTPUT_TERRAIN Input ) : PDX_COLOR
 		{
+			//Check to see if any day/night overrides are needed
+			float HalfPix = 0.5f / GB_TextureHeight;
+			float3 colorTest = tex2D( GradientBorderChannel1, float2(0.20386f,0.27197f*(0.5f - HalfPix)));
+			int dayNightStatus = 0;
+			if ((0.036865f < colorTest.x && colorTest.x < 0.036966f) && (0.034423f < colorTest.y && colorTest.y < 0.034424f) && (0.097656f < colorTest.z && colorTest.z < 0.097657f)) {
+				dayNightStatus = 1;
+			}
+		
 			//return float4( 0, 1.0f, 0, 1.0f );
 			//clip( Input.prepos.y + TERRAIN_WATER_CLIP_HEIGHT - WATER_HEIGHT );
 
@@ -389,7 +397,7 @@ PixelShader =
 
 			float fShadowTerm = max(GetShadowScaled( SHADOW_WEIGHT_TERRAIN, Input.vScreenCoord, ShadowMap ), 0.1f );
 
-			CalculateSunLight( lightingProperties, fShadowTerm, diffuseLight, specularLight );
+			CalculateSunLight( lightingProperties, fShadowTerm, diffuseLight, specularLight, dayNightStatus );
 
 		#ifndef LOW_END_GFX
 			CalculatePointLights( lightingProperties, LightDataMap, LightIndexMap, diffuseLight, specularLight);
@@ -404,12 +412,12 @@ PixelShader =
 			specularLight += reflectiveColor * FresnelGlossy(lightingProperties._SpecularColor, -vEyeDir, lightingProperties._Normal, lightingProperties._Glossiness);
 		#endif
 
-			float3 vOut = ComposeLightSnow(lightingProperties, diffuseLight, specularLight, vSnowAlpha);
+			float3 vOut = ComposeLightSnow(lightingProperties, diffuseLight, specularLight, vSnowAlpha, dayNightStatus);
 
 			vOut = lerp( vOut, diffuse.rgb, BORDER_LIGHT_REMOVAL_FACTOR * ( 1 - vBloomAlpha ) );
 
 			float3 vGlobeNormal = CalcGlobeNormal( Input.prepos.xz );
-			float vNightFactor = DayNightFactor( vGlobeNormal );
+			float vNightFactor = DayNightFactor( vGlobeNormal, dayNightStatus );
 
 		#ifndef LOW_END_GFX
 			float3 CityLights = tex2D( CityLightsAndSnowNoise, Input.prepos.xz * CITY_LIGHTS_TILING ).rgb;
@@ -423,7 +431,7 @@ PixelShader =
 			vOut = ApplyDistanceFog( vOut, Input.prepos );
 		#endif
 
-			vOut = DayNightWithBlend( vOut, vGlobeNormal, lerp(BORDER_NIGHT_DESATURATION_MAX, 1.0f, vBloomAlpha) );
+			vOut = DayNightWithBlend( vOut, vGlobeNormal, lerp(BORDER_NIGHT_DESATURATION_MAX, 1.0f, vBloomAlpha), dayNightStatus );
 
 			DebugReturn(vOut, lightingProperties, fShadowTerm);
 
