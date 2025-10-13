@@ -329,14 +329,6 @@ PixelShader =
 		
 		float4 main( VS_OUTPUT In ) : PDX_COLOR
 		{
-			//Check to see if any day/night overrides are needed
-			float HalfPix = 0.5f / GB_TextureHeight;
-			float3 colorTest = tex2D( GradientBorderChannel1, float2(0.20386f,0.27197f*(0.5f - HalfPix)));
-			int dayNightStatus = 0;
-			if ((0.036865f < colorTest.x && colorTest.x < 0.036966f) && (0.034423f < colorTest.y && colorTest.y < 0.034424f) && (0.097656f < colorTest.z && colorTest.z < 0.097657f)) {
-				dayNightStatus = 1;
-			}
-			
 			float4 vDiffuseColor = tex2D( DiffuseMap, In.vTexCoord0_TintUV.xy );
 			if( vCamPos.y < 80.0f )
 				clip( vDiffuseColor.a - 0.5f );
@@ -387,7 +379,7 @@ PixelShader =
 			float3 specularLight = vec3(0.0);
 		
 			float fShadowTerm = GetShadowScaled( SHADOW_WEIGHT_TREE, In.vScreenCoord, ShadowMap );	
-			CalculateSunLight(lightingProperties, fShadowTerm, diffuseLight, specularLight, dayNightStatus);
+			CalculateSunLight(lightingProperties, fShadowTerm, diffuseLight, specularLight);
 
 		#ifndef LOW_END_GFX
 			CalculatePointLights(lightingProperties, LightDataMap, LightIndexMap, diffuseLight, specularLight);
@@ -400,7 +392,7 @@ PixelShader =
 			diffuseLight += reflectiveColor * vSpecular;
 		#endif
 			
-			vColor = ComposeLightSnow(lightingProperties, diffuseLight, specularLight, vSnowAlpha, dayNightStatus );
+			vColor = ComposeLightSnow(lightingProperties, diffuseLight, specularLight, vSnowAlpha );
 
 			float3 vGlobalNormal = CalcGlobeNormal( vPos.xz );
 		
@@ -409,7 +401,7 @@ PixelShader =
 		#ifndef LOW_END_GFX
 			vColor = ApplyDistanceFog( vColor, vPos );
 		#endif
-			vColor.rgb = DayNight( vColor.rgb, vGlobalNormal, dayNightStatus );
+			vColor.rgb = DayNight( vColor.rgb, vGlobalNormal );
 
 			DebugReturn(vColor, lightingProperties, fShadowTerm);
 			//return float4( vColor, 1.0 - saturate( (length(vEyeVec) - 100.0) / 200.0 ) );

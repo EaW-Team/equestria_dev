@@ -441,14 +441,6 @@ PixelShader =
 
 		float4 main( VS_OUTPUT_PDXMESHSTANDARD In ) : PDX_COLOR
 		{
-			//Check to see if any day/night overrides are needed
-			float HalfPix = 0.5f / GB_TextureHeight;
-			float3 colorTest = tex2D( GradientBorderChannel1, float2(0.20386f,0.27197f*(0.5f - HalfPix)));
-			int dayNightStatus = 0;
-			if ((0.036865f < colorTest.x && colorTest.x < 0.036966f) && (0.034423f < colorTest.y && colorTest.y < 0.034424f) && (0.097656f < colorTest.z && colorTest.z < 0.097657f)) {
-				dayNightStatus = 1;
-			}
-			
 			float2 vUV0 = In.vUV0;
 
 		#ifdef UV_ANIM
@@ -539,7 +531,7 @@ PixelShader =
 			
 			float3 diffuseLight = vec3(0.0);
 			float3 specularLight = vec3(0.0);
-			CalculateSunLight(lightingProperties, fShadowTerm, diffuseLight, specularLight, dayNightStatus);
+			CalculateSunLight(lightingProperties, fShadowTerm, diffuseLight, specularLight);
 			CalculatePointLights(lightingProperties, LightDataMap, LightIndexMap, diffuseLight, specularLight);
 		
 		#ifdef PDX_IMPROVED_BLINN_PHONG
@@ -552,16 +544,16 @@ PixelShader =
 		#endif
 		
 		#ifdef PDX_SNOW
-			vColor = ComposeLightSnow(lightingProperties, diffuseLight, specularLight, vSnowAlpha, dayNightStatus);
+			vColor = ComposeLightSnow(lightingProperties, diffuseLight, specularLight, vSnowAlpha);
 		#else
-			vColor = ComposeLightMesh(lightingProperties, diffuseLight, specularLight, vSnowAlpha, dayNightStatus);
+			vColor = ComposeLightMesh(lightingProperties, diffuseLight, specularLight, vSnowAlpha);
 		#endif
 
 			float3 vGlobalNormal = CalcGlobeNormal( vPos.xz );
 
 			float alpha = 0.0f;
 		#ifdef EMISSIVE
-			float vDayNightFactor = DayNightFactor( vGlobalNormal, dayNightStatus );
+			float vDayNightFactor = DayNightFactor( vGlobalNormal );
 			vEmissive = vEmissive * vDayNightFactor;
 			//vColor = lerp( vColor, float3(1,0.7,0), vEmissive * vDayNightFactor );	
 			vColor = lerp( vColor, vDiffuse.rgb, vEmissive );
@@ -574,7 +566,7 @@ PixelShader =
 			vColor = ApplyFOW( vColor, FogColorFactor, min( FogAlphaFactor, NegFogMultiplier ) );
 
 			vColor.rgb = ApplyDistanceFog( vColor.rgb, vPos );			
-			vColor.rgb = DayNight( vColor.rgb, vGlobalNormal, dayNightStatus );
+			vColor.rgb = DayNight( vColor.rgb, vGlobalNormal );
 
 /*		#ifdef RIM_LIGHT
 			float vRim = smoothstep( RIM_START, RIM_END, 1.0f - dot( vInNormal, lightingProperties._ToCameraDir ) );
@@ -606,14 +598,6 @@ PixelShader =
 	
 		float4 main( VS_OUTPUT_PDXMESHSTANDARD In ) : PDX_COLOR
 		{
-			//Check to see if any day/night overrides are needed
-			float HalfPix = 0.5f / GB_TextureHeight;
-			float3 colorTest = tex2D( GradientBorderChannel1, float2(0.20386f,0.27197f*(0.5f - HalfPix)));
-			int dayNightStatus = 0;
-			if ((0.036865f < colorTest.x && colorTest.x < 0.036966f) && (0.034423f < colorTest.y && colorTest.y < 0.034424f) && (0.097656f < colorTest.z && colorTest.z < 0.097657f)) {
-				dayNightStatus = 1;
-			}
-			
 			float4 vDiffuse = tex2D( DiffuseMap, In.vUV0 );
 			
 		#ifdef ALPHA_TEST

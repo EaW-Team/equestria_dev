@@ -263,14 +263,6 @@ PixelShader =
 	
 		float4 main( VS_OUTPUT Input ) : PDX_COLOR
 		{
-			//Check to see if any day/night overrides are needed
-			float HalfPix = 0.5f / GB_TextureHeight;
-			float3 colorTest = tex2D( GradientBorderChannel1, float2(0.20386f,0.27197f*(0.5f - HalfPix)));
-			int dayNightStatus = 0;
-			if ((0.036865f < colorTest.x && colorTest.x < 0.036966f) && (0.034423f < colorTest.y && colorTest.y < 0.034424f) && (0.097656f < colorTest.z && colorTest.z < 0.097657f)) {
-				dayNightStatus = 1;
-			}
-			
 			float2 vNewUV = Input.vUV;
 			
 			float vFlip = -1.0f;
@@ -319,7 +311,7 @@ PixelShader =
 		#ifdef LOW_END_GFX
 			float3 SunDirWater = float3( 0, 1, 0 );
 		#else
-			float3 SunDirWater = CalculateSunDirectionWater( Input.vPrePos_Fade.xyz, dayNightStatus );
+			float3 SunDirWater = CalculateSunDirectionWater( Input.vPrePos_Fade.xyz );
 		#endif
 			float3 H = normalize( normalize(vCamPos - Input.vPrePos_Fade.xyz).xzy + -SunDirWater.xzy );
 			float2 HWave = H.xy/H.z - B;
@@ -391,19 +383,19 @@ PixelShader =
 		
 			float fShadowTerm = GetShadowScaled( SHADOW_WEIGHT_RIVER, Input.vScreenCoord, ShadowMap );
 		
-			CalculateSunLight( lightingProperties, fShadowTerm, diffuseLight, specularLight, dayNightStatus );
+			CalculateSunLight( lightingProperties, fShadowTerm, diffuseLight, specularLight );
 
 		#ifndef LOW_END_GFX
 			CalculatePointLights( lightingProperties, LightDataMap, LightIndexMap, diffuseLight, specularLight);
 		#endif
 
-			float3 vOut = ComposeLight(lightingProperties, diffuseLight, specularLight, dayNightStatus);
+			float3 vOut = ComposeLight(lightingProperties, diffuseLight, specularLight);
 			
 			vOut = ApplyFOW( vOut, ShadowMap, Input.vScreenCoord );
 		#ifndef LOW_END_GFX
 			vOut = ApplyDistanceFog( vOut, Input.vPrePos_Fade.xyz );
 		#endif
-			vOut = DayNightWithBlend( vOut, CalcGlobeNormal( Input.vPrePos_Fade.xz ), lerp(BORDER_NIGHT_DESATURATION_MAX, 1.0f, vBloomAlpha), dayNightStatus );
+			vOut = DayNightWithBlend( vOut, CalcGlobeNormal( Input.vPrePos_Fade.xz ), lerp(BORDER_NIGHT_DESATURATION_MAX, 1.0f, vBloomAlpha) );
 				
 			float vFadeValue = ( 1.0f - Input.vPrePos_Fade.w );
 		
