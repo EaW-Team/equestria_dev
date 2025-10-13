@@ -268,6 +268,14 @@ PixelShader =
 		
 		float4 main( VS_OUTPUT_WATER Input ) : PDX_COLOR
 		{
+			//Check to see if any day/night overrides are needed
+			float HalfPix = 0.5f / GB_TextureHeight;
+			float3 colorTest = tex2D( GradientBorderChannel1, float2(0.20386f,0.27197f*(0.5f - HalfPix)));
+			int dayNightStatus = 0;
+			if ((0.036865f < colorTest.x && colorTest.x < 0.036966f) && (0.034423f < colorTest.y && colorTest.y < 0.034424f) && (0.097656f < colorTest.z && colorTest.z < 0.097657f)) {
+				dayNightStatus = 1;
+			}
+			
 			//return float4( 0, 0, 1, 1 );
 			float waterHeight = MultiSampleTexX( HeightTexture, Input.uv ) / ( 95.7f / 255.0f );
 			float waterShore = saturate( ( waterHeight - 0.954f ) * 25.0f );
@@ -289,7 +297,7 @@ PixelShader =
 		#ifdef LOW_END_GFX
 			float3 SunDirWater = float3( 0, -1, 0 );
 		#else
-			float3 SunDirWater = CalculateSunDirectionWater( Input.pos );
+			float3 SunDirWater = CalculateSunDirectionWater( Input.pos, dayNightStatus );
 		#endif
 			float3 H = normalize( normalize(vCamPos - Input.pos).xzy + -SunDirWater.xzy );
 			float2 HWave = H.xy/H.z - B;
@@ -371,19 +379,19 @@ PixelShader =
 			vShadowCoord.xz = vShadowCoord.xz + vRefractionDistortion * 20.0f;
 			float fShadowTerm = GetShadowScaled( SHADOW_WEIGHT_WATER, vShadowCoord, ShadowMap );
 		
-			CalculateSunLight( lightingProperties, fShadowTerm, SunDirWater, diffuseLight, specularLight );
+			CalculateSunLight( lightingProperties, fShadowTerm, SunDirWater, diffuseLight, specularLight, dayNightStatus );
 
 			CalculatePointLights( lightingProperties, LightDataMap, LightIndexMap, diffuseLight, specularLight);
 		#endif
 
-			float3 vOut = ComposeLight(lightingProperties, diffuseLight, specularLight);
+			float3 vOut = ComposeLight(lightingProperties, diffuseLight, specularLight, dayNightStatus);
 		
 		#ifndef LOW_END_GFX
 			vOut = ApplyFOW( vOut, ShadowMap, Input.vScreenCoord );
 			vOut = ApplyDistanceFog( vOut, Input.pos );
 		#endif
 
-			vOut = DayNightWithBlend( vOut, CalcGlobeNormal( Input.pos.xz ), lerp(BORDER_NIGHT_DESATURATION_MAX, 1.0f, vBloomAlpha) );
+			vOut = DayNightWithBlend( vOut, CalcGlobeNormal( Input.pos.xz ), lerp(BORDER_NIGHT_DESATURATION_MAX, 1.0f, vBloomAlpha), dayNightStatus );
 		
 		#ifdef LOW_END_GFX
 			DebugReturn(vOut, lightingProperties, 0.0f);
