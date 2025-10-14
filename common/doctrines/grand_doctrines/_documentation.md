@@ -7,7 +7,7 @@
 ```
 mobile_warfare = {
     folder = land   # Refers to the script name of a folder
-    name = GRAND_DOCTRINE_MOBILE_WARFARE   # Bindable loc
+    name = GRAND_DOCTRINE_MOBILE_WARFARE   # Loc key
     description = GRAND_DOCTRINE_MOBILE_WARFARE_DESC   # Bindable loc
     icon = GFX_mobile_warfare_medium  # Refers to the script name of an icon
     available = yes # Trigger that determines whether the doctrine can be selected
@@ -75,6 +75,17 @@ category_tanks = {
 }
 armored_car = {
     max_organisation = 2
+}
+```
+### Add equipment bonuses:
+
+(Note: use this instead of the add_equipment_bonus effect, since the effect will not remove the bonus if the doctrine is changed)
+```
+equipment_bonus = {
+    capital_ship = {
+        naval_range = 0.10
+        instant = yes
+    }
 }
 ```
 

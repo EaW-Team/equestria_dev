@@ -44,6 +44,11 @@ Note: for these mastery gain modifiers, localization is automatically mapped, me
 # Example:
 new_mobile_warfare_mastery_gain_factor = 0.15 # +15% mastery gain for all tracks which have Mobile Warfare as the grand doctrine
 ```
+* *[subdoctrine_name]*_mastery_gain_factor
+```
+# Example:
+guerilla_war_mastery_gain_factor = 0.15 # +15% mastery gain for all tracks which have Guerilla Warfare as the subdoctrine
+```
 * *[track_name]*_track_mastery_gain_factor
 ```
 # Example:
