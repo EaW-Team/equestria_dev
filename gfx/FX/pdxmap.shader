@@ -478,7 +478,7 @@ PixelShader =
 			float3 specularLight = vec3(0.0);
 			float fShadowTerm = GetShadowScaled( SHADOW_WEIGHT_TERRAIN, Input.vScreenCoord, ShadowMap );
 
-			CalculateSunLight( lightingProperties, fShadowTerm, diffuseLight, specularLight );
+			CalculateSunLight( lightingProperties, fShadowTerm, diffuseLight, specularLight, 2.0f );
 			CalculatePointLights( lightingProperties, LightDataMap, LightIndexMap, diffuseLight, specularLight);
 
 			float3 vOut = ComposeLight(lightingProperties, diffuseLight, specularLight );
