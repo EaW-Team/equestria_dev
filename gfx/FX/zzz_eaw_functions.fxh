@@ -9,11 +9,22 @@ PixelShader =
 	
 	//Untility function to check if day/night overrides need to be applied
 	int dayNightOverrideCheck(in sampler2D gbChannel) {
+		
+		//Sample the hidden province
 		float HalfPix = 0.5f / GB_TextureHeight;
-		float3 colorTest = tex2D( gbChannel, float2(0.20386f,0.27197f*(0.5f - HalfPix)));
-		if ((0.036865f < colorTest.x && colorTest.x < 0.036966f) && (0.034423f < colorTest.y && colorTest.y < 0.034424f) && (0.097656f < colorTest.z && colorTest.z < 0.097657f)) {
+		float3 colorTest = tex2D( gbChannel, float2(0.10327f,1.0f*(0.5f - HalfPix)));
+		
+		//Day override
+		if ( 0.0004f < colorTest.x ) {
+			return 2;
+		}
+		
+		//Night override
+		if ( 0.0f < colorTest.x ) {
 			return 1;
 		}
+		
+		//No override
 		return 0;
 	}
 	
