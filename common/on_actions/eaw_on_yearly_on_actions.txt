@@ -4159,6 +4159,503 @@ on_actions = {
 			}
 		}
 	}
+	on_weekly_KXN = {
+		effect = {
+			log = "[GetDateText]: ROOT: [Root.GetName] on_weekly_KXN"
+			if = {
+				limit = {
+					any_occupied_country = {
+						occupation_law = KXN_Bladed_Susurration
+					}
+				}
+				save_current_manpower = yes
+				every_controlled_state = {
+					limit = { occupation_law = KXN_Bladed_Susurration }
+					add_manpower = -200
+				}
+				restore_previous_manpower = yes
+			}
+			if = {
+				limit = {
+					has_completed_focus = KXN_Focus_DEATH
+				}
+				set_variable = { KXN_Army_XP_Gained_Var = KXN.casualties_k }
+				subtract_from_variable = { KXN_Army_XP_Gained_Var = KXN_Casualties_Suffered_Var }
+				if = {
+					limit = { check_variable = { KXN.KXN_Nirik_Counter_Var > 0 } }
+					multiply_variable = { KXN_Army_XP_Gained_Var = 1.5 }
+				}
+				add_to_variable = { KXN_Army_XP_Total_Gained_Var = KXN_Army_XP_Gained_Var }
+				set_variable = { KXN_Casualties_Suffered_Var = KXN.casualties_k }
+				army_experience = KXN.KXN_Army_XP_Gained_Var
+			}
+			if = {
+				limit = {
+					has_country_flag = KXN_Griffonland_Decision_Category_Flag
+				}
+				for_each_scope_loop = {
+					array = KXN.KXN_Griffon_Revolt_Array
+					clear_variable = KXN_Incite_Revolt_Griffonland_State_Num
+					for_each_scope_loop = {
+						array = core_states
+						if = {
+							limit = { is_owned_and_controlled_by = GRD }
+							add_to_variable = { PREV.KXN_Incite_Revolt_Griffonland_State_Num = 1 }
+						}
+					}
+				}
+			}
+			if = {
+				limit = {
+					is_ai = no
+				}
+				KXN_CALCULATE_OVEREXPANSION_EFFECT = yes
+				KXN_CALCULATE_SAURIAN_EFFECT = yes
+				KXN_CALCULATE_TAXATION = yes
+				count_inflicted_casualties_on_current_enemies = yes
+				KXN_TALLY_CASUALTIES_EFFECT = yes
+				if = {
+					limit = {
+						check_variable = {
+							var = KXN.KXNHarvest_Kills_Var
+							value = KXN.KXNHarvest_Max_Var
+							compare = greater_than_or_equals
+						}
+					}
+					add_to_variable = { KXN.KXN_KirNir_Uses_Var = 1 }
+					add_to_variable = { KXN.KXNHarvest_Total_Kills_Var = KXN.KXNHarvest_Max_Var }
+					KXN_TALLY_CASUALTIES_EFFECT = yes
+				}
+				every_subject_country = {
+					if = {
+						limit = { has_country_flag = KXN_Resource_Hub_Steel_Flag }
+						set_variable = { KXN_Tributary_Buff_Steel = resource_produced@steel }
+						multiply_variable = { KXN_Tributary_Buff_Steel = 0.25 }
+					}
+					if = {
+						limit = { has_country_flag = KXN_Resource_Hub_Tungsten_Flag }
+						set_variable = { KXN_Tributary_Buff_Tungsten = resource_produced@tungsten }
+						multiply_variable = { KXN_Tributary_Buff_Tungsten = 0.25 }
+					}
+					if = {
+						limit = { has_country_flag = KXN_Resource_Hub_Aluminium_Flag }
+						set_variable = { KXN_Tributary_Buff_Aluminium = resource_produced@aluminium }
+						multiply_variable = { KXN_Tributary_Buff_Aluminium = 0.25 }
+					}
+					if = {
+						limit = { has_country_flag = KXN_Resource_Hub_Chromium_Flag }
+						set_variable = { KXN_Tributary_Buff_Chromium = resource_produced@chromium }
+						multiply_variable = { KXN_Tributary_Buff_Chromium = 0.25 }
+					}
+					if = {
+						limit = { has_country_flag = KXN_Resource_Hub_Crystals_Flag }
+						set_variable = { KXN_Tributary_Buff_Crystals = resource_produced@crystals }
+						multiply_variable = { KXN_Tributary_Buff_Crystals = 0.25 }
+					}
+					if = {
+						limit = { has_country_flag = KXN_Resource_Hub_Rubber_Flag }
+						set_variable = { KXN_Tributary_Buff_Rubber = resource_produced@rubber }
+						multiply_variable = { KXN_Tributary_Buff_Rubber = 0.25 }
+					}
+					if = {
+						limit = { has_country_flag = KXN_Resource_Hub_Oil_Flag }
+						set_variable = { KXN_Tributary_Buff_Oil = resource_produced@oil }
+						multiply_variable = { KXN_Tributary_Buff_Oil = 0.25 }
+					}
+				}
+				### Conquest Mission Calculations ###
+				if = {
+					limit = { has_country_flag = KXN_Conquest_Mission_1_Active }
+					if = {
+						limit = { check_variable = { event_target:KXN_Conquest_Target_1.deployed_army_manpower_k > KXN_Conquest_Mission_1_Enemy_Manpower } }
+						set_variable = { KXN_Conquest_Mission_1_Enemy_Manpower = event_target:KXN_Conquest_Target_1.deployed_army_manpower_k }
+					}
+					event_target:KXN_Conquest_Target_1 = {
+						KXN = {
+							set_variable = { KXN_Conquest_Mission_1_Enemy_Casualties = inflicted_casualties_on_@PREV }
+							divide_variable = { KXN_Conquest_Mission_1_Enemy_Casualties = KXN_Conquest_Mission_1_Enemy_Manpower }
+							clamp_variable = { var = KXN_Conquest_Mission_1_Enemy_Casualties min = 0 max = 1 }
+						}
+					}
+				}
+				if = {
+					limit = { has_country_flag = KXN_Conquest_Mission_2_Active }
+					if = {
+						limit = { check_variable = { event_target:KXN_Conquest_Target_2.deployed_army_manpower_k > KXN_Conquest_Mission_2_Enemy_Manpower } }
+						set_variable = { KXN_Conquest_Mission_2_Enemy_Manpower = event_target:KXN_Conquest_Target_2.deployed_army_manpower_k }
+					}
+					event_target:KXN_Conquest_Target_2 = {
+						KXN = {
+							set_variable = { KXN_Conquest_Mission_2_Enemy_Casualties = inflicted_casualties_on_@PREV }
+							divide_variable = { KXN_Conquest_Mission_2_Enemy_Casualties = KXN_Conquest_Mission_2_Enemy_Manpower }
+							clamp_variable = { var = KXN_Conquest_Mission_2_Enemy_Casualties min = 0 max = 1 }
+						}
+					}
+				}
+				if = {
+					limit = { has_country_flag = KXN_Conquest_Mission_3_Active }
+					if = {
+						limit = { check_variable = { event_target:KXN_Conquest_Target_3.deployed_army_manpower_k > KXN_Conquest_Mission_3_Enemy_Manpower } }
+						set_variable = { KXN_Conquest_Mission_3_Enemy_Manpower = event_target:KXN_Conquest_Target_3.deployed_army_manpower_k }
+					}
+					event_target:KXN_Conquest_Target_3 = {
+						KXN = {
+							set_variable = { KXN_Conquest_Mission_3_Enemy_Casualties = inflicted_casualties_on_@PREV }
+							divide_variable = { KXN_Conquest_Mission_3_Enemy_Casualties = KXN_Conquest_Mission_3_Enemy_Manpower }
+							clamp_variable = { var = KXN_Conquest_Mission_3_Enemy_Casualties min = 0 max = 1 }
+						}
+					}
+				}
+				if = {
+					limit = { has_country_flag = KXN_Conquest_Mission_4_Active }
+					if = {
+						limit = { check_variable = { event_target:KXN_Conquest_Target_4.deployed_army_manpower_k > KXN_Conquest_Mission_4_Enemy_Manpower } }
+						set_variable = { KXN_Conquest_Mission_4_Enemy_Manpower = event_target:KXN_Conquest_Target_4.deployed_army_manpower_k }
+					}
+					event_target:KXN_Conquest_Target_4 = {
+						KXN = {
+							set_variable = { KXN_Conquest_Mission_4_Enemy_Casualties = inflicted_casualties_on_@PREV }
+							divide_variable = { KXN_Conquest_Mission_4_Enemy_Casualties = KXN_Conquest_Mission_4_Enemy_Manpower }
+							clamp_variable = { var = KXN_Conquest_Mission_4_Enemy_Casualties min = 0 max = 1 }
+						}
+					}
+				}
+				if = {
+					limit = { has_country_flag = KXN_Conquest_Mission_5_Active }
+					if = {
+						limit = { check_variable = { event_target:KXN_Conquest_Target_5.deployed_army_manpower_k > KXN_Conquest_Mission_5_Enemy_Manpower } }
+						set_variable = { KXN_Conquest_Mission_5_Enemy_Manpower = event_target:KXN_Conquest_Target_5.deployed_army_manpower_k }
+					}
+					event_target:KXN_Conquest_Target_5 = {
+						KXN = {
+							set_variable = { KXN_Conquest_Mission_5_Enemy_Casualties = inflicted_casualties_on_@PREV }
+							divide_variable = { KXN_Conquest_Mission_5_Enemy_Casualties = KXN_Conquest_Mission_5_Enemy_Manpower }
+							clamp_variable = { var = KXN_Conquest_Mission_5_Enemy_Casualties min = 0 max = 1 }
+						}
+					}
+				}
+				if = {
+					limit = { has_country_flag = KXN_Conquest_Mission_6_Active }
+					if = {
+						limit = { check_variable = { event_target:KXN_Conquest_Target_6.deployed_army_manpower_k > KXN_Conquest_Mission_6_Enemy_Manpower } }
+						set_variable = { KXN_Conquest_Mission_6_Enemy_Manpower = event_target:KXN_Conquest_Target_6.deployed_army_manpower_k }
+					}
+					event_target:KXN_Conquest_Target_6 = {
+						KXN = {
+							set_variable = { KXN_Conquest_Mission_6_Enemy_Casualties = inflicted_casualties_on_@PREV }
+							divide_variable = { KXN_Conquest_Mission_6_Enemy_Casualties = KXN_Conquest_Mission_6_Enemy_Manpower }
+							clamp_variable = { var = KXN_Conquest_Mission_6_Enemy_Casualties min = 0 max = 1 }
+						}
+					}
+				}
+				if = {
+					limit = { has_country_flag = KXN_Conquest_Mission_7_Active }
+					if = {
+						limit = { check_variable = { event_target:KXN_Conquest_Target_7.deployed_army_manpower_k > KXN_Conquest_Mission_7_Enemy_Manpower } }
+						set_variable = { KXN_Conquest_Mission_7_Enemy_Manpower = event_target:KXN_Conquest_Target_7.deployed_army_manpower_k }
+					}
+					event_target:KXN_Conquest_Target_7 = {
+						KXN = {
+							set_variable = { KXN_Conquest_Mission_7_Enemy_Casualties = inflicted_casualties_on_@PREV }
+							divide_variable = { KXN_Conquest_Mission_7_Enemy_Casualties = KXN_Conquest_Mission_7_Enemy_Manpower }
+							clamp_variable = { var = KXN_Conquest_Mission_7_Enemy_Casualties min = 0 max = 1 }
+						}
+					}
+				}
+				if = {
+					limit = { has_country_flag = KXN_Conquest_Mission_8_Active }
+					if = {
+						limit = { check_variable = { event_target:KXN_Conquest_Target_8.deployed_army_manpower_k > KXN_Conquest_Mission_8_Enemy_Manpower } }
+						set_variable = { KXN_Conquest_Mission_8_Enemy_Manpower = event_target:KXN_Conquest_Target_8.deployed_army_manpower_k }
+					}
+					event_target:KXN_Conquest_Target_8 = {
+						KXN = {
+							set_variable = { KXN_Conquest_Mission_8_Enemy_Casualties = inflicted_casualties_on_@PREV }
+							divide_variable = { KXN_Conquest_Mission_8_Enemy_Casualties = KXN_Conquest_Mission_8_Enemy_Manpower }
+							clamp_variable = { var = KXN_Conquest_Mission_8_Enemy_Casualties min = 0 max = 1 }
+						}
+					}
+				}
+				if = {
+					limit = { has_country_flag = KXN_Conquest_Mission_9_Active }
+					if = {
+						limit = { check_variable = { event_target:KXN_Conquest_Target_9.deployed_army_manpower_k > KXN_Conquest_Mission_9_Enemy_Manpower } }
+						set_variable = { KXN_Conquest_Mission_9_Enemy_Manpower = event_target:KXN_Conquest_Target_9.deployed_army_manpower_k }
+					}
+					event_target:KXN_Conquest_Target_9 = {
+						KXN = {
+							set_variable = { KXN_Conquest_Mission_9_Enemy_Casualties = inflicted_casualties_on_@PREV }
+							divide_variable = { KXN_Conquest_Mission_9_Enemy_Casualties = KXN_Conquest_Mission_9_Enemy_Manpower }
+							clamp_variable = { var = KXN_Conquest_Mission_9_Enemy_Casualties min = 0 max = 1 }
+						}
+					}
+				}
+				if = {
+					limit = { has_country_flag = KXN_Conquest_Mission_10_Active }
+					if = {
+						limit = { check_variable = { event_target:KXN_Conquest_Target_10.deployed_army_manpower_k > KXN_Conquest_Mission_10_Enemy_Manpower } }
+						set_variable = { KXN_Conquest_Mission_10_Enemy_Manpower = event_target:KXN_Conquest_Target_10.deployed_army_manpower_k }
+					}
+					event_target:KXN_Conquest_Target_10 = {
+						KXN = {
+							set_variable = { KXN_Conquest_Mission_10_Enemy_Casualties = inflicted_casualties_on_@PREV }
+							divide_variable = { KXN_Conquest_Mission_10_Enemy_Casualties = KXN_Conquest_Mission_10_Enemy_Manpower }
+							clamp_variable = { var = KXN_Conquest_Mission_10_Enemy_Casualties min = 0 max = 1 }
+						}
+					}
+				}
+				if = {
+					limit = { has_country_flag = KXN_Conquest_Mission_11_Active }
+					if = {
+						limit = { check_variable = { event_target:KXN_Conquest_Target_11.deployed_army_manpower_k > KXN_Conquest_Mission_11_Enemy_Manpower } }
+						set_variable = { KXN_Conquest_Mission_11_Enemy_Manpower = event_target:KXN_Conquest_Target_11.deployed_army_manpower_k }
+					}
+					event_target:KXN_Conquest_Target_11 = {
+						KXN = {
+							set_variable = { KXN_Conquest_Mission_11_Enemy_Casualties = inflicted_casualties_on_@PREV }
+							divide_variable = { KXN_Conquest_Mission_11_Enemy_Casualties = KXN_Conquest_Mission_11_Enemy_Manpower }
+							clamp_variable = { var = KXN_Conquest_Mission_11_Enemy_Casualties min = 0 max = 1 }
+						}
+					}
+				}
+				if = {
+					limit = { has_country_flag = KXN_Conquest_Mission_12_Active }
+					if = {
+						limit = { check_variable = { event_target:KXN_Conquest_Target_12.deployed_army_manpower_k > KXN_Conquest_Mission_12_Enemy_Manpower } }
+						set_variable = { KXN_Conquest_Mission_12_Enemy_Manpower = event_target:KXN_Conquest_Target_12.deployed_army_manpower_k }
+					}
+					event_target:KXN_Conquest_Target_12 = {
+						KXN = {
+							set_variable = { KXN_Conquest_Mission_12_Enemy_Casualties = inflicted_casualties_on_@PREV }
+							divide_variable = { KXN_Conquest_Mission_12_Enemy_Casualties = KXN_Conquest_Mission_12_Enemy_Manpower }
+							clamp_variable = { var = KXN_Conquest_Mission_12_Enemy_Casualties min = 0 max = 1 }
+						}
+					}
+				}
+				if = {
+					limit = { has_country_flag = KXN_Conquest_Mission_13_Active }
+					if = {
+						limit = { check_variable = { event_target:KXN_Conquest_Target_13.deployed_army_manpower_k > KXN_Conquest_Mission_13_Enemy_Manpower } }
+						set_variable = { KXN_Conquest_Mission_13_Enemy_Manpower = event_target:KXN_Conquest_Target_13.deployed_army_manpower_k }
+					}
+					event_target:KXN_Conquest_Target_13 = {
+						KXN = {
+							set_variable = { KXN_Conquest_Mission_13_Enemy_Casualties = inflicted_casualties_on_@PREV }
+							divide_variable = { KXN_Conquest_Mission_13_Enemy_Casualties = KXN_Conquest_Mission_13_Enemy_Manpower }
+							clamp_variable = { var = KXN_Conquest_Mission_13_Enemy_Casualties min = 0 max = 1 }
+						}
+					}
+				}
+				if = {
+					limit = { has_country_flag = KXN_Conquest_Mission_14_Active }
+					if = {
+						limit = { check_variable = { event_target:KXN_Conquest_Target_14.deployed_army_manpower_k > KXN_Conquest_Mission_14_Enemy_Manpower } }
+						set_variable = { KXN_Conquest_Mission_14_Enemy_Manpower = event_target:KXN_Conquest_Target_14.deployed_army_manpower_k }
+					}
+					event_target:KXN_Conquest_Target_14 = {
+						KXN = {
+							set_variable = { KXN_Conquest_Mission_14_Enemy_Casualties = inflicted_casualties_on_@PREV }
+							divide_variable = { KXN_Conquest_Mission_14_Enemy_Casualties = KXN_Conquest_Mission_14_Enemy_Manpower }
+							clamp_variable = { var = KXN_Conquest_Mission_14_Enemy_Casualties min = 0 max = 1 }
+						}
+					}
+				}
+				if = {
+					limit = { has_country_flag = KXN_Conquest_Mission_15_Active }
+					if = {
+						limit = { check_variable = { event_target:KXN_Conquest_Target_15.deployed_army_manpower_k > KXN_Conquest_Mission_15_Enemy_Manpower } }
+						set_variable = { KXN_Conquest_Mission_15_Enemy_Manpower = event_target:KXN_Conquest_Target_15.deployed_army_manpower_k }
+					}
+					event_target:KXN_Conquest_Target_15 = {
+						KXN = {
+							set_variable = { KXN_Conquest_Mission_15_Enemy_Casualties = inflicted_casualties_on_@PREV }
+							divide_variable = { KXN_Conquest_Mission_15_Enemy_Casualties = KXN_Conquest_Mission_15_Enemy_Manpower }
+							clamp_variable = { var = KXN_Conquest_Mission_15_Enemy_Casualties min = 0 max = 1 }
+						}
+					}
+				}
+				if = {
+					limit = { has_country_flag = KXN_Conquest_Mission_16_Active }
+					if = {
+						limit = { check_variable = { event_target:KXN_Conquest_Target_16.deployed_army_manpower_k > KXN_Conquest_Mission_16_Enemy_Manpower } }
+						set_variable = { KXN_Conquest_Mission_16_Enemy_Manpower = event_target:KXN_Conquest_Target_16.deployed_army_manpower_k }
+					}
+					event_target:KXN_Conquest_Target_16 = {
+						KXN = {
+							set_variable = { KXN_Conquest_Mission_16_Enemy_Casualties = inflicted_casualties_on_@PREV }
+							divide_variable = { KXN_Conquest_Mission_16_Enemy_Casualties = KXN_Conquest_Mission_16_Enemy_Manpower }
+							clamp_variable = { var = KXN_Conquest_Mission_16_Enemy_Casualties min = 0 max = 1 }
+						}
+					}
+				}
+				if = {
+					limit = { has_country_flag = KXN_Conquest_Mission_17_Active }
+					if = {
+						limit = { check_variable = { event_target:KXN_Conquest_Target_17.deployed_army_manpower_k > KXN_Conquest_Mission_17_Enemy_Manpower } }
+						set_variable = { KXN_Conquest_Mission_17_Enemy_Manpower = event_target:KXN_Conquest_Target_17.deployed_army_manpower_k }
+					}
+					event_target:KXN_Conquest_Target_17 = {
+						KXN = {
+							set_variable = { KXN_Conquest_Mission_17_Enemy_Casualties = inflicted_casualties_on_@PREV }
+							divide_variable = { KXN_Conquest_Mission_17_Enemy_Casualties = KXN_Conquest_Mission_17_Enemy_Manpower }
+							clamp_variable = { var = KXN_Conquest_Mission_17_Enemy_Casualties min = 0 max = 1 }
+						}
+					}
+				}
+				if = {
+					limit = { has_country_flag = KXN_Conquest_Mission_18_Active }
+					if = {
+						limit = { check_variable = { event_target:KXN_Conquest_Target_18.deployed_army_manpower_k > KXN_Conquest_Mission_18_Enemy_Manpower } }
+						set_variable = { KXN_Conquest_Mission_18_Enemy_Manpower = event_target:KXN_Conquest_Target_18.deployed_army_manpower_k }
+					}
+					event_target:KXN_Conquest_Target_18 = {
+						KXN = {
+							set_variable = { KXN_Conquest_Mission_18_Enemy_Casualties = inflicted_casualties_on_@PREV }
+							divide_variable = { KXN_Conquest_Mission_18_Enemy_Casualties = KXN_Conquest_Mission_18_Enemy_Manpower }
+							clamp_variable = { var = KXN_Conquest_Mission_18_Enemy_Casualties min = 0 max = 1 }
+						}
+					}
+				}
+				if = {
+					limit = { has_country_flag = KXN_Conquest_Mission_19_Active }
+					if = {
+						limit = { check_variable = { event_target:KXN_Conquest_Target_19.deployed_army_manpower_k > KXN_Conquest_Mission_19_Enemy_Manpower } }
+						set_variable = { KXN_Conquest_Mission_19_Enemy_Manpower = event_target:KXN_Conquest_Target_19.deployed_army_manpower_k }
+					}
+					event_target:KXN_Conquest_Target_19 = {
+						KXN = {
+							set_variable = { KXN_Conquest_Mission_19_Enemy_Casualties = inflicted_casualties_on_@PREV }
+							divide_variable = { KXN_Conquest_Mission_19_Enemy_Casualties = KXN_Conquest_Mission_19_Enemy_Manpower }
+							clamp_variable = { var = KXN_Conquest_Mission_19_Enemy_Casualties min = 0 max = 1 }
+						}
+					}
+				}
+				if = {
+					limit = { has_country_flag = KXN_Conquest_Mission_20_Active }
+					if = {
+						limit = { check_variable = { event_target:KXN_Conquest_Target_20.deployed_army_manpower_k > KXN_Conquest_Mission_20_Enemy_Manpower } }
+						set_variable = { KXN_Conquest_Mission_20_Enemy_Manpower = event_target:KXN_Conquest_Target_20.deployed_army_manpower_k }
+					}
+					event_target:KXN_Conquest_Target_20 = {
+						KXN = {
+							set_variable = { KXN_Conquest_Mission_20_Enemy_Casualties = inflicted_casualties_on_@PREV }
+							divide_variable = { KXN_Conquest_Mission_20_Enemy_Casualties = KXN_Conquest_Mission_20_Enemy_Manpower }
+							clamp_variable = { var = KXN_Conquest_Mission_20_Enemy_Casualties min = 0 max = 1 }
+						}
+					}
+				}
+			}
+		}
+	}
+	on_monthly_KXN = {
+		effect = {
+			log = "[GetDateText]: ROOT: [Root.GetName] on_monthly_KXN"
+			if = {
+				limit = {
+					is_ai = no
+				}
+				if = {
+					limit = {
+						check_variable = { KXN_Overexpansion_Modifier_Var > KXN_Overexpansion_Modifier_Tracker }
+					}
+					set_country_flag = KXN_Overexpansion_Alert_Flag
+					add_to_variable = { KXN_Overexpansion_Modifier_Tracker = 0.04 }
+				}
+			}
+			if = {
+				limit = {
+					OR = {
+						has_completed_focus = KXN_Focus_KOMODO
+						has_completed_focus = KXN_Focus_TURTLE_1
+						has_global_flag = Form_KXN_Exarchate_Flag
+					}
+					NOT = {
+						has_global_flag = KXN_The_Shattering_Happened
+						any_state = {
+							is_controlled_by_ROOT_or_ally = yes
+							region = 133
+						}
+					}
+				}
+				add_ideas = KXN_Kir_Naam_Burning
+				if = {
+					limit = {
+						has_idea = KXN_Kir_Naam_Burning
+						has_idea = KXN_Showed_Weakness
+					}
+					set_variable = { KXN.KXN_Overexpansion_Alert_Button_X_Axis_Var = 118 }
+					set_variable = { KXN.KXN_Saurider_Alert_Button_X_Axis_Var = 118 }
+				}
+				else = {
+					set_variable = { KXN.KXN_Overexpansion_Alert_Button_X_Axis_Var = 59 }
+					set_variable = { KXN.KXN_Saurider_Alert_Button_X_Axis_Var = 59 }
+				}
+			}
+			if = {
+				limit = {
+					has_country_flag = KXN_Aerostat_Decisions_Unlocked
+				}
+				set_variable = { Num_Aerostats_Lost = Num_Aerostats_Deployed }
+				multiply_variable = { Num_Aerostats_Lost = KXN_Aerostat_Loss_Var }
+				multiply_variable = { Num_Aerostats_Lost = -1 }
+				round_variable = Num_Aerostats_Lost
+				add_equipment_to_stockpile = {
+					type = medium_airship_equipment_0
+					amount = KXN.Num_Aerostats_Lost
+				}
+				clear_variable = Num_Aerostats_Deployed
+				multiply_variable = { Num_Aerostats_Lost = -1 }
+			}
+			if = {
+				limit = {
+					any_enemy_country = {
+						has_capitulated = no
+						has_country_flag = KXN_Tributary_In_Revolt_Flag
+					}
+				}
+				clear_variable = KXN_Num_Tributaries_In_Revolt
+				set_variable = { KXN_Half_Subject_Num = KXN.num_subjects }
+				divide_variable = { KXN_Half_Subject_Num = 2 }
+				for_each_scope_loop = {
+					array = KXN.enemies
+					if = {
+						limit = {
+							has_capitulated = no
+							has_country_flag = KXN_Tributary_In_Revolt_Flag
+						}
+						add_to_variable = { KXN.KXN_Num_Tributaries_In_Revolt = 1 }
+					}
+				}
+			}
+			set_variable = { KXN.KXN_Num_States_In_Our_Empire = KXN.num_owned_controlled_states }
+			for_each_scope_loop = {
+				array = KXN.subjects
+				add_to_variable = { KXN.KXN_Num_States_In_Our_Empire = num_owned_controlled_states }
+			}
+			if = {
+				limit = {
+					has_country_flag = KXN_Griffonland_Decision_Category_Flag
+				}
+				for_each_scope_loop = {
+					array = global.countries
+					if = {
+						limit = {
+							is_griffon_continent_griffon_country = yes
+							exists = no
+						}
+						clamp_variable = {
+							var = KXN_Incite_Revolt_Griffonland_Var
+							min = 1
+						}
+						add_to_array = {
+							array = KXN.KXN_Griffon_Revolt_Array
+							value = THIS
+						}
+					}
+				}
+			}
+		}
+	}
 	on_monthly_GRF = {
 		effect = {
 			if = {
