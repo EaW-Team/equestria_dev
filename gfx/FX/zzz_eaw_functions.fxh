@@ -7,12 +7,22 @@ PixelShader =
 	Code
 	[[
 	
+	//Color of the upper half of gbChannel1 while navy map mode is selected.
+	static const float3 navyMapGBColor = float3( 0.033203125f, 0.049804688f, 0.100097659f);
+	
+	//Coordinates of the test point
+	static const float2 testCoords = float2( 0.10327f, 0.499f );
+	
 	//Untility function to check if day/night overrides need to be applied
 	int dayNightOverrideCheck(in sampler2D gbChannel) {
 		
 		//Sample the hidden province
-		float HalfPix = 0.5f / GB_TextureHeight;
-		float3 colorTest = tex2D( gbChannel, float2(0.10327f,1.0f*(0.5f - HalfPix)));
+		float3 colorTest = tex2D( gbChannel, testCoords);
+		
+		//Check if the navy map is active. If it is, we need to sample from the bottom of the gbChannel.
+		if (all(colorTest == navyMapGBColor)) {
+			colorTest = tex2D( gbChannel, float2(testCoords.x, testCoords.y + 0.5f));
+		}
 		
 		//Day override
 		if ( 0.0004f < colorTest.x ) {
