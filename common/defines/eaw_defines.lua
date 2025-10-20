@@ -1,4 +1,4 @@
-NDefines.NCountry.BASE_MOBILIZATION_SPEED = 0.05
+NDefines.NCountry.BASE_MOBILIZATION_SPEED = 0.025
 
 NDefines.NGame.START_DATE = "1007.1.1.12"
 NDefines.NGame.END_DATE = "1030.1.1.1"
