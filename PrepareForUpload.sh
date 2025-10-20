@@ -28,7 +28,7 @@ fi
 
 mkdir $destinationName
 if [ ! -f "thumbnail.png" ]; then
-    convert $3 thumbnail.png
+    magick $3 thumbnail.png || convert $3 thumbnail.png
 fi
 sed -i "s/picture=.*//g" "descriptor.mod"
 rsync -ahm --include="/thumbnail.png" --include='/descriptor.mod' --include='/README.md' --exclude='*.7z' --exclude='/*.*' --exclude='/.*' --exclude='/tutorial' --exclude='/scripts' --exclude='*.sh' --exclude='*.ps1' --exclude='*.psd' --exclude='*.py' . $destinationName
