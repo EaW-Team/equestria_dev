@@ -54,7 +54,7 @@ Try to keep this reasonably up-to-date, please.
 - `naval_avoid_region`
 - `naval_convoy_raid_region`
 - `naval_invasion_focus`
-- `naval_invasion_supremacy_weight`
+- `naval_invasion_dominance_weight`
 - `naval_mission_threshold`
 - `strike_force_home_base`
 - `naval_dominance`
@@ -388,11 +388,11 @@ ai_strategy = {
 }
 ```
 
-### `naval_invasion_supremacy_weight`
+### `naval_invasion_dominance_weight`
 Used to make the AI focus more of their navy on increasing naval supremacy in regions where one of their naval invasions passes through
 ```
 ai_strategy = {
-	type = naval_invasion_supremacy_weight
+	type = naval_invasion_dominance_weight
 	value = 30
 }
 ```

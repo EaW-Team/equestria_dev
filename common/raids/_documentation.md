@@ -35,6 +35,7 @@ raid_type_id = {
 	}
 
 	unit_model = {
+
 		# Entities to use as raid unit models, the game will try to find suitable entity in the following order:
 		#	1. First, a country-specific override, for example: GER_entity_name
 		#	2. Second, a culture-specific override, for example: westerngfx_entity_name
@@ -48,7 +49,8 @@ raid_type_id = {
 		equipment = air_transport
 
 	    start_offset = 15 # offsets the starting position of a unit by an amount, mostly needed so that convoy entities start in the sea and not on the shore
-    }
+	    scale = 0.5 # scale of the entity, is also multiplied by the global RAID_UNIT_ENTITY_BASE_SCALE define
+	}
 
 	ai_will_do = {
 		# AI only wants to do raids if resulting AI weight is > 0
@@ -314,7 +316,7 @@ scripted in the same way through this formula construct.
 - *resistance*: The amount of resistance in the target state. Reference values from 0 to 100
 - *enemy_units*: The number of enemy divisions in the target province. For province-target missions ONLY.
 - *air_superiority*: The air superiority score (fraction) of the actor country in the target region. Reference values from 0.0 to 1.0
-- *naval_supremacy*: The naval supremacy score (fraction) of the actor country in the target sea zone. Reference values from 0.0 to 1.0
+
 - *interception*: The number of enemy planes executing interception missions in the target region.
 - *intel*: The amount of intel the actor country has on the target. Reference values depend on defines.
 

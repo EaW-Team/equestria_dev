@@ -305,7 +305,7 @@ NB: there are no load order constriction when using include. The included MIO ju
 - `fuel_consumption`
 - `build_cost_ic`
 - `manpower`
-- `naval_supremacy_factor`
+- `naval_dominance_factor`
 - `naval_torpedo_enemy_critical_chance_factor` (if you have modules adding it)
 - `naval_torpedo_damage_reduction_factor` (if you have modules adding it)
 - `carrier_size` (this will get very bad for you I promise, equipment modifiers are a mistake)
