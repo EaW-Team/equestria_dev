@@ -24,13 +24,20 @@ PixelShader =
 			colorTest = tex2D( gbChannel, float2(testCoords.x, testCoords.y + 0.5f));
 		}
 		
+		//Base case for ideology map mode
+		if ( (colorTest.x == colorTest.y) && (colorTest.x == colorTest.z) ) {
+			return 0;
+		}
+		
 		//Day override
-		if ( 0.0004f < colorTest.x ) {
+		//The blue value check is for the ideology map mode
+		if ( 0.0004f < colorTest.x && colorTest.z < 0.5 ) {
 			return 2;
 		}
 		
 		//Night override
-		if ( 0.0f < colorTest.x ) {
+		//The green value check is for the diplomacy map mode
+		if ( 0.0f < colorTest.x || 0.12f < colorTest.y ) {
 			return 1;
 		}
 		
