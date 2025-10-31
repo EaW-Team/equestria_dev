@@ -110,7 +110,7 @@ NDefines.NAI.RESEARCH_BONUS_FACTOR = 2.0 				-- To which extent AI should care a
 NDefines.NAI.DESIRE_USE_XP_TO_UPGRADE_AIR_EQUIPMENT = 1.5   -- Vanilla is 1
 
 NDefines.NAI.MIN_FACTORIES_TO_WANT_TO_IMPORT = {  -- minimum number of civilian factories the AI must have to consider importing a resource - per strategic resource. Default 0, array -should- be updated with new resources, or if the order changes.
-		10, -- oil -- EAW increased because of outdated societies
+		5, -- oil -- EAW increased because of outdated societies
 		0, -- aluminium
 		0, -- rubber
 		0, -- tungsten
