@@ -109,6 +109,17 @@ NDefines.NAI.RESEARCH_AHEAD_BONUS_FACTOR = 2.5          -- To which extent AI sh
 NDefines.NAI.RESEARCH_BONUS_FACTOR = 2.0 				-- To which extent AI should care about bonuses to research
 NDefines.NAI.DESIRE_USE_XP_TO_UPGRADE_AIR_EQUIPMENT = 1.5   -- Vanilla is 1
 
+NDefines.NAI.MIN_FACTORIES_TO_WANT_TO_IMPORT = {  -- minimum number of civilian factories the AI must have to consider importing a resource - per strategic resource. Default 0, array -should- be updated with new resources, or if the order changes.
+		10, -- oil -- EAW increased because of outdated societies
+		0, -- aluminium
+		0, -- rubber
+		0, -- tungsten
+		0, -- steel
+		0, -- chromium
+		10, -- coal
+		0, -- crystals
+	}
+
 NDefines.NOperatives.AGENCY_CREATION_FACTORIES = 3
 NDefines.NOperatives.AGENCY_UPGRADE_PER_OPERATIVE_SLOT = 4			-- Number of upgrade needed to unlock an additional operative slot
 

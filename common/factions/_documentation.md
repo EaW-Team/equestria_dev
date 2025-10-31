@@ -16,6 +16,8 @@ faction_goal_id = {
 		# SCOPE = faction leader: COUNTRY
 	}
 	
+	group = # a categorization used by the UI to allow for filtering. UI asset will be GFX_group and the localization string will be group_FACTION_GOAL_FILTER
+
 	auto_complete = yes # automatically complete goal if the progress reaches 100%
 	
 	ai_will_do = { #how likely the faction leader AI is to select this goal if there is a free slot
@@ -296,31 +298,6 @@ faction_template_id = {
 # Console Commands
 
 - *faction_initiative X* - adds X faction initiative (FI) points to current player's faction (shortcut: "fi X")
-
-# Faction Upgrades
-Faction_Upgrade_Id = {
-	name = the localization string key for the screen name while active. will override the group's name
-	desc = the localization string key for the screen description while active. will override the group's desc
-	icon = the icon that will be displayed while active. will override the group's icon
-	upgrade_cost = the amount of faction initiative that it cost to get to this level from the previous one
-	bonus = a numerical value to dictate the boost the country gets based on the type of upgrade
-}
-# Faction Upgrade Group
-Faction_Upgrade_Group_Id = {
-	name = the default localization string key for the screen name
-	desc = the default localization string key for the screen description
-	icon = the default icon that will be displayed 
-	upgrades = {
-		the faction upgrades within this group, this list will be sorted on their bonus
-	}
-
-	display_as_percentage = (default yes) whether to show the value as a percentage or flat value in the UI
-
-   ### List of faction-upgrade-types, that have code support
-	upgrade_research = an upgrade that increases the faction sharing research, first one unlocks the research
-	upgrade_intelligence = an upgrade that makes agency upgrades quicker if another faction member has unlocked the upgrade already
-	upgrade_doctrine = makes the doctrines quicker to unlock if another member in the faction already has the upgrade
-}
 
 # Faction Member Upgrades
 Faction_Member_Upgrade_Id = {
