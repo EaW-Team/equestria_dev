@@ -20,3 +20,47 @@ improve_roaman_economy_small = {
 		tooltip = global_building_slots_factor_tt
 	}
 }
+army_debuff_effect = {
+	for_each_scope_loop = {
+		array = ROOT.eaw_successfully_integrated_states
+		add_to_array = { ROOT.recently_integrated_states = THIS }
+	}
+	for_each_scope_loop = {
+		array = ROOT.controlled_states
+		add_to_temp_variable = { overall_population = THIS.state_population_k }
+		if = {
+			limit = {
+				is_in_array = {
+					array = ROOT.recently_integrated_states
+					value = THIS.id
+				}
+			}
+			add_to_temp_variable = { recent_core_population = THIS.state_population_k }
+		}
+		else_if = {
+			limit = { 
+				is_core_of = ROOT
+			}
+			add_to_temp_variable = { core_population = THIS.state_population_k }
+		}
+		else = {
+			add_to_temp_variable = { controlled_population_2 = THIS.state_population_k }
+			add_to_temp_variable = { controlled_population_3 = THIS.state_population_k }
+		}
+	}
+	log = "[GetDateText]: Overall population: [?overall_population]k"
+	log = "[GetDateText]: Core population: [?core_population]k"
+	log = "[GetDateText]: Recently cored population: [?recent_core_population]k"
+	log = "[GetDateText]: Non-core population: [?controlled_population_2]k"
+	
+	divide_temp_variable = { recent_core_population = 2 }
+
+	divide_temp_variable = { controlled_population_2 = overall_population }
+
+	add_to_temp_variable = { controlled_population_3 = recent_core_population }
+	divide_temp_variable = { controlled_population_3 = overall_population }
+	log = "[GetDateText]: Percentage (non-core divided by overall): [?controlled_population_2|%]"
+	log = "[GetDateText]: Expected modifier: [?controlled_population_3|%]"
+	multiply_temp_variable = { controlled_population_3 = -1 }
+	set_variable = { ROA_resistance_dm_conscription_factor = controlled_population_3 }
+}
