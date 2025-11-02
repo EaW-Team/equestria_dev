@@ -37,7 +37,7 @@ remove_from_recently_cored = { # use like: TAG = { remove_from_recently_cored = 
 		}
 	}
 }
-army_debuff_effect = {
+resistance_dm_calculations = { # expected modifier = [ (non_core + recent_core*1/2)/overall ]*1/2
 	for_each_scope_loop = {
 		array = ROOT.eaw_successfully_integrated_states
 		add_to_array = { ROOT.recently_integrated_states = THIS }
@@ -89,17 +89,54 @@ army_debuff_effect = {
 	divide_temp_variable = { recent_core_industry = 2 }
 
 	divide_temp_variable = { controlled_population_2 = overall_population }
+	set_variable = { population_percent = controlled_population_2 } # used for tooltip in DM - ROA_resistance_dm_tt
 	divide_temp_variable = { controlled_industry_2 = overall_industry }
+	set_variable = { industry_percent = controlled_industry_2 } # used for tooltip in DM - ROA_resistance_dm_tt
+
+	log = "[GetDateText]: Army Percentage (non-core divided by overall): [?controlled_population_2|%R]"
+	log = "[GetDateText]: Industry Percentage (non-core divided by overall): [?controlled_industry_2|%R]"
 
 	add_to_temp_variable = { controlled_population_3 = recent_core_population }
 	divide_temp_variable = { controlled_population_3 = overall_population }
+	divide_temp_variable = { controlled_population_3 = -2 }
+	add_to_temp_variable = { controlled_population_3 = ROA_conscription_factor_calibration_var }
+	clamp_temp_variable = {
+		var = controlled_population_3
+		max = 0
+	}
+	log = "[GetDateText]: Army Calibration Var: [?ROA_conscription_factor_calibration_var|%G]"
+	log = "[GetDateText]: Army Expected Modifier: [?controlled_population_3|%R]"
+	set_variable = { ROA_resistance_dm_conscription_factor = controlled_population_3 }
+
 	add_to_temp_variable = { controlled_industry = recent_core_industry }
 	divide_temp_variable = { controlled_industry = overall_industry }
-	divide_temp_variable = { controlled_industry = 2 }
-	log = "[GetDateText]: Army Percentage (non-core divided by overall): [?controlled_population_2|%R]"
-	log = "[GetDateText]: Army Expected Modifier: [?controlled_population_3|%R]"
-	log = "[GetDateText]: Industry Percentage (non-core divided by overall): [?controlled_industry_2|%R]"
-	log = "[GetDateText]: Expected Industry Modifier: [?controlled_industry|%R]"
-	multiply_temp_variable = { controlled_population_3 = -1 }
-	set_variable = { ROA_resistance_dm_conscription_factor = controlled_population_3 }
+	divide_temp_variable = { controlled_industry = -2 }
+	add_to_temp_variable = { controlled_industry = ROA_efficiency_gain_calibration_var }
+	clamp_temp_variable = {
+		var = controlled_industry
+		max = 0
+	}
+	log = "[GetDateText]: Industry Calibration Var: [?ROA_efficiency_gain_calibration_var|%G]"
+	log = "[GetDateText]: Industry Expected Modifier: [?controlled_industry|%R]"
+	set_variable = { ROA_resistance_dm_production_factory_efficiency_gain_factor = controlled_industry }
+}
+decrease_resistance_army_modifier = {
+	custom_effect_tooltip = {
+		localization_key = ROA_modify_resistance_tt
+		MODIFIER = "MODIFIER_CONSCRIPTION_FACTOR"
+	}
+	add_to_variable = {
+		ROA_conscription_factor_calibration_var = 0.02
+		tooltip = conscription_factor_tt
+	}
+}
+decrease_resistance_industry_modifier = {
+	custom_effect_tooltip = {
+		localization_key = ROA_modify_resistance_tt
+		MODIFIER = "MODIFIER_PRODUCTION_FACTORY_EFFICIENCY_GAIN_FACTOR"
+	}
+	add_to_variable = {
+		ROA_efficiency_gain_calibration_var = 0.02
+		tooltip = production_factory_efficiency_gain_factor_tt
+	}
 }
