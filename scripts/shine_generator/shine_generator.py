@@ -5,6 +5,7 @@ import os
 import string
 import argparse
 import json
+import re
 
 HEADER_GFX_FILE = """spriteTypes = {\n"""
 FOOTER_GFX_FILE = """}"""
@@ -32,7 +33,7 @@ TEMPLATE_SPRITETYPE_SHINE = """\tSpriteType = {{
 
 \t\tanimation = {{
 \t\t\tanimationmaskfile = "{texture}"
-\t\t\tanimationtexturefile = "gfx/interface/goals/shine_overlay.tga"
+\t\t\tanimationtexturefile = "gfx/interface/goals/shine_overlay.dds"
 \t\t\tanimationrotation = 90.0
 \t\t\tanimationlooping = no
 \t\t\tanimationtime = 0.75
@@ -83,16 +84,30 @@ def parse_spritetype(model):
             texture = key.value
     return (name, texture) if name and texture else None
 
+# Using the categories filter, decide in which file to store the GFX entry
+# Check from the biggest to smallest filter (BIG_HIT checked first, then BIG, then HIT),
+# with priority of hits that are the most to the lest of the string: GFX_TOKEN1_TOKEN2 will match TOKEN1 even if TOKEN2 is checked first
+# If not match oin the GFX name, the texture path is used
 def check_category(gfx_name, texture_name, categories_filters):
     res = []
-    tokens = set(gfx_name.upper().split("_"))
-    tokens_texture = set(texture_name.upper().split("/"))
-    for category, filters in categories_filters.items():
-        for filter in filters:
-            if filter.upper() in tokens or filter.upper() in tokens_texture:
-                res.append(category)
-                continue
-    return res
+    indexgfx = 1000000
+    indextext = 1000000
+    valgfx  = None
+    valtext = None
+    upper_gfx_name = gfx_name.upper()
+    upper_texture_name = texture_name.upper()
+    for category, filter in categories_filters:
+        matchgfx = re.search(f"(^|_){filter}($|_)", upper_gfx_name)
+        matchtexture = re.search(f"(^|_|/){filter}($|_|/)", upper_texture_name)
+        if matchgfx or matchtexture:
+            if matchgfx and indexgfx > matchgfx.start():
+                indexgfx = matchgfx.start()
+                valgfx = category
+            if matchtexture and indextext > matchtexture.start():
+                indextext = matchtexture.start()
+                valtext = category
+            res.append(category)
+    return res, valgfx if valgfx else valtext
 
 def generate_gfx_file(folder_path, list_gfx, categories):
     if not os.path.exists(folder_path):
@@ -158,25 +173,33 @@ def main():
     # Now parse the database
     with open(args.database) as fp:
         database = json.load(fp)
-    categories = database["categories"]
     generic_name = database["generic_name"]
+
+    # Post process the categories: Try the largest one to the smallest
+    categories = []
+    for category, filters in database["categories_tag"].items():
+        for filter in filters:
+            categories.append((category, filter.upper()))
+    categories = sorted(categories, key=lambda x: len(x[1]), reverse=True)
+    # The generic categories have the least priority
+    for category, filters in database["categories_generic"].items():
+        for filter in filters:
+            categories.append((category, filter.upper()))
 
     # Prepare the list of GFX
     categories_content_list = {generic_name: set()}
     for elmt in categories:
-        categories_content_list[elmt] = set()
+        categories_content_list[elmt[0]] = set()
 
     for name, texture in list_gfx.items():
-        res = check_category(name, texture, categories)
-        if res and len(res) > 1:
-            print(f"Multiple filter hits for {name}, {res}. Put in {res[0]}")
-        if res:
-            categories_content_list[res[0]].add(name)
+        hits, res = check_category(name, texture, categories)
+        if hits and len(hits) > 1:
+            print(f"Multiple filter hits for {name}, {hits}. Put in {res}")
+        if hits:
+            categories_content_list[res].add(name)
         else:
             categories_content_list[generic_name].add(name)
 
-    #for elmt in categories_content_list[generic_name]:
-    #    print(elmt)
     for key, elmt in categories_content_list.items():
         if len(elmt) > 0:
             print(f"{key}: nb elements {len(elmt)}")

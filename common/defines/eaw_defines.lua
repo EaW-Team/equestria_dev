@@ -38,6 +38,7 @@ NDefines.NProduction.BASE_FACTORY_SPEED_NAV = 3.5 -- vanilla is 2.5
 NDefines.NProduction.MINIMUM_NUMBER_OF_FACTORIES_TAKEN_BY_CONSUMER_GOODS_PERCENT = 0.05 -- vanilla is 0.1
 NDefines.NProduction.MAX_EQUIPMENT_RESOURCES_NEED = 4
 
+NDefines.NBuildings.RADAR_RANGE_MAX = 416 --each level is 36, we've gone from 6 levels (40 to 220, 5 increases) to 12 levels (40 to 436, 11 increases)
 
 NDefines.NMilitary.PLAN_EXECUTE_CAREFUL_MAX_FORT = 4
 NDefines.NMilitary.TRAINING_MAX_LEVEL = 10
@@ -114,6 +115,14 @@ NDefines.NSupply.AVAILABLE_MANPOWER_STATE_SUPPLY = 0.5 --Factor for state supply
 -- defines that are used for supply reach for built nodes
 NDefines.NSupply.NODE_STARTING_PENALTY_PER_PROVINCE = 0.30 -- default is 0.5
 NDefines.NSupply.NODE_ADDED_PENALTY_PER_PROVINCE = 0.50 -- default is 0.7
+
+-- BREAKTHROUGH DOUBLED
+
+NDefines.NProject.BREAKTHROUGH_DAILY_TECHNOLOGY_GAIN = 24 -- default is 12
+NDefines.NProject.BREAKTHROUGH_DAILY_SCIENTIST_SKILL_GAIN = 10 -- default is 10
+NDefines.NProject.BREAKTHROUGH_DAILY_ROCKET_SITE_GAIN = 2 -- default is 1
+NDefines.NProject.BREAKTHROUGH_DAILY_NUCLEAR_REACTOR_GAIN = 2 -- default is 1
+NDefines.NProject.BREAKTHROUGH_GAIN_ANIMATION_SPEED_MAX = 2.0 -- default is 1
 
 
 NDefines.NTechnology.BASE_TECH_COST = 80					-- Base cost for a tech. multiplied with tech cost and ahead of time penalties. 100 in vanilla
