@@ -9,19 +9,28 @@ faction_goal_id = {
 	name = [...] # Goal name (Loc Environment = faction + player country)
 	description = [...] # Goal description (Loc Environment = faction + player country)
 	category = [...] # Goal's category (short_term, medium_term or long_term)
+	visible = {
+		# Trigger - checks if goal will show up in selection list
+		# SCOPE = ROOT = faction leader: COUNTRY / FROM = faction member: COUNTRY
+	}
+	available = {
+		# Trigger - checks if goal will be selectable in selection list
+		# SCOPE = ROOT = faction leader: COUNTRY / FROM = faction member: COUNTRY
+	}
 	completed = {
 		# Trigger - checks if goal completion condition is fulfilled
 		# NOTE if empty - the goal is never completed!
 		#
 		# SCOPE = faction leader: COUNTRY
 	}
-	
-	group = # a categorization used by the UI to allow for filtering. UI asset will be GFX_group and the localization string will be group_FACTION_GOAL_FILTER
 
+	group = # a categorization used by the UI to allow for filtering. UI asset will be GFX_group and the localization string will be group_FACTION_GOAL_FILTER
+	
 	auto_complete = yes # automatically complete goal if the progress reaches 100%
 	
 	ai_will_do = { #how likely the faction leader AI is to select this goal if there is a free slot
 		factor = 200 
+		# SCOPE = faction member: COUNTRY
 	}
 
 	complete_effect = {
@@ -38,6 +47,17 @@ faction_goal_id = {
 
 	cancel_effect = {
 		# Effect - runs once if the goal is canceled
+		#
+		# SCOPE = faction leader: COUNTRY
+	}
+
+	select_effect = {
+		# Effect - runs once if the goal is selected, only runs if the goal is selected after game start
+		#
+		# SCOPE = faction leader: COUNTRY
+	}
+	remove_effect = {
+		# Effect - runs once if the goal is removed, only runs if the goal is removed after game start
 		#
 		# SCOPE = faction leader: COUNTRY
 	}
