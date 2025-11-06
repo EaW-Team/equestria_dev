@@ -46,7 +46,7 @@ def get_shine_def(name, path):
 
 		animation = {
 			animationmaskfile = "%s"
-			animationtexturefile = "gfx/interface/goals/shine_overlay.tga"
+			animationtexturefile = "gfx/interface/goals/shine_overlay.dds"
 			animationrotation = 90.0
 			animationlooping = no
 			animationtime = 0.75

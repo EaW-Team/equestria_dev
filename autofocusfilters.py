@@ -6,17 +6,23 @@ import argparse
 
 # region rules
 FOCUS_FILTER_POLITICAL = ['add_political_power', 'create_country_leader', 'create_faction', 'can_create_factions', 'add_relation_modifier', 'start_civil_war', 'set_politics']
-FOCUS_FILTER_RESEARCH = ['add_tech_bonus', 'modify_tech_sharing_bonus', 'add_research_slot', 'add_to_tech_sharing_group', 'set_technology']
+FOCUS_FILTER_RESEARCH = ['add_tech_bonus', 'modify_tech_sharing_bonus', 'add_research_slot', 'add_to_tech_sharing_group', 'set_technology','add_doctrine_cost_reduction']
 FOCUS_FILTER_INDUSTRY = ['add_building_construction', 'add_extra_state_shared_building_slots', 'free_building_slots', 'add_offsite_building', 'add_resource', 'modify_building_resources']
 FOCUS_FILTER_STABILITY = ['add_stability']
 FOCUS_FILTER_WAR_SUPPORT = ['add_war_support']
 FOCUS_FILTER_MANPOWER = ['create_unit', 'add_manpower', 'load_oob']
 FOCUS_FILTER_ANNEXATION = ['create_wargoal', 'add_state_core', 'add_state_claim', 'add_core_of', 'declare_war_on', 'annex_country']
-FOCUS_FILTER_TFV_AUTONOMY = ['set_autonomy', 'add_autonomy_ratio']
+FOCUS_FILTER_TFV_AUTONOMY = ['set_autonomy', 'add_autonomy_ratio', 'add_autonomy_score']
+FOCUS_FILTER_INTERNAL_AFFAIRS = []
+FOCUS_FILTER_BALANCE_OF_POWER = ['add_power_balance_value','remove_power_balance', 'set_power_balance','add_power_balance_value','add_power_balance_modifier','remove_power_balance_modifier','remove_all_power_balance_modifiers']
+FOCUS_FILTER_POLITICAL_CHARACTER = ['add_country_leader_trait','add_country_leader_role','remove_country_leader_trait','promote_leader']
+FOCUS_FILTER_MILITARY_CHARACTER = ['add_skill_level','add_attack','add_planning','add_logistics','add_unit_leader_trait','remove_unit_leader_trait','every_amry_leader']
+FOCUS_FILTER_INTERNATIONAL_TRADE = ['add_equipment_subsidy','can_access_market','add_cic']
+FOCUS_FILTER_HISTORICAL = []
 FOCUS_FILTER_ARMY_BONUS = ['army_experience']
 FOCUS_FILTER_NAVY_BONUS = ['navy_experience']
 FOCUS_FILTER_AIRFORCE_BONUS = ['air_experience', 'add_ace']
-FOCUS_FILTER_RESISTANCE = []
+FOCUS_FILTER_RESISTANCE = ['add_resistance','add_compliance','add_resistance_target','set_compliance','set_resistance','set_occupation_law','cancel_resistance','set_garrison_strength']
 
 FOCUS_FILTER_POLITICAL_idea = ['trade_laws_cost_factor', 'navy_chief_cost_factor', 'air_chief_cost_factor', 'mobilization_laws_cost_factor', 'master_ideology_drift', 'economy_cost_factor', 'neutrality_drift', 'military_leader_cost_factor',
                                'army_chief_cost_factor', 'high_command_cost_factor', 'theorist_cost_factor', 'political_advisor_cost_factor', 'join_faction_tension', 'lend_lease_tension', 'guarantee_tension', 'fascism_drift',
@@ -33,6 +39,7 @@ FOCUS_FILTER_WAR_SUPPORT_idea = ['war_support_factor', 'war_support_weekly']
 FOCUS_FILTER_MANPOWER_idea = ['weekly_manpower', 'conscription_factor', 'conscription', 'non_core_manpower', 'MONTHLY_POPULATION', 'monthly_population']
 FOCUS_FILTER_ANNEXATION_idea = ['justify_war_goal_time', 'send_volunteer_size', 'send_volunteers_tension', 'surrender_limit', 'generate_wargoal_tension', 'enemy_justify_war_goal_time']
 FOCUS_FILTER_TFV_AUTONOMY_idea = ['autonomy_gain', 'subjects_autonomy_gain']
+FOCUS_FILTER_INTERNATIONAL_TRADE_idea = ['license_air_purchase_cost', 'license_production_speed', 'trade_cost_for_target_factor']
 FOCUS_FILTER_ARMY_BONUS_idea = ['special_forces_training_time_factor', 'command_power_gain', 'max_command_power', 'command_power_gain_mult', 'defense_bonus_against', 'attack_bonus_against', 'army_leader_start_level',
                                 'modifier_army_sub_unit_infiltrator_company_defence_factor', 'mobilization_speed', 'special_forces_cap', 'modifier_army_sub_unit_infiltrator_company_attack_factor', 'army_core_attack_factor',
                                 'army_core_defence_factor', 'training_time_army_factor', 'training_time_factor', 'planning_speed', 'max_planning', 'army_org_factor', 'army_org', 'recon_factor', 'army_morale_factor', 'amphibious_invasion',
@@ -53,13 +60,76 @@ FOCUS_FILTER_AIRFORCE_BONUS_idea = ['air_defence_factor', 'air_bombing_targettin
                                     'air_strategic_bomber_defence_factor', 'air_strategic_bomber_agility_factor', 'air_strategic_bomber_bombing_factor', 'air_cas_present_factor']
 FOCUS_FILTER_RESISTANCE_idea = ['resistance_growth_on_our_occupied_states', 'resistance_damage_to_garrison', 'foreign_subversive_activites']
 
-filter_list = [FOCUS_FILTER_POLITICAL, FOCUS_FILTER_RESEARCH, FOCUS_FILTER_INDUSTRY, FOCUS_FILTER_STABILITY, FOCUS_FILTER_WAR_SUPPORT, FOCUS_FILTER_MANPOWER, FOCUS_FILTER_ANNEXATION, FOCUS_FILTER_TFV_AUTONOMY, FOCUS_FILTER_ARMY_BONUS,
-               FOCUS_FILTER_NAVY_BONUS, FOCUS_FILTER_AIRFORCE_BONUS, FOCUS_FILTER_RESISTANCE, FOCUS_FILTER_POLITICAL_idea, FOCUS_FILTER_RESEARCH_idea, FOCUS_FILTER_INDUSTRY_idea, FOCUS_FILTER_STABILITY_idea, FOCUS_FILTER_WAR_SUPPORT_idea,
-               FOCUS_FILTER_MANPOWER_idea, FOCUS_FILTER_ANNEXATION_idea, FOCUS_FILTER_TFV_AUTONOMY_idea, FOCUS_FILTER_ARMY_BONUS_idea, FOCUS_FILTER_NAVY_BONUS_idea, FOCUS_FILTER_AIRFORCE_BONUS_idea, FOCUS_FILTER_RESISTANCE_idea]
-filter_list_keyword = ["FOCUS_FILTER_POLITICAL", "FOCUS_FILTER_RESEARCH", "FOCUS_FILTER_INDUSTRY", "FOCUS_FILTER_STABILITY", "FOCUS_FILTER_WAR_SUPPORT", "FOCUS_FILTER_MANPOWER", "FOCUS_FILTER_ANNEXATION", "FOCUS_FILTER_TFV_AUTONOMY",
-                       "FOCUS_FILTER_ARMY_BONUS", "FOCUS_FILTER_NAVY_BONUS", "FOCUS_FILTER_AIRFORCE_BONUS", "FOCUS_FILTER_RESISTANCE", "FOCUS_FILTER_POLITICAL", "FOCUS_FILTER_RESEARCH", "FOCUS_FILTER_INDUSTRY", "FOCUS_FILTER_STABILITY",
-                       "FOCUS_FILTER_WAR_SUPPORT", "FOCUS_FILTER_MANPOWER", "FOCUS_FILTER_ANNEXATION", "FOCUS_FILTER_TFV_AUTONOMY", "FOCUS_FILTER_ARMY_BONUS", "FOCUS_FILTER_NAVY_BONUS", "FOCUS_FILTER_AIRFORCE_BONUS",
-                       "FOCUS_FILTER_RESISTANCE"]
+filter_list = [         FOCUS_FILTER_POLITICAL, 
+                        FOCUS_FILTER_RESEARCH, 
+                        FOCUS_FILTER_INDUSTRY, 
+                        FOCUS_FILTER_STABILITY, 
+                        FOCUS_FILTER_WAR_SUPPORT, 
+                        FOCUS_FILTER_MANPOWER, 
+                        FOCUS_FILTER_ANNEXATION, 
+                        FOCUS_FILTER_TFV_AUTONOMY,
+                        FOCUS_FILTER_INTERNAL_AFFAIRS,
+                        #FOCUS_FILTER_ARMY_XP,
+                        #FOCUS_FILTER_NAVY_XP,
+                        #FOCUS_FILTER_AIR_XP,
+                        FOCUS_FILTER_BALANCE_OF_POWER,
+                        FOCUS_FILTER_POLITICAL_CHARACTER,
+                        FOCUS_FILTER_MILITARY_CHARACTER,
+                        FOCUS_FILTER_INTERNATIONAL_TRADE,
+                        FOCUS_FILTER_HISTORICAL,
+                        FOCUS_FILTER_ARMY_BONUS, 
+                        FOCUS_FILTER_NAVY_BONUS, 
+                        FOCUS_FILTER_AIRFORCE_BONUS, 
+                        FOCUS_FILTER_RESISTANCE, 
+                        
+                        FOCUS_FILTER_POLITICAL_idea,
+                        FOCUS_FILTER_RESEARCH_idea,
+                        FOCUS_FILTER_INDUSTRY_idea,
+                        FOCUS_FILTER_STABILITY_idea,
+                        FOCUS_FILTER_WAR_SUPPORT_idea,
+                        FOCUS_FILTER_MANPOWER_idea,
+                        FOCUS_FILTER_ANNEXATION_idea,
+                        FOCUS_FILTER_TFV_AUTONOMY_idea,
+                        FOCUS_FILTER_INTERNATIONAL_TRADE_idea,
+                        FOCUS_FILTER_ARMY_BONUS_idea,
+                        FOCUS_FILTER_NAVY_BONUS_idea,
+                        FOCUS_FILTER_AIRFORCE_BONUS_idea,
+                        FOCUS_FILTER_RESISTANCE_idea]
+filter_list_keyword = [ "FOCUS_FILTER_POLITICAL", 
+                        "FOCUS_FILTER_RESEARCH", 
+                        "FOCUS_FILTER_INDUSTRY", 
+                        "FOCUS_FILTER_STABILITY", 
+                        "FOCUS_FILTER_WAR_SUPPORT", 
+                        "FOCUS_FILTER_MANPOWER", 
+                        "FOCUS_FILTER_ANNEXATION", 
+                        "FOCUS_FILTER_TFV_AUTONOMY",
+                        "FOCUS_FILTER_INTERNAL_AFFAIRS",
+                        #"FOCUS_FILTER_ARMY_XP",
+                        #"FOCUS_FILTER_NAVY_XP",
+                        #"FOCUS_FILTER_AIR_XP",
+                        "FOCUS_FILTER_BALANCE_OF_POWER",
+                        "FOCUS_FILTER_POLITICAL_CHARACTER",
+                        "FOCUS_FILTER_MILITARY_CHARACTER",
+                        "FOCUS_FILTER_INTERNATIONAL_TRADE",
+                        "FOCUS_FILTER_HISTORICAL",
+                        "FOCUS_FILTER_ARMY_BONUS", 
+                        "FOCUS_FILTER_NAVY_BONUS", 
+                        "FOCUS_FILTER_AIRFORCE_BONUS", 
+                        "FOCUS_FILTER_RESISTANCE",
+                    
+                        "FOCUS_FILTER_POLITICAL",
+                        "FOCUS_FILTER_RESEARCH",
+                        "FOCUS_FILTER_INDUSTRY",
+                        "FOCUS_FILTER_STABILITY",
+                        "FOCUS_FILTER_WAR_SUPPORT",
+                        "FOCUS_FILTER_MANPOWER",
+                        "FOCUS_FILTER_ANNEXATION",
+                        "FOCUS_FILTER_TFV_AUTONOMY",
+                        "FOCUS_FILTER_INTERNATIONAL_TRADE",
+                        "FOCUS_FILTER_ARMY_BONUS",
+                        "FOCUS_FILTER_NAVY_BONUS",
+                        "FOCUS_FILTER_AIRFORCE_BONUS",
+                        "FOCUS_FILTER_RESISTANCE"]
 
 
 def get_keywords(effect):
@@ -69,19 +139,49 @@ def get_keywords(effect):
 
 
 """"
+vanilla
+- are country specific but could be reused?
 FOCUS_FILTER_POLITICAL
 FOCUS_FILTER_RESEARCH
 FOCUS_FILTER_INDUSTRY
 FOCUS_FILTER_STABILITY
 FOCUS_FILTER_WAR_SUPPORT
 FOCUS_FILTER_MANPOWER
+-FOCUS_FILTER_FRA_POLITICAL_VIOLENCE
+-FOCUS_FILTER_FRA_OCCUPATION_COST
 FOCUS_FILTER_ANNEXATION
+-FOCUS_FILTER_CHI_INFLATION
+-FOCUS_FILTER_USA_CONGRESS
 FOCUS_FILTER_TFV_AUTONOMY
+-FOCUS_FILTER_MEX_CHURCH_AUTHORITY
+-FOCUS_FILTER_MEX_CAUDILLO_REBELLION
+-FOCUS_FILTER_SPA_CIVIL_WAR
+-FOCUS_FILTER_SPA_CARLIST_UPRISING
+FOCUS_FILTER_INTERNAL_AFFAIRS
+-FOCUS_FILTER_TUR_KURDISTAN
+-FOCUS_FILTER_TUR_KEMALISM
+-FOCUS_FILTER_TUR_TRADITIONALISM
+-FOCUS_FILTER_GRE_DEBT_TO_IFC
+-FOCUS_FILTER_SOV_POLITICAL_PARANOIA
+-FOCUS_FILTER_PROPAGANDA
+FOCUS_FILTER_ARMY_XP
+FOCUS_FILTER_NAVY_XP
+FOCUS_FILTER_AIR_XP
+-FOCUS_FILTER_ITA_MISSIOLINI
+FOCUS_FILTER_BALANCE_OF_POWER
+-FOCUS_FILTER_SWI_MILITARY_READINESS
+FOCUS_FILTER_POLITICAL_CHARACTER
+FOCUS_FILTER_MILITARY_CHARACTER
+FOCUS_FILTER_INTERNATIONAL_TRADE
+-FOCUS_FILTER_FOLKHEMMET
+FOCUS_FILTER_HISTORICAL
+-FOCUS_FILTER_INNER_CIRCLE
 
 custom
 FOCUS_FILTER_ARMY_BONUS
 FOCUS_FILTER_NAVY_BONUS
 FOCUS_FILTER_AIRFORCE_BONUS
+FOCUS_FILTER_RESISTANCE
 
 search_filters = {XXX XXX XX}
 """
@@ -201,7 +301,8 @@ if __name__ == "__main__":
                 # print(filename, focus_name, current_keywords)
                 if len(current_keywords) > 0:
                     whitespace = orig_line[:-len(orig_line.lstrip())]
-                    file.write(whitespace + "search_filters = { " + " ".join([str(i) for i in list(current_keywords)]) + " }\n")
+                    unique_keywords = list(set(current_keywords))
+                    file.write(whitespace + "search_filters = { " + " ".join([str(i) for i in unique_keywords]) + " }\n")
                     current_keywords = set()
 
             if '{' in line:

@@ -2784,7 +2784,7 @@ shared_focus = {
 	}
 
 	ai_will_do = {
-		factor = 14
+		factor = 20
 		modifier = {
 			has_global_flag = HIP_mountain_awakes_global_flag
 			factor = 2
@@ -2801,76 +2801,14 @@ shared_focus = {
 }
 
 shared_focus = {
-	id = BAT_cooperate_with_colthage
-	icon = GFX_goal_BAT_cooperate_with_colthage
+	id = BAT_help_their_military
+	icon = GFX_goal_BAT_help_their_military
 	x = -1
 	y = 1
 	relative_position_id = BAT_strike_at_tobuck
-	cost = 4.40
-	prerequisite = { 
-	    focus = BAT_strike_at_tobuck 
-	}
-	available = {
-	    TBK = {
-			OR = {
-				exists = no
-				is_subject_of = ROOT
-			}
-		}
-		ZAR = {
-			OR = {
-				exists = no
-				is_subject_of = ROOT
-			}
-		}
-		CTH = {
-			OR = {
-				has_war = no
-				has_war_with = HIP
-			}
-		    has_government = fascism
-		}
-	}
-	bypass = {
-	    CTH = {
-			OR = {
-			    exists = no
-				is_subject = yes
-				is_in_faction_with = ROOT
-			}
-		}
-	}
-     
-	ai_will_do = {
-		factor = 12
-		modifier = {
-			has_global_flag = HIP_mountain_awakes_global_flag
-			factor = 3
-		}
-	}
-	
-	completion_reward = {
-		log = "[GetDateText]: [Root.GetName]: Focus BAT_cooperate_with_colthage"
-		CTH = {
-		    country_event = {
-				id = bat.67
-			}
-		}
-	}
-	search_filters = { 
-        FOCUS_FILTER_POLITICAL			
-	}
-}
-
-shared_focus = {
-	id = BAT_help_their_military
-	icon = GFX_goal_BAT_help_their_military
-	x = -3
-	y = 3
-	relative_position_id = BAT_limited_diplomacy
 	cost = 5.80
 	prerequisite = { 
-	    focus = BAT_cooperate_with_colthage 
+	    focus = BAT_strike_at_tobuck 
 	}
 	available = {
 	    CTH = {
@@ -2879,6 +2817,10 @@ shared_focus = {
 				is_in_faction_with = ROOT
 			} 
 		}
+	}
+
+	bypass = {
+		has_country_flag = BAT_HIP_defeated # NZW over
 	}
 
 	ai_will_do = {
@@ -2912,13 +2854,11 @@ shared_focus = {
 	    focus = BAT_secure_tobuck 
 	}
 	bypass = {
-	    WAR = { 
-			OR = {
-				exists = no
-				is_subject_of = ROOT 
-				has_war_with = BAT
+		WAR = {
+			NOT = {
+				NZW_is_unaligned = yes
 			}
-		} 
+		}
 	}
 
 	ai_will_do = {
@@ -2936,21 +2876,7 @@ shared_focus = {
 	will_lead_to_war_with = WAR
 	completion_reward = {
 		log = "[GetDateText]: [Root.GetName]: Focus BAT_the_gamble"
-		if = {
-		    limit = {
-			    WAR = {
-				    OR = {
-					    is_in_faction_with = HIP
-						is_guaranteed_by = HIP
-					}
-				}
-			}
-            HIP = {
-			    country_event = {
-					id = bat.71
-				}
-			}
-		}
+
 		declare_war_on = {
 			target = WAR
 			type = annex_everything
@@ -2965,8 +2891,8 @@ shared_focus = {
 	id = BAT_prepare_two_pronged_push
 	icon = GFX_goal_BAT_prepare_two_pronged_push
 	x = 1
-	y = 3
-	relative_position_id = BAT_strike_at_tobuck
+	y = 1
+	relative_position_id = BAT_help_their_military
 	cost = 5.80
 	prerequisite = { 
 	    focus = BAT_help_their_military 
@@ -2990,7 +2916,7 @@ shared_focus = {
 	}
 }
 
-shared_focus = {
+shared_focus = { # Starts the NZW
 	id = BAT_strike_them_down
 	icon = GFX_goal_BAT_strike_them_down
 	x = 5
@@ -3003,6 +2929,11 @@ shared_focus = {
 	prerequisite = { 
 	    focus = BAT_expand_operations 
 	}
+
+	available = {
+		is_subject = no
+	}
+
 	bypass = {
 	    OR = {
 	        has_country_flag = BAT_HIP_defeated
@@ -3018,9 +2949,22 @@ shared_focus = {
 
 	ai_will_do = {
 		factor = 10
+		modifier = { # Delay the war if Colthage isn't ready yet
+			factor = 0
+			NOT = { NZW_is_northern_party_ready = yes }
+			date < 1011.6.1
+		}
 		modifier = {
 			has_war = yes
 			factor = 0.20
+		}
+		modifier = {
+			date > 1011.1.1 # Better get to it
+			factor = 2
+		}
+		modifier = {
+			has_completed_focus = BAT_the_gamble
+			factor = 1.5
 		}
 		modifier = {
 			has_global_flag = HIP_mountain_awakes_global_flag
@@ -3029,12 +2973,39 @@ shared_focus = {
 	}
 	
 	will_lead_to_war_with = HIP
+	will_lead_to_war_with = WAR
+	
+	select_effect = {
+		log = "[GetDateText]: [Root.GetName]: Focus select BAT_strike_them_down"
+		NZW_alliance_effect = yes
+	
+		NZW_HIP_war_prep_effect = yes
+	}
+	
 	completion_reward = {
 		log = "[GetDateText]: [Root.GetName]: Focus BAT_strike_them_down"
+
 		declare_war_on = {
 			target = HIP
 			type = annex_everything
-        }
+		}
+		
+		every_country = { # Hippogriffia's allies allies
+			limit = {
+				NZW_is_north_zebrican_tag = yes
+				NZW_is_aligned_with_HIP = yes
+			}
+			ROOT = {
+				declare_war_on = {
+					target = PREV
+					type = annex_everything
+				}
+			}
+		}
+		
+		NZW_on_start_effect = yes
+		
+		NZW_on_select_alliance_tooltip = yes
 	}
 	search_filters = { 
         FOCUS_FILTER_ANNEXATION		
@@ -3230,10 +3201,7 @@ shared_focus = {
 	ai_will_do = {
 		factor = 14
 		modifier = {
-			AND = {
-				has_global_flag = HIP_mountain_awakes_global_flag
-				has_completed_focus = BAT_the_gamble
-			}
+			has_completed_focus = BAT_the_gamble
 			factor = 2
 		}
 	}
@@ -3278,10 +3246,7 @@ shared_focus = {
 	ai_will_do = {
 		factor = 14
 		modifier = {
-			AND = {
-				has_global_flag = HIP_mountain_awakes_global_flag
-				has_completed_focus = BAT_the_gamble
-			}
+			has_completed_focus = BAT_the_gamble
 			factor = 2
 		}
 	}
@@ -3329,10 +3294,7 @@ shared_focus = {
 	ai_will_do = {
 		factor = 14
 		modifier = {
-			AND = {
-				has_global_flag = HIP_mountain_awakes_global_flag
-				has_completed_focus = BAT_the_gamble
-			}
+			has_completed_focus = BAT_the_gamble
 			factor = 2
 		}
 	}
@@ -3363,10 +3325,7 @@ shared_focus = {
 	ai_will_do = {
 		factor = 10
 		modifier = {
-			AND = {
-				has_global_flag = HIP_mountain_awakes_global_flag
-				has_completed_focus = BAT_the_gamble
-			}
+			has_completed_focus = BAT_the_gamble
 			factor = 2
 		}
 	}
@@ -3423,10 +3382,7 @@ shared_focus = {
 	ai_will_do = {
 		factor = 10
 		modifier = {
-			AND = {
-				has_global_flag = HIP_mountain_awakes_global_flag
-				has_completed_focus = BAT_the_gamble
-			}
+			has_completed_focus = BAT_the_gamble
 			factor = 2
 		}
 	}
@@ -3457,10 +3413,7 @@ shared_focus = {
 	ai_will_do = {
 		factor = 10
 		modifier = {
-			AND = {
-				has_global_flag = HIP_mountain_awakes_global_flag
-				has_completed_focus = BAT_the_gamble
-			}
+			has_completed_focus = BAT_the_gamble
 			factor = 2
 		}
 	}
@@ -3528,6 +3481,29 @@ shared_focus = {
 	}
 	completion_reward = {
 		log = "[GetDateText]: [Root.GetName]: Focus BAT_develop_the_shipyards"
+		custom_effect_tooltip = {
+			localization_key = naval_facility_construction_tt
+			temp_facility_state_loc = "[691.GetName]"
+			temp_facility_province_loc = "[691.GetCapitalVictoryPointName]"
+		}
+		hidden_effect = {
+			if = {
+				limit = { 
+					691 = {
+						is_fully_controlled_by = ROOT
+						can_construct_building = naval_facility
+					}
+				}
+				691 = {
+					add_building_construction = {
+						type = naval_facility
+						level = 1
+						instant_build = yes
+						province = 18517
+					}
+				}
+			}
+		}
 		691 = {
 			add_extra_state_shared_building_slots = 2
 			add_building_construction = {
@@ -4181,6 +4157,10 @@ shared_focus = {
 					uses = 2
 					category = cat_anti_tank
 				}
+				add_breakthrough_progress = {
+					specialization = specialization_air
+					value = 0.25
+				}
 			}
 			else = {
 				set_technology = {
@@ -4199,6 +4179,10 @@ shared_focus = {
 					bonus = 0.5
 					uses = 2
 					category = cat_anti_tank
+				}
+				add_breakthrough_progress = {
+					specialization = specialization_air
+					value = 0.25
 				}
 			}
 		}
@@ -5067,6 +5051,8 @@ shared_focus = {
 	}
 	completion_reward = {
 		log = "[GetDateText]: [Root.GetName]: Focus BAT_combat_enhancers"
+		set_country_flag = has_super_force_attack
+		set_country_flag = has_super_last_stand
 		custom_effect_tooltip = super_combat_abilities_tt
 		hidden_effect = {
 		    country_event = { 
@@ -5287,11 +5273,50 @@ shared_focus = {
 	}
 	completion_reward = {
 		log = "[GetDateText]: [Root.GetName]: Focus BAT_nuclear_capabilities_2"
-		add_tech_bonus = {
-			name = secret_bonus
-			bonus = 3.0
-			uses = 2
-			category = nuclear
+		custom_effect_tooltip = {
+			localization_key = nuclear_facility_construction_tt
+			temp_facility_state_loc = "[690.GetName]"
+			temp_facility_province_loc = "[690.GetCapitalVictoryPointName]"
+		}
+		hidden_effect = {
+			if = {
+				limit = { 
+					690 = {
+						is_fully_controlled_by = ROOT
+						can_construct_building = nuclear_facility
+					}
+				}
+				690 = {
+					add_building_construction = {
+						type = nuclear_facility
+						level = 1
+						instant_build = yes
+						province = 18583
+					}
+				}
+			}
+		}
+		if = {
+			limit = {
+				has_tech = atomic_research
+			}
+			add_breakthrough_progress = {
+				specialization = specialization_nuclear
+				value = 3
+			}
+		}
+		
+		else = {
+			add_breakthrough_progress = {
+				specialization = specialization_nuclear
+				value = 1.5
+			}
+			add_tech_bonus = {
+				name = secret_bonus
+				bonus = 3.0
+				uses = 1
+				category = nuclear
+			}
 		}
 		random_owned_controlled_state = {
 			add_extra_state_shared_building_slots = 1
@@ -6891,7 +6916,7 @@ shared_focus = {
 	}
 
 	ai_will_do = {
-		factor = 15
+		factor = 20
 	}
 	completion_reward = {
 		log = "[GetDateText]: [Root.GetName]: Focus BAT_voe_to_the_vanquished"
@@ -7023,10 +7048,8 @@ shared_focus = {
 	}
 	bypass = {
 	    WAR = { 
-			OR = {
-				exists = no
-				is_subject_of = ROOT 
-				has_war_with = BAT
+			NOT = {
+				NZW_is_unaligned = yes
 			}
 		} 
 	}
@@ -7041,25 +7064,14 @@ shared_focus = {
 	will_lead_to_war_with = WAR
 	completion_reward = {
 		log = "[GetDateText]: [Root.GetName]: Focus BAT_the_gamble"
-		if = {
-		    limit = {
-			    WAR = {
-				    OR = {
-					    is_in_faction_with = HIP
-						is_guaranteed_by = HIP
-					}
-				}
-			}
-            HIP = {
-			    country_event = {
-					id = bat.71
-				}
-			}
-		}
+		
 		declare_war_on = {
 			target = WAR
 			type = annex_everything
         }		
+	}
+	search_filters = { 
+        FOCUS_FILTER_ANNEXATION
 	}
 }
 
@@ -7117,6 +7129,14 @@ shared_focus = {
 	prerequisite = { 
 	    focus = BAT_colthaginian_volunteer_corps 
 	}
+
+	available = {
+		OR = {
+			is_subject = no
+			is_subject_of = NLR
+		}
+	}
+
 	bypass = {
 	    HIP = { 
 			OR = {
@@ -7133,14 +7153,41 @@ shared_focus = {
 			has_war = yes
 			factor = 0.25
 		}
+		modifier = {
+			date > 1011.1.1 # Better get to it
+			factor = 2
+		}
+		modifier = {
+			has_completed_focus = BAT_the_gamble
+			factor = 1.5
+		}
 	}
+	
 	will_lead_to_war_with = HIP
+	will_lead_to_war_with = WAR 
+	
 	completion_reward = {
 		log = "[GetDateText]: [Root.GetName]: Focus BAT_seize_our_destiny"
+
 		declare_war_on = {
 			target = HIP
 			type = annex_everything
-        }
+		}
+		
+		every_country = { # Hippogriffia's allies
+			limit = {
+				NZW_is_north_zebrican_tag = yes
+				NZW_is_aligned_with_HIP = yes
+			}
+			ROOT = {
+				declare_war_on = {
+					target = PREV
+					type = annex_everything
+				}
+			}
+		}
+		
+		NZW_on_start_effect = yes
 	}
 	search_filters = { 
         FOCUS_FILTER_ANNEXATION		
@@ -7488,6 +7535,29 @@ shared_focus = {
 	}
 	completion_reward = {
 		log = "[GetDateText]: [Root.GetName]: Focus BAT_the_empires_southern_port"
+		custom_effect_tooltip = {
+			localization_key = naval_facility_construction_tt
+			temp_facility_state_loc = "[691.GetName]"
+			temp_facility_province_loc = "[691.GetCapitalVictoryPointName]"
+		}
+		hidden_effect = {
+			if = {
+				limit = { 
+					691 = {
+						is_fully_controlled_by = ROOT
+						can_construct_building = naval_facility
+					}
+				}
+				691 = {
+					add_building_construction = {
+						type = naval_facility
+						level = 1
+						instant_build = yes
+						province = 18517
+					}
+				}
+			}
+		}
 		691 = {
 			add_extra_state_shared_building_slots = 2
 			add_building_construction = {
@@ -8185,11 +8255,50 @@ shared_focus = {
 	}
 	completion_reward = {
 		log = "[GetDateText]: [Root.GetName]: Focus BAT_the_atom"
-		add_tech_bonus = {
-			name = secret_bonus
-			bonus = 1.0
-			uses = 2
-			category = nuclear
+		custom_effect_tooltip = {
+			localization_key = nuclear_facility_construction_tt
+			temp_facility_state_loc = "[690.GetName]"
+			temp_facility_province_loc = "[690.GetCapitalVictoryPointName]"
+		}
+		hidden_effect = {
+			if = {
+				limit = { 
+					690 = {
+						is_fully_controlled_by = ROOT
+						can_construct_building = nuclear_facility
+					}
+				}
+				690 = {
+					add_building_construction = {
+						type = nuclear_facility
+						level = 1
+						instant_build = yes
+						province = 18583
+					}
+				}
+			}
+		}
+		if = {
+			limit = {
+				has_tech = atomic_research
+			}
+			add_breakthrough_progress = {
+				specialization = specialization_nuclear
+				value = 3
+			}
+		}
+		
+		else = {
+			add_breakthrough_progress = {
+				specialization = specialization_nuclear
+				value = 1.5
+			}
+			add_tech_bonus = {
+				name = secret_bonus
+				bonus = 3.0
+				uses = 1
+				category = nuclear
+			}
 		}
 	}
 	search_filters = { 
@@ -8875,6 +8984,10 @@ shared_focus = {
 					uses = 2
 					category = cat_anti_tank
 				}
+				add_breakthrough_progress = {
+					specialization = specialization_air
+					value = 0.5
+				}
 			}
 			else = {
 				set_technology = {
@@ -8893,6 +9006,10 @@ shared_focus = {
 					bonus = 0.75
 					uses = 1
 					category = cat_anti_tank
+				}
+				add_breakthrough_progress = {
+					specialization = specialization_air
+					value = 0.25
 				}
 			}
 		}
@@ -9102,6 +9219,10 @@ shared_focus = {
 			bonus = 3.0
 			uses = 1
 			category = jet_technology
+		}
+		add_breakthrough_progress = {
+			specialization = specialization_air
+			value = 1.5
 		}
 	}
 	search_filters = { 
@@ -9410,6 +9531,10 @@ shared_focus = {
 			uses = 2
 			category = radar_tech
 		}
+		add_breakthrough_progress = {
+			specialization = specialization_air
+			value = 1
+		}
 	}
 	search_filters = { 
 		FOCUS_FILTER_RESEARCH 
@@ -9568,11 +9693,22 @@ shared_focus = {
 	}
 	completion_reward = {
 		log = "[GetDateText]: [Root.GetName]: Focus BAT_nuclear_capabilities"
-		add_tech_bonus = {
-			name = secret_bonus
-			bonus = 3.0
-			uses = 1
-			category = nuclear
+		if = {
+			limit = {
+				has_tech = atomic_research
+			}
+			add_breakthrough_progress = {
+				specialization = specialization_nuclear
+				value = 1.5
+			}
+		}
+		else = {
+			add_tech_bonus = {
+				name = secret_bonus
+				bonus = 3.0
+				uses = 1
+				category = nuclear
+			}
 		}
 		random_owned_controlled_state = {
 			add_extra_state_shared_building_slots = 1
@@ -13013,6 +13149,10 @@ shared_focus = {
 					uses = 2
 					category = cat_anti_tank
 				}
+				add_breakthrough_progress = {
+					specialization = specialization_air
+					value = 0.5
+				}
 			}
 			else = {
 				set_technology = {
@@ -13031,6 +13171,10 @@ shared_focus = {
 					bonus = 0.75
 					uses = 1
 					category = cat_anti_tank
+				}
+				add_breakthrough_progress = {
+					specialization = specialization_air
+					value = 0.25
 				}
 			}
 		}
@@ -13510,11 +13654,38 @@ shared_focus = {
 	}
 	completion_reward = {
 		log = "[GetDateText]: [Root.GetName]: Focus BAT_b38"
+		custom_effect_tooltip = {
+			localization_key = air_facility_construction_tt
+			temp_facility_state_loc = "[713.GetName]"
+			temp_facility_province_loc = "[713.GetCapitalVictoryPointName]"
+		}
+		hidden_effect = {
+			if = {
+				limit = { 
+					713 = {
+						is_fully_controlled_by = ROOT
+						can_construct_building = air_facility
+					}
+				}
+				713 = {
+					add_building_construction = {
+						type = air_facility
+						level = 1
+						instant_build = yes
+						province = 18601
+					}
+				}
+			}
+		}
 		add_tech_bonus = {
 			name = rocketry
 			bonus = 3.0
 			uses = 1
 			category = jet_technology
+		}
+		add_breakthrough_progress = {
+			specialization = specialization_air
+			value = 1.5
 		}
 	}
 	search_filters = { 
@@ -13552,6 +13723,29 @@ shared_focus = {
 	}
 	completion_reward = {
 		log = "[GetDateText]: [Root.GetName]: Focus BAT_b28"
+		custom_effect_tooltip = {
+			localization_key = naval_facility_construction_tt
+			temp_facility_state_loc = "[691.GetName]"
+			temp_facility_province_loc = "[691.GetCapitalVictoryPointName]"
+		}
+		hidden_effect = {
+			if = {
+				limit = { 
+					691 = {
+						is_fully_controlled_by = ROOT
+						can_construct_building = naval_facility
+					}
+				}
+				691 = {
+					add_building_construction = {
+						type = naval_facility
+						level = 1
+						instant_build = yes
+						province = 18517
+					}
+				}
+			}
+		}
 		add_doctrine_cost_reduction = {
 			name = navy_bonus
 			cost_reduction = 0.5
@@ -17092,11 +17286,9 @@ shared_focus = {
 			limit = {
 			    has_tech = atomic_research
 		    }
-		    add_tech_bonus = {
-				name = secret_bonus
-				bonus = 3.0
-				uses = 1
-				category = nuclear
+			add_breakthrough_progress = {
+				specialization = specialization_nuclear
+				value = 1.5
 			}
 		}
 		else = {
@@ -20496,11 +20688,9 @@ shared_focus = {
 			limit = {
 			    has_tech = atomic_research
 		    }
-		    add_tech_bonus = {
-				name = secret_bonus
-				bonus = 3.0
-				uses = 1
-				category = nuclear
+			add_breakthrough_progress = {
+				specialization = specialization_nuclear
+				value = 1.5
 			}
 		}
 		else = {
@@ -22681,6 +22871,10 @@ shared_focus = {
 					uses = 2
 					category = cat_anti_tank
 				}
+				add_breakthrough_progress = {
+					specialization = specialization_air
+					value = 0.5
+				}
 			}
 			else = {
 				set_technology = {
@@ -22699,6 +22893,10 @@ shared_focus = {
 					bonus = 0.75
 					uses = 1
 					category = cat_anti_tank
+				}
+				add_breakthrough_progress = {
+					specialization = specialization_air
+					value = 0.25
 				}
 			}
 		}
@@ -25040,11 +25238,9 @@ shared_focus = {
 			limit = {
 			    has_tech = atomic_research
 		    }
-		    add_tech_bonus = {
-				name = secret_bonus
-				bonus = 3.0
-				uses = 1
-				category = nuclear
+			add_breakthrough_progress = {
+				specialization = specialization_nuclear
+				value = 1.5
 			}
 		}
 		else = {
@@ -25527,11 +25723,9 @@ shared_focus = {
 			limit = {
 			    has_tech = atomic_research
 		    }
-		    add_tech_bonus = {
-				name = secret_bonus
-				bonus = 3.0
-				uses = 1
-				category = nuclear
+			add_breakthrough_progress = {
+				specialization = specialization_nuclear
+				value = 1.5
 			}
 		}
 		else = {
