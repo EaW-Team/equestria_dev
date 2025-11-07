@@ -340,3 +340,51 @@ Faction_Upgrade_Group_Id = {
    ### List of faction-member-upgrade-types, that have code support
 	faction_member_upgrade_manpower = bonus will be the % that you take from your own countries manpower and put into the faction manpower pool
 }
+
+# AI Faction Initiative Spending
+
+AI spending of faction initiative can be affected by AI strategies like such:
+```
+default_add_faction_facility = {
+	enable = {
+		always = yes
+	}
+	abort_when_not_enabled = yes
+	ai_strategy = {
+		type = spent_faction_initiative_priority
+		id = program # <---- This specifies what to spend the Faction Initiative on
+		value = 5
+	}
+}
+```
+Valid ids are:
+```
+program
+unlock_doctrine_sharing
+unlock_faction_commander
+```
+
+Intel Advisors work a bit differently, and use custom AI strategy types, e.g:
+```
+default_become_spymaster_minor = {
+	allowed = {
+		has_dlc = "La Resistance"
+	}
+	enable = {
+		is_major = no
+	}
+	abort_when_not_enabled = yes
+	ai_strategy = {
+		type = become_spymaster
+		value = 2
+	}
+}
+```
+Valid types are:
+```
+become_spymaster
+become_head_of_crypto
+become_head_of_counter_intel
+become_head_of_operations
+```
+Faction Rules initiative spending priority are scripted in the faction rules themselves (ai_will_do)

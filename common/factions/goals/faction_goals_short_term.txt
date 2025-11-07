@@ -232,22 +232,67 @@ faction_goal_unlock_research = {
 	name = faction_goal_unlock_research_name
 	description = faction_goal_unlock_research_desc
 	category = short_term
-	group = FOCUS_FILTER_RESEARCH
+	group = FOCUS_FILTER_INTERNAL_AFFAIRS
 	available = {
 		FROM = { num_faction_members > 2 }
 	}
 	visible = {
 		FROM = { NOT = { has_faction_research_unlocked = yes } }
 	}
+	select_effect = {
+		set_temp_variable = { total_techs = 0 }
+		every_collection_element = {
+			input = {
+				input = game:scope
+				operators =  {
+					faction_members
+				}
+			}
+			add_to_temp_variable = { total_techs = num_researched_technologies }
+		}
+		
+		multiply_temp_variable = {
+			var = total_techs
+			value = 1.20
+		}
+		scope:faction = {
+			set_variable = { unlock_military_techs_researched_target = total_techs }
+		}
+	}
 	completed = {
-		count_in_collection = {
-		    collection = {
-		        input = game:scope
-		        operators = { faction_members }
-		        name = FACTION
-		    }
-			buildings = { nuclear_facility }	
-			size > 0
+		scope:faction = {
+			hidden_trigger = {
+				tooltip_evaluation = eval
+				set_temp_variable = { unlock_military_techs_researched_compare = 0 }			
+				all_collection_elements = {
+					collection = {
+						input = game:scope
+						operators =  { faction_members }
+					}
+					add_to_temp_variable = { unlock_military_techs_researched_compare = num_researched_technologies }
+				}
+				set_temp_variable = { unlock_military_techs_researched_compare_temp_target = unlock_military_techs_researched_compare }
+				multiply_temp_variable = { unlock_military_techs_researched_compare_temp_target = 1.20 }
+			}
+			if = {
+				limit = {
+					has_variable = unlock_military_techs_researched_target
+				}
+				check_variable = {
+					var = unlock_military_techs_researched_compare
+					value = unlock_military_techs_researched_target
+					compare = greater_than
+					tooltip = "GOAL_T_TRIGGER_A"
+				}
+			}
+			else = {
+				check_variable = {
+					var = unlock_military_techs_researched_compare
+					value = unlock_military_techs_researched_compare_temp_target
+					compare = greater_than
+					tooltip = "GOAL_T_TRIGGER_A"
+				}
+			}
 		}
 	}
 	complete_effect = {
@@ -263,22 +308,67 @@ faction_goal_unlock_military = {
 	name = faction_goal_unlock_military_name
 	description = faction_goal_unlock_military_desc
 	category = short_term
-	group = FOCUS_FILTER_ARMY_XP
+	group = FOCUS_FILTER_INTERNAL_AFFAIRS
 	available = {
 		FROM = { num_faction_members > 2 }
 	}
 	visible = {
 		FROM = { NOT = { has_faction_military_unlocked = yes } }
 	}
+	select_effect = {
+		set_temp_variable = { total_divs = 0 }
+		every_collection_element = {
+			input = {
+				input = game:scope
+				operators =  {
+					faction_members
+				}
+			}
+			add_to_temp_variable = { total_divs = num_armies }
+		}
+		
+		multiply_temp_variable = {
+			var = total_divs
+			value = 1.20
+		}
+		scope:faction = {
+			set_variable = { unlock_target = total_divs }
+		}
+	}
 	completed = {
-		count_in_collection = {
-		    collection = {
-		        input = game:scope
-		        operators = { faction_members }
-		        name = FACTION
-		    }
-		   unit = infantry
-		   size > 1000
+		scope:faction = {
+			hidden_trigger = {
+				tooltip_evaluation = eval
+				set_temp_variable = { unlock_compare = 0 }			
+				all_collection_elements = {
+					collection = {
+						input = game:scope
+						operators =  { faction_members }
+					}
+					add_to_temp_variable = { unlock_compare = num_armies }
+					set_temp_variable = { unlock_military_techs_researched_compare_temp_target = unlock_compare }
+					multiply_temp_variable = { unlock_military_techs_researched_compare_temp_target = 1.20 }
+				}
+			}
+			if = {
+				limit = {
+					has_variable = unlock_target
+				}
+				check_variable = {
+					var = unlock_compare
+					value = unlock_target
+					compare = greater_than
+					tooltip = "GOAL_T_TRIGGER_B"
+				}
+			}
+			else = {
+				check_variable = {
+					var = unlock_compare
+					value = unlock_military_techs_researched_compare_temp_target
+					compare = greater_than
+					tooltip = "GOAL_T_TRIGGER_B"
+				}
+			}
 		}
 	}
 	complete_effect = {
@@ -897,46 +987,79 @@ faction_goal_ensure_military_r_d = {
 			add_faction_influence_ratio = 0.05
 		}
 		every_faction_member = {
-			every_scientist = {
-				visible_when_empty = yes
+			if = {
 				limit = {
-					has_scientist_level = {
-						level > 0
+					any_scientist = {
+						has_scientist_level = {
+							level > 0
+							specialization = specialization_land
+						}
+						is_active_scientist = yes
+					}
+				}
+				every_scientist = {
+					visible_when_empty = yes
+					limit = {
+						has_scientist_level = {
+							level > 0
+							specialization = specialization_land
+						}
+						is_active_scientist = yes
+					}
+					add_scientist_xp = {
+						experience = constant:sp_scientist_xp_gain.very_high
 						specialization = specialization_land
 					}
-					is_active_scientist = yes
-				}
-				add_scientist_xp = {
-					experience = constant:sp_scientist_xp_gain.very_high
-					specialization = specialization_land
 				}
 			}
-			every_scientist = {
-				visible_when_empty = yes
+			if = {
 				limit = {
-					has_scientist_level = {
-						level > 0
+					any_scientist = {
+						has_scientist_level = {
+							level > 0
+							specialization = specialization_naval
+						}
+						is_active_scientist = yes
+					}
+				}
+				every_scientist = {
+					visible_when_empty = yes
+					limit = {
+						has_scientist_level = {
+							level > 0
+							specialization = specialization_naval
+						}
+						is_active_scientist = yes
+					}
+					add_scientist_xp = {
+						experience = constant:sp_scientist_xp_gain.very_high
 						specialization = specialization_naval
 					}
-					is_active_scientist = yes
-				}
-				add_scientist_xp = {
-					experience = constant:sp_scientist_xp_gain.very_high
-					specialization = specialization_naval
 				}
 			}
-			every_scientist = {
-				visible_when_empty = yes
+			if = {
 				limit = {
-					has_scientist_level = {
-						level > 0
+					any_scientist = {
+						has_scientist_level = {
+							level > 0
+							specialization = specialization_air
+						}
+						is_active_scientist = yes
+					}
+				}
+				every_scientist = {
+					visible_when_empty = yes
+					limit = {
+						has_scientist_level = {
+							level > 0
+							specialization = specialization_air
+						}
+						is_active_scientist = yes
+					}
+					add_scientist_xp = {
+						experience = constant:sp_scientist_xp_gain.very_high
 						specialization = specialization_air
 					}
-					is_active_scientist = yes
-				}
-				add_scientist_xp = {
-					experience = constant:sp_scientist_xp_gain.very_high
-					specialization = specialization_air
 				}
 			}
 		}
