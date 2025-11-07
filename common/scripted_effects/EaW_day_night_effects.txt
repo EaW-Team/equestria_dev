@@ -77,6 +77,7 @@ EaW_clear_day_night_overrides = {
 			}
 			clr_global_flag = EaW_day_override
 		}
+		update_unit_leader_traits = yes
 		ZZZ = {
 			drop_cosmetic_tag = yes
 			set_politics = {
@@ -90,6 +91,7 @@ EaW_night_override = {
 	hidden_effect = {
 		EaW_clear_day_night_overrides = yes
 		set_global_flag = EaW_night_override
+		update_unit_leader_traits = yes
 		every_possible_country = {
 			limit = {
 				NOT = { tag = ZZZ }
@@ -115,6 +117,7 @@ EaW_day_override = {
 	hidden_effect = {
 		EaW_clear_day_night_overrides = yes
 		set_global_flag = EaW_day_override
+		update_unit_leader_traits = yes
 		every_possible_country = {
 			limit = {
 				NOT = { tag = ZZZ }
@@ -135,5 +138,139 @@ EaW_day_override = {
 				elections_allowed = no
 			}
 		}
+	}
+}
+
+update_unit_leader_traits = {
+	set_global_flag = updating_unit_leader_traits
+	
+	#A different token offset is used for day, night, or none.
+	if = {
+		limit = {
+			has_global_flag = EaW_night_override
+		}
+		set_temp_variable = { replace_offset = 2 }
+	}
+	else_if = {
+		limit = {
+			has_global_flag = EaW_day_override
+		}
+		set_temp_variable = { replace_offset = 4 }
+	}
+	else = {
+		set_temp_variable = { replace_offset = 0 }
+	}
+	
+	for_each_scope_loop = {
+		array = global.unit_leaders_to_update
+		for_each_loop = {
+			array = night_related_traits
+			value = v
+			
+			log = "Character: [THIS.GetName]"
+			
+			set_temp_variable = { replace_trait = v }
+			add_to_temp_variable = { replace_trait = replace_offset }
+			log = "v: [?v.GetTokenKey]"
+			
+			set_temp_variable = { trait = v }
+			add_to_temp_variable = { trait = last_replaced_offset }
+			
+			log = "replace_trait: [?replace_trait.GetTokenKey]"
+			log = "trait: [?trait.GetTokenKey]"
+			
+			
+			meta_effect = {
+				text = {
+					remove_unit_leader_trait = [OLD_TRAIT]
+					add_unit_leader_trait = [NEW_TRAIT]
+				}
+				OLD_TRAIT = "[?trait.GetTokenKey]"
+				NEW_TRAIT = "[?replace_trait.GetTokenKey]"
+				debug = yes
+			}
+		}
+		set_variable = { last_replaced_offset = replace_offset }
+	}
+	
+	clr_global_flag = updating_unit_leader_traits
+}
+
+night_trait_add_effect = {
+	if = {
+		limit = {
+			NOT = {
+				has_global_flag = updating_unit_leader_traits
+			}
+		}
+		log = "[GetDateText]: [THIS.GetName]: Night trait add effect for trait [?trait_token.GetTokenKey]"
+		
+		add_to_array = { night_related_traits = trait_token }
+		set_global_flag = updating_unit_leader_traits
+		if = {
+			limit = {
+				has_global_flag = EaW_night_override
+			}
+			set_variable = { last_replaced_offset = 2 }
+		}
+		else_if = {
+			limit = {
+				has_global_flag = EaW_day_override
+			}
+			set_variable = { last_replaced_offset = 4 }
+		}
+		else = {
+			set_variable = { last_replaced_offset = 0 }
+		}
+		set_temp_variable = { replace_trait = trait_token }
+		add_to_temp_variable = { replace_trait = last_replaced_offset }
+		meta_effect = {
+			text = {
+				remove_unit_leader_trait = [OLD_TRAIT]
+				add_unit_leader_trait = [NEW_TRAIT]
+			}
+			OLD_TRAIT = "[?trait_token.GetTokenKey]"
+			NEW_TRAIT = "[?replace_trait.GetTokenKey]"
+			#debug = yes
+		}
+		clr_global_flag = updating_unit_leader_traits
+		
+		if = {
+			limit = {
+				NOT = { is_in_array = { global.unit_leaders_to_update = THIS } }
+			}
+			add_to_array = { global.unit_leaders_to_update = THIS }
+		}
+	}
+}
+
+night_trait_remove_effect = {
+	if = {
+		limit = {
+			NOT = {
+				has_global_flag = updating_unit_leader_traits
+			}
+		}
+		log = "[GetDateText]: [THIS.GetName]: Night trait remove effect for trait [?trait_token.GetTokenKey]"
+		set_global_flag = updating_unit_leader_traits
+		remove_from_array = { night_related_traits = trait_token }
+		if = {
+			limit = {
+				check_variable = { night_related_traits^num < 1 }
+			}
+			remove_from_array = { global.unit_leaders_to_update = THIS }
+		}
+		clr_global_flag = updating_unit_leader_traits
+	}
+}
+
+test_effect = {
+	TBK_wallnut_drive = {
+		add_unit_leader_trait = sanguinary_prince
+	}
+}
+test_effect2 = {
+	TBK_wallnut_drive = {
+		remove_unit_leader_trait = sanguinary_prince
 	}
 }
