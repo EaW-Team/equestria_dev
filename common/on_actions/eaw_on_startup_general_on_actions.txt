@@ -347,12 +347,19 @@ on_actions = {
 			set_global_flag = continent_flags_set
 
 			every_possible_country = {
+			
 				#Create a list of all generals who have night related traits.
-				#The replace_unit_leader_trait effect is broken as shit, but at least we can use it to determine if a general has a trait.
 				every_unit_leader = {
 					for_each_loop = {
 						array = global.night_trait_tokens
 						value = v
+						
+						#Loop through all the traits in initialize_night_trait_tokens and see if the unit leader has any.
+						#For some reason there's no trigger to check if a unit leader has a trait.
+						#replace_unit_leader_trait is a broken effect that does not work properly (it doesn't even have official documentation lol).
+						#However, it does add the "trait" if and only if the unit leader has the specified "replace" trait.
+						#This can be used to see if the unit leader has the "replace" trait by checking for a custom modifier in night_test_trait.
+						#Ask me for further details. -Blue
 						meta_effect = {
 							text = {
 								replace_unit_leader_trait = {
@@ -363,11 +370,19 @@ on_actions = {
 							TRAIT = "[?v.GetTokenKey]"
 						}
 						if = {
+							#If this is true, then the unit leader has v as a trait
 							limit = {
-								check_variable = { leader_modifier@night_trait_test_modifier = 1 }
+								check_variable = { leader_modifier@night_test_trait_modifier = 1 }
 							}
 							add_to_array = { night_related_traits = v }
-							add_to_array = { global.unit_leaders_to_update = THIS }
+							if = {
+								limit = {
+									NOT = { is_in_array = { global.unit_leaders_to_update = THIS } }
+								}
+								add_to_array = { global.unit_leaders_to_update = THIS }
+							}
+							
+							#Remove the test trait
 							remove_unit_leader_trait = night_test_trait
 						}
 					}
