@@ -5050,6 +5050,7 @@ LCT_election_initiate = {
 		add_to_array = { LCT_election_state_popularities_array = 0 }
 		add_to_array = { LCT_election_state_popularities_array = 10 }
 		set_variable = { ROOT.LCT_election_state_dominant_party@387 = 1 }
+		set_variable = { state_id = 387 }
 	}
 	
 	499 = {
@@ -5058,6 +5059,7 @@ LCT_election_initiate = {
 		add_to_array = { LCT_election_state_popularities_array = 4 }
 		add_to_array = { LCT_election_state_popularities_array = 1 }
 		set_variable = { ROOT.LCT_election_state_dominant_party@499 = 0 }
+		set_variable = { state_id = 499 }
 	}
 	
 	541 = {
@@ -5066,6 +5068,7 @@ LCT_election_initiate = {
 		add_to_array = { LCT_election_state_popularities_array = 13 }
 		add_to_array = { LCT_election_state_popularities_array = 7 }
 		set_variable = { ROOT.LCT_election_state_dominant_party@541 = 0 }
+		set_variable = { state_id = 541 }
 	}
 	
 	550 = {
@@ -5074,6 +5077,7 @@ LCT_election_initiate = {
 		add_to_array = { LCT_election_state_popularities_array = 10 }
 		add_to_array = { LCT_election_state_popularities_array = 0 }
 		set_variable = { ROOT.LCT_election_state_dominant_party@550 = 1 }
+		set_variable = { state_id = 550 }
 	}
 	
 	551 = {
@@ -5082,6 +5086,7 @@ LCT_election_initiate = {
 		add_to_array = { LCT_election_state_popularities_array = 9 }
 		add_to_array = { LCT_election_state_popularities_array = 15 }
 		set_variable = { ROOT.LCT_election_state_dominant_party@551 = 0 }
+		set_variable = { state_id = 551 }
 	}
 	
 	560 = {
@@ -5090,6 +5095,7 @@ LCT_election_initiate = {
 		add_to_array = { LCT_election_state_popularities_array = 18 }
 		add_to_array = { LCT_election_state_popularities_array = 14 }
 		set_variable = { ROOT.LCT_election_state_dominant_party@560 = 0 }
+		set_variable = { state_id = 560 }
 	}
 	
 	for_each_scope_loop = {
@@ -5101,7 +5107,6 @@ LCT_election_initiate = {
 	set_variable = { LCT_selected_election_state = 387 }
 	set_variable = { LCT_election_campaign_funds = 898909 }
 	
-	LCT_election_calculate_total_support = yes
 	LCT_election_update_gui = yes
 }
 
@@ -5113,6 +5118,8 @@ LCT_election_update_gui = {
 
 	set_variable = { LCT_pie_frame_2 = LCT_selected_election_state:LCT_election_state_popularities_array^2 }
 	add_to_variable = { LCT_pie_frame_2 = LCT_pie_frame_1 }
+	
+	LCT_election_calculate_total_support = yes
 
 	add_to_variable = { LCT_election_dirty = 0.001 }
 }
@@ -5151,5 +5158,46 @@ LCT_election_calculate_total_support = {
 		
 		add_to_temp_variable = { temp_frame = v }
 		set_variable = { LCT_support_bar_frame@var:i = temp_frame }
+	}
+}
+
+#Use variables temp_amount and temp_party
+LCT_election_add_state_party_support = {
+	set_temp_variable = { old_size = 100 }
+	subtract_from_temp_variable = { old_size = LCT_election_state_popularities_array^temp_party }
+	add_to_variable = { LCT_election_state_popularities_array^temp_party = temp_amount }
+	clamp_variable = {
+		var = LCT_election_state_popularities_array^temp_party
+		max = 100
+		min = 0
+	}
+	set_temp_variable = { new_size = 100 }
+	subtract_from_temp_variable = { new_size = LCT_election_state_popularities_array^temp_party }
+	divide_temp_variable = { new_size = old_size }
+	
+	for_each_loop = {
+		array = LCT_election_state_popularities_array
+		index = i
+		
+		if = {
+			limit = {
+				check_variable = { 
+					var = i
+					value = temp_party
+					compare = not_equals
+				}
+			}
+			multiply_variable = { LCT_election_state_popularities_array^i = new_size }
+		}
+	}
+	
+	find_highest_in_array = {
+		array = LCT_election_state_popularities_array
+		index = temp_largest_party
+	}
+	
+	ROOT = {
+		set_variable = { LCT_election_state_dominant_party@var:PREV.state_id = temp_largest_party }
+		LCT_election_update_gui = yes 
 	}
 }
