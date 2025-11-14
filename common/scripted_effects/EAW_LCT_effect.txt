@@ -5108,6 +5108,11 @@ LCT_election_initiate = {
 	set_variable = { LCT_selected_election_state = 387 }
 	set_variable = { LCT_election_campaign_funds = 898909 }
 	set_variable = { LCT_election_chosen_party = 1 }
+	set_variable = { LCT_election_opposition_party = 0 }
+	
+	set_country_flag = LCT_election_action_1_unlocked
+	#set_country_flag = LCT_election_action_2_unlocked
+	set_country_flag = LCT_election_action_3_unlocked
 	
 	LCT_election_update_gui = yes
 }
@@ -5152,6 +5157,9 @@ LCT_election_calculate_total_support = {
 		}
 	}
 	
+	set_temp_variable = { temp_frame = 0 }
+	set_temp_variable = { temp_text_offset = 0 }
+	
 	#Update progress bars
 	for_each_loop = {
 		array = LCT_election_total_support_array
@@ -5178,7 +5186,10 @@ LCT_election_calculate_total_support = {
 LCT_election_add_state_party_support = {
 	set_temp_variable = { old_size = 100 }
 	subtract_from_temp_variable = { old_size = LCT_election_state_popularities_array^temp_party }
+	log = "temp_amount: [?temp_amount]"
+	log = "popularity of [?temp_party] before: [?LCT_election_state_popularities_array^temp_party]"
 	add_to_variable = { LCT_election_state_popularities_array^temp_party = temp_amount }
+	log = "popularity of [?temp_party] after: [?LCT_election_state_popularities_array^temp_party]"
 	clamp_variable = {
 		var = LCT_election_state_popularities_array^temp_party
 		max = 100
@@ -5202,6 +5213,35 @@ LCT_election_add_state_party_support = {
 			}
 			multiply_variable = { LCT_election_state_popularities_array^i = new_size }
 		}
+	}
+	
+	find_highest_in_array = {
+		array = LCT_election_state_popularities_array
+		index = temp_largest_party
+	}
+	
+	ROOT = {
+		set_variable = { LCT_election_state_dominant_party@var:PREV.state_id = temp_largest_party }
+		LCT_election_update_gui = yes 
+	}
+}
+
+#Use variable from_party to_party and temp_amount
+LCT_take_support_from_party = {
+	set_temp_variable = { temp_from_party_amount = LCT_election_state_popularities_array^from_party }
+	subtract_from_variable = { LCT_election_state_popularities_array^from_party = temp_amount }
+	clamp_variable = {
+		var = LCT_election_state_popularities_array^from_party
+		min = 0
+	}
+	clamp_temp_variable = {
+		var = temp_amount
+		max = temp_from_party_amount
+	}
+	add_to_variable = { LCT_election_state_popularities_array^to_party = temp_amount }
+	clamp_variable = {
+		var = LCT_election_state_popularities_array^to_party
+		max = 100
 	}
 	
 	find_highest_in_array = {

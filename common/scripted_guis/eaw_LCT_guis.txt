@@ -1,8 +1,10 @@
+@LCT_election_action_cooldown = 1.440
+
 scripted_gui = {
 	LCT_election_gui = {
 		window_name = "LCT_election_gui_container"
 		context_type = decision_category
-		dirty = LCT_election_dirty
+		#dirty = LCT_election_dirty
 		
 		dynamic_lists = {
 			map_grid = {
@@ -37,22 +39,64 @@ scripted_gui = {
 
 			#-- Actions --#
 			action_1_click_enabled = {
-				LCT_elections_action_1_trigger = yes
+				NOT = {
+					var:LCT_selected_election_state = {
+						has_state_flag = LCT_election_action_1_blocked
+					}
+				}
 			}
 			action_2_click_enabled = {
-				LCT_elections_action_2_trigger = yes
+				NOT = {
+					var:LCT_selected_election_state = {
+						has_state_flag = LCT_election_action_2_blocked
+					}
+				}
 			}
 			action_3_click_enabled = {
-				LCT_elections_action_3_trigger = yes
+				NOT = {
+					var:LCT_selected_election_state = {
+						has_state_flag = LCT_election_action_3_blocked
+					}
+				}
 			}
 			action_1_unavailable_visible = {
-				LCT_elections_action_1_trigger = no
+				NOT = { has_country_flag = LCT_election_action_1_unlocked }
 			}
 			action_2_unavailable_visible = {
-				LCT_elections_action_2_trigger = no
+				NOT = { has_country_flag = LCT_election_action_2_unlocked }
 			}
 			action_3_unavailable_visible = {
-				LCT_elections_action_3_trigger = no
+				NOT = { has_country_flag = LCT_election_action_3_unlocked }
+			}
+			action_1_cooldown_visible = {
+				var:LCT_selected_election_state = {
+					has_state_flag = LCT_election_action_1_blocked
+				}
+			}
+			action_2_cooldown_visible = {
+				var:LCT_selected_election_state = {
+					has_state_flag = LCT_election_action_2_blocked
+				}
+			}
+			action_3_cooldown_visible = {
+				var:LCT_selected_election_state = {
+					has_state_flag = LCT_election_action_3_blocked
+				}
+			}
+			action_1_cooldown_text_visible = {
+				var:LCT_selected_election_state = {
+					has_state_flag = LCT_election_action_1_blocked
+				}
+			}
+			action_2_cooldown_text_visible = {
+				var:LCT_selected_election_state = {
+					has_state_flag = LCT_election_action_2_blocked
+				}
+			}
+			action_3_cooldown_text_visible = {
+				var:LCT_selected_election_state = {
+					has_state_flag = LCT_election_action_3_blocked
+				}
 			}
 		}
 		
@@ -114,25 +158,60 @@ scripted_gui = {
 				LCT_election_update_gui = yes
 			}
 			action_1_click = {
+				
 				var:LCT_selected_election_state = {
-					set_temp_variable = { temp_amount = 5 }
-					set_temp_variable = { temp_party = LCT_election_chosen_party }
+					set_temp_variable = { temp_amount = 2.5 }
+					set_temp_variable = { temp_party = ROOT.LCT_election_chosen_party }
 					LCT_election_add_state_party_support = yes
+					set_state_flag = {
+						flag = LCT_election_action_1_blocked
+						days = 60
+						value = 1
+					}
+					set_variable = { LCT_election_state_unlock_1_date = global.date }
+					add_to_variable = { LCT_election_state_unlock_1_date = @LCT_election_action_cooldown }
 				}
+				
+				set_temp_variable = { temp_cost = constant:LCT_election_constants.action_1_cost }
+				multiply_temp_variable = { temp_cost = LCT_selected_election_state:state_population_weight }
+				subtract_from_variable = { LCT_election_campaign_funds = temp_cost }
 			}
 			action_2_click = {
 				var:LCT_selected_election_state = {
-					set_temp_variable = { temp_amount = 5 }
-					set_temp_variable = { temp_party = LCT_election_chosen_party }
+					set_temp_variable = { temp_amount = -2.5 }
+					set_temp_variable = { temp_party = ROOT.LCT_election_opposition_party }
 					LCT_election_add_state_party_support = yes
+					set_state_flag = {
+						flag = LCT_election_action_2_blocked
+						days = 60
+						value = 1
+					}
+					set_variable = { LCT_election_state_unlock_2_date = global.date }
+					add_to_variable = { LCT_election_state_unlock_2_date = @LCT_election_action_cooldown }
 				}
+				
+				set_temp_variable = { temp_cost = constant:LCT_election_constants.action_2_cost }
+				multiply_temp_variable = { temp_cost = LCT_selected_election_state:state_population_weight }
+				subtract_from_variable = { LCT_election_campaign_funds = temp_cost }
 			}
 			action_3_click = {
 				var:LCT_selected_election_state = {
-					set_temp_variable = { temp_amount = 5 }
-					set_temp_variable = { temp_party = LCT_election_chosen_party }
-					LCT_election_add_state_party_support = yes
+					set_temp_variable = { temp_amount = 2.5 }
+					set_temp_variable = { from_party = 3 }
+					set_temp_variable = { to_party = ROOT.LCT_election_chosen_party }
+					LCT_take_support_from_party = yes
+					set_state_flag = {
+						flag = LCT_election_action_3_blocked
+						days = 60
+						value = 1
+					}
+					set_variable = { LCT_election_state_unlock_3_date = global.date }
+					add_to_variable = { LCT_election_state_unlock_3_date = @LCT_election_action_cooldown }
 				}
+				
+				set_temp_variable = { temp_cost = constant:LCT_election_constants.action_3_cost }
+				multiply_temp_variable = { temp_cost = LCT_selected_election_state:state_population_weight }
+				subtract_from_variable = { LCT_election_campaign_funds = temp_cost }
 			}
 		}
 	}
