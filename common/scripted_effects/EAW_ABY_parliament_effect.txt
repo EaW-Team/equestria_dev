@@ -1,0 +1,805 @@
+ABY_PLMT_re_render = {
+	set_temp_variable = { seats_1 = ABY_parliament_seats_array^0 }
+	add_to_temp_variable = { seats_1 = ABY_parliament_seats_array^1 }
+
+	set_temp_variable = { seats_2 = seats_1 }
+	add_to_temp_variable = { seats_2 = ABY_parliament_seats_array^2 }
+
+	set_temp_variable = { seats_3 = seats_2 }
+	add_to_temp_variable = { seats_3 = ABY_parliament_seats_array^3 }
+
+	set_temp_variable = { seats_4 = seats_3 }
+	add_to_temp_variable = { seats_4 = ABY_parliament_seats_array^4 }
+	
+	clear_array = ABY_parliament_seats_array_display
+	
+	resize_array = { ABY_parliament_seats_array_display = ABY_parliament_seats_array^0 value = 0 }
+	resize_array = { ABY_parliament_seats_array_display = seats_1 value = 1 }
+	resize_array = { ABY_parliament_seats_array_display = seats_2 value = 2 }
+	resize_array = { ABY_parliament_seats_array_display = seats_3 value = 3 }
+	resize_array = { ABY_parliament_seats_array_display = seats_4 value = 4 }
+	
+	clear_array = ABY_parliament_seats_array_frame
+	for_each_loop = {
+		array = ABY_parliament_seats_array_display
+		add_to_array = { ABY_parliament_seats_array_frame = v }
+		add_to_variable = { ABY_parliament_seats_array_frame^i = 1 }
+	}
+	
+	# Coalition / Additional Seats code
+	if = {
+		limit = {
+			NOT = {
+				has_country_flag = ABY_urf_split
+			}
+		}
+		clear_array = ABY_PLMT_additional_array
+		resize_array = { ABY_PLMT_nosplit_additional_array = ABY_parliament_seats_array^0 value = 0 }
+		set_temp_variable = { add_seats = ABY_parliament_seats_array^0 }
+		add_to_temp_variable = { add_seats = ABY_apf_support }
+		resize_array = { ABY_PLMT_nosplit_additional_array = add_seats value = 1 }
+	}
+	else = {
+		clear_variable = ABY_PLMT_split_additional
+		for_each_loop = {
+			array = ABY_parliament_seats_array
+			if = {
+				limit = {
+					is_in_array = { ABY_coalitions_array = i }
+				}
+				add_to_variable = { ABY_PLMT_split_additional = v }
+			}
+		}
+	}
+	
+	ABY_PLMT_recalculate_added_supports = yes
+	add_to_variable = { ABY_PLMT_dirty = 0.01 }
+	
+	log = "ABY: Re render GUI"
+	log = "ABY_parliament_seats_array^0 = [?ABY_parliament_seats_array^0]"
+	log = "ABY_parliament_seats_array^1 = [?ABY_parliament_seats_array^1]"
+	log = "ABY_parliament_seats_array^2 = [?ABY_parliament_seats_array^2]"
+	log = "ABY_parliament_seats_array^3 = [?ABY_parliament_seats_array^3]"
+	log = "ABY_parliament_seats_array^4 = [?ABY_parliament_seats_array^4]"
+	log = "TOTAL = [?ABY_parliament_seats_array_display^num]"
+}
+
+ABY_PLMT_recalculate_added_supports = {
+	clear_array = ABY_PLMT_additional_array
+	if = {
+		limit = {
+			NOT = {
+				has_country_flag = ABY_URF_split
+			}
+		}
+		resize_array = { ABY_PLMT_additional_array = ABY_parliament_seats_array^0 value = 0 }
+		set_temp_variable = { add_seats = ABY_parliament_seats_array^0 }
+		add_to_temp_variable = { add_seats = ABY_apf_support }
+		resize_array = { ABY_PLMT_additional_array = add_seats value = 1 }
+
+		set_variable = { ABY_total_support = ABY_parliament_seats_array^0 }
+		add_to_variable = { ABY_total_support = ABY_apf_support }
+	}
+	else = {
+		resize_array = { ABY_PLMT_additional_array = 200 value = 0 }
+		set_temp_variable = { temp_apf_support = ABY_apf_support }
+		for_each_loop = {
+			array = ABY_PLMT_additional_array
+			if = {
+				limit = {
+					is_in_array = { ABY_coalitions_array = ABY_parliament_seats_array_display^i }
+				}
+				set_variable = { ABY_PLMT_additional_array^i = 1 }
+			}
+			else_if = {
+				limit = {
+					check_variable = { ABY_parliament_seats_array_display^i = 4 }
+					check_variable = { temp_apf_support > 0 }
+				}
+				set_variable = { ABY_PLMT_additional_array^i = 1 }
+				subtract_from_temp_variable = { temp_apf_support = 1 }
+			}
+		}
+
+		set_variable = { ABY_total_support = ABY_parliament_seats_array^2 }
+		for_each_loop = {
+			array = ABY_parliament_seats_array
+			if = {
+				limit = {
+					is_in_array = { ABY_coalitions_array = i }
+				}
+				add_to_variable = { ABY_total_support = v }
+			}
+		}
+		add_to_variable = { ABY_total_support = ABY_apf_support }
+	}
+}
+
+#### Indexes
+# 0 = United Republican Front (URF)
+# 1 = Abyssinian Socialist Party
+# 2 = Abyssinian Liberation Movement
+# 3 = Popular League of Abyssinia
+# 4 = Abyssinian Patriotic Front
+
+## How to use:
+# set_temp_variable = { temp_faction = 1 }
+# set_temp_variable = { temp_seats = 10 }
+# ABY_PLMT_change_seats = yes
+
+## This will change the ASP's (1) seat count by 10, deducting it from other factions.
+## If only URF and APF are active, they will only subtract from each other.
+## The scripted effect will generate its own tooltip so don't worry about that.
+
+ABY_PLMT_change_seats = {
+	
+	## Normalize values
+	set_temp_variable = { future_value = ABY_parliament_seats_array^temp_faction }
+	add_to_temp_variable = { future_value = temp_seats }
+	if = {
+		limit = {
+			check_variable = { future_value > 200 }
+		}
+		set_temp_variable = { min_temp_seats = future_value }
+		subtract_from_temp_variable = { min_temp_seats = 200 }
+		subtract_from_temp_variable = { temp_seats = min_temp_seats }
+	}
+	else_if = {
+		limit = {
+			check_variable = { future_value < 0 }
+		}
+		subtract_from_temp_variable = { temp_seats = future_value }
+	}
+	
+	## Tooltip generation + seperating positive/negative
+	if = {
+		limit = {
+			check_variable = { temp_seats > 0 }
+		}
+		set_temp_variable = { positive_negative = 1 }
+		custom_effect_tooltip = ABY_PLMT_change_seats_positive_tt
+	}
+	else = {
+		set_temp_variable = { positive_negative = -1 }
+		multiply_temp_variable = { temp_seats = -1 }
+		custom_effect_tooltip = ABY_PLMT_change_seats_negative_tt
+	}
+
+	## Subtracting seats from other factions based on:
+	#	if positive: more seats means you are more likely to be subtracted from
+	#	if negative: less seats means you are more likely to be added upon
+	for_loop_effect = {
+		start = 0
+		end = temp_seats
+
+		for_each_loop = {
+			array = ABY_parliament_seats_array
+			value = x
+			index = y
+			
+			if = {
+				limit = {
+					check_variable = { positive_negative = 1 }
+				}
+				add_to_temp_array = { chance = x }
+			}
+			else = {
+				set_temp_variable = { chance_n = 200 }
+				subtract_from_temp_variable = { chance_n = x }
+				add_to_temp_array = { chance = chance_n }
+			}
+
+			# Set chance to 0 for the following conditions:
+
+			if = {
+				limit = {
+					OR = {
+					
+						#== The factions is the one gaining/losing seats
+						check_variable = { temp_faction = y }
+						
+						#== Cap of 200 seats reached
+						AND = {
+							check_variable = { positive_negative = 1 }
+							check_variable = { x = 0 }
+						}
+						
+						#== The split doesn't occur, therefore IDs 1, 2, and 3 are deactivated
+						AND = {
+							OR = {
+								check_variable = { y = 1 }
+								check_variable = { y = 2 }
+								check_variable = { y = 3 }
+							}
+							NOT = { has_country_flag = ABY_urf_split }
+						}
+						
+						#== The split occurs, therefore ID 0 is deactivated
+						AND = {
+							check_variable = { y = 0 }
+							has_country_flag = ABY_urf_split
+						}
+					}
+				}
+				set_temp_variable = { chance^y = 0 }
+			}
+		}
+		
+		random_list = {
+			chance^0 = {
+				subtract_from_variable = { ABY_parliament_seats_array^0 = positive_negative }
+			}
+			chance^1 = {
+				subtract_from_variable = { ABY_parliament_seats_array^1 = positive_negative }
+			}
+			chance^2 = {
+				subtract_from_variable = { ABY_parliament_seats_array^2 = positive_negative }
+			}
+			chance^3 = {
+				subtract_from_variable = { ABY_parliament_seats_array^3 = positive_negative }
+			}
+			chance^4 = {
+				subtract_from_variable = { ABY_parliament_seats_array^4 = positive_negative }
+			}
+		}
+		clear_temp_array = chance
+	}
+	multiply_temp_variable = { temp_seats = positive_negative }
+	add_to_variable = { ABY_parliament_seats_array^temp_faction = temp_seats }
+	
+	ABY_PLMT_re_render = yes
+	
+	clear_variable = temp_seats
+	clear_variable = temp_faction
+}
+
+debug_ABY_PLMT_change_seats = {
+	set_temp_variable = { temp_seats = args^0 }
+	set_temp_variable = { temp_faction = args^1 }
+	ABY_PLMT_change_seats = yes
+}
+
+### Scripted effect to calculate the next election date
+
+ABY_recalculate_election_date = {
+	set_temp_variable = { next_election_date_temp = global.date }
+	add_to_temp_variable = { next_election_date_temp = 26.280 }
+	set_variable = { ABY_next_election_date = next_election_date_temp }
+	custom_effect_tooltip = ABY_recalculate_election_date_tt
+	ABY_PLMT_re_render = yes
+}
+
+#### Indexes
+# 0 = United Republican Front (URF)
+# 1 = Abyssinian Socialist Party
+# 2 = Abyssinian Liberation Movement
+# 3 = Popular League of Abyssinia
+# 4 = Abyssinian Patriotic Front
+ABY_calculate_seats = {
+	if = {
+		limit = {
+			has_country_flag = ABY_urf_split
+		}
+		set_variable = { comm_seats = party_popularity_100@communism }
+		divide_variable = { comm_seats = 2 }
+		set_variable = { asp_seats = comm_seats }
+		round_variable = asp_seats
+		set_variable = { alf_seats = comm_seats }
+		multiply_variable = { alf_seats = 3 }
+		round_variable = alf_seats
+		set_variable = { pla_seats = party_popularity_100@democratic }
+		multiply_variable = { pla_seats = 2 }
+		round_variable = pla_seats
+		set_variable = { apf_seats = party_popularity_100@fascism }
+		add_to_variable = { apf_seats = party_popularity_100@neutrality }
+		multiply_variable = { apf_seats = 2 }
+		round_variable = apf_seats
+		set_variable = { total_number_check = asp_seats }
+		add_to_variable = { total_number_check = alf_seats }
+		add_to_variable = { total_number_check = pla_seats }
+		add_to_variable = { total_number_check = apf_seats }
+		if = {
+			limit = {
+				check_variable = {
+					total_number_check > 200
+				}
+			}
+			set_variable = { fixed_seat_number = total_number_check }
+			subtract_from_variable = { fixed_seat_number = 200 }
+			subtract_from_variable = { alf_seats = fixed_seat_number }
+		}
+		else_if = {
+			limit = {
+				check_variable = {
+					total_number_check < 200
+				}
+			}
+			set_variable = { fixed_seat_number = 200 }
+			subtract_from_variable = { fixed_seat_number = total_number_check }
+			add_to_variable = { alf_seats = fixed_seat_number }
+		}
+	}
+	else = {
+		set_variable = { urf_seats = party_popularity_100@communism }
+		add_to_variable = { urf_seats = party_popularity_100@democratic }
+		multiply_variable = { urf_seats = 2 }
+		round_variable = urf_seats
+		set_variable = { apf_seats = party_popularity_100@neutrality }
+		add_to_variable = { apf_seats = party_popularity_100@fascism }
+		multiply_variable = { apf_seats = 2 }
+		round_variable = apf_seats
+		set_variable = { total_number_check = 0 }
+		add_to_variable = { total_number_check = urf_seats }
+		add_to_variable = { total_number_check = apf_seats }
+		if = {
+			limit = {
+				check_variable = {
+					total_number_check > 200
+				}
+			}
+			set_variable = { fixed_seat_number = total_number_check }
+			subtract_from_variable = { fixed_seat_number = 200 }
+			subtract_from_variable = { urf_seats = fixed_seat_number }
+		}
+		else_if = {
+			limit = {
+				check_variable = {
+					total_number_check < 200
+				}
+			}
+			set_variable = { fixed_seat_number = 200 }
+			subtract_from_variable = { fixed_seat_number = total_number_check }
+			add_to_variable = { urf_seats = fixed_seat_number }
+		}
+	}
+}
+
+ABY_initiate_parliament = {
+	set_temp_variable = { urf_seats_old = ABY_parliament_seats_array^0 }
+	set_temp_variable = { asp_seats_old = ABY_parliament_seats_array^1 }
+	set_temp_variable = { alf_seats_old = ABY_parliament_seats_array^2 }
+	set_temp_variable = { pla_seats_old = ABY_parliament_seats_array^3 }
+	set_temp_variable = { apf_seats_old = ABY_parliament_seats_array^4 }
+	clear_array = ABY_parliament_seats_array
+	if = {
+		limit = {
+			has_country_flag = ABY_urf_split
+		}
+		add_to_array = { ABY_parliament_seats_array = 0 }
+		add_to_array = { ABY_parliament_seats_array = asp_seats }
+		add_to_array = { ABY_parliament_seats_array = alf_seats }
+		add_to_array = { ABY_parliament_seats_array = pla_seats }
+		add_to_array = { ABY_parliament_seats_array = apf_seats }
+		
+		set_temp_variable = { asp_seats_diff = asp_seats }
+		set_temp_variable = { alf_seats_diff = alf_seats }
+		set_temp_variable = { pla_seats_diff = pla_seats }
+		set_temp_variable = { apf_seats_diff = apf_seats }
+		subtract_from_temp_variable = { asp_seats_diff = asp_seats_old }
+		subtract_from_temp_variable = { alf_seats_diff = alf_seats_old }
+		subtract_from_temp_variable = { pla_seats_diff = pla_seats_old }
+		subtract_from_temp_variable = { apf_seats_diff = apf_seats_old }
+		
+		custom_effect_tooltip = ABY_PLMT_new_parliament_tt_split
+	}
+	else = {
+		add_to_array = { ABY_parliament_seats_array = urf_seats }
+		add_to_array = { ABY_parliament_seats_array = 0 }
+		add_to_array = { ABY_parliament_seats_array = 0 }
+		add_to_array = { ABY_parliament_seats_array = 0 }
+		add_to_array = { ABY_parliament_seats_array = apf_seats }
+		
+		set_temp_variable = { urf_seats_diff = urf_seats }
+		set_temp_variable = { apf_seats_diff = apf_seats }
+		subtract_from_temp_variable = { urf_seats_diff = urf_seats_old }
+		subtract_from_temp_variable = { apf_seats_diff = apf_seats_old }
+		
+		custom_effect_tooltip = ABY_PLMT_new_parliament_tt_nosplit
+	}
+}
+ABY_set_parliament_xy = {
+	## Parliament positions
+	clear_array = ABY_parliament_x
+	clear_array = ABY_parliament_y
+
+	add_to_array = { ABY_parliament_x  = 0 }
+	add_to_array = { ABY_parliament_y = 225 }
+	add_to_array = { ABY_parliament_x  = 16 }
+	add_to_array = { ABY_parliament_y = 225 }
+	add_to_array = { ABY_parliament_x  = 31 }
+	add_to_array = { ABY_parliament_y = 225 }
+	add_to_array = { ABY_parliament_x  = 47 }
+	add_to_array = { ABY_parliament_y = 225 }
+	add_to_array = { ABY_parliament_x  = 63 }
+	add_to_array = { ABY_parliament_y = 225 }
+	add_to_array = { ABY_parliament_x  = 78 }
+	add_to_array = { ABY_parliament_y = 225 }
+	add_to_array = { ABY_parliament_x  = 94 }
+	add_to_array = { ABY_parliament_y = 225 }
+	add_to_array = { ABY_parliament_x  = 110 }
+	add_to_array = { ABY_parliament_y = 225 }
+	add_to_array = { ABY_parliament_x  = 2 }
+	add_to_array = { ABY_parliament_y = 205 }
+	add_to_array = { ABY_parliament_x  = 18 }
+	add_to_array = { ABY_parliament_y = 205 }
+	add_to_array = { ABY_parliament_x  = 33 }
+	add_to_array = { ABY_parliament_y = 205 }
+	add_to_array = { ABY_parliament_x  = 49 }
+	add_to_array = { ABY_parliament_y = 204 }
+	add_to_array = { ABY_parliament_x  = 65 }
+	add_to_array = { ABY_parliament_y = 205 }
+	add_to_array = { ABY_parliament_x  = 81 }
+	add_to_array = { ABY_parliament_y = 204 }
+	add_to_array = { ABY_parliament_x  = 6 }
+	add_to_array = { ABY_parliament_y = 185 }
+	add_to_array = { ABY_parliament_x  = 97 }
+	add_to_array = { ABY_parliament_y = 205 }
+	add_to_array = { ABY_parliament_x  = 22 }
+	add_to_array = { ABY_parliament_y = 184 }
+	add_to_array = { ABY_parliament_x  = 38 }
+	add_to_array = { ABY_parliament_y = 185 }
+	add_to_array = { ABY_parliament_x  = 114 }
+	add_to_array = { ABY_parliament_y = 204 }
+	add_to_array = { ABY_parliament_x  = 54 }
+	add_to_array = { ABY_parliament_y = 184 }
+	add_to_array = { ABY_parliament_x  = 11 }
+	add_to_array = { ABY_parliament_y = 166 }
+	add_to_array = { ABY_parliament_x  = 71 }
+	add_to_array = { ABY_parliament_y = 185 }
+	add_to_array = { ABY_parliament_x  = 28 }
+	add_to_array = { ABY_parliament_y = 165 }
+	add_to_array = { ABY_parliament_x  = 87 }
+	add_to_array = { ABY_parliament_y = 184 }
+	add_to_array = { ABY_parliament_x  = 44 }
+	add_to_array = { ABY_parliament_y = 166 }
+	add_to_array = { ABY_parliament_x  = 104 }
+	add_to_array = { ABY_parliament_y = 185 }
+	add_to_array = { ABY_parliament_x  = 18 }
+	add_to_array = { ABY_parliament_y = 147 }
+	add_to_array = { ABY_parliament_x  = 62 }
+	add_to_array = { ABY_parliament_y = 165 }
+	add_to_array = { ABY_parliament_x  = 36 }
+	add_to_array = { ABY_parliament_y = 146 }
+	add_to_array = { ABY_parliament_x  = 78 }
+	add_to_array = { ABY_parliament_y = 166 }
+	add_to_array = { ABY_parliament_x  = 122 }
+	add_to_array = { ABY_parliament_y = 184 }
+	add_to_array = { ABY_parliament_x  = 53 }
+	add_to_array = { ABY_parliament_y = 147 }
+	add_to_array = { ABY_parliament_x  = 27 }
+	add_to_array = { ABY_parliament_y = 129 }
+	add_to_array = { ABY_parliament_x  = 97 }
+	add_to_array = { ABY_parliament_y = 165 }
+	add_to_array = { ABY_parliament_x  = 71 }
+	add_to_array = { ABY_parliament_y = 146 }
+	add_to_array = { ABY_parliament_x  = 46 }
+	add_to_array = { ABY_parliament_y = 128 }
+	add_to_array = { ABY_parliament_x  = 114 }
+	add_to_array = { ABY_parliament_y = 167 }
+	add_to_array = { ABY_parliament_x  = 89 }
+	add_to_array = { ABY_parliament_y = 148 }
+	add_to_array = { ABY_parliament_x  = 63 }
+	add_to_array = { ABY_parliament_y = 130 }
+	add_to_array = { ABY_parliament_x  = 38 }
+	add_to_array = { ABY_parliament_y = 111 }
+	add_to_array = { ABY_parliament_x  = 58 }
+	add_to_array = { ABY_parliament_y = 111 }
+	add_to_array = { ABY_parliament_x  = 83 }
+	add_to_array = { ABY_parliament_y = 129 }
+	add_to_array = { ABY_parliament_x  = 108 }
+	add_to_array = { ABY_parliament_y = 147 }
+	add_to_array = { ABY_parliament_x  = 134 }
+	add_to_array = { ABY_parliament_y = 166 }
+	add_to_array = { ABY_parliament_x  = 50 }
+	add_to_array = { ABY_parliament_y = 95 }
+	add_to_array = { ABY_parliament_x  = 76 }
+	add_to_array = { ABY_parliament_y = 113 }
+	add_to_array = { ABY_parliament_x  = 101 }
+	add_to_array = { ABY_parliament_y = 132 }
+	add_to_array = { ABY_parliament_x  = 127 }
+	add_to_array = { ABY_parliament_y = 150 }
+	add_to_array = { ABY_parliament_x  = 71 }
+	add_to_array = { ABY_parliament_y = 95 }
+	add_to_array = { ABY_parliament_x  = 97 }
+	add_to_array = { ABY_parliament_y = 113 }
+	add_to_array = { ABY_parliament_x  = 64 }
+	add_to_array = { ABY_parliament_y = 80 }
+	add_to_array = { ABY_parliament_x  = 90 }
+	add_to_array = { ABY_parliament_y = 99 }
+	add_to_array = { ABY_parliament_x  = 123 }
+	add_to_array = { ABY_parliament_y = 132 }
+	add_to_array = { ABY_parliament_x  = 116 }
+	add_to_array = { ABY_parliament_y = 117 }
+	add_to_array = { ABY_parliament_x  = 86 }
+	add_to_array = { ABY_parliament_y = 81 }
+	add_to_array = { ABY_parliament_x  = 79 }
+	add_to_array = { ABY_parliament_y = 66 }
+	add_to_array = { ABY_parliament_x  = 149 }
+	add_to_array = { ABY_parliament_y = 150 }
+	add_to_array = { ABY_parliament_x  = 113 }
+	add_to_array = { ABY_parliament_y = 99 }
+	add_to_array = { ABY_parliament_x  = 142 }
+	add_to_array = { ABY_parliament_y = 136 }
+	add_to_array = { ABY_parliament_x  = 105 }
+	add_to_array = { ABY_parliament_y = 85 }
+	add_to_array = { ABY_parliament_x  = 103 }
+	add_to_array = { ABY_parliament_y = 68 }
+	add_to_array = { ABY_parliament_x  = 95 }
+	add_to_array = { ABY_parliament_y = 54 }
+	add_to_array = { ABY_parliament_x  = 139 }
+	add_to_array = { ABY_parliament_y = 119 }
+	add_to_array = { ABY_parliament_x  = 132 }
+	add_to_array = { ABY_parliament_y = 105 }
+	add_to_array = { ABY_parliament_x  = 130 }
+	add_to_array = { ABY_parliament_y = 88 }
+	add_to_array = { ABY_parliament_x  = 122 }
+	add_to_array = { ABY_parliament_y = 74 }
+	add_to_array = { ABY_parliament_x  = 112 }
+	add_to_array = { ABY_parliament_y = 44 }
+	add_to_array = { ABY_parliament_x  = 120 }
+	add_to_array = { ABY_parliament_y = 57 }
+	add_to_array = { ABY_parliament_x  = 159 }
+	add_to_array = { ABY_parliament_y = 125 }
+	add_to_array = { ABY_parliament_x  = 167 }
+	add_to_array = { ABY_parliament_y = 138 }
+	add_to_array = { ABY_parliament_x  = 150 }
+	add_to_array = { ABY_parliament_y = 95 }
+	add_to_array = { ABY_parliament_x  = 158 }
+	add_to_array = { ABY_parliament_y = 108 }
+	add_to_array = { ABY_parliament_x  = 140 }
+	add_to_array = { ABY_parliament_y = 64 }
+	add_to_array = { ABY_parliament_x  = 148 }
+	add_to_array = { ABY_parliament_y = 78 }
+	add_to_array = { ABY_parliament_x  = 131 }
+	add_to_array = { ABY_parliament_y = 35 }
+	add_to_array = { ABY_parliament_x  = 139 }
+	add_to_array = { ABY_parliament_y = 48 }
+	add_to_array = { ABY_parliament_x  = 178 }
+	add_to_array = { ABY_parliament_y = 116 }
+	add_to_array = { ABY_parliament_x  = 169 }
+	add_to_array = { ABY_parliament_y = 87 }
+	add_to_array = { ABY_parliament_x  = 159 }
+	add_to_array = { ABY_parliament_y = 57 }
+	add_to_array = { ABY_parliament_x  = 149 }
+	add_to_array = { ABY_parliament_y = 27 }
+	add_to_array = { ABY_parliament_x  = 158 }
+	add_to_array = { ABY_parliament_y = 41 }
+	add_to_array = { ABY_parliament_x  = 168 }
+	add_to_array = { ABY_parliament_y = 71 }
+	add_to_array = { ABY_parliament_x  = 177 }
+	add_to_array = { ABY_parliament_y = 100 }
+	add_to_array = { ABY_parliament_x  = 187 }
+	add_to_array = { ABY_parliament_y = 130 }
+	add_to_array = { ABY_parliament_x  = 169 }
+	add_to_array = { ABY_parliament_y = 22 }
+	add_to_array = { ABY_parliament_x  = 179 }
+	add_to_array = { ABY_parliament_y = 51 }
+	add_to_array = { ABY_parliament_x  = 178 }
+	add_to_array = { ABY_parliament_y = 36 }
+	add_to_array = { ABY_parliament_x  = 189 }
+	add_to_array = { ABY_parliament_y = 81 }
+	add_to_array = { ABY_parliament_x  = 188 }
+	add_to_array = { ABY_parliament_y = 66 }
+	add_to_array = { ABY_parliament_x  = 198 }
+	add_to_array = { ABY_parliament_y = 111 }
+	add_to_array = { ABY_parliament_x  = 198 }
+	add_to_array = { ABY_parliament_y = 96 }
+	add_to_array = { ABY_parliament_x  = 189 }
+	add_to_array = { ABY_parliament_y = 18 }
+	add_to_array = { ABY_parliament_x  = 199 }
+	add_to_array = { ABY_parliament_y = 48 }
+	add_to_array = { ABY_parliament_x  = 199 }
+	add_to_array = { ABY_parliament_y = 32 }
+	add_to_array = { ABY_parliament_x  = 208 }
+	add_to_array = { ABY_parliament_y = 126 }
+	add_to_array = { ABY_parliament_x  = 209 }
+	add_to_array = { ABY_parliament_y = 79 }
+	add_to_array = { ABY_parliament_x  = 209 }
+	add_to_array = { ABY_parliament_y = 63 }
+	add_to_array = { ABY_parliament_x  = 209 }
+	add_to_array = { ABY_parliament_y = 16 }
+	add_to_array = { ABY_parliament_x  = 219 }
+	add_to_array = { ABY_parliament_y = 110 }
+	add_to_array = { ABY_parliament_x  = 219 }
+	add_to_array = { ABY_parliament_y = 94 }
+	add_to_array = { ABY_parliament_x  = 219 }
+	add_to_array = { ABY_parliament_y = 47 }
+	add_to_array = { ABY_parliament_x  = 219 }
+	add_to_array = { ABY_parliament_y = 31 }
+	add_to_array = { ABY_parliament_x  = 229 }
+	add_to_array = { ABY_parliament_y = 16 }
+	add_to_array = { ABY_parliament_x  = 230 }
+	add_to_array = { ABY_parliament_y = 63 }
+	add_to_array = { ABY_parliament_x  = 229 }
+	add_to_array = { ABY_parliament_y = 79 }
+	add_to_array = { ABY_parliament_x  = 230 }
+	add_to_array = { ABY_parliament_y = 126 }
+	add_to_array = { ABY_parliament_x  = 240 }
+	add_to_array = { ABY_parliament_y = 32 }
+	add_to_array = { ABY_parliament_x  = 240 }
+	add_to_array = { ABY_parliament_y = 48 }
+	add_to_array = { ABY_parliament_x  = 249 }
+	add_to_array = { ABY_parliament_y = 18 }
+	add_to_array = { ABY_parliament_x  = 240 }
+	add_to_array = { ABY_parliament_y = 96 }
+	add_to_array = { ABY_parliament_x  = 240 }
+	add_to_array = { ABY_parliament_y = 111 }
+	add_to_array = { ABY_parliament_x  = 250 }
+	add_to_array = { ABY_parliament_y = 66 }
+	add_to_array = { ABY_parliament_x  = 250 }
+	add_to_array = { ABY_parliament_y = 81 }
+	add_to_array = { ABY_parliament_x  = 260 }
+	add_to_array = { ABY_parliament_y = 36 }
+	add_to_array = { ABY_parliament_x  = 260 }
+	add_to_array = { ABY_parliament_y = 51 }
+	add_to_array = { ABY_parliament_x  = 269 }
+	add_to_array = { ABY_parliament_y = 22 }
+	add_to_array = { ABY_parliament_x  = 251 }
+	add_to_array = { ABY_parliament_y = 130 }
+	add_to_array = { ABY_parliament_x  = 261 }
+	add_to_array = { ABY_parliament_y = 100 }
+	add_to_array = { ABY_parliament_x  = 271 }
+	add_to_array = { ABY_parliament_y = 71 }
+	add_to_array = { ABY_parliament_x  = 280 }
+	add_to_array = { ABY_parliament_y = 41 }
+	add_to_array = { ABY_parliament_x  = 289 }
+	add_to_array = { ABY_parliament_y = 27 }
+	add_to_array = { ABY_parliament_x  = 279 }
+	add_to_array = { ABY_parliament_y = 57 }
+	add_to_array = { ABY_parliament_x  = 270 }
+	add_to_array = { ABY_parliament_y = 87 }
+	add_to_array = { ABY_parliament_x  = 260 }
+	add_to_array = { ABY_parliament_y = 116 }
+	add_to_array = { ABY_parliament_x  = 300 }
+	add_to_array = { ABY_parliament_y = 48 }
+	add_to_array = { ABY_parliament_x  = 308 }
+	add_to_array = { ABY_parliament_y = 35 }
+	add_to_array = { ABY_parliament_x  = 290 }
+	add_to_array = { ABY_parliament_y = 78 }
+	add_to_array = { ABY_parliament_x  = 298 }
+	add_to_array = { ABY_parliament_y = 64 }
+	add_to_array = { ABY_parliament_x  = 281 }
+	add_to_array = { ABY_parliament_y = 108 }
+	add_to_array = { ABY_parliament_x  = 289 }
+	add_to_array = { ABY_parliament_y = 95 }
+	add_to_array = { ABY_parliament_x  = 271 }
+	add_to_array = { ABY_parliament_y = 138 }
+	add_to_array = { ABY_parliament_x  = 279 }
+	add_to_array = { ABY_parliament_y = 125 }
+	add_to_array = { ABY_parliament_x  = 318 }
+	add_to_array = { ABY_parliament_y = 57 }
+	add_to_array = { ABY_parliament_x  = 326 }
+	add_to_array = { ABY_parliament_y = 44 }
+	add_to_array = { ABY_parliament_x  = 316 }
+	add_to_array = { ABY_parliament_y = 74 }
+	add_to_array = { ABY_parliament_x  = 309 }
+	add_to_array = { ABY_parliament_y = 88 }
+	add_to_array = { ABY_parliament_x  = 306 }
+	add_to_array = { ABY_parliament_y = 105 }
+	add_to_array = { ABY_parliament_x  = 299 }
+	add_to_array = { ABY_parliament_y = 119 }
+	add_to_array = { ABY_parliament_x  = 343 }
+	add_to_array = { ABY_parliament_y = 54 }
+	add_to_array = { ABY_parliament_x  = 336 }
+	add_to_array = { ABY_parliament_y = 68 }
+	add_to_array = { ABY_parliament_x  = 333 }
+	add_to_array = { ABY_parliament_y = 85 }
+	add_to_array = { ABY_parliament_x  = 296 }
+	add_to_array = { ABY_parliament_y = 136 }
+	add_to_array = { ABY_parliament_x  = 326 }
+	add_to_array = { ABY_parliament_y = 99 }
+	add_to_array = { ABY_parliament_x  = 289 }
+	add_to_array = { ABY_parliament_y = 150 }
+	add_to_array = { ABY_parliament_x  = 359 }
+	add_to_array = { ABY_parliament_y = 66 }
+	add_to_array = { ABY_parliament_x  = 352 }
+	add_to_array = { ABY_parliament_y = 81 }
+	add_to_array = { ABY_parliament_x  = 323 }
+	add_to_array = { ABY_parliament_y = 117 }
+	add_to_array = { ABY_parliament_x  = 315 }
+	add_to_array = { ABY_parliament_y = 132 }
+	add_to_array = { ABY_parliament_x  = 349 }
+	add_to_array = { ABY_parliament_y = 99 }
+	add_to_array = { ABY_parliament_x  = 374 }
+	add_to_array = { ABY_parliament_y = 80 }
+	add_to_array = { ABY_parliament_x  = 341 }
+	add_to_array = { ABY_parliament_y = 113 }
+	add_to_array = { ABY_parliament_x  = 367 }
+	add_to_array = { ABY_parliament_y = 95 }
+	add_to_array = { ABY_parliament_x  = 312 }
+	add_to_array = { ABY_parliament_y = 150 }
+	add_to_array = { ABY_parliament_x  = 337 }
+	add_to_array = { ABY_parliament_y = 132 }
+	add_to_array = { ABY_parliament_x  = 363 }
+	add_to_array = { ABY_parliament_y = 113 }
+	add_to_array = { ABY_parliament_x  = 388 }
+	add_to_array = { ABY_parliament_y = 95 }
+	add_to_array = { ABY_parliament_x  = 304 }
+	add_to_array = { ABY_parliament_y = 166 }
+	add_to_array = { ABY_parliament_x  = 330 }
+	add_to_array = { ABY_parliament_y = 147 }
+	add_to_array = { ABY_parliament_x  = 355 }
+	add_to_array = { ABY_parliament_y = 129 }
+	add_to_array = { ABY_parliament_x  = 380 }
+	add_to_array = { ABY_parliament_y = 111 }
+	add_to_array = { ABY_parliament_x  = 400 }
+	add_to_array = { ABY_parliament_y = 111 }
+	add_to_array = { ABY_parliament_x  = 375 }
+	add_to_array = { ABY_parliament_y = 130 }
+	add_to_array = { ABY_parliament_x  = 350 }
+	add_to_array = { ABY_parliament_y = 148 }
+	add_to_array = { ABY_parliament_x  = 324 }
+	add_to_array = { ABY_parliament_y = 167 }
+	add_to_array = { ABY_parliament_x  = 392 }
+	add_to_array = { ABY_parliament_y = 128 }
+	add_to_array = { ABY_parliament_x  = 367 }
+	add_to_array = { ABY_parliament_y = 146 }
+	add_to_array = { ABY_parliament_x  = 342 }
+	add_to_array = { ABY_parliament_y = 165 }
+	add_to_array = { ABY_parliament_x  = 411 }
+	add_to_array = { ABY_parliament_y = 129 }
+	add_to_array = { ABY_parliament_x  = 385 }
+	add_to_array = { ABY_parliament_y = 147 }
+	add_to_array = { ABY_parliament_x  = 316 }
+	add_to_array = { ABY_parliament_y = 184 }
+	add_to_array = { ABY_parliament_x  = 360 }
+	add_to_array = { ABY_parliament_y = 166 }
+	add_to_array = { ABY_parliament_x  = 402 }
+	add_to_array = { ABY_parliament_y = 146 }
+	add_to_array = { ABY_parliament_x  = 377 }
+	add_to_array = { ABY_parliament_y = 165 }
+	add_to_array = { ABY_parliament_x  = 420 }
+	add_to_array = { ABY_parliament_y = 147 }
+	add_to_array = { ABY_parliament_x  = 334 }
+	add_to_array = { ABY_parliament_y = 185 }
+	add_to_array = { ABY_parliament_x  = 394 }
+	add_to_array = { ABY_parliament_y = 166 }
+	add_to_array = { ABY_parliament_x  = 351 }
+	add_to_array = { ABY_parliament_y = 184 }
+	add_to_array = { ABY_parliament_x  = 410 }
+	add_to_array = { ABY_parliament_y = 165 }
+	add_to_array = { ABY_parliament_x  = 368 }
+	add_to_array = { ABY_parliament_y = 185 }
+	add_to_array = { ABY_parliament_x  = 427 }
+	add_to_array = { ABY_parliament_y = 166 }
+	add_to_array = { ABY_parliament_x  = 384 }
+	add_to_array = { ABY_parliament_y = 184 }
+	add_to_array = { ABY_parliament_x  = 325 }
+	add_to_array = { ABY_parliament_y = 204 }
+	add_to_array = { ABY_parliament_x  = 400 }
+	add_to_array = { ABY_parliament_y = 185 }
+	add_to_array = { ABY_parliament_x  = 416 }
+	add_to_array = { ABY_parliament_y = 184 }
+	add_to_array = { ABY_parliament_x  = 341 }
+	add_to_array = { ABY_parliament_y = 205 }
+	add_to_array = { ABY_parliament_x  = 433 }
+	add_to_array = { ABY_parliament_y = 185 }
+	add_to_array = { ABY_parliament_x  = 357 }
+	add_to_array = { ABY_parliament_y = 204 }
+	add_to_array = { ABY_parliament_x  = 373 }
+	add_to_array = { ABY_parliament_y = 205 }
+	add_to_array = { ABY_parliament_x  = 389 }
+	add_to_array = { ABY_parliament_y = 204 }
+	add_to_array = { ABY_parliament_x  = 405 }
+	add_to_array = { ABY_parliament_y = 205 }
+	add_to_array = { ABY_parliament_x  = 421 }
+	add_to_array = { ABY_parliament_y = 205 }
+	add_to_array = { ABY_parliament_x  = 436 }
+	add_to_array = { ABY_parliament_y = 205 }
+	add_to_array = { ABY_parliament_x  = 329 }
+	add_to_array = { ABY_parliament_y = 225 }
+	add_to_array = { ABY_parliament_x  = 344 }
+	add_to_array = { ABY_parliament_y = 225 }
+	add_to_array = { ABY_parliament_x  = 360 }
+	add_to_array = { ABY_parliament_y = 225 }
+	add_to_array = { ABY_parliament_x  = 376 }
+	add_to_array = { ABY_parliament_y = 225 }
+	add_to_array = { ABY_parliament_x  = 391 }
+	add_to_array = { ABY_parliament_y = 225 }
+	add_to_array = { ABY_parliament_x  = 407 }
+	add_to_array = { ABY_parliament_y = 225 }
+	add_to_array = { ABY_parliament_x  = 423 }
+	add_to_array = { ABY_parliament_y = 225 }
+	add_to_array = { ABY_parliament_x  = 438 }
+	add_to_array = { ABY_parliament_y = 225 }
+}
