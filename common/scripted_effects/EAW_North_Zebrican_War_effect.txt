@@ -663,153 +663,116 @@ NZW_HIP_war_prep_effect = {
 # For giving the option to dissolve, call north_war_alliance.5 (only works if called for both)
 NZW_alliance_dissolve_effect = {
 
-	faction_leader = {
-
-		dismantle_faction = yes
-		
-		NZ1 = {
-			if = {
-				limit = {
-					has_country_flag = NZW_was_faction_leader
-				}
-				create_faction = CTH_anti_bat_faction
-				every_country = {
-					limit = {
-						has_country_flag = NZW_was_in_NZ1_faction
-					}
-					NZ1 = {
-						add_to_faction = PREV
-					}
-				}
-			}
-		}
-		
-		NZ2 = {
-			if = {
-				limit = {
-					OR = {
-						has_country_flag = NZW_was_faction_leader
-						tag = BAT # Bat always forms a faction
-					}
-				}
-				if = {
-					limit = {
-						tag = BAT
-					}
-					create_faction = BAT_lunar_hegemony
-					set_country_flag = BAT_CTH_made_a_mistake # NZ1 is now a threat
-				}
-				else_if = {
-					limit = {
-						tag = TBK
-					}
-					create_faction = TBK_alesia_faction
-				}
-				else = {
-					create_faction = "Nothing to see here"
-				}
-				every_country = {
-					limit = {
-						has_country_flag = NZW_was_in_NZ2_faction
-					}
-					NZ1 = {
-						add_to_faction = PREV
-					}
-				}
-			}
-		}
-
-		# Allies to enemies
-		# Copied from Colthage events
-		NZ1 = {
-			add_ai_strategy = {
-				id = NZ2
-				type = alliance
-				value = -200
-			}
-			add_ai_strategy = {
-				type = antagonize
-				id = NZ2
-				value = 200
-			}
-		}
-		NZ2 = {
-			add_ai_strategy = {
-				id = NZ1
-				type = alliance
-				value = -200
-			}
-			add_ai_strategy = {
-				type = antagonize
-				id = NZ1
-				value = 200
-			}
-		}
-		NZ1 = {
-			add_opinion_modifier = {
-				target = NZ2
-				modifier = enemies
-			}
-			reverse_add_opinion_modifier = {
-				target = NZ2
-				modifier = enemies
-			}
-		}
-		
-		set_country_flag = CTH_war_with_bats
-		BAT = {set_country_flag = CTH_war_with_bats}
-
-	}
-}
-
-### Important for the NZW_no_mainland_control_for_HIP trigger
-NZW_amend_list_of_mainland_states_by_THIS = {
+	# Sanity checks
 	if = {
 		limit = {
-			has_country_flag = NZW_is_island_nation
+			faction_leader = {
+				OR = {
+					tag = NZ1
+					tag = NZ2
+				}
+			}
+			NZ1 = { is_subject = no }
+			NZ2 = { is_subject = no }
 		}
-		every_owned_state = {
-			limit = {
-				NOT = {
-					any_state_in = {
-						# Funnily enough, these two PREVs don't refer to the same object, because the array argument is scoped
-						# in the surroundig scope, while the trigger (so the `state = PREV` line) is scoped in the state that is 
-						# targeted by the array
-						
-						# What this code really means is simply: The any state we are currently checking is the list
-						
-						array = PREV.original_cores
-						
-						state = PREV
+		faction_leader = {
+
+			dismantle_faction = yes
+			
+			NZ1 = {
+				if = {
+					limit = {
+						has_country_flag = NZW_was_faction_leader
+					}
+					create_faction_from_template = faction_template_CTH_anti_bat_faction
+					every_country = {
+						limit = {
+							has_country_flag = NZW_was_in_NZ1_faction
+						}
+						NZ1 = {
+							add_to_faction = PREV
+						}
 					}
 				}
-				is_on_continent = africa # Zebrica (this is a sanity check)
 			}
-			add_to_array = {
-				global.NZW_mainland_state_array = THIS
+			
+			NZ2 = {
+				if = {
+					limit = {
+						OR = {
+							has_country_flag = NZW_was_faction_leader
+							tag = BAT # Bat always forms a faction
+						}
+					}
+					if = {
+						limit = {
+							tag = BAT
+						}
+						create_faction_from_template = faction_template_BAT_lunar_hegemony
+						set_country_flag = BAT_CTH_made_a_mistake # NZ1 is now a threat
+					}
+					else_if = {
+						limit = {
+							tag = TBK
+						}
+						create_faction_from_template = faction_template_TBK_alesia_faction
+					}
+					else = {
+						create_faction_from_template = faction_template_fallback_error
+					}
+					every_country = {
+						limit = {
+							has_country_flag = NZW_was_in_NZ2_faction
+						}
+						NZ1 = {
+							add_to_faction = PREV
+						}
+					}
+				}
 			}
-			log = "[GetDateText]: [Root.GetName]: add [THIS.GetName] to NZW Mainland State Array"
+
+			# Allies to enemies
+			# Copied from Colthage events
+			NZ1 = {
+				add_ai_strategy = {
+					id = NZ2
+					type = alliance
+					value = -200
+				}
+				add_ai_strategy = {
+					type = antagonize
+					id = NZ2
+					value = 200
+				}
+			}
+			NZ2 = {
+				add_ai_strategy = {
+					id = NZ1
+					type = alliance
+					value = -200
+				}
+				add_ai_strategy = {
+					type = antagonize
+					id = NZ1
+					value = 200
+				}
+			}
+			NZ1 = {
+				add_opinion_modifier = {
+					target = NZ2
+					modifier = enemies
+				}
+				reverse_add_opinion_modifier = {
+					target = NZ2
+					modifier = enemies
+				}
+			}
+			
+			set_country_flag = CTH_war_with_bats
+			BAT = {set_country_flag = CTH_war_with_bats}
+
 		}
 	}
-	else = {
-		every_owned_state = {
-			add_to_array = {
-				global.NZW_mainland_state_array = THIS
-			}
-			log = "[GetDateText]: [Root.GetName]: add [THIS.GetName] to NZW Mainland State Array"
-		}
-	}
-}
-
-NZW_debug_effect_create_mainland_state_array = {
-	HIP = { set_country_flag = NZW_is_island_nation }
-
-	HIP = { NZW_amend_list_of_mainland_states_by_THIS = yes }
-	WAR = { NZW_amend_list_of_mainland_states_by_THIS = yes }
-	BAT = { NZW_amend_list_of_mainland_states_by_THIS = yes }
-	TBK = { NZW_amend_list_of_mainland_states_by_THIS = yes }
-	ZAR = { NZW_amend_list_of_mainland_states_by_THIS = yes }
-	CTH = { NZW_amend_list_of_mainland_states_by_THIS = yes }
 }
 
 NZW_debug_make_them_major = {
