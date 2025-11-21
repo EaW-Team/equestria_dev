@@ -1,3 +1,5 @@
+NDefines.NCountry.BASE_MOBILIZATION_SPEED = 0.025
+
 NDefines.NGame.START_DATE = "1007.1.1.12"
 NDefines.NGame.END_DATE = "1030.1.1.1"
 NDefines.NGame.HANDS_OFF_START_TAG = "DRG"
@@ -6,7 +8,7 @@ NDefines.NDiplomacy.TENSION_TIME_SCALE_START_DATE = "1007.1.1.12"
 NDefines.NDiplomacy.VOLUNTEERS_DIVISIONS_REQUIRED = 10
 NDefines.NDiplomacy.MAX_OPINION_VALUE = 200							-- Max opinion value cap.
 NDefines.NDiplomacy.MIN_OPINION_VALUE = -200						-- Min opinion value cap.
-NDefines.NDiplomacy.TENSION_PUPPET = 0.75 -- vanilla is 1.25
+NDefines.NDiplomacy.TENSION_PUPPET = -0.5 -- vanilla is 0
 NDefines.NDiplomacy.PEACE_SCORE_DISTRIBUTION = { 0.2, 0.2, 0.2, 0.2, 0.2, 0.2, 0.2, 0.2, 0.2, 0.2, 0.2, 0.2, 0.2, 0.2, 0.2, 0.2, 0.2, 0.2, 0.2, 0.2, 0.2, 0.2, 0.2, 0.2, 0.2 } -- How much of the total peace conference score you get during the first n turns.
 NDefines.NDiplomacy.PEACE_CONTEST_REFUND_FACTOR = { 1.0, 0.90, 0.80, 0.70, 0.60, 0.50 } -- How much of the spent peace conference score that gets refunded in a contest. First element applies for the first round of conflicts, second element for the second round of conflicts, etc. The final element is used for each consecutive turn, so setting that to e.g. 0.7 means you get 70 % of the spent score back for every turn thereafter.
 NDefines.NDiplomacy.EQUIPMENT_PURCHASE_ACCEPTANCE_COMPETING_FACTIONS = 0
@@ -34,7 +36,9 @@ NDefines.NResistance.GARRISON_TEMPLATE_SCORE_MANPOWER_FACTOR = 0.4  -- formula i
 NDefines.NProduction.FLOATING_HARBOR_MAX_NAV_FACTORIES_PER_LINE = 10 -- vanilla is 5
 NDefines.NProduction.CAPITAL_SHIP_MAX_NAV_FACTORIES_PER_LINE = 10 -- vanilla is 5
 NDefines.NProduction.RAILWAY_GUN_MAX_MIL_FACTORIES_PER_LINE = 10 -- vanilla is 5
-NDefines.NProduction.BASE_FACTORY_SPEED_NAV = 3.5 -- vanilla is 2.5
+NDefines.NProduction.BASE_FACTORY_SPEED_NAV = 3.0 -- vanilla is 2.0
+NDefines.NProduction.POWERED_FACTORY_SPEED_NAV = 3.5 			--Powered factory speed multiplier. Vanilla is 2.5 -- TODO SEA change the value
+
 NDefines.NProduction.MINIMUM_NUMBER_OF_FACTORIES_TAKEN_BY_CONSUMER_GOODS_PERCENT = 0.05 -- vanilla is 0.1
 NDefines.NProduction.MAX_EQUIPMENT_RESOURCES_NEED = 4
 
@@ -49,9 +53,7 @@ NDefines.NMilitary.ARMY_EXP_BASE_LEVEL = 5
 NDefines.NMilitary.BASE_CAPTURE_EQUIPMENT_RATIO = 0.02
 NDefines.NMilitary.BASE_FEMALE_DIVISIONAL_COMMANDER_CHANCE = 0.5 -- 50% of time by default, female_divisional_commander_chance modifier is additive
 
-NDefines.NNavy.SHORE_BOMBARDMENT_CAP = 0.3 -- Vanilla is 0.25
 NDefines.NNavy.SCREENS_TO_CAPITAL_RATIO = 3.0 -- Vanilla is 4.0, mostly AI stuff
-NDefines.NNavy.NAVAL_MINES_NAVAL_SUPREMACY_FACTOR = 0.5 -- Vanilla is 1.0, cut in half
 NDefines.NNavy.NAVAL_MINES_INTEL_DIFF_FACTOR = 0.1 -- Vanilla is 0.5, reverted to pre-AAT value
 NDefines.NNavy.NAVAL_MINES_ACCIDENT_STRENGTH_LOSS = 75.0 -- Vanilla is 50.0, reverted to pre-AAT value
 NDefines.NNavy.NAVAL_MINES_ACCIDENT_ORG_LOSS_FACTOR = 0.6	-- Vanilla is 0.5, reverted to pre-AAT value
@@ -106,6 +108,17 @@ NDefines.NAI.RESEARCH_AHEAD_OF_TIME_FACTOR = 4.5 		-- To which extent AI should 
 NDefines.NAI.RESEARCH_AHEAD_BONUS_FACTOR = 2.5          -- To which extent AI should care about ahead of time bonuses to research
 NDefines.NAI.RESEARCH_BONUS_FACTOR = 2.0 				-- To which extent AI should care about bonuses to research
 NDefines.NAI.DESIRE_USE_XP_TO_UPGRADE_AIR_EQUIPMENT = 1.5   -- Vanilla is 1
+
+NDefines.NAI.MIN_FACTORIES_TO_WANT_TO_IMPORT = {  -- minimum number of civilian factories the AI must have to consider importing a resource - per strategic resource. Default 0, array -should- be updated with new resources, or if the order changes.
+		5, -- oil -- EAW increased because of outdated societies
+		0, -- aluminium
+		0, -- rubber
+		0, -- tungsten
+		0, -- steel
+		0, -- chromium
+		10, -- coal
+		0, -- crystals
+	}
 
 NDefines.NOperatives.AGENCY_CREATION_FACTORIES = 3
 NDefines.NOperatives.AGENCY_UPGRADE_PER_OPERATIVE_SLOT = 4			-- Number of upgrade needed to unlock an additional operative slot
