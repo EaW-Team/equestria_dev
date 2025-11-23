@@ -28,43 +28,56 @@ on_actions = {
 						add_to_variable = { months_since_integration = 1 }
 					}
 				}
+				resistance_dm_calculations = yes
 			}
-			resistance_dm_calculations = yes
 			if = {
 				limit = {
 					has_country_flag = uprising_mechanic_active
 				}
-				add_to_variable = { ROA_on_action_timer_var = 1 }
 				if = {
 					limit = {
-						check_variable = { ROA_on_action_timer_var > 1 }
+						check_variable = {
+							ROA_divs_calibration_var = 0
+						}
+						check_variable = {
+							ROA_probabylity_calibration_var = 0
+						}
 					}
+					country_event = roam_lansin_uprising.4 # Suppression of Uprising
+				}
+				else = {
+					add_to_variable = { ROA_on_action_timer_var = 1 }
 					if = {
 						limit = {
-							check_variable = {
-								ROA_divs_calibration_var = 10
+							check_variable = { ROA_on_action_timer_var > 1 } # Fires once a two months
+						}
+						if = { # If strength is too high, probability will be increasing each turn
+							limit = {
+								check_variable = {
+									ROA_divs_calibration_var = 10
+								}
+							}
+							add_to_variable = { ROA_probabylity_calibration_var = 1 }
+							clamp_variable = {
+								var = ROA_probabylity_calibration_var
+								max = 10
 							}
 						}
-						add_to_variable = { ROA_probabylity_calibration_var = 1 }
-						clamp_variable = {
-							var = ROA_probabylity_calibration_var
-							max = 10
-						}
-					}
-					if = {
-						limit = {
-							check_variable = {
-								ROA_probabylity_calibration_var = 10
+						if = { # If probability is too high, uprising occurs
+							limit = {
+								check_variable = {
+									ROA_probabylity_calibration_var = 10
+								}
+							}
+							country_event = {
+								id = roam_lansin_uprising.2
 							}
 						}
-						country_event = {
-							id = roam_lansin_uprising.2
+						else = {
+							lansin_uprising_random_event_dispatcher = yes
 						}
+						set_variable = { ROA_on_action_timer_var = 0 }
 					}
-					else = {
-						lansin_uprising_random_event_dispatcher = yes
-					}
-					set_variable = { ROA_on_action_timer_var = 0 }
 				}
 			}
 		}
@@ -106,6 +119,33 @@ on_actions = {
 				FROM = {
 					country_event = {
 						id = roam.6
+						days = 5
+					}
+				}
+			}
+			if = {
+				limit = {
+					OR = {
+						AND = {
+							ROOT = { original_tag = ZOO }
+							KXN = { exists = no }
+						}
+						AND = {
+							ROOT = { original_tag = KXN }
+							ZOO = { exists = no }
+						}
+					}
+					FROM = {
+						has_country_flag = uprising_mechanic_active
+						has_country_leader = {
+    						character = ROA_kaiser_augustus
+    						ruling_only = yes
+						}
+					}
+				}
+				FROM = {
+					country_event = {
+						id = roam_lansin_uprising.11 # Lansin loses support due to Augustus's coolnest
 						days = 5
 					}
 				}

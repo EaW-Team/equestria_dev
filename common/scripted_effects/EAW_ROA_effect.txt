@@ -157,76 +157,190 @@ decrease_resistance_industry_modifier = {
 	}
 }
 ROA_civil_war_effect = {
-	retire_character = ROA_lansin
-	create_dynamic_country = {
-		original_tag = ROA
-   	 	inherit_technology = ROA
-		save_global_event_target_as = lansin_uprising
-		set_cosmetic_tag = ROA_lansin_uprising
-		create_country_leader = {
-			name = ROA_lansin
-			picture = "GFX_army_zebra_7"
-			ideology = stalinism
-		}
-		add_country_leader_role = {
-			character = "ROA_lansin" # optional if inside character scope
-			promote_leader = yes
-			country_leader = {
-				ideology = stalinism
-				expire = "1965.1.1.1"
-			}
-		}
-		set_politics = {
-			ruling_party = communism
-			elections_allowed = no
-		}
-		set_popularities = {
-			communism = 100
-		}
-	}
-	every_controlled_state = {
+	if = {
 		limit = {
-			NOT = { is_core_of = ROOT }
+			NOT = { has_country_flag = uprising_suppressed }
 		}
-		add_core_of = event_target:lansin_uprising
-		transfer_state_to = event_target:lansin_uprising
-		add_to_temp_array = {
-			initial_uprising_states_temp_array = THIS
-		}
-	}
-	set_temp_variable = { divs_amount_var = ROA_divs_calibration_var }
-	clamp_temp_variable = {
-		var = divs_amount_var
-		min = 1
-		max = 10
-	}
-	event_target:lansin_uprising = {
-		division_template = {
-			name = "Militia"
-			is_locked = yes
-			template_counter = 6
-			regiments = {
-				infantry = { x = 0 y = 0 }
-				infantry = { x = 0 y = 1 }
-				infantry = { x = 0 y = 2 }
-				infantry = { x = 1 y = 0 }
-				infantry = { x = 1 y = 1 }
-				infantry = { x = 1 y = 2 }
+		retire_character = ROA_lansin
+		create_dynamic_country = {
+			original_tag = ROA
+   	 		inherit_technology = ROA
+			save_global_event_target_as = lansin_uprising
+			set_cosmetic_tag = ROA_lansin_uprising
+			create_country_leader = {
+				name = ROA_lansin
+				picture = "gfx/leaders/ROA/ROA_Lansin.tga"
+				ideology = stalinism
 			}
-			priority = 0
+			add_country_leader_role = {
+				character = "ROA_lansin"
+				promote_leader = yes
+				country_leader = {
+					ideology = stalinism
+					expire = "1965.1.1.1"
+				}
+			}
+			set_politics = {
+				ruling_party = communism
+				elections_allowed = no
+			}
+			set_popularities = {
+				communism = 100
+			}
+			set_political_power = 200
+			set_stability = 0.8
+			set_war_support = 1.0
+			add_ideas = {
+				war_economy
+				service_by_requirement
+			}
+			division_template = {
+				name = "Militia"
+				is_locked = yes
+				template_counter = 6
+				regiments = {
+					infantry = { x = 0 y = 0 }
+					infantry = { x = 0 y = 1 }
+					infantry = { x = 0 y = 2 }
+					infantry = { x = 1 y = 0 }
+					infantry = { x = 1 y = 1 }
+				}
+				priority = 0
+			}
 		}
-		for_each_scope_loop = { # Creates Divisions
-			array = ROA.initial_uprising_states_temp_array
+		every_controlled_state = {
+			limit = {
+				NOT = { is_core_of = ROOT }
+			}
+			add_core_of = event_target:lansin_uprising
+			transfer_state_to = event_target:lansin_uprising
+			clamp_variable = {
+				var = ROA.ROA_divs_calibration_var
+				min = 1
+			}
 			create_unit = {
 				division = "division_template = \"Militia\" start_experience_factor = 0.1"
-				owner = PREV
-				count = ROA.divs_amount_var
+				owner = event_target:lansin_uprising
+				count = ROA.ROA_divs_calibration_var
 				allow_spawning_on_enemy_provs = yes
 			}
 		}
-		add_civil_war_target = ROA
+		every_enemy_country = {
+			declare_war_on = {
+				target = event_target:lansin_uprising
+				type = annex_everything
+			}
+		}
+	}
+	if = {
+		limit = {
+			has_country_leader = {
+    			character = ROA_kaiser_augustus
+    			ruling_only = yes
+			}
+		}
+		if = {
+			limit = {
+				is_power_balance_in_range = {
+					id = ROA_bop
+					range < ROA_Alsa_side_1
+				}
+			}
+			set_nationality = {
+    			target_country = event_target:lansin_uprising
+    			character = ROA_dassal
+			}
+		}
+		else_if = {
+			limit = {
+				is_power_balance_in_range = {
+					id = ROA_bop
+					range > ROA_Dassal_side_1
+				}
+			}
+			set_nationality = {
+    			target_country = event_target:lansin_uprising
+    			character = ROA_alsa
+			}
+		}
+	}
+	else = {
+		create_dynamic_country = {
+			original_tag = ROA
+   	 		inherit_technology = ROA
+			save_global_event_target_as = dassal_uprising
+			create_country_leader = {
+				name = ROA_dassal
+				picture = "gfx/leaders/ROA/ROA_dassal.tga"
+				ideology = conservatism
+			}
+			add_country_leader_role = {
+				character = "ROA_dassal"
+				promote_leader = yes
+				country_leader = {
+					ideology = conservatism
+					expire = "1965.1.1.1"
+				}
+			}
+			set_politics = {
+				ruling_party = democratic
+				elections_allowed = no
+			}
+			set_popularities = {
+				democratic = 100
+			}
+			set_political_power = 200
+			set_stability = 0.8
+			set_war_support = 1.0
+			add_ideas = {
+				war_economy
+				service_by_requirement
+			}
+			division_template = {
+				name = "Militia"
+				is_locked = yes
+				template_counter = 6
+				regiments = {
+					infantry = { x = 0 y = 0 }
+					infantry = { x = 0 y = 1 }
+					infantry = { x = 0 y = 2 }
+					infantry = { x = 1 y = 0 }
+					infantry = { x = 1 y = 1 }
+				}
+				priority = 0
+			}
+		}
+		every_controlled_state = {
+			limit = {
+				is_core_of = IBZ
+				is_core_of = TSV
+			}
+			add_core_of = event_target:dassal_uprising
+			transfer_state_to = event_target:dassal_uprising
+			create_unit = {
+				division = "division_template = \"Militia\" start_experience_factor = 0.1"
+				owner = event_target:dassal_uprising
+				count = 3
+				allow_spawning_on_enemy_provs = yes
+			}
+		}
+		every_enemy_country = {
+			declare_war_on = {
+				target = event_target:dassal_uprising
+				type = annex_everything
+			}
+		}
+	}
+	every_country_with_original_tag = {
+		original_tag_to_check = ROA
+		add_civil_war_target = event_target:dassal_uprising
+		add_civil_war_target = event_target:lansin_uprising
 		declare_war_on = {
-			target = ROA
+			target = event_target:dassal_uprising
+			type = civil_war
+		}
+		declare_war_on = {
+			target = event_target:lansin_uprising
 			type = civil_war
 		}
 	}
@@ -264,11 +378,21 @@ increase_lansin_uprising_strength_by_two = {
 		max = 10
 	}
 }
+decrease_lansin_uprising_strength_by_two = {
+	custom_effect_tooltip = decrease_lansin_uprising_strength_by_two_tt
+	add_to_variable = {
+		ROA_divs_calibration_var = -2
+	}
+	clamp_variable = {
+		var = ROA_divs_calibration_var
+		min = 0
+		max = 10
+	}
+}
 increase_lansin_uprising_probability = {
 	custom_effect_tooltip = increase_lansin_uprising_probability_tt
 	add_to_variable = {
 		ROA_probabylity_calibration_var = 1
-
 	}
 	clamp_variable = {
 		var = ROA_probabylity_calibration_var
@@ -411,6 +535,10 @@ lansin_uprising_random_event_dispatcher = {
 			    }
    			}
 			20 = {
+				modifier = {
+					has_country_flag = lansin_suppressed_flag
+					factor = 2
+				}
    			}
 		}
 		clear_variable = event_5_fired
