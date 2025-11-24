@@ -118,7 +118,7 @@ scripted_gui = {
 
 		# for targeted guis you need to specify which countryies ai should chcek (if not specified, it will check everyone)
 		# possible values are:
-		#test_self_country, test_enemy_countries, test_ally_countries, test_neighbouring_countries, test_neighbouring_ally_countries, test_neighbouring_enemy_countries, test_self_owned_states, test_enemy_owned_states, test_ally_owned_states, test_self_controlled_states, test_enemy_controlled_states, test_ally_controlled_states, test_neighbouring_states, test_neighbouring_enemy_states, test_neighbouring_ally_states, test_our_neighbouring_states, test_our_neighbouring_states_against_allies, test_our_neighbouring_states_against_enemies, test_contesded_states, test_if_only_major, test_if_only_coastal
+		#test_self_country, test_enemy_countries, test_ally_countries, test_neighbouring_countries, test_neighbouring_ally_countries, test_neighbouring_enemy_countries, test_self_owned_states, test_enemy_owned_states, test_ally_owned_states, test_self_controlled_states, test_enemy_controlled_states, test_ally_controlled_states, test_maregyptian_controlled_neighbours, test_neighbouring_enemy_states, test_neighbouring_ally_states, test_our_maregyptian_controlled_neighbours, test_our_maregyptian_controlled_neighbours_against_allies, test_our_maregyptian_controlled_neighbours_against_enemies, test_contesded_states, test_if_only_major, test_if_only_coastal
 		you can add multiple of these
 		ai_test_scopes = test_self_country
 
