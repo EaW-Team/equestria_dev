@@ -557,7 +557,6 @@ country_event = { # Augustus dies of curse
 	immediate = {log = "[GetDateText]: [Root.GetName]: event roam_curse.3"}
 	title = roam_curse.3.t
 	desc = roam_curse.3.d
-	picture = GFX_event_polar_city
 
 	is_triggered_only = yes
 	fire_only_once = yes
@@ -565,21 +564,40 @@ country_event = { # Augustus dies of curse
 	immediate = {
 		hidden_effect = {
 			clr_country_flag = ROA_augustus_curse_flag
-			country_event = { # TODO - proper triggers
+			set_country_leader_portrait = {
+				portrait = "gfx/leaders/ROA/ROA_Augustus_dead.tga"
+			}
+			set_country_flag = augustus_dead
+		}
+	}
+	option = { # Alsa & Dassal will start a Civil War
+		name = roam_curse.3.a
+		trigger = {
+			has_character = ROA_alsa
+			has_character = ROA_dassal
+		}
+		hidden_effect = {
+			country_event = {
 				id = roam_curse.5
-				days = 10
+				days = 15
 			}
 		}
 	}
-
-	option = {
-		name = roam_curse.3.a
-		kill_country_leader = yes
-		create_country_leader = {
-			name = ROA_alsa
-			ideology = nazism
+	option = { # Dassal supported Lansin's uprising, so Alsa has no contestant
+		name = roam_curse.3.b
+		trigger = {
+			has_character = ROA_alsa
+			NOT = { has_character = ROA_dassal }
 		}
-		drop_cosmetic_tag = ROA_augustus_flag
+		new_leader_is_alsa = yes
+	}
+	option = { # Alsa supported Lansin's uprising, so Dassal has no contestant
+		name = roam_curse.3.c
+		trigger = {
+			has_character = ROA_dassal
+			NOT = { has_character = ROA_alsa }
+		}
+		new_leader_is_dassal = yes
 	}
 }
 
@@ -610,27 +628,86 @@ country_event = { # Augustus is getting worse
 	}
 }
 
-country_event = { # Augustus is dead, we're fucked - CW between Alsa & Dassal
+country_event = { # Augustus is dead, we're fucked - Civil War 'Alsa vs Dassal vs Lansin'
 	id = roam_curse.5
 	immediate = {log = "[GetDateText]: [Root.GetName]: event roam_curse.5"}
 	title = roam_curse.5.t
 	desc = roam_curse.5.d
-	picture = GFX_event_polar_city
 
 	is_triggered_only = yes
 	fire_only_once = yes
 
-	immediate = {
+	option = { # Play Alsa - if BOP was on Alsa's side, you can't choose Dassal
+		name = roam_curse.5.a
+		trigger = {
+			is_power_balance_in_range = {
+				id = ROA_bop
+				range < ROA_bop_balance
+			}
+		}
+		kill_country_leader = yes
+		new_leader_is_alsa = yes
 		hidden_effect = {
 			ROA_civil_war_effect = yes
 		}
+		drop_cosmetic_tag = ROA_augustus_flag
 	}
-
-	option = { # Alsa
-		name = roam_curse.5.a
-	}
-	option = { # Dassal
+	option = { # Play Dassal - if BOP was on Dassal's side, you can't choose Alsa
 		name = roam_curse.5.b
+		trigger = {
+			is_power_balance_in_range = {
+				id = ROA_bop
+				range > ROA_bop_balance
+			}
+		}
+		kill_country_leader = yes
+		new_leader_is_dassal = yes
+		hidden_effect = {
+			ROA_civil_war_effect = yes
+		}
+		drop_cosmetic_tag = ROA_augustus_flag
+	}
+	option = { # Play Alsa - choice between Alsa & Dassal if BOP was in centre
+		name = roam_curse.5.c
+		trigger = {
+			is_power_balance_in_range = {
+				id = ROA_bop
+				range = ROA_bop_balance
+			}
+		}
+		kill_country_leader = yes
+		new_leader_is_alsa = yes
+		hidden_effect = {
+			ROA_civil_war_effect = yes
+		}
+		drop_cosmetic_tag = ROA_augustus_flag
+	}
+	option = { # Play Dassal - choice between Alsa & Dassal if BOP was in centre
+		name = roam_curse.5.e
+		trigger = {
+			is_power_balance_in_range = {
+				id = ROA_bop
+				range = ROA_bop_balance
+			}
+		}
+		kill_country_leader = yes
+		new_leader_is_dassal = yes
+		hidden_effect = {
+			ROA_civil_war_effect = yes
+		}
+		drop_cosmetic_tag = ROA_augustus_flag
+	}
+	option = { # Play Lansin if he's not yet dead
+		name = roam_curse.5.f
+		trigger = {
+			NOT = { has_country_flag = uprising_suppressed }
+			NOT = { has_country_flag = uprising_happened }
+		}
+		hidden_effect = {
+			ROA_civil_war_effect = yes
+		}
+		drop_cosmetic_tag = ROA_augustus_flag
+		event_target:lansin_uprising = { change_tag_from = ROA }
 	}
 }
 
@@ -696,11 +773,18 @@ country_event = { # Actual Uprising
 	is_triggered_only = yes
 	fire_only_once = yes
 
-	option = {
+	option = { # Play Augustus
 		name = roam_lansin_uprising.3.a
 		hidden_effect = {
 			ROA_civil_war_effect = yes
 		}
+	}
+	option = { # Play Lansin
+		name = roam_lansin_uprising.3.b
+		hidden_effect = {
+			ROA_civil_war_effect = yes
+		}
+		event_target:lansin_uprising = { change_tag_from = ROA }
 	}
 }
 
@@ -892,8 +976,8 @@ country_event = { # Random Uprising Event -
 country_event = { # Lansin loses support due to Augustus's coolnest
 	id = roam_lansin_uprising.11
 	immediate = {log = "[GetDateText]: [Root.GetName]: event roam_lansin_uprising.11"}
-	title = roam_lansin_uprising.1.t
-	desc = roam_lansin_uprising.1.d
+	title = roam_lansin_uprising.11.t
+	desc = roam_lansin_uprising.11.d
 	picture = GFX_event_polar_city
 
 	is_triggered_only = yes
