@@ -33,7 +33,7 @@ TEMPLATE_SPRITETYPE_SHINE = """\tSpriteType = {{
 
 \t\tanimation = {{
 \t\t\tanimationmaskfile = "{texture}"
-\t\t\tanimationtexturefile = "gfx/interface/goals/shine_overlay.tga"
+\t\t\tanimationtexturefile = "gfx/interface/goals/shine_overlay.dds"
 \t\t\tanimationrotation = 90.0
 \t\t\tanimationlooping = no
 \t\t\tanimationtime = 0.75
