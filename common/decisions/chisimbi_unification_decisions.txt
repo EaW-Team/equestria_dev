@@ -86,6 +86,7 @@ chisimbi_unification_decisions = {
 					uses = 1
 					category = land_doctrine
 				}
+				add_equipment_to_stockpile = { type = infantry_equipment_0 amount = 1000 producer = GFS }
 				if = {
 					limit = { has_dlc = "No Step Back" }
 					add_ideas = flexible_organization_spirit
@@ -162,10 +163,7 @@ chisimbi_unification_decisions = {
 					}
 				}
 				capital_scope = {
-					create_unit = { division = "division_template = \"Veteran Infantry\" start_equipment_factor = 1.0 start_experience_factor = 0.20" owner = ROOT count = 2 }
-				}
-				capital_scope = {
-					create_unit = { division = "division_template = \"Veteran Infantry\" start_equipment_factor = 1.0 start_experience_factor = 0.4" owner = ROOT count = 2 }
+					create_unit = { division = "division_template = \"Veteran Infantry\" start_equipment_factor = 1.0 start_experience_factor = 0.4" owner = ROOT count = 5 }
 				}
 			}
 			if = {
@@ -259,13 +257,6 @@ chisimbi_unification_decisions = {
 		
 		complete_effect = {
 			log = "[GetDateText]: [Root.GetName]: Decision complete chisimbi_start_central_conflict"
-			ROOT = {
-                add_ai_strategy = {
-                    type = prepare_for_war
-                    id = ROOT
-                    value = 1000
-                }
-            }
 		}
 		remove_effect = {
 			log = "[GetDateText]: [Root.GetName]: Decision remove chisimbi_start_central_conflict"
@@ -372,13 +363,6 @@ chisimbi_unification_decisions = {
 			log = "[GetDateText]: [Root.GetName]: Decision complete chisimbi_zeblu_attack_center"
 			add_ideas = chisimbi_unification_wars
 			ROOT = {
-                add_ai_strategy = {
-                    type = prepare_for_war
-                    id = ROOT
-                    value = 1000
-                }
-            }
-			ROOT = {
 				division_template = {
 					name = "Levy Warband"
 					template_counter = 25
@@ -464,10 +448,13 @@ chisimbi_unification_decisions = {
 			}
 		}
 		available = {
-			date > 1009.08.01
+			OR = {
+				date > 1009.06.01
+				has_global_flag = chisimbi_zeblu_attacked
+			}
 			has_war = no
 			is_subject = no
-			has_global_flag = chisimbi_zeblu_attacked
+			
 		}
 
 		visible = {
@@ -486,6 +473,7 @@ chisimbi_unification_decisions = {
 		targets = { GIF }
         targets_dynamic = yes
         target_trigger = {
+			can_declare_war_on = FROM
             FROM = { 
 				original_tag = GIF 
 				NOT = { is_subject_of = ROOT }
@@ -499,13 +487,134 @@ chisimbi_unification_decisions = {
 		}
 		complete_effect = {
 			log = "[GetDateText]: [Root.GetName]: Decision complete chisimbi_twizanyika_attack_center"
-			GIF = { add_ideas = chisimbi_unification_wars }
+			if = {
+				limit = { GIF = { NOT = { has_idea = chisimbi_unification_wars }}}
+				GIF = { add_ideas = chisimbi_unification_wars }
+			}
 		}
 		remove_effect = {
 			log = "[GetDateText]: [Root.GetName]: Decision remove chisimbi_twizanyika_attack_center"
 			declare_war_on = {
 				target = GIF
 				type = annex_everything
+			}
+			set_global_flag = chisimbi_twizanyika_attacked
+		}
+	}
+
+	chisimbi_twizanyika_backstab_center = {
+		icon = generic_ignite_civil_war
+		allowed = {
+			original_tag = GIF
+		}
+		available = {
+			OR = {
+				date > 1009.06.01
+				has_global_flag = chisimbi_zeblu_attacked
+			}
+			has_war = no
+			is_subject = no
+			
+		}
+
+		visible = {
+			original_tag = GIF
+			is_subject = no
+		}
+		
+		fire_only_once = yes
+		war_with_target_on_remove = yes
+		cost = 25
+		
+		days_remove = 30
+		ai_will_do = {
+			factor = 250
+		}
+		complete_effect = {
+			log = "[GetDateText]: [Root.GetName]: Decision complete chisimbi_twizanyika_backstab_center"
+			if = {
+				limit = { GIF = { NOT = { has_idea = chisimbi_unification_wars }}}
+				GIF = { add_ideas = chisimbi_unification_wars }
+			}
+			ROOT = {
+				division_template = {
+					name = "Mercenary Band"
+					template_counter = 25
+					regiments = {
+						infantry = { x = 0 y = 0 }
+						infantry = { x = 0 y = 1 }
+						infantry = { x = 0 y = 2 }
+						infantry = { x = 1 y = 0 }
+						infantry = { x = 1 y = 1 }
+						infantry = { x = 1 y = 2 }
+					}
+				}
+				capital_scope = {
+					create_unit = { division = "division_template = \"Mercenary Band\" start_equipment_factor = 1.0 start_experience_factor = 0.15" owner = ROOT count = 2 }
+				}
+			}
+		}
+		remove_effect = {
+			log = "[GetDateText]: [Root.GetName]: Decision remove chisimbi_twizanyika_backstab_center"
+			if = {
+				limit = { # Tzhimane Confederacy
+					TSV = {
+						exists = yes
+						NOT = { is_subject_of = ROOT }
+					}
+				}
+				declare_war_on = {
+					target = TSV
+					type = annex_everything
+				}
+			}
+			if = {
+				limit = { # Ibhayiz
+					IBZ = {
+						exists = yes
+						NOT = { is_subject_of = ROOT }
+					}
+				}
+				declare_war_on = {
+					target = IBZ
+					type = annex_everything
+				}
+			}
+			if = {
+				limit = { # Imba-Zaru
+					GFS = {
+						exists = yes
+						NOT = { is_subject_of = ROOT }
+					}
+				}
+				declare_war_on = {
+					target = GFS
+					type = annex_everything
+				}
+			}
+			if = {
+				limit = { # Roam
+					ROA = {
+						exists = yes
+						NOT = { is_subject_of = ROOT }
+					}
+				}
+				declare_war_on = {
+					target = ROA
+					type = annex_everything
+				}
+			}
+			if = {
+				limit = { # Zeblu
+					ZLU = {
+						exists = yes
+						NOT = { is_subject_of = ROOT }
+					}
+				}
+				declare_war_on = {
+					target = ZLU
+					type = annex_everything
+				}
 			}
 		}
 	}
@@ -592,6 +701,18 @@ unite_chisimbi_category = {
 				}
 			}
 
+			if = {
+				limit = { is_ai = yes }
+				every_owned_state = {
+					limit = {
+						NOT = {
+							is_core_of = ROOT
+						}
+					}
+					add_compliance = 20
+				}
+			}
+
 			hidden_effect = {
 				set_global_flag = chisimbi_has_united
 			}
@@ -619,8 +740,9 @@ chisimbi_expansion_category = {
 			}
 		}
 		available = {
-			date > 1010.10.01
+			date > 1010.07.01
 			is_subject = no
+			has_war = no
 		}
 
 		visible = {
@@ -639,6 +761,7 @@ chisimbi_expansion_category = {
 				tag = ZOO
 				NOT = { is_subject_of = ROOT } 
 			}
+			can_declare_war_on = FROM
         }
 		cost = 25
 		
@@ -826,6 +949,7 @@ chisimbi_expansion_category = {
 			date > 1011.01.01
 			is_subject = no
 			has_war = no
+			NOT = { has_country_flag = chisimbi_attaking_someone_flag }
 		}
 
 		visible = {
@@ -841,9 +965,13 @@ chisimbi_expansion_category = {
 		ai_will_do = {
 			factor = 250
 		}
-		
+		complete_effect = {
+			log = "[GetDateText]: [Root.GetName]: Decision complete chisimbi_expand_far_south"
+			set_country_flag = chisimbi_attaking_someone_flag
+		}
 		remove_effect = {
 			log = "[GetDateText]: [Root.GetName]: Decision remove chisimbi_expand_far_south"
+			clr_country_flag = chisimbi_attaking_someone_flag
 			declare_war_on = {
 				target = IST
 				type = annex_everything
@@ -875,6 +1003,7 @@ chisimbi_expansion_category = {
 			date > 1012.01.01
 			is_subject = no
 			has_war = no
+			NOT = { has_country_flag = chisimbi_attaking_someone_flag }
 		}
 
 		visible = {
@@ -903,9 +1032,13 @@ chisimbi_expansion_category = {
 		ai_will_do = {
 			factor = 250
 		}
-		
+		complete_effect = {
+			log = "[GetDateText]: [Root.GetName]: Decision complete chisimbi_expand_zakiria"
+			set_country_flag = chisimbi_attaking_someone_flag
+		}
 		remove_effect = {
 			log = "[GetDateText]: [Root.GetName]: Decision remove chisimbi_expand_zakiria"
+			clr_country_flag = chisimbi_attaking_someone_flag
 			if = {
 				limit = {
 					KXN = { 
@@ -1063,13 +1196,10 @@ chisimbi_expansion_category = {
 			}
 		}
 		available = {
-			date > 1013.00.01
+			date > 1013.01.01
 			is_subject = no
-			NOT = {
-				has_war_with = ZOO
-				has_war_with = TAI
-				has_war_with = MEL
-			}
+			has_war = no
+			NOT = { has_country_flag = chisimbi_attaking_someone_flag }
 		}
 
 		visible = {
@@ -1089,6 +1219,7 @@ chisimbi_expansion_category = {
 				NOT = { is_subject_of = ROOT }
 			}
 			NOT = { has_war_with = FROM }
+			can_declare_war_on = FROM
         }
 		cost = 25
 		
@@ -1113,5 +1244,4 @@ chisimbi_expansion_category = {
 			}
 		}
 	}
-
 }
