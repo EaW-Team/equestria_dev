@@ -6,6 +6,16 @@ on_actions = {
 			log = "[GetDateText] Equestria at War main on_startup begin"
 			# General country setup
 			set_global_flag = game_has_started
+			
+			# tier 2 doctrines blockers
+			every_country = {
+				add_ideas = {
+					tier_2_land_doctrine_blocker
+					tier_2_naval_doctrine_blocker
+					tier_2_air_doctrine_blocker
+				}
+			}
+			
 			every_country = {
 				limit = {
 					OR = {
@@ -24,9 +34,15 @@ on_actions = {
 			}
 			if = {
 				limit = {
-					has_game_rule = {
-						rule = ai_production_fix
-						option = PRODUCTION_FIX_ENABLE
+					OR = {
+						has_game_rule = {
+							rule = ai_production_fix
+							option = PRODUCTION_FIX_ENABLE
+						}
+						has_game_rule = {
+							rule = ai_production_fix
+							option = AI_TRAINING_AND_PRODUCTION_FIX_ENABLE
+						}
 					}
 				}
 				every_country = {
@@ -50,7 +66,25 @@ on_actions = {
 					}
 				}
 			}
-
+			if = {
+				limit = {
+					OR = {
+						has_game_rule = {
+							rule = ai_production_fix
+							option = AI_TRAINING_FIX_ENABLE
+						}
+						has_game_rule = {
+							rule = ai_production_fix
+							option = AI_TRAINING_AND_PRODUCTION_FIX_ENABLE
+						}
+					}
+				}
+				every_country = {
+					add_dynamic_modifier = { modifier = AI_minimum_training_fix }
+					set_variable = { AI_minimum_training_level_fix_var = 0.6 }
+					set_variable = { AI_training_time_army_factor_fix_var = -0.33 }
+				}
+			}
 			every_state = {
 				if = {
 					limit = {
@@ -398,10 +432,6 @@ on_actions = {
 				else_if = {
 					limit = { is_deer_race = yes }
 					add_ideas = deer_race
-				}
-				else_if = {
-					limit = { is_giraffe_race = yes }
-					add_ideas = giraffe_race
 				}
 				else_if = {
 					limit = { is_griffon_race = yes }
@@ -835,6 +865,10 @@ on_actions = {
 				if = {
 					limit = { NOT = { has_country_flag = weapons_fixed_at_start } }
 					actually_fix_weapon_techs = yes
+				}
+
+				every_core_state = {
+					add_to_array = { PREV.state_all_original_cores = THIS }
 				}
 			}
 
