@@ -194,6 +194,12 @@ NDefines.NFactions.FACTION_INTELLIGENCE_ALLOWED_ADVISOR_TRAIT = {
 	"JER_kindly_enigma_lar",
 	"head_of_intelligence_useless",
 	"TBK_AF_lightbringer_advisor",
-	"TBK_AF_lightbringer_advisor_expanded"
+	"TBK_AF_lightbringer_advisor_expanded",
+	"ducal_spymaster",
+	"ducal_spymaster_1",
+	"ducal_spymaster_lar",
+	"ducal_spymaster_lar_1",
+	"ducal_spymaster_postwar",
+	"ducal_spymaster_lar_postwar"
 }
 NDefines.NDoctrines.TRAINING_MASTERY_GAIN_FACTOR = 0.05 -- vanilla is 0.1
