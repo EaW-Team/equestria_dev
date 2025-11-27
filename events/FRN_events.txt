@@ -188,7 +188,9 @@ country_event = { #Tarrin socialists commend the Count
 	title = francistria.7.t
 	desc = francistria.7.d
 	picture = GFX_event_medieval_castle_on_hill
-
+	trigger = {
+		has_government = neutrality
+	}
 	is_triggered_only = yes
 
 	option = {
@@ -276,46 +278,52 @@ country_event = { #Choosing a defensive doctrine
 
 	option = {
 		name = francistria.11.a
+		add_mastery_bonus = {
+			bonus = 0.2
+			days = 180
+			folder = land
+			name = FRN_defensive_doctrine_focus
+		}
 		add_doctrine_cost_reduction = {
 			name = cat_grand_battle_plan
 			cost_reduction = 0.5
 			uses = 2
-			category = cat_grand_battle_plan
+			category = land_doctrine #was cat_grand_battle_plan
 		}
 		ai_chance = {
 			factor = 1
 			modifier = {
 				factor = 0
 				OR = {
-					is_researching_technology = mobile_warfare
-					has_tech = mobile_warfare
-					is_researching_technology = superior_firepower
-					has_tech = superior_firepower
-					is_researching_technology = mass_assault
-					has_tech = mass_assault
+					has_doctrine = new_mobile_warfare
+					has_doctrine = superior_firepower
+					has_doctrine = mass_assault
 				}
 			}
 		}
 	}
 	option = {
 		name = francistria.11.b
+		add_mastery_bonus = {
+			bonus = 0.2
+			days = 180
+			folder = land
+			name = FRN_defensive_doctrine_focus
+		}
 		add_doctrine_cost_reduction = {
 			name = cat_superior_firepower
 			cost_reduction = 0.5
 			uses = 2
-			category = cat_superior_firepower
+			category = land_doctrine #was cat_superior_firepower
 		}
 		ai_chance = {
 			factor = 1
 			modifier = {
 				factor = 0
 				OR = {
-					is_researching_technology = mobile_warfare
-					has_tech = mobile_warfare
-					is_researching_technology = trench_warfare
-					has_tech = trench_warfare
-					is_researching_technology = mass_assault
-					has_tech = mass_assault
+					has_doctrine = new_mobile_warfare
+					has_doctrine = grand_battleplan
+					has_doctrine = mass_assault
 				}
 			}
 		}
@@ -1928,7 +1936,6 @@ country_event = { #Shipping intensifies
 		name = francistria.57.b
 		trigger = {
 			TAL = {
-				exists = yes
 				is_in_faction_with = ROOT
 				OR = {
 					has_government = neutrality
@@ -1947,7 +1954,6 @@ country_event = { #Shipping intensifies
 		name = francistria.57.c
 		trigger = {
 			ARA = {
-				exists = yes
 				is_in_faction_with = ROOT
 				has_government = neutrality
 			}
@@ -2127,7 +2133,6 @@ country_event = { #Oof rejected
 				}
 			}
 			TAL = {
-				exists = yes
 				is_in_faction_with = ROOT
 				OR = {
 					has_government = neutrality
@@ -2175,7 +2180,6 @@ country_event = { #Oof rejected
 				}
 			}
 			ARA = {
-				exists = yes
 				is_in_faction_with = ROOT
 				has_government = neutrality
 			}
@@ -2868,6 +2872,87 @@ country_event = { #tarrin referendum
 		remove_state_claim = 521
 		remove_state_claim = 487
 	}
+	option = {
+		name = francistria.76.c
+		trigger = {
+			if = {
+				limit = {
+					owns_state = 652
+				}
+				652 = {
+					OR = {
+						resistance > 24
+						compliance < 26
+					}
+				}
+			}
+			if = {
+				limit = {
+					owns_state = 521
+				}
+				521 = {
+					OR = {
+						resistance > 24
+						compliance < 26
+					}
+				}
+			}
+			if = {
+				limit = {
+					owns_state = 487
+				}
+				487 = {
+					OR = {
+						resistance > 24
+						compliance < 26
+					}
+				}
+			}
+		}
+		add_political_power = -50
+		add_stability = -0.05
+		release = JES
+		if = {
+			limit = {
+				JES = {
+					is_subject_of = ROOT
+				}
+			}
+			end_puppet = JES
+		}
+		if = {
+			limit = {
+				JES = {
+					is_in_faction_with = ROOT
+				}
+			}
+			JES = {
+				leave_faction = yes
+			}
+		}
+		JES = {
+			FRN = { JES = { transfer_technology = yes } }
+			load_oob = "JES_army"
+			set_politics = {
+				ruling_party = democratic
+			}
+			if = {
+				limit = {
+					WNG = {
+						exists = yes
+						NOT = {
+							has_government = communism
+						}
+					}
+				}
+				give_resource_rights = { receiver = WNG state = 652 }
+			}
+		}
+		remove_state_claim = 652
+		remove_state_claim = 521
+		remove_state_claim = 487
+		JES = { change_tag_from = ROOT }
+	}
 }
 country_event = { #Patriotic coup
 	id = francistria.77
@@ -3145,7 +3230,6 @@ country_event = { #Counter-insurgency operation successful
 	option = {
 		name = francistria.79.a
 		set_country_flag = FRN_FLNT_crushed
-		FRN_please_fascists = yes
 		save_current_manpower = yes
 		if = {
 			limit = {
@@ -3588,7 +3672,7 @@ country_event = { #Commie civil war in Wingbardy
 				limit = {
 					is_faction_leader = no
 				}
-				create_faction = Southern_Kingdoms
+				create_faction_from_template = faction_template_FRN_Southern_Kingdoms
 			}
 			add_to_faction = ROOT
 			give_military_access = ROOT
@@ -4092,7 +4176,7 @@ country_event = { #Coming to beakolini's aid
 					limit = {
 						is_faction_leader = no
 					}
-					create_faction = Southern_Kingdoms
+					create_faction_from_template = faction_template_FRN_Southern_Kingdoms
 				}
 				add_to_faction = ROOT
 				give_military_access = ROOT
@@ -4404,7 +4488,18 @@ country_event = { #what to do about trinitarianism
 		add_political_power = 75
 		add_popularity = { ideology = fascism popularity = 0.05 }
 		add_ideas = FRN_trinitarian_persecution
-		GRI = {
+		GRD = {
+			if = {
+				limit = {
+					has_government = fascism
+					NOT = {
+						has_country_flag = GRI_junta_established
+					}
+				}
+				add_opinion_modifier = { target = ROOT modifier = common_cause }
+			}
+		}
+		ROU = {
 			if = {
 				limit = {
 					has_government = fascism
@@ -4412,7 +4507,7 @@ country_event = { #what to do about trinitarianism
 				add_opinion_modifier = { target = ROOT modifier = common_cause }
 			}
 		}
-		ROU = {
+		YAL = {
 			if = {
 				limit = {
 					has_government = fascism

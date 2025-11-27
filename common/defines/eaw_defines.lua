@@ -1,3 +1,5 @@
+NDefines.NCountry.BASE_MOBILIZATION_SPEED = 0.025
+
 NDefines.NGame.START_DATE = "1007.1.1.12"
 NDefines.NGame.END_DATE = "1030.1.1.1"
 NDefines.NGame.HANDS_OFF_START_TAG = "DRG"
@@ -6,7 +8,7 @@ NDefines.NDiplomacy.TENSION_TIME_SCALE_START_DATE = "1007.1.1.12"
 NDefines.NDiplomacy.VOLUNTEERS_DIVISIONS_REQUIRED = 10
 NDefines.NDiplomacy.MAX_OPINION_VALUE = 200							-- Max opinion value cap.
 NDefines.NDiplomacy.MIN_OPINION_VALUE = -200						-- Min opinion value cap.
-NDefines.NDiplomacy.TENSION_PUPPET = 0.75 -- vanilla is 1.25
+NDefines.NDiplomacy.TENSION_PUPPET = -0.5 -- vanilla is 0
 NDefines.NDiplomacy.PEACE_SCORE_DISTRIBUTION = { 0.2, 0.2, 0.2, 0.2, 0.2, 0.2, 0.2, 0.2, 0.2, 0.2, 0.2, 0.2, 0.2, 0.2, 0.2, 0.2, 0.2, 0.2, 0.2, 0.2, 0.2, 0.2, 0.2, 0.2, 0.2 } -- How much of the total peace conference score you get during the first n turns.
 NDefines.NDiplomacy.PEACE_CONTEST_REFUND_FACTOR = { 1.0, 0.90, 0.80, 0.70, 0.60, 0.50 } -- How much of the spent peace conference score that gets refunded in a contest. First element applies for the first round of conflicts, second element for the second round of conflicts, etc. The final element is used for each consecutive turn, so setting that to e.g. 0.7 means you get 70 % of the spent score back for every turn thereafter.
 NDefines.NDiplomacy.EQUIPMENT_PURCHASE_ACCEPTANCE_COMPETING_FACTIONS = 0
@@ -34,10 +36,13 @@ NDefines.NResistance.GARRISON_TEMPLATE_SCORE_MANPOWER_FACTOR = 0.4  -- formula i
 NDefines.NProduction.FLOATING_HARBOR_MAX_NAV_FACTORIES_PER_LINE = 10 -- vanilla is 5
 NDefines.NProduction.CAPITAL_SHIP_MAX_NAV_FACTORIES_PER_LINE = 10 -- vanilla is 5
 NDefines.NProduction.RAILWAY_GUN_MAX_MIL_FACTORIES_PER_LINE = 10 -- vanilla is 5
-NDefines.NProduction.BASE_FACTORY_SPEED_NAV = 3.5 -- vanilla is 2.5
+NDefines.NProduction.BASE_FACTORY_SPEED_NAV = 3.0 -- vanilla is 2.0
+NDefines.NProduction.POWERED_FACTORY_SPEED_NAV = 3.5 			--Powered factory speed multiplier. Vanilla is 2.5 -- TODO SEA change the value
+
 NDefines.NProduction.MINIMUM_NUMBER_OF_FACTORIES_TAKEN_BY_CONSUMER_GOODS_PERCENT = 0.05 -- vanilla is 0.1
 NDefines.NProduction.MAX_EQUIPMENT_RESOURCES_NEED = 4
 
+NDefines.NBuildings.RADAR_RANGE_MAX = 416 --each level is 36, we've gone from 6 levels (40 to 220, 5 increases) to 12 levels (40 to 436, 11 increases)
 
 NDefines.NMilitary.PLAN_EXECUTE_CAREFUL_MAX_FORT = 4
 NDefines.NMilitary.TRAINING_MAX_LEVEL = 10
@@ -48,14 +53,13 @@ NDefines.NMilitary.ARMY_EXP_BASE_LEVEL = 5
 NDefines.NMilitary.BASE_CAPTURE_EQUIPMENT_RATIO = 0.02
 NDefines.NMilitary.BASE_FEMALE_DIVISIONAL_COMMANDER_CHANCE = 0.5 -- 50% of time by default, female_divisional_commander_chance modifier is additive
 
-NDefines.NNavy.SHORE_BOMBARDMENT_CAP = 0.3 -- Vanilla is 0.25
 NDefines.NNavy.SCREENS_TO_CAPITAL_RATIO = 3.0 -- Vanilla is 4.0, mostly AI stuff
-NDefines.NNavy.NAVAL_MINES_NAVAL_SUPREMACY_FACTOR = 0.5 -- Vanilla is 1.0, cut in half
 NDefines.NNavy.NAVAL_MINES_INTEL_DIFF_FACTOR = 0.1 -- Vanilla is 0.5, reverted to pre-AAT value
 NDefines.NNavy.NAVAL_MINES_ACCIDENT_STRENGTH_LOSS = 75.0 -- Vanilla is 50.0, reverted to pre-AAT value
 NDefines.NNavy.NAVAL_MINES_ACCIDENT_ORG_LOSS_FACTOR = 0.6	-- Vanilla is 0.5, reverted to pre-AAT value
 
 NDefines.NAir.NAVAL_COMBAT_EXTERNAL_PLANES_JOIN_RATIO = 0.03 	-- Max planes that can join a combat comparing to the total strength of the ships, vanilla is 0.05
+NDefines.NAir.AIR_WING_XP_LEVELS = {20,	40,	60,	80,	100,	140,	180,	220,	260,	300,	390,	480,	570,	660,	750,	780,	810,	840,	870,	900}		-- Experience needed to progress to the next level
 
 NDefines.NAI.RESEARCH_LAND_DOCTRINE_NEED_GAIN_FACTOR = 0.12 -- Multiplies value based on relative military industry size / country size.
 NDefines.NAI.DYNAMIC_STRATEGIES_THREAT_FACTOR = 6.0
@@ -105,6 +109,17 @@ NDefines.NAI.RESEARCH_AHEAD_BONUS_FACTOR = 2.5          -- To which extent AI sh
 NDefines.NAI.RESEARCH_BONUS_FACTOR = 2.0 				-- To which extent AI should care about bonuses to research
 NDefines.NAI.DESIRE_USE_XP_TO_UPGRADE_AIR_EQUIPMENT = 1.5   -- Vanilla is 1
 
+NDefines.NAI.MIN_FACTORIES_TO_WANT_TO_IMPORT = {  -- minimum number of civilian factories the AI must have to consider importing a resource - per strategic resource. Default 0, array -should- be updated with new resources, or if the order changes.
+		5, -- oil -- EAW increased because of outdated societies
+		0, -- aluminium
+		0, -- rubber
+		0, -- tungsten
+		0, -- steel
+		0, -- chromium
+		10, -- coal
+		0, -- crystals
+	}
+
 NDefines.NOperatives.AGENCY_CREATION_FACTORIES = 3
 NDefines.NOperatives.AGENCY_UPGRADE_PER_OPERATIVE_SLOT = 4			-- Number of upgrade needed to unlock an additional operative slot
 
@@ -114,9 +129,71 @@ NDefines.NSupply.AVAILABLE_MANPOWER_STATE_SUPPLY = 0.5 --Factor for state supply
 NDefines.NSupply.NODE_STARTING_PENALTY_PER_PROVINCE = 0.30 -- default is 0.5
 NDefines.NSupply.NODE_ADDED_PENALTY_PER_PROVINCE = 0.50 -- default is 0.7
 
+-- BREAKTHROUGH DOUBLED
+
+NDefines.NProject.BREAKTHROUGH_DAILY_TECHNOLOGY_GAIN = 24 -- default is 12
+NDefines.NProject.BREAKTHROUGH_DAILY_SCIENTIST_SKILL_GAIN = 10 -- default is 10
+NDefines.NProject.BREAKTHROUGH_DAILY_ROCKET_SITE_GAIN = 2 -- default is 1
+NDefines.NProject.BREAKTHROUGH_DAILY_NUCLEAR_REACTOR_GAIN = 2 -- default is 1
+NDefines.NProject.BREAKTHROUGH_GAIN_ANIMATION_SPEED_MAX = 2.0 -- default is 1
+
 
 NDefines.NTechnology.BASE_TECH_COST = 80					-- Base cost for a tech. multiplied with tech cost and ahead of time penalties. 100 in vanilla
 NDefines.NTechnology.BASE_YEAR_AHEAD_PENALTY_FACTOR = 2.25	-- Base year ahead penalty. Vanilla is 2
 
 NDefines.NAI.DEFAULT_MODULE_VARIANT_CREATION_XP_CUTOFF_LAND = 30
 NDefines.NAI.DEFAULT_MODULE_VARIANT_CREATION_XP_CUTOFF_NAVY = 50
+NDefines.NFactions.FACTION_INTELLIGENCE_ALLOWED_ADVISOR_TRAIT = {
+	"head_of_intelligence",
+	"mastermind_code_cracker",
+	"expert_code_cracker",
+	"spymaster",
+	"spymaster_no_lar",
+	"commander_of_the_fetno_derash",
+	"commander_of_the_fetno_derash_no_lar",
+	"SWI_soviet_spy",
+	"SWI_intelligence_officer",
+	"special_envoy",
+	"BRA_soviet_spy",
+	"HUN_military_intelligence_officer",
+	"AUS_secretive_priest",
+	"AUS_veteran_head_of_agency",
+	"BEL_illusive_mastermind",
+	"GER_intelligence_coordinator",
+	"GER_secretary_of_state_security",
+	"GER_reich_security_main_office_director_lar",
+	"GER_reich_security_main_office_director_no_lar",
+	"head_of_the_abwehr",
+	"head_of_the_abwehr_improved",
+	"intelligence_service_deputy",
+	"PRC_multi_talented_diplomat_lar",
+	"PRC_multi_talented_diplomat_no_lar",
+	"PRC_trained_by_the_nkvd",
+	"PRC_spymaster",
+	"PHI_intelligence_bureau_chief",
+	"HUN_stalinist_agent",
+	"JAP_tokko_chief",
+	"CHI_spymaster",
+	"head_of_intelligence_kirin",
+	"HEL_general_secretary",
+	"HEL_general_secretary_lar",
+	"FAT_head_of_intelligence",
+	"FAT_head_of_intelligence_lar", 
+	"head_of_ohs",
+	"head_of_ohs_lar",
+	"cryptologic_genius_lar",
+	"cryptologic_genius",
+	"agent_of_smile_lar",
+	"great_nobody",
+	"great_nobody_lar",
+	"GRI_iron_lady",
+	"GRI_iron_lady_lar",
+	"KIR_birdkeeper",
+	"KIR_birdkeeper_lar",
+	"JER_kindly_enigma",
+	"JER_kindly_enigma_lar",
+	"head_of_intelligence_useless",
+	"TBK_AF_lightbringer_advisor",
+	"TBK_AF_lightbringer_advisor_expanded"
+}
+NDefines.NDoctrines.TRAINING_MASTERY_GAIN_FACTOR = 0.05 -- vanilla is 0.1

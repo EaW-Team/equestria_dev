@@ -2784,7 +2784,7 @@ shared_focus = {
 	}
 
 	ai_will_do = {
-		factor = 14
+		factor = 20
 		modifier = {
 			has_global_flag = HIP_mountain_awakes_global_flag
 			factor = 2
@@ -2801,76 +2801,14 @@ shared_focus = {
 }
 
 shared_focus = {
-	id = BAT_cooperate_with_colthage
-	icon = GFX_goal_BAT_cooperate_with_colthage
+	id = BAT_help_their_military
+	icon = GFX_goal_BAT_help_their_military
 	x = -1
 	y = 1
 	relative_position_id = BAT_strike_at_tobuck
-	cost = 4.40
-	prerequisite = { 
-	    focus = BAT_strike_at_tobuck 
-	}
-	available = {
-	    TBK = {
-			OR = {
-				exists = no
-				is_subject_of = ROOT
-			}
-		}
-		ZAR = {
-			OR = {
-				exists = no
-				is_subject_of = ROOT
-			}
-		}
-		CTH = {
-			OR = {
-				has_war = no
-				has_war_with = HIP
-			}
-		    has_government = fascism
-		}
-	}
-	bypass = {
-	    CTH = {
-			OR = {
-			    exists = no
-				is_subject = yes
-				is_in_faction_with = ROOT
-			}
-		}
-	}
-     
-	ai_will_do = {
-		factor = 12
-		modifier = {
-			has_global_flag = HIP_mountain_awakes_global_flag
-			factor = 3
-		}
-	}
-	
-	completion_reward = {
-		log = "[GetDateText]: [Root.GetName]: Focus BAT_cooperate_with_colthage"
-		CTH = {
-		    country_event = {
-				id = bat.67
-			}
-		}
-	}
-	search_filters = { 
-        FOCUS_FILTER_POLITICAL			
-	}
-}
-
-shared_focus = {
-	id = BAT_help_their_military
-	icon = GFX_goal_BAT_help_their_military
-	x = -3
-	y = 3
-	relative_position_id = BAT_limited_diplomacy
 	cost = 5.80
 	prerequisite = { 
-	    focus = BAT_cooperate_with_colthage 
+	    focus = BAT_strike_at_tobuck 
 	}
 	available = {
 	    CTH = {
@@ -2879,6 +2817,10 @@ shared_focus = {
 				is_in_faction_with = ROOT
 			} 
 		}
+	}
+
+	bypass = {
+		has_country_flag = BAT_HIP_defeated # NZW over
 	}
 
 	ai_will_do = {
@@ -2912,13 +2854,11 @@ shared_focus = {
 	    focus = BAT_secure_tobuck 
 	}
 	bypass = {
-	    WAR = { 
-			OR = {
-				exists = no
-				is_subject_of = ROOT 
-				has_war_with = BAT
+		WAR = {
+			NOT = {
+				NZW_is_unaligned = yes
 			}
-		} 
+		}
 	}
 
 	ai_will_do = {
@@ -2936,21 +2876,7 @@ shared_focus = {
 	will_lead_to_war_with = WAR
 	completion_reward = {
 		log = "[GetDateText]: [Root.GetName]: Focus BAT_the_gamble"
-		if = {
-		    limit = {
-			    WAR = {
-				    OR = {
-					    is_in_faction_with = HIP
-						is_guaranteed_by = HIP
-					}
-				}
-			}
-            HIP = {
-			    country_event = {
-					id = bat.71
-				}
-			}
-		}
+
 		declare_war_on = {
 			target = WAR
 			type = annex_everything
@@ -2965,8 +2891,8 @@ shared_focus = {
 	id = BAT_prepare_two_pronged_push
 	icon = GFX_goal_BAT_prepare_two_pronged_push
 	x = 1
-	y = 3
-	relative_position_id = BAT_strike_at_tobuck
+	y = 1
+	relative_position_id = BAT_help_their_military
 	cost = 5.80
 	prerequisite = { 
 	    focus = BAT_help_their_military 
@@ -2990,7 +2916,7 @@ shared_focus = {
 	}
 }
 
-shared_focus = {
+shared_focus = { # Starts the NZW
 	id = BAT_strike_them_down
 	icon = GFX_goal_BAT_strike_them_down
 	x = 5
@@ -3003,6 +2929,11 @@ shared_focus = {
 	prerequisite = { 
 	    focus = BAT_expand_operations 
 	}
+
+	available = {
+		is_subject = no
+	}
+
 	bypass = {
 	    OR = {
 	        has_country_flag = BAT_HIP_defeated
@@ -3018,9 +2949,22 @@ shared_focus = {
 
 	ai_will_do = {
 		factor = 10
+		modifier = { # Delay the war if Colthage isn't ready yet
+			factor = 0
+			NOT = { NZW_is_northern_party_ready = yes }
+			date < 1011.6.1
+		}
 		modifier = {
 			has_war = yes
 			factor = 0.20
+		}
+		modifier = {
+			date > 1011.1.1 # Better get to it
+			factor = 2
+		}
+		modifier = {
+			has_completed_focus = BAT_the_gamble
+			factor = 1.5
 		}
 		modifier = {
 			has_global_flag = HIP_mountain_awakes_global_flag
@@ -3029,12 +2973,39 @@ shared_focus = {
 	}
 	
 	will_lead_to_war_with = HIP
+	will_lead_to_war_with = WAR
+	
+	select_effect = {
+		log = "[GetDateText]: [Root.GetName]: Focus select BAT_strike_them_down"
+		NZW_alliance_effect = yes
+	
+		NZW_HIP_war_prep_effect = yes
+	}
+	
 	completion_reward = {
 		log = "[GetDateText]: [Root.GetName]: Focus BAT_strike_them_down"
+
 		declare_war_on = {
 			target = HIP
 			type = annex_everything
-        }
+		}
+		
+		every_country = { # Hippogriffia's allies allies
+			limit = {
+				NZW_is_north_zebrican_tag = yes
+				NZW_is_aligned_with_HIP = yes
+			}
+			ROOT = {
+				declare_war_on = {
+					target = PREV
+					type = annex_everything
+				}
+			}
+		}
+		
+		NZW_on_start_effect = yes
+		
+		NZW_on_select_alliance_tooltip = yes
 	}
 	search_filters = { 
         FOCUS_FILTER_ANNEXATION		
@@ -3230,10 +3201,7 @@ shared_focus = {
 	ai_will_do = {
 		factor = 14
 		modifier = {
-			AND = {
-				has_global_flag = HIP_mountain_awakes_global_flag
-				has_completed_focus = BAT_the_gamble
-			}
+			has_completed_focus = BAT_the_gamble
 			factor = 2
 		}
 	}
@@ -3278,10 +3246,7 @@ shared_focus = {
 	ai_will_do = {
 		factor = 14
 		modifier = {
-			AND = {
-				has_global_flag = HIP_mountain_awakes_global_flag
-				has_completed_focus = BAT_the_gamble
-			}
+			has_completed_focus = BAT_the_gamble
 			factor = 2
 		}
 	}
@@ -3329,10 +3294,7 @@ shared_focus = {
 	ai_will_do = {
 		factor = 14
 		modifier = {
-			AND = {
-				has_global_flag = HIP_mountain_awakes_global_flag
-				has_completed_focus = BAT_the_gamble
-			}
+			has_completed_focus = BAT_the_gamble
 			factor = 2
 		}
 	}
@@ -3363,10 +3325,7 @@ shared_focus = {
 	ai_will_do = {
 		factor = 10
 		modifier = {
-			AND = {
-				has_global_flag = HIP_mountain_awakes_global_flag
-				has_completed_focus = BAT_the_gamble
-			}
+			has_completed_focus = BAT_the_gamble
 			factor = 2
 		}
 	}
@@ -3423,10 +3382,7 @@ shared_focus = {
 	ai_will_do = {
 		factor = 10
 		modifier = {
-			AND = {
-				has_global_flag = HIP_mountain_awakes_global_flag
-				has_completed_focus = BAT_the_gamble
-			}
+			has_completed_focus = BAT_the_gamble
 			factor = 2
 		}
 	}
@@ -3457,10 +3413,7 @@ shared_focus = {
 	ai_will_do = {
 		factor = 10
 		modifier = {
-			AND = {
-				has_global_flag = HIP_mountain_awakes_global_flag
-				has_completed_focus = BAT_the_gamble
-			}
+			has_completed_focus = BAT_the_gamble
 			factor = 2
 		}
 	}
@@ -3490,6 +3443,12 @@ shared_focus = {
 	}
 	completion_reward = {
 		log = "[GetDateText]: [Root.GetName]: Focus BAT_the_war_at_sea"
+		add_mastery_bonus = {
+			bonus = 0.2
+			days = 180
+			folder = naval
+			name = BAT_the_war_at_sea
+		}
 		add_doctrine_cost_reduction = {
 			name = navy_bonus
 			cost_reduction = 0.5
@@ -4081,6 +4040,12 @@ shared_focus = {
 	}
 	completion_reward = {
 		log = "[GetDateText]: [Root.GetName]: Focus BAT_legacy_of_the_shadowbolts"
+		add_mastery_bonus = {
+			bonus = 0.2
+			days = 180
+			folder = air
+			name = BAT_legacy_of_the_shadowbolts
+		}
 		add_doctrine_cost_reduction = {
 			name = air_doc_bonus
 			cost_reduction = 0.5
@@ -4518,23 +4483,30 @@ shared_focus = {
 		modifier = {
 			factor = 0
 			OR = {
-				has_tech = superior_firepower
-				has_tech = mass_assault
-				has_tech = mobile_warfare
-				is_researching_technology = superior_firepower
-				is_researching_technology = mass_assault
-				is_researching_technology = mobile_warfare
+				has_doctrine = superior_firepower
+				has_doctrine = mass_assault
+				has_doctrine = new_mobile_warfare
 			}
 		}
 	}
 	completion_reward = {
 		log = "[GetDateText]: [Root.GetName]: Focus BAT_extensive_planning"
 		army_experience = 20
+		add_mastery_bonus = {
+			bonus = 0.2
+			days = 180
+			folder = land
+			name = BAT_extensive_planning
+		}
+		add_mastery = {
+			amount = 150
+			track = operations
+		}
 		add_doctrine_cost_reduction = {
 			name = cat_grand_battle_plan
 			cost_reduction = 0.5
 			uses = 2
-			category = cat_grand_battle_plan
+			category = land_doctrine #was cat_grand_battle_plan
 		}
 	}
 	search_filters = { 
@@ -4686,23 +4658,30 @@ shared_focus = {
 		modifier = {
 			factor = 0
 			OR = {
-				has_tech = trench_warfare
-				has_tech = mass_assault
-				has_tech = mobile_warfare
-				is_researching_technology = trench_warfare
-				is_researching_technology = mass_assault
-				is_researching_technology = mobile_warfare
+				has_doctrine = grand_battleplan
+				has_doctrine = mass_assault
+				has_doctrine = new_mobile_warfare
 			}
 		}
 	}
 	completion_reward = {
 		log = "[GetDateText]: [Root.GetName]: Focus BAT_blow_them_out"
 		army_experience = 20
+		add_mastery_bonus = {
+			bonus = 0.2
+			days = 180
+			folder = land
+			name = BAT_blow_them_out
+		}
+		add_mastery = {
+			amount = 150
+			track = combat_support
+		}
 		add_doctrine_cost_reduction = {
 			name = cat_superior_firepower
 			cost_reduction = 0.5
 			uses = 2
-			category = cat_superior_firepower
+			category = land_doctrine #was cat_superior_firepower
 		}
 	}
 	search_filters = { 
@@ -4803,23 +4782,30 @@ shared_focus = {
 		modifier = {
 			factor = 0
 			OR = {
-				has_tech = trench_warfare
-				has_tech = mass_assault
-				has_tech = superior_firepower
-				is_researching_technology = trench_warfare
-				is_researching_technology = mass_assault
-				is_researching_technology = superior_firepower
+				has_doctrine = grand_battleplan
+				has_doctrine = mass_assault
+				has_doctrine = superior_firepower
 			}
 		}
 	}
 	completion_reward = {
 		log = "[GetDateText]: [Root.GetName]: Focus BAT_mobile_warfare_conception"
 		army_experience = 20
+		add_mastery_bonus = {
+			bonus = 0.2
+			days = 180
+			folder = land
+			name = BAT_mobile_warfare_conception
+		}
+		add_mastery = {
+			amount = 150
+			track = armor
+		}
 		add_doctrine_cost_reduction = {
 			name = cat_mobile_warfare
 			cost_reduction = 0.5
 			uses = 2
-			category = cat_mobile_warfare
+			category = land_doctrine #was cat_mobile_warfare
 		}
 	}
 	search_filters = { 
@@ -4993,23 +4979,30 @@ shared_focus = {
 		modifier = {
 			factor = 0
 			OR = {
-				has_tech = superior_firepower
-				has_tech = trench_warfare
-				has_tech = mobile_warfare
-				is_researching_technology = superior_firepower
-				is_researching_technology = trench_warfare
-				is_researching_technology = mobile_warfare
+				has_doctrine = superior_firepower
+				has_doctrine = grand_battleplan
+				has_doctrine = new_mobile_warfare
 			}
 		}
 	}
 	completion_reward = {
 		log = "[GetDateText]: [Root.GetName]: Focus BAT_the_power_of_massed_assaults"
 		army_experience = 20
+		add_mastery_bonus = {
+			bonus = 0.2
+			days = 180
+			folder = land
+			name = BAT_the_power_of_massed_assaults
+		}
+		add_mastery = {
+			amount = 150
+			track = infantry
+		}
 		add_doctrine_cost_reduction = {
 			name = cat_mass_assault
 			cost_reduction = 0.5
 			uses = 2
-			category = cat_mass_assault
+			category = land_doctrine #was cat_mass_assault
 		}
 	}
 	search_filters = { 
@@ -5098,6 +5091,8 @@ shared_focus = {
 	}
 	completion_reward = {
 		log = "[GetDateText]: [Root.GetName]: Focus BAT_combat_enhancers"
+		set_country_flag = has_super_force_attack
+		set_country_flag = has_super_last_stand
 		custom_effect_tooltip = super_combat_abilities_tt
 		hidden_effect = {
 		    country_event = { 
@@ -6961,7 +6956,7 @@ shared_focus = {
 	}
 
 	ai_will_do = {
-		factor = 15
+		factor = 20
 	}
 	completion_reward = {
 		log = "[GetDateText]: [Root.GetName]: Focus BAT_voe_to_the_vanquished"
@@ -7093,10 +7088,8 @@ shared_focus = {
 	}
 	bypass = {
 	    WAR = { 
-			OR = {
-				exists = no
-				is_subject_of = ROOT 
-				has_war_with = BAT
+			NOT = {
+				NZW_is_unaligned = yes
 			}
 		} 
 	}
@@ -7111,25 +7104,14 @@ shared_focus = {
 	will_lead_to_war_with = WAR
 	completion_reward = {
 		log = "[GetDateText]: [Root.GetName]: Focus BAT_the_gamble"
-		if = {
-		    limit = {
-			    WAR = {
-				    OR = {
-					    is_in_faction_with = HIP
-						is_guaranteed_by = HIP
-					}
-				}
-			}
-            HIP = {
-			    country_event = {
-					id = bat.71
-				}
-			}
-		}
+		
 		declare_war_on = {
 			target = WAR
 			type = annex_everything
         }		
+	}
+	search_filters = { 
+        FOCUS_FILTER_ANNEXATION
 	}
 }
 
@@ -7187,6 +7169,14 @@ shared_focus = {
 	prerequisite = { 
 	    focus = BAT_colthaginian_volunteer_corps 
 	}
+
+	available = {
+		OR = {
+			is_subject = no
+			is_subject_of = NLR
+		}
+	}
+
 	bypass = {
 	    HIP = { 
 			OR = {
@@ -7203,14 +7193,41 @@ shared_focus = {
 			has_war = yes
 			factor = 0.25
 		}
+		modifier = {
+			date > 1011.1.1 # Better get to it
+			factor = 2
+		}
+		modifier = {
+			has_completed_focus = BAT_the_gamble
+			factor = 1.5
+		}
 	}
+	
 	will_lead_to_war_with = HIP
+	will_lead_to_war_with = WAR 
+	
 	completion_reward = {
 		log = "[GetDateText]: [Root.GetName]: Focus BAT_seize_our_destiny"
+
 		declare_war_on = {
 			target = HIP
 			type = annex_everything
-        }
+		}
+		
+		every_country = { # Hippogriffia's allies
+			limit = {
+				NZW_is_north_zebrican_tag = yes
+				NZW_is_aligned_with_HIP = yes
+			}
+			ROOT = {
+				declare_war_on = {
+					target = PREV
+					type = annex_everything
+				}
+			}
+		}
+		
+		NZW_on_start_effect = yes
 	}
 	search_filters = { 
         FOCUS_FILTER_ANNEXATION		
@@ -7235,6 +7252,12 @@ shared_focus = {
 	}
 	completion_reward = {
 		log = "[GetDateText]: [Root.GetName]: Focus BAT_the_new_admirality"
+		add_mastery_bonus = {
+			bonus = 0.2
+			days = 180
+			folder = naval
+			name = BAT_the_new_admirality
+		}
 		add_doctrine_cost_reduction = {
 			name = navy_bonus
 			cost_reduction = 0.5
@@ -7298,7 +7321,6 @@ shared_focus = {
 			name = navy_bonus
 			bonus = 3.0
 			uses = 1
-			category = cl_tech
 			category = ca_tech
 		}
 		add_tech_bonus = {
@@ -8898,6 +8920,12 @@ shared_focus = {
 	}
 	completion_reward = {
 		log = "[GetDateText]: [Root.GetName]: Focus BAT_legionary_aerodynamics"
+		add_mastery_bonus = {
+			bonus = 0.2
+			days = 180
+			folder = air
+			name = BAT_legionary_aerodynamics
+		}
 		add_doctrine_cost_reduction = {
 			name = air_doc_bonus
 			cost_reduction = 0.5
@@ -9327,6 +9355,12 @@ shared_focus = {
 	}
 	completion_reward = {
 		log = "[GetDateText]: [Root.GetName]: Focus BAT_operational_integrity"
+		add_mastery_bonus = {
+			bonus = 0.2
+			days = 180
+			folder = land
+			name = BAT_operational_integrity
+		}
 		add_doctrine_cost_reduction = {
 			name = land_doc_bonus
 			cost_reduction = 0.5
@@ -11672,8 +11706,8 @@ shared_focus = {
 			category = construction_tech
 		}
 		add_resource = {
-			type = steel
-			amount = 12
+			type = coal
+			amount = 14
 			state = 690
 		}
 		add_resource = {
@@ -12190,6 +12224,12 @@ shared_focus = {
 	completion_reward = {
 		log = "[GetDateText]: [Root.GetName]: Focus BAT_b2"
 		army_experience = 50
+		add_mastery_bonus = {
+			bonus = 0.2
+			days = 180
+			folder = land
+			name = BAT_b2
+		}
 		add_doctrine_cost_reduction = {
 			name = land_doc_bonus
 			cost_reduction = 0.5
@@ -13060,6 +13100,12 @@ shared_focus = {
 	completion_reward = {
 		log = "[GetDateText]: [Root.GetName]: Focus BAT_b20"
 		air_experience = 50
+		add_mastery_bonus = {
+			bonus = 0.2
+			days = 180
+			folder = air
+			name = BAT_b20
+		}
 		add_doctrine_cost_reduction = {
 			name = air_doc_bonus
 			cost_reduction = 0.5
@@ -13768,6 +13814,12 @@ shared_focus = {
 					}
 				}
 			}
+		}
+		add_mastery_bonus = {
+			bonus = 0.2
+			days = 180
+			folder = naval
+			name = BAT_b28
 		}
 		add_doctrine_cost_reduction = {
 			name = navy_bonus
@@ -22826,6 +22878,12 @@ shared_focus = {
 		swap_ideas = {
 		    remove_idea = BAT_zuwena_military_reforms_2
 		    add_idea = BAT_zuwena_military_reforms_3
+		}
+		add_mastery_bonus = {
+			bonus = 0.2
+			days = 180
+			folder = land
+			name = BAT_g27
 		}
 		add_doctrine_cost_reduction = {
 			name = land_doc_bonus
