@@ -156,10 +156,11 @@ decrease_resistance_industry_modifier = {
 		tooltip = production_factory_efficiency_gain_factor_tt
 	}
 }
-ROA_civil_war_effect = {
+ROA_civil_war_effect = { # United effect for Lansin's Uprising and Civil War after death of Augustus
 	if = {
 		limit = {
 			NOT = { has_country_flag = uprising_suppressed }
+			NOT = { has_country_flag = uprising_happened }
 		}
 		retire_character = ROA_lansin
 		create_dynamic_country = {
@@ -225,19 +226,17 @@ ROA_civil_war_effect = {
 				allow_spawning_on_enemy_provs = yes
 			}
 		}
-		every_enemy_country = {
+		every_enemy_country = { # Every country in war with ROA declares war on uprising too
 			declare_war_on = {
 				target = event_target:lansin_uprising
 				type = annex_everything
 			}
 		}
+		set_country_flag = uprising_happened
 	}
-	if = {
+	if = { # Legate with lower influence will go to Lansin
 		limit = {
-			has_country_leader = {
-    			character = ROA_kaiser_augustus
-    			ruling_only = yes
-			}
+			NOT = { has_country_flag = augustus_dead }
 		}
 		if = {
 			limit = {
@@ -264,30 +263,47 @@ ROA_civil_war_effect = {
 			}
 		}
 	}
-	else = {
-		create_dynamic_country = {
+	else_if = { # Civil War in case of Augustus's death
+		limit = {
+			# If ROA doesn't have on of them, he/she went to Lansin previously, so new CW won't happen
+			has_character = ROA_dassal
+			has_character = ROA_alsa
+		}
+		# Divs amount calculation for legate's uprising
+		subtract_from_variable = { legate_power_var = 1 }
+		multiply_variable = { legate_power_var = -10 }
+		clamp_variable = {
+			var = legate_power_var
+			min = 2
+			max = 8
+		}
+		create_dynamic_country = { # Dynamic country is always assumed as non-player
 			original_tag = ROA
    	 		inherit_technology = ROA
-			save_global_event_target_as = dassal_uprising
-			create_country_leader = {
-				name = ROA_dassal
-				picture = "gfx/leaders/ROA/ROA_dassal.tga"
-				ideology = conservatism
-			}
-			add_country_leader_role = {
-				character = "ROA_dassal"
-				promote_leader = yes
-				country_leader = {
-					ideology = conservatism
-					expire = "1965.1.1.1"
+			save_global_event_target_as = legate_uprising
+			if = {
+				limit = {
+					ROA = {
+						has_country_leader = {
+    						character = ROA_alsa
+    						ruling_only = yes
+						}
+					}
 				}
+				ROA = { retire_character = ROA_dassal }
+				new_leader_is_dassal = yes
 			}
-			set_politics = {
-				ruling_party = democratic
-				elections_allowed = no
-			}
-			set_popularities = {
-				democratic = 100
+			else_if = {
+				limit = {
+					ROA = {
+						has_country_leader = {
+    						character = ROA_dassal
+    						ruling_only = yes
+						}
+					}
+				}
+				ROA = { retire_character = ROA_alsa }
+				new_leader_is_alsa = yes
 			}
 			set_political_power = 200
 			set_stability = 0.8
@@ -315,33 +331,88 @@ ROA_civil_war_effect = {
 				is_core_of = IBZ
 				is_core_of = TSV
 			}
-			add_core_of = event_target:dassal_uprising
-			transfer_state_to = event_target:dassal_uprising
+			add_core_of = event_target:legate_uprising
+			transfer_state_to = event_target:legate_uprising
 			create_unit = {
 				division = "division_template = \"Militia\" start_experience_factor = 0.1"
-				owner = event_target:dassal_uprising
-				count = 3
+				owner = event_target:legate_uprising
+				count = ROA.legate_power_var
 				allow_spawning_on_enemy_provs = yes
 			}
 		}
-		every_enemy_country = {
+		every_enemy_country = { # Every country in war with ROA declares war on uprising too
 			declare_war_on = {
-				target = event_target:dassal_uprising
+				target = event_target:legate_uprising
 				type = annex_everything
 			}
 		}
 	}
-	every_country_with_original_tag = {
+	every_country_with_original_tag = { # Every participant of the civil war declares war on each other
 		original_tag_to_check = ROA
-		add_civil_war_target = event_target:dassal_uprising
-		add_civil_war_target = event_target:lansin_uprising
 		declare_war_on = {
-			target = event_target:dassal_uprising
+			target = ROA
+			type = civil_war
+		}
+		declare_war_on = {
+			target = event_target:legate_uprising
 			type = civil_war
 		}
 		declare_war_on = {
 			target = event_target:lansin_uprising
 			type = civil_war
+		}
+		add_civil_war_target = ROA
+		add_civil_war_target = event_target:legate_uprising
+		add_civil_war_target = event_target:lansin_uprising
+	}
+}
+new_leader_is_dassal = {
+	custom_effect_tooltip = new_leader_is_dassal
+	hidden_effect = {
+		create_country_leader = {
+			name = ROA_dassal
+			picture = "gfx/leaders/ROA/ROA_dassal.tga"
+			ideology = conservatism
+		}
+		add_country_leader_role = {
+			character = "ROA_dassal"
+			promote_leader = yes
+			country_leader = {
+				ideology = conservatism
+				expire = "1965.1.1.1"
+			}
+		}
+		set_politics = {
+			ruling_party = democratic
+			elections_allowed = no
+		}
+		set_popularities = {
+			democratic = 100
+		}
+	}
+}
+new_leader_is_alsa = {
+	custom_effect_tooltip = new_leader_is_alsa
+	hidden_effect = {
+		create_country_leader = {
+			name = ROA_alsa
+			picture = "gfx/leaders/ROA/ROA_alsa.tga"
+			ideology = nazism
+		}
+		add_country_leader_role = {
+			character = "ROA_alsa"
+			promote_leader = yes
+			country_leader = {
+				ideology = nazism
+				expire = "1965.1.1.1"
+			}
+		}
+		set_politics = {
+			ruling_party = fascism
+			elections_allowed = no
+		}
+		set_popularities = {
+			fascism = 100
 		}
 	}
 }
