@@ -596,7 +596,7 @@ MGY_StormRecovery_weekly_effect = { # This effect fires weekly
 
 MGY_Granary_Setup_effect = {
 	set_variable = {
-		MGY_Grain_var = 250
+		MGY_Grain_var = 0
 	}
 	set_variable = {
 		MGY_GranaryPolCost_var = 35
@@ -607,149 +607,98 @@ MGY_Granary_Setup_effect = {
 	set_variable = {
 		MGY_GranaryPonypowerLargeCost_var = 2500
 	}
-	add_dynamic_modifier = {
-		modifier = MGY_GranaryOfZebrica_Dynmod
-	}
-	add_dynamic_modifier = {
-		modifier = MGY_GranaryFoodImport_Dynmod
-	}
-	set_variable = {
-		MGY_MarketDecision_var = 1
-	}
-	set_variable = {
-		MGY_ProductionDecision_var = 1
-	}
-	# Build the farms available at the start
+	# Add the Dynamic Modifiers and variables to each starting "agrarian" states
 	735 = { #Manephis
-		add_building_construction = {
-			type = MGY_Farms
-			level = 1
-			province = 10184
+		add_dynamic_modifier = {
+			modifier = MGY_MODIFIER_LocalGrainProduction_Dynmod
 		}
-		add_building_construction = {
-			type = MGY_Granary
-			level = 2
-			province = 10184
+		set_variable = {
+			MGY_StateGrainProd_var = 50
 		}
-		add_building_construction = {
-			type = MGY_Farms
-			level = 2
-			province = 10263
-		}
-		add_building_construction = {
-			type = MGY_Farms
-			level = 1
-			province = 10214
+		set_variable = {
+			MGY_StateGrainStorage_var = 250
 		}
 	}
 	736 = { #Hayxor
-		add_building_construction = {
-			type = MGY_Farms
-			level = 2
-			province = 8250
+		add_dynamic_modifier = {
+			modifier = MGY_MODIFIER_LocalGrainProduction_Dynmod
 		}
-		add_building_construction = {
-			type = MGY_Farms
-			level = 2
-			province = 10300
+		set_variable = {
+			MGY_StateGrainProd_var = 50
+		}
+		set_variable = {
+			MGY_StateGrainStorage_var = 100
 		}
 	}
 	734 = { #Rathep
-		add_building_construction = {
-			type = MGY_Farms
-			level = 2
-			province = 7269
+		add_dynamic_modifier = {
+			modifier = MGY_MODIFIER_LocalGrainProduction_Dynmod
+		}
+		set_variable = {
+			MGY_StateGrainProd_var = 50
+		}
+		set_variable = {
+			MGY_StateGrainStorage_var = 150
 		}
 	}
-	# Calcluate the "real" variables
-	MGY_Granary_CalcPercentageGain_effect = yes
-	MGY_Granary_CalcPercentageMax_effect = yes
+	MGY_Granary_Update_effect = yes
 }
 
-MGY_Granary_CalcPercentageGain_effect = { #Updates the real food gain: MGY_Grain_increase_var x ( MGY_Grain_increase_factor_var + 1) = MGY_WeeklyFoodChange_var
-	# Fetch the Variables
-	set_temp_variable = {
-		# base food gain
-		MGY_Grain_increase_tempvar = modifier@MGY_Grain_increase_modifier
-	}
-	set_temp_variable = {
-		# percentage
-		MGY_Grain_increase_factor_tempvar = modifier@MGY_Grain_increase_factor_modifier
-	}
-	add_to_temp_variable = {
-		#Adjust for multiplier
-		MGY_Grain_increase_factor_tempvar = 1
-	}
-	multiply_temp_variable = {
-		# Multiply
-		var = MGY_Grain_increase_tempvar
-		value = MGY_Grain_increase_factor_tempvar
+MGY_Granary_Update_effect = { # Master effect to update all the storage, production and grain variables. Use this whenever modifying a provinces' production of grain.
+	MGY_Granary_fetchValues_effect = yes
+	MGY_Granary_calculateRealProduction_effect = yes
+}
+
+MGY_Granary_fetchValues_effect = { # Fetches and totals the base production/storage variables for all the coutnry
+	set_variable = {
+		MGY_TotalGrainProduction_var = 0
 	}
 	set_variable = {
-		#Store result in non-temporary variable: THIS is the display variable
-		MGY_WeeklyFoodChange_var = MGY_Grain_increase_tempvar
+		MGY_TotalGrainStorage_var = 0
 	}
-}
-
-MGY_Granary_CalcPercentageMax_effect = { #Updates the real maximum food: MGY_Grain_max_var x ( MGY_Grain_max_factor_var + 1)
-	# Fetch the Variables
-	set_temp_variable = {
-		# base food gain
-		MGY_Grain_max_tempvar = modifier@MGY_Grain_max_modifier
-	}
-	set_temp_variable = {
-		# percentage
-		MGY_Grain_max_factor_tempvar = modifier@MGY_Grain_max_factor_modifier
-	}
-	add_to_temp_variable = {
-		#Adjust for multiplier
-		MGY_Grain_max_factor_tempvar = 1
-	}
-	multiply_temp_variable = {
-		# Multiply
-		var = MGY_Grain_max_tempvar
-		value = MGY_Grain_max_factor_tempvar
-	}
-	set_variable = {
-		#Store result in non-temporary variable: THIS is the display variable
-		MGY_Grain_capacity_var = MGY_Grain_max_tempvar
-	}
-}
-
-MGY_Granary_CheckFoodNeeds_effect = { #Effect only triggers if food is in the negative. The higher the negative, the higher the consumer goods factor penalty
-	if = {
+	every_owned_state = {
 		limit = {
-			check_variable = {
-				var = MGY_Grain_var
-				value = 0
-				compare = less_than
+			impassable = no
+			has_dynamic_modifier = {
+				modifier = MGY_MODIFIER_LocalGrainProduction_Dynmod
 			}
 		}
-		set_variable = {
-			MGY_FoodNeedImpact_var = MGY_Grain_var
-		}
-		divide_variable = {
-			MGY_FoodNeedImpact_var = -1000
-		}
-	}
-	else = {
-		set_variable = {
-			MGY_FoodNeedImpact_var = 0
+		owner = {
+			add_to_variable = {
+				MGY_TotalGrainProduction_var = PREV.MGY_StateGrainProd_var
+			}
+			add_to_variable = {
+				MGY_TotalGrainStorage_var = PREV.MGY_StateGrainStorage_var
+			}
 		}
 	}
 }
 
-MGY_Granary_OnWeek_effect = { #As on the tin, updates the food gain per week
-	MGY_Granary_CalcPercentageGain_effect = yes
-	MGY_Granary_CalcPercentageMax_effect = yes
+MGY_Granary_calculateRealProduction_effect = { #This is to make sure the "MGY_grain_production_factor_modifier" modifier actually does somethimg
+	set_variable = {
+		MGY_RealGrainProduction_var = MGY_TotalGrainProduction_var
+	}
+	set_variable = {
+		MGY_grain_production_factor_var = modifier@MGY_grain_production_factor_modifier
+	}
 	add_to_variable = {
-		MGY_Grain_var = MGY_WeeklyFoodChange_var
+		MGY_grain_production_factor_var = 1
+	}
+	multiply_variable = {
+		MGY_RealGrainProduction_var = MGY_grain_production_factor_var
+	}
+	round_variable = MGY_RealGrainProduction_var
+}
+
+MGY_Granary_updateGrainInStorage_effect = { # Adds/Caps the grain variable
+	add_to_variable = {
+		MGY_Grain_var = MGY_RealGrainProduction_var
 	}
 	clamp_variable = {
 		var = MGY_Grain_var
-		max = MGY_Grain_capacity_var
+		min = 0
+		max = MGY_TotalGrainStorage_var
 	}
-	# MGY_Granary_CheckFoodNeeds_effect = yes
 }
 
 ###########################
@@ -757,22 +706,7 @@ MGY_Granary_OnWeek_effect = { #As on the tin, updates the food gain per week
 ###########################
 
 MGY_refreshGranaryScriptedUi_effect = {
-	force_update_dynamic_modifier = yes
-	if = {
-		limit = {
-			check_variable = {
-				MGY_GranaryOfZebrica_var = 0
-			}
-		}
-		set_variable = {
-			MGY_GranaryOfZebrica_var = 1
-		}
-	}
-	else = {
-		set_variable = {
-			MGY_GranaryOfZebrica_var = 0
-		}
-	}
+	
 }
 
 ###########################
@@ -789,12 +723,12 @@ MGY_ReturnManpower_effect = {
 			has_completed_focus = MGY_ModernTools
 		}
 		multiply_temp_variable = {
-			MGY_ManpowerReturn_tempvar = 0.8
+			MGY_ManpowerReturn_tempvar = 0.9
 		}
 	}
 	else = {
 		multiply_temp_variable = {
-			MGY_ManpowerReturn_tempvar = 0.5
+			MGY_ManpowerReturn_tempvar = 0.45
 		}
 	}
 	add_manpower = MGY_ManpowerReturn_tempvar
