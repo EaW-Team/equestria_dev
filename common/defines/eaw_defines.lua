@@ -3,6 +3,7 @@ NDefines.NCountry.BASE_MOBILIZATION_SPEED = 0.025
 NDefines.NGame.START_DATE = "1007.1.1.12"
 NDefines.NGame.END_DATE = "1030.1.1.1"
 NDefines.NGame.HANDS_OFF_START_TAG = "DRG"
+NDefines.NGame.MAX_EFFECT_ITERATION = 50000
 
 NDefines.NDiplomacy.TENSION_TIME_SCALE_START_DATE = "1007.1.1.12"
 NDefines.NDiplomacy.VOLUNTEERS_DIVISIONS_REQUIRED = 10
@@ -143,3 +144,57 @@ NDefines.NTechnology.BASE_YEAR_AHEAD_PENALTY_FACTOR = 2.25	-- Base year ahead pe
 
 NDefines.NAI.DEFAULT_MODULE_VARIANT_CREATION_XP_CUTOFF_LAND = 30
 NDefines.NAI.DEFAULT_MODULE_VARIANT_CREATION_XP_CUTOFF_NAVY = 50
+NDefines.NFactions.FACTION_INTELLIGENCE_ALLOWED_ADVISOR_TRAIT = {
+	"head_of_intelligence",
+	"mastermind_code_cracker",
+	"expert_code_cracker",
+	"spymaster",
+	"spymaster_no_lar",
+	"commander_of_the_fetno_derash",
+	"commander_of_the_fetno_derash_no_lar",
+	"SWI_soviet_spy",
+	"SWI_intelligence_officer",
+	"special_envoy",
+	"BRA_soviet_spy",
+	"HUN_military_intelligence_officer",
+	"AUS_secretive_priest",
+	"AUS_veteran_head_of_agency",
+	"BEL_illusive_mastermind",
+	"GER_intelligence_coordinator",
+	"GER_secretary_of_state_security",
+	"GER_reich_security_main_office_director_lar",
+	"GER_reich_security_main_office_director_no_lar",
+	"head_of_the_abwehr",
+	"head_of_the_abwehr_improved",
+	"intelligence_service_deputy",
+	"PRC_multi_talented_diplomat_lar",
+	"PRC_multi_talented_diplomat_no_lar",
+	"PRC_trained_by_the_nkvd",
+	"PRC_spymaster",
+	"PHI_intelligence_bureau_chief",
+	"HUN_stalinist_agent",
+	"JAP_tokko_chief",
+	"CHI_spymaster",
+	"head_of_intelligence_kirin",
+	"HEL_general_secretary",
+	"HEL_general_secretary_lar",
+	"FAT_head_of_intelligence",
+	"FAT_head_of_intelligence_lar", 
+	"head_of_ohs",
+	"head_of_ohs_lar",
+	"cryptologic_genius_lar",
+	"cryptologic_genius",
+	"agent_of_smile_lar",
+	"great_nobody",
+	"great_nobody_lar",
+	"GRI_iron_lady",
+	"GRI_iron_lady_lar",
+	"KIR_birdkeeper",
+	"KIR_birdkeeper_lar",
+	"JER_kindly_enigma",
+	"JER_kindly_enigma_lar",
+	"head_of_intelligence_useless",
+	"TBK_AF_lightbringer_advisor",
+	"TBK_AF_lightbringer_advisor_expanded"
+}
+NDefines.NDoctrines.TRAINING_MASTERY_GAIN_FACTOR = 0.05 -- vanilla is 0.1
