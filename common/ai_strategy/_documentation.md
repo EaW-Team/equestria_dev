@@ -670,11 +670,13 @@ ai_strategy = {
 ```
 
 ### `naval_dominance`
-Used to set the naval dominance for a strategic region
+Used to set the naval dominance for an AI area
 ```
 ai_strategy = {
 	type = naval_dominance
-	id = 78 # Strategic region Id
+	id = winter_war_front # AI area key
+	OR
+	id = 271 # region id
 	value = 99 # Percentage between 0 and 100
 }
 ```
