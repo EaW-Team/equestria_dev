@@ -15,7 +15,7 @@ variable.
 * [military_industrial_organization](#dynamic-variables-for-scope-military_industrial_organization)
 * [special_project](#dynamic-variables-for-scope-special_project)
 
-## Dynamic variables for scope global
+## dynamic_variables_documentation.mdglobal
 
 ### countries
 * description: get array of all countries (including non existing
@@ -26,6 +26,12 @@ variable.
 ### difficulty
 * description: check if the difficulty is above or below specified value 0-2 (difficulty enum). Example: difficulty > 0 (above easy)
 * (Auto generated using the trigger with same name)
+
+### global_resource_extracted
+* description: total amount of specific resource extracted by the world, resource type is defined in target global_resource_extracted@steel
+
+### global_resource_extracted_total
+* description: total amount of resources extracted by the world
 
 ### ideology_groups
 * description: array of objects in ideology_groups database
@@ -95,7 +101,7 @@ power_balance_weekly_change = {
 ### year
 * description: current year
 
-## Dynamic variables for scope country
+## dynamic_variables_documentation.mdcountry
 
 ### agency_upgrade_number
 * description: Checks the number of upgrade done in the intelligence agency. 
@@ -371,11 +377,82 @@ decryption_progress = {
 ### exiles
 * description: exile host of this country
 
+### faction_influence_rank
+* description: ![MD]
+Checks influence rank in the faction of the current country
+
+### Examples
+```
+TAG = {
+	faction_influence_rank < 5
+}
+```
+
+* (Auto generated using the trigger with same name)
+
+### faction_influence_ratio
+* description: ![MD]
+ Checks influence ratio of current country in the faction
+
+### Examples
+```
+ TAG = {
+	faction_influence_ratio > 0.1
+}
+```
+
+* (Auto generated using the trigger with same name)
+
+### faction_influence_score
+* description: ![MD]
+ Checks influence value of current country in the faction
+
+### Examples
+```
+ TAG = {
+	faction_influence_score > 100
+}
+```
+
+* (Auto generated using the trigger with same name)
+
 ### faction_leader
 * description: faction leader of this country's faction
 
+### faction_manifest_fulfillment
+* description: ![MD]
+Checks manifest fulfillment value of current country's faction manifest
+
+### Examples
+```
+TAG = {
+	faction_manifest_fulfillment > VALUE
+}
+```
+
+* (Auto generated using the trigger with same name)
+
 ### faction_members
 * description: array of faction members
+
+### faction_power_projection
+* description: ![MD]
+Checks power value of current country's faction projection
+
+### Examples
+```
+TAG = {
+	faction_power_projection > VALUE
+}
+```
+
+* (Auto generated using the trigger with same name)
+
+### faction_resource_extracted
+* description: total amount of specific resource extracted by the country's faction, resource type is defined in target faction_resource_extracted@steel
+
+### faction_resource_extracted_total
+* description: total amount of resources extracted by the country's faction
 
 ### foreign_manpower
 * description: check the amount of foreign garrison manpower we have
@@ -824,6 +901,12 @@ CZE = { pc_total_score > 400 }
 ### total_constructed_naval_fort
 * description: Total constructions of naval_fort
 
+### total_constructed_naval_headquarter
+* description: Total constructions of naval_headquarter
+
+### total_constructed_naval_supply_hub
+* description: Total constructions of naval_supply_hub
+
 ### total_constructed_nuclear_reactor
 * description: Total constructions of nuclear_reactor
 
@@ -953,13 +1036,16 @@ CZE = { pc_total_score > 400 }
 ### total_equipment_produced_support
 * description: Total produced equipment of typesupport
 
+### total_equipment_produced_support_ship
+* description: Total produced equipment of typesupport_ship
+
 ### total_equipment_produced_tactical_bomber
 * description: Total produced equipment of typetactical_bomber
 
 ### total_equipment_produced_train
 * description: Total produced equipment of typetrain
 
-## Dynamic variables for scope state
+## dynamic_variables_documentation.mdstate
 
 ### arms_factory_level
 * description: military factory level in the state
@@ -1039,7 +1125,7 @@ days_since_last_strategic_bombing < 10
 * description: Checks for state strategic value
 * (Auto generated using the trigger with same name)
 
-## Dynamic variables for scope unit_leader
+## dynamic_variables_documentation.mdunit_leader
 
 ### army_attack_level
 * description: attack level of the leader
@@ -1245,7 +1331,7 @@ Example: planning_skill_level > 5
 ### unit_ratio_ready_for_plan
 * description: ratio of units that are ready for plan
 
-## Dynamic variables for scope military_industrial_organization
+## dynamic_variables_documentation.mdmilitary_industrial_organization
 
 ### funds
 * description: Funds of the military industrial organization
@@ -1272,7 +1358,7 @@ ex: modifier@military_industrial_organization_research_bonus
 ### size
 * description: Size of the military industrial organization
 
-## Dynamic variables for scope special_project
+## dynamic_variables_documentation.mdspecial_project
 
 ### facility_province_id
 * description: The province that the project is researched in

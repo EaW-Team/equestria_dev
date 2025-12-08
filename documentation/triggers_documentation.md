@@ -6,6 +6,7 @@
 * [CHARACTER](#triggers-for-scope-character)
 * [COMBATANT](#triggers-for-scope-combatant)
 * [COUNTRY](#triggers-for-scope-country)
+* [FACTION](#triggers-for-scope-faction)
 * [INDUSTRIAL_ORG](#triggers-for-scope-industrial_org)
 * [OPERATION](#triggers-for-scope-operation)
 * [PURCHASE_CONTRACT](#triggers-for-scope-purchase_contract)
@@ -63,6 +64,7 @@
 * [is_hired_as_advisor](#is_hired_as_advisor)
 * [is_leading_army](#is_leading_army)
 * [is_leading_army_group](#is_leading_army_group)
+* [is_leading_army_in_province](#is_leading_army_in_province)
 * [is_leading_volunteer_group](#is_leading_volunteer_group)
 * [is_leading_volunteer_group_with_original_country](#is_leading_volunteer_group_with_original_country)
 * [is_navy_chief](#is_navy_chief)
@@ -184,6 +186,7 @@
 * [any_war_score](#any_war_score)
 * [army_manpower_in_state](#army_manpower_in_state)
 * [building_count_trigger](#building_count_trigger)
+* [can_assign_supportive_scientist_to_faction](#can_assign_supportive_scientist_to_faction)
 * [can_be_country_leader](#can_be_country_leader)
 * [can_declare_war_on](#can_declare_war_on)
 * [can_research](#can_research)
@@ -195,6 +198,7 @@
 * [command_power_daily](#command_power_daily)
 * [compare_autonomy_progress_ratio](#compare_autonomy_progress_ratio)
 * [compare_autonomy_state](#compare_autonomy_state)
+* [compare_ideology_with_faction](#compare_ideology_with_faction)
 * [compare_intel_with](#compare_intel_with)
 * [conscription_ratio](#conscription_ratio)
 * [controls_province](#controls_province)
@@ -202,6 +206,7 @@
 * [convoy_threat](#convoy_threat)
 * [core_compliance](#core_compliance)
 * [core_resistance](#core_resistance)
+* [count_in_collection](#count_in_collection)
 * [current_conscription_amount](#current_conscription_amount)
 * [days_since_capitulated](#days_since_capitulated)
 * [decryption_progress](#decryption_progress)
@@ -212,6 +217,13 @@
 * [estimated_intel_max_armor](#estimated_intel_max_armor)
 * [estimated_intel_max_piercing](#estimated_intel_max_piercing)
 * [exists](#exists)
+* [faction_goal_fulfillment](#faction_goal_fulfillment)
+* [faction_influence_rank](#faction_influence_rank)
+* [faction_influence_ratio](#faction_influence_ratio)
+* [faction_influence_score](#faction_influence_score)
+* [faction_manifest_fulfillment](#faction_manifest_fulfillment)
+* [faction_power_projection](#faction_power_projection)
+* [faction_upgrade_level](#faction_upgrade_level)
 * [fighting_army_strength_ratio](#fighting_army_strength_ratio)
 * [focus_progress](#focus_progress)
 * [foreign_manpower](#foreign_manpower)
@@ -222,6 +234,7 @@
 * [get_supply_vehicles_temp](#get_supply_vehicles_temp)
 * [gives_military_access_to](#gives_military_access_to)
 * [has_active_mission](#has_active_mission)
+* [has_active_rule](#has_active_rule)
 * [has_added_tension_amount](#has_added_tension_amount)
 * [has_air_experience](#has_air_experience)
 * [has_allowed_idea_with_traits](#has_allowed_idea_with_traits)
@@ -246,7 +259,10 @@
 * [has_character](#has_character)
 * [has_civil_war](#has_civil_war)
 * [has_collaboration](#has_collaboration)
+* [has_completed_faction_goal](#has_completed_faction_goal)
 * [has_completed_focus](#has_completed_focus)
+* [has_completed_subdoctrine](#has_completed_subdoctrine)
+* [has_completed_track](#has_completed_track)
 * [has_contested_owner](#has_contested_owner)
 * [has_convoys_war_support](#has_convoys_war_support)
 * [has_core_occupation_modifier](#has_core_occupation_modifier)
@@ -262,11 +278,18 @@
 * [has_defensive_war_with](#has_defensive_war_with)
 * [has_deployed_air_force_size](#has_deployed_air_force_size)
 * [has_design_based_on](#has_design_based_on)
+* [has_doctrine](#has_doctrine)
 * [has_done_agency_upgrade](#has_done_agency_upgrade)
 * [has_dynamic_modifier](#has_dynamic_modifier)
 * [has_elections](#has_elections)
+* [has_enemy_naval_control](#has_enemy_naval_control)
+* [has_enough_influence_for_leadership](#has_enough_influence_for_leadership)
 * [has_equipment](#has_equipment)
 * [has_facility_specialization](#has_facility_specialization)
+* [has_faction_goal](#has_faction_goal)
+* [has_faction_military_unlocked](#has_faction_military_unlocked)
+* [has_faction_research_unlocked](#has_faction_research_unlocked)
+* [has_faction_template](#has_faction_template)
 * [has_finished_collecting_for_operation](#has_finished_collecting_for_operation)
 * [has_focus_tree](#has_focus_tree)
 * [has_fuel](#has_fuel)
@@ -275,34 +298,43 @@
 * [has_guaranteed](#has_guaranteed)
 * [has_idea](#has_idea)
 * [has_idea_with_trait](#has_idea_with_trait)
+* [has_industry_to_become_leader](#has_industry_to_become_leader)
 * [has_intelligence_agency](#has_intelligence_agency)
 * [has_legitimacy](#has_legitimacy)
 * [has_license](#has_license)
 * [has_manpower](#has_manpower)
 * [has_manpower_for_recruit_change_to](#has_manpower_for_recruit_change_to)
+* [has_manpower_to_become_leader](#has_manpower_to_become_leader)
 * [has_market_access_with](#has_market_access_with)
+* [has_mastery](#has_mastery)
+* [has_mastery_level](#has_mastery_level)
 * [has_military_access_to](#has_military_access_to)
 * [has_military_industrial_organization](#has_military_industrial_organization)
 * [has_mined](#has_mined)
 * [has_mines](#has_mines)
+* [has_naval_control](#has_naval_control)
 * [has_naval_invasion_against_state](#has_naval_invasion_against_state)
 * [has_navy_experience](#has_navy_experience)
 * [has_navy_size](#has_navy_size)
 * [has_non_aggression_pact_with](#has_non_aggression_pact_with)
 * [has_offensive_war](#has_offensive_war)
 * [has_offensive_war_with](#has_offensive_war_with)
+* [has_offensive_war_without_friend](#has_offensive_war_without_friend)
 * [has_operation_token](#has_operation_token)
 * [has_opinion](#has_opinion)
 * [has_opinion_modifier](#has_opinion_modifier)
 * [has_political_power](#has_political_power)
 * [has_power_balance](#has_power_balance)
 * [has_relation_modifier](#has_relation_modifier)
+* [has_resources_in_collection](#has_resources_in_collection)
 * [has_resources_in_country](#has_resources_in_country)
 * [has_resources_rights](#has_resources_rights)
 * [has_scientist_specialization](#has_scientist_specialization)
 * [has_shine_effect_on_focus](#has_shine_effect_on_focus)
 * [has_stability](#has_stability)
+* [has_subdoctrine_in_track](#has_subdoctrine_in_track)
 * [has_subject](#has_subject)
+* [has_tactic](#has_tactic)
 * [has_tech](#has_tech)
 * [has_tech_bonus](#has_tech_bonus)
 * [has_template](#has_template)
@@ -350,6 +382,7 @@
 * [is_licensing_to](#is_licensing_to)
 * [is_major](#is_major)
 * [is_neighbor_of](#is_neighbor_of)
+* [is_on_same_continent_as](#is_on_same_continent_as)
 * [is_owner_neighbor_of](#is_owner_neighbor_of)
 * [is_preparing_operation](#is_preparing_operation)
 * [is_puppet](#is_puppet)
@@ -431,6 +464,11 @@
 * [target_conscription_amount](#target_conscription_amount)
 * [war_length_with](#war_length_with)
 
+## Triggers for scope FACTION
+
+* [hidden_trigger](#hidden_trigger)
+* [meta_trigger](#meta_trigger)
+
 ## Triggers for scope INDUSTRIAL_ORG
 
 * [has_mio_equipment_type](#has_mio_equipment_type)
@@ -480,6 +518,7 @@
 
 ## Triggers for scope STATE
 
+* [all_claimant](#all_claimant)
 * [all_neighbor_state](#all_neighbor_state)
 * [any_country_with_core](#any_country_with_core)
 * [any_neighbor_state](#any_neighbor_state)
@@ -517,6 +556,7 @@
 * [is_in_home_area](#is_in_home_area)
 * [is_island_state](#is_island_state)
 * [is_on_continent](#is_on_continent)
+* [is_on_same_continent_as](#is_on_same_continent_as)
 * [is_one_state_island](#is_one_state_island)
 * [is_owned_and_controlled_by](#is_owned_and_controlled_by)
 * [is_owned_by](#is_owned_by)
@@ -551,7 +591,9 @@
 
 * [add_to_temp_array](#add_to_temp_array)
 * [add_to_temp_variable](#add_to_temp_variable)
+* [all_collection_elements](#all_collection_elements)
 * [all_country](#all_country)
+* [all_country_of](#all_country_of)
 * [all_country_with_original_tag](#all_country_with_original_tag)
 * [all_of](#all_of)
 * [all_of_scopes](#all_of_scopes)
@@ -559,13 +601,19 @@
 * [all_state](#all_state)
 * [always](#always)
 * [and](#and)
+* [any_collection_element](#any_collection_element)
 * [any_country](#any_country)
+* [any_country_of](#any_country_of)
 * [any_country_with_original_tag](#any_country_with_original_tag)
+* [any_country_with_original_tag_of](#any_country_with_original_tag_of)
 * [any_of](#any_of)
 * [any_of_scopes](#any_of_scopes)
 * [any_other_country](#any_other_country)
+* [any_other_country_of](#any_other_country_of)
+* [any_other_country_with_original_tag_of](#any_other_country_with_original_tag_of)
 * [any_state](#any_state)
 * [any_state_in](#any_state_in)
+* [any_state_of](#any_state_of)
 * [can_build_railway](#can_build_railway)
 * [career_profile_check_medal](#career_profile_check_medal)
 * [career_profile_check_playthrough_ratio](#career_profile_check_playthrough_ratio)
@@ -580,6 +628,8 @@
 * [check_variable](#check_variable)
 * [clamp_temp_variable](#clamp_temp_variable)
 * [clear_temp_array](#clear_temp_array)
+* [collection_contains](#collection_contains)
+* [collection_size](#collection_size)
 * [count_triggers](#count_triggers)
 * [country_exists](#country_exists)
 * [custom_override_tooltip](#custom_override_tooltip)
@@ -787,6 +837,41 @@ ex: GER = {
 check if all characters meets the trigger. tooltip=key can be defined to override title
 ```
 
+## all_claimant
+
+* Supported Scopes: STATE
+* Supported Targets: THIS, ROOT, PREV, FROM, OWNER, CONTROLLER, OCCUPIED, CAPITAL
+
+Checks if the provided trigger is true for all countries that claims the state in scope.
+`tooltip` supports bindable localization.
+
+### Example
+```
+all_claimant = {
+	tooltip = my_loc # Optional bindable localization
+	has_war_goal = yes
+}
+```
+
+## all_collection_elements
+
+* Supported Scopes: any
+* Supported Targets: THIS, ROOT, PREV, FROM, OWNER, CONTROLLER, OCCUPIED, CAPITAL
+
+Checks if the triggers are true for all of the elements in the collection.
+
+### Example
+```
+all_collection_elements = {
+    collection = {
+		input = game:scope
+		operators = { controlled_states }
+	}
+	is_core_of = PREV
+}
+```
+
+
 ## all_controlled_state
 
 * Supported Scopes: COUNTRY
@@ -813,6 +898,30 @@ Check if all of the country core states for the scope meets the trigger. tooltip
 ```
 check if all countries meets the trigger. tooltip=key can be defined to override title
 ```
+
+## all_country_of
+
+* Supported Scopes: any
+* Supported Targets: THIS, ROOT, PREV, FROM, OWNER, CONTROLLER, OCCUPIED, CAPITAL
+
+Checks if all of the provided countries fulfill the specified triggers.
+The `target` supports script constants and `tooltip` supports bindable localization.
+
+### Example
+```
+all_country_of = {
+	tooltip = my_loc # Optional bindable localization
+	target = { SWE NOR FIN DEN ICE }
+	has_defensive_war = yes
+}
+
+all_country_of = {
+    tooltip = my_loc # Optional bindable localization
+	target = constant:country_groups:nordics
+	has_defensive_war = yes
+}
+```
+
 
 ## all_country_with_original_tag
 
@@ -1163,6 +1272,34 @@ check if any character meets the trigger. tooltip=key can be defined to override
 check if there is a claim between a country and all others
 ```
 
+## any_collection_element
+
+* Supported Scopes: any
+* Supported Targets: THIS, ROOT, PREV, FROM, OWNER, CONTROLLER, OCCUPIED, CAPITAL
+
+Checks if the triggers are true for any of the elements in the collection.
+If optional parameter `count` is set, then it checks if the number of elements that the trigger is true for is equal or larger than `count`.
+
+### Example
+```
+any_collection_element = {
+    collection = {
+		input = game:scope
+		operators = { controlled_states }
+	}
+	is_core_of = PREV
+}
+any_collection_element = {
+    collection = {
+		input = game:scope
+		operators = { controlled_states }
+	}
+	is_core_of = PREV
+	count = 3
+}
+```
+
+
 ## any_controlled_state
 
 * Supported Scopes: COUNTRY
@@ -1199,6 +1336,30 @@ check if any country meets the trigger
 check if any division meets the trigger. tooltip=key can be defined to override title
 ```
 
+## any_country_of
+
+* Supported Scopes: any
+* Supported Targets: THIS, ROOT, PREV, FROM, OWNER, CONTROLLER, OCCUPIED, CAPITAL
+
+Checks if any of the provided countries fulfill the specified triggers.
+The `target` supports script constants and `tooltip` supports bindable localization.
+
+### Example
+```
+any_country_of = {
+	tooltip = my_loc # Optional bindable localization
+	target = { SWE NOR FIN DEN ICE }
+	has_defensive_war = yes
+}
+
+any_country_of = {
+    tooltip = my_loc # Optional bindable localization
+	target = constant:country_groups:nordics
+	has_defensive_war = yes
+}
+```
+
+
 ## any_country_with_core
 
 * Supported Scopes: STATE
@@ -1220,6 +1381,30 @@ any_country_with_original_tag = {
   # ... triggers to check 
 }
 ```
+
+## any_country_with_original_tag_of
+
+* Supported Scopes: any
+* Supported Targets: THIS, ROOT, PREV, FROM, OWNER, CONTROLLER, OCCUPIED, CAPITAL
+
+Checks if any country that has an original tag that matches any of the provided countries fulfill the specified triggers.
+The `target` supports script constants and `tooltip` supports bindable localization.
+
+### Example
+```
+any_country_with_original_tag_of = {
+	tooltip = my_loc # Optional bindable localization
+	target = { SWE NOR FIN DEN ICE }
+	has_defensive_war = yes
+}
+
+any_country_with_original_tag_of = {
+    tooltip = my_loc # Optional bindable localization
+	target = constant:country_groups:nordics
+	has_defensive_war = yes
+}
+```
+
 
 ## any_enemy_country
 
@@ -1361,6 +1546,54 @@ check if any operatives meets the trigger. tooltip=key can be defined to overrid
 check if any other country meets the trigger. Excludes current country. tooltip=key can be defined to override title
 ```
 
+## any_other_country_of
+
+* Supported Scopes: any
+* Supported Targets: THIS, ROOT, PREV, FROM, OWNER, CONTROLLER, OCCUPIED, CAPITAL
+
+Checks if any of the provided countries (except for the current country) fulfill the specified triggers.
+The `target` supports script constants and `tooltip` supports bindable localization.
+
+### Example
+```
+any_other_country_of = {
+	tooltip = my_loc # Optional bindable localization
+	target = { SWE NOR FIN DEN ICE }
+	has_defensive_war = yes
+}
+
+any_other_country_of = {
+    tooltip = my_loc # Optional bindable localization
+	target = constant:country_groups:nordics
+	has_defensive_war = yes
+}
+```
+
+
+## any_other_country_with_original_tag_of
+
+* Supported Scopes: any
+* Supported Targets: THIS, ROOT, PREV, FROM, OWNER, CONTROLLER, OCCUPIED, CAPITAL
+
+Checks if any country that has an original tag that matches any of the provided countries and isn't the current country fulfill the specified triggers.
+The `target` supports script constants and `tooltip` supports bindable localization.
+
+### Example
+```
+any_country_with_original_tag_of = {
+	tooltip = my_loc # Optional bindable localization
+	target = { SWE NOR FIN DEN ICE }
+	has_defensive_war = yes
+}
+
+any_country_with_original_tag_of = {
+    tooltip = my_loc # Optional bindable localization
+	target = constant:country_groups:nordics
+	has_defensive_war = yes
+}
+```
+
+
 ## any_owned_state
 
 * Supported Scopes: COUNTRY
@@ -1464,6 +1697,34 @@ any_state_in = {	conteinent = europe
 }
 ```
 
+## any_state_of
+
+* Supported Scopes: any
+* Supported Targets: THIS, ROOT, PREV, FROM, OWNER, CONTROLLER, OCCUPIED, CAPITAL
+
+Checks if any of the provided states fulfill the specified triggers.
+The `target` supports script constants and `tooltip` supports bindable localization.
+
+### Example
+```
+any_state_of = {
+	tooltip = my_loc # Optional bindable localization
+	target = { 1 42 1992 }
+	controller = {
+		has_defensive_war = yes
+	}
+}
+
+any_state_of = {
+    tooltip = my_loc # Optional bindable localization
+	target = constant:country_groups:nordics
+	controller = {
+		has_defensive_war = yes
+	}
+}
+```
+
+
 ## any_subject_country
 
 * Supported Scopes: COUNTRY
@@ -1559,7 +1820,7 @@ Example: average_stats > 10
 ```
 Checks if the current scope has the specified amount of the specified building. 
 Usage: <Building> < <int>
-Supported buildings: infrastructure, arms_factory, industrial_complex, air_base, supply_node, rail_way, naval_facility, naval_base, bunker, coastal_bunker, stronghold_network, dockyard, anti_air_building, synthetic_refinery, fuel_silo, radar_station, mega_gun_emplacement, rocket_site, nuclear_reactor, nuclear_reactor_heavy_water, commercial_nuclear_reactor, nuclear_facility, air_facility, land_facility, dam, dam_mountain, canal_kiel, canal_panama, landmark_big_ben, landmark_colosseum, landmark_cristo_redentor, landmark_eiffel_tower, landmark_statue_of_liberty, landmark_kremlin, landmark_hofburg_palace, landmark_berlin_reichstag, landmark_berlin_volkshalle, landmark_taj_mahal, landmark_sadabad_complex, landmark_hagia_sophia.
+Supported buildings: infrastructure, arms_factory, industrial_complex, air_base, supply_node, rail_way, naval_facility, naval_base, bunker, coastal_bunker, stronghold_network, dockyard, anti_air_building, synthetic_refinery, fuel_silo, radar_station, mega_gun_emplacement, rocket_site, naval_supply_hub, naval_headquarters, nuclear_reactor, nuclear_reactor_heavy_water, commercial_nuclear_reactor, nuclear_facility, air_facility, land_facility, dam, dam_mountain, canal_kiel, canal_panama, landmark_big_ben, landmark_colosseum, landmark_cristo_redentor, landmark_eiffel_tower, landmark_statue_of_liberty, landmark_kremlin, landmark_hofburg_palace, landmark_berlin_reichstag, landmark_berlin_volkshalle, landmark_taj_mahal, landmark_sadabad_complex, landmark_hagia_sophia, landmark_forbidden_city, landmark_nanjing_presidential_palace, landmark_nanjing_presidential_palace_prc, landmark_nanjing_presidential_palace_gen, landmark_great_wall_section, landmark_tokyo_imperial_palace, landmark_national_diet, landmark_hakko_ichiu.
 ```
 
 ## buyer
@@ -1569,6 +1830,19 @@ Supported buildings: infrastructure, arms_factory, industrial_complex, air_base,
 
 ```
 Check the buyer country. Example: buyer = GER
+```
+
+## can_assign_supportive_scientist_to_faction
+
+* Supported Scopes: COUNTRY
+* Supported Targets: none
+
+```
+"Checks if the faction from the country in scope has a free slot for a supportive scientist for the country with the specialization type
+ex:
+Ger = {
+	can_assign_supportive_scientist_to_faction = specialization_land
+}"
 ```
 
 ## can_be_country_leader
@@ -1847,6 +2121,47 @@ Clears the contents of a temporary array
 Example: clear_temp_array = array_name
 ```
 
+## collection_contains
+
+* Supported Scopes: any
+* Supported Targets: any
+
+Checks if the provided collection contains all the provided elements. Possible types to check for are:
+- Countries
+
+### Example
+```
+collection_contains = {
+    collection = game:all_countries
+	countries = { ENG GER }
+}
+collection_contains = {
+    collection = game:all_countries
+	country = FRA
+}
+```
+
+
+## collection_size
+
+* Supported Scopes: any
+* Supported Targets: any
+
+Compares size of a collection to a value
+
+NOTE! Comparison is inclusive, so "value > X" actually means "value >= X" etc.!!!
+
+### Example
+```
+collection_size = {
+	input = collection_id # see the documentation in common/collections for detailed info
+	value > N # supported operators: <, >, =
+	value < M # multiple comparisons are allowed!
+	value < VAR # variables can be used
+}
+```
+
+
 ## command_power
 
 * Supported Scopes: COUNTRY
@@ -1886,6 +2201,22 @@ compare_autonomy_progress_ratio > 0.5
 check if autonomy state is higher than other one, example:
 compare_autonomy_state > puppet
 ```
+
+## compare_ideology_with_faction
+
+* Supported Scopes: COUNTRY
+* Supported Targets: any
+
+Compares the ideology support of the country's ruling party for the ideology of the faction it wants to join
+
+### Example
+```
+compare_ideology_with_faction = {
+	value > 0.5
+	leader = FROM
+}
+```
+
 
 ## compare_intel_with
 
@@ -2000,6 +2331,30 @@ core_resistance = {
  value > 35 
 }
 ```
+
+## count_in_collection
+
+* Supported Scopes: COUNTRY
+* Supported Targets: none
+
+Checks the size of a given collection.
+	Note: unit and building and manpower are mutually exclusive
+
+	### Example
+	```
+	count_in_collection = {
+		collection = {
+			input = game:scope
+			operators = { faction_members }
+			name = FACTION
+		}
+		unit = armor # (optional) checks the number of unit type
+		buildings = {industrial_complex } # (optional) checks the number of building types in total
+		manpower = yes # (optional, default: no) checks the number of deployed manpower
+		size > 10
+	}
+	```
+	
 
 ## count_triggers
 
@@ -2287,6 +2642,113 @@ Compares estimated max armor based on intel. Example: estimated_intel_max_pierci
 Check if the current country exist. The country of the scope you are in. Example: DEN = { exists = yes }
 ```
 
+## faction_goal_fulfillment
+
+* Supported Scopes: COUNTRY
+* Supported Targets: any
+
+Checks fulfillment of a faction goal for the current country's faction
+
+### Examples
+```
+TAG = {
+	faction_goal_fulfillment = {
+		goal = goal_id
+		value > X # supports > and <, can accept variables, can be repeated multiple times
+	}
+}
+```
+
+
+## faction_influence_rank
+
+* Supported Scopes: COUNTRY
+* Supported Targets: any
+
+Checks influence rank in the faction of the current country
+
+### Examples
+```
+TAG = {
+	faction_influence_rank < 5
+}
+```
+
+
+## faction_influence_ratio
+
+* Supported Scopes: COUNTRY
+* Supported Targets: any
+
+Checks influence ratio of current country in the faction
+
+### Examples
+```
+ TAG = {
+	faction_influence_ratio > 0.1
+}
+```
+
+
+## faction_influence_score
+
+* Supported Scopes: COUNTRY
+* Supported Targets: any
+
+Checks influence value of current country in the faction
+
+### Examples
+```
+ TAG = {
+	faction_influence_score > 100
+}
+```
+
+
+## faction_manifest_fulfillment
+
+* Supported Scopes: COUNTRY
+* Supported Targets: THIS, ROOT, PREV, FROM, OWNER, CONTROLLER, OCCUPIED, CAPITAL
+
+Checks manifest fulfillment value of current country's faction manifest
+
+### Examples
+```
+TAG = {
+	faction_manifest_fulfillment > VALUE
+}
+```
+
+
+## faction_power_projection
+
+* Supported Scopes: COUNTRY
+* Supported Targets: any
+
+Checks power value of current country's faction projection
+
+### Examples
+```
+TAG = {
+	faction_power_projection > VALUE
+}
+```
+
+
+## faction_upgrade_level
+
+* Supported Scopes: COUNTRY
+* Supported Targets: THIS, ROOT, PREV, FROM, OWNER, CONTROLLER, OCCUPIED, CAPITAL
+
+Checks the active faction member upgrade against the specified upgrade. works with >, <, = 
+### Examples
+```
+TAG = {
+	faction_upgrade_level > upgrade_token
+}
+```
+
+
 ## fastest_unit
 
 * Supported Scopes: COMBATANT
@@ -2502,6 +2964,21 @@ check if country has an active mission with specified ID. has_active_mission = m
 ```
 returns true if state has an active resistance (above zero)
 ```
+
+## has_active_rule
+
+* Supported Scopes: COUNTRY
+* Supported Targets: any
+
+Checks if the country's faction has a specific active rule
+
+### Examples
+```
+TAG = {
+	has_active_rule = rule_key
+}
+```
+
 
 ## has_added_tension_amount
 
@@ -2889,6 +3366,21 @@ has_completed_custom_achievement = {
 }"
 ```
 
+## has_completed_faction_goal
+
+* Supported Scopes: COUNTRY
+* Supported Targets: any
+
+Checks if the country's faction has successfully completed a goal
+
+### Examples
+```
+TAG = {
+	has_completed_faction_goal = goal_id
+}
+```
+
+
 ## has_completed_focus
 
 * Supported Scopes: COUNTRY
@@ -2897,6 +3389,36 @@ has_completed_custom_achievement = {
 ```
 has country completed focus
 ```
+
+## has_completed_subdoctrine
+
+* Supported Scopes: COUNTRY
+* Supported Targets: none
+
+Checks if the current country has ever completed the specified subdoctrine (even if it was later switched out).
+
+	### Examples
+	```
+	TAG = {
+		has_completed_subdoctrine = mobile_infantry
+	}
+	```
+	
+
+## has_completed_track
+
+* Supported Scopes: COUNTRY
+* Supported Targets: none
+
+Checks if the given subdoctrine track has been completed
+
+	### Examples
+	```
+	TAG = {
+		has_completed_track = infantry
+	}
+	```
+	
 
 ## has_contested_owner
 
@@ -3090,6 +3612,24 @@ Checks if player has a DLC.
 Example: has_dlc = "name of the dlc"
 ```
 
+## has_doctrine
+
+* Supported Scopes: COUNTRY
+* Supported Targets: none
+
+Checks if the given grand doctrine or subdoctrine is currently active for the country.
+
+	### Examples
+	```
+	TAG = {
+		has_doctrine = mobile_warfare # Grand doctrine
+	}
+	TAG = {
+		has_doctrine = mobile_infantry # Subdoctrine
+	}
+	```
+	
+
 ## has_done_agency_upgrade
 
 * Supported Scopes: COUNTRY
@@ -3104,14 +3644,21 @@ has country done this intelligence agency upgrade (to its highest level)
 * Supported Scopes: STATE, COUNTRY, CHARACTER
 * Supported Targets: THIS, ROOT, PREV, FROM, OWNER, CONTROLLER, OCCUPIED, CAPITAL
 
-```
 Checks if scope has a dynamic modifier.
-has_dynamic_modifier = {
-    modifier = dynamic_modifier_name
-    scope = GER #optional, if the original modifier has been targeted
-}
 
+### Example 1
 ```
+has_dynamic_modifier = dynamic_modifier_name
+```
+
+### Example 2
+```
+has_dynamic_modifier = {
+	modifier = dynamic_modifier_name
+	scope = GER #optional, if the original modifier has been targeted
+}
+```
+
 
 ## has_elections
 
@@ -3121,6 +3668,36 @@ has_dynamic_modifier = {
 ```
 Checks the country's politics on allowing elections. has_elections = yes
 ```
+
+## has_enemy_naval_control
+
+* Supported Scopes: COUNTRY
+* Supported Targets: THIS, ROOT, PREV, FROM, OWNER, CONTROLLER, OCCUPIED, CAPITAL
+
+Checks if any enemy has enough naval dominance to assert control in certain strategic region.
+
+### Examples
+```
+TAG = {
+	has_enemy_naval_control = REGION_ID
+}
+```
+
+
+## has_enough_influence_for_leadership
+
+* Supported Scopes: COUNTRY
+* Supported Targets: any
+
+Checks if the current country has enough political influence to become faction leader
+
+### Examples
+```
+TAG = {
+	has_enough_influence_for_leadership = yes
+}
+```
+
 
 ## has_equipment
 
@@ -3152,6 +3729,66 @@ SOV = {
 	has_facility_specialization = specialization_nuclear
 }"
 ```
+
+## has_faction_goal
+
+* Supported Scopes: COUNTRY
+* Supported Targets: any
+
+Checks if the country's faction has an active or completed goal
+
+### Examples
+```
+TAG = {
+	has_faction_goal = goal_id
+}
+```
+
+
+## has_faction_military_unlocked
+
+* Supported Scopes: COUNTRY
+* Supported Targets: any
+
+Whether the faction has unlocked the military operations
+
+### Examples
+```
+TAG = {
+	has_faction_military_unlocked = yes
+}
+```
+
+
+## has_faction_research_unlocked
+
+* Supported Scopes: COUNTRY
+* Supported Targets: any
+
+Whether the faction has unlocked the research
+
+### Examples
+```
+TAG = {
+	has_faction_research_unlocked = yes
+}
+```
+
+
+## has_faction_template
+
+* Supported Scopes: COUNTRY
+* Supported Targets: any
+
+Checks if the current country is in a faction with a template
+
+### Examples
+```
+TAG = {
+	has_faction_template = template_id
+}
+```
+
 
 ## has_finished_collecting_for_operation
 
@@ -3297,6 +3934,21 @@ has_ideology = stalinism - Checks if the current character has a country leader 
 has_ideology_group = communism - Checks if the current character has a country leader role matching the ideology group
 ```
 
+## has_industry_to_become_leader
+
+* Supported Scopes: COUNTRY
+* Supported Targets: any
+
+Checks if the current country exceeds the faction leader in number of factories
+
+### Examples
+```
+TAG = {
+	has_industry_to_become_leader = yes
+}
+```
+
+
 ## has_intelligence_agency
 
 * Supported Scopes: COUNTRY
@@ -3351,6 +4003,21 @@ check amount of manpower
 check if manpower is enough to switch recruitment laws not to be negative
 ```
 
+## has_manpower_to_become_leader
+
+* Supported Scopes: COUNTRY
+* Supported Targets: any
+
+Checks if the current country exceeds the current faction leader and its subjects in deployed manpower
+
+### Examples
+```
+TAG = {
+	has_manpower_to_become_leader = yes
+}
+```
+
+
 ## has_market_access_with
 
 * Supported Scopes: COUNTRY
@@ -3359,6 +4026,42 @@ check if manpower is enough to switch recruitment laws not to be negative
 ```
 Check if the country has market access with another country. Example: has_market_access_with = GER
 ```
+
+## has_mastery
+
+* Supported Scopes: COUNTRY
+* Supported Targets: none
+
+Checks if any track of the given type has at least X mastery.
+
+	### Examples
+	```
+	TAG = {
+		has_mastery = {
+			amount = 200
+			track = infantry
+		}
+	}
+	```
+	
+
+## has_mastery_level
+
+* Supported Scopes: COUNTRY
+* Supported Targets: none
+
+Checks if the country has reached the specified number of mastery levels (rewards) for the given subdoctrine
+
+	### Examples
+	```
+	TAG = {
+		has_mastery_level = {
+			amount = 2
+			subdoctrine = mobile_infantry
+		}
+	}
+	```
+	
 
 ## has_max_planning
 
@@ -3554,6 +4257,21 @@ has_nationality = GER
 
 ```
 
+## has_naval_control
+
+* Supported Scopes: COUNTRY
+* Supported Targets: THIS, ROOT, PREV, FROM, OWNER, CONTROLLER, OCCUPIED, CAPITAL
+
+Checks if friendly nations and country scope together has enough naval dominance to assert control in strategic region.
+
+### Examples
+```
+TAG = {
+	has_naval_control = REGION_ID
+}
+```
+
+
 ## has_naval_invasion_against_state
 
 * Supported Scopes: COUNTRY
@@ -3641,6 +4359,15 @@ is country at offensive war
 One country has offensive war against other country.
 ```
 
+## has_offensive_war_without_friend
+
+* Supported Scopes: COUNTRY
+* Supported Targets: THIS, ROOT, PREV, FROM, OWNER, CONTROLLER, OCCUPIED, CAPITAL
+
+```
+is country at offensive war without specific ally present
+```
+
 ## has_officer_name
 
 * Supported Scopes: 
@@ -3649,7 +4376,7 @@ One country has offensive war against other country.
 ```
 "checks if division has an officer with the provided name key.
 Examples:
-	has_officer_token = FIN_nikke_parmi
+	has_officer_name = FIN_nikke_parmi
 "
 ```
 
@@ -3826,6 +4553,29 @@ has_resources_amount = {
 	delivered = no # (optional, default: no) check the actual delivered amount from the state to its controller, with all modifiers applied
 ```
 
+## has_resources_in_collection
+
+* Supported Scopes: COUNTRY
+* Supported Targets: none
+
+Checks for amount of resources in a given collection.
+
+	### Example
+	```
+	has_resources_in_collection = {
+		collection = {
+				game:scope
+				operators =  { country_and_all_subjects }
+		}
+		resource = chromium
+		amount > 10
+		extracted = yes # (optional, default: no) checks extracted amount instead of country balance
+		buildings = no # (optional, default: no) checks only amount from local buildings instead of country balance
+		Note: extracted and buildings are mutually exclusive
+	}
+	```
+	
+
 ## has_resources_in_country
 
 * Supported Scopes: COUNTRY
@@ -3954,6 +4704,21 @@ has_state_flag = {
 }
 ```
 
+## has_subdoctrine_in_track
+
+* Supported Scopes: COUNTRY
+* Supported Targets: none
+
+Checks if any subdoctrine is currently assigned to (any instance of) the given track
+
+	### Examples
+	```
+	TAG = {
+		has_subdoctrine_in_track = infantry
+	}
+	```
+	
+
 ## has_subject
 
 * Supported Scopes: COUNTRY
@@ -3962,6 +4727,21 @@ has_state_flag = {
 ```
 Checks if the country has for subject the given country
 ```
+
+## has_tactic
+
+* Supported Scopes: COUNTRY
+* Supported Targets: none
+
+Check if the given tactic is unlocked (or active by default) for the country.
+
+	### Examples
+	```
+	TAG = {
+		has_tactic = tactic_masterful_blitz
+	}
+	```
+	
 
 ## has_tech
 
@@ -4186,7 +4966,7 @@ ENG = {
 
 ## hidden_trigger
 
-* Supported Scopes: STATE, COUNTRY, CHARACTER, COMBATANT, ACE, STRATEGIC_REGION, OPERATION, INDUSTRIAL_ORG, PURCHASE_CONTRACT, RAID_INSTANCE, SPECIAL_PROJECT
+* Supported Scopes: STATE, COUNTRY, CHARACTER, COMBATANT, ACE, STRATEGIC_REGION, OPERATION, INDUSTRIAL_ORG, PURCHASE_CONTRACT, RAID_INSTANCE, SPECIAL_PROJECT, FACTION
 * Supported Targets: THIS, ROOT, PREV, FROM, OWNER, CONTROLLER, OCCUPIED, CAPITAL
 
 ```
@@ -4817,6 +5597,15 @@ is_leading_army = yes/no - Checks if the current unit leader is leading a single
 is_leading_army_group = yes/no - Checks if the current unit leader is leading an army group (not single army)
 ```
 
+## is_leading_army_in_province
+
+* Supported Scopes: CHARACTER
+* Supported Targets: none
+
+```
+is_leading_army_in_province = province_id # checks if the current unit leader is leading an army that has any division in a specific province
+```
+
 ## is_leading_volunteer_group
 
 * Supported Scopes: CHARACTER, COMBATANT
@@ -5005,6 +5794,27 @@ check if neighbor ( controlled territory ) with specified country
 ```
 is state located on continent
 ```
+
+## is_on_same_continent_as
+
+* Supported Scopes: STATE, COUNTRY
+* Supported Targets: any
+
+Checks if the scope state is on the same continent as the given state.
+The capital state is used for given country tag.
+Example 1:
+```
+FROM = {
+	is_on_same_continent_as = 111
+}
+```
+Example 2:
+```
+GER = {
+	is_on_same_continent_as = ITA
+}
+```
+
 
 ## is_one_state_island
 
@@ -5361,7 +6171,7 @@ manpower_per_military_factory < 1000
 
 ## meta_trigger
 
-* Supported Scopes: STATE, COUNTRY, CHARACTER, COMBATANT, ACE, STRATEGIC_REGION, OPERATION, INDUSTRIAL_ORG, PURCHASE_CONTRACT, RAID_INSTANCE, SPECIAL_PROJECT
+* Supported Scopes: STATE, COUNTRY, CHARACTER, COMBATANT, ACE, STRATEGIC_REGION, OPERATION, INDUSTRIAL_ORG, PURCHASE_CONTRACT, RAID_INSTANCE, SPECIAL_PROJECT, FACTION
 * Supported Targets: THIS, ROOT, PREV, FROM, OWNER, CONTROLLER, OCCUPIED, CAPITAL
 
 ```
@@ -6390,7 +7200,7 @@ Example: resize_temp_array = {
 ```
 Checks if the current scope has the specified amount of the specified resource.
 Usage: <Resource> < <int>
-Supported Resources: oil, aluminium, rubber, tungsten, steel, chromium.
+Supported Resources: oil, aluminium, rubber, tungsten, steel, chromium, coal.
 ```
 
 ## round_temp_variable
