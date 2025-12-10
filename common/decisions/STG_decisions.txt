@@ -3832,10 +3832,19 @@ STG_the_plan = {
 		icon = GFX_decision_SOV_the_stalin_constitution
 		allowed = { original_tag = STG }
 		available = {
-			num_of_civilian_factories > ROOT.STG_plan_target_civs
-			num_of_military_factories > ROOT.STG_plan_target_mils
 			166 = {
 				infrastructure > 4
+			}
+			set_temp_variable = { current_civs = ROOT.num_of_controlled_factories }
+			subtract_from_temp_variable = { current_civs = ROOT.num_of_military_factories }
+			subtract_from_temp_variable = { current_civs = ROOT.num_of_naval_factories }
+			custom_trigger_tooltip = {
+				tooltip = STG_first_plan_ind_tt
+				industrial_complex > ROOT.STG_plan_target_civs
+			}
+			custom_trigger_tooltip = {
+				tooltip = STG_first_plan_arm_tt
+				arms_factory > ROOT.STG_plan_target_mils
 			}
 		}
 		activation = {
@@ -3850,12 +3859,13 @@ STG_the_plan = {
 			}
 			add_political_power = 60
 			add_stability = 0.06
-			activate_mission = STG_second_plan
-			set_variable = { STG_plan_target_civs = ROOT.num_of_civilian_factories }
-			add_to_variable = { STG_plan_target_civs = 2 }
-			set_variable = { STG_plan_target_mils = ROOT.num_of_military_factories }
-			set_variable = { STG_plan_target_dock = ROOT.num_of_naval_factories }
 			set_country_flag = STG_first_plan_success
+			hidden_effect = {
+				country_event = {
+					id = stalliongrad_vasily.47
+					days = 7
+				}
+			}
 		}
 		timeout_effect = {
 			add_popularity = {
@@ -3877,13 +3887,18 @@ STG_the_plan = {
 		available = {
 			num_of_civilian_factories > ROOT.STG_plan_target_civs
 			num_of_military_factories > ROOT.STG_plan_target_mils
-			num_of_naval_factories > ROOT.STG_plan_target_dock
-			any_owned_state = {
-				NOT = {
-					state = 166
+			#num_of_naval_factories > ROOT.STG_plan_target_dock - do we need this?
+			if = {
+				limit = {
+					has_country_flag = STG_second_plan_civ
 				}
-				is_coastal = yes
-				infrastructure > 4
+				has_tech = construction3
+			}
+			else_if = {
+				limit = {
+					has_country_flag = STG_second_plan_mil
+				}
+				has_tech = advanced_machine_tools
 			}
 		}
 		activation = {
@@ -3897,12 +3912,17 @@ STG_the_plan = {
 			}
 			add_political_power = 60
 			add_stability = 0.06
-			activate_mission = STG_third_plan
-			set_variable = { STG_plan_target_civs = ROOT.num_of_civilian_factories }
-			add_to_variable = { STG_plan_target_civs = 2 }
-			set_variable = { STG_plan_target_mils = ROOT.num_of_military_factories }
-			add_to_variable = { STG_plan_target_mils = 10 }
 			set_country_flag = STG_second_plan_success
+			if = {
+				limit = {
+					has_country_flag = STG_second_plan_civ
+				}
+			}
+			else_if = {
+				limit = {
+					has_country_flag = STG_second_plan_mil
+				}
+			}
 		}
 		timeout_effect = {
 			add_popularity = {
@@ -3954,388 +3974,95 @@ STG_the_plan = {
 		}
 	}
 
-	# Plan Civilian
-	STG_plan_priority_civs_dec = {
+	#
 
-		icon = GFX_decision_SOV_the_stalin_constitution
-		allowed = { original_tag = STG }
+	STG_worker_council_targeted_construction_mil_dec = {
+		icon = generic_construction
 		available = {
-			has_completed_focus = STG_plan_priority_civil_factories
-		}
-		fire_only_once = yes
-		complete_effect = {
-			set_variable = { STG_plan_priority_target_civs = ROOT.num_of_civilian_factories }
-			multiply_variable = { STG_plan_priority_target_civs = 1.1 }
-			add_to_variable = { STG_plan_priority_target_civs = -0.5 }
-			round_variable = STG_plan_priority_target_civs
-			activate_mission = STG_plan_priority_civs_mis
-			STG_stop_plan_effect = yes
-		}
-	}
-	STG_plan_priority_civs_mis = {
-
-		icon = GFX_decision_SOV_the_stalin_constitution
-		allowed = { original_tag = STG }
-		available = {
-			num_of_civilian_factories > ROOT.STG_plan_priority_target_civs
+			custom_trigger_tooltip = {
+				tooltip = STG_worker_council_targeted_construction_mil_tt
+				any_owned_state = {
+					has_state_flag = STG_worker_council_build_flag
+					check_variable = { arms_factory_goal = arms_factory_level }
+				}
+			}
 		}
 		activation = {
 			always = no
 		}
+		highlight_states = {
+			highlight_states_trigger = {
+				has_state_flag = STG_worker_council_build_flag
+			}
+		}
 		days_mission_timeout = 180
-		is_good = yes
-		fire_only_once = yes
-		complete_effect = {
-			add_popularity = {
-				ideology = communism
-				popularity = 0.06
-			}
-			add_political_power = 60
-			add_stability = 0.06
-			STG_plan_restart_effect = yes
-		}
+		is_good = no
 		timeout_effect = {
-			add_popularity = {
-				ideology = communism
-				popularity = -0.06
-			}
-			add_political_power = -60
-			add_stability = -0.06
-			activate_mission = STG_plan_priority_civs_mis
-		}
-	}
-
-	# Plan : Misc building
-	STG_plan_priority_build_dec = {
-
-		icon = GFX_decision_SOV_the_stalin_constitution
-		allowed = { original_tag = STG }
-		available = {
-			has_completed_focus = STG_plan_priority_building
-		}
-		fire_only_once = yes
-		complete_effect = {
-			random_owned_controlled_state = {
+			random_owned_state = {
 				limit = {
-					is_core_of = ROOT
-					free_building_slots = {
-						building = arms_factory
-						size > 1
-					}
+					has_state_flag = STG_worker_council_build_flag
 				}
-
-				set_variable = {
-					STG.STG_state_to_build = THIS.id
-				}
-				set_variable = {
-					STG_starting_infra = infrastructure_level
-				}
-				add_to_variable = {
-					STG_starting_infra = 2
-				}
-				set_variable = {
-					STG_starting_mil = arms_factory_level
-				}
-				set_variable = {
-					STG_starting_civ = industrial_complex_level
-				}
+				clr_state_flag = STG_worker_council_build_flag
+				clear_variable = arms_factory_goal
 			}
-
-			activate_mission = STG_plan_priority_build_mis
-			STG_stop_plan_effect = yes
+			STG_worker_council_minus = yes
+			STG_worker_council_construction_event_dispatcher = yes
 		}
-	}
-	STG_plan_priority_build_mis = {
-
-		icon = GFX_decision_SOV_the_stalin_constitution
-		allowed = { original_tag = STG }
-		available = {
-			var:STG_state_to_build = {
-				OR = {
-					infrastructure > 4
-					check_variable = {
-						var = infrastructure_level
-						value = STG_starting_infra
-						compare = greater_than_or_equals
-					}
-				}
-				check_variable = { arms_factory_level > STG_starting_mil }
-				check_variable = { industrial_complex_level > STG_starting_civ }
-			}
-		}
-		activation = {
-			always = no
-		}
-
-		days_mission_timeout = 180
-		is_good = yes
-		fire_only_once = yes
-
 		complete_effect = {
-			add_popularity = {
-				ideology = communism
-				popularity = 0.06
-			}
-			add_political_power = 60
-			add_stability = 0.06
-			STG_plan_restart_effect = yes
-		}
-		timeout_effect = {
-			add_popularity = {
-				ideology = communism
-				popularity = -0.06
-			}
-			add_political_power = -60
-			add_stability = -0.06
-			activate_mission = STG_plan_priority_build_mis
-		}
-	}
-
-	# Plan : Military factories
-	STG_plan_priority_mils_dec = {
-
-		icon = GFX_decision_SOV_the_stalin_constitution
-		allowed = { original_tag = STG }
-		available = {
-			has_completed_focus = STG_plan_priority_military_factories
-		}
-		fire_only_once = yes
-
-		complete_effect = {
-			set_variable      = { STG_plan_priority_target_mils = ROOT.num_of_arms_factories }
-			multiply_variable = { STG_plan_priority_target_mils = 1.1 }
-			add_to_variable   = { STG_plan_priority_target_mils = -0.5 }
-			round_variable    = STG_plan_priority_target_mils
-
-			set_variable      = { STG_plan_priority_target_dockyards = ROOT.num_of_naval_factories }
-			multiply_variable = { STG_plan_priority_target_dockyards = 1.05 }
-			add_to_variable   = { STG_plan_priority_target_dockyards = -0.5 }
-			round_variable    = STG_plan_priority_target_dockyards
-
-			activate_mission = STG_plan_priority_build_mils_mission
-			STG_stop_plan_effect = yes
-		}
-	}
-
-	STG_plan_priority_build_mils_mission = {
-
-		icon = GFX_decision_SOV_the_stalin_constitution
-		allowed = { original_tag = STG }
-		available = {
-			num_of_military_factories > STG_plan_priority_target_mils
-			num_of_naval_factories    > STG_plan_priority_target_dockyards
-		}
-		activation = {
-			always = no
-		}
-
-		days_mission_timeout = 180
-		is_good = yes
-		fire_only_once = yes
-
-		complete_effect = {
-			add_popularity = {
-				ideology = communism
-				popularity = 0.06
-			}
-			add_political_power = 60
-			add_stability = 0.06
-			STG_plan_restart_effect = yes
-		}
-		timeout_effect = {
-			add_popularity = {
-				ideology = communism
-				popularity = -0.06
-			}
-			add_political_power = -60
-			add_stability = -0.06
-			activate_mission = STG_plan_priority_build_mils_mission
-		}
-	}
-
-	# Plan : Ressources factories
-	STG_plan_priority_ressources_dec = {
-
-		icon = GFX_decision_SOV_the_stalin_constitution
-		allowed = { original_tag = STG }
-		available = {
-			has_completed_focus = STG_plan_priority_resources
-		}
-		fire_only_once = yes
-
-		complete_effect = {
-			random_owned_controlled_state = {
+			random_owned_state = {
 				limit = {
-					is_core_of = ROOT
-					free_building_slots = {
-						building = arms_factory
-						size > 3
-					}
-					free_building_slots = {
-						building = synthetic_refinery
-						size > 0
-					}
+					has_state_flag = STG_worker_council_build_flag
 				}
-
-				set_variable = {
-					STG.STG_state_to_build = THIS.id
-				}
-				# Target infrastuctures
-				set_variable = {
-					STG_starting_infra = infrastructure_level
-				}
-				add_to_variable = {
-					STG_starting_infra = 2
-				}
-				# Target civilian factories
-				set_variable = {
-					STG_starting_civ = industrial_complex_level
-				}
-				add_to_variable = { STG_starting_civ = 1 }
-				set_variable = {
-					STG_target_synthetic = building_level
-				}
-				# Target synthetic
-				set_variable = {
-					STG_starting_synthetic = building_level@synthetic_refinery
-				}
-				# Target fuel silo
-				set_variable = {
-					STG_starting_fuel_silo = building_level@fuel_silo
-				}
+				clr_state_flag = STG_worker_council_build_flag
+				clear_variable = arms_factory_goal
 			}
-
-			activate_mission = STG_plan_priority_build_ressources_mission
-			STG_stop_plan_effect = yes
+			STG_worker_council_plus = yes
+			STG_worker_council_construction_event_dispatcher = yes
 		}
 	}
 
-	STG_plan_priority_build_ressources_mission = {
-
-		icon = GFX_decision_SOV_the_stalin_constitution
-		allowed = { original_tag = STG }
+	STG_worker_council_targeted_construction_civ_dec = {
+		icon = generic_construction
 		available = {
-			var:STG_state_to_build = {
-				OR = {
-					infrastructure > 4
-					check_variable = {
-						var = infrastructure_level
-						value = STG_starting_infra
-						compare = greater_than_or_equals
-					}
+			custom_trigger_tooltip = {
+				tooltip = STG_worker_council_targeted_construction_civ_tt
+				any_owned_state = {
+					has_state_flag = STG_worker_council_build_flag
+					check_variable = { arms_factory_goal = arms_factory_level }
 				}
-				check_variable = { arms_factory_level > STG_starting_mil }
-				check_variable = { industrial_complex_level > STG_starting_civ }
-				check_variable = { building_level@synthetic_refinery > STG_starting_synthetic }
-				check_variable = { building_level@fuel_silo > STG_starting_fuel_silo }
 			}
 		}
 		activation = {
 			always = no
 		}
-
+		highlight_states = {
+			highlight_states_trigger = {
+				has_state_flag = STG_worker_council_build_flag
+			}
+		}
 		days_mission_timeout = 180
-		is_good = yes
-		fire_only_once = yes
-
-		complete_effect = {
-			add_popularity = {
-				ideology = communism
-				popularity = 0.06
-			}
-			add_political_power = 60
-			add_stability = 0.06
-			STG_plan_restart_effect = yes
-		}
+		is_good = no
 		timeout_effect = {
-			add_popularity = {
-				ideology = communism
-				popularity = -0.06
-			}
-			add_political_power = -60
-			add_stability = -0.06
-			activate_mission = STG_plan_priority_build_ressources_mission
-		}
-	}
-
-	# Plan : Ressources infrastructures
-	STG_plan_priority_infrastructures_dec = {
-
-		icon = GFX_decision_SOV_the_stalin_constitution
-		allowed = { original_tag = STG }
-		available = {
-			has_completed_focus = STG_plan_priority_infrastructure
-		}
-		fire_only_once = yes
-
-		complete_effect = {
-			# Default value that are different from a state id
-			set_variable = { STG_state_to_build = STG }
-			random_owned_controlled_state = {
+			random_owned_state = {
 				limit = {
-					is_core_of = ROOT
-					check_variable = { infrastructure_level < 3 }
+					has_state_flag = STG_worker_council_build_flag
 				}
-
-				set_variable = {
-					STG.STG_state_to_build = THIS.id
-				}
-				# Target infrastuctures
-				set_variable = {
-					STG_starting_infra = infrastructure_level
-				}
-				add_to_variable = {
-					STG_starting_infra = 3
-				}
+				clr_state_flag = STG_worker_council_build_flag
+				clear_variable = arms_factory_goal
 			}
-
-			# If we found a state that correspond to the mission, start the mission
-			if = {
-				limit = { NOT = { check_variable = { STG_state_to_build = STG } } }
-				activate_mission = STG_plan_priority_build_infrastructures_mission
-				STG_stop_plan_effect = yes
-			}
+			STG_worker_council_minus = yes
+			STG_worker_council_construction_event_dispatcher = yes
 		}
-	}
-
-	STG_plan_priority_build_infrastructures_mission = {
-
-		icon = GFX_decision_SOV_the_stalin_constitution
-		allowed = { original_tag = STG }
-		available = {
-			var:STG_state_to_build = {
-				check_variable = {
-					var = infrastructure_level
-					value = STG_starting_infra
-					compare = greater_than_or_equals
-				}
-			}
-		}
-		activation = {
-			always = no
-		}
-
-		days_mission_timeout = 180
-		is_good = yes
-		fire_only_once = yes
-
 		complete_effect = {
-			add_popularity = {
-				ideology = communism
-				popularity = 0.06
+			random_owned_state = {
+				limit = {
+					has_state_flag = STG_worker_council_build_flag
+				}
+				clr_state_flag = STG_worker_council_build_flag
+				clear_variable = arms_factory_goal
 			}
-			add_political_power = 60
-			add_stability = 0.06
-			STG_plan_restart_effect = yes
-		}
-		timeout_effect = {
-			add_popularity = {
-				ideology = communism
-				popularity = -0.06
-			}
-			add_political_power = -60
-			add_stability = -0.06
-			activate_mission = STG_plan_priority_build_infrastructures_mission
+			STG_worker_council_plus = yes
+			STG_worker_council_construction_event_dispatcher = yes
 		}
 	}
 }
