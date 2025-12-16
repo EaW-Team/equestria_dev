@@ -54,9 +54,11 @@ Try to keep this reasonably up-to-date, please.
 - `naval_avoid_region`
 - `naval_convoy_raid_region`
 - `naval_invasion_focus`
-- `naval_invasion_supremacy_weight`
+- `naval_invasion_dominance_weight`
 - `naval_mission_threshold`
 - `strike_force_home_base`
+- `naval_dominance`
+- `convoy_raiding_target`
 
 ### Related to intelligence
 - `activate_crypto`
@@ -386,11 +388,11 @@ ai_strategy = {
 }
 ```
 
-### `naval_invasion_supremacy_weight`
+### `naval_invasion_dominance_weight`
 Used to make the AI focus more of their navy on increasing naval supremacy in regions where one of their naval invasions passes through
 ```
 ai_strategy = {
-	type = naval_invasion_supremacy_weight
+	type = naval_invasion_dominance_weight
 	value = 30
 }
 ```
@@ -664,5 +666,38 @@ Used to set weight for a faction leader to become spymaster if not already a spy
 ai_strategy = {
 	type = become_spymaster
 	value = 30 # Weight value for pp spend to become spymaster
+}
+```
+
+### `naval_dominance`
+Used to set the naval dominance for an AI area
+```
+ai_strategy = {
+	type = naval_dominance
+	id = winter_war_front # AI area key
+	OR
+	id = 271 # region id
+	value = 99 # Percentage between 0 and 100
+}
+```
+
+### `convoy_raiding_target`
+Used to set the objective importance for convoy raiding
+```
+ai_strategy = {
+	type = convoy_raiding_target
+	id = FRA
+	value = 80 # Percentage between 0 and 100
+}
+```
+
+### `naval_blockade`
+Used to set the naval blockade for a strategic region
+```
+ai_strategy = {
+	type = naval_blockade
+	target_country = GER
+	id = 35 # Strategic region Id
+	value = 100 # Percentage between 0 and 100
 }
 ```
