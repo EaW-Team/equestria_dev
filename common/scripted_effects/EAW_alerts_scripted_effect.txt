@@ -20,6 +20,7 @@ add_eaw_alert = {
 		}
 		add_to_array = { array = eaw_alerts value = alert_id index = 0 }
 		add_to_array = { array = eaw_alert_color value = alert_color index = 0 }
+		add_to_array = { array = eaw_alert_data value = alert_data index = 0 }
 		
 		hidden_effect = {
 			add_ideas = var:alert_id
@@ -54,7 +55,6 @@ remove_eaw_alert = {
 
 # Alert click effect
 eaw_alert_click = {
-
 	# DO NOT DELETE THIS
 	# Follow this template:
 	# if = {
@@ -63,12 +63,39 @@ eaw_alert_click = {
 	# 	}
 	# 	<effects>
 	# }
+
+	if = {
+		limit = {
+			check_variable = { eaw_alerts^alert_idx = token:eaw_alert_territory_integration_complete }
+			is_ai = no
+		}
+		effect_tooltip = {
+			set_temp_variable = { current_state = 0 }
+			eaw_alert_territory_integration_complete_tooltip_effect = yes
+		}
+	}
 	
 	eaw_alert_update_gui = yes
 }
 
-# Alert cancel effect
+# Alert right click/cancel effect
 eaw_alert_right_click = {
+	# DO NOT DELETE THIS
+	# Follow this template:
+	# if = {
+	# 	limit = {
+	# 		check_variable = { eaw_alerts^alert_idx = token:<token ID> }
+	# 	}
+	# 	<effects>
+	# }
+
+	if = {
+		limit = {
+			check_variable = { eaw_alerts^alert_idx = token:eaw_alert_territory_integration_complete }
+		}
+		clear_array = eaw_successfully_integrated_states
+	}
+
 	remove_from_array = { array = eaw_alerts index = alert_idx }
 	remove_from_array = { array = eaw_alert_color index = alert_idx }
 	remove_from_array = { array = eaw_alert_data index = alert_idx }
@@ -81,5 +108,21 @@ eaw_alert_update_gui = {
 			is_ai = no
 		}
 		add_to_variable = { eaw_alertbar_dirty = 0.001 }
+	}
+}
+
+## Misc. scripted effects ##
+
+# Recursive scripted effect to display the list of states for the integration successful alert
+eaw_alert_territory_integration_complete_tooltip_effect = {
+	if = {
+		limit = {
+			check_variable = { current_state < eaw_successfully_integrated_states^num }
+		}
+		set_temp_variable = { current_state_value = eaw_successfully_integrated_states^current_state }
+		custom_effect_tooltip = eaw_alert_territory_integration_complete_entry
+
+		add_to_temp_variable = { current_state = 1 }
+		eaw_alert_territory_integration_complete_tooltip_effect = yes
 	}
 }
