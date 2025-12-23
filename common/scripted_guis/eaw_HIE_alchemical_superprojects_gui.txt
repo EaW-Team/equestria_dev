@@ -1,3 +1,6 @@
+@left_special = 100
+@right_special = 101
+
 scripted_gui = {
 	## Darker yet darker ##
 	
@@ -339,7 +342,7 @@ scripted_gui = {
 				HIE_JRNL_bookmark_reevaluate = yes
 			}
 			flip_page_backward_right_click = {
-				set_variable = { HIE_JRNL_prev_page = 100 }
+				set_variable = { HIE_JRNL_prev_page = @left_special }
 				set_variable = { HIE_JRNL_selected_page = 1 }
 
 				HIE_JRNL_bookmark_reevaluate = yes
@@ -387,13 +390,13 @@ scripted_gui = {
 		
 		effects = {
 			bookmark_front_click = {
-				set_variable = { HIE_JRNL_prev_page = 100 }
+				set_variable = { HIE_JRNL_prev_page = @left_special }
 				set_variable = { HIE_JRNL_selected_page = HIE_JRNL_bookmark_front_array_i^i }
 				set_variable = { HIE_JRNL_book_frame = 2 }
 				HIE_JRNL_bookmark_reevaluate = yes
 			}
 			bookmark_back_click = {
-				set_variable = { HIE_JRNL_prev_page = 101 }
+				set_variable = { HIE_JRNL_prev_page = @right_special }
 				set_variable = { HIE_JRNL_selected_page = HIE_JRNL_bookmark_back_array_i^i }
 				set_variable = { HIE_JRNL_book_frame = 2 }
 				HIE_JRNL_bookmark_reevaluate = yes
@@ -490,7 +493,7 @@ scripted_gui = {
 		effects = {
 			contents_click = {
 				set_variable = { HIE_JRNL_selected_page = HIE_JRNL_toc_array^toc_i }
-				set_variable = { HIE_JRNL_prev_page = 101 }
+				set_variable = { HIE_JRNL_prev_page = @right_special }
 			}
 			choice_click = {
 				clr_country_flag = HIE_ToC_choice_active
@@ -1239,6 +1242,7 @@ scripted_gui = {
 			check_variable = { HIE_JRNL_book_frame = 2 }
 		}
 	}
+
 	eaw_HIE_page_turn = {
 		window_name = "EaW_HIE_page_turn"
 		context_type = player_context
@@ -1246,20 +1250,29 @@ scripted_gui = {
 		visible = {
 			check_variable = { HIE_JRNL_book_frame = 2 }
 		}
+
+		### Alright so
+		# The reason both left and right having multiple instances is that the animation needs to not be `visible` to retrigger on command.
+		# I've set it up so one is visible (and thus played) for odd pages and the other is visible for even pages
+		# There's also a third instance which is an override that turns off the normal even/odd animation for jumps (table of contents, bookmarks), why?
+			# Say we jump from page 1 to page 3
+			# Odd -> Odd // Will not trigger the animation
+
+			# Solution: disable BOTH even AND odd instances, trigger a THIRD 'special' animation in their place
+
+		## Page turn to the right ## (Going forward in the book)
 		triggers = {
+			# Odd -> Even
 			page_turn_right_1_visible = {
-				OR = {
-					AND = {
-						set_temp_variable = { temp_prev_page = HIE_JRNL_prev_page }
-						modulo_temp_variable = { temp_prev_page = 2 }
-						check_variable = { temp_prev_page = 1 }
-						
-						set_temp_variable = { temp_selected_page = HIE_JRNL_prev_page }
-						add_to_temp_variable = { temp_selected_page = 1 }
-						check_variable = { temp_selected_page = HIE_JRNL_selected_page }
-					}
-					check_variable = { HIE_JRNL_prev_page = 101 }
-				}
+				set_temp_variable = { temp_prev_page = HIE_JRNL_prev_page }
+				modulo_temp_variable = { temp_prev_page = 2 }
+				check_variable = { temp_prev_page = 1 }
+				
+				set_temp_variable = { temp_selected_page = HIE_JRNL_prev_page }
+				add_to_temp_variable = { temp_selected_page = 1 }
+				check_variable = { temp_selected_page = HIE_JRNL_selected_page }
+
+				NOT = { check_variable = { HIE_JRNL_prev_page > 99 } }
 			
 				set_temp_variable = { page_turn_right_1_frame = 0 } # Looping
 				multiply_temp_variable = { page_turn_right_1_frame = 256 }
@@ -1271,19 +1284,28 @@ scripted_gui = {
 
 				add_to_temp_variable = { page_turn_right_1_frame = 1 }
 			}
+			page_turn_right_1_click_enabled = {
+				set_temp_variable = { temp_prev_page = HIE_JRNL_prev_page }
+				modulo_temp_variable = { temp_prev_page = 2 }
+				check_variable = { temp_prev_page = 1 }
+				
+				set_temp_variable = { temp_selected_page = HIE_JRNL_prev_page }
+				add_to_temp_variable = { temp_selected_page = 1 }
+				check_variable = { temp_selected_page = HIE_JRNL_selected_page }
+
+				NOT = { check_variable = { HIE_JRNL_prev_page > 99 } }
+			}
+			# Even -> Odd
 			page_turn_right_2_visible = {
-				OR = {
-					AND = {
-						set_temp_variable = { temp_prev_page = HIE_JRNL_prev_page }
-						modulo_temp_variable = { temp_prev_page = 2 }
-						check_variable = { temp_prev_page = 0 }
-						
-						set_temp_variable = { temp_selected_page = HIE_JRNL_prev_page }
-						add_to_temp_variable = { temp_selected_page = 1 }
-						check_variable = { temp_selected_page = HIE_JRNL_selected_page }
-					}
-					check_variable = { HIE_JRNL_prev_page = 101 }
-				}
+				set_temp_variable = { temp_prev_page = HIE_JRNL_prev_page }
+				modulo_temp_variable = { temp_prev_page = 2 }
+				check_variable = { temp_prev_page = 0 }
+				
+				set_temp_variable = { temp_selected_page = HIE_JRNL_prev_page }
+				add_to_temp_variable = { temp_selected_page = 1 }
+				check_variable = { temp_selected_page = HIE_JRNL_selected_page }
+
+				NOT = { check_variable = { HIE_JRNL_prev_page > 99 } }
 			
 				set_temp_variable = { page_turn_right_2_frame = 0 } # Looping
 				multiply_temp_variable = { page_turn_right_2_frame = 256 }
@@ -1295,54 +1317,63 @@ scripted_gui = {
 
 				add_to_temp_variable = { page_turn_right_2_frame = 1 }
 			}
-			
-			page_turn_right_1_click_enabled = {
-				OR = {
-					AND = {
-						set_temp_variable = { temp_prev_page = HIE_JRNL_prev_page }
-						modulo_temp_variable = { temp_prev_page = 2 }
-						check_variable = { temp_prev_page = 1 }
-						
-						set_temp_variable = { temp_selected_page = HIE_JRNL_prev_page }
-						add_to_temp_variable = { temp_selected_page = 1 }
-						check_variable = { temp_selected_page = HIE_JRNL_selected_page }
-					}
-					check_variable = { HIE_JRNL_prev_page = 101 }
-				}
-			}
 			page_turn_right_2_click_enabled = {
-				OR = {
-					AND = {
-						set_temp_variable = { temp_prev_page = HIE_JRNL_prev_page }
-						modulo_temp_variable = { temp_prev_page = 2 }
-						check_variable = { temp_prev_page = 0 }
-						
-						set_temp_variable = { temp_selected_page = HIE_JRNL_prev_page }
-						add_to_temp_variable = { temp_selected_page = 1 }
-						check_variable = { temp_selected_page = HIE_JRNL_selected_page }
-					}
-					check_variable = { HIE_JRNL_prev_page = 101 }
-				}
+				set_temp_variable = { temp_prev_page = HIE_JRNL_prev_page }
+				modulo_temp_variable = { temp_prev_page = 2 }
+				check_variable = { temp_prev_page = 0 }
+				
+				set_temp_variable = { temp_selected_page = HIE_JRNL_prev_page }
+				add_to_temp_variable = { temp_selected_page = 1 }
+				check_variable = { temp_selected_page = HIE_JRNL_selected_page }
+
+				NOT = { check_variable = { HIE_JRNL_prev_page > 99 } }
+			}
+			# Special
+			page_turn_right_multiple_visible = {
+				check_variable = { HIE_JRNL_prev_page = @right_special }
+			
+				set_temp_variable = { page_turn_right_multiple_frame = 0 } # Looping
+				multiply_temp_variable = { page_turn_right_multiple_frame = 256 }
+				add_to_temp_variable = { page_turn_right_multiple_frame = 255 } # FPS
+				multiply_temp_variable = { page_turn_right_multiple_frame = 64 }
+				add_to_temp_variable = { page_turn_right_multiple_frame = 24 } # End frame
+				multiply_temp_variable = { page_turn_right_multiple_frame = 64 }
+				add_to_temp_variable = { page_turn_right_multiple_frame = 1 } # Start frame
+
+				add_to_temp_variable = { page_turn_right_multiple_frame = 1 }
+			}
+			page_turn_right_multiple_click_enabled = {
+				check_variable = { HIE_JRNL_prev_page = @right_special }
 			}
 		}
 		
-		
+		properties = {
+			page_turn_right_1 = {
+				frame = page_turn_right_1_frame
+			}
+			page_turn_right_2 = {
+				frame = page_turn_right_2_frame
+			}
+			page_turn_right_multiple = {
+				frame = page_turn_right_multiple_frame
+			}
+		}
+
+		## Page turn to the left ## (Going backward in the book)
 		triggers = {
+			# Odd -> Even
 			page_turn_left_1_visible = {
-				OR = {
-					AND = {
-						set_temp_variable = { temp_prev_page = HIE_JRNL_prev_page }
-						modulo_temp_variable = { temp_prev_page = 2 }
-						check_variable = { temp_prev_page = 0 }
-						
-						set_temp_variable = { temp_selected_page = HIE_JRNL_prev_page }
-						add_to_temp_variable = { temp_selected_page = -1 }
-						check_variable = { temp_selected_page = HIE_JRNL_selected_page }
-						
-						check_variable = { HIE_JRNL_book_frame = 2 }
-					}
-					check_variable = { HIE_JRNL_prev_page = 100 }
-				}
+				set_temp_variable = { temp_prev_page = HIE_JRNL_prev_page }
+				modulo_temp_variable = { temp_prev_page = 2 }
+				check_variable = { temp_prev_page = 0 }
+				
+				set_temp_variable = { temp_selected_page = HIE_JRNL_prev_page }
+				add_to_temp_variable = { temp_selected_page = -1 }
+				check_variable = { temp_selected_page = HIE_JRNL_selected_page }
+				
+				check_variable = { HIE_JRNL_book_frame = 2 }
+
+				NOT = { check_variable = { HIE_JRNL_prev_page > 99 } }
 			
 				set_temp_variable = { page_turn_left_1_frame = 0 } # Looping
 				multiply_temp_variable = { page_turn_left_1_frame = 256 }
@@ -1354,21 +1385,32 @@ scripted_gui = {
 
 				add_to_temp_variable = { page_turn_left_1_frame = 1 }
 			}
+			page_turn_left_1_click_enabled = {
+				set_temp_variable = { temp_prev_page = HIE_JRNL_prev_page }
+				modulo_temp_variable = { temp_prev_page = 2 }
+				check_variable = { temp_prev_page = 0 }
+				
+				set_temp_variable = { temp_selected_page = HIE_JRNL_prev_page }
+				add_to_temp_variable = { temp_selected_page = -1 }
+				check_variable = { temp_selected_page = HIE_JRNL_selected_page }
+				
+				check_variable = { HIE_JRNL_book_frame = 2 }
+
+				NOT = { check_variable = { HIE_JRNL_prev_page > 99 } }
+			}
+			# Even -> Odd
 			page_turn_left_2_visible = {
-				OR = {
-					AND = {
-						set_temp_variable = { temp_prev_page = HIE_JRNL_prev_page }
-						modulo_temp_variable = { temp_prev_page = 2 }
-						check_variable = { temp_prev_page = 1 }
-						
-						set_temp_variable = { temp_selected_page = HIE_JRNL_prev_page }
-						add_to_temp_variable = { temp_selected_page = -1 }
-						check_variable = { temp_selected_page = HIE_JRNL_selected_page }
-						
-						check_variable = { HIE_JRNL_book_frame = 2 }
-					}
-					check_variable = { HIE_JRNL_prev_page = 100 }
-				}
+				set_temp_variable = { temp_prev_page = HIE_JRNL_prev_page }
+				modulo_temp_variable = { temp_prev_page = 2 }
+				check_variable = { temp_prev_page = 1 }
+				
+				set_temp_variable = { temp_selected_page = HIE_JRNL_prev_page }
+				add_to_temp_variable = { temp_selected_page = -1 }
+				check_variable = { temp_selected_page = HIE_JRNL_selected_page }
+				
+				check_variable = { HIE_JRNL_book_frame = 2 }
+
+				NOT = { check_variable = { HIE_JRNL_prev_page > 99 } }
 			
 				set_temp_variable = { page_turn_left_2_frame = 0 } # Looping
 				multiply_temp_variable = { page_turn_left_2_frame = 256 }
@@ -1380,53 +1422,35 @@ scripted_gui = {
 
 				add_to_temp_variable = { page_turn_left_2_frame = 1 }
 			}
-			
-			page_turn_left_1_click_enabled = {
-				OR = {
-					AND = {
-						set_temp_variable = { temp_prev_page = HIE_JRNL_prev_page }
-						modulo_temp_variable = { temp_prev_page = 2 }
-						check_variable = { temp_prev_page = 0 }
-						
-						set_temp_variable = { temp_selected_page = HIE_JRNL_prev_page }
-						add_to_temp_variable = { temp_selected_page = -1 }
-						check_variable = { temp_selected_page = HIE_JRNL_selected_page }
-						
-						check_variable = { HIE_JRNL_book_frame = 2 }
-					}
-					check_variable = { HIE_JRNL_prev_page = 100 }
-				}
-			}
 			page_turn_left_2_click_enabled = {
-				OR = {
-					AND = {
-						set_temp_variable = { temp_prev_page = HIE_JRNL_prev_page }
-						modulo_temp_variable = { temp_prev_page = 2 }
-						check_variable = { temp_prev_page = 1 }
-						
-						set_temp_variable = { temp_selected_page = HIE_JRNL_prev_page }
-						add_to_temp_variable = { temp_selected_page = -1 }
-						check_variable = { temp_selected_page = HIE_JRNL_selected_page }
-						
-						check_variable = { HIE_JRNL_book_frame = 2 }
-					}
-					check_variable = { HIE_JRNL_prev_page = 100 }
-				}
+				set_temp_variable = { temp_prev_page = HIE_JRNL_prev_page }
+				modulo_temp_variable = { temp_prev_page = 2 }
+				check_variable = { temp_prev_page = 1 }
+				
+				set_temp_variable = { temp_selected_page = HIE_JRNL_prev_page }
+				add_to_temp_variable = { temp_selected_page = -1 }
+				check_variable = { temp_selected_page = HIE_JRNL_selected_page }
+				
+				check_variable = { HIE_JRNL_book_frame = 2 }
+
+				NOT = { check_variable = { HIE_JRNL_prev_page > 99 } }
 			}
-		}
-		
-		properties = {
-			page_turn_right_1 = {
-				frame = page_turn_right_1_frame
+			# Special
+			page_turn_left_multiple_visible = {
+				check_variable = { HIE_JRNL_prev_page = @left_special }
+			
+				set_temp_variable = { page_turn_left_multiple_frame = 0 } # Looping
+				multiply_temp_variable = { page_turn_left_multiple_frame = 256 }
+				add_to_temp_variable = { page_turn_left_multiple_frame = 255 } # FPS
+				multiply_temp_variable = { page_turn_left_multiple_frame = 64 }
+				add_to_temp_variable = { page_turn_left_multiple_frame = 23 } # End frame
+				multiply_temp_variable = { page_turn_left_multiple_frame = 64 }
+				add_to_temp_variable = { page_turn_left_multiple_frame = 1 } # Start frame
+
+				add_to_temp_variable = { page_turn_left_multiple_frame = 1 }
 			}
-			page_turn_right_2 = {
-				frame = page_turn_right_2_frame
-			}
-			page_turn_right_3 = {
-				frame = page_turn_right_3_frame
-			}
-			page_turn_right_4 = {
-				frame = page_turn_right_4_frame
+			page_turn_left_multiple_click_enabled = {
+				check_variable = { HIE_JRNL_prev_page = @left_special }
 			}
 		}
 		
@@ -1437,11 +1461,8 @@ scripted_gui = {
 			page_turn_left_2 = {
 				frame = page_turn_left_2_frame
 			}
-			page_turn_left_3 = {
-				frame = page_turn_left_3_frame
-			}
-			page_turn_left_4 = {
-				frame = page_turn_left_4_frame
+			page_turn_left_multiple = {
+				frame = page_turn_left_multiple_frame
 			}
 		}
 	}
