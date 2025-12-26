@@ -275,6 +275,8 @@ scripted_gui = {
 		window_name = "EaW_HIE_Journal_window"
 		context_type = player_context
 		visible = { has_variable = HIE_JRNL_book_frame }
+		dirty = HIE_JRNL_dirty
+
 		properties = {
 			book_backdrop = {
 				frame = HIE_JRNL_book_frame
@@ -284,7 +286,7 @@ scripted_gui = {
 			flip_page_forward_visible = {
 				set_temp_variable = { HIE_JRNL_selected_page_check = HIE_JRNL_selected_page }
 				add_to_temp_variable = { HIE_JRNL_selected_page_check = 1 }
-				check_variable = { HIE_JRNL_selected_page_check < HIE_pages_list^num }
+				check_variable = { HIE_JRNL_selected_page_check < HIE_JRNL_pages_list^num }
 			}
 			flip_page_backward_visible = {
 				NOT = { check_variable = { HIE_JRNL_book_frame = 1 } }
@@ -302,18 +304,18 @@ scripted_gui = {
 			eq_expedition_enroute_label_visible = {
 				has_country_flag = HIE_JRNL_is_in_activity
 				NOT = {
-					check_variable = { HIE_pages_list^HIE_JRNL_selected_page = 2 }
-					check_variable = { HIE_pages_list^HIE_JRNL_selected_page = 5 }
-					check_variable = { HIE_pages_list^HIE_JRNL_selected_page > 300 }
+					check_variable = { HIE_JRNL_pages_list^HIE_JRNL_selected_page = 2 }
+					check_variable = { HIE_JRNL_pages_list^HIE_JRNL_selected_page = 5 }
+					check_variable = { HIE_JRNL_pages_list^HIE_JRNL_selected_page > 300 }
 				}
 				check_variable = { HIE_JRNL_book_frame = 2 }
 			}
 			eq_expedition_active_label_visible = {
 				has_variable = HIE_JRNL_active_expedition
 				NOT = {
-					check_variable = { HIE_pages_list^HIE_JRNL_selected_page = 2 }
-					check_variable = { HIE_pages_list^HIE_JRNL_selected_page = 5 }
-					check_variable = { HIE_pages_list^HIE_JRNL_selected_page > 300 }
+					check_variable = { HIE_JRNL_pages_list^HIE_JRNL_selected_page = 2 }
+					check_variable = { HIE_JRNL_pages_list^HIE_JRNL_selected_page = 5 }
+					check_variable = { HIE_JRNL_pages_list^HIE_JRNL_selected_page > 300 }
 				}
 				check_variable = { HIE_JRNL_book_frame = 2 }
 			}
@@ -340,6 +342,7 @@ scripted_gui = {
 				add_to_variable = { HIE_JRNL_selected_page = -1 }
 				
 				HIE_JRNL_bookmark_reevaluate = yes
+				HIE_JRNL_update_dirty = yes
 			}
 			flip_page_backward_right_click = {
 				if = {
@@ -347,10 +350,12 @@ scripted_gui = {
 						check_variable = { HIE_JRNL_selected_page > 1 }
 					}
 					scoped_sound_effect = "HIE_journal_flip_through"
-					set_variable = { HIE_JRNL_prev_page = @left_special }
+
+					HIE_JRNL_page_turn_jump_left = yes
 					set_variable = { HIE_JRNL_selected_page = 1 }
 
 					HIE_JRNL_bookmark_reevaluate = yes
+					HIE_JRNL_update_dirty = yes
 				}
 			}
 			flip_page_forward_click = {
@@ -369,23 +374,31 @@ scripted_gui = {
 				add_to_variable = { HIE_JRNL_selected_page = 1 }
 
 				HIE_JRNL_bookmark_reevaluate = yes
+				HIE_JRNL_update_dirty = yes
 			}
 			flip_page_forward_right_click = {
-				scoped_sound_effect = "HIE_journal_flip_through"
-				set_temp_variable = { last_page = HIE_pages_list^num }
+				set_temp_variable = { last_page = HIE_JRNL_pages_list^num }
 				subtract_from_temp_variable = { last_page = 1 }
 
-				set_variable = { HIE_JRNL_prev_page = @right_special } 
-				set_variable = { HIE_JRNL_selected_page = last_page }
+				if = {
+					limit = {
+						NOT = { check_variable = { HIE_JRNL_selected_page = last_page } }
+					}
+					scoped_sound_effect = "HIE_journal_flip_through"
 
-				HIE_JRNL_bookmark_reevaluate = yes
+					HIE_JRNL_page_turn_jump_right = yes
+					set_variable = { HIE_JRNL_selected_page = last_page }
+
+					HIE_JRNL_bookmark_reevaluate = yes
+					HIE_JRNL_update_dirty = yes
+				}
 			}
 		}
 
 		dynamic_lists = {
 			journal_contents = {
 				array = HIE_JRNL_dummy_array
-				entry_container = "HIE_page_[?HIE_pages_list^HIE_JRNL_selected_page]"
+				entry_container = "HIE_page_[?HIE_JRNL_pages_list^HIE_JRNL_selected_page]"
 			}
 		}
 		
@@ -406,16 +419,18 @@ scripted_gui = {
 		
 		effects = {
 			bookmark_front_click = {
-				set_variable = { HIE_JRNL_prev_page = @left_special }
+				HIE_JRNL_page_turn_jump_left = yes
 				set_variable = { HIE_JRNL_selected_page = HIE_JRNL_bookmark_front_array_i^i }
 				set_variable = { HIE_JRNL_book_frame = 2 }
 				HIE_JRNL_bookmark_reevaluate = yes
+				HIE_JRNL_update_dirty = yes
 			}
 			bookmark_back_click = {
-				set_variable = { HIE_JRNL_prev_page = @right_special }
+				HIE_JRNL_page_turn_jump_right = yes
 				set_variable = { HIE_JRNL_selected_page = HIE_JRNL_bookmark_back_array_i^i }
 				set_variable = { HIE_JRNL_book_frame = 2 }
 				HIE_JRNL_bookmark_reevaluate = yes
+				HIE_JRNL_update_dirty = yes
 			}
 		}
 		
@@ -433,9 +448,9 @@ scripted_gui = {
 		triggers = {
 			book_left_hover_visible = {
 				OR = {
-					check_variable = { HIE_pages_list^HIE_JRNL_selected_page > 300 }
+					check_variable = { HIE_JRNL_pages_list^HIE_JRNL_selected_page > 300 }
 					AND = {
-						check_variable = { HIE_pages_list^HIE_JRNL_selected_page = 2 }
+						check_variable = { HIE_JRNL_pages_list^HIE_JRNL_selected_page = 2 }
 						NOT = {
 							has_country_flag = HIE_JRNL_enable_notes
 						}
@@ -444,9 +459,9 @@ scripted_gui = {
 			}
 			book_right_hover_visible = {
 				OR = {
-					check_variable = { HIE_pages_list^HIE_JRNL_selected_page > 300 }
+					check_variable = { HIE_JRNL_pages_list^HIE_JRNL_selected_page > 300 }
 					AND = {
-						check_variable = { HIE_pages_list^HIE_JRNL_selected_page = 2 }
+						check_variable = { HIE_JRNL_pages_list^HIE_JRNL_selected_page = 2 }
 						NOT = {
 							has_country_flag = HIE_JRNL_enable_notes
 						}
@@ -464,6 +479,7 @@ scripted_gui = {
 					id = hippone_flavor_expansion.2
 					days = 3
 				}
+				HIE_JRNL_update_dirty = yes
 			}
 			memory_potion_zethro_click = {
 				set_country_flag = HIE_JRNL_memory_potion_chain_active
@@ -472,6 +488,7 @@ scripted_gui = {
 					id = hippone_flavor_expansion.4
 					days = 3
 				}
+				HIE_JRNL_update_dirty = yes
 			}
 		}
 
@@ -508,12 +525,14 @@ scripted_gui = {
 
 		effects = {
 			contents_click = {
+				HIE_JRNL_page_turn_jump_right = yes
 				set_variable = { HIE_JRNL_selected_page = HIE_JRNL_toc_array^toc_i }
-				set_variable = { HIE_JRNL_prev_page = @right_special }
+				HIE_JRNL_update_dirty = yes
 			}
 			choice_click = {
 				clr_country_flag = HIE_ToC_choice_active
 				country_event = hippone_aspj_flavor.choice
+				HIE_JRNL_update_dirty = yes
 			}
 		}
 		
@@ -762,15 +781,15 @@ scripted_gui = {
 				HIE_JRNL_clr_popup_vars = yes
 				set_variable = { HIE_JRNL_eq_selected = 2 }
 				set_variable = { HIE_JRNL_base_success_odds = 0.95 }
-				HIE_JRNL_calculate_odds_of_success = yes
 				set_variable = { HIE_JRNL_time_event_delay = 25 }
+				HIE_JRNL_calculate_odds_of_success = yes
 			}
 			eq_hjortland_search_hydra_tear_click = {
 				HIE_JRNL_clr_popup_vars = yes
 				set_variable = { HIE_JRNL_eq_selected = 3 }
 				set_variable = { HIE_JRNL_base_success_odds = 0.45 }
-				HIE_JRNL_calculate_odds_of_success = yes
 				set_variable = { HIE_JRNL_time_event_delay = 14 }
+				HIE_JRNL_calculate_odds_of_success = yes
 			}
 			eq_hjortland_info_ditrysium_click = {
 				HIE_JRNL_clr_popup_vars = yes
@@ -785,8 +804,8 @@ scripted_gui = {
 				
 				set_variable = { HIE_JRNL_eq_selected = 4 }
 				set_variable = { HIE_JRNL_base_success_odds = 0.5 }
-				HIE_JRNL_calculate_odds_of_success = yes
 				set_variable = { HIE_JRNL_time_event_delay = 25 }
+				HIE_JRNL_calculate_odds_of_success = yes
 			}
 			eq_hjortland_search_key_lake_click = {
 				HIE_JRNL_clr_popup_vars = yes
@@ -801,8 +820,8 @@ scripted_gui = {
 				
 				set_variable = { HIE_JRNL_eq_selected = 5 }
 				set_variable = { HIE_JRNL_base_success_odds = 0.6 }
-				HIE_JRNL_calculate_odds_of_success = yes
 				set_variable = { HIE_JRNL_time_event_delay = 20 }
+				HIE_JRNL_calculate_odds_of_success = yes
 			}
 			eq_hjortland_search_whitehooves_click = {
 				HIE_JRNL_clr_popup_vars = yes
@@ -817,8 +836,8 @@ scripted_gui = {
 				
 				set_variable = { HIE_JRNL_eq_selected = 6 }
 				set_variable = { HIE_JRNL_base_success_odds = 0.3 }
-				HIE_JRNL_calculate_odds_of_success = yes
 				set_variable = { HIE_JRNL_time_event_delay = 14 }
+				HIE_JRNL_calculate_odds_of_success = yes
 			}
 			
 			### Manehattan expedition line
@@ -826,15 +845,15 @@ scripted_gui = {
 				HIE_JRNL_clr_popup_vars = yes
 				set_variable = { HIE_JRNL_eq_selected = 7 }
 				set_variable = { HIE_JRNL_base_success_odds = 0.85 }
-				HIE_JRNL_calculate_odds_of_success = yes
 				set_variable = { HIE_JRNL_time_event_delay = 30 }
+				HIE_JRNL_calculate_odds_of_success = yes
 			}
 			eq_manehattan_info_bales_click = {
 				HIE_JRNL_clr_popup_vars = yes
 				set_variable = { HIE_JRNL_eq_selected = 8 }
 				set_variable = { HIE_JRNL_base_success_odds = 0.6 }
-				HIE_JRNL_calculate_odds_of_success = yes
 				set_variable = { HIE_JRNL_time_event_delay = 20 }
+				HIE_JRNL_calculate_odds_of_success = yes
 			}
 			eq_manehattan_search_hollow_shades_click = {
 				HIE_JRNL_clr_popup_vars = yes
@@ -848,8 +867,8 @@ scripted_gui = {
 				}
 				set_variable = { HIE_JRNL_eq_selected = 9 }
 				set_variable = { HIE_JRNL_base_success_odds = 0.425 }
-				HIE_JRNL_calculate_odds_of_success = yes
 				set_variable = { HIE_JRNL_time_event_delay = 14 }
+				HIE_JRNL_calculate_odds_of_success = yes
 			}
 			eq_manehattan_search_stalliongrad_click = {
 				HIE_JRNL_clr_popup_vars = yes
@@ -863,8 +882,8 @@ scripted_gui = {
 					set_variable = { HIE_JRNL_buddies_success_odds = 0.25 }
 				}
 				set_variable = { HIE_JRNL_base_success_odds = 0.525 }
-				HIE_JRNL_calculate_odds_of_success = yes
 				set_variable = { HIE_JRNL_time_event_delay = 20 }
+				HIE_JRNL_calculate_odds_of_success = yes
 			}
 			eq_manehattan_search_ponyville_area_click = {
 				HIE_JRNL_clr_popup_vars = yes
@@ -880,15 +899,15 @@ scripted_gui = {
 				HIE_JRNL_clr_popup_vars = yes
 				set_variable = { HIE_JRNL_eq_selected = 14 }
 				set_variable = { HIE_JRNL_base_success_odds = 0.6 }
-				HIE_JRNL_calculate_odds_of_success = yes
 				set_variable = { HIE_JRNL_time_event_delay = 30 }
+				HIE_JRNL_calculate_odds_of_success = yes
 			}
 			eq_manehattan_search_hayseed_swamps_click = {
 				HIE_JRNL_clr_popup_vars = yes
 				set_variable = { HIE_JRNL_eq_selected = 15 }
 				set_variable = { HIE_JRNL_base_success_odds = 0.45 }
-				HIE_JRNL_calculate_odds_of_success = yes
 				set_variable = { HIE_JRNL_time_event_delay = 20 }
+				HIE_JRNL_calculate_odds_of_success = yes
 			}
 		}
 
@@ -1020,15 +1039,15 @@ scripted_gui = {
 				HIE_JRNL_clr_popup_vars = yes
 				set_variable = { HIE_JRNL_gr_selected = 1 }
 				set_variable = { HIE_JRNL_base_success_odds = 0.85 }
-				HIE_JRNL_calculate_odds_of_success = yes
 				set_variable = { HIE_JRNL_time_event_delay = 30 }
+				HIE_JRNL_calculate_odds_of_success = yes
 			}
 			gr_search_ponaidhean_click = {
 				HIE_JRNL_clr_popup_vars = yes
 				set_variable = { HIE_JRNL_gr_selected = 2 }
 				set_variable = { HIE_JRNL_base_success_odds = 0.6 }
-				HIE_JRNL_calculate_odds_of_success = yes
 				set_variable = { HIE_JRNL_time_event_delay = 20 }
+				HIE_JRNL_calculate_odds_of_success = yes
 			}
 			gr_search_wittenland_click = {
 				HIE_JRNL_clr_popup_vars = yes
@@ -1043,8 +1062,8 @@ scripted_gui = {
 				
 				set_variable = { HIE_JRNL_gr_selected = 3 }
 				set_variable = { HIE_JRNL_base_success_odds = 0.45 }
-				HIE_JRNL_calculate_odds_of_success = yes
 				set_variable = { HIE_JRNL_time_event_delay = 25 }
+				HIE_JRNL_calculate_odds_of_success = yes
 			}
 			gr_search_deponya_click = {
 				HIE_JRNL_clr_popup_vars = yes
@@ -1059,40 +1078,40 @@ scripted_gui = {
 
 				set_variable = { HIE_JRNL_gr_selected = 4 }
 				set_variable = { HIE_JRNL_base_success_odds = 0.5 }
-				HIE_JRNL_calculate_odds_of_success = yes
 				set_variable = { HIE_JRNL_time_event_delay = 30 }
+				HIE_JRNL_calculate_odds_of_success = yes
 			}
 			gr_search_nimbussy_click = {
 				HIE_JRNL_clr_popup_vars = yes
 
 				set_variable = { HIE_JRNL_gr_selected = 5 }
 				set_variable = { HIE_JRNL_base_success_odds = 0.55 }
-				HIE_JRNL_calculate_odds_of_success = yes
 				set_variable = { HIE_JRNL_time_event_delay = 20 }
+				HIE_JRNL_calculate_odds_of_success = yes
 			}
 			gr_search_watertowns_click = {
 				HIE_JRNL_clr_popup_vars = yes
 
 				set_variable = { HIE_JRNL_gr_selected = 6 }
 				set_variable = { HIE_JRNL_base_success_odds = 0.7 }
-				HIE_JRNL_calculate_odds_of_success = yes
 				set_variable = { HIE_JRNL_time_event_delay = 1 }
+				HIE_JRNL_calculate_odds_of_success = yes
 			}
 			gr_search_whitetail_mountains_click = {
 				HIE_JRNL_clr_popup_vars = yes
 
 				set_variable = { HIE_JRNL_gr_selected = 7 }
 				set_variable = { HIE_JRNL_base_success_odds = 0.4 }
-				HIE_JRNL_calculate_odds_of_success = yes
 				set_variable = { HIE_JRNL_time_event_delay = 20 }
+				HIE_JRNL_calculate_odds_of_success = yes
 			}
 			gr_search_northern_tribes_click = {
 				HIE_JRNL_clr_popup_vars = yes
 
 				set_variable = { HIE_JRNL_gr_selected = 8 }
 				set_variable = { HIE_JRNL_base_success_odds = 0.35 }
-				HIE_JRNL_calculate_odds_of_success = yes
 				set_variable = { HIE_JRNL_time_event_delay = 10 }
+				HIE_JRNL_calculate_odds_of_success = yes
 			}
 		}
 
@@ -1198,43 +1217,43 @@ scripted_gui = {
 				HIE_JRNL_clr_popup_vars = yes
 				set_variable = { HIE_JRNL_ze_selected = 1 }
 				set_variable = { HIE_JRNL_base_success_odds = 0.9 }
-				HIE_JRNL_calculate_odds_of_success = yes
 				set_variable = { HIE_JRNL_time_event_delay = 10 }
+				HIE_JRNL_calculate_odds_of_success = yes
 			}
 			ze_search_zarantia_click = {
 				HIE_JRNL_clr_popup_vars = yes
 				set_variable = { HIE_JRNL_ze_selected = 2 }
 				set_variable = { HIE_JRNL_base_success_odds = 0.65 }
-				HIE_JRNL_calculate_odds_of_success = yes
 				set_variable = { HIE_JRNL_time_event_delay = 20 }
+				HIE_JRNL_calculate_odds_of_success = yes
 			}
 			ze_search_azir_click = {
 				HIE_JRNL_clr_popup_vars = yes
 				set_variable = { HIE_JRNL_ze_selected = 3 }
 				set_variable = { HIE_JRNL_base_success_odds = 0.7 }
-				HIE_JRNL_calculate_odds_of_success = yes
 				set_variable = { HIE_JRNL_time_event_delay = 25 }
+				HIE_JRNL_calculate_odds_of_success = yes
 			}
 			ze_search_assyria_click = {
 				HIE_JRNL_clr_popup_vars = yes
 				set_variable = { HIE_JRNL_ze_selected = 4 }
 				set_variable = { HIE_JRNL_base_success_odds = 0.6 }
-				HIE_JRNL_calculate_odds_of_success = yes
 				set_variable = { HIE_JRNL_time_event_delay = 20 }
+				HIE_JRNL_calculate_odds_of_success = yes
 			}
 			ze_search_cemarata_click = {
 				HIE_JRNL_clr_popup_vars = yes
 				set_variable = { HIE_JRNL_ze_selected = 5 }
 				set_variable = { HIE_JRNL_base_success_odds = 0.65 }
-				HIE_JRNL_calculate_odds_of_success = yes
 				set_variable = { HIE_JRNL_time_event_delay = 25 }
+				HIE_JRNL_calculate_odds_of_success = yes
 			}
 			ze_search_vermillion_click = {
 				HIE_JRNL_clr_popup_vars = yes
 				set_variable = { HIE_JRNL_ze_selected = 6 }
 				set_variable = { HIE_JRNL_base_success_odds = 0.55 }
-				HIE_JRNL_calculate_odds_of_success = yes
 				set_variable = { HIE_JRNL_time_event_delay = 50 }
+				HIE_JRNL_calculate_odds_of_success = yes
 			}
 		}
 		
@@ -1254,6 +1273,7 @@ scripted_gui = {
 		window_name = "EaW_HIE_knife"
 		context_type = player_context
 		parent_window_name = "EaW_HIE_Journal_window"
+		dirty = HIE_JRNL_dirty
 		visible = {
 			check_variable = { HIE_JRNL_book_frame = 2 }
 		}
@@ -1266,6 +1286,7 @@ scripted_gui = {
 		visible = {
 			check_variable = { HIE_JRNL_book_frame = 2 }
 		}
+		dirty = HIE_JRNL_dirty
 
 		### Alright so
 		# The reason both left and right having multiple instances is that the animation needs to not be `visible` to retrigger on command.
@@ -1275,6 +1296,7 @@ scripted_gui = {
 			# Odd -> Odd // Will not trigger the animation
 
 			# Solution: disable BOTH even AND odd instances, trigger a THIRD 'special' animation in their place
+			# The specials use a counter `HIE_JRNL_(left/right)_special_status` to alternate odd and even jumps to ensure the animation always plays
 
 		## Page turn to the right ## (Going forward in the book)
 		triggers = {
@@ -1345,20 +1367,52 @@ scripted_gui = {
 				NOT = { check_variable = { HIE_JRNL_prev_page > 99 } }
 			}
 			# Special
-			page_turn_right_multiple_visible = {
+			page_turn_right_multiple_1_visible = {
+				set_temp_variable = { temp_right_special_status_check = HIE_JRNL_right_special_status }
+				modulo_temp_variable = { temp_right_special_status_check = 2 }
+				check_variable = { temp_right_special_status_check = 0 }
+
 				check_variable = { HIE_JRNL_prev_page = @right_special }
 			
-				set_temp_variable = { page_turn_right_multiple_frame = 0 } # Looping
-				multiply_temp_variable = { page_turn_right_multiple_frame = 256 }
-				add_to_temp_variable = { page_turn_right_multiple_frame = 200 } # FPS
-				multiply_temp_variable = { page_turn_right_multiple_frame = 64 }
-				add_to_temp_variable = { page_turn_right_multiple_frame = 24 } # End frame
-				multiply_temp_variable = { page_turn_right_multiple_frame = 64 }
-				add_to_temp_variable = { page_turn_right_multiple_frame = 1 } # Start frame
+				set_temp_variable = { page_turn_right_multiple_1_frame = 0 } # Looping
+				multiply_temp_variable = { page_turn_right_multiple_1_frame = 256 }
+				add_to_temp_variable = { page_turn_right_multiple_1_frame = 200 } # FPS
+				multiply_temp_variable = { page_turn_right_multiple_1_frame = 64 }
+				add_to_temp_variable = { page_turn_right_multiple_1_frame = 24 } # End frame
+				multiply_temp_variable = { page_turn_right_multiple_1_frame = 64 }
+				add_to_temp_variable = { page_turn_right_multiple_1_frame = 1 } # Start frame
 
-				add_to_temp_variable = { page_turn_right_multiple_frame = 1 }
+				add_to_temp_variable = { page_turn_right_multiple_1_frame = 1 }
 			}
-			page_turn_right_multiple_click_enabled = {
+			page_turn_right_multiple_1_click_enabled = {
+				set_temp_variable = { temp_right_special_status_check = HIE_JRNL_right_special_status }
+				modulo_temp_variable = { temp_right_special_status_check = 2 }
+				check_variable = { temp_right_special_status_check = 0 }
+
+				check_variable = { HIE_JRNL_prev_page = @right_special }
+			}
+			page_turn_right_multiple_2_visible = {
+				set_temp_variable = { temp_right_special_status_check = HIE_JRNL_right_special_status }
+				modulo_temp_variable = { temp_right_special_status_check = 2 }
+				check_variable = { temp_right_special_status_check = 1 }
+
+				check_variable = { HIE_JRNL_prev_page = @right_special }
+			
+				set_temp_variable = { page_turn_right_multiple_2_frame = 0 } # Looping
+				multiply_temp_variable = { page_turn_right_multiple_2_frame = 256 }
+				add_to_temp_variable = { page_turn_right_multiple_2_frame = 200 } # FPS
+				multiply_temp_variable = { page_turn_right_multiple_2_frame = 64 }
+				add_to_temp_variable = { page_turn_right_multiple_2_frame = 24 } # End frame
+				multiply_temp_variable = { page_turn_right_multiple_2_frame = 64 }
+				add_to_temp_variable = { page_turn_right_multiple_2_frame = 1 } # Start frame
+
+				add_to_temp_variable = { page_turn_right_multiple_2_frame = 1 }
+			}
+			page_turn_right_multiple_2_click_enabled = {
+				set_temp_variable = { temp_right_special_status_check = HIE_JRNL_right_special_status }
+				modulo_temp_variable = { temp_right_special_status_check = 2 }
+				check_variable = { temp_right_special_status_check = 1 }
+
 				check_variable = { HIE_JRNL_prev_page = @right_special }
 			}
 		}
@@ -1370,8 +1424,11 @@ scripted_gui = {
 			page_turn_right_2 = {
 				frame = page_turn_right_2_frame
 			}
-			page_turn_right_multiple = {
-				frame = page_turn_right_multiple_frame
+			page_turn_right_multiple_1 = {
+				frame = page_turn_right_multiple_1_frame
+			}
+			page_turn_right_multiple_2 = {
+				frame = page_turn_right_multiple_2_frame
 			}
 		}
 
@@ -1452,20 +1509,52 @@ scripted_gui = {
 				NOT = { check_variable = { HIE_JRNL_prev_page > 99 } }
 			}
 			# Special
-			page_turn_left_multiple_visible = {
+			page_turn_left_multiple_1_visible = {
+				set_temp_variable = { temp_left_special_status_check = HIE_JRNL_left_special_status }
+				modulo_temp_variable = { temp_left_special_status_check = 2 }
+				check_variable = { temp_left_special_status_check = 0 }
+
 				check_variable = { HIE_JRNL_prev_page = @left_special }
 			
-				set_temp_variable = { page_turn_left_multiple_frame = 0 } # Looping
-				multiply_temp_variable = { page_turn_left_multiple_frame = 256 }
-				add_to_temp_variable = { page_turn_left_multiple_frame = 230 } # FPS
-				multiply_temp_variable = { page_turn_left_multiple_frame = 64 }
-				add_to_temp_variable = { page_turn_left_multiple_frame = 23 } # End frame
-				multiply_temp_variable = { page_turn_left_multiple_frame = 64 }
-				add_to_temp_variable = { page_turn_left_multiple_frame = 1 } # Start frame
+				set_temp_variable = { page_turn_left_multiple_1_frame = 0 } # Looping
+				multiply_temp_variable = { page_turn_left_multiple_1_frame = 256 }
+				add_to_temp_variable = { page_turn_left_multiple_1_frame = 230 } # FPS
+				multiply_temp_variable = { page_turn_left_multiple_1_frame = 64 }
+				add_to_temp_variable = { page_turn_left_multiple_1_frame = 23 } # End frame
+				multiply_temp_variable = { page_turn_left_multiple_1_frame = 64 }
+				add_to_temp_variable = { page_turn_left_multiple_1_frame = 1 } # Start frame
 
-				add_to_temp_variable = { page_turn_left_multiple_frame = 1 }
+				add_to_temp_variable = { page_turn_left_multiple_1_frame = 1 }
 			}
-			page_turn_left_multiple_click_enabled = {
+			page_turn_left_multiple_1_click_enabled = {
+				set_temp_variable = { temp_left_special_status_check = HIE_JRNL_left_special_status }
+				modulo_temp_variable = { temp_left_special_status_check = 2 }
+				check_variable = { temp_left_special_status_check = 0 }
+
+				check_variable = { HIE_JRNL_prev_page = @left_special }
+			}
+			page_turn_left_multiple_2_visible = {
+				set_temp_variable = { temp_left_special_status_check = HIE_JRNL_left_special_status }
+				modulo_temp_variable = { temp_left_special_status_check = 2 }
+				check_variable = { temp_left_special_status_check = 1 }
+
+				check_variable = { HIE_JRNL_prev_page = @left_special }
+			
+				set_temp_variable = { page_turn_left_multiple_2_frame = 0 } # Looping
+				multiply_temp_variable = { page_turn_left_multiple_2_frame = 256 }
+				add_to_temp_variable = { page_turn_left_multiple_2_frame = 230 } # FPS
+				multiply_temp_variable = { page_turn_left_multiple_2_frame = 64 }
+				add_to_temp_variable = { page_turn_left_multiple_2_frame = 23 } # End frame
+				multiply_temp_variable = { page_turn_left_multiple_2_frame = 64 }
+				add_to_temp_variable = { page_turn_left_multiple_2_frame = 1 } # Start frame
+
+				add_to_temp_variable = { page_turn_left_multiple_2_frame = 1 }
+			}
+			page_turn_left_multiple_2_click_enabled = {
+				set_temp_variable = { temp_left_special_status_check = HIE_JRNL_left_special_status }
+				modulo_temp_variable = { temp_left_special_status_check = 2 }
+				check_variable = { temp_left_special_status_check = 1 }
+
 				check_variable = { HIE_JRNL_prev_page = @left_special }
 			}
 		}
@@ -1477,8 +1566,11 @@ scripted_gui = {
 			page_turn_left_2 = {
 				frame = page_turn_left_2_frame
 			}
-			page_turn_left_multiple = {
-				frame = page_turn_left_multiple_frame
+			page_turn_left_multiple_1 = {
+				frame = page_turn_left_multiple_1_frame
+			}
+			page_turn_left_multiple_2 = {
+				frame = page_turn_left_multiple_2_frame
 			}
 		}
 	}
@@ -1502,6 +1594,7 @@ scripted_gui = {
 			launch_expedition_btn_click = {
 				HIE_JRNL_start_activity = yes
 				subtract_from_variable = { HIE_JRNL_total_odds_bank = HIE_JRNL_odds_invested }
+				HIE_JRNL_update_dirty = yes
 			}
 			odds_of_succeeding_click = {
 				if = {
@@ -1518,6 +1611,7 @@ scripted_gui = {
 					clr_country_flag = HIE_JRNL_popup_show_increase_chance_window
 					else = { set_country_flag = HIE_JRNL_popup_show_increase_chance_window }
 				}
+				HIE_JRNL_update_dirty = yes
 			}
 			close_btn_click = {
 				HIE_JRNL_clr_popup_vars = yes
@@ -1620,6 +1714,8 @@ scripted_gui = {
 				add_to_array = { HIE_ic_options_cooldown = ic_v }
 				remove_from_array = { HIE_ic_options = ic_v }
 				country_event = { id = hippone_aspj.2000 days = 15 }
+				
+				HIE_JRNL_update_dirty = yes
 			}
 			button_increase_ic_click = {
 				add_to_variable = { HIE_JRNL_odds_invested = 0.025 }
@@ -1688,8 +1784,8 @@ scripted_gui = {
 					HIE_JRNL_clr_popup_vars = yes
 					set_variable = { HIE_JRNL_eq_selected = 10 }
 					set_variable = { HIE_JRNL_base_success_odds = 0.55 }
-					HIE_JRNL_calculate_odds_of_success = yes
 					set_variable = { HIE_JRNL_time_event_delay = 20 }
+					HIE_JRNL_calculate_odds_of_success = yes
 				}
 				# Called using [!ponyville_button_click]
 				if = {
@@ -1714,8 +1810,8 @@ scripted_gui = {
 					HIE_JRNL_clr_popup_vars = yes
 					set_variable = { HIE_JRNL_eq_selected = 11 }
 					set_variable = { HIE_JRNL_base_success_odds = 0.3 }
-					HIE_JRNL_calculate_odds_of_success = yes
 					set_variable = { HIE_JRNL_time_event_delay = 26 }
+					HIE_JRNL_calculate_odds_of_success = yes
 				}
 				# Called using [!everfree_forest_button_click]
 				if = {
@@ -1740,8 +1836,8 @@ scripted_gui = {
 					HIE_JRNL_clr_popup_vars = yes
 					set_variable = { HIE_JRNL_eq_selected = 12 }
 					set_variable = { HIE_JRNL_base_success_odds = 0.35 }
-					HIE_JRNL_calculate_odds_of_success = yes
 					set_variable = { HIE_JRNL_time_event_delay = 16 }
+					HIE_JRNL_calculate_odds_of_success = yes
 				}
 			}
 		}
