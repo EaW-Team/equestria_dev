@@ -275,10 +275,7 @@ ROA_civil_war_effect = { # United effect for Lansin's Uprising and Civil War aft
 		}
 		if = {
 			limit = {
-				is_power_balance_in_range = {
-					id = ROA_bop
-					range < ROA_Alsa_side_1
-				}
+				check_variable = { ROA_triumvirate_var > 75 }
 			}
 			set_nationality = {
     			target_country = event_target:lansin_uprising
@@ -293,10 +290,7 @@ ROA_civil_war_effect = { # United effect for Lansin's Uprising and Civil War aft
 		}
 		else_if = {
 			limit = {
-				is_power_balance_in_range = {
-					id = ROA_bop
-					range > ROA_Dassal_side_1
-				}
+				check_variable = { ROA_triumvirate_var < 25 }
 			}
 			set_nationality = {
     			target_country = event_target:lansin_uprising
@@ -315,14 +309,6 @@ ROA_civil_war_effect = { # United effect for Lansin's Uprising and Civil War aft
 			# If ROA doesn't have on of them, he/she went to Lansin previously, so new CW won't happen
 			has_character = ROA_dassal
 			has_character = ROA_alsa
-		}
-		# Divs amount calculation for legate's uprising
-		subtract_from_variable = { legate_power_var = 1 }
-		multiply_variable = { legate_power_var = -10 }
-		clamp_variable = {
-			var = legate_power_var
-			min = 2
-			max = 8
 		}
 		create_dynamic_country = { # Dynamic country is always assumed as non-player
 			original_tag = ROA
@@ -409,7 +395,7 @@ ROA_civil_war_effect = { # United effect for Lansin's Uprising and Civil War aft
 			create_unit = {
 				division = "division_template = \"Militia\" start_experience_factor = 0.1"
 				owner = event_target:legate_uprising
-				count = ROA.legate_power_var
+				count = 6
 				allow_spawning_on_enemy_provs = yes
 			}
 		}
@@ -573,4 +559,89 @@ create_legio_praetoriani_div = {
 			create_unit = { division = "division_template = \"Legio Praetoriani\" start_equipment_factor = 1.0 start_experience_factor = 0.5" owner = ROOT count = 1 }
 		}
 	}
+}
+update_triumvirate = {
+	set_temp_variable = { v = temp_amount }
+	if = {
+		limit = {
+			check_variable = { temp_amount > 0 }
+		}
+		add_to_variable = {
+			ROA_triumvirate_var = v
+			tooltip = triumvirate_tt
+		}
+	}
+	else_if = {
+		limit = {
+			check_variable = { temp_amount < 0 }
+		}
+		multiply_temp_variable = { v = -1 }
+		subtract_from_variable = {
+			ROA_triumvirate_var = v
+			tooltip = triumvirate_tt
+		}
+	}
+	clamp_variable = {
+		var = ROA_triumvirate_var
+		min = 0
+		max = 100
+	}
+	set_temp_variable = { gui_var = ROA_triumvirate_var }
+	add_to_temp_variable = { gui_var = 50 }
+	set_variable = { ROA_triumvirate_gui_var = gui_var }
+	if = { # Alsa
+		limit = {
+			check_variable = { ROA_triumvirate_var > 50 }
+		}
+		set_temp_variable = { v = ROA_triumvirate_var }
+		multiply_temp_variable = { v = 2 }
+		subtract_from_temp_variable = { v = 100 }
+		set_variable = { ROA_triumvirate_loc_var = v }
+	}
+	else_if = { # Dassal
+		limit = {
+			check_variable = { ROA_triumvirate_var < 50 }
+		}
+		set_temp_variable = { i = 100 }
+		set_temp_variable = { v = ROA_triumvirate_var }
+		multiply_temp_variable = { v = 2 }
+		subtract_from_temp_variable = { i = v }
+		set_variable = { ROA_triumvirate_loc_var = i }
+	}
+	if = {
+		limit = {
+			check_variable = { ROA_triumvirate_var < 25 }
+		}
+		set_variable = { ROA_triumvirate_dm_stability_factor = -0.075 }
+		set_variable = { ROA_triumvirate_dm_political_power_factor = -0.075 }
+	}
+	else_if = {
+		limit = {
+			check_variable = { ROA_triumvirate_var < 50 }
+		}
+		set_variable = { ROA_triumvirate_dm_stability_factor = -0.05 }
+		set_variable = { ROA_triumvirate_dm_political_power_factor = -0.05 }
+	}
+	else_if = {
+		limit = {
+			check_variable = { ROA_triumvirate_var = 50 }
+		}
+		set_variable = { ROA_triumvirate_dm_stability_factor = 0.05 }
+		set_variable = { ROA_triumvirate_dm_political_power_factor = 0.1 }
+	}
+	else_if = {
+		limit = {
+			check_variable = { ROA_triumvirate_var < 75 }
+		}
+		set_variable = { ROA_triumvirate_dm_stability_factor = -0.05 }
+		set_variable = { ROA_triumvirate_dm_political_power_factor = -0.05 }
+	}
+	else_if = {
+		limit = {
+			check_variable = { ROA_triumvirate_var < 100 }
+		}
+		set_variable = { ROA_triumvirate_dm_stability_factor = -0.075 }
+		set_variable = { ROA_triumvirate_dm_political_power_factor = -0.075 }
+	}
+	add_to_variable = { ROA_triumvirate_dirty = 1 }
 }
