@@ -133,14 +133,14 @@ def formatpaperclip(name, race = None, doctrine = None):
         output_lines.append(tabformat + "\t\t\t\t\tname = paperclip_tech_bonus")
         output_lines.append(tabformat + "\t\t\t\t\tcost_reduction = 0.5")
         output_lines.append(tabformat + "\t\t\t\t\tuses = 1")
-        output_lines.append(tabformat + f"\t\t\t\t\ttechnology = {name}")
+        output_lines.append(tabformat + "\t\t\t\t\ttechnology = " + name)
         output_lines.append(tabformat + "\t\t\t\t}")
     else:
         output_lines.append(tabformat + "\t\t\t\tadd_tech_bonus = {")
         output_lines.append(tabformat + "\t\t\t\t\tname = paperclip_tech_bonus")
         output_lines.append(tabformat + "\t\t\t\t\tbonus = 2")
         output_lines.append(tabformat + "\t\t\t\t\tuses = 1")
-        output_lines.append(tabformat + f"\t\t\t\t\ttechnology = {name}")
+        output_lines.append(tabformat + "\t\t\t\t\ttechnology = " + name)
         output_lines.append(tabformat + "\t\t\t\t}")
 
     output_lines.append(tabformat + "\t\t\t}")
