@@ -9,7 +9,7 @@ import datetime
 #############################
 ###
 ### HoI 4 Transfer Technology scripted effect generator by Yard1, originally for Equestria at War mod
-### Written in Python 2.7
+### Written in Python 2.7, updated to Python 3.14
 ### Transfer Technology scripted effect will grant all techs researched by PREV to ROOT
 ### Best used when ROOT is just spawned (eg. as a civil war TAG)
 ### It is not advised to use this for already existing nations, as mutually exclusive techs will be given regardless of what ROOT has already researched
@@ -65,7 +65,7 @@ def readfile(name):
             is_tech_file = True
         if open_blocks == 1 and "{" in line:
             temp_line = line
-            temp_line = re.sub('\s|=(\s|){', "", temp_line)
+            temp_line = re.sub(r'\s|=(\s|){', "", temp_line)
             names.append(temp_line)
         open_blocks += line.count('{')
         open_blocks -= line.count('}')
@@ -133,14 +133,14 @@ def formatpaperclip(name, race = None, doctrine = None):
         output_lines.append(tabformat + "\t\t\t\t\tname = paperclip_tech_bonus")
         output_lines.append(tabformat + "\t\t\t\t\tcost_reduction = 0.5")
         output_lines.append(tabformat + "\t\t\t\t\tuses = 1")
-        output_lines.append(tabformat + "\t\t\t\t\ttechnology = " + name)
+        output_lines.append(tabformat + f"\t\t\t\t\ttechnology = {name}")
         output_lines.append(tabformat + "\t\t\t\t}")
     else:
         output_lines.append(tabformat + "\t\t\t\tadd_tech_bonus = {")
         output_lines.append(tabformat + "\t\t\t\t\tname = paperclip_tech_bonus")
         output_lines.append(tabformat + "\t\t\t\t\tbonus = 2")
         output_lines.append(tabformat + "\t\t\t\t\tuses = 1")
-        output_lines.append(tabformat + "\t\t\t\t\ttechnology = " + name)
+        output_lines.append(tabformat + f"\t\t\t\t\ttechnology = {name}")
         output_lines.append(tabformat + "\t\t\t\t}")
 
     output_lines.append(tabformat + "\t\t\t}")
@@ -286,7 +286,7 @@ if args.add:
         lines = read_file.splitlines()
         for line in lines:
             if "has_tech" in line:
-                duplicate = re.sub("^\s*has_tech = ", "", line).strip()
+                duplicate = re.sub(r"^\s*has_tech = ", "", line).strip()
                 if duplicate in names_global:
                     names_global.remove(duplicate)
 if not names_global or all(False for item in names_global):
