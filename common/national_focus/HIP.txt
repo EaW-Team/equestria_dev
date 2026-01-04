@@ -551,11 +551,11 @@ focus_tree = {
 						original_tag = WNG
 						original_tag = EQS
 						original_tag = NLR
+						}
 					}
+					news_event = hippogriff_news.7
 				}
-				news_event = hippogriff_news.7
-			}
-			set_global_flag = HIP_mountain_awakes_global_flag
+				set_global_flag = HIP_mountain_awakes_global_flag
 			}
 		}
 
@@ -570,7 +570,10 @@ focus_tree = {
 				has_completed_focus = HIP_stirring_from_slumber
 				any_of_potential_and_current_enemies_justifying_or_has_wargoal_on_THIS = yes
 				AND = {
-					has_guaranteed = WAR
+					OR = {
+						has_guaranteed = WAR
+						is_ally_with = WAR
+					}
 					WAR = {
 						any_of_potential_and_current_enemies_justifying_or_has_wargoal_on_THIS = yes
 					}
@@ -2105,7 +2108,6 @@ focus_tree = {
 
 		available = {
 			BAT  = {
-				exists = yes
 				owns_state = 747
 			}
 		}
@@ -2686,22 +2688,8 @@ focus_tree = {
 		completion_reward = {
 			add_political_power = 200
 			add_stability = 0.10
-			if = {
-				limit = {
-					is_in_faction = no
-				}
-				set_rule = {
-					can_create_factions = yes
-				}
-				create_faction = HIP_middle_sea_treaty
-				unlock_decision_category_tooltip = HIP_invite_allies
-			}
-			else_if = {
-				limit = {
-					is_faction_leader = yes
-				}
-				unlock_decision_category_tooltip = HIP_invite_allies
-			}
+			set_faction_name = HIP_middle_sea_treaty
+			unlock_decision_category_tooltip = HIP_invite_allies
 		}
 	}
 	shared_focus = {
@@ -2723,7 +2711,7 @@ focus_tree = {
 				OR = {
 					custom_trigger_tooltip = {
 						tooltip = HIP_invest_in_our_allies_trigger_civ_tt
-						check_variable = { num_of_military_factories < 20 }
+						check_variable = { num_of_civilian_factories < 20 }
 					}
 					custom_trigger_tooltip = {
 						tooltip = HIP_invest_in_our_allies_trigger_mil_tt
@@ -3889,20 +3877,9 @@ focus_tree = {
 
 		completion_reward = {
 			release_puppet = CTH
-			if = {
-				limit = {
-					has_dlc = "Man the Guns"
-				}
-				set_autonomy = {
-					target = CTH
-					autonomy_state = autonomy_supervised_state
-				}
-			}
-			else = {
-				set_autonomy = {
-					target = CTH
-					autonomy_state = autonomy_colony
-				}
+			set_autonomy = {
+				target = CTH
+				autonomy_state = autonomy_supervised_state
 			}
 			country_event = {
 				id = hippogriff.52
@@ -6912,11 +6889,20 @@ shared_focus = {
 		continue_if_invalid = no
 		available_if_capitulated = no
 
+		# NZW_alliance_effect can be called multiple times no problem, doesn't do anything after the first
+		cancelable = yes 
+
 		will_lead_to_war_with = BAT
 		will_lead_to_war_with = ZAR
 		will_lead_to_war_with = TBK
 
+		select_effect = {
+			NZW_alliance_effect = yes
+		}
+
 		completion_reward = {
+			NZW_on_start_effect = yes
+
 			if = {
 				limit = {
 					has_active_mission = HIP_duumvirate_catastrophe
@@ -6995,7 +6981,13 @@ shared_focus = {
 				name = HIP_defend_island
 				category = land_doctrine
 				uses = 1
-				cost_reduction = 0.25
+				cost_reduction = 0.5 
+			}
+			add_mastery_bonus = {
+				bonus = 0.2
+				days = 180
+				folder = land 
+				name = HIP_defend_our_island
 			}
 		}
 	}
@@ -8172,13 +8164,6 @@ shared_focus = {
 			add_war_support = 0.05
 			if = {
 				limit = {
-					is_in_faction = no
-				}
-				set_rule = { can_create_factions = yes }
-				create_faction = NORTH_ZEBRICAN_COALITION
-			}
-			if = {
-				limit = {
 					WAR = {
 						is_in_faction = no
 						has_government = democratic
@@ -8517,17 +8502,35 @@ shared_focus = {
 				uses = 1
 				category = air_doctrine
 			}
+			add_mastery_bonus = {
+				bonus = 0.2
+				days = 180
+				folder = air
+				name = HIP_lessons_of_nzw
+			}
 			add_doctrine_cost_reduction = {
 				name = HIP_lessons_of_nzw
 				cost_reduction = 0.5
 				uses = 1
 				category = naval_doctrine
 			}
+			add_mastery_bonus = {
+				bonus = 0.2
+				days = 180
+				folder = naval 
+				name = HIP_lessons_of_nzw
+			}
 			add_doctrine_cost_reduction = {
 				name = HIP_lessons_of_nzw
 				cost_reduction = 0.5
 				uses = 1
 				category = land_doctrine
+			}
+			add_mastery_bonus = {
+				bonus = 0.2
+				days = 180
+				folder = land
+				name = HIP_lessons_of_nzw
 			}
 		}
 	}
@@ -8568,10 +8571,7 @@ shared_focus = {
 		}
 
 		allow_branch = {
-				OR = {
-					has_country_flag = HIP_hide_raft
-					has_government = fascism
-				}
+			has_government = fascism
 			NOT = {
 				OR = {
 					has_country_flag = HIP_Antifa_Skystar_flag
@@ -9099,10 +9099,15 @@ shared_focus = {
 
 		completion_reward = {
 			add_country_leader_trait = internationalist_nationalist
-			set_rule = {
-				can_create_factions = yes
+			if = {
+				limit = {
+					is_subject = no
+				}
+				set_rule = {
+					can_create_factions = yes
+				}
+				create_faction_from_template = faction_template_arisian_hegemony
 			}
-			create_faction = HIP_hegemony_faction
 			hidden_effect = {
 				country_event = {
 					id = arisfirst.91
@@ -10924,205 +10929,521 @@ shared_focus = {
 		completion_reward = {#Switch all land doctrines to GBP
 			add_doctrine_cost_reduction = {
 				name = gbp_bonus
-				uses = 2
+				uses = 1
 				cost_reduction = 0.25
-				category = cat_grand_battle_plan
+				category = land_doctrine #was cat_grand_battle_plan
 			}
+			#add_mastery_bonus = {
+			#	bonus = 0.2
+			#	days = 180
+			#	grand_doctrine = grand_battleplan 
+			#}
 			custom_effect_tooltip = HIP_gbp_left_tt
 			hidden_effect = {
-				if = {
+				if = { #TODO EAW_SEA for later after merge. Maybe find more elegant solution or better fitting subdoctrines?
 					limit = {
-						OR = {
-							has_tech = modern_blitzkrieg
-							has_tech = werwolf_guerillas
-							has_tech = air_land_battle
-							has_tech = shock_and_awe
-							has_tech = infiltration_in_depth
-							has_tech = continuous_offensive
+						has_subdoctrine_in_track = infantry
+					}
+					set_temp_variable = {
+						infantry_subdoctrine = 1
+					}
+					if = {
+						limit = {
+							has_mastery = {
+								track = infantry
+								amount = 500
+							}
+						}
+						set_temp_variable = {
+							infantry_subdoctrine = 500
 						}
 					}
-					set_technology = {
-						modern_blitzkrieg = 0
-						werwolf_guerillas = 0
-						air_land_battle = 0
-						shock_and_awe = 0
-						infiltration_in_depth = 0
-						continuous_offensive = 0
-						c3i_theory = 1
+					else_if = {
+						limit = {
+							has_mastery = {
+								track = infantry
+								amount = 400
+							}
+						}
+						set_temp_variable = {
+							infantry_subdoctrine = 400
+						}
+					}
+					else_if = {
+						limit = {
+							has_mastery = {
+								track = infantry
+								amount = 300
+							}
+						}
+						set_temp_variable = {
+							infantry_subdoctrine = 300
+						}
+					}
+					else_if = {
+						limit = {
+							has_mastery = {
+								track = infantry
+								amount = 200
+							}
+						}
+						set_temp_variable = {
+							infantry_subdoctrine = 200
+						}
+					}
+					else_if = {
+						limit = {
+							has_mastery = {
+								track = infantry
+								amount = 100
+							}
+						}
+						set_temp_variable = {
+							infantry_subdoctrine = 100
+						}
+					}
+				}
+				if = { 
+					limit = {
+						has_subdoctrine_in_track = combat_support
+					}
+					set_temp_variable = {
+						combat_support_subdoctrine = 1
+					}
+					if = {
+						limit = {
+							has_mastery = {
+								track = combat_support
+								amount = 500
+							}
+						}
+						set_temp_variable = {
+							combat_support_subdoctrine = 500
+						}
+					}
+					else_if = {
+						limit = {
+							has_mastery = {
+								track = combat_support
+								amount = 400
+							}
+						}
+						set_temp_variable = {
+							combat_support_subdoctrine = 400
+						}
+					}
+					else_if = {
+						limit = {
+							has_mastery = {
+								track = combat_support
+								amount = 300
+							}
+						}
+						set_temp_variable = {
+							combat_support_subdoctrine = 300
+						}
+					}
+					else_if = {
+						limit = {
+							has_mastery = {
+								track = combat_support
+								amount = 200
+							}
+						}
+						set_temp_variable = {
+							combat_support_subdoctrine = 200
+						}
+					}
+					else_if = {
+						limit = {
+							has_mastery = {
+								track = combat_support
+								amount = 100
+							}
+						}
+						set_temp_variable = {
+							combat_support_subdoctrine = 100
+						}
 					}
 				}
 				if = {
 					limit = {
-						OR = {
-							has_tech = backhand_blow
-							has_tech = nd_conscription
-							has_tech = tactical_control
-							has_tech = advanced_firebases
-							has_tech = attritional_containment
-							has_tech = mechanized_wave
+						has_subdoctrine_in_track = armor
+					}
+					set_temp_variable = {
+						armor_subdoctrine = 1
+					}
+					if = {
+						limit = {
+							has_mastery = {
+								track = armor
+								amount = 500
+							}
+						}
+						set_temp_variable = {
+							armor_subdoctrine = 500
 						}
 					}
-					set_technology = {
-						backhand_blow = 0
-						nd_conscription = 0
-						tactical_control = 0
-						advanced_firebases = 0
-						attritional_containment = 0
-						mechanized_wave = 0
-						central_planning = 1
+					else_if = {
+						limit = {
+							has_mastery = {
+								track = armor
+								amount = 400
+							}
+						}
+						set_temp_variable = {
+							armor_subdoctrine = 400
+						}
+					}
+					else_if = {
+						limit = {
+							has_mastery = {
+								track = armor
+								amount = 300
+							}
+						}
+						set_temp_variable = {
+							armor_subdoctrine = 300
+						}
+					}
+					else_if = {
+						limit = {
+							has_mastery = {
+								track = armor
+								amount = 200
+							}
+						}
+						set_temp_variable = {
+							armor_subdoctrine = 200
+						}
+					}
+					else_if = {
+						limit = {
+							has_mastery = {
+								track = armor
+								amount = 100
+							}
+						}
+						set_temp_variable = {
+							armor_subdoctrine = 100
+						}
 					}
 				}
 				if = {
 					limit = {
-						OR = {
-							has_tech = firebrigades
-							has_tech = volkssturm
-							has_tech = combined_arms
-							has_tech = forward_observers
-							has_tech = night_assault_tactics
-							has_tech = breakthrough_priority
-							has_tech = guerilla_warfare
+						has_subdoctrine_in_track = operations
+					}
+					set_temp_variable = {
+						operations_subdoctrine = 1
+					}
+					if = {
+						limit = {
+							has_mastery = {
+								track = operations
+								amount = 500
+							}
+						}
+						set_temp_variable = {
+							operations_subdoctrine = 500
 						}
 					}
-					set_technology = {
-						firebrigades = 0
-						volkssturm = 0
-						combined_arms = 0
-						forward_observers = 0
-						night_assault_tactics = 0
-						breakthrough_priority = 0
-						assault_breakthrough = 1
+					else_if = {
+						limit = {
+							has_mastery = {
+								track = operations
+								amount = 400
+							}
+						}
+						set_temp_variable = {
+							operations_subdoctrine = 400
+						}
+					}
+					else_if = {
+						limit = {
+							has_mastery = {
+								track = operations
+								amount = 300
+							}
+						}
+						set_temp_variable = {
+							operations_subdoctrine = 300
+						}
+					}
+					else_if = {
+						limit = {
+							has_mastery = {
+								track = operations
+								amount = 200
+							}
+						}
+						set_temp_variable = {
+							operations_subdoctrine = 200
+						}
+					}
+					else_if = {
+						limit = {
+							has_mastery = {
+								track = operations
+								amount = 100
+							}
+						}
+						set_temp_variable = {
+							operations_subdoctrine = 100
+						}
+					}
+				}
+
+				set_grand_doctrine = grand_battleplan 
+				if = {
+					limit = {
+						check_variable = {
+							infantry_subdoctrine > 0
+						}
+					}
+					set_sub_doctrine = great_war_infantry
+					if = {
+						limit = {
+							check_variable = {
+								infantry_subdoctrine > 499
+							}
+						}
+						add_mastery = {
+							amount = 500
+							track = infantry
+						}
+					}
+					else_if = {
+						limit = {
+							check_variable = {
+								infantry_subdoctrine > 399
+							}
+						}
+						add_mastery = {
+							amount = 400
+							track = infantry
+						}
+					}
+					else_if = {
+						limit = {
+							check_variable = {
+								infantry_subdoctrine > 299
+							}
+						}
+						add_mastery = {
+							amount = 300
+							track = infantry
+						}
+					}
+					else_if = {
+						limit = {
+							check_variable = {
+								infantry_subdoctrine > 199
+							}
+						}
+						add_mastery = {
+							amount = 200
+							track = infantry
+						}
+					}
+					else_if = {
+						limit = {
+							check_variable = {
+								infantry_subdoctrine > 99
+							}
+						}
+						add_mastery = {
+							amount = 100
+							track = infantry
+						}
 					}
 				}
 				if = {
 					limit = {
-						OR = {
-							has_tech = kampfgruppe
-							has_tech = concentrated_fire_plans
-							has_tech = centralized_fire_control
-							has_tech = infiltration_assault
-							has_tech = vast_offensives
-							has_tech = human_wave_offensive
+						check_variable = {
+							combat_support_subdoctrine > 0
 						}
 					}
-					set_technology = {
-						kampfgruppe = 0
-						concentrated_fire_plans = 0
-						centralized_fire_control = 0
-						infiltration_assault = 0
-						vast_offensives = 0
-						human_wave_offensive = 0
-						branch_interoperation = 1
+					set_sub_doctrine = fire_concentration
+					if = {
+						limit = {
+							check_variable = {
+								combat_support_subdoctrine > 499
+							}
+						}
+						add_mastery = {
+							amount = 500
+							track = combat_support
+						}
+					}
+					else_if = {
+						limit = {
+							check_variable = {
+								combat_support_subdoctrine > 399
+							}
+						}
+						add_mastery = {
+							amount = 400
+							track = combat_support
+						}
+					}
+					else_if = {
+						limit = {
+							check_variable = {
+								combat_support_subdoctrine > 299
+							}
+						}
+						add_mastery = {
+							amount = 300
+							track = combat_support
+						}
+					}
+					else_if = {
+						limit = {
+							check_variable = {
+								combat_support_subdoctrine > 199
+							}
+						}
+						add_mastery = {
+							amount = 200
+							track = combat_support
+						}
+					}
+					else_if = {
+						limit = {
+							check_variable = {
+								combat_support_subdoctrine > 99
+							}
+						}
+						add_mastery = {
+							amount = 100
+							track = combat_support
+						}
 					}
 				}
 				if = {
 					limit = {
-						OR = {
-							has_tech = mechanised_offensive
-							has_tech = blitzkrieg
-							has_tech = sup_mechanized_offensive
-							has_tech = armored_operations
-							has_tech = operational_concentration
-							has_tech = large_front_offensive
+						check_variable = {
+							armor_subdoctrine > 0
 						}
 					}
-					set_technology = {
-						mechanised_offensive = 0
-						blitzkrieg = 0
-						sup_mechanized_offensive = 0
-						armored_operations = 0
-						operational_concentration = 0
-						large_front_offensive = 0
-						assault_concentration = 1
+					set_sub_doctrine = armored_infantry_support
+					if = {
+						limit = {
+							check_variable = {
+								armor_subdoctrine > 499
+							}
+						}
+						add_mastery = {
+							amount = 500
+							track = armor
+						}
+					}
+					else_if = {
+						limit = {
+							check_variable = {
+								armor_subdoctrine > 399
+							}
+						}
+						add_mastery = {
+							amount = 400
+							track = armor
+						}
+					}
+					else_if = {
+						limit = {
+							check_variable = {
+								armor_subdoctrine > 299
+							}
+						}
+						add_mastery = {
+							amount = 300
+							track = armor
+						}
+					}
+					else_if = {
+						limit = {
+							check_variable = {
+								armor_subdoctrine > 199
+							}
+						}
+						add_mastery = {
+							amount = 200
+							track = armor
+						}
+					}
+					else_if = {
+						limit = {
+							check_variable = {
+								armor_subdoctrine > 99
+							}
+						}
+						add_mastery = {
+							amount = 100
+							track = armor
+						}
 					}
 				}
 				if = {
 					limit = {
-						OR = {
-							has_tech = mass_motorization
-							has_tech = schwerpunk
-							has_tech = regimental_combat_teams
-							has_tech = overwhelming_firepower
-							has_tech = infantry_offensive
-							has_tech = deep_operations
-							has_tech = human_infantry_offensive
+						check_variable = {
+							operations_subdoctrine > 0
 						}
 					}
-					set_technology = {
-						mass_motorization = 0
-						schwerpunk = 0
-						regimental_combat_teams = 0
-						overwhelming_firepower = 0
-						infantry_offensive = 0
-						deep_operations = 0
-						human_infantry_offensive = 0
-						grand_mechanized_offensive = 1
-					}
-				}
-				if = {
-					limit = {
-						OR = {
-							has_tech = mobile_infantry
-							has_tech = armored_spearhead
-							has_tech = intergrated_support
-							has_tech = dispersed_support
-							has_tech = large_front_operations
-							has_tech = peoples_army
+					set_sub_doctrine = grand_assault
+					if = {
+						limit = {
+							check_variable = {
+								operations_subdoctrine > 499
+							}
+						}
+						add_mastery = {
+							amount = 500
+							track = operations
 						}
 					}
-					set_technology = {
-						mobile_infantry = 0
-						armored_spearhead = 0
-						intergrated_support = 0
-						dispersed_support = 0
-						large_front_operations = 0
-						peoples_army = 0
-						grand_assault = 1
-					}
-				}
-				if = {
-					limit = {
-						OR = {
-							has_tech = elastic_defence
-							has_tech = mobile_defence
-							has_tech = defence_in_depth
+					else_if = {
+						limit = {
+							check_variable = {
+								operations_subdoctrine > 399
+							}
+						}
+						add_mastery = {
+							amount = 400
+							track = operations
 						}
 					}
-					set_technology = {
-						elastic_defence = 0
-						mobile_defence = 0
-						defence_in_depth = 0
-						prepared_defense = 1
-					}
-				}
-				if = {
-					limit = {
-						OR = {
-							has_tech = delay
-							has_tech = sup_delay
-							has_tech = pocket_defence
+					else_if = {
+						limit = {
+							check_variable = {
+								operations_subdoctrine > 299
+							}
+						}
+						add_mastery = {
+							amount = 300
+							track = operations
 						}
 					}
-					set_technology = {
-						delay = 0
-						sup_delay = 0
-						pocket_defence = 0
-						grand_battle_plan = 1
-					}
-				}
-				if = {
-					limit = {
-						OR = {
-							has_tech = mobile_warfare
-							has_tech = superior_firepower
-							has_tech = mass_assault
+					else_if = {
+						limit = {
+							check_variable = {
+								operations_subdoctrine > 199
+							}
+						}
+						add_mastery = {
+							amount = 200
+							track = operations
 						}
 					}
-					set_technology = {
-						mobile_warfare = 0
-						superior_firepower = 0
-						mass_assault = 0
-						trench_warfare = 1
+					else_if = {
+						limit = {
+							check_variable = {
+								operations_subdoctrine > 99
+							}
+						}
+						add_mastery = {
+							amount = 100
+							track = operations
+						}
 					}
 				}
 			}
@@ -11253,6 +11574,8 @@ shared_focus = {
 
 		completion_reward = {
 			add_war_support = 0.10
+			set_country_flag = has_super_force_attack
+			set_country_flag = has_super_last_stand
 			custom_effect_tooltip = super_combat_abilities_tt
 			custom_effect_tooltip = SOL_Faith_Sacrifice_Worship_tp
 			hidden_effect = {
@@ -12568,17 +12891,35 @@ shared_focus = {
 				uses = 1
 				cost_reduction = 0.5
 			}
+			add_mastery_bonus = {
+				bonus = 0.2
+				days = 180
+				folder = land 
+				name = HIP_modern_revolutionary_theory
+			}
 			add_doctrine_cost_reduction = {
 				name = doctrine_bonus
 				category = naval_doctrine
 				uses = 1
 				cost_reduction = 0.5
 			}
+			add_mastery_bonus = {
+				bonus = 0.2
+				days = 180
+				folder = naval 
+				name = HIP_modern_revolutionary_theory
+			}
 			add_doctrine_cost_reduction = {
 				name = doctrine_bonus
 				category = air_doctrine
 				uses = 1
 				cost_reduction = 0.5
+			}
+			add_mastery_bonus = {
+				bonus = 0.2
+				days = 180
+				folder = air 
+				name = HIP_modern_revolutionary_theory
 			}
 		}
 	}
@@ -12604,19 +12945,10 @@ shared_focus = {
 
 		completion_reward = {
 			two_random_dockyards = yes
-			if = {
-				limit = {
-					has_dlc = "Man the Guns"
-				}
-				set_technology = {
-					cruiser_submarines = 1
-				}
+			set_technology = {
+				cruiser_submarines = 1
 			}
-			else = {
-				set_technology = {
-					cruiser_submarines_nomtg = 1
-				}
-			}
+			complete_special_project = sp:sp_naval_cruiser_submarine
 			custom_effect_tooltip = HIP_torpedo_cruiser_tp
 		}
 	}
@@ -12713,17 +13045,7 @@ shared_focus = {
 		will_lead_to_war_with = TBK
 
 		completion_reward = {
-			if = {
-				limit = {
-					WAR = {
-						has_government = communism
-					}
-				}
-				set_rule = {
-					can_create_factions = yes
-				}
-				create_faction = HIP_middle_sea_treaty
-			}
+			set_faction_name = HIP_middle_sea_treaty
 			if = {
 				limit = {
 					WAR = {
@@ -13302,6 +13624,14 @@ shared_focus = {
 		continue_if_invalid = no
 		available_if_capitulated = no
 		will_lead_to_war_with = BAT
+
+		# NZW_alliance_effect can be called multiple times no problem, doesn't do anything after the first
+		cancelable = yes
+
+		select_effect = {
+			NZW_alliance_effect = yes
+		}
+
 		completion_reward = {
 			if = {
 				limit = {
@@ -13314,6 +13644,7 @@ shared_focus = {
 						}
 					}
 				}
+				NZW_on_start_effect = yes
 				create_wargoal = {
 					type = annex_everything
 					target = BAT
@@ -13818,7 +14149,7 @@ shared_focus = {
 		completion_reward = {
 			if = {
 				limit = {
-					has_tech = atomic_research
+					has_tech = nuke_naval
 				}
 				add_breakthrough_progress = {
 					specialization = specialization_nuclear
@@ -13902,6 +14233,14 @@ shared_focus = {
 		will_lead_to_war_with = CVA
 		will_lead_to_war_with = HIE
 		will_lead_to_war_with = TRO
+
+		# NZW_alliance_effect can be called multiple times no problem, doesn't do anything after the first
+		cancelable = yes 
+
+		select_effect = {
+			NZW_alliance_effect = yes
+		}
+
 		completion_reward = {
 			if = {
 				limit = {
@@ -13914,6 +14253,7 @@ shared_focus = {
 						}
 					}
 				}
+				NZW_on_start_effect = yes
 				create_wargoal = {
 					target = CTH
 					type = annex_everything
@@ -13951,14 +14291,16 @@ shared_focus = {
 						}
 					}
 				}
-				set_rule = {
-					can_create_factions = yes
-				}
-				create_faction = HIP_middle_sea_treaty
-				CTH = {
-					country_event = {
-						id = hippocommie.67
-						days = 1
+				if = {
+					limit = {
+						is_in_faction = no
+						is_subject = no
+					}
+					CTH = {
+						country_event = {
+							id = hippocommie.67
+							days = 1
+						}
 					}
 				}
 			}
@@ -14014,14 +14356,16 @@ shared_focus = {
 						}
 					}
 				}
-				set_rule = {
-					can_create_factions = yes
-				}
-				create_faction = HIP_middle_sea_treaty
-				CVA = {
-					country_event = {
-						id = hippocommie.67
-						days = 1
+				if = {
+					limit = {
+						is_subject = no
+						is_in_faction = no
+					}
+					CVA = {
+						country_event = {
+							id = hippocommie.67
+							days = 1
+						}
 					}
 				}
 			}
@@ -15622,15 +15966,9 @@ shared_focus = {
 				localization_key = SP_UNLOCK_PROJECT
 				PROJECT = sp_nuclear_depth_charges
 			}
-			if = {
-				limit = {
-					has_dlc = "Man the Guns"
-				}
-				
-				custom_effect_tooltip = {
-					localization_key = SP_UNLOCK_PROJECT
-					PROJECT = sp_nuclear_naval_mines
-				}
+			custom_effect_tooltip = {
+				localization_key = SP_UNLOCK_PROJECT
+				PROJECT = sp_nuclear_naval_mines
 			}
 
 		}
@@ -15829,9 +16167,12 @@ shared_focus = {
 		completion_reward = {
 			country_event = hippocommie.55
 			1165 = {
+				strategic_state_location = {
+					massive_radar_array = 19886
+				}
 				add_building_construction = {
 					type = radar_station
-					level = 9
+					level = 6
 					instant_build = yes
 				}
 			}
@@ -16782,10 +17123,16 @@ shared_focus = {
 		available_if_capitulated = no
 
 		completion_reward = {
-			set_rule = {
-				can_create_factions = yes
+			if = {
+				limit = {
+					is_in_faction = no
+					is_subject = no
+				}
+				set_rule = {
+					can_create_factions = yes
+				}
+				create_faction_from_template = faction_template_revintern
 			}
-			create_faction = HIP_comintern
 			add_to_tech_sharing_group = HIP_comintern_research
 			unlock_decision_tooltip = HIP_comintern_associate_status
 			unlock_decision_tooltip = HIP_comintern_full_status
@@ -16997,7 +17344,7 @@ shared_focus = {
 		completion_reward = {
 			if = {
 				limit = {
-					has_tech = atomic_research
+					has_tech = better_reactors
 				}
 				add_breakthrough_progress = {
 					specialization = specialization_nuclear
@@ -20330,8 +20677,14 @@ shared_focus = {
 			add_doctrine_cost_reduction = {
 				name = HIP_deep_blue_war_games
 				category = naval_doctrine
-				uses = 2
+				uses = 1
 				cost_reduction = 0.5
+			}
+			add_mastery_bonus = {
+				bonus = 0.2
+				days = 180
+				folder = naval 
+				name = HIP_deep_blue_war_games
 			}
 		}
 	}
@@ -20581,20 +20934,10 @@ shared_focus = {
 
 		completion_reward = {
 			add_ideas = HIP_underwater_supremacy_idea
-			if = {
-				limit = {
-					has_dlc = "Man the Guns"
-				}
-				set_technology = {
-					cruiser_submarines = 1
-				}
+			set_technology = {
+				cruiser_submarines = 1
 			}
-			else = {
-				set_technology = {
-					cruiser_submarines_nomtg = 1
-				}
-			}
-
+			complete_special_project = sp:sp_naval_cruiser_submarine
 		}
 	}
 
@@ -20637,7 +20980,7 @@ shared_focus = {
 				name = HIP_expand_the_escort_fleet
 				bonus = 1
 				uses = 1
-				category = cl_tech
+				category = ca_tech
 			}
 			custom_effect_tooltip = HIP_torpedo_cruiser_tp
 		}
@@ -20715,106 +21058,93 @@ shared_focus = {
 		completion_reward = {
 			if = {
 				limit = {
-					has_dlc = "Man the Guns"
-				}
-				if = {
-					limit = {
-						NOT = {
-							has_tech = ship_hull_super_heavy
-						}
-					}
-					set_technology = {
-						ship_hull_super_heavy = 1
-					}
-				}
-				if = {
-					limit = {
+					NOT = {
 						has_tech = ship_hull_super_heavy
 					}
-					if = {
-						limit = {
-							has_tech = cavity_magnatron
-						}
-						create_equipment_variant = {
-							name = "Imperious Class"
-							type = ship_hull_super_heavy_1
-							name_group = HIP_BB_HISTORICAL
-							parent_version = 0
-							modules = {
-								fixed_ship_battery_slot = ship_super_heavy_battery_1
-								fixed_ship_anti_air_slot = ship_anti_air_2
-								fixed_ship_fire_control_system_slot = ship_fire_control_system_1
-								fixed_ship_radar_slot = ship_radar_2
-								fixed_ship_engine_slot = heavy_ship_engine_2
-								fixed_ship_secondaries_slot = ship_secondaries_2
-								fixed_ship_armor_slot = ship_armor_shbb
-								front_1_custom_slot = ship_anti_air_1
-								front_2_custom_slot = empty
-								mid_1_custom_slot = empty
-								mid_2_custom_slot = ship_secondaries_2
-								mid_3_custom_slot = ship_secondaries_2
-								rear_1_custom_slot = ship_super_heavy_battery_1
-								rear_2_custom_slot = ship_airplane_launcher_2
-							}
-						}
+				}
+				set_technology = {
+					ship_hull_super_heavy = 1
+				}
+			}
+			if = {
+				limit = {
+					has_tech = ship_hull_super_heavy
+				}
+				if = {
+					limit = {
+						has_tech = cavity_magnatron
 					}
-					else = {
-						create_equipment_variant = {
-							name = "Imperious Class"
-							type = ship_hull_super_heavy_1
-							name_group = HIP_BB_HISTORICAL
-							parent_version = 0
-							modules = {
-								fixed_ship_battery_slot = ship_super_heavy_battery_1
-								fixed_ship_anti_air_slot = ship_anti_air_2
-								fixed_ship_fire_control_system_slot = ship_fire_control_system_1
-								fixed_ship_radar_slot = empty
-								fixed_ship_engine_slot = heavy_ship_engine_2
-								fixed_ship_secondaries_slot = ship_secondaries_2
-								fixed_ship_armor_slot = ship_armor_shbb
-								front_1_custom_slot = ship_anti_air_1
-								front_2_custom_slot = empty
-								mid_1_custom_slot = empty
-								mid_2_custom_slot = ship_secondaries_2
-								mid_3_custom_slot = ship_secondaries_2
-								rear_1_custom_slot = ship_super_heavy_battery_1
-								rear_2_custom_slot = ship_airplane_launcher_2
-							}
+					create_equipment_variant = {
+						name = "Imperious Class"
+						type = ship_hull_super_heavy_1
+						name_group = HIP_BB_HISTORICAL
+						parent_version = 0
+						modules = {
+							fixed_ship_battery_slot = ship_super_heavy_battery_1
+							fixed_ship_anti_air_slot = ship_anti_air_2
+							fixed_ship_fire_control_system_slot = ship_fire_control_system_1
+							fixed_ship_radar_slot = ship_radar_2
+							fixed_ship_engine_slot = heavy_ship_engine_2
+							fixed_ship_secondaries_slot = ship_secondaries_2
+							fixed_ship_armor_slot = ship_armor_shbb
+							front_1_custom_slot = ship_anti_air_1
+							front_2_custom_slot = empty
+							mid_1_custom_slot = empty
+							mid_2_custom_slot = ship_secondaries_2
+							mid_3_custom_slot = ship_secondaries_2
+							rear_1_custom_slot = ship_super_heavy_battery_1
+							rear_2_custom_slot = ship_airplane_launcher_2
 						}
 					}
 				}
-				custom_effect_tooltip = HIP_imperious_class_tt
-				hidden_effect = {
-					add_equipment_production = {
-						equipment = {
-							type = ship_hull_super_heavy_1
-							creator = "HIP"
-							version_name = "Imperious Class"
+				else = {
+					create_equipment_variant = {
+						name = "Imperious Class"
+						type = ship_hull_super_heavy_1
+						name_group = HIP_BB_HISTORICAL
+						parent_version = 0
+						modules = {
+							fixed_ship_battery_slot = ship_super_heavy_battery_1
+							fixed_ship_anti_air_slot = ship_anti_air_2
+							fixed_ship_fire_control_system_slot = ship_fire_control_system_1
+							fixed_ship_radar_slot = empty
+							fixed_ship_engine_slot = heavy_ship_engine_2
+							fixed_ship_secondaries_slot = ship_secondaries_2
+							fixed_ship_armor_slot = ship_armor_shbb
+							front_1_custom_slot = ship_anti_air_1
+							front_2_custom_slot = empty
+							mid_1_custom_slot = empty
+							mid_2_custom_slot = ship_secondaries_2
+							mid_3_custom_slot = ship_secondaries_2
+							rear_1_custom_slot = ship_super_heavy_battery_1
+							rear_2_custom_slot = ship_airplane_launcher_2
 						}
-						name = "RHS Imperious"
-						requested_factories = 1
-						progress = 0.75
-						amount = 1
-					}
-					add_equipment_production = {
-						equipment = {
-							type = ship_hull_super_heavy_1
-							creator = "HIP"
-							version_name = "Imperious Class"
-						}
-						name = "RHS Glorious"
-						requested_factories = 1
-						progress = 0.5
-						amount = 1
 					}
 				}
 			}
-			else = {
-				add_tech_bonus = {
-					name = HIP_imperious_class
-					bonus = 3.0
-					uses = 1
-					category = shbb_tech
+			custom_effect_tooltip = HIP_imperious_class_tt
+			hidden_effect = {
+				add_equipment_production = {
+					equipment = {
+						type = ship_hull_super_heavy_1
+						creator = "HIP"
+						version_name = "Imperious Class"
+					}
+					name = "RHS Imperious"
+					requested_factories = 1
+					progress = 0.75
+					amount = 1
+				}
+				add_equipment_production = {
+					equipment = {
+						type = ship_hull_super_heavy_1
+						creator = "HIP"
+						version_name = "Imperious Class"
+					}
+					name = "RHS Glorious"
+					requested_factories = 1
+					progress = 0.5
+					amount = 1
 				}
 			}
 		}
@@ -21789,6 +22119,12 @@ shared_focus = {
 				uses = 1
 				cost_reduction = 0.5
 			}
+			add_mastery_bonus = {
+				bonus = 0.2
+				days = 180
+				folder = land 
+				name = HIP_continue_army_modernisation
+			}
 		}
 	}
 
@@ -22170,8 +22506,12 @@ shared_focus = {
 			add_doctrine_cost_reduction = {
 				name = HIP_grand_alaudia_training_grounds
 				category = land_doctrine
-				uses = 2
+				uses = 1
 				cost_reduction = 0.5
+			}
+			add_mastery = {
+				amount = 10 
+				folder = land 
 			}
 		}
 	}
@@ -22666,8 +23006,14 @@ shared_focus = {
 			add_doctrine_cost_reduction = {
 				name = HIP_air_land_warfare_focus
 				cost_reduction = 0.5
-				uses = 2
+				uses = 1
 				category = battlefield_support_tree
+			}
+			add_mastery_bonus = {
+				bonus = 0.2
+				days = 180
+				grand_doctrine = new_battlefield_support 
+				name = HIP_air_land_warfare_focus
 			}
 		}
 	}
@@ -22832,8 +23178,14 @@ shared_focus = {
 			add_doctrine_cost_reduction = {
 				name = HIP_strategic_obliteration_doctraine
 				category = strategic_destruction_tree
-				uses = 2
+				uses = 1
 				cost_reduction = 0.5
+			}
+			add_mastery_bonus = {
+				bonus = 0.2
+				days = 180
+				grand_doctrine = new_strategic_destruction 
+				name = HIP_strategic_obliteration_doctraine
 			}
 		}
 	}
@@ -24108,6 +24460,12 @@ shared_focus = {
 			category = land_doctrine
 			uses = 1
 			cost_reduction = 0.5
+		}
+		add_mastery_bonus = {
+			bonus = 0.2
+			days = 180
+			folder = land 
+			name = HIP_SIR_last_minute_preparations
 		}
 		army_experience = 25
 		navy_experience = 10
@@ -26311,6 +26669,7 @@ shared_focus = {
 		NOT = {
 			has_country_flag = HIP_SIR_has_deficit
 		}
+		is_subject = no
 	}
 
 	ai_will_do = {
@@ -26319,7 +26678,7 @@ shared_focus = {
 	completion_reward = {
 		log = "[GetDateText]: [Root.GetName]: Focus HIP_SIR_all_we_need_is_us"
 		add_war_support = 0.1
-		create_faction = "HIP_SIR_siren_hegemony"
+		create_faction_from_template = faction_template_HIP_SIR_siren_hegemony
 		add_ideas = HIP_SIR_the_war_of_vengeance
 		if = {
 			limit = {
@@ -28091,8 +28450,14 @@ shared_focus = {
 		add_doctrine_cost_reduction = {
 			name = land_doc_bonus
 			category = land_doctrine
-			uses = 2
+			uses = 1
 			cost_reduction = 0.5
+		}
+		add_mastery_bonus = {
+			bonus = 0.2
+			days = 180
+			folder = land 
+			name = HIP_SIR_chiropterran_military_tactics
 		}
 		add_to_variable = { HIP_SIR_aria_power = 1 }
 	}

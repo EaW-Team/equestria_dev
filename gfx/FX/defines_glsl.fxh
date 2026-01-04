@@ -115,6 +115,7 @@ mat3 mul( mat3 X, mat3 Y )
 #define trunc floor
 
 #define fmod_loop( X, Y ) mod( X, Y )
+#define fmod( X, Y ) mod( X, Y )
 
 #define GetMatrixData( Matrix, row, col ) ( Matrix [ col ] [ row ] )
 //This define exist since OpenGL textures sometimes need to be flipped
@@ -128,4 +129,9 @@ float3x3 CastTo3x3( in float4x4 M )
 float atan2(float y, float x)
 {
 	return atan(x, y); // Should x/y be flipped like this? Google thinks it should...
+}
+
+float round(float x)
+{
+	return floor(x + 0.5);
 }
