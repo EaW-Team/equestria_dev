@@ -78,6 +78,11 @@ AET_HLDV_start = {
 
 	# Dummy
 	add_to_array = { AET_HLDV_stratagem_list = 0 }
+	add_to_array = { AET_HLDV_stratagem_code_list_0 = 5 }
+	add_to_array = { AET_HLDV_stratagem_code_list_0 = 5 }
+	add_to_array = { AET_HLDV_stratagem_code_list_0 = 5 }
+	add_to_array = { AET_HLDV_stratagem_code_list_0 = 5 }
+	add_to_array = { AET_HLDV_stratagem_code_list_0 = 5 }
 
 	add_to_variable = { AET_HLDV_dirty = 0.001 }
 }
@@ -152,34 +157,106 @@ AET_HLDV_key_press = {
 
 	AET_HLDV_highlight = yes
 
+	# log = "Left code"
+	# set_temp_variable = { temp_j = AET_HLDV_stratagem_list^AET_book_left_stratagem_id }
+	# for_each_loop = {
+	# 	array = AET_HLDV_stratagem_code_list_@var:temp_j
+	# 	log = "[?v]"
+	# }
+	# log = "---"
+	# log = "Right code"
+	# set_temp_variable = { temp_j = AET_HLDV_stratagem_list^AET_book_left_stratagem_id }
+	# for_each_loop = {
+	# 	array = AET_HLDV_stratagem_code_list_@var:temp_j
+	# 	log = "[?v]"
+	# }
+	# log = "---"
+	# log = "Current arrows"
+	# for_each_loop = {
+	# 	array = AET_HLDV_current_arrows
+	# 	log = "[?v]"
+	# }
+
+	if = {
+		limit = {
+			set_temp_variable = { check_j = AET_HLDV_stratagem_list^AET_book_left_stratagem_id }
+			all_of = {
+				array = AET_HLDV_stratagem_code_list_@var:check_j
+				index = check_i
+				value = check_v
+
+				if = {
+					limit = {
+						check_variable = { AET_HLDV_current_arrows^check_i > 0 }
+					}
+					check_variable = { check_v = AET_HLDV_current_arrows^check_i }
+				}
+			}
+		}
+		log = "left evaluated as match"
+	}
+	else = {
+		log = "left evaluated as mismatch"
+	}
+
+	if = {
+		limit = {
+			set_temp_variable = { check_j = AET_HLDV_stratagem_list^AET_book_right_stratagem_id }
+			all_of = {
+				array = AET_HLDV_stratagem_code_list_@var:check_j
+				index = check_i
+				value = check_v
+
+				if = {
+					limit = {
+						check_variable = { AET_HLDV_current_arrows^check_i > 0 }
+					}
+					check_variable = { check_v = AET_HLDV_current_arrows^check_i }
+				}
+			}
+		}
+		log = "right evaluated as match"
+	}
+	else = {
+		log = "left evaluated as mismatch"
+	}
+
 	if = {
 		limit = {
 			OR = {
 				# Reset if number reaches 6
-				check_variable = { AET_HLDV_current_arrows^num = 7 }
+				check_variable = { AET_HLDV_current_arrows^num = 6 }
 				# Reset if current code doesn't match either the left or the right
 				AND = {
 					NOT = {
 						set_temp_variable = { check_j = AET_HLDV_stratagem_list^AET_book_left_stratagem_id }
 						all_of = {
-							array = AET_HLDV_current_arrows
-							index = check_k
-							value = check_l
+							array = AET_HLDV_stratagem_code_list_@var:check_j
+							index = check_i
+							value = check_v
 
-							check_variable = { check_l = AET_HLDV_stratagem_code_list_@var:check_j^check_k }
+							if = {
+								limit = {
+									check_variable = { AET_HLDV_current_arrows^check_i > 0 }
+								}
+								check_variable = { check_v = AET_HLDV_current_arrows^check_i }
+							}
 						}
-						check_variable = { var = AET_HLDV_current_arrows^num value = AET_HLDV_stratagem_code_list_@var:check_j^num compare = less_than_or_equals }
 					}
 					NOT = {
 						set_temp_variable = { check_j = AET_HLDV_stratagem_list^AET_book_right_stratagem_id }
 						all_of = {
-							array = AET_HLDV_current_arrows
-							index = check_k
-							value = check_l
+							array = AET_HLDV_stratagem_code_list_@var:check_j
+							index = check_i
+							value = check_v
 
-							check_variable = { check_l = AET_HLDV_stratagem_code_list_@var:check_j^check_k }
+							if = {
+								limit = {
+									check_variable = { AET_HLDV_current_arrows^check_i > 0 }
+								}
+								check_variable = { check_v = AET_HLDV_current_arrows^check_i }
+							}
 						}
-						check_variable = { var = AET_HLDV_current_arrows^num value = AET_HLDV_stratagem_code_list_@var:check_j^num compare = less_than_or_equals }
 					}
 				}
 			}
@@ -327,6 +404,14 @@ AET_HLDV_add_to_spell_list = {
 }
 
 ## Maar spells
+AET_HLDV_init_maar_cooldown = {
+	set_country_flag = { flag = AET_maar_sacrifice days = 120 value = 1 }
+
+	# 120 days * 24 hours * 0.00001 = 0.02880
+	set_variable = { AET_HLDV_maar_cooldown_finish_date = global.date }
+	add_to_variable = { AET_HLDV_maar_cooldown_finish_date = 0.02880 }
+}
+
 # AET_ruin_engines
 AET_HLDV_effect_3 = {
 	log = "AET_HLDV_effect_3 executed"
@@ -375,7 +460,7 @@ AET_HLDV_effect_3 = {
 			hidden_effect = { scoped_sound_effect = "magicspell" country_event = greifwald.63 }
 		}
 	}
-	set_country_flag = { flag = AET_maar_sacrifice days = 120 value = 1 }
+	AET_HLDV_init_maar_cooldown = yes
 }
 
 # AET_revolutionary_fervor_spell
@@ -425,7 +510,7 @@ AET_HLDV_effect_4 = {
 			hidden_effect = { scoped_sound_effect = "magicspell" country_event = greifwald.63 }
 		}
 	}
-	set_country_flag = { flag = AET_maar_sacrifice days = 120 value = 1 }
+	AET_HLDV_init_maar_cooldown = yes
 }
 
 # AET_fell_wind_spell
@@ -475,7 +560,7 @@ AET_HLDV_effect_5 = {
 			hidden_effect = { scoped_sound_effect = "magicspell" country_event = greifwald.63 }
 		}
 	}
-	set_country_flag = { flag = AET_maar_sacrifice days = 120 value = 1 }
+	AET_HLDV_init_maar_cooldown = yes
 }
 
 # AET_black_blood_spell
@@ -523,13 +608,21 @@ AET_HLDV_effect_6 = {
 		}
 		hidden_effect = { scoped_sound_effect = "magicspell" country_event = greifwald.63 }
 	}
-	set_country_flag = { flag = AET_maar_sacrifice days = 120 value = 1 }
+	AET_HLDV_init_maar_cooldown = yes
 }
 
 # AET_black_blood_spell_us
 AET_HLDV_effect_7 = {
 	log = "AET_HLDV_effect_7 executed"
 	add_political_power = -75
+	save_current_manpower = yes
+	random_controlled_state = {
+		limit = {
+			state_population > 100
+		}
+		add_manpower = -100
+	}
+	restore_previous_manpower = yes
 	if = {
 		limit = {
 			AET = {
@@ -542,7 +635,7 @@ AET_HLDV_effect_7 = {
 		add_timed_idea = { idea = AET_maar_black_blood days = 50 }
 	}
 	hidden_effect = { scoped_sound_effect = "magicspell" }
-	set_country_flag = { flag = AET_maar_sacrifice days = 120 value = 1 }
+	AET_HLDV_init_maar_cooldown = yes
 }
 
 # AET_factory_broke_spell
@@ -590,7 +683,7 @@ AET_HLDV_effect_8 = {
 		}
 		hidden_effect = { scoped_sound_effect = "magicspell" country_event = greifwald.63 }
 	}
-	set_country_flag = { flag = AET_maar_sacrifice days = 120 value = 1 }
+	AET_HLDV_init_maar_cooldown = yes
 }
 
 ## Trimmel's Stratagems
