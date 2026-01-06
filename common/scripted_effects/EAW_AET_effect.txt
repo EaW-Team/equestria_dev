@@ -335,6 +335,52 @@ AET_HLDV_highlight = {
 	}
 }
 
+AET_HLDV_trimmel_daily_pulse = {
+	for_each_loop = {
+		array = AET_HLDV_trimmel_timer_array
+		if = {
+			limit = {
+				check_variable = { AET_HLDV_trimmel_timer_array^i > 0 }
+				check_variable = { AET_HLDV_trimmel_timer_array_status^i = 1 }
+				log = "First check, i: [?i]"
+				log = "AET_HLDV_trimmel_timer_array^i: [?AET_HLDV_trimmel_timer_array^i]"
+				log = "AET_HLDV_trimmel_timer_array_status^i: [?AET_HLDV_trimmel_timer_array_status^i]"
+			}
+			subtract_from_variable = { AET_HLDV_trimmel_timer_array^i = 1 }
+
+			# rescale for frames = raw * ( 100 / max )
+			set_temp_variable = { temp_timer_calc = AET_HLDV_trimmel_timer_array^i }
+			multiply_temp_variable = { temp_timer_calc = 100 }
+			divide_temp_variable = { temp_timer_calc = AET_HLDV_trimmel_timer_array_max^i }
+
+			set_variable = { AET_HLDV_trimmel_timer_array_frame_dial^i = temp_timer_calc }
+			set_variable = { AET_HLDV_trimmel_timer_array_frame_circle^i = 100 }
+			subtract_from_variable = { AET_HLDV_trimmel_timer_array_frame_circle^i = temp_timer_calc }
+		}
+		else_if = {
+			limit = {
+				check_variable = { AET_HLDV_trimmel_timer_array_status^i = 1 }
+				log = "Second check, i: [?i]"
+				log = "AET_HLDV_trimmel_timer_array_status^i: [?AET_HLDV_trimmel_timer_array_status^i]"
+			}
+			# ongoing effect is attached to the init stratagem
+			set_temp_variable = { temp_stratagem_id = i }
+			multiply_temp_variable = { temp_stratagem_id = 2 }
+			subtract_from_temp_variable = { temp_stratagem_id = 1 }
+			meta_effect = {
+				text = {
+					AET_HLDV_effect_[INPUT]_ongoing = yes
+				}
+				INPUT = "[?AET_HLDV_stratagem_list^temp_stratagem_id]"
+			}
+			set_variable = { AET_HLDV_trimmel_timer_array^i = AET_HLDV_trimmel_timer_array_max^i }
+			set_variable = { AET_HLDV_trimmel_timer_array_frame_circle^i = 0 }
+			set_variable = { AET_HLDV_trimmel_timer_array_frame_dial^i = 100 }
+		}
+	}
+	add_to_variable = { AET_HLDV_dirty = 0.00001 }
+}
+
 # When you explicitly want two spells to be next to each other, add a dummy entry to skip an odd page
 AET_HLDV_check_for_odd = {
 	if = {
@@ -775,6 +821,36 @@ AET_HLDV_effect_10 = {
 	AET_HLDV_deactivate_trimmel_timer = yes
 }
 
+# AET_strat_opioid_run
+AET_HLDV_effect_11 = {
+	log = "AET_HLDV_effect_11 executed"
+	add_political_power = -60
+	set_variable = { AET_drugs_stats = 0.16 }
+	add_dynamic_modifier = { modifier = AET_drugs_idea }
+}
+
+AET_HLDV_effect_11_ongoing = {
+	log = "AET_HLDV_effect_11 executed"
+	divide_variable = { AET_drugs_stats = 2 }
+	if = {
+		limit = {
+			check_variable = {
+				AET_drugs_stats < 0.01
+			}
+		}
+		set_variable = { AET_drugs_stats = 0.00 }
+	}
+}
+
+# AET_strat_opioid_run
+AET_HLDV_effect_12 = {
+	log = "AET_HLDV_effect_12 executed"
+	add_political_power = -10
+	remove_dynamic_modifier = { modifier = AET_drugs_idea }
+	add_timed_idea = { idea = AET_strat_drug_withdrawal days = 365 }
+	AET_HLDV_deactivate_trimmel_timer = yes
+}
+
 AET_debug_add_all_trimmel_spells = {
 	set_country_flag = AET_HLDV_trimmel_debug
 
@@ -797,50 +873,4 @@ AET_debug_add_all_trimmel_spells = {
 	set_temp_variable = { temp_spell_id = 10 }
 	set_temp_variable = { temp_stratagem_sequence = 32422 }
 	AET_HLDV_add_to_spell_list = yes
-}
-
-AET_HLDV_trimmel_daily_pulse = {
-	for_each_loop = {
-		array = AET_HLDV_trimmel_timer_array
-		if = {
-			limit = {
-				check_variable = { AET_HLDV_trimmel_timer_array^i > 0 }
-				check_variable = { AET_HLDV_trimmel_timer_array_status^i = 1 }
-				log = "First check, i: [?i]"
-				log = "AET_HLDV_trimmel_timer_array^i: [?AET_HLDV_trimmel_timer_array^i]"
-				log = "AET_HLDV_trimmel_timer_array_status^i: [?AET_HLDV_trimmel_timer_array_status^i]"
-			}
-			subtract_from_variable = { AET_HLDV_trimmel_timer_array^i = 1 }
-
-			# rescale for frames = raw * ( 100 / max )
-			set_temp_variable = { temp_timer_calc = AET_HLDV_trimmel_timer_array^i }
-			multiply_temp_variable = { temp_timer_calc = 100 }
-			divide_temp_variable = { temp_timer_calc = AET_HLDV_trimmel_timer_array_max^i }
-
-			set_variable = { AET_HLDV_trimmel_timer_array_frame_dial^i = temp_timer_calc }
-			set_variable = { AET_HLDV_trimmel_timer_array_frame_circle^i = 100 }
-			subtract_from_variable = { AET_HLDV_trimmel_timer_array_frame_circle^i = temp_timer_calc }
-		}
-		else_if = {
-			limit = {
-				check_variable = { AET_HLDV_trimmel_timer_array_status^i = 1 }
-				log = "Second check, i: [?i]"
-				log = "AET_HLDV_trimmel_timer_array_status^i: [?AET_HLDV_trimmel_timer_array_status^i]"
-			}
-			# ongoing effect is attached to the init stratagem
-			set_temp_variable = { temp_stratagem_id = i }
-			multiply_temp_variable = { temp_stratagem_id = 2 }
-			subtract_from_temp_variable = { temp_stratagem_id = 1 }
-			meta_effect = {
-				text = {
-					AET_HLDV_effect_[INPUT]_ongoing = yes
-				}
-				INPUT = "[?AET_HLDV_stratagem_list^temp_stratagem_id]"
-			}
-			set_variable = { AET_HLDV_trimmel_timer_array^i = AET_HLDV_trimmel_timer_array_max^i }
-			set_variable = { AET_HLDV_trimmel_timer_array_frame_circle^i = 0 }
-			set_variable = { AET_HLDV_trimmel_timer_array_frame_dial^i = 100 }
-		}
-	}
-	add_to_variable = { AET_HLDV_dirty = 0.00001 }
 }
