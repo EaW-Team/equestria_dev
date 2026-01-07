@@ -17,14 +17,22 @@ FAT_reconstruction_decisions_tab = {
 		icon = scroll#REPLACE
 		is_good = no
 		allowed = { original_tag = FAT }
-    available = { always = no }
-		days_mission_timeout = 1095
+		available = { always = no }
+		days_mission_timeout = 730
 		activation = { has_country_flag = FAT_reconstruction_active }
 		cancel_trigger = {
 		  NOT = { has_country_flag = FAT_reconstruction_active }
 		}
 		timeout_effect = {
-			country_event = griffonRepublic.291
+			effect_tooltip = { country_event = griffonRepublic.291 }
+			hidden_effect = {
+				clr_country_flag = FAT_reconstruction_active
+				if = {
+					limit = { has_war = no }
+					country_event = griffonRepublic.291
+				}
+				else = { set_country_flag = FAT_its_so_over }
+			}
 		}
 	}
 	FAT_reconstruction_success = {
@@ -38,15 +46,13 @@ FAT_reconstruction_decisions_tab = {
 			}
 			check_variable = {
 				FAT_sectarianism_value < 50
-				tooltip = FAT_sectarianism_value_tt
+				tooltip = FAT_sectarianism_value_lower_than_45_tt
 			}
 			NOT = { FAT_has_entrenched_archonates = yes }
 			NOT = { FAT_has_entrenched_loyalists = yes }
 			NOT = { FAT_has_entrenched_regionalists = yes }
 		}
-		complete_effect = {
-			clr_country_flag = FAT_reconstruction_active
-		}
+		complete_effect = { clr_country_flag = FAT_reconstruction_active }
 	}
 	FAT_gradual_reconstruction_mission = {
 		icon = scroll#REPLACE
@@ -83,19 +89,98 @@ FAT_reconstruction_decisions_tab = {
 	}
 	FAT_restore_free_cities_1 = {
 		icon = scroll#REPLACE
-		cost = 10
+		cost = 100
 		days_remove = FAT_sectarianism_value
 		fire_only_once = yes
 		available = {
-			has_country_flag = FAT_has_active_reconstruction_policy
+			FAT_has_entrenched_regionalists = no
+			NOT = { has_country_flag = FAT_has_active_reconstruction_policy }
 		}
 		complete_effect = {
 			set_country_flag = FAT_has_active_reconstruction_policy
 		}
 		remove_effect = {
 			clr_country_flag = FAT_has_active_reconstruction_policy
+			set_country_flag = FAT_restore_free_cities_1_complete
+			if = {
+				limit = { FAT_has_cooperative_regionalists = no }
+				FAT_set_regionalists_cooperative = yes
+			}
+			else = { FAT_set_regionalists_entrenched = yes }
+			add_to_variable = {
+				FAT_reconstruction_progress_default_increment = 1
+				tooltip = FAT_reconstruction_progress_default_increment_tt
+			}
+			add_advisor_role = {
+				character = ROU_gabriella_di_karthin
+				advisor = {
+					slot = political_advisor
+					idea_token = MDL_senate
+					cost = 100
+					traits = { FAT_mayorship_overseer }
+				}
+			}
+		}
+	}
+	FAT_restore_free_cities_2 = {
+		icon = scroll#REPLACE
+		cost = 25
+		days_remove = FAT_sectarianism_value
+		visible = { has_country_flag = FAT_restore_free_cities_1_complete }
+		available = {
+			NOT = { has_country_flag = FAT_has_active_reconstruction_policy }
+		}
+		complete_effect = { set_country_flag = FAT_has_active_reconstruction_policy }
+		remove_effect = {
+			clr_country_flag = FAT_has_active_reconstruction_policy
+			set_temp_variable = { reconstruction_progress_add_value = 3 }
+			FAT_increment_reconstruction_progress = yes
+			if = {
+				limit = { FAT_has_cooperative_regionalists = no }
+				FAT_set_regionalists_cooperative = yes
+			}
+			random_list = {
+				1 = {
+					add_to_variable = {
+						FAT_industrial_capacity_factory = -0.10
+						tooltip = industrial_capacity_factory_tt
+					}
+				}
+				2 = {
+					add_to_variable = {
+						FAT_production_factory_efficiency_gain_factor = -0.10
+						tooltip = production_factory_efficiency_gain_factor_tt
+					}
+				}
+				3 = {
+					add_to_variable = {
+						FAT_local_resources_factor = -0.10
+						tooltip = local_resources_factor_tt
+					}
+				}
+			}
+		}
+	}
+	FAT_officialize_griffish_state_language = {
+		icon = scroll#REPLACE
+		cost = 25
+		days_remove = FAT_sectarianism_value
+		available = {
+			NOT = { has_country_flag = FAT_has_active_reconstruction_policy }
+		}
+		complete_effect = { set_country_flag = FAT_has_active_reconstruction_policy }
+		remove_effect = {
+			clr_country_flag = FAT_has_active_reconstruction_policy
+			if = {
+				limit = { FAT_has_cooperative_regionalists = no }
+				FAT_set_regionalists_cooperative = yes
+			}
 			set_temp_variable = { reconstruction_progress_add_value = 5 }
 			FAT_increment_reconstruction_progress = yes
+			set_temp_variable = { sectarianism_add_value = -10 }
+			FAT_increment_sectarianism = yes
+			add_stability_factor = -0.15
+			add_war_support_factor = -0.15
 		}
 	}
 #	FAT_debug_reconstruction_add_10 = {
