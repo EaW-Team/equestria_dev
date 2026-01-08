@@ -1,5 +1,5 @@
 # By DrNjitram, minor edits by Yard1
-from codecs import open
+#from codecs import open
 import glob
 import os
 import argparse
@@ -202,7 +202,7 @@ if __name__ == "__main__":
     idea_markers = dict()
 
     for filename in glob.glob("*.txt", root_dir=os.path.join(eaw_folder, "common", "ideas")):
-        with open(os.path.join(eaw_folder, "common", "ideas", filename), 'r', 'utf-8') as file:
+        with open(os.path.join(eaw_folder, "common", "ideas", filename), 'r', encoding='utf-8') as file:
             lines = file.readlines()
 
         level = 0
@@ -240,12 +240,11 @@ if __name__ == "__main__":
 
     for filename in glob.glob(args.focuses, root_dir=os.path.join(eaw_folder, "common", "national_focus")):
 
-        file = open(os.path.join(eaw_folder, "common", "national_focus", filename), 'r', 'utf-8')
+        file = open(os.path.join(eaw_folder, "common", "national_focus", filename), 'r', encoding='utf-8')
         lines = file.readlines()
         file.close()
 
-        file = open(os.path.join(eaw_folder, "common", "national_focus", filename), 'w', 'utf-8')
-        file.truncate(0)
+        file = open(os.path.join(eaw_folder, "common", "national_focus", filename), 'wa', encoding='utf-8')
 
         check_shit = False
         current_keywords = set()
