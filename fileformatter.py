@@ -56,7 +56,7 @@ def formatfile(name, remove_whitespace, ignore_comments):
     new_lines = list()
     open_blocks = 0
     for line in lines:
-        if ignore_comments and re.match("^\s*#", line):
+        if ignore_comments and re.match(r"^\s*#", line):
             new_lines.append(line)
             continue
         if remove_whitespace:
