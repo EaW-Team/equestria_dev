@@ -17,6 +17,9 @@ infantry = {
     frame = GFX_NAME                  # Frame image around the track
     icon = GFX_NAME                   # Milestone icon for the track
     icon_frame = GFX_NAME             # Frame around the milestone icon
+    active = {
+        has_political_power = 100 # Trigger condition for subdoctrines in this track to be selectable, and for mastery gain to be enabled (including banked mastery)
+    }
     
     mastery = {
         multiplier = 2.0 # Multiplies manpower contribution to mastery gain (in this case, 2 times less manpower is needed to gain the same amount of mastery)
