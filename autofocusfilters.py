@@ -244,7 +244,7 @@ if __name__ == "__main__":
         lines = file.readlines()
         file.close()
 
-        file = open(os.path.join(eaw_folder, "common", "national_focus", filename), 'wa', encoding='utf-8')
+        file = open(os.path.join(eaw_folder, "common", "national_focus", filename), 'w', encoding='utf-8')
 
         check_shit = False
         current_keywords = set()
