@@ -79,15 +79,15 @@ NDefines.NAI.FASCISTS_BEFRIEND_FASCISTS = 0
 NDefines.NAI.NEUTRAL_THREAT_PARANOIA = 1
 --NDefines.NAI.DIVISION_CREATE_MIN_XP = 50
 --NDefines.NAI.VARIANT_UPGRADE_MIN_XP = 10
-NDefines.NAI.HOUR_BAD_COMBAT_REEVALUATE = 42 --default 100
+NDefines.NAI.HOUR_BAD_COMBAT_REEVALUATE = 24 --default 100
 NDefines.NAI.PLAN_ACTIVATION_SUPERIORITY_AGGRO = 1.2 --default 1.0		-- How aggressive a country is in activating a plan based on how superiour their force is.
 NDefines.NAI.AI_FRONT_MOVEMENT_FACTOR_FOR_READY = 0.1 --default 0.25
 NDefines.NAI.PLAN_VALUE_TO_EXECUTE = -0.2 --default -0.5
-NDefines.NAI.DEPLOY_MIN_TRAINING_SURRENDER_FACTOR = 0.1		-- Required percentage of training (1.0 = 100%) for AI to deploy unit in wartime while surrender progress is higher than 0
+NDefines.NAI.DEPLOY_MIN_TRAINING_SURRENDER_FACTOR = 0.5		-- Required percentage of training (1.0 = 100%) for AI to deploy unit in wartime while surrender progress is higher than 0
 NDefines.NAI.DEPLOY_MIN_EQUIPMENT_SURRENDER_FACTOR = 0.5	-- Required percentage of equipment (1.0 = 100%) for AI to deploy unit in wartime while surrender progress is higher than 0
-NDefines.NAI.DEPLOY_MIN_TRAINING_WAR_FACTOR = 0.5		-- Required percentage of training (1.0 = 100%) for AI to deploy unit in wartime
+NDefines.NAI.DEPLOY_MIN_TRAINING_WAR_FACTOR = 0.8		-- Required percentage of training (1.0 = 100%) for AI to deploy unit in wartime
 NDefines.NAI.DEPLOY_MIN_EQUIPMENT_WAR_FACTOR = 0.80		-- Required percentage of equipment (1.0 = 100%) for AI to deploy unit in wartime
-NDefines.NAI.DEPLOY_MIN_TRAINING_PEACE_FACTOR = 0.95		-- Required percentage of training (1.0 = 100%) for AI to deploy unit in peacetime
+NDefines.NAI.DEPLOY_MIN_TRAINING_PEACE_FACTOR = 0.99		-- Required percentage of training (1.0 = 100%) for AI to deploy unit in peacetime
 NDefines.NAI.DEPLOY_MIN_EQUIPMENT_PEACE_FACTOR = 0.95	-- Required percentage of equipment (1.0 = 100%) for AI to deploy unit in peacetime
 
 NDefines.NAI.MIN_PLAN_VALUE_TO_MICRO_INACTIVE = 0.1 --default 0.2				-- The AI will not consider members of groups which plan is not activated AND evaluates lower than this.
@@ -110,7 +110,27 @@ NDefines.NAI.DIPLOMACY_ACCEPT_VOLUNTEERS_BASE = 100
 NDefines.NAI.RESEARCH_AHEAD_OF_TIME_FACTOR = 4.5 		-- To which extent AI should care about ahead of time penalties to research
 NDefines.NAI.RESEARCH_AHEAD_BONUS_FACTOR = 2.5          -- To which extent AI should care about ahead of time bonuses to research
 NDefines.NAI.RESEARCH_BONUS_FACTOR = 2.0 				-- To which extent AI should care about bonuses to research
-NDefines.NAI.DESIRE_USE_XP_TO_UPGRADE_AIR_EQUIPMENT = 1.5   -- Vanilla is 1
+NDefines.NAI.DESIRE_USE_XP_TO_UPGRADE_AIR_EQUIPMENT = 1.9   -- Vanilla is 1
+
+NDefines.NAI.ARMY_LEADER_ASSIGN_KEEP_CURRENT_LEADER_FACTOR = 1.5,        		-- default is 1.2, Boosts the score for keeping the current leader. Value > 1.0 favors the current leader.
+NDefines.NAI.ARMY_LEADER_ASSIGN_DONT_STEAL_OTHER_FACTOR = 0.9,         			-- default is 0.75, Reduces the score for leaders assigned elsewhere. Value < 1.0 discourages reassigning these leaders.
+NDefines.NAI.ARMY_LEADER_ASSIGN_OVERALL_SKILL_FACTOR = 150			-- default is 50
+NDefines.NAI.ARMY_LEADER_ASSIGN_DEFENSE_ATTACK_SKILL_FACTOR = 15	-- default is 3
+NDefines.NAI.ARMY_LEADER_ASSIGN_INVASION_ATTACK_SKILL_FACTOR = 20	-- default is 10
+NDefines.NAI.ARMY_LEADER_ASSIGN_ATTACK_SKILL_FACTOR = 50			-- default is 20
+NDefines.NAI.ARMY_LEADER_ASSIGN_PLANNING_SKILL_FACTOR = 12			-- default is 7
+NDefines.NAI.ARMY_LEADER_ASSIGN_MAX_PLANNING = 0.2					-- default is 0.1
+NDefines.NAI.MIN_INVASION_PLAN_VALUE_TO_EXECUTE = 0.7				-- default is 50 
+NDefines.NAI.PLAN_AVG_PREPARATION_TO_EXECUTE = 0.7					-- default is 0.5, % or more average plan preparation before executing
+
+NDefines.NAI.LAND_DEFENSE_SUPPLY_HUB_IMPORTANCE = 9		-- default is 4
+NDefines.NAI.ASSIGN_TANKS_TO_MOUNTAINS = -15			-- default is 6
+NDefines.NAI.ASSIGN_TANKS_TO_JUNGLE = -20				-- default is 6
+NDefines.NAI.DIPLOMACY_SEND_ATTACHE_COST_FACTOR = 2.5 	-- default is 5.0 Desire to send attache substracts the cost multiplied by this
+NDefines.NAI.DIPLOMACY_SEND_ATTACHE_PP_FACTOR = 0.2 	-- default is 0.1 Desire to send attache adds total PP multiplied by this
+
+NDefines.NAI.CANCEL_COMBAT_DISADVANTAGE_RATIO = 1.25    -- default is 1.5, If the enemy's advantage ratio over us during (normal) combat is more than <value>, allow canceling the attack
+NDefines.NAI.CANCEL_COMBAT_MIN_DURATION_HOURS = 24      -- default is 48, Only allow cancelling (normal) combat if at least <value> hours have passed
 
 NDefines.NAI.MIN_FACTORIES_TO_WANT_TO_IMPORT = {  -- minimum number of civilian factories the AI must have to consider importing a resource - per strategic resource. Default 0, array -should- be updated with new resources, or if the order changes.
 		5, -- oil -- EAW increased because of outdated societies
