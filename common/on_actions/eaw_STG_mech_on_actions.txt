@@ -11,6 +11,15 @@ on_actions = {
 				STG_wings_popularity_penalties_check = yes
 				STG_debug_populate_array_needlepos = yes 
 				STG_calculate_party_needle_frame = yes 
+				every_state = {
+					limit = {
+						is_state_main_culture_equestrian = yes
+						NOT = { is_core_of = STG }
+					}
+					add_to_array = {
+						STG.masha_potential_zeal_states = THIS
+					}
+				}
 			}
 		}
 	}
@@ -123,11 +132,58 @@ on_actions = {
 				limit = {
 					has_country_flag = STG_masha_exhaustion_active_flag
 				}
+				# EXHAUSTION
 				add_to_variable = { STG_masha_overmobilized_economy_dm_production_factory_max_efficiency_factor = -0.01 }
 				add_to_variable = { STG_masha_overmobilized_economy_dm_consumer_goods_factor = 0.01 }
 				add_to_variable = { STG_masha_overmobilized_economy_dm_industrial_capacity_factory = -0.01 }
 				add_to_variable = { STG_masha_overmobilized_economy_dm_industrial_capacity_dockyard = -0.01 }
 				add_to_variable = { STG_masha_overmobilized_economy_dm_production_speed_buildings_factor = -0.01 }
+				# ZEAL #
+				for_each_scope_loop = {
+					array = ROOT.masha_potential_zeal_states
+					if = {
+						limit = {
+							is_fully_controlled_by = ROOT
+						}
+						if = {
+							limit = {
+								NOT = { 
+									is_in_array = {
+										array = ROOT.masha_zeal_states
+										value = THIS
+									} 
+								}
+							}
+							clr_state_flag = STG_masha_zeal_state_flag
+							set_state_flag = {
+								flag = STG_masha_zeal_state_flag
+								days = 240
+							}
+							add_to_array = {
+								ROOT.masha_zeal_states = THIS
+							}
+						}
+						else_if = {
+							limit = {
+								NOT = { has_state_flag = STG_masha_zeal_state_flag }
+							}
+							add_core_of = ROOT
+						}
+					}
+					else_if = {
+						limit = {
+							is_in_array = {
+								array = ROOT.masha_zeal_states
+								value = THIS
+							} 
+						}
+						remove_from_array = {
+							array = ROOT.masha_zeal_states
+							value = THIS
+						}
+					}
+				}
+				STG_masha_zeal_recalculate = yes
 			}
 		}
 	}
