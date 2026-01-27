@@ -92,15 +92,16 @@ PixelShader =
 	[[
 		float4 main( VS_OUTPUT v ) : PDX_COLOR
 		{
+			float imageSegments = Offset.x + 1;
+
 			float vTime = (Time - AnimationTime)*0.5;
-			
-			float rangeLower = floor(v.vTexCoord.x * 5.0f) / 5.0f;
+			float rangeLower = floor(v.vTexCoord.x*imageSegments)/imageSegments;
 			vTime -= rangeLower;
 
 			float yOffset = 0.2f;
 			v.vTexCoord.y += yOffset;
-			if(yOffset >= 0.f && vTimeTrue < 0.2){
-				v.vTexCoord.y -= vTimeTrue;
+			if(yOffset >= 0.f && vTime < 0.2){
+				v.vTexCoord.y -= vTime;
 			}
 			else{
 				v.vTexCoord.y -= yOffset;
@@ -108,8 +109,8 @@ PixelShader =
 			
 			float4 OutColor = tex2D(MapTexture,v.vTexCoord);
 
-			if(vTimeTrue < 0.2f){
-				OutColor.a *= vTimeTrue*5;
+			if(vTime < 0.2f){
+				OutColor.a *= vTime*5;
 			}
 			
 			return OutColor;
