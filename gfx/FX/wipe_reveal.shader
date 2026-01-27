@@ -10,57 +10,11 @@ PixelShader =
 		MapTexture =
 		{
 			Index = 0
-			MagFilter = "Linear"
-			MinFilter = "Linear"
-			MipFilter = "None"
-			AddressU = "Clamp"
-			AddressV = "Clamp"
-			MipMapLodBias = -0.8
-		}
-		MaskTexture =
-		{
-			Index = 1
-			MagFilter = "Linear"
-			MinFilter = "Linear"
-			MipFilter = "None"
-			AddressU = "Clamp"
-			AddressV = "Clamp"
-		}
-		AnimatedTexture =
-		{
-			Index = 2
-			MagFilter = "Linear"
-			MinFilter = "Linear"
-			MipFilter = "None"
-			AddressU = "Wrap"
-			AddressV = "Wrap"
-		}
-		MaskTexture2 =
-		{
-			Index = 3
-			MagFilter = "Linear"
-			MinFilter = "Linear"
-			MipFilter = "None"
-			AddressU = "Clamp"
-			AddressV = "Clamp"
-		}
-		AnimatedTexture2 =
-		{
-			Index = 4
-			MagFilter = "Linear"
-			MinFilter = "Linear"
-			MipFilter = "None"
-			AddressU = "Wrap"
-			AddressV = "Wrap"
-		}
-		MaskingTexture =
-		{
-			Index = 5
 			MagFilter = "Point"
 			MinFilter = "Point"
 			MipFilter = "None"
-			AddressU = "Clamp"
-			AddressV = "Clamp"
+			AddressU = "Wrap"
+			AddressV = "Wrap"
 		}
 	}
 }
