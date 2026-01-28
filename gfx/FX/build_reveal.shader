@@ -52,7 +52,7 @@ PixelShader =
 			float rangeLower = floor(v.vTexCoord.x*imageSegments)/imageSegments;
 			vTime -= rangeLower;
 
-			float yOffset = 0.2f;
+			float yOffset = 1/imageSegments;
 			float speedFactor = 4.5f;
 
 			v.vTexCoord.y += yOffset;
@@ -65,8 +65,8 @@ PixelShader =
 			
 			float4 OutColor = tex2D(MapTexture,v.vTexCoord);
 
-			if(vTime < 0.2f){
-				OutColor.a *= vTime*5;
+			if(vTime < (1/imageSegments)){
+				OutColor.a *= vTime*imageSegments;
 			}
 			
 			return OutColor;
