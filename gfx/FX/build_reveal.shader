@@ -53,9 +53,11 @@ PixelShader =
 			vTime -= rangeLower;
 
 			float yOffset = 0.2f;
+			float speed_factor = 4.5f;
+
 			v.vTexCoord.y += yOffset;
-			if(vTime <= 0.2){
-				v.vTexCoord.y -= vTime;
+			if(vTime*speed_factor <= 1.570796f && sin(vTime*speed_factor) * yOffset < yOffset){
+				v.vTexCoord.y -= sin(vTime*speed_factor) * yOffset;
 			}
 			else{
 				v.vTexCoord.y -= yOffset;
