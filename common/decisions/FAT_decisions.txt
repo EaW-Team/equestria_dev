@@ -80,7 +80,7 @@ FAT_reconstruction_decisions_tab = {
 		is_good = no
 		allowed = { original_tag = FAT }
 		available = { always = no }
-		days_mission_timeout = 730
+		days_mission_timeout = 700
 		activation = {
 			FAT = { has_country_flag = FAT_reconstruction_active }
 		}
@@ -152,15 +152,15 @@ FAT_reconstruction_decisions_tab = {
 				set_temp_variable = { sectarianism_add_value = 0 }
 				if = {
 					limit = { FAT_has_subdued_archonates = yes }
-					add_to_temp_variable = { sectarianism_add_value = 1 }
+					add_to_temp_variable = { sectarianism_add_value = 2 }
 				}
 				if = {
 					limit = { FAT_has_subdued_loyalists = yes }
-					add_to_temp_variable = { sectarianism_add_value = 1 }
+					add_to_temp_variable = { sectarianism_add_value = 2 }
 				}
 				if = {
 					limit = { FAT_has_subdued_regionalists = yes }
-					add_to_temp_variable = { sectarianism_add_value = 1 }
+					add_to_temp_variable = { sectarianism_add_value = 2 }
 				}
 				FAT_increment_sectarianism = yes
 			}
@@ -449,17 +449,18 @@ FAT_reconstruction_decisions_tab = {
 		modifier = { political_power_factor = -0.15 }
 		available = {
 			NOT = { has_country_flag = FAT_has_active_reconstruction_policy }
+			FAT_has_entrenched_loyalists = no
 		}
 		complete_effect = { set_country_flag = FAT_has_active_reconstruction_policy }
 		remove_effect = {
+			clr_country_flag = FAT_has_active_reconstruction_policy
 			if = {
 				limit = { FAT_has_entrenched_archonates = no }
 				FAT_set_archonates_entrenched = yes
 			}
-			set_country_flag = FAT_has_active_reconstruction_policy
 			set_temp_variable = { reconstruction_progress_add_value = 2 }
 			FAT_increment_reconstruction_progress = yes
-			set_temp_variable = { sectarianism_add_value = 1 }
+			set_temp_variable = { sectarianism_add_value = -1 }
 			FAT_increment_sectarianism = yes
 		}
 	}
@@ -470,9 +471,13 @@ FAT_reconstruction_decisions_tab = {
 		fire_only_once = yes
 		available = {
 			NOT = { has_country_flag = FAT_has_active_reconstruction_policy }
+			FAT_has_entrenched_regionalists = no
 		}
 		visible = { FAT_has_subdued_loyalists = no }
-		modifier = { weekly_manpower = -250 }
+		modifier = {
+			consumer_goods_factor = 0.25
+			weekly_manpower = -250
+		}
 		complete_effect = { set_country_flag = FAT_has_active_reconstruction_policy }
 		remove_effect = {
 			clr_country_flag = FAT_has_active_reconstruction_policy
@@ -481,6 +486,30 @@ FAT_reconstruction_decisions_tab = {
 				FAT_set_loyalists_subdued = yes
 			}
 			add_popularity = { ideology = communism popularity = 0.10 }
+		}
+	}
+	FAT_the_republic_is_marching = {
+		icon = scroll#REPLACE
+		cost = 75
+		days_remove = FAT_sectarianism_value
+		fire_only_once = yes
+		visible = { FAT_has_entrenched_loyalists = yes }
+		available = {
+			NOT = { has_country_flag = FAT_has_active_reconstruction_policy }
+			FAT_has_entrenched_regionalists = no
+		}
+		modifier = { stability_weekly = -0.01 }
+		complete_effect = { set_country_flag = FAT_has_active_reconstruction_policy }
+		remove_effect = {
+			clr_country_flag = FAT_has_active_reconstruction_policy
+			set_temp_variable = { reconstruction_progress_add_value = 1 }
+			FAT_increment_reconstruction_progress = yes
+			set_temp_variable = { sectarianism_add_value = -1 }
+			FAT_increment_sectarianism = yes
+			FAT_set_loyalists_cooperative = yes
+			FAT_set_regionalists_entrenched = yes
+			add_manpower = 15000
+			add_war_support = 0.10
 		}
 	}
 	FAT_religious_education_act = {
@@ -1445,7 +1474,15 @@ political_actions = {
 		icon = crossed_swords
 		cost = 25
 		available = { has_war = no }
-		visible = { has_country_flag = FST_north_expansions_unlocked }
+		visible = {
+			has_country_flag = FST_north_expansions_unlocked
+			FROM = {
+				OR = {
+					is_dynamic_country = no
+					has_civil_war = no
+				}
+			}
+		}
 		cancel_trigger = {
 			OR = {
 				has_war_with = FROM
@@ -1485,6 +1522,9 @@ political_actions = {
 		visible = {
       any_occupied_country = { tag = FROM }
 			NOT = { country_exists = FROM }
+			FROM = {
+				NOT = { has_country_flag = FAT_has_been_cored }
+			}
 		}
 		targets = { VED SRS MNC HAU }
 		targets_dynamic = yes
@@ -1492,20 +1532,21 @@ political_actions = {
 		target_trigger = {
 			FROM = {
 				OR = {
-					original_tag = VED
-					original_tag = SRS
-					original_tag = MNC
-					original_tag = HAU
+					tag = VED
+					tag = SRS
+					tag = MNC
+					tag = HAU
 				}
 			}
 		}
-		target_root_trigger = {
-			NOT = { has_war_with = FROM }
-		}
+
 		days_remove = 50
 		remove_effect = {
 			log = "[GetDateText]: [Root.GetName]: Decision FST_expand_in_the_north"
-			FROM = { add_to_ROOT_potential_cores = yes }
+			FROM = {
+				set_country_flag = FAT_has_been_cored
+				add_to_ROOT_potential_cores = yes
+			}
 		}
 	}
 	FAT_rename_cloudbury = {
