@@ -29,6 +29,23 @@ on_actions = {
 			}
 		}
 	}
+	on_monthly_STG = {
+		effect = {
+			if = {
+				limit = {
+					check_variable = { STG_masha_zeal_var > 0 }
+					check_variable = { 
+						var = masha_zeal_states^num # current amount of rev-states
+						value = STG_masha_previous_month_zeal_var # amount of rev-states in previous month
+						compare = less_than_or_equals
+					}
+				}
+				subtract_from_variable = { STG_masha_zeal_var = 1 }
+				STG_masha_overmobilized_economy_recalculate = yes
+				set_variable = { STG_masha_previous_month_zeal_var = masha_zeal_states^num } # sets new amount of old rev-states
+			}
+		}
+	}
 	on_weekly_STG = {
 		effect = {
 			# if = {	
@@ -139,11 +156,7 @@ on_actions = {
 					has_country_flag = STG_masha_exhaustion_active_flag
 				}
 				# EXHAUSTION
-				add_to_variable = { STG_masha_overmobilized_economy_dm_production_factory_max_efficiency_factor = -0.01 }
-				add_to_variable = { STG_masha_overmobilized_economy_dm_consumer_goods_factor = 0.01 }
-				add_to_variable = { STG_masha_overmobilized_economy_dm_industrial_capacity_factory = -0.01 }
-				add_to_variable = { STG_masha_overmobilized_economy_dm_industrial_capacity_dockyard = -0.01 }
-				add_to_variable = { STG_masha_overmobilized_economy_dm_production_speed_buildings_factor = -0.01 }
+				add_to_variable = { STG_masha_exhaustion_var = 1 }
 				# ZEAL #
 				for_each_scope_loop = {
 					array = ROOT.masha_potential_zeal_states
@@ -154,34 +167,25 @@ on_actions = {
 						add_to_variable = { STG_masha_zeal_state_var = 1 }
 						if = {
 							limit = {
-								check_variable = { STG_masha_zeal_state_var > 28 } # 210 days
+								check_variable = { STG_masha_zeal_state_var > 30 } # 210 days
 							}
 							add_core_of = ROOT
 							remove_from_array = { ROOT.masha_potential_zeal_states = THIS }
 						}
 						else_if = {
 							limit = {
-								check_variable = { STG_masha_zeal_state_var > 5 } # 49 days
+								check_variable = { STG_masha_zeal_state_var > 7 } # 49 days
+								NOT = { is_in_array = { ROOT.masha_zeal_states = THIS } }
 							}
-							if = {
-								limit = {
-									NOT = { is_in_array = { ROOT.masha_zeal_states = THIS } }
-								}
-								add_to_array = { ROOT.masha_zeal_states = THIS }
-							}
+							add_to_variable = { ROOT.STG_masha_zeal_var = 1 }
+							add_to_array = { ROOT.masha_zeal_states = THIS }
 						}
 					}
 					else = {
-						if = {
-							limit = {
-								is_in_array = { ROOT.masha_zeal_states = THIS }
-							}
-							remove_from_array = {  ROOT.masha_zeal_states = THIS }
-						}
 						clear_variable = STG_masha_zeal_state_var
 					}
 				}
-				STG_masha_zeal_recalculate = yes
+				STG_masha_overmobilized_economy_recalculate = yes
 			}
 		}
 	}
