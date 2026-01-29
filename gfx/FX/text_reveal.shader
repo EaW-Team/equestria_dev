@@ -1,4 +1,8 @@
-# Wipe text reveal by Scars
+### Wipe text reveal by Scars
+# Recommended for non-monospaced fonts
+# How to activate animation:
+#	- Give the element (that was assigned the gfx) a _click_enabled trigger
+#	- Alternate between having the trigger evaluate TRUE or FALSE (e.g. country flag that constantly flips) to trigger the animation
 
 Includes = {
 	"buttonstate.fxh"
