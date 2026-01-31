@@ -1,11 +1,9 @@
-NDefines.NCountry.BASE_MOBILIZATION_SPEED = 0.025
-
 NDefines.NGame.START_DATE = "1007.1.1.12"
 NDefines.NGame.END_DATE = "1030.1.1.1"
 NDefines.NGame.HANDS_OFF_START_TAG = "DRG"
-NDefines.NGame.MAX_EFFECT_ITERATION = 20000
+NDefines.NGame.MAX_EFFECT_ITERATION = 50000
 
-NDefines.NDiplomacy.TENSION_TIME_SCALE_START_DATE = "1007.1.1.12"
+NDefines.NDiplomacy.TENSION_TIME_SCALE_START_DATE = "1012.1.1.12" -- increased from 1007 due to Great War being the main huge wakeup call -- Starting at this date, the tension values will be scaled down (will be equal to 1 before that)
 NDefines.NDiplomacy.VOLUNTEERS_DIVISIONS_REQUIRED = 10
 NDefines.NDiplomacy.MAX_OPINION_VALUE = 200							-- Max opinion value cap.
 NDefines.NDiplomacy.MIN_OPINION_VALUE = -200						-- Min opinion value cap.
@@ -31,8 +29,6 @@ NDefines.NCountry.FEMALE_UNIT_LEADER_BASE_CHANCE = {
 }
 
 NDefines.NResistance.GARRISON_MANPOWER_LOST_BY_ATTACK = 0.01 	-- Ratio of manpower lost by garrison at each attack on garrison (this number will be reduced by the hardness of garrison template)
-NDefines.NResistance.GARRISON_TEMPLATE_SCORE_IC_FACTOR = 1.4		-- ai uses these defines while calculating garrison template score of a template.
-NDefines.NResistance.GARRISON_TEMPLATE_SCORE_MANPOWER_FACTOR = 0.4  -- formula is (template_ic * ic_factor + template_manpower * manpower_factor ) / template_supression (lower is better)
 
 NDefines.NProduction.FLOATING_HARBOR_MAX_NAV_FACTORIES_PER_LINE = 10 -- vanilla is 5
 NDefines.NProduction.CAPITAL_SHIP_MAX_NAV_FACTORIES_PER_LINE = 10 -- vanilla is 5
@@ -53,6 +49,8 @@ NDefines.NMilitary.EXPERIENCE_COMBAT_FACTOR = 0.05
 NDefines.NMilitary.ARMY_EXP_BASE_LEVEL = 5
 NDefines.NMilitary.BASE_CAPTURE_EQUIPMENT_RATIO = 0.02
 NDefines.NMilitary.BASE_FEMALE_DIVISIONAL_COMMANDER_CHANCE = 0.5 -- 50% of time by default, female_divisional_commander_chance modifier is additive
+NDefines.NMilitary.LAND_AIR_COMBAT_STR_DAMAGE_MODIFIER = 0.032    					-- Vanilla is 0.08, air global strength damage modifier from CAS
+NDefines.NMilitary.LAND_AIR_COMBAT_ORG_DAMAGE_MODIFIER = 0.032    					-- Vanilla is 0.10, air global org damage modifier from CAS
 
 NDefines.NNavy.SCREENS_TO_CAPITAL_RATIO = 3.0 -- Vanilla is 4.0, mostly AI stuff
 NDefines.NNavy.NAVAL_MINES_INTEL_DIFF_FACTOR = 0.1 -- Vanilla is 0.5, reverted to pre-AAT value
@@ -109,6 +107,8 @@ NDefines.NAI.RESEARCH_AHEAD_OF_TIME_FACTOR = 4.5 		-- To which extent AI should 
 NDefines.NAI.RESEARCH_AHEAD_BONUS_FACTOR = 2.5          -- To which extent AI should care about ahead of time bonuses to research
 NDefines.NAI.RESEARCH_BONUS_FACTOR = 2.0 				-- To which extent AI should care about bonuses to research
 NDefines.NAI.DESIRE_USE_XP_TO_UPGRADE_AIR_EQUIPMENT = 1.5   -- Vanilla is 1
+NDefines.NAI.GARRISON_TEMPLATE_SCORE_IC_FACTOR = 1.4		-- ai uses these defines while calculating garrison template score of a template.
+NDefines.NAI.GARRISON_TEMPLATE_SCORE_MANPOWER_FACTOR = 0.4  -- formula is (template_ic * ic_factor + template_manpower * manpower_factor ) / template_supression (lower is better)
 
 NDefines.NAI.MIN_FACTORIES_TO_WANT_TO_IMPORT = {  -- minimum number of civilian factories the AI must have to consider importing a resource - per strategic resource. Default 0, array -should- be updated with new resources, or if the order changes.
 		5, -- oil -- EAW increased because of outdated societies
@@ -144,3 +144,57 @@ NDefines.NTechnology.BASE_YEAR_AHEAD_PENALTY_FACTOR = 2.25	-- Base year ahead pe
 
 NDefines.NAI.DEFAULT_MODULE_VARIANT_CREATION_XP_CUTOFF_LAND = 30
 NDefines.NAI.DEFAULT_MODULE_VARIANT_CREATION_XP_CUTOFF_NAVY = 50
+NDefines.NFactions.FACTION_INTELLIGENCE_ALLOWED_ADVISOR_TRAIT = {
+	"head_of_intelligence",
+	"mastermind_code_cracker",
+	"expert_code_cracker",
+	"spymaster",
+	"spymaster_no_lar",
+	"commander_of_the_fetno_derash",
+	"commander_of_the_fetno_derash_no_lar",
+	"SWI_soviet_spy",
+	"SWI_intelligence_officer",
+	"special_envoy",
+	"BRA_soviet_spy",
+	"HUN_military_intelligence_officer",
+	"AUS_secretive_priest",
+	"AUS_veteran_head_of_agency",
+	"BEL_illusive_mastermind",
+	"GER_intelligence_coordinator",
+	"GER_secretary_of_state_security",
+	"GER_reich_security_main_office_director_lar",
+	"GER_reich_security_main_office_director_no_lar",
+	"head_of_the_abwehr",
+	"head_of_the_abwehr_improved",
+	"intelligence_service_deputy",
+	"PRC_multi_talented_diplomat_lar",
+	"PRC_multi_talented_diplomat_no_lar",
+	"PRC_trained_by_the_nkvd",
+	"PRC_spymaster",
+	"PHI_intelligence_bureau_chief",
+	"HUN_stalinist_agent",
+	"JAP_tokko_chief",
+	"CHI_spymaster",
+	"head_of_intelligence_kirin",
+	"HEL_general_secretary",
+	"HEL_general_secretary_lar",
+	"FAT_head_of_intelligence",
+	"FAT_head_of_intelligence_lar", 
+	"head_of_ohs",
+	"head_of_ohs_lar",
+	"cryptologic_genius_lar",
+	"cryptologic_genius",
+	"agent_of_smile_lar",
+	"great_nobody",
+	"great_nobody_lar",
+	"GRI_iron_lady",
+	"GRI_iron_lady_lar",
+	"KIR_birdkeeper",
+	"KIR_birdkeeper_lar",
+	"JER_kindly_enigma",
+	"JER_kindly_enigma_lar",
+	"head_of_intelligence_useless",
+	"TBK_AF_lightbringer_advisor",
+	"TBK_AF_lightbringer_advisor_expanded"
+}
+NDefines.NDoctrines.TRAINING_MASTERY_GAIN_FACTOR = 0.05 -- vanilla is 0.1

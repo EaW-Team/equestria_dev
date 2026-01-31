@@ -167,6 +167,7 @@ core_occupied_through_compliance = {
 
 core_all_occupied_through_compliance = {
 	log = "core_all_occupied_through_compliance root: [Root.GetName] from: [From.GetName] fromfrom [FromFrom.GetName]"
+	clear_array = eaw_successfully_integrated_states
 	every_owned_state = {
 		limit = {
 			NOT = { compliance < 40 }
@@ -179,15 +180,27 @@ core_all_occupied_through_compliance = {
 				add_to_array = { eaw_successfully_integrated_states = PREV }
 			}
 		}
+		set_temp_variable = { new_states_cored = 1 }
 	}
+
+	## Code to call the alert
+	# Alert will be called if a new state has been cored
 	if = {
 		limit = {
-			is_ai = no
-			check_variable = { eaw_successfully_integrated_states^num > 0 }
+			check_variable = { new_states_cored = 1 }
 		}
 		set_temp_variable = { alert_id = token:eaw_alert_territory_integration_complete }
 		set_temp_variable = { alert_color = 1 }
 		add_eaw_alert_unless_exists = yes
+	}
+	# Alert will be dismissed automatically after a month if not manually dismissed
+	else_if = {
+		limit = {
+			set_temp_variable = { alert_id = token:eaw_alert_territory_integration_complete }
+			has_eaw_alert = yes
+		}
+		set_temp_variable = { alert_id = token:eaw_alert_territory_integration_complete }
+		remove_eaw_alert = yes
 	}
 }
 
