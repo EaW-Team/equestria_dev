@@ -48,7 +48,7 @@ PixelShader =
 		float4 main( VS_OUTPUT v ) : PDX_COLOR
 		{
 			float vTime = Time - AnimationTime;
-			float vAngle = vTime * 1.5707963 * 2;
+			float vAngle = vTime * 1.5707963 * 3;
 			v.vTexCoord.y -= 1;
 			if(vAngle < 1.5707963){
 				v.vTexCoord.y += sin(vAngle);
