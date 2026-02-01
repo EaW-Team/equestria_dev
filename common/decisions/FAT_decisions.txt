@@ -125,7 +125,7 @@ FAT_reconstruction_decisions_tab = {
 				tooltip = FAT_reconstruction_progress_tt
 			}
 			check_variable = {
-				FAT_sectarianism_value < 50
+				FAT_sectarianism_value < 45
 				tooltip = FAT_sectarianism_value_lower_than_45_tt
 			}
 			NOT = { FAT_has_entrenched_archonates = yes }
@@ -1298,6 +1298,122 @@ FAT_ap_borderwars = {
 	}
 }
 
+FAW_ducal_upgrades_tab = {
+	FAW_give_empire_chapter_keeps = {
+		icon = scroll#REPLACE
+		allowed = { original_tag = FAW }
+		available = { has_war = no }
+		visible = {
+			has_country_flag = FAW_chapter_keeps_unlocked
+			any_occupied_country = {
+				NOT = {
+					tag = FAT
+					tag = SRS
+					tag = NTR
+					tag = VED
+					tag = MNC
+					tag = HAU
+					tag = DED
+					tag = HLR
+					tag = TRD
+				}
+			}
+		}
+		complete_effect = {
+			custom_effect_tooltip = FAW_for_each_state_given_to_GRD_tt
+			effect_tooltip = {
+				add_to_variable = {
+					FAW_ducal_war_points = 5
+					tooltip = FAW_ducal_war_points_tt
+				}
+				add_political_power = 25
+				army_experience = 10
+			}
+			every_owned_state = {
+				limit = {
+					NOT = { has_state_flag = FAW_GRD_gift }
+					NOT = {
+						is_in_array = { state_original_cores = FAT }
+						is_in_array = { state_original_cores = SRS }
+						is_in_array = { state_original_cores = NTR }
+						is_in_array = { state_original_cores = VED }
+						is_in_array = { state_original_cores = MNC }
+						is_in_array = { state_original_cores = HAU }
+						is_in_array = { state_original_cores = DED }
+						is_in_array = { state_original_cores = HLR }
+					}
+				}
+				add_dynamic_modifier = { modifier = FAW_knight_chapter_keep_modifier }
+				hidden_effect = {
+					GRD = { transfer_state = PREV }
+					FAW = {
+						add_to_variable = { FAW_ducal_war_points = 5 }
+						add_political_power = 25
+						army_experience = 10
+					}
+				}
+			}
+		}
+	}
+	FAW_request_reichsarmee_reserves = {
+		icon = scrol#REPLACE
+		cost = 50
+		available = {
+			check_variable = {
+				FAW_ducal_war_points > 5
+				tooltip = FAW_ducal_war_points_check_tt
+			}
+		}
+		complete_effect = {
+			add_to_variable = { FAW_ducal_war_points = -5 }
+		}
+		modifier = { weekly_manpower = 3000 }
+		days_remove = 50
+	}
+
+	FAW_build_new_keep = {
+		icon = scroll#REPLACE
+		cost = 50
+		available = {
+			check_variable = {
+				FAW_ducal_war_points > 5
+				tooltip = FAW_ducal_war_points_check_tt
+			}
+		}
+		complete_effect = {
+			add_to_variable = { FAW_ducal_war_points = -5 }
+		}
+		days_remove = 20
+		remove_effect = {
+			custom_effect_tooltip = FAT_modify_army_dynmod_intro
+			add_to_variable = {
+				FAT_special_forces_cap = 0.05
+				tooltip = special_forces_cap_tt
+			}
+			GRD = {
+				random_owned_state = {
+					limit = {
+						NOT = {
+							has_dynamic_modifier = { modifier = FAW_knight_chapter_keep_modifier }
+						}
+					}
+					add_dynamic_modifier = { modifier = FAW_knight_chapter_keep_modifier }
+				}
+			}
+		}
+	}
+
+#	FAW_debug_get_prestige = {
+#		visible = { is_debug = yes }
+#		complete_effect = {
+#			add_to_variable = {
+#				FAW_ducal_war_points = 250
+#				tooltip = FAW_ducal_war_points_tt
+#			}
+#		}
+#	}
+}
+
 foreign_politics = {
 	FAT_demand_griffenheim = {
 		icon = rifles
@@ -1369,44 +1485,6 @@ foreign_politics = {
 		complete_effect = {
 			log = "[GetDateText]: [Root.GetName]: Decision FAT_demand_faction_leadership target: [From.GetName]"
 			FROM = { country_event = griffonRepublic.95 }
-		}
-	}
-
-	FAW_give_empire_chapter_keeps = {
-		icon = scroll#REPLACE
-		allowed = { original_tag = FAW }
-		visible = {
-			has_country_flag = FAW_chapter_keeps_unlocked
-			any_occupied_country = {
-				NOT = {
-					tag = FAT
-					tag = SRS
-					tag = NTR
-					tag = VED
-					tag = MNC
-					tag = HAU
-					tag = DED
-					tag = HLR
-				}
-			}
-		}
-		complete_effect = {
-			every_owned_state = {
-				limit = {
-					NOT = {
-						is_in_array = { state_original_cores = FAT }
-						is_in_array = { state_original_cores = SRS }
-						is_in_array = { state_original_cores = NTR }
-						is_in_array = { state_original_cores = VED }
-						is_in_array = { state_original_cores = MNC }
-						is_in_array = { state_original_cores = HAU }
-						is_in_array = { state_original_cores = DED }
-						is_in_array = { state_original_cores = HLR }
-					}
-				}
-				add_dynamic_modifier = { modifier = FAW_knight_chapter_keep_modifier }
-				GRD = { transfer_state = PREV }
-			}
 		}
 	}
 
@@ -1557,10 +1635,36 @@ political_actions = {
 		}
 		days_remove = 50
 		war_with_on_remove = FROM
+		complete_effect = {
+			add_ai_strategy = {
+				type = prepare_for_war
+				id = FROM
+				value = 1000
+			}
+			FROM = {
+				add_ai_strategy = {
+					type = prepare_for_war
+					id = ROOT
+					value = 1000
+				}
+			}
+		}
 		remove_effect = {
 			log = "[GetDateText]: [Root.GetName]: Decision FST_expand_in_the_north"
 			set_temp_variable = { wargoal_target = FROM }
 			immediate_war_declare_on_wargoal_target = yes
+			add_ai_strategy = {
+				type = prepare_for_war
+				id = FROM
+				value = -1000
+			}
+			FROM = { 
+				add_ai_strategy = {
+					type = prepare_for_war
+					id = ROOT
+					value = -1000
+				}
+			}
 		}
 	}
 	FST_core_in_the_north = {
