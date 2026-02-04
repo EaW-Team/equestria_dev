@@ -158,46 +158,95 @@ EQS_weather_magic_category = {
 	   
 	EQS_weather_spell_darkness_conditions_target = {
 	#	visible = { has_completed_focus = EQS_ED_weather_magic }
-		#custom_cost_text = decision_cost_350_wmp
-		#custom_cost_trigger = {
-		#	check_variable = { var = weather_pb_var value = 350 compare = greater_than_or_equals }
-		#}
+		custom_cost_text = decision_cost_350_wmp
+		custom_cost_trigger = {
+			check_variable = { var = weather_pb_var value = 350 compare = greater_than_or_equals }
+		}
+		
+		fixed_random_seed = no 
 		 
 		complete_effect = { 
-		##	add_to_variable = { weather_pb_var = -350 }
-			thaumaturgy_roll = yes
+			add_to_variable = { weather_pb_var = -350 }
+			hidden_effect = {
+				thaumaturgy_roll = yes
+				if = {
+					limit = {
+						check_variable = { roll_result > 4 }
+					}
+					FROM.owner = {
+						add_ideas = EQS_WM_darkness 
+					}
+				}
+				else = {
+					set_temp_variable = { check_rl = 5 }
+					subtract_from_temp_variable = { check_rl = roll_result }
+					random_list = {
+						roll_result = {
+							FROM.owner = { add_ideas = EQS_WM_darkness }
+						}
+						check_rl = {
+							
+						}
+					}
+				}
+			}
+			custom_effect_tooltip = weather_magic_darkness
 		}
 		
 		state_target = yes 
 		
 		target_trigger = {
-			#FROM.owner = { has_war_with = ROOT }
-			FROM = { air_base > 0 } ### We cannot check for airplanes so something at least 
-			FROM.owner = { original_tag = STG }
+			FROM.owner = { 
+				has_war_with = ROOT 
+				is_neighbor_of = ROOT 
+			}
+			FROM = { is_capital = yes }
+			
 		}
 		
 		days_re_enable = 45
 		days_remove = 45
 		
 		remove_effect = {
-		###	set_temp_variable = { base_chance = 50 }
-			
+			hidden_effect = { FROM.owner = { remove_ideas = EQS_WM_darkness } }
 		}	
 	}
 	
 	EQS_weather_spell_attrition_conditions_target = {
 	#	visible = { has_completed_focus = EQS_ED_weather_magic }
-		custom_cost_text = decision_cost_350_wmp
+		custom_cost_text = decision_cost_75_wmp
 		custom_cost_trigger = {
-			check_variable = { var = weather_pb_var value = 350 compare = greater_than_or_equals }
+			check_variable = { var = weather_pb_var value = 75 compare = greater_than_or_equals }
 		}
+		fixed_random_seed = no 
 		complete_effect = {
-			add_to_variable = { weather_pb_var = -350 }
+			add_to_variable = { weather_pb_var = -75 }
+			hidden_effect = {
+				thaumaturgy_roll = yes
+				if = {
+					limit = {
+						check_variable = { roll_result > 4 }
+					}
+					FROM = { add_dynamic_modifier = { modifier = EQS_ED_attrition } }
+				}
+				else = {
+					set_temp_variable = { check_rl = 5 }
+					subtract_from_temp_variable = { check_rl = roll_result }
+					random_list = {
+						roll_result = {
+							FROM = {  }
+						}
+						check_rl = {
+							
+						}
+					}
+				}
+			}
+			custom_effect_tooltip = weather_magic_attrition
+			show_ideas_tooltip = EQS_ED_attrition_idea
 		}
 		
-		target_trigger = {
-			has_war_with = ROOT 
-		}
+		state_target = yes 
 		
 		target_trigger = {
 			FROM.owner = { has_war_with = ROOT }
@@ -212,13 +261,7 @@ EQS_weather_magic_category = {
 		days_remove = 45
 		
 		remove_effect = {
-			set_temp_variable = { base_chance = 50 }
-			if = {
-				limit = {
-					thaumaturgy_roll = yes 
-				}
-				### TODO 
-			}
+			hidden_effect = { FROM = { remove_dynamic_modifier = { modifier = EQS_ED_attrition } } }
 		}
 	}
 	
@@ -228,23 +271,79 @@ EQS_weather_magic_category = {
 		custom_cost_trigger = {
 			check_variable = { var = weather_pb_var value = 350 compare = greater_than_or_equals }
 		}
-	}
-	
-	EQS_weather_spell_combat_magic_target = {
-	#	visible = { has_completed_focus = EQS_ED_weather_magic }
-		custom_cost_text = decision_cost_400_wmp
-		custom_cost_trigger = {
-			check_variable = { var = weather_pb_var value = 400 compare = greater_than_or_equals }
-		}
 		complete_effect = {
 			add_to_variable = { weather_pb_var = -350 }
 		}
 		
+		modifier = {
+			air_escort_efficiency = 0.1
+			air_intercept_efficiency = 0.1
+			air_home_defence_factor = 0.1
+			strategic_bomb_visibility = -0.1
+		}
+		
+		days_re_enable = 45
+		days_remove = 45
+		
+	}
+	
+	EQS_weather_spell_combat_magic_target = {
+	#	visible = { has_completed_focus = EQS_ED_weather_magic }
+		custom_cost_text = decision_cost_100_wmp
+		custom_cost_trigger = {
+			check_variable = { var = weather_pb_var value = 100 compare = greater_than_or_equals }
+		}
+		fixed_random_seed = no 
+		complete_effect = {
+			add_to_variable = { weather_pb_var = -100 }
+			hidden_effect = {
+				thaumaturgy_roll = yes
+				if = {
+					limit = {
+						check_variable = { roll_result > 4 }
+					}
+					FROM.owner = {
+						damage_units = { 
+							state = FROM 
+							limit = { NOT = { original_tag = EQS } }
+							damage = 0.15
+							org_damage = 0.2
+							str_damage = 0.2
+						}
+					}
+				}
+				else = {
+					set_temp_variable = { check_rl = 5 }
+					subtract_from_temp_variable = { check_rl = roll_result }
+					random_list = {
+						roll_result = {
+							FROM = { 
+								damage_units = {
+									state = FROM 
+									limit = { NOT = { original_tag = EQS } }
+									damage = 0.15
+									org_damage = 0.2
+									str_damage = 0.2
+								} 
+							}
+						}
+						check_rl = {
+							
+						}
+					}
+				}
+			}
+			custom_effect_tooltip = weather_magic_combat
+		}
+		
 		target_trigger = {
-			FROM.owner = { has_war_with = ROOT }
-			divisions_in_state = { 
-				size > 0
-				state = FROM 
+			FROM.owner = { 
+				has_war_with = ROOT 
+				is_neighbor_of = ROOT 
+				divisions_in_state = { 
+					size > 0
+					state = FROM 
+				} 
 			}
 		}
 		
@@ -254,45 +353,61 @@ EQS_weather_magic_category = {
 		days_remove = 45
 		
 		remove_effect = {
-			set_temp_variable = { base_chance = 50 }
-			if = {
-				limit = {
-					thaumaturgy_roll = yes 
-				}
-				### TODO 
-			}
+			
 		}
 	}	
 	
-#	EQS_weather_spell_naval_suppression = {
+	EQS_weather_spell_naval_suppression = {
 	#	visible = { has_completed_focus = EQS_ED_weather_magic }
-#		custom_cost_text = decision_cost_250_wmp
-#		custom_cost_trigger = {
-#			check_variable = { var = weather_pb_var value = 250 compare = greater_than_or_equals }
-#		}
-#		complete_effect = {
-#			add_to_variable = { weather_pb_var = -350 }
-#		}
+		custom_cost_text = decision_cost_250_wmp
+		custom_cost_trigger = {
+			check_variable = { var = weather_pb_var value = 250 compare = greater_than_or_equals }
+		}
+		fixed_random_seed = no 
+		complete_effect = {
+			add_to_variable = { weather_pb_var = -250 }
+			hidden_effect = {
+				thaumaturgy_roll = yes
+				if = {
+					limit = {
+						check_variable = { roll_result > 4 }
+					}
+					FROM.owner = {
+						add_ideas = EQS_WM_storm 
+					}
+				}
+				else = {
+					set_temp_variable = { check_rl = 5 }
+					subtract_from_temp_variable = { check_rl = roll_result }
+					random_list = {
+						roll_result = {
+							FROM.owner = { add_ideas = EQS_WM_storm }
+						}
+						check_rl = {
+							
+						}
+					}
+				}
+			}
+			custom_effect_tooltip = weather_magic_naval
+			
+		}
 		
-#		target_trigger = {
-#			has_war_with = ROOT 
-#		}
+		state_target = yes 
 		
-#		target_trigger = {
-#			is_coastal = yes 
-#		}
+		target_trigger = {
+			FROM.owner = { 
+				has_war_with = ROOT 
+				is_neighbor_of = ROOT 
+			}
+			FROM = { is_capital = yes }
+		}
 		
-#		state_target = yes 
-#		days_re_enable = 45
-#		days_remove = 45
+		days_re_enable = 45
+		days_remove = 45
 		
-#		remove_effect = {
-#			set_temp_variable = { base_chance = 50 }
-#			if = {
-#				limit = {
-#					thaumaturgy_roll = yes 
-#				}
-#				### TODO 
-#			}
-#		}
-#	}
+		remove_effect = {
+			hidden_effect = { FROM.owner = { remove_ideas = EQS_WM_storm } }
+		}
+	}
+}
