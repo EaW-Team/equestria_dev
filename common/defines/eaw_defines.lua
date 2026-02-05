@@ -113,6 +113,8 @@ NDefines.NAI.RESEARCH_BONUS_FACTOR = 2.0 				-- To which extent AI should care a
 NDefines.NAI.DESIRE_USE_XP_TO_UPGRADE_AIR_EQUIPMENT = 5.0   -- Vanilla is 1
 NDefines.NAI.DESIRE_USE_XP_TO_UPGRADE_NAVAL_EQUIPMENT = 5.0   -- Vanilla is 1
 NDefines.NAI.DESIRE_USE_XP_TO_UPGRADE_LAND_EQUIPMENT = 5.0   -- Vanilla is 1
+NDefines.NAI.UPGRADE_PERCENTAGE_OF_FORCES = 0.09   -- Vanilla is 0.03
+NDefines.NAI.UPGRADES_DEFICIT_LIMIT_DAYS = 24 			-- vanilla is 7
 
 NDefines.NAI.ARMY_LEADER_ASSIGN_KEEP_CURRENT_LEADER_FACTOR = 1.8    -- default is 1.2, Boosts the score for keeping the current leader. Value > 1.0 favors the current leader.
 -- NDefines.NAI.ARMY_LEADER_ASSIGN_DONT_STEAL_OTHER_FACTOR = 0.9       -- default is 0.75, Reduces the score for leaders assigned elsewhere. Value < 1.0 discourages reassigning these leaders.
