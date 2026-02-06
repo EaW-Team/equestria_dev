@@ -59,7 +59,7 @@ PixelShader =
 			if (vAngle < 0.0)
 				vAngle += 2 * pi;
 			
-			float vLerp = saturate( ( vAngle - vTimeSmooth * 3.14159265 * 2.0 ) * 50.0 );
+			float vLerp = saturate( ( vAngle - vTimeSmooth * pi * 2.0 ) * 50.0 );
 			float4 vOne = tex2D( MapTexture, v.vTexCoord );
 			float4 vTwo = (0.0, 0.0, 0.0, 0.0);
 			return lerp( vOne, vTwo, vLerp );
@@ -82,7 +82,7 @@ PixelShader =
 			if (vAngle < 0.0)
 				vAngle += 2 * pi;
 			
-			float vLerp = saturate( ( vAngle - vTimeSmooth * 3.14159265 * 2.0 ) * 50.0 );
+			float vLerp = saturate( ( vAngle - vTimeSmooth * pi * 2.0 ) * 50.0 );
 			float4 vOne = (0.0, 0.0, 0.0, 0.0);
 			float4 vTwo = tex2D( MapTexture, v.vTexCoord );
 			return lerp( vOne, vTwo, vLerp );
