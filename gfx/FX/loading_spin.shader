@@ -70,7 +70,7 @@ PixelShader =
 			float vLerpA = saturate((vArcRad - vDistA) * 50.0);
 
 			// opposite arc, 180 degrees offset + correction
-			float vSpinB = vSpinA + 3.14159265f;
+			float vSpinB = vSpinA + pi;
 			if (vSpinB > 2*pi)
 				vSpinB -= 2*pi;
 			float vDistB = abs(vAngle - vSpinB);
