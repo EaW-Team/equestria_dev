@@ -46,8 +46,8 @@ PixelShader =
 	[[
 		float4 main( VS_OUTPUT v ) : PDX_COLOR
 		{
-			float pi = 3.14159265;
 			float vTime = (Time - AnimationTime);
+			float pi = 3.14159265;
 			float vTimeSmooth = 0.0;
 			if(vTime < 1.0)
 				vTimeSmooth = sin(vTime * pi / 2);
@@ -55,37 +55,44 @@ PixelShader =
 				vTimeSmooth = 1.0;
 
 			float2 vDiff = 0.5 - v.vTexCoord;
+
 			float vAngle = atan2(vDiff.y, vDiff.x) - pi/2;
 			if (vAngle < 0.0)
 				vAngle += 2 * pi;
-			
-			float vLerp = saturate( ( vAngle - vTimeSmooth * pi * 2.0 ) * 50.0 );
-			float4 vOne = tex2D( MapTexture, v.vTexCoord );
-			float4 vTwo = (0.0, 0.0, 0.0, 0.0);
-			return lerp( vOne, vTwo, vLerp );
+
+			// length of arc: (pi/4) rad = 45 degrees
+			float vArcRad = clamp(vTime, 0.0, 1.0) * pi / 4;
+
+			// first arc
+			float vSpinA = frac(vTime) * pi + sin(3 * vTime);
+			float vDistA = abs(vAngle - vSpinA);
+			vDistA = min(vDistA, 2 * pi - vDistA);
+			float vLerpA = saturate((vArcRad - vDistA) * 50.0);
+
+			// opposite arc, 180 degrees offset + correction
+			float vSpinB = vSpinA + pi;
+			if (vSpinB > 2*pi)
+				vSpinB -= 2*pi;
+			float vDistB = abs(vAngle - vSpinB);
+			vDistB = min(vDistB, 2*pi - vDistB);
+			float vLerpB = saturate((vArcRad - vDistB) * 50.0);
+
+			// combine
+			float vLerp = vLerpA + vLerpB;
+
+			float4 vOne = tex2D(MapTexture, v.vTexCoord);
+			float4 vTwo = float4(0.0, 0.0, 0.0, 0.0);
+
+			float4 Out = lerp(vTwo, vOne, vLerp);
+
+			return Out;
 		}	
 	]]
 	MainCode PixelShaderDisable
 	[[
 		float4 main( VS_OUTPUT v ) : PDX_COLOR
 		{
-			float pi = 3.14159265;
-			float vTime = (Time - AnimationTime);
-			float vTimeSmooth = 0.0;
-			if(vTime < 1.0)
-				vTimeSmooth = sin(vTime * pi / 2);
-			else
-				vTimeSmooth = 1.0;
-
-			float2 vDiff = 0.5 - v.vTexCoord;
-			float vAngle = atan2(vDiff.y, vDiff.x) - pi/2;
-			if (vAngle < 0.0)
-				vAngle += 2 * pi;
-			
-			float vLerp = saturate( ( vAngle - vTimeSmooth * pi * 2.0 ) * 50.0 );
-			float4 vOne = (0.0, 0.0, 0.0, 0.0);
-			float4 vTwo = tex2D( MapTexture, v.vTexCoord );
-			return lerp( vOne, vTwo, vLerp );
+			return float4(0.0, 0.0, 0.0, 0.0);
 		}
 	]]
 }
