@@ -54,6 +54,8 @@ PixelShader =
 			else
 				vTimeSmooth = 1.0;
 
+			float speedFactor = round(Offset.x) + 1;
+
 			float2 vDiff = 0.5 - v.vTexCoord;
 
 			float vAngle = atan2(vDiff.y, vDiff.x) - pi/2;
@@ -62,6 +64,8 @@ PixelShader =
 
 			// length of arc: (pi/4) rad = 45 degrees
 			float vArcRad = clamp(vTime, 0.0, 1.0) * pi / 4;
+			
+			vTime *= 0.5 * speedFactor;
 
 			// first arc
 			float vSpinA = frac(vTime) * pi + sin(3 * vTime);
