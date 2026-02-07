@@ -73,7 +73,7 @@ PixelShader =
 			float vTime = (Time - AnimationTime);
 			float vTimeSmooth = 0.0;
 			if(vTime < 1.0)
-					vTimeSmooth = sin(vTime * pi / 2);
+				vTimeSmooth = sin(vTime * pi / 2);
 			else
 				vTimeSmooth = 1.0;
 
