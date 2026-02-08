@@ -48,11 +48,6 @@ PixelShader =
 		{
 			float vTime = (Time - AnimationTime);
 			float pi = 3.14159265;
-			float vTimeSmooth = 0.0;
-			if(vTime < 1.0)
-				vTimeSmooth = sin(vTime * pi / 2);
-			else
-				vTimeSmooth = 1.0;
 
 			float speedFactor = round(Offset.x) + 1;
 
@@ -60,23 +55,22 @@ PixelShader =
 
 			float vAngle = atan2(vDiff.y, vDiff.x) - pi/2;
 			if (vAngle < 0.0)
-				vAngle += 2 * pi;
+				vAngle += 2*pi;
 
 			// length of arc: (pi/4) rad = 45 degrees
-			float vArcRad = clamp(vTime, 0.0, 1.0) * pi / 4;
+			float vArcRad = clamp(vTime * speedFactor, 0.0, 1.0) * pi / 4;
 			
 			vTime *= 0.5 * speedFactor;
 
 			// first arc
 			float vSpinA = frac(vTime) * pi + sin(3 * vTime);
 			float vDistA = abs(vAngle - vSpinA);
-			vDistA = min(vDistA, 2 * pi - vDistA);
+			vDistA = min(vDistA, 2*pi - vDistA);
 			float vLerpA = saturate((vArcRad - vDistA) * 50.0);
 
 			// opposite arc, 180 degrees offset + correction
 			float vSpinB = vSpinA + pi;
-			if (vSpinB > 2*pi)
-				vSpinB -= 2*pi;
+			vSpinB = fmod(vSpinB, 2*pi);
 			float vDistB = abs(vAngle - vSpinB);
 			vDistB = min(vDistB, 2*pi - vDistB);
 			float vLerpB = saturate((vArcRad - vDistB) * 50.0);
