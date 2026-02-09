@@ -1,4 +1,4 @@
-name="Equestria at War"
+name="Equestria at War dev"
 replace_path="common/ai_equipment"
 replace_path="common/ai_focuses"
 replace_path="common/ai_peace"

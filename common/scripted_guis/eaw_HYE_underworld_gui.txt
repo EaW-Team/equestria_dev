@@ -1,0 +1,120 @@
+@HYE_UNDERGROUND_COUNTAINER_SIZE_X = 480
+@HYE_UNDERGROUND_COUNTAINER_SIZE_Y = 300
+
+scripted_gui = {
+	eaw_HYE_underworld_tunnels = {
+		window_name = "HYE_underground_tunnels_gui"
+		context_type = decision_category
+        #context_type = player_context
+
+		dirty = HYE_underworld_tunnels_dirty
+
+		visible = {
+			always = yes
+		}
+
+		dynamic_lists = {
+            HYE_underground_node_gridbox_gui = {
+                array = HYE_underground_node_frame_array
+                change_scope = no
+                index = node_index
+                value = node_value
+                entry_container = HYE_underground_node_gridbox_cell_gui
+            }
+            HYE_underground_link_gridbox_gui = {
+                array = HYE_underground_link_frame_array
+                change_scope = no
+                index = link_index
+                value = link_value
+                entry_container = HYE_underground_link_gridbox_cell_gui
+            }
+            HYE_underground_digging_overlay_gridbox_gui = {
+                array = HYE_underground_digging_overlay_array
+                change_scope = no
+                index = digging_overlay_index
+                value = digging_overlay_value
+                entry_container = HYE_underground_digging_overlay_gridbox_cell_gui
+            }
+        }
+
+		triggers = {
+            HYE_underground_link_visible = {
+                set_temp_variable = { temp_frame_link = HYE_underground_link_rotation_array^link_index }
+                multiply_temp_variable = { temp_frame_link = 128 }
+                add_to_temp_variable = { temp_frame_link = HYE_underground_link_size_array^link_index }
+                add_to_temp_variable = { temp_frame_link = 1 }
+
+                check_variable = { HYE_underground_link_frame_array^link_index > 0 }
+            }
+            HYE_underground_link_click_enabled = {
+                check_variable = { HYE_underground_link_frame_array^link_index < 2 }
+            }
+
+            HYE_underground_node_visible = {
+                set_temp_variable = { temp_node_frame = HYE_underground_node_max_link_size_array^node_index }
+                add_to_temp_variable = { temp_node_frame = 1 }
+                check_variable = { HYE_underground_node_frame_array^node_index > 0 }
+            }
+            HYE_underground_node_click_enabled = {
+                check_variable = { HYE_underground_node_frame_array^node_index < 2 }
+            }
+
+            HYE_underground_digging_node_visible = {
+                check_variable = { digging_overlay_value > -1 }
+            }
+
+            HYE_underground_selected_node_visible = {
+                set_temp_variable = { temp_selected_node_pos_x = @HYE_UNDERGROUND_COUNTAINER_SIZE_X }
+                divide_temp_variable = { temp_selected_node_pos_x = 2 }
+                add_to_temp_variable = { temp_selected_node_pos_x = HYE_underground_node_pos_x_array^HYE_underground_selected_node_id }
+
+                check_variable = { HYE_underground_selected_node_id > -1 }
+            }
+
+        }
+		
+        properties = {
+            HYE_underground_node = {
+                x = HYE_underground_node_pos_x_array^node_index
+                y = HYE_underground_node_pos_y_array^node_index
+                frame = temp_node_frame
+            }
+            HYE_underground_link = {
+                x = HYE_underground_link_pos_x_array^link_index
+                y = HYE_underground_link_pos_y_array^link_index
+                frame = temp_frame_link
+            }
+            HYE_underground_digging_node = {
+                x = HYE_underground_node_pos_x_array^digging_overlay_value
+                y = HYE_underground_node_pos_y_array^digging_overlay_value
+            }
+            HYE_underground_selected_node = {
+                x = temp_selected_node_pos_x
+                y = HYE_underground_node_pos_y_array^HYE_underground_selected_node_id
+            }
+        }
+
+		
+        effects = {
+            HYE_underground_node_click = {
+                if = {
+                    limit = {
+                        OR = {
+                            check_variable = { HYE_underground_selected_node_id = node_index }
+                            is_in_array = {
+                                array = HYE_underground_digging_overlay_array
+                                value = node_index
+                            }
+                        }
+                    }
+
+                    set_variable = { HYE_underground_selected_node_id = -1 }
+                } else = {
+                    set_variable = { HYE_underground_selected_node_id = node_index }
+                }
+
+                add_to_variable = { HYE_underworld_tunnels_dirty = 1 }
+            }
+        }
+	}
+}
