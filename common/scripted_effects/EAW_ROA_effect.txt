@@ -1,0 +1,584 @@
+improve_roaman_economy_medium = {
+	custom_effect_tooltip = ROA_modify_economy_tt
+	add_to_variable = {
+		ROA_economy_dm_production_speed_buildings_factor = 0.04
+		tooltip = production_speed_buildings_factor_tt
+	}
+	add_to_variable = {
+		ROA_economy_dm_production_factory_efficiency_gain_factor = 0.04
+		tooltip = production_factory_efficiency_gain_factor_tt
+	}
+}
+improve_roaman_economy_small = {
+	custom_effect_tooltip = ROA_modify_economy_tt
+	add_to_variable = {
+		ROA_economy_dm_production_speed_buildings_factor = 0.02
+		tooltip = production_speed_buildings_factor_tt
+	}
+	add_to_variable = {
+		ROA_economy_dm_global_building_slots_factor = 0.02
+		tooltip = global_building_slots_factor_tt
+	}
+}
+resistance_dm_calculations = { # expected modifier = [ (non_core + recent_core*1/2)/overall ]*1/2
+	for_each_scope_loop = { # it won't trigger if ROA is ai - TODO?
+		array = ROOT.eaw_successfully_integrated_states
+		if = {
+			limit = {
+				NOT = {
+					is_in_array = {
+						array = ROOT.recently_integrated_states
+						value = THIS.id
+					}
+				}
+				has_dynamic_modifier = ROA_resistance_state_1_dm
+			}
+			add_to_array = { ROOT.recently_integrated_states = THIS }
+			remove_dynamic_modifier = {
+				modifier = ROA_resistance_state_1_dm
+			}
+			add_dynamic_modifier = {
+				modifier = ROA_resistance_state_2_dm
+			}
+		}
+	}
+	for_each_scope_loop = {
+		array = ROOT.owned_controlled_states
+		add_to_temp_variable = { overall_population = THIS.state_population_k }
+		add_to_temp_variable = { overall_industry = THIS.arms_factory_level }
+		add_to_temp_variable = { overall_industry = THIS.industrial_complex_level }
+		if = {
+			limit = {
+				is_in_array = {
+					array = ROOT.recently_integrated_states
+					value = THIS.id
+				}
+			}
+			add_to_temp_variable = { recent_core_population = THIS.state_population_k }
+			add_to_temp_variable = { recent_core_industry = THIS.arms_factory_level }
+			add_to_temp_variable = { recent_core_industry = THIS.industrial_complex_level }
+		}
+		else_if = {
+			limit = { 
+				is_core_of = ROOT
+			}
+			add_to_temp_variable = { core_population = THIS.state_population_k }
+			add_to_temp_variable = { core_industry = THIS.arms_factory_level }
+			add_to_temp_variable = { core_industry = THIS.industrial_complex_level }
+		}
+		else = {
+			add_to_temp_variable = { controlled_population_2 = THIS.state_population_k }
+			add_to_temp_variable = { controlled_population_3 = THIS.state_population_k }
+			add_to_temp_variable = { controlled_industry = THIS.arms_factory_level }
+			add_to_temp_variable = { controlled_industry = THIS.industrial_complex_level }
+			add_to_temp_variable = { controlled_industry_2 = THIS.arms_factory_level }
+			add_to_temp_variable = { controlled_industry_2 = THIS.industrial_complex_level }
+		}
+	}
+	log = "[GetDateText]: Overall population: [?overall_population|G]k"
+	log = "[GetDateText]: Core population: [?core_population|G]k"
+	log = "[GetDateText]: Recently cored population: [?recent_core_population|G]k"
+	log = "[GetDateText]: Non-core population: [?controlled_population_2|G]k"
+
+	log = "[GetDateText]: Overall industry: [?overall_industry|C]"
+	log = "[GetDateText]: Core industry: [?core_industry|C]"
+	log = "[GetDateText]: Recently cored industry: [?recent_core_industry|C]"
+	log = "[GetDateText]: Non-core industry: [?controlled_industry|C]"
+	
+	divide_temp_variable = { recent_core_population = 2 }
+	divide_temp_variable = { recent_core_industry = 2 }
+
+	divide_temp_variable = { controlled_population_2 = overall_population }
+	divide_temp_variable = { controlled_industry_2 = overall_industry }
+
+	log = "[GetDateText]: Army Percentage (non-core divided by overall): [?controlled_population_2|%R]"
+	log = "[GetDateText]: Industry Percentage (non-core divided by overall): [?controlled_industry_2|%R]"
+
+	add_to_temp_variable = { controlled_population_3 = recent_core_population }
+	divide_temp_variable = { controlled_population_3 = overall_population }
+	divide_temp_variable = { controlled_population_3 = -1 }
+	add_to_temp_variable = { controlled_population_3 = ROA_conscription_factor_calibration_var }
+	clamp_temp_variable = {
+		var = controlled_population_3
+		max = 0
+	}
+	log = "[GetDateText]: Army Calibration Var: [?ROA_conscription_factor_calibration_var|%G]"
+	log = "[GetDateText]: Army Expected Modifier: [?controlled_population_3|%R]"
+	set_variable = { ROA_resistance_dm_conscription_factor = controlled_population_3 }
+
+	add_to_temp_variable = { controlled_industry = recent_core_industry }
+	divide_temp_variable = { controlled_industry = overall_industry }
+	divide_temp_variable = { controlled_industry = -1 }
+	add_to_temp_variable = { controlled_industry = ROA_efficiency_gain_calibration_var }
+	clamp_temp_variable = {
+		var = controlled_industry
+		max = 0
+	}
+	log = "[GetDateText]: Industry Calibration Var: [?ROA_efficiency_gain_calibration_var|%G]"
+	log = "[GetDateText]: Industry Expected Modifier: [?controlled_industry|%R]"
+	set_variable = { ROA_resistance_dm_production_factory_efficiency_gain_factor = controlled_industry }
+}
+resistance_dm_lansin_calculations = {
+	add_to_variable = {
+		ROA_divs_calibration_var = temp_amount
+		tooltip = lansin_uprising_strength_tt
+	}
+	custom_effect_tooltip = generic_skip_one_line_tt
+	custom_effect_tooltip = ROA_modify_resistance_dm
+	multiply_temp_variable = { temp_amount = 0.025 }
+	add_to_variable = {
+		ROA_resistance_dm_production_factory_max_efficiency_factor = temp_amount
+		tooltip = production_factory_max_efficiency_factor_tt
+	}
+	hidden_effect = {
+		clamp_variable = {
+			var = ROA_divs_calibration_var
+			min = 0
+			max = 10
+		}
+		clamp_variable = {
+			var = ROA_resistance_dm_production_factory_max_efficiency_factor
+			min = 0
+			max = 0.25
+		}
+		if = {
+			limit = {
+				check_variable = {
+					ROA_divs_calibration_var = 10
+				}
+			}
+			country_event = roam_lansin_uprising.2
+		}
+	}
+}
+ROA_civil_war_effect = { # United effect for Lansin's Uprising and Civil War after death of Augustus
+	if = {
+		limit = {
+			NOT = { has_country_flag = uprising_suppressed }
+			NOT = { has_country_flag = uprising_happened }
+		}
+		retire_character = ROA_lansin
+		create_dynamic_country = {
+			original_tag = ROA
+   	 		inherit_technology = ROA
+			save_global_event_target_as = lansin_uprising
+			set_cosmetic_tag = ROA_lansin_uprising
+			create_country_leader = {
+				name = ROA_lansin
+				desc = ROA_lansin_desc
+				picture = "gfx/leaders/ROA/ROA_Lansin.tga"
+				ideology = stalinism
+			}
+			add_country_leader_role = {
+				character = "ROA_lansin"
+				promote_leader = yes
+				country_leader = {
+					ideology = stalinism
+					expire = "1965.1.1.1"
+				}
+			}
+			set_politics = {
+				ruling_party = communism
+				elections_allowed = no
+			}
+			set_popularities = {
+				communism = 100
+			}
+			set_political_power = 200
+			set_stability = 0.8
+			set_war_support = 1.0
+			add_ideas = {
+				war_economy
+				service_by_requirement
+			}
+			set_temp_variable = { lansin_strength = ROA.ROA_divs_calibration_var }
+			clamp_temp_variable = {
+				var = lansin_strength
+				min = 1
+				max = 10
+			}
+			multiply_temp_variable = { lansin_strength = 15 }
+			add_timed_idea = {
+				idea = ROA_lansin_uprising_idea
+				days = var:lansin_strength
+			}
+			multiply_temp_variable = { lansin_strength = 80 }
+			add_equipment_to_stockpile = {
+				type = infantry_equipment_0
+				amount = var:lansin_strength
+				producer = ROA
+			}
+			division_template = {
+				name = "Militia"
+				is_locked = yes
+				template_counter = 6
+				regiments = {
+					infantry = { x = 0 y = 0 }
+					infantry = { x = 0 y = 1 }
+					infantry = { x = 0 y = 2 }
+					infantry = { x = 1 y = 0 }
+					infantry = { x = 1 y = 1 }
+				}
+				priority = 0
+			}
+			load_focus_tree = {
+				tree = roam_lansin_focus
+				keep_completed = yes
+			}
+			mark_focus_tree_layout_dirty = yes
+		}
+		every_character = {
+			limit = {
+				OR = {
+					is_character = ROA_kniss_quaternion
+					is_character = ROA_shultz_slipperfeather
+					is_character = ROA_xanti_salissi
+					is_character = ROA_skibuye_azori
+					is_character = ROA_flame_flower
+				}
+			}
+			set_nationality = { target_country = event_target:lansin_uprising }
+		}
+		every_controlled_state = {
+			limit = {
+				NOT = { is_core_of = ROOT }
+			}
+			add_core_of = event_target:lansin_uprising
+			transfer_state_to = event_target:lansin_uprising
+			clamp_variable = {
+				var = ROA.ROA_divs_calibration_var
+				min = 1
+			}
+			create_unit = {
+				division = "division_template = \"Militia\" start_experience_factor = 0.1"
+				owner = event_target:lansin_uprising
+				count = ROA.ROA_divs_calibration_var
+				allow_spawning_on_enemy_provs = yes
+			}
+		}
+		every_enemy_country = { # Every country in war with ROA declares war on uprising too
+			declare_war_on = {
+				target = event_target:lansin_uprising
+				type = annex_everything
+			}
+		}
+		set_country_flag = uprising_happened
+	}
+	if = { # Legate with lower influence will go to Lansin
+		limit = {
+			NOT = { has_country_flag = augustus_dead }
+		}
+		if = {
+			limit = {
+				check_variable = { ROA_triumvirate_var > 75 }
+			}
+			set_nationality = {
+    			target_country = event_target:lansin_uprising
+    			character = ROA_dassal
+			}
+			every_unit_leader = {
+				limit = {
+					has_trait = dassal_supporter
+				}
+				set_nationality = { target_country = event_target:lansin_uprising }
+			}
+		}
+		else_if = {
+			limit = {
+				check_variable = { ROA_triumvirate_var < 25 }
+			}
+			set_nationality = {
+    			target_country = event_target:lansin_uprising
+    			character = ROA_alsa
+			}
+			every_unit_leader = {
+				limit = {
+					has_trait = alsa_supporter
+				}
+				set_nationality = { target_country = event_target:lansin_uprising }
+			}
+		}
+	}
+	else_if = { # Civil War in case of Augustus's death
+		limit = {
+			# If ROA doesn't have on of them, he/she went to Lansin previously, so new CW won't happen
+			has_character = ROA_dassal
+			has_character = ROA_alsa
+		}
+		create_dynamic_country = { # Dynamic country is always assumed as non-player
+			original_tag = ROA
+   	 		inherit_technology = ROA
+			save_global_event_target_as = legate_uprising
+			if = {
+				limit = {
+					ROA = {
+						has_country_leader = {
+    						character = ROA_alsa
+    						ruling_only = yes
+						}
+					}
+				}
+				ROA = { 
+					retire_character = ROA_dassal 
+					every_unit_leader = {
+						limit = {
+							has_trait = dassal_supporter
+						}
+						set_nationality = { target_country = event_target:legate_uprising }
+					}
+				}
+				new_leader_is_dassal = yes
+			}
+			else_if = {
+				limit = {
+					ROA = {
+						has_country_leader = {
+    						character = ROA_dassal
+    						ruling_only = yes
+						}
+					}
+				}
+				ROA = { 
+					retire_character = ROA_alsa 
+					every_unit_leader = {
+						limit = {
+							has_trait = alsa_supporter
+						}
+						set_nationality = { target_country = event_target:legate_uprising }
+					}
+				}
+				new_leader_is_alsa = yes
+			}
+			set_political_power = 200
+			set_stability = 0.8
+			set_war_support = 1.0
+			add_ideas = {
+				slavery_economy
+				service_by_requirement
+			}
+			division_template = {
+				name = "Militia"
+				is_locked = yes
+				template_counter = 6
+				regiments = {
+					infantry = { x = 0 y = 0 }
+					infantry = { x = 0 y = 1 }
+					infantry = { x = 0 y = 2 }
+					infantry = { x = 1 y = 0 }
+					infantry = { x = 1 y = 1 }
+				}
+				priority = 0
+			}
+		}
+		transfer_units_fraction = {
+			target = event_target:legate_uprising
+			stockpile_ratio = 0.5
+			army_ratio = 0.0
+			navy_ratio = 0.0
+			air_ratio = 0.0
+		}
+		every_controlled_state = {
+			limit = {
+				OR = {
+					is_core_of = IBZ
+					is_core_of = TSV
+					state = 921
+				}
+			}
+			add_core_of = event_target:legate_uprising
+			transfer_state_to = event_target:legate_uprising
+			create_unit = {
+				division = "division_template = \"Militia\" start_experience_factor = 0.1"
+				owner = event_target:legate_uprising
+				count = 6
+				allow_spawning_on_enemy_provs = yes
+			}
+		}
+		every_enemy_country = { # Every country in war with ROA declares war on uprising too
+			declare_war_on = {
+				target = event_target:legate_uprising
+				type = annex_everything
+			}
+		}
+	}
+	every_country_with_original_tag = { # Every participant of the civil war declares war on each other
+		original_tag_to_check = ROA
+		declare_war_on = {
+			target = ROA
+			type = civil_war
+		}
+		declare_war_on = {
+			target = event_target:legate_uprising
+			type = civil_war
+		}
+		declare_war_on = {
+			target = event_target:lansin_uprising
+			type = civil_war
+		}
+		add_civil_war_target = ROA
+		add_civil_war_target = event_target:legate_uprising
+		add_civil_war_target = event_target:lansin_uprising
+	}
+}
+new_leader_is_dassal = {
+	custom_effect_tooltip = new_leader_is_dassal
+	hidden_effect = {
+		create_country_leader = {
+			name = ROA_dassal
+			desc = ROA_dassal_desc
+			picture = "gfx/leaders/ROA/ROA_dassal.tga"
+			ideology = conservatism
+		}
+		add_country_leader_role = {
+			character = "ROA_dassal"
+			promote_leader = yes
+			country_leader = {
+				ideology = conservatism
+				expire = "1965.1.1.1"
+			}
+		}
+		set_politics = {
+			ruling_party = democratic
+			elections_allowed = no
+		}
+		set_popularities = {
+			democratic = 100
+		}
+		load_focus_tree = {
+			tree = roam_dassal_focus
+			keep_completed = yes
+		}
+		set_cosmetic_tag = ROA_dassal_cosmetic
+		mark_focus_tree_layout_dirty = yes
+	}
+}
+new_leader_is_alsa = {
+	custom_effect_tooltip = new_leader_is_alsa
+	hidden_effect = {
+		create_country_leader = {
+			name = ROA_alsa
+			desc = ROA_alsa_desc
+			picture = "gfx/leaders/ROA/ROA_alsa.tga"
+			ideology = nazism
+		}
+		add_country_leader_role = {
+			character = "ROA_alsa"
+			promote_leader = yes
+			country_leader = {
+				ideology = stratocracy
+				expire = "1965.1.1.1"
+			}
+		}
+		set_politics = {
+			ruling_party = fascism
+			elections_allowed = no
+		}
+		set_popularities = {
+			fascism = 100
+		}
+		load_focus_tree = {
+			tree = roam_alsa_focus
+			keep_completed = yes
+		}
+		set_cosmetic_tag = ROA_alsa_cosmetic
+		mark_focus_tree_layout_dirty = yes
+	}
+}
+create_legio_praetoriani_div = {
+	add_to_variable = { legio_praetoriani_divs_cap_var = 1 }
+	custom_effect_tooltip = legio_praetoriani_spawn_tt
+	hidden_effect = {
+		set_division_template_cap = { 
+			division_template = "Legio Praetoriani" 
+			division_cap = var:legio_praetoriani_divs_cap_var
+		}
+		capital_scope = {
+			create_unit = { division = "division_template = \"Legio Praetoriani\" start_equipment_factor = 1.0 start_experience_factor = 0.5" owner = ROOT count = 1 }
+		}
+	}
+}
+update_triumvirate = {
+	set_temp_variable = { v = temp_amount }
+	if = {
+		limit = {
+			check_variable = { temp_amount > 0 }
+		}
+		add_to_variable = {
+			ROA_triumvirate_var = v
+			tooltip = triumvirate_tt
+		}
+	}
+	else_if = {
+		limit = {
+			check_variable = { temp_amount < 0 }
+		}
+		multiply_temp_variable = { v = -1 }
+		subtract_from_variable = {
+			ROA_triumvirate_var = v
+			tooltip = triumvirate_tt
+		}
+	}
+	clamp_variable = {
+		var = ROA_triumvirate_var
+		min = 0
+		max = 100
+	}
+	set_temp_variable = { gui_var = ROA_triumvirate_var }
+	add_to_temp_variable = { gui_var = 50 }
+	set_variable = { ROA_triumvirate_gui_var = gui_var }
+	if = { # Alsa
+		limit = {
+			check_variable = { ROA_triumvirate_var > 50 }
+		}
+		set_temp_variable = { v = ROA_triumvirate_var }
+		multiply_temp_variable = { v = 2 }
+		subtract_from_temp_variable = { v = 100 }
+		set_variable = { ROA_triumvirate_loc_var = v }
+	}
+	else_if = { # Dassal
+		limit = {
+			check_variable = { ROA_triumvirate_var < 50 }
+		}
+		set_temp_variable = { i = 100 }
+		set_temp_variable = { v = ROA_triumvirate_var }
+		multiply_temp_variable = { v = 2 }
+		subtract_from_temp_variable = { i = v }
+		set_variable = { ROA_triumvirate_loc_var = i }
+	}
+	if = {
+		limit = {
+			check_variable = { ROA_triumvirate_var < 25 }
+		}
+		set_variable = { ROA_triumvirate_dm_stability_factor = -0.075 }
+		set_variable = { ROA_triumvirate_dm_political_power_factor = -0.075 }
+	}
+	else_if = {
+		limit = {
+			check_variable = { ROA_triumvirate_var < 50 }
+		}
+		set_variable = { ROA_triumvirate_dm_stability_factor = -0.05 }
+		set_variable = { ROA_triumvirate_dm_political_power_factor = -0.05 }
+	}
+	else_if = {
+		limit = {
+			check_variable = { ROA_triumvirate_var = 50 }
+		}
+		set_variable = { ROA_triumvirate_dm_stability_factor = 0.05 }
+		set_variable = { ROA_triumvirate_dm_political_power_factor = 0.1 }
+	}
+	else_if = {
+		limit = {
+			check_variable = { ROA_triumvirate_var < 75 }
+		}
+		set_variable = { ROA_triumvirate_dm_stability_factor = -0.05 }
+		set_variable = { ROA_triumvirate_dm_political_power_factor = -0.05 }
+	}
+	else_if = {
+		limit = {
+			check_variable = { ROA_triumvirate_var < 100 }
+		}
+		set_variable = { ROA_triumvirate_dm_stability_factor = -0.075 }
+		set_variable = { ROA_triumvirate_dm_political_power_factor = -0.075 }
+	}
+	add_to_variable = { ROA_triumvirate_dirty = 1 }
+}
