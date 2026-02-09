@@ -72,13 +72,14 @@ NDefines.NAI.SEND_VOLUNTEER_EVAL_BASE_DISTANCE = 100.0
 NDefines.NAI.SEND_VOLUNTEER_EVAL_CONTAINMENT_FACTOR = 0.15
 NDefines.NAI.DIPLOMACY_FACTION_GLOBAL_TENSION_FACTOR = 0.15
 NDefines.NAI.DIPLOMACY_FACTION_NEUTRALITY_PENALTY = 0.2
-NDefines.NAI.UPGRADE_DIVISION_RELUCTANCE = 14
 NDefines.NAI.FASCISTS_ALLY_FASCISTS = -10
 NDefines.NAI.FASCISTS_BEFRIEND_FASCISTS = 0
+
 --NDefines.NAI.MANPOWER_FREE_USAGE_THRESHOLD = 600000			-- If AI has this much manpower he doesn't care about the percentage
 NDefines.NAI.NEUTRAL_THREAT_PARANOIA = 1
 --NDefines.NAI.DIVISION_CREATE_MIN_XP = 50
 --NDefines.NAI.VARIANT_UPGRADE_MIN_XP = 10
+
 NDefines.NAI.HOUR_BAD_COMBAT_REEVALUATE = 24 --default 100
 NDefines.NAI.PLAN_ACTIVATION_SUPERIORITY_AGGRO = 1.2 --default 1.0		-- How aggressive a country is in activating a plan based on how superiour their force is.
 NDefines.NAI.AI_FRONT_MOVEMENT_FACTOR_FOR_READY = 0.1 --default 0.25
@@ -103,18 +104,27 @@ NDefines.NAI.MIN_MANPOWER_TO_BUILD_UNITS = 0.6	--default 0.7				-- Cancel unit p
 NDefines.NAI.FORTIFIED_RATIO_TO_CONSIDER_A_FRONT_FORTIFIED = 0.3
 NDefines.NAI.HEAVILY_FORTIFIED_RATIO_TO_CONSIDER_A_FRONT_FORTIFIED = 0.3
 NDefines.NAI.INVASION_DISTANCE_RANDOMNESS = 400
+
 NDefines.NAI.CAPITAL_TASKFORCE_MAX_CAPITAL_COUNT = 12 		-- optimum capital count for capital taskforces Vanilla is 12
 NDefines.NAI.SCREEN_TASKFORCE_MAX_SHIP_COUNT = 5		-- optimum screen count for screen taskforces Vanilla is 12
-NDefines.NAI.SUB_TASKFORCE_MAX_SHIP_COUNT = 4 			-- optimum sub count for sub taskforces Vanilla is 16
+NDefines.NAI.SUB_TASKFORCE_MAX_SHIP_COUNT = 6 			-- optimum sub count for sub taskforces Vanilla is 16
 NDefines.NAI.DIPLOMACY_ACCEPT_VOLUNTEERS_BASE = 100
-NDefines.NAI.RESEARCH_AHEAD_OF_TIME_FACTOR = 4.5 		-- To which extent AI should care about ahead of time penalties to research
-NDefines.NAI.RESEARCH_AHEAD_BONUS_FACTOR = 2.5          -- To which extent AI should care about ahead of time bonuses to research
-NDefines.NAI.RESEARCH_BONUS_FACTOR = 2.0 				-- To which extent AI should care about bonuses to research
+NDefines.NAI.REFIT_SHIP_RELUCTANCE = 5000
+NDefines.NAI.REFIT_SHIP_PERCENTAGE_OF_FORCES = 0.33
+NDefines.NAI.MAX_PATROL_TO_STRIKE_FORCE_RATIO = 4.0
+
+NDefines.NAI.RESEARCH_AHEAD_OF_TIME_FACTOR = 1.5 			-- vanilla 4.0 To which extent AI should care about ahead of time penalties to research
+NDefines.NAI.RESEARCH_AHEAD_BONUS_FACTOR = 10.0          	-- vanilla 4.0 To which extent AI should care about ahead of time bonuses to research
+NDefines.NAI.RESEARCH_BONUS_FACTOR = 2.0 					-- vanilla 5.0 To which extent AI should care about bonuses to research
+
 NDefines.NAI.DESIRE_USE_XP_TO_UPGRADE_AIR_EQUIPMENT = 5.0   -- Vanilla is 1
-NDefines.NAI.DESIRE_USE_XP_TO_UPGRADE_NAVAL_EQUIPMENT = 5.0   -- Vanilla is 1
-NDefines.NAI.DESIRE_USE_XP_TO_UPGRADE_LAND_EQUIPMENT = 5.0   -- Vanilla is 1
-NDefines.NAI.UPGRADE_PERCENTAGE_OF_FORCES = 0.09   -- Vanilla is 0.03
-NDefines.NAI.UPGRADES_DEFICIT_LIMIT_DAYS = 24 			-- vanilla is 7
+NDefines.NAI.DESIRE_USE_XP_TO_UPGRADE_NAVAL_EQUIPMENT = 5.0	-- Vanilla is 1
+NDefines.NAI.DESIRE_USE_XP_TO_UPGRADE_LAND_EQUIPMENT = 5.0 	-- Vanilla is 1
+NDefines.NAI.UPGRADE_DIVISION_RELUCTANCE = 3				-- was 14, vanilla is 7
+NDefines.NAI.DESIRE_USE_XP_TO_UPDATE_LAND_TEMPLATE = 25.0	-- vanilla 2.0
+NDefines.NAI.VARIANT_CREATION_XP_RESERVE_LAND = 25			-- vanilla 50
+NDefines.NAI.UPGRADE_PERCENTAGE_OF_FORCES = 0.09   			-- Vanilla is 0.03
+NDefines.NAI.UPGRADES_DEFICIT_LIMIT_DAYS = 24 				-- vanilla is 7
 
 NDefines.NAI.ARMY_LEADER_ASSIGN_KEEP_CURRENT_LEADER_FACTOR = 1.8    -- default is 1.2, Boosts the score for keeping the current leader. Value > 1.0 favors the current leader.
 -- NDefines.NAI.ARMY_LEADER_ASSIGN_DONT_STEAL_OTHER_FACTOR = 0.9       -- default is 0.75, Reduces the score for leaders assigned elsewhere. Value < 1.0 discourages reassigning these leaders.
