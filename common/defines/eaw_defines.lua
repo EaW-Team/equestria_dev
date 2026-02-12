@@ -1,10 +1,9 @@
-NDefines.NCountry.BASE_MOBILIZATION_SPEED = 0.025
-
 NDefines.NGame.START_DATE = "1007.1.1.12"
 NDefines.NGame.END_DATE = "1030.1.1.1"
 NDefines.NGame.HANDS_OFF_START_TAG = "DRG"
+NDefines.NGame.MAX_EFFECT_ITERATION = 50000
 
-NDefines.NDiplomacy.TENSION_TIME_SCALE_START_DATE = "1007.1.1.12"
+NDefines.NDiplomacy.TENSION_TIME_SCALE_START_DATE = "1012.1.1.12" -- increased from 1007 due to Great War being the main huge wakeup call -- Starting at this date, the tension values will be scaled down (will be equal to 1 before that)
 NDefines.NDiplomacy.VOLUNTEERS_DIVISIONS_REQUIRED = 10
 NDefines.NDiplomacy.MAX_OPINION_VALUE = 200							-- Max opinion value cap.
 NDefines.NDiplomacy.MIN_OPINION_VALUE = -200						-- Min opinion value cap.
@@ -30,8 +29,6 @@ NDefines.NCountry.FEMALE_UNIT_LEADER_BASE_CHANCE = {
 }
 
 NDefines.NResistance.GARRISON_MANPOWER_LOST_BY_ATTACK = 0.01 	-- Ratio of manpower lost by garrison at each attack on garrison (this number will be reduced by the hardness of garrison template)
-NDefines.NResistance.GARRISON_TEMPLATE_SCORE_IC_FACTOR = 1.4		-- ai uses these defines while calculating garrison template score of a template.
-NDefines.NResistance.GARRISON_TEMPLATE_SCORE_MANPOWER_FACTOR = 0.4  -- formula is (template_ic * ic_factor + template_manpower * manpower_factor ) / template_supression (lower is better)
 
 NDefines.NProduction.FLOATING_HARBOR_MAX_NAV_FACTORIES_PER_LINE = 10 -- vanilla is 5
 NDefines.NProduction.CAPITAL_SHIP_MAX_NAV_FACTORIES_PER_LINE = 10 -- vanilla is 5
@@ -52,6 +49,8 @@ NDefines.NMilitary.EXPERIENCE_COMBAT_FACTOR = 0.05
 NDefines.NMilitary.ARMY_EXP_BASE_LEVEL = 5
 NDefines.NMilitary.BASE_CAPTURE_EQUIPMENT_RATIO = 0.02
 NDefines.NMilitary.BASE_FEMALE_DIVISIONAL_COMMANDER_CHANCE = 0.5 -- 50% of time by default, female_divisional_commander_chance modifier is additive
+NDefines.NMilitary.LAND_AIR_COMBAT_STR_DAMAGE_MODIFIER = 0.032    					-- Vanilla is 0.08, air global strength damage modifier from CAS
+NDefines.NMilitary.LAND_AIR_COMBAT_ORG_DAMAGE_MODIFIER = 0.032    					-- Vanilla is 0.10, air global org damage modifier from CAS
 
 NDefines.NNavy.SCREENS_TO_CAPITAL_RATIO = 3.0 -- Vanilla is 4.0, mostly AI stuff
 NDefines.NNavy.NAVAL_MINES_INTEL_DIFF_FACTOR = 0.1 -- Vanilla is 0.5, reverted to pre-AAT value
@@ -108,6 +107,8 @@ NDefines.NAI.RESEARCH_AHEAD_OF_TIME_FACTOR = 4.5 		-- To which extent AI should 
 NDefines.NAI.RESEARCH_AHEAD_BONUS_FACTOR = 2.5          -- To which extent AI should care about ahead of time bonuses to research
 NDefines.NAI.RESEARCH_BONUS_FACTOR = 2.0 				-- To which extent AI should care about bonuses to research
 NDefines.NAI.DESIRE_USE_XP_TO_UPGRADE_AIR_EQUIPMENT = 1.5   -- Vanilla is 1
+NDefines.NAI.GARRISON_TEMPLATE_SCORE_IC_FACTOR = 1.4		-- ai uses these defines while calculating garrison template score of a template.
+NDefines.NAI.GARRISON_TEMPLATE_SCORE_MANPOWER_FACTOR = 0.4  -- formula is (template_ic * ic_factor + template_manpower * manpower_factor ) / template_supression (lower is better)
 
 NDefines.NAI.MIN_FACTORIES_TO_WANT_TO_IMPORT = {  -- minimum number of civilian factories the AI must have to consider importing a resource - per strategic resource. Default 0, array -should- be updated with new resources, or if the order changes.
 		5, -- oil -- EAW increased because of outdated societies
