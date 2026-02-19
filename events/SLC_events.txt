@@ -4099,7 +4099,6 @@ country_event = {
 
 	trigger = {
 		tag = SLC
-		exists = yes
 		date > 1014.02.01
 		SLC_urzak_deepfrost = {
 			is_unit_leader = yes
@@ -6813,8 +6812,6 @@ country_event = {
 		hidden_effect = {
 			SLC = {
 				set_country_flag = SLC_dual_got_alliance
-			}
-			SLC = {
                 add_ai_strategy = {
                     type = alliance
                     id = ROOT
@@ -11864,15 +11861,30 @@ country_event = {
 			    array = temp_occupied_countries
 
 				log = "[THIS.GetName]"
+				
+				#Stop countries that already exist from getting involved.
+				if = {
+					limit = {
+						exists = yes
+					}
+					set_country_flag = SLC_collapse_neutral
+				}
 
 				# Release the country
 			    ROOT = {
-			        release = PREV
+					release = PREV
 					if = {
-						limit = { country_exists = PREV }
-						declare_war_on = {
-							target = PREV
-							type = annex_everything
+						limit = {
+							PREV = {
+								NOT = { has_country_flag = SLC_collapse_neutral }
+							}
+						}
+						if = {
+							limit = { country_exists = PREV }
+							declare_war_on = {
+								target = PREV
+								type = annex_everything
+							}
 						}
 					}
 			    }
@@ -11976,7 +11988,10 @@ country_event = {
 				if = {
 					limit = {
 						exists = yes
-						NOT = { tag = var:temp_leader }
+						NOT = {
+							has_country_flag = SLC_collapse_neutral
+							tag = var:temp_leader 
+						}
 					}
 
 					var:temp_leader = {
