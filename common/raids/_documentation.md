@@ -31,12 +31,24 @@ raid_type_id = {
 	command_power = 20 # command power allocation cost
 
 	arrow = {
-		type = line # arrow type: line, ballistic, air or naval
+		type = line # arrow type: line, ballistic, air, naval or land
 	}
 
 	unit_model = {
-	    # equipment, transport or convoy
-	    type = equipment # (will use the majority equipment type of the airwing)
+
+		# Entities to use as raid unit models, the game will try to find suitable entity in the following order:
+		#	1. First, a country-specific override, for example: GER_entity_name
+		#	2. Second, a culture-specific override, for example: westerngfx_entity_name
+		#	3. Then, the basic entity: entity_name
+		#	4. If still not found, the game will try to find the default_entity_name
+		entity = entity_name
+		default_entity = default_entity_name
+		
+		# Tells the game to use specific equipment's model as raid unit
+		# NOTE - only air equipment is currently supported!
+		equipment = air_transport
+
+	    start_offset = 15 # offsets the starting position of a unit by an amount, mostly needed so that convoy entities start in the sea and not on the shore
 	    scale = 0.5 # scale of the entity, is also multiplied by the global RAID_UNIT_ENTITY_BASE_SCALE define
 	}
 
@@ -83,8 +95,17 @@ raid_type_id = {
 		# var:target_state and var:target_province can also be used when applicable
 	}
 
-	# Available represents being able to start a raid
+	# Launchable represents being able to start a raid
 	launchable = {
+		# Use FROM to refer to the target country, e.g. to require being at war
+		# var:target_state and var:target_province can also be used when applicable
+	}
+	
+	# Optional launchable trigger
+	# The scope is the country controlling the starting point used for raid, for example:
+	#  - the country that controls the territory where the starting base is located
+	#  - OR the country owning the fleet that is used to start the raid
+	launchable_from = {
 		# Use FROM to refer to the target country, e.g. to require being at war
 		# var:target_state and var:target_province can also be used when applicable
 	}
@@ -102,6 +123,8 @@ raid_type_id = {
     # Conditions on the starting point:
     starting_point = {
         types = { air_base, naval_base, rocket_site, carrier, submarine }
+		building_types = { supply_node } # list of building ids or tags
+		allow_faction_buildings = yes # whether buildings on allied territories can be used
     }
 
 	show_target = {  }
@@ -293,7 +316,7 @@ scripted in the same way through this formula construct.
 - *resistance*: The amount of resistance in the target state. Reference values from 0 to 100
 - *enemy_units*: The number of enemy divisions in the target province. For province-target missions ONLY.
 - *air_superiority*: The air superiority score (fraction) of the actor country in the target region. Reference values from 0.0 to 1.0
-- *naval_supremacy*: The naval supremacy score (fraction) of the actor country in the target sea zone. Reference values from 0.0 to 1.0
+
 - *interception*: The number of enemy planes executing interception missions in the target region.
 - *intel*: The amount of intel the actor country has on the target. Reference values depend on defines.
 
