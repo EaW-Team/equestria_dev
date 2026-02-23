@@ -24,6 +24,9 @@ mobile_warfare = {
         armor
         operations
     }
+    
+    max_track_rows = 2 # Optional: unlimited by default
+    max_track_columns = 2 # Optional: unlimited by default
 
     # ACTIVATION EFFECTS - SEE BELOW
 
@@ -77,6 +80,7 @@ armored_car = {
     max_organisation = 2
 }
 ```
+
 ### Add equipment bonuses:
 
 (Note: use this instead of the add_equipment_bonus effect, since the effect will not remove the bonus if the doctrine is changed)
