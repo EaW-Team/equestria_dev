@@ -134,6 +134,11 @@ NDefines.NAI.ARMY_LEADER_ASSIGN_MAX_PLANNING = 0.2					-- default is 0.1
 NDefines.NAI.MIN_INVASION_PLAN_VALUE_TO_EXECUTE = 0.7				-- default is 50 
 NDefines.NAI.PLAN_AVG_PREPARATION_TO_EXECUTE = 0.7					-- default is 0.5, % or more average plan preparation before executing
 
+NDefines.NAI.CHIEF_ADDED_WEIGHT_FACTOR = 15.0 					   	-- default is 12.5 Weight multiplier for chief roles over other advisor or idea types
+NDefines.NAI.ARMY_CHIEF_SCORE_MULTIPLIER = 5.0    					-- default is 2.0 score multiplier for hiring an army chief    
+NDefines.NAI.AIR_CHIEF_SCORE_MULTIPLIER = 2.5    					-- default is 1.5 score multiplier for hiring an air chief    
+NDefines.NAI.NAVY_CHIEF_SCORE_MULTIPLIER = 1.2    					-- default is 1.0 score multiplier for hiring an navy chief
+
 NDefines.NAI.LAND_DEFENSE_SUPPLY_HUB_IMPORTANCE = 9		-- default is 4
 NDefines.NAI.ASSIGN_TANKS_TO_MOUNTAINS = -15			-- default is 6
 NDefines.NAI.ASSIGN_TANKS_TO_JUNGLE = -20				-- default is 6
