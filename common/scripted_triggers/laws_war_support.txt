@@ -140,7 +140,7 @@ has_unsupported_manpower_law = {
 }
 
 # Thanks to Rylock and Kaiserreich team
-has_excessive_army_size = {
+needs_army_reduction_for_manpower = {
 	has_manpower < 100
 
 	#first calculate how much manpower all the battalions need if they were at full strength
@@ -447,23 +447,64 @@ has_excessive_army_size = {
 	set_temp_variable = { num_batt = num_battalions_with_type@tunnel_drill_company }
 	multiply_temp_variable = { num_batt = 0.2 }
 	add_to_temp_variable = { total_manpower_need = num_batt }
-	multiply_temp_variable = { total_manpower_need = 1.5 }
 	
 	#now add to that any manpower we currently have in the deployment queue
 	set_temp_variable = { num_in_queue = amount_manpower_in_deployment_queue }
 	divide_temp_variable = { num_in_queue = 1000 }
 	add_to_temp_variable = { total_manpower_need = num_in_queue }
+
+	#calculate total available manpower. 
+	#WARNING: Do not use max_available_manpower_k as it doesn't account for manpower from effects
+	#(whether directly through manpower = x or through spawned troops with manpower in them)
+	set_temp_variable = { total_manpower_available = deployed_army_manpower_k } # army
+	add_to_temp_variable = { total_manpower_available = deployed_navy_manpower_k } # navy
+	add_to_temp_variable = { total_manpower_available = deployed_airforce_manpower_k } # airforce
+	add_to_temp_variable = { total_manpower_available = manpower_k } # reserve
+	add_to_temp_variable = { total_manpower_available = num_in_queue } # training
+
+	#Account for conscription going up
+	#Yes, this isn't perfect, but the associated variables do not exist
+	#max_available_manpower_k gets the current manpower from mobilization (as written above, effect manpower is not included)
+	#So we can figure out how much manpower will get mobilized by looking at the ratio
+	#and then taking a multiple of max_available_manpower_k
+	if = {
+		limit = { # Currently has conscripted 25% or less of what it can
+			conscription_ratio < 0.26
+		}
+		set_temp_variable = { manpower_being_mobilized = max_available_manpower_k }
+		multiply_temp_variable = { manpower_being_mobilized = 3 }
+		add_to_temp_variable = { total_manpower_available = manpower_being_mobilized }
+	}
+	else_if = {
+		limit = { # Currently has conscripted 50% or less of what it can
+			conscription_ratio < 0.51
+		}
+		set_temp_variable = { manpower_being_mobilized = max_available_manpower_k }
+		add_to_temp_variable = { total_manpower_available = manpower_being_mobilized }
+	}
+	else_if = {
+		limit = { # Currently has conscripted 50% or less of what it can
+			conscription_ratio < 0.67
+		}
+		set_temp_variable = { manpower_being_mobilized = max_available_manpower_k }
+		multiply_temp_variable = { manpower_being_mobilized = 0.5 }
+		add_to_temp_variable = { total_manpower_available = manpower_being_mobilized }
+	}
 	
-	log = "total_manpower_need [?total_manpower_need] max_available_manpower_k [?max_available_manpower_k]"
+	log = "total_manpower_need [?total_manpower_need] total_manpower_available [?total_manpower_available]"
 
 	#now divide that by our maximum available manpower
-	divide_temp_variable = { total_manpower_need = max_available_manpower_k }
+	divide_temp_variable = { total_manpower_need = total_manpower_available }
 	
+	log = "total_manpower_ratio [?total_manpower_need]"
+
 	#now we can check to see if we are over the limit
-	check_variable = { total_manpower_need > 1 }
+	#we only consider disbanding divisions if we are 25% above what we need - in other words, 
+	#our divisions are on average 25% under their expected strength
+	check_variable = { total_manpower_need > 1.25 }
 }
 
-needs_army_reduction_for_manpower = {
+has_excessive_army_size = {
 	has_manpower < 15000
 	is_exempt_from_division_limit = no
 	set_temp_variable = {
