@@ -133,6 +133,71 @@ KXN_Conquest_Category = {
 			}
 		}
 	}
+	KXN_Nirik_Coalition_Mission = {
+		icon = GFX_decision_category_KXN_Long_March
+		allowed = { tag = KXN }
+		activation = { always = no }
+
+		selectable_mission = no
+		days_mission_timeout = 120
+		
+		available = {
+			hidden_trigger = {
+				always = no
+			}
+		}
+
+		timeout_effect = {
+			log = "[GetDateText]: [Root.GetName]: Decision timeout KXN_Nirik_Coalition_Mission"
+			set_country_flag = KXN_Nirik_Coalition_Flag
+			every_other_country = {
+				display_individual_scopes = yes
+				limit = {
+					is_in_array = { KXN.KXN_Coalition_Array = THIS }
+					has_capitulated = no
+					exists = yes
+					NOT = {
+						is_ally_with = KXN
+						has_war_with = KXN
+					}
+				}
+				KXN = {
+					declare_war_on = {
+						target = PREV
+						type = annex_everything
+					}
+					set_temp_variable = { KXN_Conquest_Mission_Focus_Days_Timeout = PREV.num_owned_states }
+					multiply_temp_variable = { KXN_Conquest_Mission_Focus_Days_Timeout = 30 }
+					custom_effect_tooltip = KXN_Focus_Declare_War_TT
+					hidden_effect = {
+						every_subject_country = {
+							add_to_war = {
+								targeted_alliance = PREV
+								enemy = PREV.PREV
+								hostility_reason = asked_to_join
+							}
+						}
+					}
+				}
+			}
+		}
+
+		cancel_trigger = {
+			hidden_trigger = {
+				OR = {
+					KXN = {
+						OR = {
+							exists = no
+							is_subject = yes
+							has_capitulated = yes
+						}
+					}
+					has_global_flag = KXN_The_Shattering_Happened
+					has_global_flag = KXN_Quadripartition_Happened
+				}
+			}
+		}
+	}
 	KXN_Clarion_Legacy_Mission = {
 		icon = candle
 		allowed = { tag = KXN }
@@ -4109,6 +4174,52 @@ KXN_Conquest_Category = {
 			}
 		}
 	}
+	KXN_Nirik_Coalition_Mission_Add_Time = {
+		icon = generic_break_treaty
+		allowed = { tag = KXN }
+		ai_will_do = { factor = 5 }
+
+		visible = {
+			has_active_mission = KXN_Nirik_Coalition_Mission
+			check_variable = { KXN.KXN_Nirik_Coalition_Mission_Add_Time_Taken_Var < 10 }
+		}
+		
+		available = {
+			has_war = no
+		}
+		
+		cost = KXN.KXN_Nirik_Coalition_Mission_Add_Time_Cost
+		
+		days_re_enable = 30
+		
+		complete_effect = {
+			log = "[GetDateText]: [Root.GetName]: Decision KXN_Nirik_Coalition_Mission_Add_Time"
+			add_to_variable = { KXN.KXN_Nirik_Coalition_Mission_Add_Time_Taken_Var = 1 }
+			add_to_variable = { KXN.KXN_Nirik_Coalition_Mission_Add_Time_Cost = 15 }
+			add_days_mission_timeout = {
+				mission = KXN_Nirik_Coalition_Mission
+				days = 30
+			}
+			custom_effect_tooltip = KXN_Nirik_Coalition_Mission_Add_Time_tt
+		}
+
+		cancel_trigger = {
+			hidden_trigger = {
+				OR = {
+					NOT = { has_active_mission = KXN_Nirik_Coalition_Mission }
+					KXN = {
+						OR = {
+							exists = no
+							is_subject = yes
+							has_capitulated = yes
+						}
+					}
+					has_global_flag = KXN_The_Shattering_Happened
+					has_global_flag = KXN_Quadripartition_Happened
+				}
+			}
+		}
+	}
 	KXN_Clarion_Legacy_Mission_Add_Time = {
 		icon = clock_decision
 		allowed = { tag = KXN }
@@ -4137,6 +4248,7 @@ KXN_Conquest_Category = {
 		cancel_trigger = {
 			hidden_trigger = {
 				OR = {
+					NOT = { has_active_mission = KXN_Clarion_Legacy_Mission }
 					has_global_flag = KXN_The_Shattering_Happened
 					has_global_flag = KXN_Quadripartition_Happened
 				}
@@ -11064,6 +11176,9 @@ KXN_The_Long_March_Home_Category = {
 				}
 				OR = {
 					is_neighbor_of = FROM
+					any_subject_country = {
+						is_neighbor_of = FROM
+					}
 					any_state = {
 						tooltip = any_state_controlled_by_ROOT_or_ally_tt
 						hidden_trigger = { is_controlled_by_ROOT_or_ally = yes }
@@ -11094,6 +11209,9 @@ KXN_The_Long_March_Home_Category = {
 				}
 				OR = {
 					is_neighbor_of = FROM
+					any_subject_country = {
+						is_neighbor_of = FROM
+					}
 					any_state = {
 						tooltip = any_state_controlled_by_ROOT_or_ally_tt
 						hidden_trigger = { is_controlled_by_ROOT_or_ally = yes }
@@ -11119,19 +11237,61 @@ KXN_The_Long_March_Home_Category = {
 					}
 				}
 			}
-			else = {
-				any_state = {
-					tooltip = any_state_controlled_by_ROOT_or_ally_tt
-					hidden_trigger = { is_controlled_by_ROOT_or_ally = yes }
-					any_neighbor_state = {
-						OR = {
-							is_controlled_by = FROM
-							any_neighbor_state = {
+			else_if = {
+				limit = {
+					FROM = {
+						has_country_flag = KXN_Navy_Flag
+					}
+				}
+				OR = {
+					is_neighbor_of = FROM
+					any_subject_country = {
+						is_neighbor_of = FROM
+					}
+					any_state = {
+						tooltip = any_state_controlled_by_ROOT_or_ally_tt
+						hidden_trigger = { is_controlled_by_ROOT_or_ally = yes }
+						any_neighbor_state = {
+							OR = {
 								is_controlled_by = FROM
-							}
-							any_neighbor_state = {
 								any_neighbor_state = {
 									is_controlled_by = FROM
+								}
+								any_neighbor_state = {
+									any_neighbor_state = {
+										is_controlled_by = FROM
+									}
+								}
+							}
+						}
+					}
+					any_controlled_state = {
+						distance_to = {
+							value < 2751
+							target = event_target:KXN_Navy_state_target
+						}
+					}
+				}
+			}
+			else = {
+				OR = {
+					is_neighbor_of = FROM
+					any_subject_country = {
+						is_neighbor_of = FROM
+					}
+					any_state = {
+						tooltip = any_state_controlled_by_ROOT_or_ally_tt
+						hidden_trigger = { is_controlled_by_ROOT_or_ally = yes }
+						any_neighbor_state = {
+							OR = {
+								is_controlled_by = FROM
+								any_neighbor_state = {
+									is_controlled_by = FROM
+								}
+								any_neighbor_state = {
+									any_neighbor_state = {
+										is_controlled_by = FROM
+									}
 								}
 							}
 						}
@@ -11206,6 +11366,9 @@ KXN_The_Long_March_Home_Category = {
 				}
 				OR = {
 					is_neighbor_of = FROM
+					any_subject_country = {
+						is_neighbor_of = FROM
+					}
 					1017 = {
 						is_controlled_by_ROOT_or_ally = yes
 					}
@@ -11219,6 +11382,9 @@ KXN_The_Long_March_Home_Category = {
 				}
 				OR = {
 					is_neighbor_of = FROM
+					any_subject_country = {
+						is_neighbor_of = FROM
+					}
 					any_controlled_state = {
 						distance_to = {
 							value < 1501
@@ -11227,21 +11393,49 @@ KXN_The_Long_March_Home_Category = {
 					}
 				}
 			}
-			
 			else_if = {
 				limit = {
 					FROM = {
 						has_country_flag = KXN_Splinter_Flag
 					}
 				}
-				is_neighbor_of = FROM
-				strength_ratio = {
-					tag = KXR
-					ratio > 3
+				OR = {
+					is_neighbor_of = FROM
+					any_subject_country = {
+						is_neighbor_of = FROM
+					}
+					strength_ratio = {
+						tag = KXR
+						ratio > 3
+					}
+				}
+			}
+			else_if = {
+				limit = {
+					FROM = {
+						has_country_flag = KXN_Navy_Flag
+					}
+				}
+				OR = {
+					is_neighbor_of = FROM
+					any_subject_country = {
+						is_neighbor_of = FROM
+					}
+					any_controlled_state = {
+						distance_to = {
+							value < 1501
+							target = event_target:KXN_Navy_state_target
+						}
+					}
 				}
 			}
 			else = {
-				is_neighbor_of = FROM
+				OR = {
+					is_neighbor_of = FROM
+					any_subject_country = {
+						is_neighbor_of = FROM
+					}
+				}
 			}
 		}
 
@@ -12057,10 +12251,22 @@ operations = {
 				limit = { is_ai = yes }
 				has_war = no
 				OR = {
-					HIN = { is_neighbor_of = KXN }
-					CTL = { is_neighbor_of = KXN }
-					BRS = { is_neighbor_of = KXN }
-					SAM = { is_neighbor_of = KXN }
+					is_neighbor_of = HIN
+					any_subject_country = {
+						is_neighbor_of = HIN
+					}
+					is_neighbor_of = CTL
+					any_subject_country = {
+						is_neighbor_of = CTL
+					}
+					is_neighbor_of = BRS
+					any_subject_country = {
+						is_neighbor_of = BRS
+					}
+					is_neighbor_of = SAM
+					any_subject_country = {
+						is_neighbor_of = SAM
+					}
 				}
 			}
 		}
@@ -13509,7 +13715,11 @@ military_training_category = {
 		
 		visible = {
 			has_completed_focus = KXN_Focus_FINEST
-			check_variable = { KXN_Unlock_Support_Company_Var < 2 }
+			NOT = {
+				has_tech = KXN_Ranger_Tech
+				has_tech = KXN_Long_Range_Tech
+			}
+			#check_variable = { KXN_Unlock_Support_Company_Var < 2 }
 		}
 
 		fire_only_once = yes
@@ -13518,14 +13728,15 @@ military_training_category = {
 		complete_effect = {
 			log = "[GetDateText]: [Root.GetName]: Decision KXN_unlock_rangers_support"
 			set_technology = { KXN_Ranger_Tech = 1 }
-			if = {
-				limit = { check_variable = { KXN_Unlock_Support_Company_Var < 1 } }
-				custom_effect_tooltip = KXN_Unlock_Support_Company_Left_TT
-			}
-			else = {
-				custom_effect_tooltip = KXN_Unlock_Support_Company_End_TT
-			}
-			add_to_variable = { KXN_Unlock_Support_Company_Var = 1 }
+			custom_effect_tooltip = KXN_unlock_rangers_support_tt
+			#if = {
+			#	limit = { check_variable = { KXN_Unlock_Support_Company_Var < 1 } }
+			#	custom_effect_tooltip = KXN_Unlock_Support_Company_Left_TT
+			#}
+			#else = {
+			#	custom_effect_tooltip = KXN_Unlock_Support_Company_End_TT
+			#}
+			#add_to_variable = { KXN_Unlock_Support_Company_Var = 1 }
 		}
 	}
 	KXN_unlock_long_range_patrol_support = {
@@ -13535,7 +13746,11 @@ military_training_category = {
 		
 		visible = {
 			has_completed_focus = KXN_Focus_FINEST
-			check_variable = { KXN_Unlock_Support_Company_Var < 2 }
+			NOT = {
+				has_tech = KXN_Ranger_Tech
+				has_tech = KXN_Long_Range_Tech
+			}
+			#check_variable = { KXN_Unlock_Support_Company_Var < 2 }
 		}
 
 		fire_only_once = yes
@@ -13544,14 +13759,15 @@ military_training_category = {
 		complete_effect = {
 			log = "[GetDateText]: [Root.GetName]: Decision KXN_unlock_long_range_patrol_support"
 			set_technology = { KXN_Long_Range_Tech = 1 }
-			if = {
-				limit = { check_variable = { KXN_Unlock_Support_Company_Var < 1 } }
-				custom_effect_tooltip = KXN_Unlock_Support_Company_Left_TT
-			}
-			else = {
-				custom_effect_tooltip = KXN_Unlock_Support_Company_End_TT
-			}
-			add_to_variable = { KXN_Unlock_Support_Company_Var = 1 }
+			custom_effect_tooltip = KXN_unlock_long_range_patrol_support_tt
+			#if = {
+			#	limit = { check_variable = { KXN_Unlock_Support_Company_Var < 1 } }
+			#	custom_effect_tooltip = KXN_Unlock_Support_Company_Left_TT
+			#}
+			#else = {
+			#	custom_effect_tooltip = KXN_Unlock_Support_Company_End_TT
+			#}
+			#add_to_variable = { KXN_Unlock_Support_Company_Var = 1 }
 		}
 	}
 	KXN_unlock_pioneer_support = {
@@ -13561,7 +13777,11 @@ military_training_category = {
 		
 		visible = {
 			has_completed_focus = KXN_Focus_FINEST
-			check_variable = { KXN_Unlock_Support_Company_Var < 2 }
+			NOT = {
+				has_tech = KXN_Pioneer_Tech
+				has_tech = KXN_Jungle_Pioneer_Tech
+			}
+			#check_variable = { KXN_Unlock_Support_Company_Var < 2 }
 		}
 
 		fire_only_once = yes
@@ -13570,14 +13790,15 @@ military_training_category = {
 		complete_effect = {
 			log = "[GetDateText]: [Root.GetName]: Decision KXN_unlock_pioneer_support"
 			set_technology = { KXN_Pioneer_Tech = 1 }
-			if = {
-				limit = { check_variable = { KXN_Unlock_Support_Company_Var < 1 } }
-				custom_effect_tooltip = KXN_Unlock_Support_Company_Left_TT
-			}
-			else = {
-				custom_effect_tooltip = KXN_Unlock_Support_Company_End_TT
-			}
-			add_to_variable = { KXN_Unlock_Support_Company_Var = 1 }
+			custom_effect_tooltip = KXN_unlock_pioneer_support_tt
+			#if = {
+			#	limit = { check_variable = { KXN_Unlock_Support_Company_Var < 1 } }
+			#	custom_effect_tooltip = KXN_Unlock_Support_Company_Left_TT
+			#}
+			#else = {
+			#	custom_effect_tooltip = KXN_Unlock_Support_Company_End_TT
+			#}
+			#add_to_variable = { KXN_Unlock_Support_Company_Var = 1 }
 		}
 	}
 	KXN_unlock_jungle_pioneers_support = {
@@ -13587,7 +13808,11 @@ military_training_category = {
 		
 		visible = {
 			has_completed_focus = KXN_Focus_FINEST
-			check_variable = { KXN_Unlock_Support_Company_Var < 2 }
+			NOT = {
+				has_tech = KXN_Pioneer_Tech
+				has_tech = KXN_Jungle_Pioneer_Tech
+			}
+			#check_variable = { KXN_Unlock_Support_Company_Var < 2 }
 		}
 
 		fire_only_once = yes
@@ -13596,14 +13821,15 @@ military_training_category = {
 		complete_effect = {
 			log = "[GetDateText]: [Root.GetName]: Decision KXN_unlock_jungle_pioneers_support"
 			set_technology = { KXN_Jungle_Pioneer_Tech = 1 }
-			if = {
-				limit = { check_variable = { KXN_Unlock_Support_Company_Var < 1 } }
-				custom_effect_tooltip = KXN_Unlock_Support_Company_Left_TT
-			}
-			else = {
-				custom_effect_tooltip = KXN_Unlock_Support_Company_End_TT
-			}
-			add_to_variable = { KXN_Unlock_Support_Company_Var = 1 }
+			custom_effect_tooltip = KXN_unlock_jungle_pioneers_support_tt
+			#if = {
+			#	limit = { check_variable = { KXN_Unlock_Support_Company_Var < 1 } }
+			#	custom_effect_tooltip = KXN_Unlock_Support_Company_Left_TT
+			#}
+			#else = {
+			#	custom_effect_tooltip = KXN_Unlock_Support_Company_End_TT
+			#}
+			#add_to_variable = { KXN_Unlock_Support_Company_Var = 1 }
 		}
 	}
 	KXN_Promote_Bonfire_Cascade = {
