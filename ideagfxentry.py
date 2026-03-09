@@ -53,12 +53,12 @@ def readfile(name):
             picture = ""
         if open_blocks == 2 and "{" in line:
             temp_line = line
-            temp_line = re.sub('\s|=(\s|){', "", temp_line)
+            temp_line = re.sub('\\s|=(\\s|){', "", temp_line)
             temp_line.strip()
             picture = temp_line
         if open_blocks > 2 and ("picture =" in line or "picture=" in line):
             temp_line = line
-            temp_line = re.sub('(\s|).*=(\s|)', "", temp_line)
+            temp_line = re.sub('(\\s|).*=(\\s|)', "", temp_line)
             temp_line.strip()
             picture = temp_line
         open_blocks += line.count('{')
@@ -111,7 +111,7 @@ for idea in parsed_file:
 
     gfx_entry_name = "GFX_idea_%s" % idea
 
-    if any(re.search(("name(\s|).*=(\s|).*\"%s\"" % gfx_entry_name), line) for line in lines):
+    if any(re.search(("name(\\s|).*=(\\s|).*\"%s\"" % gfx_entry_name), line) for line in lines):
         continue
 
     lines.insert(index_to_insert, "\t}")

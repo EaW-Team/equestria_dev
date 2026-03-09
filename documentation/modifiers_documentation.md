@@ -16,6 +16,7 @@ The listed decimal places is for display only. All numbers support up to
 * [character](#modifiers-for-scope-character)
 * [country](#modifiers-for-scope-country)
 * [defensive](#modifiers-for-scope-defensive)
+* [faction](#modifiers-for-scope-faction)
 * [government_in_exile](#modifiers-for-scope-government_in_exile)
 * [intelligence_agency](#modifiers-for-scope-intelligence_agency)
 * [military_advancements](#modifiers-for-scope-military_advancements)
@@ -36,6 +37,7 @@ The listed decimal places is for display only. All numbers support up to
 * [army_attack_against_major_factor](#army_attack_against_major_factor)
 * [army_attack_against_minor_factor](#army_attack_against_minor_factor)
 * [army_attack_factor](#army_attack_factor)
+* [army_claim_attack_factor](#army_claim_attack_factor)
 * [army_core_attack_factor](#army_core_attack_factor)
 * [army_infantry_attack_factor](#army_infantry_attack_factor)
 * [army_morale](#army_morale)
@@ -71,6 +73,7 @@ The listed decimal places is for display only. All numbers support up to
 * [mechanized_attack_factor](#mechanized_attack_factor)
 * [motorized_attack_factor](#motorized_attack_factor)
 * [naval_critical_score_chance_factor](#naval_critical_score_chance_factor)
+* [naval_critical_score_chance_factor_against](#naval_critical_score_chance_factor_against)
 * [naval_damage_factor](#naval_damage_factor)
 * [naval_enemy_fleet_size_ratio_penalty_factor](#naval_enemy_fleet_size_ratio_penalty_factor)
 * [naval_enemy_positioning_in_initial_attack](#naval_enemy_positioning_in_initial_attack)
@@ -82,19 +85,24 @@ The listed decimal places is for display only. All numbers support up to
 * [naval_light_gun_hit_chance_factor](#naval_light_gun_hit_chance_factor)
 * [naval_night_attack](#naval_night_attack)
 * [naval_strike](#naval_strike)
+* [naval_supply_consumption_factor](#naval_supply_consumption_factor)
 * [naval_torpedo_cooldown_factor](#naval_torpedo_cooldown_factor)
 * [naval_torpedo_hit_chance_factor](#naval_torpedo_hit_chance_factor)
 * [naval_torpedo_screen_penetration_factor](#naval_torpedo_screen_penetration_factor)
 * [navy_capital_ship_attack_factor](#navy_capital_ship_attack_factor)
+* [navy_capital_ship_attack_factor_against](#navy_capital_ship_attack_factor_against)
 * [navy_carrier_air_agility_factor](#navy_carrier_air_agility_factor)
 * [navy_carrier_air_attack_factor](#navy_carrier_air_attack_factor)
 * [navy_carrier_air_targetting_factor](#navy_carrier_air_targetting_factor)
 * [navy_screen_attack_factor](#navy_screen_attack_factor)
+* [navy_screen_attack_factor_against](#navy_screen_attack_factor_against)
 * [navy_submarine_attack_factor](#navy_submarine_attack_factor)
+* [navy_submarine_attack_factor_against](#navy_submarine_attack_factor_against)
 * [no_supply_grace](#no_supply_grace)
 * [offence](#offence)
 * [org_loss_when_moving](#org_loss_when_moving)
 * [out_of_supply_factor](#out_of_supply_factor)
+* [planning_decay_rate_factor](#planning_decay_rate_factor)
 * [planning_speed](#planning_speed)
 * [pocket_penalty](#pocket_penalty)
 * [port_strike](#port_strike)
@@ -151,6 +159,8 @@ The listed decimal places is for display only. All numbers support up to
 * [air_home_defence_factor](#air_home_defence_factor)
 * [air_intercept_efficiency](#air_intercept_efficiency)
 * [air_interception_detect_factor](#air_interception_detect_factor)
+* [air_invasion_division_cap](#air_invasion_division_cap)
+* [air_invasion_preparation](#air_invasion_preparation)
 * [air_manpower_requirement_factor](#air_manpower_requirement_factor)
 * [air_maximum_speed_factor](#air_maximum_speed_factor)
 * [air_mission_efficiency](#air_mission_efficiency)
@@ -185,7 +195,7 @@ The listed decimal places is for display only. All numbers support up to
 
 ## Modifiers for scope army
 
-* [\<Trait\>_xp_gain_factor](#-trait-_xp_gain_factor)
+* [<Trait>_xp_gain_factor](#-trait-_xp_gain_factor)
 * [acclimatization_cold_climate_gain_factor](#acclimatization_cold_climate_gain_factor)
 * [acclimatization_hot_climate_gain_factor](#acclimatization_hot_climate_gain_factor)
 * [air_superiority_bonus_in_combat](#air_superiority_bonus_in_combat)
@@ -202,11 +212,14 @@ The listed decimal places is for display only. All numbers support up to
 * [army_attack_speed_factor](#army_attack_speed_factor)
 * [army_breakthrough_against_major_factor](#army_breakthrough_against_major_factor)
 * [army_breakthrough_against_minor_factor](#army_breakthrough_against_minor_factor)
+* [army_claim_attack_factor](#army_claim_attack_factor)
+* [army_claim_defence_factor](#army_claim_defence_factor)
 * [army_core_attack_factor](#army_core_attack_factor)
 * [army_core_defence_factor](#army_core_defence_factor)
 * [army_defence_against_major_factor](#army_defence_against_major_factor)
 * [army_defence_against_minor_factor](#army_defence_against_minor_factor)
 * [army_defence_factor](#army_defence_factor)
+* [army_experience_from_volunteers](#army_experience_from_volunteers)
 * [army_fuel_capacity_factor](#army_fuel_capacity_factor)
 * [army_fuel_consumption_factor](#army_fuel_consumption_factor)
 * [army_infantry_attack_factor](#army_infantry_attack_factor)
@@ -216,6 +229,7 @@ The listed decimal places is for display only. All numbers support up to
 * [army_org](#army_org)
 * [army_org_factor](#army_org_factor)
 * [army_org_regain](#army_org_regain)
+* [army_retreat_speed_factor](#army_retreat_speed_factor)
 * [army_speed_factor](#army_speed_factor)
 * [army_speed_factor_for_controller](#army_speed_factor_for_controller)
 * [army_strength_factor](#army_strength_factor)
@@ -280,6 +294,7 @@ The listed decimal places is for display only. All numbers support up to
 * [modifier_army_sub_unit_camelry_attack_factor](#modifier_army_sub_unit_camelry_attack_factor)
 * [modifier_army_sub_unit_camelry_defence_factor](#modifier_army_sub_unit_camelry_defence_factor)
 * [modifier_army_sub_unit_camelry_speed_factor](#modifier_army_sub_unit_camelry_speed_factor)
+* [modifier_army_sub_unit_category_rocket_artillery_attack_factor](#modifier_army_sub_unit_category_rocket_artillery_attack_factor)
 * [modifier_army_sub_unit_category_special_forces_max_org_factor](#modifier_army_sub_unit_category_special_forces_max_org_factor)
 * [modifier_army_sub_unit_cavalry_attack_factor](#modifier_army_sub_unit_cavalry_attack_factor)
 * [modifier_army_sub_unit_cavalry_defence_factor](#modifier_army_sub_unit_cavalry_defence_factor)
@@ -297,10 +312,10 @@ The listed decimal places is for display only. All numbers support up to
 * [modifier_army_sub_unit_light_tank_recon_speed_factor](#modifier_army_sub_unit_light_tank_recon_speed_factor)
 * [modifier_army_sub_unit_long_range_patrol_support_attack_factor](#modifier_army_sub_unit_long_range_patrol_support_attack_factor)
 * [modifier_army_sub_unit_long_range_patrol_support_defence_factor](#modifier_army_sub_unit_long_range_patrol_support_defence_factor)
-* [modifier_army_sub_unit_marines_attack_factor](#modifier_army_sub_unit_marines_attack_factor)
-* [modifier_army_sub_unit_marines_defence_factor](#modifier_army_sub_unit_marines_defence_factor)
-* [modifier_army_sub_unit_marines_max_org_factor](#modifier_army_sub_unit_marines_max_org_factor)
-* [modifier_army_sub_unit_marines_speed_factor](#modifier_army_sub_unit_marines_speed_factor)
+* [modifier_army_sub_unit_marine_attack_factor](#modifier_army_sub_unit_marine_attack_factor)
+* [modifier_army_sub_unit_marine_defence_factor](#modifier_army_sub_unit_marine_defence_factor)
+* [modifier_army_sub_unit_marine_max_org_factor](#modifier_army_sub_unit_marine_max_org_factor)
+* [modifier_army_sub_unit_marine_speed_factor](#modifier_army_sub_unit_marine_speed_factor)
 * [modifier_army_sub_unit_military_police_attack_factor](#modifier_army_sub_unit_military_police_attack_factor)
 * [modifier_army_sub_unit_military_police_defence_factor](#modifier_army_sub_unit_military_police_defence_factor)
 * [modifier_army_sub_unit_military_police_max_org_factor](#modifier_army_sub_unit_military_police_max_org_factor)
@@ -318,7 +333,7 @@ The listed decimal places is for display only. All numbers support up to
 * [modifier_army_sub_unit_paratrooper_defence_factor](#modifier_army_sub_unit_paratrooper_defence_factor)
 * [modifier_army_sub_unit_paratrooper_max_org_factor](#modifier_army_sub_unit_paratrooper_max_org_factor)
 * [modifier_army_sub_unit_paratrooper_speed_factor](#modifier_army_sub_unit_paratrooper_speed_factor)
-* [module_\<EquipmentModule\>_design_cost_factor](#module_-equipmentmodule-_design_cost_factor)
+* [module_<EquipmentModule>_design_cost_factor](#module_-equipmentmodule-_design_cost_factor)
 * [motorized_attack_factor](#motorized_attack_factor)
 * [motorized_defence_factor](#motorized_defence_factor)
 * [mountaineers_special_forces_contribution_factor](#mountaineers_special_forces_contribution_factor)
@@ -329,8 +344,10 @@ The listed decimal places is for display only. All numbers support up to
 * [org_loss_when_moving](#org_loss_when_moving)
 * [out_of_supply_factor](#out_of_supply_factor)
 * [paratroopers_special_forces_contribution_factor](#paratroopers_special_forces_contribution_factor)
+* [planning_decay_rate_factor](#planning_decay_rate_factor)
 * [planning_speed](#planning_speed)
 * [pocket_penalty](#pocket_penalty)
+* [rangers_special_forces_contribution_factor](#rangers_special_forces_contribution_factor)
 * [recon_factor](#recon_factor)
 * [recon_factor_while_entrenched](#recon_factor_while_entrenched)
 * [river_crossing_factor_against](#river_crossing_factor_against)
@@ -351,8 +368,8 @@ The listed decimal places is for display only. All numbers support up to
 * [training_time_army](#training_time_army)
 * [training_time_army_factor](#training_time_army_factor)
 * [training_time_factor](#training_time_factor)
-* [trait_\<Trait\>_xp_gain_factor](#trait_-trait-_xp_gain_factor)
-* [unit_\<Unit\>_design_cost_factor](#unit_-unit-_design_cost_factor)
+* [trait_<Trait>_xp_gain_factor](#trait_-trait-_xp_gain_factor)
+* [unit_<Unit>_design_cost_factor](#unit_-unit-_design_cost_factor)
 * [unit_upkeep_attrition_factor](#unit_upkeep_attrition_factor)
 * [winter_attrition](#winter_attrition)
 * [winter_attrition_factor](#winter_attrition_factor)
@@ -370,6 +387,7 @@ The listed decimal places is for display only. All numbers support up to
 * [autonomy_gain_warscore](#autonomy_gain_warscore)
 * [autonomy_gain_warscore_factor](#autonomy_gain_warscore_factor)
 * [autonomy_manpower_share](#autonomy_manpower_share)
+* [autonomy_manpower_share_from_subjects](#autonomy_manpower_share_from_subjects)
 * [can_master_build_for_us](#can_master_build_for_us)
 * [cic_to_overlord_factor](#cic_to_overlord_factor)
 * [extra_trade_to_overlord_factor](#extra_trade_to_overlord_factor)
@@ -377,6 +395,7 @@ The listed decimal places is for display only. All numbers support up to
 * [master_build_autonomy_factor](#master_build_autonomy_factor)
 * [mic_to_overlord_factor](#mic_to_overlord_factor)
 * [overlord_trade_cost_factor](#overlord_trade_cost_factor)
+* [resources_to_overlord_factor](#resources_to_overlord_factor)
 * [subjects_autonomy_gain](#subjects_autonomy_gain)
 
 ## Modifiers for scope character
@@ -387,26 +406,37 @@ The listed decimal places is for display only. All numbers support up to
 
 ## Modifiers for scope country
 
-* [\<Building\>_max_level_terrain_limit](#-building-_max_level_terrain_limit)
-* [\<Building\>_max_level_terrain_limit](#-building-_max_level_terrain_limit)
-* [\<CombatTactic\>_preferred_weight_factor](#-combattactic-_preferred_weight_factor)
-* [\<Equipment\>_design_cost_factor](#-equipment-_design_cost_factor)
-* [\<IdeaCategory\>_category_type_cost_factor](#-ideacategory-_category_type_cost_factor)
-* [\<IdeaGroup\>_cost_factor](#-ideagroup-_cost_factor)
-* [\<SpecialProject\>_speed_factor](#-specialproject-_speed_factor)
-* [\<Technology\>_cost_factor](#-technology-_cost_factor)
-* [\<Trait\>_xp_gain_factor](#-trait-_xp_gain_factor)
+* [<Building>_max_level_terrain_limit](#-building-_max_level_terrain_limit)
+* [<Building>_max_level_terrain_limit](#-building-_max_level_terrain_limit)
+* [<CombatTactic>_preferred_weight_factor](#-combattactic-_preferred_weight_factor)
+* [<Doctrine>_doctrine_cost_factor](#-doctrine-_doctrine_cost_factor)
+* [<Doctrine>_mastery_gain_factor](#-doctrine-_mastery_gain_factor)
+* [<Doctrine>_mastery_gain_factor](#-doctrine-_mastery_gain_factor)
+* [<Doctrine>_track_mastery_gain_factor](#-doctrine-_track_mastery_gain_factor)
+* [<Equipment>_design_cost_factor](#-equipment-_design_cost_factor)
+* [<IdeaCategory>_category_type_cost_factor](#-ideacategory-_category_type_cost_factor)
+* [<IdeaGroup>_cost_factor](#-ideagroup-_cost_factor)
+* [<ModifierStat>_factor](#-modifierstat-_factor)
+* [<ModifierStatValue>_value_factor](#-modifierstatvalue-_value_factor)
+* [<SpecialProject>_speed_factor](#-specialproject-_speed_factor)
+* [<Technology>_cost_factor](#-technology-_cost_factor)
+* [<Trait>_xp_gain_factor](#-trait-_xp_gain_factor)
 * [additional_brigade_column_size](#additional_brigade_column_size)
 * [agency_upgrade_time](#agency_upgrade_time)
 * [air_doctrine_cost_factor](#air_doctrine_cost_factor)
 * [air_equipment_upgrade_xp_cost](#air_equipment_upgrade_xp_cost)
+* [air_invasion_plan_cap](#air_invasion_plan_cap)
+* [air_invasion_prep_days](#air_invasion_prep_days)
 * [air_volunteer_cap](#air_volunteer_cap)
 * [airforce_intel_to_others](#airforce_intel_to_others)
+* [annex_subject_cost_factor](#annex_subject_cost_factor)
 * [army_intel_to_others](#army_intel_to_others)
 * [assign_army_leader_cp_cost](#assign_army_leader_cp_cost)
 * [assign_navy_leader_cp_cost](#assign_navy_leader_cp_cost)
+* [automatic_grant_medal_chance](#automatic_grant_medal_chance)
 * [base_fuel_gain](#base_fuel_gain)
 * [base_fuel_gain_factor](#base_fuel_gain_factor)
+* [can_guarantee_other_ideologies](#can_guarantee_other_ideologies)
 * [choose_preferred_tactics_cost](#choose_preferred_tactics_cost)
 * [cic_construction_boost](#cic_construction_boost)
 * [cic_construction_boost_factor](#cic_construction_boost_factor)
@@ -427,8 +457,8 @@ The listed decimal places is for display only. All numbers support up to
 * [consumer_goods_factor](#consumer_goods_factor)
 * [conversion_cost_civ_to_mil_factor](#conversion_cost_civ_to_mil_factor)
 * [conversion_cost_mil_to_civ_factor](#conversion_cost_mil_to_civ_factor)
-* [country_resource_\<Resource\>](#country_resource_-resource-)
-* [country_resource_cost_\<Resource\>](#country_resource_cost_-resource-)
+* [country_resource_<Resource>](#country_resource_-resource-)
+* [country_resource_cost_<Resource>](#country_resource_cost_-resource-)
 * [critical_receive_chance](#critical_receive_chance)
 * [decryption](#decryption)
 * [decryption_factor](#decryption_factor)
@@ -454,11 +484,13 @@ The listed decimal places is for display only. All numbers support up to
 * [equipment_conversion_speed](#equipment_conversion_speed)
 * [equipment_upgrade_xp_cost](#equipment_upgrade_xp_cost)
 * [exiled_government_weekly_manpower](#exiled_government_weekly_manpower)
-* [experience_gain_\<Unit\>_combat_factor](#experience_gain_-unit-_combat_factor)
-* [experience_gain_\<Unit\>_training_factor](#experience_gain_-unit-_training_factor)
+* [experience_gain_<Unit>_combat_factor](#experience_gain_-unit-_combat_factor)
+* [experience_gain_<Unit>_mission_factor](#experience_gain_-unit-_mission_factor)
+* [experience_gain_<Unit>_training_factor](#experience_gain_-unit-_training_factor)
 * [experience_loss_factor](#experience_loss_factor)
 * [extra_trade_to_target_factor](#extra_trade_to_target_factor)
 * [faction_trade_opinion_factor](#faction_trade_opinion_factor)
+* [factory_energy_consumption](#factory_energy_consumption)
 * [female_divisional_commander_chance](#female_divisional_commander_chance)
 * [female_random_admiral_chance](#female_random_admiral_chance)
 * [female_random_army_leader_chance](#female_random_army_leader_chance)
@@ -485,7 +517,9 @@ The listed decimal places is for display only. All numbers support up to
 * [guarantee_tension](#guarantee_tension)
 * [improve_relations_maintain_cost_factor](#improve_relations_maintain_cost_factor)
 * [industrial_capacity_dockyard](#industrial_capacity_dockyard)
+* [industrial_capacity_dockyard_powered](#industrial_capacity_dockyard_powered)
 * [industrial_capacity_factory](#industrial_capacity_factory)
+* [industrial_capacity_factory_powered](#industrial_capacity_factory_powered)
 * [industry_air_damage_factor](#industry_air_damage_factor)
 * [industry_free_repair_factor](#industry_free_repair_factor)
 * [industry_repair_factor](#industry_repair_factor)
@@ -497,7 +531,6 @@ The listed decimal places is for display only. All numbers support up to
 * [justify_war_goal_time](#justify_war_goal_time)
 * [justify_war_goal_when_in_major_war_time](#justify_war_goal_when_in_major_war_time)
 * [land_bunker_effectiveness_factor](#land_bunker_effectiveness_factor)
-* [land_doctrine_cost_factor](#land_doctrine_cost_factor)
 * [land_equipment_upgrade_xp_cost](#land_equipment_upgrade_xp_cost)
 * [land_reinforce_rate](#land_reinforce_rate)
 * [lend_lease_tension](#lend_lease_tension)
@@ -522,6 +555,7 @@ The listed decimal places is for display only. All numbers support up to
 * [license_purchase_cost](#license_purchase_cost)
 * [license_tech_difference_speed](#license_tech_difference_speed)
 * [line_change_production_efficiency_factor](#line_change_production_efficiency_factor)
+* [local_resources_<Resource>_factor](#local_resources_-resource-_factor)
 * [max_command_power](#max_command_power)
 * [max_command_power_mult](#max_command_power_mult)
 * [max_fuel](#max_fuel)
@@ -531,10 +565,11 @@ The listed decimal places is for display only. All numbers support up to
 * [mic_to_target_factor](#mic_to_target_factor)
 * [min_export](#min_export)
 * [minimum_training_level](#minimum_training_level)
-* [module_\<EquipmentModule\>_design_cost_factor](#module_-equipmentmodule-_design_cost_factor)
+* [module_<EquipmentModule>_design_cost_factor](#module_-equipmentmodule-_design_cost_factor)
 * [monthly_population](#monthly_population)
-* [naval_doctrine_cost_factor](#naval_doctrine_cost_factor)
 * [naval_equipment_upgrade_xp_cost](#naval_equipment_upgrade_xp_cost)
+* [naval_invasion_plan_cap](#naval_invasion_plan_cap)
+* [naval_invasion_prep_days](#naval_invasion_prep_days)
 * [navy_intel_to_others](#navy_intel_to_others)
 * [no_compliance_gain](#no_compliance_gain)
 * [nuclear_production](#nuclear_production)
@@ -544,6 +579,7 @@ The listed decimal places is for display only. All numbers support up to
 * [opinion_gain_monthly_factor](#opinion_gain_monthly_factor)
 * [opinion_gain_monthly_same_ideology](#opinion_gain_monthly_same_ideology)
 * [opinion_gain_monthly_same_ideology_factor](#opinion_gain_monthly_same_ideology_factor)
+* [out_of_power_impact_factor](#out_of_power_impact_factor)
 * [own_operative_capture_chance_factor](#own_operative_capture_chance_factor)
 * [own_operative_detection_chance](#own_operative_detection_chance)
 * [own_operative_detection_chance_factor](#own_operative_detection_chance_factor)
@@ -559,19 +595,20 @@ The listed decimal places is for display only. All numbers support up to
 * [political_power_gain](#political_power_gain)
 * [power_balance_daily](#power_balance_daily)
 * [power_balance_weekly](#power_balance_weekly)
-* [production_cost_\<Building\>_factor](#production_cost_-building-_factor)
+* [production_cost_<Building>_factor](#production_cost_-building-_factor)
 * [production_factory_efficiency_gain_factor](#production_factory_efficiency_gain_factor)
 * [production_factory_max_efficiency_factor](#production_factory_max_efficiency_factor)
 * [production_factory_start_efficiency_factor](#production_factory_start_efficiency_factor)
 * [production_lack_of_resource_penalty_factor](#production_lack_of_resource_penalty_factor)
 * [production_oil_factor](#production_oil_factor)
-* [production_speed_\<Building\>_factor](#production_speed_-building-_factor)
+* [production_speed_<Building>_factor](#production_speed_-building-_factor)
 * [production_speed_buildings_factor](#production_speed_buildings_factor)
+* [production_speed_buildings_powered_factor](#production_speed_buildings_powered_factor)
 * [production_speed_facility_factor](#production_speed_facility_factor)
 * [railway_gun_bombardment_factor](#railway_gun_bombardment_factor)
 * [refit_ic_cost](#refit_ic_cost)
 * [refit_speed](#refit_speed)
-* [repair_speed_\<Building\>_factor](#repair_speed_-building-_factor)
+* [repair_speed_<Building>_factor](#repair_speed_-building-_factor)
 * [repair_speed_factor](#repair_speed_factor)
 * [request_lease_tension](#request_lease_tension)
 * [required_garrison_factor](#required_garrison_factor)
@@ -594,6 +631,8 @@ The listed decimal places is for display only. All numbers support up to
 * [send_volunteer_factor](#send_volunteer_factor)
 * [send_volunteer_size](#send_volunteer_size)
 * [send_volunteers_tension](#send_volunteers_tension)
+* [shore_bombardment_collateral_damage_factor](#shore_bombardment_collateral_damage_factor)
+* [special_forces_doctrine_cost_factor](#special_forces_doctrine_cost_factor)
 * [special_project_facility_supply_consumption_factor](#special_project_facility_supply_consumption_factor)
 * [special_project_speed_factor](#special_project_speed_factor)
 * [stability_factor](#stability_factor)
@@ -610,13 +649,14 @@ The listed decimal places is for display only. All numbers support up to
 * [thermonuclear_production_factor](#thermonuclear_production_factor)
 * [trade_cost_for_target_factor](#trade_cost_for_target_factor)
 * [trade_opinion_factor](#trade_opinion_factor)
-* [trait_\<Trait\>_xp_gain_factor](#trait_-trait-_xp_gain_factor)
+* [trait_<Trait>_xp_gain_factor](#trait_-trait-_xp_gain_factor)
 * [truck_attrition](#truck_attrition)
 * [truck_attrition_factor](#truck_attrition_factor)
 * [underway_replenishment_convoy_cost](#underway_replenishment_convoy_cost)
 * [underway_replenishment_range](#underway_replenishment_range)
-* [unit_\<Unit\>_design_cost_factor](#unit_-unit-_design_cost_factor)
+* [unit_<Unit>_design_cost_factor](#unit_-unit-_design_cost_factor)
 * [unit_leader_as_advisor_cp_cost_factor](#unit_leader_as_advisor_cp_cost_factor)
+* [unit_medal_effectiveness](#unit_medal_effectiveness)
 * [war_stability_factor](#war_stability_factor)
 * [war_support_factor](#war_support_factor)
 * [war_support_weekly](#war_support_weekly)
@@ -633,6 +673,7 @@ The listed decimal places is for display only. All numbers support up to
 * [army_artillery_defence_factor](#army_artillery_defence_factor)
 * [army_breakthrough_against_major_factor](#army_breakthrough_against_major_factor)
 * [army_breakthrough_against_minor_factor](#army_breakthrough_against_minor_factor)
+* [army_claim_defence_factor](#army_claim_defence_factor)
 * [army_core_defence_factor](#army_core_defence_factor)
 * [army_defence_against_major_factor](#army_defence_against_major_factor)
 * [army_defence_against_minor_factor](#army_defence_against_minor_factor)
@@ -642,6 +683,7 @@ The listed decimal places is for display only. All numbers support up to
 * [army_morale_factor](#army_morale_factor)
 * [army_org](#army_org)
 * [army_org_factor](#army_org_factor)
+* [army_retreat_speed_factor](#army_retreat_speed_factor)
 * [attrition](#attrition)
 * [attrition_for_controller](#attrition_for_controller)
 * [cavalry_defence_factor](#cavalry_defence_factor)
@@ -664,11 +706,15 @@ The listed decimal places is for display only. All numbers support up to
 * [naval_retreat_chance_after_initial_combat](#naval_retreat_chance_after_initial_combat)
 * [naval_retreat_speed](#naval_retreat_speed)
 * [naval_retreat_speed_after_initial_combat](#naval_retreat_speed_after_initial_combat)
+* [naval_supply_consumption_factor](#naval_supply_consumption_factor)
 * [naval_torpedo_damage_reduction_factor](#naval_torpedo_damage_reduction_factor)
 * [naval_torpedo_enemy_critical_chance_factor](#naval_torpedo_enemy_critical_chance_factor)
 * [navy_capital_ship_defence_factor](#navy_capital_ship_defence_factor)
+* [navy_capital_ship_defence_factor_against](#navy_capital_ship_defence_factor_against)
 * [navy_screen_defence_factor](#navy_screen_defence_factor)
+* [navy_screen_defence_factor_against](#navy_screen_defence_factor_against)
 * [navy_submarine_defence_factor](#navy_submarine_defence_factor)
+* [navy_submarine_defence_factor_against](#navy_submarine_defence_factor_against)
 * [navy_submarine_detection_factor](#navy_submarine_detection_factor)
 * [puppet_cost_factor](#puppet_cost_factor)
 * [recon_factor](#recon_factor)
@@ -680,6 +726,12 @@ The listed decimal places is for display only. All numbers support up to
 * [sub_retreat_speed](#sub_retreat_speed)
 * [supply_consumption_factor](#supply_consumption_factor)
 * [terrain_penalty_reduction](#terrain_penalty_reduction)
+
+## Modifiers for scope faction
+
+* [faction_influence_contribution_factor](#faction_influence_contribution_factor)
+* [faction_influence_war_score_factor](#faction_influence_war_score_factor)
+* [faction_subject_contribution_gain](#faction_subject_contribution_gain)
 
 ## Modifiers for scope government_in_exile
 
@@ -693,9 +745,9 @@ The listed decimal places is for display only. All numbers support up to
 
 ## Modifiers for scope intelligence_agency
 
-* [\<Operation\>_cost](#-operation-_cost)
-* [\<Operation\>_outcome](#-operation-_outcome)
-* [\<Operation\>_risk](#-operation-_risk)
+* [<Operation>_cost](#-operation-_cost)
+* [<Operation>_outcome](#-operation-_outcome)
+* [<Operation>_risk](#-operation-_risk)
 * [airforce_intel_decryption_bonus](#airforce_intel_decryption_bonus)
 * [airforce_intel_factor](#airforce_intel_factor)
 * [army_intel_decryption_bonus](#army_intel_decryption_bonus)
@@ -718,6 +770,7 @@ The listed decimal places is for display only. All numbers support up to
 * [intel_network_gain](#intel_network_gain)
 * [intel_network_gain_factor](#intel_network_gain_factor)
 * [intelligence_agency_defense](#intelligence_agency_defense)
+* [intelligence_operation_speed](#intelligence_operation_speed)
 * [navy_intel_decryption_bonus](#navy_intel_decryption_bonus)
 * [navy_intel_factor](#navy_intel_factor)
 * [new_operative_slot_bonus](#new_operative_slot_bonus)
@@ -746,8 +799,9 @@ The listed decimal places is for display only. All numbers support up to
 
 ## Modifiers for scope naval
 
-* [\<Trait\>_xp_gain_factor](#-trait-_xp_gain_factor)
+* [<Trait>_xp_gain_factor](#-trait-_xp_gain_factor)
 * [amphibious_invasion](#amphibious_invasion)
+* [amphibious_invasion_against](#amphibious_invasion_against)
 * [amphibious_invasion_defence](#amphibious_invasion_defence)
 * [assign_navy_leader_cp_cost](#assign_navy_leader_cp_cost)
 * [carrier_capacity_penalty_reduction](#carrier_capacity_penalty_reduction)
@@ -757,24 +811,29 @@ The listed decimal places is for display only. All numbers support up to
 * [convoy_raiding_efficiency_factor](#convoy_raiding_efficiency_factor)
 * [convoy_retreat_speed](#convoy_retreat_speed)
 * [critical_receive_chance](#critical_receive_chance)
-* [experience_gain_\<Unit\>_combat_factor](#experience_gain_-unit-_combat_factor)
-* [experience_gain_\<Unit\>_training_factor](#experience_gain_-unit-_training_factor)
+* [experience_gain_<Unit>_combat_factor](#experience_gain_-unit-_combat_factor)
+* [experience_gain_<Unit>_mission_factor](#experience_gain_-unit-_mission_factor)
+* [experience_gain_<Unit>_training_factor](#experience_gain_-unit-_training_factor)
 * [experience_gain_navy](#experience_gain_navy)
 * [experience_gain_navy_factor](#experience_gain_navy_factor)
 * [experience_gain_navy_unit](#experience_gain_navy_unit)
 * [experience_gain_navy_unit_factor](#experience_gain_navy_unit_factor)
 * [female_random_admiral_chance](#female_random_admiral_chance)
 * [fighter_sortie_efficiency](#fighter_sortie_efficiency)
+* [headquarters_experience_gain_factor](#headquarters_experience_gain_factor)
 * [invasion_preparation](#invasion_preparation)
+* [invasion_preparation_against](#invasion_preparation_against)
+* [max_organisation](#max_organisation)
 * [mines_planting_by_fleets_factor](#mines_planting_by_fleets_factor)
 * [mines_sweeping_by_fleets_factor](#mines_sweeping_by_fleets_factor)
-* [module_\<EquipmentModule\>_design_cost_factor](#module_-equipmentmodule-_design_cost_factor)
+* [module_<EquipmentModule>_design_cost_factor](#module_-equipmentmodule-_design_cost_factor)
 * [naval_accidents_chance](#naval_accidents_chance)
 * [naval_attrition](#naval_attrition)
 * [naval_commando_raid_distance](#naval_commando_raid_distance)
 * [naval_coordination](#naval_coordination)
 * [naval_critical_effect_factor](#naval_critical_effect_factor)
 * [naval_critical_score_chance_factor](#naval_critical_score_chance_factor)
+* [naval_critical_score_chance_factor_against](#naval_critical_score_chance_factor_against)
 * [naval_damage_factor](#naval_damage_factor)
 * [naval_defense_factor](#naval_defense_factor)
 * [naval_detection](#naval_detection)
@@ -785,12 +844,15 @@ The listed decimal places is for display only. All numbers support up to
 * [naval_has_potf_in_combat_defense](#naval_has_potf_in_combat_defense)
 * [naval_heavy_gun_hit_chance_factor](#naval_heavy_gun_hit_chance_factor)
 * [naval_hit_chance](#naval_hit_chance)
+* [naval_hit_chance_against](#naval_hit_chance_against)
 * [naval_invasion_capacity](#naval_invasion_capacity)
+* [naval_invasion_division_cap](#naval_invasion_division_cap)
 * [naval_invasion_penalty](#naval_invasion_penalty)
 * [naval_light_gun_hit_chance_factor](#naval_light_gun_hit_chance_factor)
 * [naval_mine_hit_chance](#naval_mine_hit_chance)
 * [naval_mines_damage_factor](#naval_mines_damage_factor)
 * [naval_mines_effect_reduction](#naval_mines_effect_reduction)
+* [naval_mission_xp_factor](#naval_mission_xp_factor)
 * [naval_morale](#naval_morale)
 * [naval_morale_factor](#naval_morale_factor)
 * [naval_night_attack](#naval_night_attack)
@@ -798,8 +860,11 @@ The listed decimal places is for display only. All numbers support up to
 * [naval_retreat_chance_after_initial_combat](#naval_retreat_chance_after_initial_combat)
 * [naval_retreat_speed](#naval_retreat_speed)
 * [naval_retreat_speed_after_initial_combat](#naval_retreat_speed_after_initial_combat)
+* [naval_ship_recovery_chance](#naval_ship_recovery_chance)
+* [naval_ship_recovery_chance_factor](#naval_ship_recovery_chance_factor)
 * [naval_speed_factor](#naval_speed_factor)
 * [naval_strike](#naval_strike)
+* [naval_supply_consumption_factor](#naval_supply_consumption_factor)
 * [naval_torpedo_cooldown_factor](#naval_torpedo_cooldown_factor)
 * [naval_torpedo_damage_reduction_factor](#naval_torpedo_damage_reduction_factor)
 * [naval_torpedo_enemy_critical_chance_factor](#naval_torpedo_enemy_critical_chance_factor)
@@ -810,7 +875,9 @@ The listed decimal places is for display only. All numbers support up to
 * [navy_anti_air_attack](#navy_anti_air_attack)
 * [navy_anti_air_attack_factor](#navy_anti_air_attack_factor)
 * [navy_capital_ship_attack_factor](#navy_capital_ship_attack_factor)
+* [navy_capital_ship_attack_factor_against](#navy_capital_ship_attack_factor_against)
 * [navy_capital_ship_defence_factor](#navy_capital_ship_defence_factor)
+* [navy_capital_ship_defence_factor_against](#navy_capital_ship_defence_factor_against)
 * [navy_carrier_air_agility_factor](#navy_carrier_air_agility_factor)
 * [navy_carrier_air_attack_factor](#navy_carrier_air_attack_factor)
 * [navy_carrier_air_targetting_factor](#navy_carrier_air_targetting_factor)
@@ -822,28 +889,33 @@ The listed decimal places is for display only. All numbers support up to
 * [navy_org](#navy_org)
 * [navy_org_factor](#navy_org_factor)
 * [navy_screen_attack_factor](#navy_screen_attack_factor)
+* [navy_screen_attack_factor_against](#navy_screen_attack_factor_against)
 * [navy_screen_defence_factor](#navy_screen_defence_factor)
+* [navy_screen_defence_factor_against](#navy_screen_defence_factor_against)
 * [navy_submarine_attack_factor](#navy_submarine_attack_factor)
+* [navy_submarine_attack_factor_against](#navy_submarine_attack_factor_against)
 * [navy_submarine_defence_factor](#navy_submarine_defence_factor)
+* [navy_submarine_defence_factor_against](#navy_submarine_defence_factor_against)
 * [navy_submarine_detection_factor](#navy_submarine_detection_factor)
 * [navy_visibility](#navy_visibility)
 * [night_spotting_chance](#night_spotting_chance)
 * [port_strike](#port_strike)
 * [positioning](#positioning)
-* [production_cost_max_\<NavalEquipment\>](#production_cost_max_-navalequipment-)
+* [production_cost_max_<NavalEquipment>](#production_cost_max_-navalequipment-)
 * [repair_speed_factor](#repair_speed_factor)
 * [screening_efficiency](#screening_efficiency)
 * [screening_without_screens](#screening_without_screens)
 * [ships_at_battle_start](#ships_at_battle_start)
 * [sortie_efficiency](#sortie_efficiency)
 * [spotting_chance](#spotting_chance)
+* [spotting_chance_against](#spotting_chance_against)
 * [strike_force_movement_org_loss](#strike_force_movement_org_loss)
 * [sub_retreat_speed](#sub_retreat_speed)
 * [submarine_attack](#submarine_attack)
 * [terrain_trait_xp_gain_factor](#terrain_trait_xp_gain_factor)
-* [trait_\<Trait\>_xp_gain_factor](#trait_-trait-_xp_gain_factor)
+* [trait_<Trait>_xp_gain_factor](#trait_-trait-_xp_gain_factor)
 * [transport_capacity](#transport_capacity)
-* [unit_\<Unit\>_design_cost_factor](#unit_-unit-_design_cost_factor)
+* [unit_<Unit>_design_cost_factor](#unit_-unit-_design_cost_factor)
 
 ## Modifiers for scope peace
 
@@ -854,8 +926,9 @@ The listed decimal places is for display only. All numbers support up to
 
 ## Modifiers for scope politics
 
-* [\<Ideology\>_acceptance](#-ideology-_acceptance)
-* [\<Ideology\>_drift](#-ideology-_drift)
+* [<Ideology>_acceptance](#-ideology-_acceptance)
+* [<Ideology>_drift](#-ideology-_drift)
+* [<Ideology>_drift_from_guarantees](#-ideology-_drift_from_guarantees)
 * [drift_defence_factor](#drift_defence_factor)
 * [embargo_cost_factor](#embargo_cost_factor)
 * [embargo_threshold_factor](#embargo_threshold_factor)
@@ -868,7 +941,9 @@ The listed decimal places is for display only. All numbers support up to
 
 ## Modifiers for scope state
 
-* [\<SpecialProject\>_speed_factor](#-specialproject-_speed_factor)
+* [<ModifierStat>_factor](#-modifierstat-_factor)
+* [<ModifierStatValue>_value_factor](#-modifierstatvalue-_value_factor)
+* [<SpecialProject>_speed_factor](#-specialproject-_speed_factor)
 * [army_speed_factor_for_controller](#army_speed_factor_for_controller)
 * [coastal_bunker_effectiveness_factor](#coastal_bunker_effectiveness_factor)
 * [compliance_gain](#compliance_gain)
@@ -890,6 +965,7 @@ The listed decimal places is for display only. All numbers support up to
 * [local_building_slots](#local_building_slots)
 * [local_building_slots_factor](#local_building_slots_factor)
 * [local_factories](#local_factories)
+* [local_factory_energy_consumption](#local_factory_energy_consumption)
 * [local_factory_sabotage](#local_factory_sabotage)
 * [local_intel_to_enemies](#local_intel_to_enemies)
 * [local_manpower](#local_manpower)
@@ -917,23 +993,24 @@ The listed decimal places is for display only. All numbers support up to
 * [resistance_target](#resistance_target)
 * [resistance_target_on_our_occupied_states](#resistance_target_on_our_occupied_states)
 * [starting_compliance](#starting_compliance)
-* [state_\<Building\>_max_level_terrain_limit](#state_-building-_max_level_terrain_limit)
-* [state_\<Building\>_max_level_terrain_limit](#state_-building-_max_level_terrain_limit)
-* [state_production_speed_\<Building\>_factor](#state_production_speed_-building-_factor)
+* [state_<Building>_max_level_terrain_limit](#state_-building-_max_level_terrain_limit)
+* [state_<Building>_max_level_terrain_limit](#state_-building-_max_level_terrain_limit)
+* [state_production_speed_<Building>_factor](#state_production_speed_-building-_factor)
 * [state_production_speed_buildings_factor](#state_production_speed_buildings_factor)
 * [state_production_speed_facility_factor](#state_production_speed_facility_factor)
-* [state_repair_speed_\<Building\>_factor](#state_repair_speed_-building-_factor)
-* [state_resource_\<Resource\>](#state_resource_-resource-)
-* [state_resource_cost_\<Resource\>](#state_resource_cost_-resource-)
-* [state_resources_\<Resource\>_factor](#state_resources_-resource-_factor)
+* [state_repair_speed_<Building>_factor](#state_repair_speed_-building-_factor)
+* [state_resource_<Resource>](#state_resource_-resource-)
+* [state_resource_cost_<Resource>](#state_resource_cost_-resource-)
+* [state_resources_<Resource>_factor](#state_resources_-resource-_factor)
 * [state_resources_factor](#state_resources_factor)
 * [supply_factor](#supply_factor)
-* [temporary_state_resource_\<Resource\>](#temporary_state_resource_-resource-)
+* [temporary_state_resource_<Resource>](#temporary_state_resource_-resource-)
 * [truck_attrition](#truck_attrition)
 * [truck_attrition_factor](#truck_attrition_factor)
 
 ## Modifiers for scope unit_leader
 
+* [air_invasion_preparation](#air_invasion_preparation)
 * [amphibious_invasion](#amphibious_invasion)
 * [amphibious_invasion_defence](#amphibious_invasion_defence)
 * [army_leader_cost_factor](#army_leader_cost_factor)
@@ -977,6 +1054,7 @@ The listed decimal places is for display only. All numbers support up to
 * [naval_coordination](#naval_coordination)
 * [naval_critical_effect_factor](#naval_critical_effect_factor)
 * [naval_critical_score_chance_factor](#naval_critical_score_chance_factor)
+* [naval_critical_score_chance_factor_against](#naval_critical_score_chance_factor_against)
 * [naval_damage_factor](#naval_damage_factor)
 * [naval_defense_factor](#naval_defense_factor)
 * [naval_detection](#naval_detection)
@@ -1072,7 +1150,9 @@ The listed decimal places is for display only. All numbers support up to
 * [global_building_slots](#global_building_slots)
 * [global_building_slots_factor](#global_building_slots_factor)
 * [industrial_capacity_dockyard](#industrial_capacity_dockyard)
+* [industrial_capacity_dockyard_powered](#industrial_capacity_dockyard_powered)
 * [industrial_capacity_factory](#industrial_capacity_factory)
+* [industrial_capacity_factory_powered](#industrial_capacity_factory_powered)
 * [industry_air_damage_factor](#industry_air_damage_factor)
 * [industry_free_repair_factor](#industry_free_repair_factor)
 * [industry_repair_factor](#industry_repair_factor)
@@ -1101,12 +1181,14 @@ The listed decimal places is for display only. All numbers support up to
 * [mobilization_speed](#mobilization_speed)
 * [monthly_population](#monthly_population)
 * [non_core_manpower](#non_core_manpower)
+* [out_of_power_impact_factor](#out_of_power_impact_factor)
 * [production_factory_efficiency_gain_factor](#production_factory_efficiency_gain_factor)
 * [production_factory_max_efficiency_factor](#production_factory_max_efficiency_factor)
 * [production_factory_start_efficiency_factor](#production_factory_start_efficiency_factor)
 * [production_lack_of_resource_penalty_factor](#production_lack_of_resource_penalty_factor)
 * [production_oil_factor](#production_oil_factor)
 * [production_speed_buildings_factor](#production_speed_buildings_factor)
+* [production_speed_buildings_powered_factor](#production_speed_buildings_powered_factor)
 * [special_forces_training_time_factor](#special_forces_training_time_factor)
 * [state_production_speed_buildings_factor](#state_production_speed_buildings_factor)
 * [state_resources_factor](#state_resources_factor)
@@ -1116,111 +1198,87 @@ The listed decimal places is for display only. All numbers support up to
 * [training_time_army_factor](#training_time_army_factor)
 * [weekly_manpower](#weekly_manpower)
 
-##  <a id="-technology-_cost_factor"/>\<Technology\>_cost_factor
+##  <span id="-ideology-_drift_from_guarantees"></span><Ideology>_drift_from_guarantees
 
-* **Description**: Technology cost factor.
-* Number with 0 decimal places
-* **Categories**: country
-
-* **Modified types**: cat_air_bombs, cat_air_engine, cat_air_guns, cat_anti_air, cat_anti_tank, cat_armored_cars, cat_base_strike, cat_battlefield_support, cat_fleet_in_being, cat_fortification, cat_grand_battle_plan, cat_heavy_armor, cat_heavy_fighter, cat_light_armor, cat_marines_doctrine, cat_maritime_patrol, cat_mass_assault, cat_mechanized_equipment, cat_medium_armor, cat_mobile_warfare, cat_mountaineers_doctrine, cat_operational_integrity, cat_paratroopers_doctrine, cat_production, cat_scout_plane, cat_ship_heavy_battery, cat_ship_light_battery, cat_ship_medium_battery, cat_special_forces_generic, cat_strategic_bomber, cat_strategic_destruction, cat_superior_firepower, cat_synth_oil, cat_synth_rubber, cat_torpedoes, cat_trade_interdiction
-
-##  <a id="-combattactic-_preferred_weight_factor"/>\<CombatTactic\>_preferred_weight_factor
-
-* **Description**: Naval preferred weight factor.
-* Number with 2 decimal places
-* **Categories**: country
-
-* **Modified types**: nullCombatTactic, tactic_ambush, tactic_assault, tactic_attacker_hb_attack, tactic_attacker_hb_rush, tactic_attacker_hb_storm, tactic_attacker_sb_hold, tactic_attacker_sb_skillful_defence, tactic_backhand_blow, tactic_banzai_charge, tactic_barrage, tactic_basic_attack, tactic_basic_defend, tactic_blitz, tactic_breakthrough, tactic_cc_attack, tactic_cc_defend, tactic_cc_local_strong_point, tactic_cc_storm, tactic_cc_withdraw, tactic_counterattack, tactic_defender_hb_hold, tactic_defender_hb_skillful_defence, tactic_defender_sb_assault, tactic_defender_sb_reckless_assault, tactic_defender_sb_retake_bridge, tactic_delay, tactic_elastic_defense, tactic_encirclement, tactic_guerrilla_tactics, tactic_hold_bridge, tactic_human_wave_tactics, tactic_infantry_charge, tactic_masterful_blitz, tactic_overwhelming_fire, tactic_planned_attack, tactic_relentless_assault, tactic_seize_bridge, tactic_sf_ambush, tactic_sf_armor_supported_assault, tactic_sf_barrage, tactic_sf_defense, tactic_sf_fortify, tactic_sf_mouse_holing, tactic_sf_storm, tactic_shock, tactic_tactical_withdrawal, tactic_tw_attack, tactic_tw_chase, tactic_tw_defend, tactic_tw_evade, tactic_tw_intercept, tactic_unexpected_thrust, tactic_urban_defense
-
-##  <a id="state_resource_-resource-"/>state_resource_\<Resource\>
-
-* **Description**: State resource.
-* Number with 0 decimal places
-* **Categories**: state
-
-* **Modified types**: aluminium, chromium, oil, rubber, steel, tungsten
-
-##  <a id="-ideacategory-_category_type_cost_factor"/>\<IdeaCategory\>_category_type_cost_factor
-
-* **Description**: Idea category type cost factor.
-* Number with 0 decimal places
-* **Categories**: country
-
-* **Modified types**: air_spirit, army_spirit, navy_spirit
-
-##  <a id="state_resources_-resource-_factor"/>state_resources_\<Resource\>_factor
-
-* **Description**: State resource factor.
-* Number with 0 decimal places
-* **Categories**: state
-
-* **Modified types**: aluminium, chromium, oil, rubber, steel, tungsten
-
-##  <a id="-equipment-_design_cost_factor"/>\<Equipment\>_design_cost_factor
-
-* **Description**: Equipment cost factor.
-* Number with 0 decimal places
-* **Categories**: country
-
-* **Modified types**: amphibious_mechanized_equipment, amphibious_tank_chassis, anti_air_equipment, anti_tank_equipment, armored_car_equipment, armored_support_vehicle, artillery_equipment, ballistic_missile_equipment, convoy, cv_small_plane_airframe, cv_small_plane_cas_airframe, cv_small_plane_cas_airframe_0, cv_small_plane_cas_airframe_1, cv_small_plane_cas_airframe_2, cv_small_plane_cas_airframe_3, cv_small_plane_cas_airframe_4, cv_small_plane_naval_bomber_airframe, cv_small_plane_naval_bomber_airframe_0, cv_small_plane_naval_bomber_airframe_1, cv_small_plane_naval_bomber_airframe_2, cv_small_plane_naval_bomber_airframe_3, cv_small_plane_naval_bomber_airframe_4, cv_small_plane_suicide_airframe, cv_small_plane_suicide_airframe_0, cv_small_plane_suicide_airframe_1, cv_small_plane_suicide_airframe_2, cv_small_plane_suicide_airframe_3, cv_small_plane_suicide_airframe_4, explosive_ammo_equipment, floating_harbor_equipment, guided_missile_equipment, heavy_tank_aa_chassis, heavy_tank_aa_chassis_0, heavy_tank_aa_chassis_1, heavy_tank_aa_chassis_2, heavy_tank_aa_chassis_3, heavy_tank_amphibious_chassis, heavy_tank_amphibious_chassis_0, heavy_tank_amphibious_chassis_1, heavy_tank_amphibious_chassis_2, heavy_tank_amphibious_chassis_3, heavy_tank_artillery_chassis, heavy_tank_artillery_chassis_0, heavy_tank_artillery_chassis_1, heavy_tank_artillery_chassis_2, heavy_tank_artillery_chassis_3, heavy_tank_chassis, heavy_tank_destroyer_chassis, heavy_tank_destroyer_chassis_0, heavy_tank_destroyer_chassis_1, heavy_tank_destroyer_chassis_2, heavy_tank_destroyer_chassis_3, heavy_tank_flame_chassis, heavy_tank_flame_chassis_0, heavy_tank_flame_chassis_1, heavy_tank_flame_chassis_2, heavy_tank_flame_chassis_3, helicopter_equipment, infantry_equipment, jet_fighter_equipment, jet_strat_bomber_equipment, jet_tac_bomber_equipment, land_cruiser_chassis, large_plane_airframe, large_plane_maritime_patrol_plane_airframe, large_plane_maritime_patrol_plane_airframe_0, large_plane_maritime_patrol_plane_airframe_1, large_plane_maritime_patrol_plane_airframe_2, large_plane_maritime_patrol_plane_airframe_3, large_plane_maritime_patrol_plane_airframe_4, light_tank_aa_chassis, light_tank_aa_chassis_0, light_tank_aa_chassis_1, light_tank_aa_chassis_2, light_tank_aa_chassis_3, light_tank_amphibious_chassis, light_tank_amphibious_chassis_0, light_tank_amphibious_chassis_1, light_tank_amphibious_chassis_2, light_tank_amphibious_chassis_3, light_tank_artillery_chassis, light_tank_artillery_chassis_0, light_tank_artillery_chassis_1, light_tank_artillery_chassis_2, light_tank_artillery_chassis_3, light_tank_chassis, light_tank_destroyer_chassis, light_tank_destroyer_chassis_0, light_tank_destroyer_chassis_1, light_tank_destroyer_chassis_2, light_tank_destroyer_chassis_3, light_tank_flame_chassis, light_tank_flame_chassis_0, light_tank_flame_chassis_1, light_tank_flame_chassis_2, light_tank_flame_chassis_3, mechanized_equipment, medium_plane_airframe, medium_plane_fighter_airframe, medium_plane_fighter_airframe_0, medium_plane_fighter_airframe_1, medium_plane_fighter_airframe_2, medium_plane_fighter_airframe_3, medium_plane_fighter_airframe_4, medium_plane_scout_plane_airframe, medium_plane_scout_plane_airframe_0, medium_plane_scout_plane_airframe_1, medium_plane_scout_plane_airframe_2, medium_plane_scout_plane_airframe_3, medium_plane_scout_plane_airframe_4, medium_tank_aa_chassis, medium_tank_aa_chassis_0, medium_tank_aa_chassis_1, medium_tank_aa_chassis_2, medium_tank_aa_chassis_3, medium_tank_amphibious_chassis, medium_tank_amphibious_chassis_0, medium_tank_amphibious_chassis_1, medium_tank_amphibious_chassis_2, medium_tank_amphibious_chassis_3, medium_tank_artillery_chassis, medium_tank_artillery_chassis_0, medium_tank_artillery_chassis_1, medium_tank_artillery_chassis_2, medium_tank_artillery_chassis_3, medium_tank_chassis, medium_tank_destroyer_chassis, medium_tank_destroyer_chassis_0, medium_tank_destroyer_chassis_1, medium_tank_destroyer_chassis_2, medium_tank_destroyer_chassis_3, medium_tank_flame_chassis, medium_tank_flame_chassis_0, medium_tank_flame_chassis_1, medium_tank_flame_chassis_2, medium_tank_flame_chassis_3, modern_tank_aa_chassis, modern_tank_aa_chassis_1, modern_tank_artillery_chassis, modern_tank_artillery_chassis_1, modern_tank_chassis, modern_tank_destroyer_chassis, modern_tank_destroyer_chassis_1, mothership_equipment, motorbike_equipment, motorized_equipment, motorized_rocket_equipment, nuclear_missile_equipment, railway_gun_equipment, rocket_artillery_equipment, rocket_interceptor_equipment, sam_missile_equipment, self_propelled_super_heavy_artillery_equipment, ship_hull_carrier, ship_hull_cruiser, ship_hull_heavy, ship_hull_light, ship_hull_submarine, small_plane_airframe, small_plane_cas_airframe, small_plane_cas_airframe_0, small_plane_cas_airframe_1, small_plane_cas_airframe_2, small_plane_cas_airframe_3, small_plane_cas_airframe_4, small_plane_cas_airframe_5, small_plane_naval_bomber_airframe, small_plane_naval_bomber_airframe_0, small_plane_naval_bomber_airframe_1, small_plane_naval_bomber_airframe_2, small_plane_naval_bomber_airframe_3, small_plane_naval_bomber_airframe_4, small_plane_naval_bomber_airframe_5, small_plane_suicide_airframe, small_plane_suicide_airframe_0, small_plane_suicide_airframe_1, small_plane_suicide_airframe_2, small_plane_suicide_airframe_3, small_plane_suicide_airframe_4, small_plane_suicide_airframe_5, strat_bomber_intercontinental_equipment, super_heavy_artillery_equipment, super_heavy_railway_gun_equipment, super_heavy_tank_aa_chassis, super_heavy_tank_aa_chassis_1, super_heavy_tank_artillery_chassis, super_heavy_tank_artillery_chassis_1, super_heavy_tank_chassis, super_heavy_tank_destroyer_chassis, super_heavy_tank_destroyer_chassis_1, support_equipment, train_equipment, transport_plane_equipment
-
-##  <a id="experience_gain_-unit-_training_factor"/>experience_gain_\<Unit\>_training_factor
-
-* **Description**: Unit experience gain factor on training.
-* Number with 0 decimal places
-* **Categories**: naval, country
-
-* **Modified types**: airborne_light_armor, amphibious_armor, amphibious_heavy_armor, amphibious_light_armor, amphibious_mechanized, amphibious_medium_armor, anti_air, anti_air_brigade, anti_tank, anti_tank_brigade, armored_car, armored_car_recon, armored_engineer, armored_maintenance, armored_signal, artillery, artillery_brigade, assault_engineer, ballistic_missile, battle_cruiser, battleship, bicycle_battalion, blackshirt_assault_battalion, bus, camelry, carrier, cas, cavalry, cv_cas, cv_fighter, cv_nav_bomber, cv_suicide_craft, destroyer, elephantry, engineer, explosive_ammo, fake_intel_unit, field_hospital, fighter, guided_missile, heavy_armor, heavy_cruiser, heavy_fighter, heavy_flame_tank, heavy_sp_anti_air_brigade, heavy_sp_artillery_brigade, heavy_tank_destroyer_brigade, helicopter_brigade, helicopter_field_hospital, helicopter_recon, helicopter_transport, infantry, irregular_infantry, jet_fighter, jet_strat_bomber, jet_tac_bomber, jungle_pioneers_support, land_cruiser, light_armor, light_cruiser, light_flame_tank, light_sp_anti_air_brigade, light_sp_artillery_brigade, light_tank_destroyer_brigade, light_tank_recon, logistics_company, long_range_patrol_support, maintenance_company, marine, marine_commando, maritime_patrol_plane, mechanized, medium_armor, medium_flame_tank, medium_sp_anti_air_brigade, medium_sp_artillery_brigade, medium_tank_destroyer_brigade, military_police, militia, modern_armor, modern_sp_anti_air_brigade, modern_sp_artillery_brigade, modern_tank_destroyer_brigade, mot_anti_air_brigade, mot_anti_tank_brigade, mot_artillery_brigade, mot_recon, mot_rocket_artillery_brigade, mothership, motorized, motorized_military_police, motorized_rocket_brigade, mountaineers, nav_bomber, nuclear_missile, paratrooper, penal_battalion, pioneer_support, railway_gun, rangers_support, recon, rocket_artillery, rocket_artillery_brigade, rocket_interceptor, sam_missile, scout_plane, self_propelled_super_heavy_artillery, signal_company, strat_bomber, strat_bomber_intercontinental, sturmtruppe_battalion, submarine, suicide_craft, super_heavy_armor, super_heavy_artillery, super_heavy_railway_gun, super_heavy_sp_anti_air_brigade, super_heavy_sp_artillery_brigade, super_heavy_tank_destroyer_brigade, tac_bomber, transport_plane, winter_logistics_support
-
-##  <a id="state_production_speed_-building-_factor"/>state_production_speed_\<Building\>_factor
-
-* **Description**: State building construction speed factor.
-* Number with 2 decimal places
-* **Categories**: state
-
-* **Modified types**: air_base, air_facility, anti_air_building, arms_factory, bunker, canal_kiel, canal_panama, coastal_bunker, commercial_nuclear_reactor, dam, dam_mountain, dockyard, fuel_silo, industrial_complex, infrastructure, land_facility, landmark_berlin_reichstag, landmark_berlin_volkshalle, landmark_big_ben, landmark_colosseum, landmark_cristo_redentor, landmark_eiffel_tower, landmark_hagia_sophia, landmark_hofburg_palace, landmark_kremlin, landmark_sadabad_complex, landmark_statue_of_liberty, landmark_taj_mahal, mega_gun_emplacement, naval_base, naval_facility, nuclear_facility, nuclear_reactor, nuclear_reactor_heavy_water, radar_station, rail_way, rocket_site, stronghold_network, supply_node, synthetic_refinery
-
-##  <a id="repair_speed_-building-_factor"/>repair_speed_\<Building\>_factor
-
-* **Description**: Country building repair speed factor.
-* Number with 2 decimal places
-* **Categories**: country
-
-* **Modified types**: air_base, air_facility, anti_air_building, arms_factory, bunker, canal_kiel, canal_panama, coastal_bunker, commercial_nuclear_reactor, dam, dam_mountain, dockyard, fuel_silo, industrial_complex, infrastructure, land_facility, landmark_berlin_reichstag, landmark_berlin_volkshalle, landmark_big_ben, landmark_colosseum, landmark_cristo_redentor, landmark_eiffel_tower, landmark_hagia_sophia, landmark_hofburg_palace, landmark_kremlin, landmark_sadabad_complex, landmark_statue_of_liberty, landmark_taj_mahal, mega_gun_emplacement, naval_base, naval_facility, nuclear_facility, nuclear_reactor, nuclear_reactor_heavy_water, radar_station, rail_way, rocket_site, stronghold_network, supply_node, synthetic_refinery
-
-##  <a id="-ideology-_drift"/>\<Ideology\>_drift
-
-* **Description**: Ideology drift.
+* **Description**: Ideology drift guarantees
 * Number with 2 decimal places
 * **Categories**: politics
 
 * **Modified types**: communism, democratic, fascism, neutrality
 
-##  <a id="trait_-trait-_xp_gain_factor"/>trait_\<Trait\>_xp_gain_factor
+##  <span id="experience_gain_-unit-_training_factor"></span>experience_gain_<Unit>_training_factor
 
-* **Description**: Xp gain factor (used if the trait has not prefix 'trait_').
-* Number with 2 decimal places
-* **Categories**: naval, country, army
+* **Description**: Unit experience gain factor on training.
+* Number with 0 decimal places
+* **Categories**: naval, country
 
-* **Modified types**: BALTIC_anti_bolshevik, BALTIC_ex_russian, ETH_hero_of_ethiopia, IRQ_golden_square_member, JAP_communist_sympathizer, JAP_samurai_lineage, POL_sanation_left_leader, POL_sanation_right_leader, SWE_disillusioned_with_the_government, SWE_promoted_away_from_power, SWE_wounded_in_protests, adaptable, aggressive_assaulter, air_controller, ambusher, arctic_water_expert, armor_officer, ascari_officer, aviation_enthusiast, battleship_adherent, bearer_of_artillery, big_guns_expert, blockade_runner, blue_water_expert, bold, brave, brilliant_strategist, camouflage_expert, career_officer, caustic_personality, cavalry_expert, cavalry_leader, cavalry_officer, chief_engineer, combined_arms_expert, commando, concealment_expert, craven, crisis_magician, cruiser_captain, cuts_corners, defensive_doctrine, demoted, desert_fox, destroyer_leader, disgruntled, dive_bomber, engineer_officer, exiled_leader, expert_delegator, expert_improviser, fast_planner, fighter_director, fleet_protector, flight_deck_manager, fly_swatter, fortress_buster, gentlemanly, green_water_expert, ground_pounder, guerilla_fighter, gunnery_expert, harsh_leader, hidden_sympathies, hill_fighter, hunter_killer, infantry_expert, infantry_leader, infantry_officer, inflexible_strategist, inshore_fighter, inspirational_bagpiper, inspirational_leader, invader_ii, ironside, irregulars_officer, jaeger, jungle_rat, lancer, loading_drill_master, logistics_wizard, lone_wolf, loyalty_to_britain, loyalty_to_india, loyalty_to_pakistan, marksman, media_personality, militias_officer, mine_craft, naval_invader, naval_liason, naval_lineage, navy_career_officer, navy_media_personality, offensive_doctrine, old_guard, old_guard_navy, operative_commando, operative_demolition_expert, operative_double_agent, operative_escape_artist, operative_infiltrator, operative_linguist, operative_master_interrogator, operative_natural_orator, operative_safe_cracker, operative_seducer, operative_tough, operative_well_groomed, organisational_leader, organizer, panzer_expert, panzer_leader, paratrooper, peasant_sympathiser, politically_connected, promoted_from_the_ranks, ranger, reassigned, recently_promoted, safety_first, scavenger, search_pattern_expert, seawolf, sick, silent_hunter, skilled_staffer, skirmisher, smoke_screen_expert, spotter, substance_abuser, substance_addict, superior_tactician, swamp_fox, thorough_planner, torpedo_bomber, torpedo_expert, trickster, unyielding_defender, urban_assault_specialist, war_hero, winter_expert, winter_specialist, wounded
+* **Modified types**: airborne_light_armor, amphibious_armor, amphibious_heavy_armor, amphibious_light_armor, amphibious_mechanized, amphibious_medium_armor, anti_air, anti_air_brigade, anti_tank, anti_tank_brigade, armored_car, armored_car_recon, armored_engineer, armored_maintenance, armored_signal, artillery, artillery_brigade, assault_engineer, ballistic_missile, battle_cruiser, battleship, bicycle_battalion, blackshirt_assault_battalion, bus, camelry, carrier, cas, cavalry, cv_cas, cv_fighter, cv_nav_bomber, cv_suicide_craft, destroyer, elephantry, engineer, explosive_ammo, fake_intel_unit, field_hospital, fighter, guided_missile, heavy_armor, heavy_cruiser, heavy_fighter, heavy_flame_tank, heavy_sp_anti_air_brigade, heavy_sp_artillery_brigade, heavy_tank_destroyer_brigade, helicopter_brigade, helicopter_field_hospital, helicopter_recon, helicopter_transport, infantry, irregular_infantry, jet_fighter, jet_strat_bomber, jet_tac_bomber, jungle_pioneers_support, land_cruiser, light_armor, light_cruiser, light_flame_tank, light_sp_anti_air_brigade, light_sp_artillery_brigade, light_tank_destroyer_brigade, light_tank_recon, logistics_company, long_range_patrol_support, maintenance_company, marine, marine_commando, maritime_patrol_plane, mechanized, medium_armor, medium_flame_tank, medium_sp_anti_air_brigade, medium_sp_artillery_brigade, medium_tank_destroyer_brigade, military_police, militia, modern_armor, modern_sp_anti_air_brigade, modern_sp_artillery_brigade, modern_tank_destroyer_brigade, mot_anti_air_brigade, mot_anti_tank_brigade, mot_artillery_brigade, mot_recon, mot_rocket_artillery_brigade, mothership, motorized, motorized_military_police, motorized_rocket_brigade, mountaineers, nav_bomber, nuclear_missile, paratrooper, penal_battalion, pioneer_support, railway_gun, ranger_battalion, rangers_support, recon, repair_ship, rocket_artillery, rocket_artillery_brigade, rocket_interceptor, sam_missile, scout_plane, self_propelled_super_heavy_artillery, signal_company, strat_bomber, strat_bomber_intercontinental, sturmtruppe_battalion, submarine, suicide_craft, super_heavy_armor, super_heavy_artillery, super_heavy_railway_gun, super_heavy_sp_anti_air_brigade, super_heavy_sp_artillery_brigade, super_heavy_tank_destroyer_brigade, support_ship, tac_bomber, transport_plane, winter_logistics_support
 
-##  <a id="production_speed_-building-_factor"/>production_speed_\<Building\>_factor
+##  <span id="-doctrine-_mastery_gain_factor"></span><Doctrine>_mastery_gain_factor
 
-* **Description**: Country building construction speed factor.
-* Number with 2 decimal places
+* **Description**: Mastery gain bonus factor.
+* Number with 0 decimal places
 * **Categories**: country
 
-* **Modified types**: air_base, air_facility, anti_air_building, arms_factory, bunker, canal_kiel, canal_panama, coastal_bunker, commercial_nuclear_reactor, dam, dam_mountain, dockyard, fuel_silo, industrial_complex, infrastructure, land_facility, landmark_berlin_reichstag, landmark_berlin_volkshalle, landmark_big_ben, landmark_colosseum, landmark_cristo_redentor, landmark_eiffel_tower, landmark_hagia_sophia, landmark_hofburg_palace, landmark_kremlin, landmark_sadabad_complex, landmark_statue_of_liberty, landmark_taj_mahal, mega_gun_emplacement, naval_base, naval_facility, nuclear_facility, nuclear_reactor, nuclear_reactor_heavy_water, radar_station, rail_way, rocket_site, stronghold_network, supply_node, synthetic_refinery
+* **Modified types**: air_cavalry, air_subdoctrine_aerial_reconnaissance, air_subdoctrine_bomber_interception, air_subdoctrine_carpet_bombing, air_subdoctrine_carrier_strikes, air_subdoctrine_coastal_air_patrol, air_subdoctrine_deep_air_raids, air_subdoctrine_dive_bombers, air_subdoctrine_dogfighting_mastery, air_subdoctrine_escort_fighter, air_subdoctrine_fighter_bombers, air_subdoctrine_fighter_central_field, air_subdoctrine_fighter_homeland_defense, air_subdoctrine_flexible_fire_support, air_subdoctrine_flying_artillery, air_subdoctrine_flying_fortresses, air_subdoctrine_heavy_aircraft_focus, air_subdoctrine_long_range_escort, air_subdoctrine_naval_strike_tactics, air_subdoctrine_naval_torpedo_tactics, air_subdoctrine_night_bombing, air_subdoctrine_open_ocean_air_patrol, air_subdoctrine_operational_air_support, air_subdoctrine_tactical_battlefield_support, air_subdoctrine_tactical_flexibility, air_subdoctrine_theater_interdiction, anti_aircraft_cruisers, anti_tank_frontline, armored_cavalry, armored_cavalry_no_lar, armored_infantry_support, armored_raiders, armored_spearhead, armored_spearhead_no_lar, assault_infantry, battlecruiser_supremacy, battleship_antiair_screen, broad_naval_support, capital_hunters, carrier_battlegroups, coastal_defence_fleet, coastal_minelaying, commandos, convoy_escort, deep_battle, deep_battle_no_lar, defensive_postures, escort_carrier_support, expeditionary_warfare, field_engineering, fire_concentration, floating_airfields, flying_batteries, grand_assault, great_war_infantry, guerilla_war, hunter_killers, infiltration_tactics, irregulars, jeune_ecole, large_unit_tactics, last_stand, light_task_forces, line_of_battle, long_range_submarines, massed_carrier_fleet, mission_type_tactics, mobile_defense, mobile_infantry, mobile_recon_and_assault, mobile_recon_and_assault_no_lar, mounted_infantry, naval_gunfire_support, patrol_boats, peoples_war, rapid_domination, screen_support_focus, self_propelled_support, siege_artillery, streamlined_deployment, submarine_coastal_defense, submarine_fleet_operations, support_integrated_operations, tank_destroyer_force, torpedo_primacy, wolfpacks
 
-##  <a id="-specialproject-_speed_factor"/>\<SpecialProject\>_speed_factor
+##  <span id="state_resources_-resource-_factor"></span>state_resources_<Resource>_factor
 
-* **Description**: Special project speed factor
+* **Description**: State resource factor.
+* Number with 0 decimal places
+* **Categories**: state
+
+* **Modified types**: aluminium, chromium, coal, oil, rubber, steel, tungsten
+
+##  <span id="-building-_max_level_terrain_limit"></span><Building>_max_level_terrain_limit
+
+* **Description**: Maximum allowed building level for specific terrain.
+* Number with 0 decimal places
+* **Categories**: country
+
+* **Modified types**: air_base_desert, air_base_forest, air_base_hills, air_base_jungle, air_base_lakes, air_base_marsh, air_base_mountain, air_base_ocean, air_base_plains, air_base_unknown, air_base_urban, air_base_water_deep_ocean, air_base_water_fjords, air_base_water_shallow_sea, air_facility_desert, air_facility_forest, air_facility_hills, air_facility_jungle, air_facility_lakes, air_facility_marsh, air_facility_mountain, air_facility_ocean, air_facility_plains, air_facility_unknown, air_facility_urban, air_facility_water_deep_ocean, air_facility_water_fjords, air_facility_water_shallow_sea, anti_air_building_desert, anti_air_building_forest, anti_air_building_hills, anti_air_building_jungle, anti_air_building_lakes, anti_air_building_marsh, anti_air_building_mountain, anti_air_building_ocean, anti_air_building_plains, anti_air_building_unknown, anti_air_building_urban, anti_air_building_water_deep_ocean, anti_air_building_water_fjords, anti_air_building_water_shallow_sea, arms_factory_desert, arms_factory_forest, arms_factory_hills, arms_factory_jungle, arms_factory_lakes, arms_factory_marsh, arms_factory_mountain, arms_factory_ocean, arms_factory_plains, arms_factory_unknown, arms_factory_urban, arms_factory_water_deep_ocean, arms_factory_water_fjords, arms_factory_water_shallow_sea, bunker_desert, bunker_forest, bunker_hills, bunker_jungle, bunker_lakes, bunker_marsh, bunker_mountain, bunker_ocean, bunker_plains, bunker_unknown, bunker_urban, bunker_water_deep_ocean, bunker_water_fjords, bunker_water_shallow_sea, canal_kiel_desert, canal_kiel_forest, canal_kiel_hills, canal_kiel_jungle, canal_kiel_lakes, canal_kiel_marsh, canal_kiel_mountain, canal_kiel_ocean, canal_kiel_plains, canal_kiel_unknown, canal_kiel_urban, canal_kiel_water_deep_ocean, canal_kiel_water_fjords, canal_kiel_water_shallow_sea, canal_panama_desert, canal_panama_forest, canal_panama_hills, canal_panama_jungle, canal_panama_lakes, canal_panama_marsh, canal_panama_mountain, canal_panama_ocean, canal_panama_plains, canal_panama_unknown, canal_panama_urban, canal_panama_water_deep_ocean, canal_panama_water_fjords, canal_panama_water_shallow_sea, coastal_bunker_desert, coastal_bunker_forest, coastal_bunker_hills, coastal_bunker_jungle, coastal_bunker_lakes, coastal_bunker_marsh, coastal_bunker_mountain, coastal_bunker_ocean, coastal_bunker_plains, coastal_bunker_unknown, coastal_bunker_urban, coastal_bunker_water_deep_ocean, coastal_bunker_water_fjords, coastal_bunker_water_shallow_sea, commercial_nuclear_reactor_desert, commercial_nuclear_reactor_forest, commercial_nuclear_reactor_hills, commercial_nuclear_reactor_jungle, commercial_nuclear_reactor_lakes, commercial_nuclear_reactor_marsh, commercial_nuclear_reactor_mountain, commercial_nuclear_reactor_ocean, commercial_nuclear_reactor_plains, commercial_nuclear_reactor_unknown, commercial_nuclear_reactor_urban, commercial_nuclear_reactor_water_deep_ocean, commercial_nuclear_reactor_water_fjords, commercial_nuclear_reactor_water_shallow_sea, dam_desert, dam_forest, dam_hills, dam_jungle, dam_lakes, dam_marsh, dam_mountain, dam_mountain_desert, dam_mountain_forest, dam_mountain_hills, dam_mountain_jungle, dam_mountain_lakes, dam_mountain_marsh, dam_mountain_mountain, dam_mountain_ocean, dam_mountain_plains, dam_mountain_unknown, dam_mountain_urban, dam_mountain_water_deep_ocean, dam_mountain_water_fjords, dam_mountain_water_shallow_sea, dam_ocean, dam_plains, dam_unknown, dam_urban, dam_water_deep_ocean, dam_water_fjords, dam_water_shallow_sea, dockyard_desert, dockyard_forest, dockyard_hills, dockyard_jungle, dockyard_lakes, dockyard_marsh, dockyard_mountain, dockyard_ocean, dockyard_plains, dockyard_unknown, dockyard_urban, dockyard_water_deep_ocean, dockyard_water_fjords, dockyard_water_shallow_sea, fuel_silo_desert, fuel_silo_forest, fuel_silo_hills, fuel_silo_jungle, fuel_silo_lakes, fuel_silo_marsh, fuel_silo_mountain, fuel_silo_ocean, fuel_silo_plains, fuel_silo_unknown, fuel_silo_urban, fuel_silo_water_deep_ocean, fuel_silo_water_fjords, fuel_silo_water_shallow_sea, industrial_complex_desert, industrial_complex_forest, industrial_complex_hills, industrial_complex_jungle, industrial_complex_lakes, industrial_complex_marsh, industrial_complex_mountain, industrial_complex_ocean, industrial_complex_plains, industrial_complex_unknown, industrial_complex_urban, industrial_complex_water_deep_ocean, industrial_complex_water_fjords, industrial_complex_water_shallow_sea, infrastructure_desert, infrastructure_forest, infrastructure_hills, infrastructure_jungle, infrastructure_lakes, infrastructure_marsh, infrastructure_mountain, infrastructure_ocean, infrastructure_plains, infrastructure_unknown, infrastructure_urban, infrastructure_water_deep_ocean, infrastructure_water_fjords, infrastructure_water_shallow_sea, land_facility_desert, land_facility_forest, land_facility_hills, land_facility_jungle, land_facility_lakes, land_facility_marsh, land_facility_mountain, land_facility_ocean, land_facility_plains, land_facility_unknown, land_facility_urban, land_facility_water_deep_ocean, land_facility_water_fjords, land_facility_water_shallow_sea, landmark_berlin_reichstag_desert, landmark_berlin_reichstag_forest, landmark_berlin_reichstag_hills, landmark_berlin_reichstag_jungle, landmark_berlin_reichstag_lakes, landmark_berlin_reichstag_marsh, landmark_berlin_reichstag_mountain, landmark_berlin_reichstag_ocean, landmark_berlin_reichstag_plains, landmark_berlin_reichstag_unknown, landmark_berlin_reichstag_urban, landmark_berlin_reichstag_water_deep_ocean, landmark_berlin_reichstag_water_fjords, landmark_berlin_reichstag_water_shallow_sea, landmark_berlin_volkshalle_desert, landmark_berlin_volkshalle_forest, landmark_berlin_volkshalle_hills, landmark_berlin_volkshalle_jungle, landmark_berlin_volkshalle_lakes, landmark_berlin_volkshalle_marsh, landmark_berlin_volkshalle_mountain, landmark_berlin_volkshalle_ocean, landmark_berlin_volkshalle_plains, landmark_berlin_volkshalle_unknown, landmark_berlin_volkshalle_urban, landmark_berlin_volkshalle_water_deep_ocean, landmark_berlin_volkshalle_water_fjords, landmark_berlin_volkshalle_water_shallow_sea, landmark_big_ben_desert, landmark_big_ben_forest, landmark_big_ben_hills, landmark_big_ben_jungle, landmark_big_ben_lakes, landmark_big_ben_marsh, landmark_big_ben_mountain, landmark_big_ben_ocean, landmark_big_ben_plains, landmark_big_ben_unknown, landmark_big_ben_urban, landmark_big_ben_water_deep_ocean, landmark_big_ben_water_fjords, landmark_big_ben_water_shallow_sea, landmark_colosseum_desert, landmark_colosseum_forest, landmark_colosseum_hills, landmark_colosseum_jungle, landmark_colosseum_lakes, landmark_colosseum_marsh, landmark_colosseum_mountain, landmark_colosseum_ocean, landmark_colosseum_plains, landmark_colosseum_unknown, landmark_colosseum_urban, landmark_colosseum_water_deep_ocean, landmark_colosseum_water_fjords, landmark_colosseum_water_shallow_sea, landmark_cristo_redentor_desert, landmark_cristo_redentor_forest, landmark_cristo_redentor_hills, landmark_cristo_redentor_jungle, landmark_cristo_redentor_lakes, landmark_cristo_redentor_marsh, landmark_cristo_redentor_mountain, landmark_cristo_redentor_ocean, landmark_cristo_redentor_plains, landmark_cristo_redentor_unknown, landmark_cristo_redentor_urban, landmark_cristo_redentor_water_deep_ocean, landmark_cristo_redentor_water_fjords, landmark_cristo_redentor_water_shallow_sea, landmark_eiffel_tower_desert, landmark_eiffel_tower_forest, landmark_eiffel_tower_hills, landmark_eiffel_tower_jungle, landmark_eiffel_tower_lakes, landmark_eiffel_tower_marsh, landmark_eiffel_tower_mountain, landmark_eiffel_tower_ocean, landmark_eiffel_tower_plains, landmark_eiffel_tower_unknown, landmark_eiffel_tower_urban, landmark_eiffel_tower_water_deep_ocean, landmark_eiffel_tower_water_fjords, landmark_eiffel_tower_water_shallow_sea, landmark_forbidden_city_desert, landmark_forbidden_city_forest, landmark_forbidden_city_hills, landmark_forbidden_city_jungle, landmark_forbidden_city_lakes, landmark_forbidden_city_marsh, landmark_forbidden_city_mountain, landmark_forbidden_city_ocean, landmark_forbidden_city_plains, landmark_forbidden_city_unknown, landmark_forbidden_city_urban, landmark_forbidden_city_water_deep_ocean, landmark_forbidden_city_water_fjords, landmark_forbidden_city_water_shallow_sea, landmark_great_wall_section_desert, landmark_great_wall_section_forest, landmark_great_wall_section_hills, landmark_great_wall_section_jungle, landmark_great_wall_section_lakes, landmark_great_wall_section_marsh, landmark_great_wall_section_mountain, landmark_great_wall_section_ocean, landmark_great_wall_section_plains, landmark_great_wall_section_unknown, landmark_great_wall_section_urban, landmark_great_wall_section_water_deep_ocean, landmark_great_wall_section_water_fjords, landmark_great_wall_section_water_shallow_sea, landmark_hagia_sophia_desert, landmark_hagia_sophia_forest, landmark_hagia_sophia_hills, landmark_hagia_sophia_jungle, landmark_hagia_sophia_lakes, landmark_hagia_sophia_marsh, landmark_hagia_sophia_mountain, landmark_hagia_sophia_ocean, landmark_hagia_sophia_plains, landmark_hagia_sophia_unknown, landmark_hagia_sophia_urban, landmark_hagia_sophia_water_deep_ocean, landmark_hagia_sophia_water_fjords, landmark_hagia_sophia_water_shallow_sea, landmark_hakko_ichiu_desert, landmark_hakko_ichiu_forest, landmark_hakko_ichiu_hills, landmark_hakko_ichiu_jungle, landmark_hakko_ichiu_lakes, landmark_hakko_ichiu_marsh, landmark_hakko_ichiu_mountain, landmark_hakko_ichiu_ocean, landmark_hakko_ichiu_plains, landmark_hakko_ichiu_unknown, landmark_hakko_ichiu_urban, landmark_hakko_ichiu_water_deep_ocean, landmark_hakko_ichiu_water_fjords, landmark_hakko_ichiu_water_shallow_sea, landmark_hofburg_palace_desert, landmark_hofburg_palace_forest, landmark_hofburg_palace_hills, landmark_hofburg_palace_jungle, landmark_hofburg_palace_lakes, landmark_hofburg_palace_marsh, landmark_hofburg_palace_mountain, landmark_hofburg_palace_ocean, landmark_hofburg_palace_plains, landmark_hofburg_palace_unknown, landmark_hofburg_palace_urban, landmark_hofburg_palace_water_deep_ocean, landmark_hofburg_palace_water_fjords, landmark_hofburg_palace_water_shallow_sea, landmark_kremlin_desert, landmark_kremlin_forest, landmark_kremlin_hills, landmark_kremlin_jungle, landmark_kremlin_lakes, landmark_kremlin_marsh, landmark_kremlin_mountain, landmark_kremlin_ocean, landmark_kremlin_plains, landmark_kremlin_unknown, landmark_kremlin_urban, landmark_kremlin_water_deep_ocean, landmark_kremlin_water_fjords, landmark_kremlin_water_shallow_sea, landmark_nanjing_presidential_palace_desert, landmark_nanjing_presidential_palace_forest, landmark_nanjing_presidential_palace_gen_desert, landmark_nanjing_presidential_palace_gen_forest, landmark_nanjing_presidential_palace_gen_hills, landmark_nanjing_presidential_palace_gen_jungle, landmark_nanjing_presidential_palace_gen_lakes, landmark_nanjing_presidential_palace_gen_marsh, landmark_nanjing_presidential_palace_gen_mountain, landmark_nanjing_presidential_palace_gen_ocean, landmark_nanjing_presidential_palace_gen_plains, landmark_nanjing_presidential_palace_gen_unknown, landmark_nanjing_presidential_palace_gen_urban, landmark_nanjing_presidential_palace_gen_water_deep_ocean, landmark_nanjing_presidential_palace_gen_water_fjords, landmark_nanjing_presidential_palace_gen_water_shallow_sea, landmark_nanjing_presidential_palace_hills, landmark_nanjing_presidential_palace_jungle, landmark_nanjing_presidential_palace_lakes, landmark_nanjing_presidential_palace_marsh, landmark_nanjing_presidential_palace_mountain, landmark_nanjing_presidential_palace_ocean, landmark_nanjing_presidential_palace_plains, landmark_nanjing_presidential_palace_prc_desert, landmark_nanjing_presidential_palace_prc_forest, landmark_nanjing_presidential_palace_prc_hills, landmark_nanjing_presidential_palace_prc_jungle, landmark_nanjing_presidential_palace_prc_lakes, landmark_nanjing_presidential_palace_prc_marsh, landmark_nanjing_presidential_palace_prc_mountain, landmark_nanjing_presidential_palace_prc_ocean, landmark_nanjing_presidential_palace_prc_plains, landmark_nanjing_presidential_palace_prc_unknown, landmark_nanjing_presidential_palace_prc_urban, landmark_nanjing_presidential_palace_prc_water_deep_ocean, landmark_nanjing_presidential_palace_prc_water_fjords, landmark_nanjing_presidential_palace_prc_water_shallow_sea, landmark_nanjing_presidential_palace_unknown, landmark_nanjing_presidential_palace_urban, landmark_nanjing_presidential_palace_water_deep_ocean, landmark_nanjing_presidential_palace_water_fjords, landmark_nanjing_presidential_palace_water_shallow_sea, landmark_national_diet_desert, landmark_national_diet_forest, landmark_national_diet_hills, landmark_national_diet_jungle, landmark_national_diet_lakes, landmark_national_diet_marsh, landmark_national_diet_mountain, landmark_national_diet_ocean, landmark_national_diet_plains, landmark_national_diet_unknown, landmark_national_diet_urban, landmark_national_diet_water_deep_ocean, landmark_national_diet_water_fjords, landmark_national_diet_water_shallow_sea, landmark_sadabad_complex_desert, landmark_sadabad_complex_forest, landmark_sadabad_complex_hills, landmark_sadabad_complex_jungle, landmark_sadabad_complex_lakes, landmark_sadabad_complex_marsh, landmark_sadabad_complex_mountain, landmark_sadabad_complex_ocean, landmark_sadabad_complex_plains, landmark_sadabad_complex_unknown, landmark_sadabad_complex_urban, landmark_sadabad_complex_water_deep_ocean, landmark_sadabad_complex_water_fjords, landmark_sadabad_complex_water_shallow_sea, landmark_statue_of_liberty_desert, landmark_statue_of_liberty_forest, landmark_statue_of_liberty_hills, landmark_statue_of_liberty_jungle, landmark_statue_of_liberty_lakes, landmark_statue_of_liberty_marsh, landmark_statue_of_liberty_mountain, landmark_statue_of_liberty_ocean, landmark_statue_of_liberty_plains, landmark_statue_of_liberty_unknown, landmark_statue_of_liberty_urban, landmark_statue_of_liberty_water_deep_ocean, landmark_statue_of_liberty_water_fjords, landmark_statue_of_liberty_water_shallow_sea, landmark_taj_mahal_desert, landmark_taj_mahal_forest, landmark_taj_mahal_hills, landmark_taj_mahal_jungle, landmark_taj_mahal_lakes, landmark_taj_mahal_marsh, landmark_taj_mahal_mountain, landmark_taj_mahal_ocean, landmark_taj_mahal_plains, landmark_taj_mahal_unknown, landmark_taj_mahal_urban, landmark_taj_mahal_water_deep_ocean, landmark_taj_mahal_water_fjords, landmark_taj_mahal_water_shallow_sea, landmark_tokyo_imperial_palace_desert, landmark_tokyo_imperial_palace_forest, landmark_tokyo_imperial_palace_hills, landmark_tokyo_imperial_palace_jungle, landmark_tokyo_imperial_palace_lakes, landmark_tokyo_imperial_palace_marsh, landmark_tokyo_imperial_palace_mountain, landmark_tokyo_imperial_palace_ocean, landmark_tokyo_imperial_palace_plains, landmark_tokyo_imperial_palace_unknown, landmark_tokyo_imperial_palace_urban, landmark_tokyo_imperial_palace_water_deep_ocean, landmark_tokyo_imperial_palace_water_fjords, landmark_tokyo_imperial_palace_water_shallow_sea, mega_gun_emplacement_desert, mega_gun_emplacement_forest, mega_gun_emplacement_hills, mega_gun_emplacement_jungle, mega_gun_emplacement_lakes, mega_gun_emplacement_marsh, mega_gun_emplacement_mountain, mega_gun_emplacement_ocean, mega_gun_emplacement_plains, mega_gun_emplacement_unknown, mega_gun_emplacement_urban, mega_gun_emplacement_water_deep_ocean, mega_gun_emplacement_water_fjords, mega_gun_emplacement_water_shallow_sea, naval_base_desert, naval_base_forest, naval_base_hills, naval_base_jungle, naval_base_lakes, naval_base_marsh, naval_base_mountain, naval_base_ocean, naval_base_plains, naval_base_unknown, naval_base_urban, naval_base_water_deep_ocean, naval_base_water_fjords, naval_base_water_shallow_sea, naval_facility_desert, naval_facility_forest, naval_facility_hills, naval_facility_jungle, naval_facility_lakes, naval_facility_marsh, naval_facility_mountain, naval_facility_ocean, naval_facility_plains, naval_facility_unknown, naval_facility_urban, naval_facility_water_deep_ocean, naval_facility_water_fjords, naval_facility_water_shallow_sea, naval_headquarters_desert, naval_headquarters_forest, naval_headquarters_hills, naval_headquarters_jungle, naval_headquarters_lakes, naval_headquarters_marsh, naval_headquarters_mountain, naval_headquarters_ocean, naval_headquarters_plains, naval_headquarters_unknown, naval_headquarters_urban, naval_headquarters_water_deep_ocean, naval_headquarters_water_fjords, naval_headquarters_water_shallow_sea, naval_supply_hub_desert, naval_supply_hub_forest, naval_supply_hub_hills, naval_supply_hub_jungle, naval_supply_hub_lakes, naval_supply_hub_marsh, naval_supply_hub_mountain, naval_supply_hub_ocean, naval_supply_hub_plains, naval_supply_hub_unknown, naval_supply_hub_urban, naval_supply_hub_water_deep_ocean, naval_supply_hub_water_fjords, naval_supply_hub_water_shallow_sea, nuclear_facility_desert, nuclear_facility_forest, nuclear_facility_hills, nuclear_facility_jungle, nuclear_facility_lakes, nuclear_facility_marsh, nuclear_facility_mountain, nuclear_facility_ocean, nuclear_facility_plains, nuclear_facility_unknown, nuclear_facility_urban, nuclear_facility_water_deep_ocean, nuclear_facility_water_fjords, nuclear_facility_water_shallow_sea, nuclear_reactor_desert, nuclear_reactor_forest, nuclear_reactor_heavy_water_desert, nuclear_reactor_heavy_water_forest, nuclear_reactor_heavy_water_hills, nuclear_reactor_heavy_water_jungle, nuclear_reactor_heavy_water_lakes, nuclear_reactor_heavy_water_marsh, nuclear_reactor_heavy_water_mountain, nuclear_reactor_heavy_water_ocean, nuclear_reactor_heavy_water_plains, nuclear_reactor_heavy_water_unknown, nuclear_reactor_heavy_water_urban, nuclear_reactor_heavy_water_water_deep_ocean, nuclear_reactor_heavy_water_water_fjords, nuclear_reactor_heavy_water_water_shallow_sea, nuclear_reactor_hills, nuclear_reactor_jungle, nuclear_reactor_lakes, nuclear_reactor_marsh, nuclear_reactor_mountain, nuclear_reactor_ocean, nuclear_reactor_plains, nuclear_reactor_unknown, nuclear_reactor_urban, nuclear_reactor_water_deep_ocean, nuclear_reactor_water_fjords, nuclear_reactor_water_shallow_sea, radar_station_desert, radar_station_forest, radar_station_hills, radar_station_jungle, radar_station_lakes, radar_station_marsh, radar_station_mountain, radar_station_ocean, radar_station_plains, radar_station_unknown, radar_station_urban, radar_station_water_deep_ocean, radar_station_water_fjords, radar_station_water_shallow_sea, rail_way_desert, rail_way_forest, rail_way_hills, rail_way_jungle, rail_way_lakes, rail_way_marsh, rail_way_mountain, rail_way_ocean, rail_way_plains, rail_way_unknown, rail_way_urban, rail_way_water_deep_ocean, rail_way_water_fjords, rail_way_water_shallow_sea, rocket_site_desert, rocket_site_forest, rocket_site_hills, rocket_site_jungle, rocket_site_lakes, rocket_site_marsh, rocket_site_mountain, rocket_site_ocean, rocket_site_plains, rocket_site_unknown, rocket_site_urban, rocket_site_water_deep_ocean, rocket_site_water_fjords, rocket_site_water_shallow_sea, stronghold_network_desert, stronghold_network_forest, stronghold_network_hills, stronghold_network_jungle, stronghold_network_lakes, stronghold_network_marsh, stronghold_network_mountain, stronghold_network_ocean, stronghold_network_plains, stronghold_network_unknown, stronghold_network_urban, stronghold_network_water_deep_ocean, stronghold_network_water_fjords, stronghold_network_water_shallow_sea, supply_node_desert, supply_node_forest, supply_node_hills, supply_node_jungle, supply_node_lakes, supply_node_marsh, supply_node_mountain, supply_node_ocean, supply_node_plains, supply_node_unknown, supply_node_urban, supply_node_water_deep_ocean, supply_node_water_fjords, supply_node_water_shallow_sea, synthetic_refinery_desert, synthetic_refinery_forest, synthetic_refinery_hills, synthetic_refinery_jungle, synthetic_refinery_lakes, synthetic_refinery_marsh, synthetic_refinery_mountain, synthetic_refinery_ocean, synthetic_refinery_plains, synthetic_refinery_unknown, synthetic_refinery_urban, synthetic_refinery_water_deep_ocean, synthetic_refinery_water_fjords, synthetic_refinery_water_shallow_sea
+
+##  <span id="state_resource_cost_-resource-"></span>state_resource_cost_<Resource>
+
+* **Description**: State resource cost.
+* Number with 0 decimal places
+* **Categories**: state
+
+* **Modified types**: aluminium, chromium, coal, oil, rubber, steel, tungsten
+
+##  <span id="-modifierstatvalue-_value_factor"></span><ModifierStatValue>_value_factor
+
+* **Description**: Modifier stat value factors
 * Number with 0 decimal places
 * **Categories**: country, state
 
-* **Modified types**: sp_air_axial_jet_engine, sp_air_bouncing_bomb, sp_air_earthshaker_bomb, sp_air_helicopter, sp_air_intercontinental_bomber, sp_air_jet_engine, sp_air_mothership_aircraft, sp_air_radar, sp_air_supersonic_jet, sp_commercial_nuclear_reactor, sp_land_flamethrower_tank, sp_land_land_cruiser, sp_land_military_engineering_vehicles, sp_land_multi_charge_large_caliber_gun, sp_land_self_propelled_super_heavy_howitzer, sp_land_stronghold_network, sp_land_super_heavy_howitzer, sp_land_super_heavy_railway_gun, sp_naval_aip_engine, sp_naval_anechoic_tiles, sp_naval_cruiser_submarine, sp_naval_fleet_submarine, sp_naval_ice_carrier, sp_naval_midget_submarine, sp_naval_modern_battleship, sp_naval_modern_carrier, sp_naval_nuclear_missile_submarine, sp_naval_nuclear_submarine, sp_naval_nuclear_torpedo, sp_naval_proximity_fuze, sp_naval_rocket_launching_submarine, sp_naval_super_heavy_battleship, sp_naval_torpedo_cruiser, sp_naval_underway_replenishment, sp_nuclear_bomb, sp_nuclear_engines, sp_nuclear_reactor, sp_nuclear_warheads, sp_rocket_interceptor, sp_rockets_ballistic_missile, sp_rockets_flying_bomb, sp_rockets_ground_to_air_missile, sp_rockets_long_range_ballistic_missile, sp_rockets_medium_range_ballistic_missile, sp_tag_aircraft, sp_tag_artillery, sp_tag_bomb, sp_tag_guided_bomb, sp_tag_helicopter, sp_tag_jet, sp_tag_nuclear_power, sp_tag_nuclear_warfare, sp_tag_radar, sp_tag_rocket, sp_tag_submarine, sp_tag_surface_ship, sp_tag_tank, sp_thermo_nuclear_bomb, specialization_air, specialization_land, specialization_naval, specialization_nuclear
+* **Modified types**: naval_general_support, naval_repair_support
 
-##  <a id="-operation-_risk"/>\<Operation\>_risk
+##  <span id="-equipment-_design_cost_factor"></span><Equipment>_design_cost_factor
+
+* **Description**: Equipment cost factor.
+* Number with 0 decimal places
+* **Categories**: country
+
+* **Modified types**: amphibious_mechanized_equipment, amphibious_tank_chassis, anti_air_equipment, anti_tank_equipment, armored_car_equipment, armored_support_vehicle, artillery_equipment, ballistic_missile_equipment, convoy, cv_small_plane_airframe, cv_small_plane_cas_airframe, cv_small_plane_cas_airframe_0, cv_small_plane_cas_airframe_1, cv_small_plane_cas_airframe_2, cv_small_plane_cas_airframe_3, cv_small_plane_cas_airframe_4, cv_small_plane_naval_bomber_airframe, cv_small_plane_naval_bomber_airframe_0, cv_small_plane_naval_bomber_airframe_1, cv_small_plane_naval_bomber_airframe_2, cv_small_plane_naval_bomber_airframe_3, cv_small_plane_naval_bomber_airframe_4, cv_small_plane_suicide_airframe, cv_small_plane_suicide_airframe_0, cv_small_plane_suicide_airframe_1, cv_small_plane_suicide_airframe_2, cv_small_plane_suicide_airframe_3, cv_small_plane_suicide_airframe_4, explosive_ammo_equipment, floating_harbor_equipment, guided_missile_equipment, heavy_tank_aa_chassis, heavy_tank_aa_chassis_0, heavy_tank_aa_chassis_1, heavy_tank_aa_chassis_2, heavy_tank_aa_chassis_3, heavy_tank_amphibious_chassis, heavy_tank_amphibious_chassis_0, heavy_tank_amphibious_chassis_1, heavy_tank_amphibious_chassis_2, heavy_tank_amphibious_chassis_3, heavy_tank_artillery_chassis, heavy_tank_artillery_chassis_0, heavy_tank_artillery_chassis_1, heavy_tank_artillery_chassis_2, heavy_tank_artillery_chassis_3, heavy_tank_chassis, heavy_tank_destroyer_chassis, heavy_tank_destroyer_chassis_0, heavy_tank_destroyer_chassis_1, heavy_tank_destroyer_chassis_2, heavy_tank_destroyer_chassis_3, heavy_tank_flame_chassis, heavy_tank_flame_chassis_0, heavy_tank_flame_chassis_1, heavy_tank_flame_chassis_2, heavy_tank_flame_chassis_3, helicopter_equipment, infantry_equipment, jet_fighter_equipment, jet_strat_bomber_equipment, jet_tac_bomber_equipment, land_cruiser_chassis, large_plane_airframe, large_plane_maritime_patrol_plane_airframe, large_plane_maritime_patrol_plane_airframe_0, large_plane_maritime_patrol_plane_airframe_1, large_plane_maritime_patrol_plane_airframe_2, large_plane_maritime_patrol_plane_airframe_3, large_plane_maritime_patrol_plane_airframe_4, light_tank_aa_chassis, light_tank_aa_chassis_0, light_tank_aa_chassis_1, light_tank_aa_chassis_2, light_tank_aa_chassis_3, light_tank_amphibious_chassis, light_tank_amphibious_chassis_0, light_tank_amphibious_chassis_1, light_tank_amphibious_chassis_2, light_tank_amphibious_chassis_3, light_tank_artillery_chassis, light_tank_artillery_chassis_0, light_tank_artillery_chassis_1, light_tank_artillery_chassis_2, light_tank_artillery_chassis_3, light_tank_chassis, light_tank_destroyer_chassis, light_tank_destroyer_chassis_0, light_tank_destroyer_chassis_1, light_tank_destroyer_chassis_2, light_tank_destroyer_chassis_3, light_tank_flame_chassis, light_tank_flame_chassis_0, light_tank_flame_chassis_1, light_tank_flame_chassis_2, light_tank_flame_chassis_3, mechanized_equipment, medium_plane_airframe, medium_plane_fighter_airframe, medium_plane_fighter_airframe_0, medium_plane_fighter_airframe_1, medium_plane_fighter_airframe_2, medium_plane_fighter_airframe_3, medium_plane_fighter_airframe_4, medium_plane_scout_plane_airframe, medium_plane_scout_plane_airframe_0, medium_plane_scout_plane_airframe_1, medium_plane_scout_plane_airframe_2, medium_plane_scout_plane_airframe_3, medium_plane_scout_plane_airframe_4, medium_tank_aa_chassis, medium_tank_aa_chassis_0, medium_tank_aa_chassis_1, medium_tank_aa_chassis_2, medium_tank_aa_chassis_3, medium_tank_amphibious_chassis, medium_tank_amphibious_chassis_0, medium_tank_amphibious_chassis_1, medium_tank_amphibious_chassis_2, medium_tank_amphibious_chassis_3, medium_tank_artillery_chassis, medium_tank_artillery_chassis_0, medium_tank_artillery_chassis_1, medium_tank_artillery_chassis_2, medium_tank_artillery_chassis_3, medium_tank_chassis, medium_tank_destroyer_chassis, medium_tank_destroyer_chassis_0, medium_tank_destroyer_chassis_1, medium_tank_destroyer_chassis_2, medium_tank_destroyer_chassis_3, medium_tank_flame_chassis, medium_tank_flame_chassis_0, medium_tank_flame_chassis_1, medium_tank_flame_chassis_2, medium_tank_flame_chassis_3, modern_tank_aa_chassis, modern_tank_aa_chassis_1, modern_tank_artillery_chassis, modern_tank_artillery_chassis_1, modern_tank_chassis, modern_tank_destroyer_chassis, modern_tank_destroyer_chassis_1, mothership_equipment, motorbike_equipment, motorized_equipment, motorized_rocket_equipment, nuclear_missile_equipment, railway_gun_equipment, repair_ship_hull, rocket_artillery_equipment, rocket_interceptor_equipment, sam_missile_equipment, self_propelled_super_heavy_artillery_equipment, ship_hull_carrier, ship_hull_cruiser, ship_hull_heavy, ship_hull_light, ship_hull_submarine, small_plane_airframe, small_plane_cas_airframe, small_plane_cas_airframe_0, small_plane_cas_airframe_1, small_plane_cas_airframe_2, small_plane_cas_airframe_3, small_plane_cas_airframe_4, small_plane_cas_airframe_5, small_plane_naval_bomber_airframe, small_plane_naval_bomber_airframe_0, small_plane_naval_bomber_airframe_1, small_plane_naval_bomber_airframe_2, small_plane_naval_bomber_airframe_3, small_plane_naval_bomber_airframe_4, small_plane_naval_bomber_airframe_5, small_plane_suicide_airframe, small_plane_suicide_airframe_0, small_plane_suicide_airframe_1, small_plane_suicide_airframe_2, small_plane_suicide_airframe_3, small_plane_suicide_airframe_4, small_plane_suicide_airframe_5, strat_bomber_intercontinental_equipment, super_heavy_artillery_equipment, super_heavy_railway_gun_equipment, super_heavy_tank_aa_chassis, super_heavy_tank_aa_chassis_1, super_heavy_tank_artillery_chassis, super_heavy_tank_artillery_chassis_1, super_heavy_tank_chassis, super_heavy_tank_destroyer_chassis, super_heavy_tank_destroyer_chassis_1, support_equipment, support_ship_hull, train_equipment, transport_plane_equipment
+
+##  <span id="state_repair_speed_-building-_factor"></span>state_repair_speed_<Building>_factor
+
+* **Description**: State building repair speed factor.
+* Number with 2 decimal places
+* **Categories**: state
+
+* **Modified types**: air_base, air_facility, anti_air_building, arms_factory, bunker, canal_kiel, canal_panama, coastal_bunker, commercial_nuclear_reactor, dam, dam_mountain, dockyard, fuel_silo, industrial_complex, infrastructure, land_facility, landmark_berlin_reichstag, landmark_berlin_volkshalle, landmark_big_ben, landmark_colosseum, landmark_cristo_redentor, landmark_eiffel_tower, landmark_forbidden_city, landmark_great_wall_section, landmark_hagia_sophia, landmark_hakko_ichiu, landmark_hofburg_palace, landmark_kremlin, landmark_nanjing_presidential_palace, landmark_nanjing_presidential_palace_gen, landmark_nanjing_presidential_palace_prc, landmark_national_diet, landmark_sadabad_complex, landmark_statue_of_liberty, landmark_taj_mahal, landmark_tokyo_imperial_palace, mega_gun_emplacement, naval_base, naval_facility, naval_headquarters, naval_supply_hub, nuclear_facility, nuclear_reactor, nuclear_reactor_heavy_water, radar_station, rail_way, rocket_site, stronghold_network, supply_node, synthetic_refinery
+
+##  <span id="-trait-_xp_gain_factor"></span><Trait>_xp_gain_factor
+
+* **Description**: Xp gain factor (used if the trait has prefix 'trait_').
+* Number with 2 decimal places
+* **Categories**: naval, country, army
+
+* **Modified types**: trait_BUL_ff_sympathizer, trait_BUL_tsar_loyalist, trait_BUL_zveno_member, trait_GRE_fascist_sympathizer, trait_GRE_marxist_acolyte, trait_GRE_stauch_monarchist, trait_GRE_venezelist_loyalist, trait_HUN_fascist_sympathies, trait_HUN_vitez, trait_JAP_kodoha_sympathizer, trait_SOV_bukharinist, trait_SOV_cowed_by_stalin_army, trait_SOV_cowed_by_stalin_navy, trait_SOV_determined, trait_SOV_foreign_military_advisor, trait_SOV_monarchist_sympathizer, trait_SOV_stalinist, trait_SOV_trotskyist, trait_SPA_carlist_loyalties, trait_SPA_falangist_loyalties, trait_SPA_nationalist_sympathies, trait_SPR_anti_stalinist_loyalties, trait_SPR_republican_loyalties, trait_SPR_stalinist_loyalties, trait_TUR_kemalist_champion, trait_cautious, trait_engineer, trait_mountaineer, trait_reckless
+
+##  <span id="-operation-_risk"></span><Operation>_risk
 
 * **Description**: Operation risk modifier.
 * Number with 0 decimal places
@@ -1228,119 +1286,111 @@ The listed decimal places is for display only. All numbers support up to
 
 * **Modified types**: FRA_coup_in_central_africa, FRA_coup_in_indochina, FRA_coup_in_madagascar, FRA_coup_in_north_africa, FRA_coup_in_syria, FRA_coup_in_west_africa, FRA_instigate_workers_revolution_britain, FRA_instigate_workers_revolution_germany, FRA_instigate_workers_revolution_italy, FRA_instigate_workers_revolution_spain, bruneval_raid, capture_tito, heavy_water_raid, murder_trotsky, nuclear_espionage, operation, operation_boost_resistance, operation_capture_cipher, operation_collaboration_government, operation_coordinated_strike, operation_coup_government, operation_fake_intel, operation_infiltrate, operation_infiltrate_armed_forces_airforce, operation_infiltrate_armed_forces_army, operation_infiltrate_armed_forces_navy, operation_infiltrate_civilian, operation_make_resistance_contacts, operation_rescue_operative, operation_steal_tech, operation_steal_tech_airforce, operation_steal_tech_army, operation_steal_tech_civilian, operation_steal_tech_navy, operation_targeted_sabotage_industry, operation_targeted_sabotage_infrastructure, operation_targeted_sabotage_resources, operation_warsaw_uprising, raid_trotskys_villa, rescue_mussolini, target_sabotage
 
-##  <a id="country_resource_cost_-resource-"/>country_resource_cost_\<Resource\>
+##  <span id="-technology-_cost_factor"></span><Technology>_cost_factor
 
-* **Description**: Country resource cost.
+* **Description**: Technology cost factor.
 * Number with 0 decimal places
 * **Categories**: country
 
-* **Modified types**: aluminium, chromium, oil, rubber, steel, tungsten
+* **Modified types**: cat_air_bombs, cat_air_engine, cat_air_guns, cat_anti_air, cat_anti_tank, cat_armored_cars, cat_base_strike, cat_battlefield_support, cat_deep_battle, cat_fleet_in_being, cat_fortification, cat_grand_battle_plan, cat_heavy_armor, cat_heavy_fighter, cat_light_armor, cat_marines_doctrine, cat_maritime_patrol, cat_mass_assault, cat_mass_mobilization, cat_mechanized_equipment, cat_medium_armor, cat_mobile_warfare, cat_mountaineers_doctrine, cat_operational_integrity, cat_paratroopers_doctrine, cat_production, cat_rangers_doctrine, cat_scout_plane, cat_ship_heavy_battery, cat_ship_light_battery, cat_ship_medium_battery, cat_special_forces_generic, cat_strategic_bomber, cat_strategic_destruction, cat_superior_firepower, cat_synth_oil, cat_synth_rubber, cat_torpedoes, cat_trade_interdiction
 
-##  <a id="temporary_state_resource_-resource-"/>temporary_state_resource_\<Resource\>
+##  <span id="-specialproject-_speed_factor"></span><SpecialProject>_speed_factor
 
-* **Description**: Temporary state resource.
+* **Description**: Special project speed factor
 * Number with 0 decimal places
-* **Categories**: state
+* **Categories**: country, state
 
-* **Modified types**: aluminium, chromium, oil, rubber, steel, tungsten
+* **Modified types**: sp_air_axial_jet_engine, sp_air_bouncing_bomb, sp_air_earthshaker_bomb, sp_air_helicopter, sp_air_intercontinental_bomber, sp_air_jet_engine, sp_air_mothership_aircraft, sp_air_radar, sp_air_supersonic_jet, sp_commercial_nuclear_reactor, sp_land_flamethrower_tank, sp_land_land_cruiser, sp_land_military_engineering_vehicles, sp_land_multi_charge_large_caliber_gun, sp_land_self_propelled_super_heavy_howitzer, sp_land_stronghold_network, sp_land_super_heavy_howitzer, sp_land_super_heavy_railway_gun, sp_naval_aip_engine, sp_naval_anechoic_tiles, sp_naval_cruiser_submarine, sp_naval_escort_carrier, sp_naval_fleet_submarine, sp_naval_ice_carrier, sp_naval_midget_submarine, sp_naval_modern_battleship, sp_naval_modern_carrier, sp_naval_nuclear_missile_submarine, sp_naval_nuclear_submarine, sp_naval_nuclear_torpedo, sp_naval_proximity_fuze, sp_naval_rocket_launching_submarine, sp_naval_submarine_carrier, sp_naval_super_heavy_battleship, sp_naval_support_ships, sp_naval_torpedo_cruiser, sp_naval_underway_replenishment, sp_nuclear_bomb, sp_nuclear_engines, sp_nuclear_reactor, sp_nuclear_warheads, sp_rocket_interceptor, sp_rockets_ballistic_missile, sp_rockets_flying_bomb, sp_rockets_ground_to_air_missile, sp_rockets_long_range_ballistic_missile, sp_rockets_medium_range_ballistic_missile, sp_tag_aircraft, sp_tag_artillery, sp_tag_bomb, sp_tag_guided_bomb, sp_tag_helicopter, sp_tag_jet, sp_tag_nuclear_power, sp_tag_nuclear_warfare, sp_tag_radar, sp_tag_rocket, sp_tag_submarine, sp_tag_surface_ship, sp_tag_tank, sp_thermo_nuclear_bomb, specialization_air, specialization_land, specialization_naval, specialization_nuclear
 
-##  <a id="-operation-_outcome"/>\<Operation\>_outcome
-
-* **Description**: Operation outcome modifier.
-* Number with 0 decimal places
-* **Categories**: intelligence_agency
-
-* **Modified types**: FRA_coup_in_central_africa, FRA_coup_in_indochina, FRA_coup_in_madagascar, FRA_coup_in_north_africa, FRA_coup_in_syria, FRA_coup_in_west_africa, FRA_instigate_workers_revolution_britain, FRA_instigate_workers_revolution_germany, FRA_instigate_workers_revolution_italy, FRA_instigate_workers_revolution_spain, bruneval_raid, capture_tito, heavy_water_raid, murder_trotsky, nuclear_espionage, operation_boost_resistance, operation_capture_cipher, operation_collaboration_government, operation_coordinated_strike, operation_coup_government, operation_fake_intel, operation_infiltrate_armed_forces_airforce, operation_infiltrate_armed_forces_army, operation_infiltrate_armed_forces_navy, operation_infiltrate_civilian, operation_make_resistance_contacts, operation_rescue_operative, operation_steal_tech, operation_steal_tech_airforce, operation_steal_tech_army, operation_steal_tech_civilian, operation_steal_tech_navy, operation_targeted_sabotage_industry, operation_targeted_sabotage_infrastructure, operation_targeted_sabotage_resources, operation_warsaw_uprising, raid_trotskys_villa, rescue_mussolini
-
-##  <a id="experience_gain_-unit-_combat_factor"/>experience_gain_\<Unit\>_combat_factor
-
-* **Description**: Unit experience gain factor in combat.
-* Number with 0 decimal places
-* **Categories**: naval, country
-
-* **Modified types**: airborne_light_armor, amphibious_armor, amphibious_heavy_armor, amphibious_light_armor, amphibious_mechanized, amphibious_medium_armor, anti_air, anti_air_brigade, anti_tank, anti_tank_brigade, armored_car, armored_car_recon, armored_engineer, armored_maintenance, armored_signal, artillery, artillery_brigade, assault_engineer, ballistic_missile, battle_cruiser, battleship, bicycle_battalion, blackshirt_assault_battalion, bus, camelry, carrier, cas, cavalry, cv_cas, cv_fighter, cv_nav_bomber, cv_suicide_craft, destroyer, elephantry, engineer, explosive_ammo, fake_intel_unit, field_hospital, fighter, guided_missile, heavy_armor, heavy_cruiser, heavy_fighter, heavy_flame_tank, heavy_sp_anti_air_brigade, heavy_sp_artillery_brigade, heavy_tank_destroyer_brigade, helicopter_brigade, helicopter_field_hospital, helicopter_recon, helicopter_transport, infantry, irregular_infantry, jet_fighter, jet_strat_bomber, jet_tac_bomber, jungle_pioneers_support, land_cruiser, light_armor, light_cruiser, light_flame_tank, light_sp_anti_air_brigade, light_sp_artillery_brigade, light_tank_destroyer_brigade, light_tank_recon, logistics_company, long_range_patrol_support, maintenance_company, marine, marine_commando, maritime_patrol_plane, mechanized, medium_armor, medium_flame_tank, medium_sp_anti_air_brigade, medium_sp_artillery_brigade, medium_tank_destroyer_brigade, military_police, militia, modern_armor, modern_sp_anti_air_brigade, modern_sp_artillery_brigade, modern_tank_destroyer_brigade, mot_anti_air_brigade, mot_anti_tank_brigade, mot_artillery_brigade, mot_recon, mot_rocket_artillery_brigade, mothership, motorized, motorized_military_police, motorized_rocket_brigade, mountaineers, nav_bomber, nuclear_missile, paratrooper, penal_battalion, pioneer_support, railway_gun, rangers_support, recon, rocket_artillery, rocket_artillery_brigade, rocket_interceptor, sam_missile, scout_plane, self_propelled_super_heavy_artillery, signal_company, strat_bomber, strat_bomber_intercontinental, sturmtruppe_battalion, submarine, suicide_craft, super_heavy_armor, super_heavy_artillery, super_heavy_railway_gun, super_heavy_sp_anti_air_brigade, super_heavy_sp_artillery_brigade, super_heavy_tank_destroyer_brigade, tac_bomber, transport_plane, winter_logistics_support
-
-##  <a id="-building-_max_level_terrain_limit"/>\<Building\>_max_level_terrain_limit
+##  <span id="-building-_max_level_terrain_limit"></span><Building>_max_level_terrain_limit
 
 * **Description**: Maximum allowed building level for terrain.
 * Number with 0 decimal places
 * **Categories**: country
 
-* **Modified types**: air_base, air_facility, anti_air_building, arms_factory, bunker, canal_kiel, canal_panama, coastal_bunker, commercial_nuclear_reactor, dam, dockyard, fuel_silo, industrial_complex, infrastructure, land_facility, landmark_berlin_reichstag, landmark_berlin_volkshalle, landmark_big_ben, landmark_colosseum, landmark_cristo_redentor, landmark_eiffel_tower, landmark_hagia_sophia, landmark_hofburg_palace, landmark_kremlin, landmark_sadabad_complex, landmark_statue_of_liberty, landmark_taj_mahal, mega_gun_emplacement, naval_base, naval_facility, nuclear_facility, nuclear_reactor, nuclear_reactor_heavy_water, radar_station, rail_way, rocket_site, stronghold_network, supply_node, synthetic_refinery
+* **Modified types**: air_base, air_facility, anti_air_building, arms_factory, bunker, canal_kiel, canal_panama, coastal_bunker, commercial_nuclear_reactor, dam, dockyard, fuel_silo, industrial_complex, infrastructure, land_facility, landmark_berlin_reichstag, landmark_berlin_volkshalle, landmark_big_ben, landmark_colosseum, landmark_cristo_redentor, landmark_eiffel_tower, landmark_forbidden_city, landmark_great_wall_section, landmark_hagia_sophia, landmark_hakko_ichiu, landmark_hofburg_palace, landmark_kremlin, landmark_nanjing_presidential_palace, landmark_nanjing_presidential_palace_gen, landmark_nanjing_presidential_palace_prc, landmark_national_diet, landmark_sadabad_complex, landmark_statue_of_liberty, landmark_taj_mahal, landmark_tokyo_imperial_palace, mega_gun_emplacement, naval_base, naval_facility, naval_headquarters, naval_supply_hub, nuclear_facility, nuclear_reactor, nuclear_reactor_heavy_water, radar_station, rail_way, rocket_site, stronghold_network, supply_node, synthetic_refinery
 
-##  <a id="-operation-_cost"/>\<Operation\>_cost
+##  <span id="-doctrine-_doctrine_cost_factor"></span><Doctrine>_doctrine_cost_factor
 
-* **Description**: Operation cost modifier.
-* Number with 0 decimal places
-* **Categories**: intelligence_agency
-
-* **Modified types**: FRA_coup_in_central_africa, FRA_coup_in_indochina, FRA_coup_in_madagascar, FRA_coup_in_north_africa, FRA_coup_in_syria, FRA_coup_in_west_africa, FRA_instigate_workers_revolution_britain, FRA_instigate_workers_revolution_germany, FRA_instigate_workers_revolution_italy, FRA_instigate_workers_revolution_spain, bruneval_raid, capture_tito, heavy_water_raid, murder_trotsky, nuclear_espionage, operation_boost_resistance, operation_capture_cipher, operation_collaboration_government, operation_coordinated_strike, operation_coup, operation_coup_government, operation_fake_intel, operation_infiltrate, operation_infiltrate_armed_forces_airforce, operation_infiltrate_armed_forces_army, operation_infiltrate_armed_forces_navy, operation_infiltrate_civilian, operation_make_resistance_contacts, operation_rescue_operative, operation_steal_tech_airforce, operation_steal_tech_army, operation_steal_tech_civilian, operation_steal_tech_navy, operation_targeted_sabotage_industry, operation_targeted_sabotage_infrastructure, operation_targeted_sabotage_resources, operation_warsaw_uprising, raid_trotskys_villa, rescue_mussolini, target_sabotage
-
-##  <a id="production_cost_max_-navalequipment-"/>production_cost_max_\<NavalEquipment\>
-
-* **Description**: Max naval equipment production cost.
-* Number with 0 decimal places
-* **Categories**: naval
-
-* **Modified types**: convoy, floating_harbor_equipment, ship_hull_carrier, ship_hull_cruiser, ship_hull_heavy, ship_hull_light, ship_hull_submarine
-
-##  <a id="-ideology-_acceptance"/>\<Ideology\>_acceptance
-
-* **Description**: Ideology acceptance.
-* Number with 0 decimal places
-* **Categories**: politics
-
-* **Modified types**: communism, democratic, fascism, neutrality
-
-##  <a id="country_resource_-resource-"/>country_resource_\<Resource\>
-
-* **Description**: Country resource.
+* **Description**: Doctrine cost factor.
 * Number with 0 decimal places
 * **Categories**: country
 
-* **Modified types**: aluminium, chromium, oil, rubber, steel, tungsten
+* **Modified types**: land, naval
 
-##  <a id="production_cost_-building-_factor"/>production_cost_\<Building\>_factor
+##  <span id="-combattactic-_preferred_weight_factor"></span><CombatTactic>_preferred_weight_factor
 
-* **Description**: Building construction cost factor.
+* **Description**: Naval preferred weight factor.
 * Number with 2 decimal places
 * **Categories**: country
 
-* **Modified types**: air_base, air_facility, anti_air_building, arms_factory, bunker, canal_kiel, canal_panama, coastal_bunker, commercial_nuclear_reactor, dam, dam_mountain, dockyard, fuel_silo, industrial_complex, infrastructure, land_facility, landmark_berlin_reichstag, landmark_berlin_volkshalle, landmark_big_ben, landmark_colosseum, landmark_cristo_redentor, landmark_eiffel_tower, landmark_hagia_sophia, landmark_hofburg_palace, landmark_kremlin, landmark_sadabad_complex, landmark_statue_of_liberty, landmark_taj_mahal, mega_gun_emplacement, naval_base, naval_facility, nuclear_facility, nuclear_reactor, nuclear_reactor_heavy_water, radar_station, rail_way, rocket_site, stronghold_network, supply_node, synthetic_refinery
+* **Modified types**: nullCombatTactic, tactic_ambush, tactic_assault, tactic_attacker_hb_attack, tactic_attacker_hb_rush, tactic_attacker_hb_storm, tactic_attacker_sb_hold, tactic_attacker_sb_skillful_defence, tactic_backhand_blow, tactic_banzai_charge, tactic_barrage, tactic_basic_attack, tactic_basic_defend, tactic_blitz, tactic_breakthrough, tactic_cc_attack, tactic_cc_defend, tactic_cc_local_strong_point, tactic_cc_storm, tactic_cc_withdraw, tactic_counterattack, tactic_defender_hb_hold, tactic_defender_hb_skillful_defence, tactic_defender_sb_assault, tactic_defender_sb_reckless_assault, tactic_defender_sb_retake_bridge, tactic_delay, tactic_elastic_defense, tactic_encirclement, tactic_grand_banzai_charge, tactic_guerrilla_tactics, tactic_hold_bridge, tactic_human_wave_tactics, tactic_infantry_charge, tactic_masterful_blitz, tactic_overwhelming_fire, tactic_planned_attack, tactic_relentless_assault, tactic_seize_bridge, tactic_sf_ambush, tactic_sf_armor_supported_assault, tactic_sf_barrage, tactic_sf_defense, tactic_sf_fortify, tactic_sf_mouse_holing, tactic_sf_storm, tactic_shock, tactic_tactical_withdrawal, tactic_tw_attack, tactic_tw_chase, tactic_tw_defend, tactic_tw_evade, tactic_tw_intercept, tactic_unexpected_thrust, tactic_urban_defense
 
-##  <a id="unit_-unit-_design_cost_factor"/>unit_\<Unit\>_design_cost_factor
+##  <span id="trait_-trait-_xp_gain_factor"></span>trait_<Trait>_xp_gain_factor
 
-* **Description**: Unit design cost factor.
+* **Description**: Xp gain factor (used if the trait has not prefix 'trait_').
 * Number with 2 decimal places
 * **Categories**: naval, country, army
 
-* **Modified types**: airborne_light_armor, amphibious_armor, amphibious_heavy_armor, amphibious_light_armor, amphibious_mechanized, amphibious_medium_armor, anti_air, anti_air_brigade, anti_tank, anti_tank_brigade, armored_car, armored_car_recon, armored_engineer, armored_maintenance, armored_signal, artillery, artillery_brigade, assault_engineer, ballistic_missile, battle_cruiser, battleship, bicycle_battalion, blackshirt_assault_battalion, bus, camelry, carrier, cas, cavalry, cv_cas, cv_fighter, cv_nav_bomber, cv_suicide_craft, destroyer, elephantry, engineer, explosive_ammo, fake_intel_unit, field_hospital, fighter, guided_missile, heavy_armor, heavy_cruiser, heavy_fighter, heavy_flame_tank, heavy_sp_anti_air_brigade, heavy_sp_artillery_brigade, heavy_tank_destroyer_brigade, helicopter_brigade, helicopter_field_hospital, helicopter_recon, helicopter_transport, infantry, irregular_infantry, jet_fighter, jet_strat_bomber, jet_tac_bomber, jungle_pioneers_support, land_cruiser, light_armor, light_cruiser, light_flame_tank, light_sp_anti_air_brigade, light_sp_artillery_brigade, light_tank_destroyer_brigade, light_tank_recon, logistics_company, long_range_patrol_support, maintenance_company, marine, marine_commando, maritime_patrol_plane, mechanized, medium_armor, medium_flame_tank, medium_sp_anti_air_brigade, medium_sp_artillery_brigade, medium_tank_destroyer_brigade, military_police, militia, modern_armor, modern_sp_anti_air_brigade, modern_sp_artillery_brigade, modern_tank_destroyer_brigade, mot_anti_air_brigade, mot_anti_tank_brigade, mot_artillery_brigade, mot_recon, mot_rocket_artillery_brigade, mothership, motorized, motorized_military_police, motorized_rocket_brigade, mountaineers, nav_bomber, nuclear_missile, paratrooper, penal_battalion, pioneer_support, railway_gun, rangers_support, recon, rocket_artillery, rocket_artillery_brigade, rocket_interceptor, sam_missile, scout_plane, self_propelled_super_heavy_artillery, signal_company, strat_bomber, strat_bomber_intercontinental, sturmtruppe_battalion, submarine, suicide_craft, super_heavy_armor, super_heavy_artillery, super_heavy_railway_gun, super_heavy_sp_anti_air_brigade, super_heavy_sp_artillery_brigade, super_heavy_tank_destroyer_brigade, tac_bomber, transport_plane, winter_logistics_support
+* **Modified types**: BALTIC_anti_bolshevik, BALTIC_ex_russian, CHI_dubious_loyalty, ETH_hero_of_ethiopia, IRQ_golden_square_member, JAP_IJA_loyalist, JAP_communist_sympathizer, JAP_government_supporter, JAP_kamikaze_proponent, JAP_royal_lineage, JAP_samurai_lineage, JAP_tohokai_sympathies, POL_sanation_left_leader, POL_sanation_right_leader, PRC_survivor_of_the_long_march, SIC_dubious_loyalty, SWE_disillusioned_with_the_government, SWE_promoted_away_from_power, SWE_wounded_in_protests, XSM_dubious_loyalty, YUN_dubious_loyalty, adaptable, aggressive_assaulter, air_controller, ambusher, arctic_water_expert, armor_officer, ascari_officer, aviation_enthusiast, battleship_adherent, bearer_of_artillery, big_guns_expert, blockade_runner, blue_water_expert, bold, brave, brilliant_strategist, camouflage_expert, career_officer, caustic_personality, cavalry_expert, cavalry_leader, cavalry_officer, chief_engineer, combined_arms_expert, commando, concealment_expert, craven, crisis_magician, cruiser_captain, cuts_corners, defensive_doctrine, demoted, desert_fox, destroyer_leader, disgruntled, dive_bomber, engineer_officer, exiled_leader, expert_delegator, expert_improviser, fast_planner, fighter_director, fleet_protector, flight_deck_manager, fly_swatter, fortress_buster, gentlemanly, green_water_expert, ground_pounder, guerilla_fighter, gunnery_expert, harsh_leader, hidden_sympathies, hill_fighter, hunter_killer, infantry_expert, infantry_leader, infantry_officer, inflexible_strategist, inshore_fighter, inspirational_bagpiper, inspirational_leader, invader_ii, ironside, irregulars_officer, jaeger, jungle_rat, lancer, loading_drill_master, logistics_wizard, lone_wolf, loyalty_to_britain, loyalty_to_india, loyalty_to_pakistan, marksman, media_personality, militias_officer, mine_craft, motivated, naval_invader, naval_liason, naval_lineage, navy_career_officer, navy_media_personality, offensive_doctrine, old_guard, old_guard_navy, operative_commando, operative_demolition_expert, operative_double_agent, operative_escape_artist, operative_infiltrator, operative_linguist, operative_master_interrogator, operative_natural_orator, operative_safe_cracker, operative_seducer, operative_tough, operative_well_groomed, organisational_leader, organizer, panzer_expert, panzer_leader, paratrooper, peasant_sympathiser, politically_connected, promoted_from_the_ranks, ranger, reassigned, recently_promoted, safety_first, scavenger, search_pattern_expert, seawolf, sick, silent_hunter, skilled_staffer, skirmisher, smoke_screen_expert, spotter, substance_abuser, substance_addict, superior_tactician, swamp_fox, thorough_planner, torpedo_bomber, torpedo_expert, trickster, unyielding_defender, urban_assault_specialist, war_hero, winter_expert, winter_specialist, wounded
 
-##  <a id="state_repair_speed_-building-_factor"/>state_repair_speed_\<Building\>_factor
+##  <span id="-modifierstat-_factor"></span><ModifierStat>_factor
 
-* **Description**: State building repair speed factor.
-* Number with 2 decimal places
-* **Categories**: state
+* **Description**: Modifier stat factors
+* Number with 0 decimal places
+* **Categories**: country, state
 
-* **Modified types**: air_base, air_facility, anti_air_building, arms_factory, bunker, canal_kiel, canal_panama, coastal_bunker, commercial_nuclear_reactor, dam, dam_mountain, dockyard, fuel_silo, industrial_complex, infrastructure, land_facility, landmark_berlin_reichstag, landmark_berlin_volkshalle, landmark_big_ben, landmark_colosseum, landmark_cristo_redentor, landmark_eiffel_tower, landmark_hagia_sophia, landmark_hofburg_palace, landmark_kremlin, landmark_sadabad_complex, landmark_statue_of_liberty, landmark_taj_mahal, mega_gun_emplacement, naval_base, naval_facility, nuclear_facility, nuclear_reactor, nuclear_reactor_heavy_water, radar_station, rail_way, rocket_site, stronghold_network, supply_node, synthetic_refinery
+* **Modified types**: naval_general_support, naval_repair_support
 
-##  <a id="module_-equipmentmodule-_design_cost_factor"/>module_\<EquipmentModule\>_design_cost_factor
+##  <span id="experience_gain_-unit-_combat_factor"></span>experience_gain_<Unit>_combat_factor
 
-* **Description**: Module design cost factor.
-* Number with 2 decimal places
-* **Categories**: naval, country, army
+* **Description**: Unit experience gain factor in combat.
+* Number with 0 decimal places
+* **Categories**: naval, country
 
-* **Modified types**: NOR_rikstanken_turret, NOR_tank_rikstanken_armor, additional_machine_guns, advanced_flamethrower, air_air_radar_1, air_air_radar_2, air_ground_radar_1, air_ground_radar_2, aircraft_cannon_1_1x, aircraft_cannon_1_2x, aircraft_cannon_2_1x, aircraft_cannon_2_2x, airdropped_mines, amphibious_drive, armor_piercing_bomb_locks, armor_plate_large, armor_plate_medium, armor_plate_small, armor_skirts, auto_loader, big_ship_deck_space, bomb_locks, bomb_sights_1, bomb_sights_2, cannon_defense_turret, cannon_defense_turret_2x, carrier_ship_engine_1, carrier_ship_engine_2, carrier_ship_engine_3, carrier_ship_engine_4, carrier_ship_nuclear_engine_1, cruiser_ship_engine_1, cruiser_ship_engine_2, cruiser_ship_engine_3, cruiser_ship_engine_4, demining_coil, dive_brakes_small, dozer_blade, dp_light_battery_1, dp_light_battery_2, dp_light_battery_3, dp_light_battery_4, dp_ship_medium_1, dp_ship_secondaries_1, dp_ship_secondaries_2, dp_ship_secondaries_3, dp_ship_secondaries_4, drop_tanks, earthshaker_bomb_release, easy_maintenance, engine_1_1x, engine_1_2x, engine_1_3x, engine_1_4x, engine_1_6x, engine_2_1x, engine_2_2x, engine_2_3x, engine_2_4x, engine_2_6x, engine_3_1x, engine_3_2x, engine_3_3x, engine_3_4x, engine_3_6x, engine_4_1x, engine_4_2x, engine_4_3x, engine_4_4x, engine_4_6x, expanded_fuel_tank, extra_ammo_storage, fixed_explosive_charge, flamethrower, floats, flying_boat_large, flying_boat_medium, fuel_tanks_large, fuel_tanks_medium, fuel_tanks_small, guided_anti_ship_missile, heavy_bomb_locks, heavy_mg_2x, heavy_mg_4x, heavy_ship_engine_1, heavy_ship_engine_2, heavy_ship_engine_3, heavy_ship_engine_4, heavy_ship_nuclear_engine_1, hmg_defense_turret, hmg_defense_turret_2x, improved_rocket_propelled_bombs, jet_engine_1x, jet_engine_2x, jet_engine_3x, jet_engine_4x, jet_engine_6x, jet_engine_axial_1x, jet_engine_axial_2x, jet_engine_axial_3x, jet_engine_axial_4x, jet_engine_axial_6x, large_aircraft_cannon_1x, large_aircraft_cannon_2x, large_bomb_bay, lc_aircraft_catapult, lc_armored_skirts, lc_assault_gun, lc_bunker_emplacement, lc_command_center, lc_flamethrower_turret, lc_heavy_anti_air_battery, lc_heavy_anti_air_platform, lc_heavy_high_velocity_cannons, lc_heavy_naval_guns, lc_helipad, lc_high_impact_obliterator_cannon, lc_high_velocity_cannon_turret, lc_hull_mounted_railway_gun, lc_internal_ammunition_compartments, lc_internal_fuel_tanks, lc_light_anti_air_battery, lc_medium_cannon_turret, lc_medium_naval_guns, lc_obstacle_clearance_gear, lc_radar, lc_radio_1, lc_radio_2, lc_radio_3, lc_rocket_launcher, lc_smoke_generators, lc_stabilizers, lc_super_heavy_howitzer, lc_super_heavy_railway_gun, lc_wet_ammunition_storage, light_mg_2x, light_mg_4x, light_ship_engine_1, light_ship_engine_2, light_ship_engine_3, light_ship_engine_4, lmg_defense_turret, lmg_defense_turret_2x, medium_bomb_bay, non_strategic_materials_large, non_strategic_materials_medium, non_strategic_materials_small, radio_navigation_1, radio_navigation_2, recon_camera, rocket_engine_1, rocket_engine_2, rocket_engine_3, rocket_propelled_bombs, rocket_rails, secondary_turret_hmg, secondary_turret_small_cannon, self_sealing_fuel_tanks_large, self_sealing_fuel_tanks_medium, self_sealing_fuel_tanks_small, ship_airplane_launcher_1, ship_airplane_launcher_2, ship_anechoic_tile, ship_anti_air_1, ship_anti_air_2, ship_anti_air_3, ship_anti_air_4, ship_armor_bb_1, ship_armor_bb_2, ship_armor_bb_3, ship_armor_bc_1, ship_armor_bc_2, ship_armor_bc_3, ship_armor_carrier_deck, ship_armor_cruiser_1, ship_armor_cruiser_2, ship_armor_cruiser_3, ship_armor_cruiser_4, ship_armor_ice_carrier_deck_1, ship_armor_ice_carrier_deck_2, ship_armor_ice_carrier_deck_3, ship_armor_shbb, ship_deck_space, ship_depth_charge_1, ship_depth_charge_2, ship_depth_charge_3, ship_depth_charge_4, ship_engine_sub_aip_1, ship_engine_sub_aip_2, ship_engine_sub_aip_3, ship_extra_fuel_tank, ship_fire_control_system_0, ship_fire_control_system_1, ship_fire_control_system_2, ship_fire_control_system_3, ship_heavy_battery_1, ship_heavy_battery_2, ship_heavy_battery_3, ship_heavy_battery_4, ship_light_battery_1, ship_light_battery_2, ship_light_battery_3, ship_light_battery_4, ship_light_battery_sub, ship_light_medium_battery_1, ship_light_medium_battery_2, ship_light_medium_battery_3, ship_light_medium_battery_4, ship_medium_battery_1, ship_medium_battery_2, ship_medium_battery_3, ship_medium_battery_4, ship_mine_layer_1, ship_mine_layer_sub, ship_mine_sweeper_1, ship_radar_1, ship_radar_2, ship_radar_3, ship_radar_4, ship_secondaries_1, ship_secondaries_2, ship_sonar_1, ship_sonar_2, ship_sub_snorkel_1, ship_sub_snorkel_2, ship_super_heavy_battery_1, ship_torpedo_1, ship_torpedo_2, ship_torpedo_3, ship_torpedo_4, ship_torpedo_sub_1, ship_torpedo_sub_2, ship_torpedo_sub_3, ship_torpedo_sub_4, ship_torpedo_sub_nuclear, slbm_launcher, sloped_armor, small_bomb_bay, smoke_launchers, squeezebore_adaptor, stabilizer, sub_missile_launcher, sub_ship_engine_1, sub_ship_engine_2, sub_ship_engine_3, sub_ship_engine_4, sub_ship_nuclear_engine_1, tank_anti_air_cannon, tank_anti_air_cannon_2, tank_anti_air_cannon_3, tank_auto_cannon, tank_auto_cannon_2, tank_bogie_suspension, tank_buster_1, tank_buster_2, tank_cast_armor, tank_christie_suspension, tank_close_support_gun, tank_diesel_engine, tank_gas_turbine_engine, tank_gasoline_engine, tank_half_track_suspension, tank_heavy_cannon, tank_heavy_cannon_2, tank_heavy_cannon_3, tank_heavy_fixed_superstructure_turret, tank_heavy_howitzer, tank_heavy_machine_gun, tank_heavy_three_man_tank_turret, tank_heavy_two_man_tank_turret, tank_high_velocity_cannon, tank_high_velocity_cannon_2, tank_high_velocity_cannon_3, tank_interleaved_suspension, tank_light_fixed_superstructure_turret, tank_light_one_man_tank_turret, tank_light_three_man_tank_turret, tank_light_two_man_tank_turret, tank_medium_cannon, tank_medium_cannon_2, tank_medium_fixed_superstructure_turret, tank_medium_howitzer, tank_medium_howitzer_2, tank_medium_one_man_tank_turret, tank_medium_three_man_tank_turret, tank_medium_two_man_tank_turret, tank_modern_tank_turret, tank_petrol_electric_engine, tank_radio_1, tank_radio_2, tank_radio_3, tank_riveted_armor, tank_rocket_launcher, tank_rocket_launcher_2, tank_small_cannon, tank_small_cannon_2, tank_super_heavy_cannon, tank_super_heavy_four_man_tank_turret, tank_super_heavy_three_man_tank_turret, tank_torsion_bar_suspension, tank_welded_armor, tank_wheeled_suspension, torpedo_mounting, torpedo_mounting_2, torpedo_mounting_3, wet_ammo_storage
+* **Modified types**: airborne_light_armor, amphibious_armor, amphibious_heavy_armor, amphibious_light_armor, amphibious_mechanized, amphibious_medium_armor, anti_air, anti_air_brigade, anti_tank, anti_tank_brigade, armored_car, armored_car_recon, armored_engineer, armored_maintenance, armored_signal, artillery, artillery_brigade, assault_engineer, ballistic_missile, battle_cruiser, battleship, bicycle_battalion, blackshirt_assault_battalion, bus, camelry, carrier, cas, cavalry, cv_cas, cv_fighter, cv_nav_bomber, cv_suicide_craft, destroyer, elephantry, engineer, explosive_ammo, fake_intel_unit, field_hospital, fighter, guided_missile, heavy_armor, heavy_cruiser, heavy_fighter, heavy_flame_tank, heavy_sp_anti_air_brigade, heavy_sp_artillery_brigade, heavy_tank_destroyer_brigade, helicopter_brigade, helicopter_field_hospital, helicopter_recon, helicopter_transport, infantry, irregular_infantry, jet_fighter, jet_strat_bomber, jet_tac_bomber, jungle_pioneers_support, land_cruiser, light_armor, light_cruiser, light_flame_tank, light_sp_anti_air_brigade, light_sp_artillery_brigade, light_tank_destroyer_brigade, light_tank_recon, logistics_company, long_range_patrol_support, maintenance_company, marine, marine_commando, maritime_patrol_plane, mechanized, medium_armor, medium_flame_tank, medium_sp_anti_air_brigade, medium_sp_artillery_brigade, medium_tank_destroyer_brigade, military_police, militia, modern_armor, modern_sp_anti_air_brigade, modern_sp_artillery_brigade, modern_tank_destroyer_brigade, mot_anti_air_brigade, mot_anti_tank_brigade, mot_artillery_brigade, mot_recon, mot_rocket_artillery_brigade, mothership, motorized, motorized_military_police, motorized_rocket_brigade, mountaineers, nav_bomber, nuclear_missile, paratrooper, penal_battalion, pioneer_support, railway_gun, ranger_battalion, rangers_support, recon, repair_ship, rocket_artillery, rocket_artillery_brigade, rocket_interceptor, sam_missile, scout_plane, self_propelled_super_heavy_artillery, signal_company, strat_bomber, strat_bomber_intercontinental, sturmtruppe_battalion, submarine, suicide_craft, super_heavy_armor, super_heavy_artillery, super_heavy_railway_gun, super_heavy_sp_anti_air_brigade, super_heavy_sp_artillery_brigade, super_heavy_tank_destroyer_brigade, support_ship, tac_bomber, transport_plane, winter_logistics_support
 
-##  <a id="state_-building-_max_level_terrain_limit"/>state_\<Building\>_max_level_terrain_limit
+##  <span id="state_-building-_max_level_terrain_limit"></span>state_<Building>_max_level_terrain_limit
 
 * **Description**: Maximum allowed building level for specific terrain.
 * Number with 0 decimal places
 * **Categories**: state
 
-* **Modified types**: air_base_desert, air_base_forest, air_base_hills, air_base_jungle, air_base_lakes, air_base_marsh, air_base_mountain, air_base_ocean, air_base_plains, air_base_unknown, air_base_urban, air_base_water_deep_ocean, air_base_water_fjords, air_base_water_shallow_sea, air_facility_desert, air_facility_forest, air_facility_hills, air_facility_jungle, air_facility_lakes, air_facility_marsh, air_facility_mountain, air_facility_ocean, air_facility_plains, air_facility_unknown, air_facility_urban, air_facility_water_deep_ocean, air_facility_water_fjords, air_facility_water_shallow_sea, anti_air_building_desert, anti_air_building_forest, anti_air_building_hills, anti_air_building_jungle, anti_air_building_lakes, anti_air_building_marsh, anti_air_building_mountain, anti_air_building_ocean, anti_air_building_plains, anti_air_building_unknown, anti_air_building_urban, anti_air_building_water_deep_ocean, anti_air_building_water_fjords, anti_air_building_water_shallow_sea, arms_factory_desert, arms_factory_forest, arms_factory_hills, arms_factory_jungle, arms_factory_lakes, arms_factory_marsh, arms_factory_mountain, arms_factory_ocean, arms_factory_plains, arms_factory_unknown, arms_factory_urban, arms_factory_water_deep_ocean, arms_factory_water_fjords, arms_factory_water_shallow_sea, bunker_desert, bunker_forest, bunker_hills, bunker_jungle, bunker_lakes, bunker_marsh, bunker_mountain, bunker_ocean, bunker_plains, bunker_unknown, bunker_urban, bunker_water_deep_ocean, bunker_water_fjords, bunker_water_shallow_sea, canal_kiel_desert, canal_kiel_forest, canal_kiel_hills, canal_kiel_jungle, canal_kiel_lakes, canal_kiel_marsh, canal_kiel_mountain, canal_kiel_ocean, canal_kiel_plains, canal_kiel_unknown, canal_kiel_urban, canal_kiel_water_deep_ocean, canal_kiel_water_fjords, canal_kiel_water_shallow_sea, canal_panama_desert, canal_panama_forest, canal_panama_hills, canal_panama_jungle, canal_panama_lakes, canal_panama_marsh, canal_panama_mountain, canal_panama_ocean, canal_panama_plains, canal_panama_unknown, canal_panama_urban, canal_panama_water_deep_ocean, canal_panama_water_fjords, canal_panama_water_shallow_sea, coastal_bunker_desert, coastal_bunker_forest, coastal_bunker_hills, coastal_bunker_jungle, coastal_bunker_lakes, coastal_bunker_marsh, coastal_bunker_mountain, coastal_bunker_ocean, coastal_bunker_plains, coastal_bunker_unknown, coastal_bunker_urban, coastal_bunker_water_deep_ocean, coastal_bunker_water_fjords, coastal_bunker_water_shallow_sea, commercial_nuclear_reactor_desert, commercial_nuclear_reactor_forest, commercial_nuclear_reactor_hills, commercial_nuclear_reactor_jungle, commercial_nuclear_reactor_lakes, commercial_nuclear_reactor_marsh, commercial_nuclear_reactor_mountain, commercial_nuclear_reactor_ocean, commercial_nuclear_reactor_plains, commercial_nuclear_reactor_unknown, commercial_nuclear_reactor_urban, commercial_nuclear_reactor_water_deep_ocean, commercial_nuclear_reactor_water_fjords, commercial_nuclear_reactor_water_shallow_sea, dam_desert, dam_forest, dam_hills, dam_jungle, dam_lakes, dam_marsh, dam_mountain, dam_mountain_desert, dam_mountain_forest, dam_mountain_hills, dam_mountain_jungle, dam_mountain_lakes, dam_mountain_marsh, dam_mountain_mountain, dam_mountain_ocean, dam_mountain_plains, dam_mountain_unknown, dam_mountain_urban, dam_mountain_water_deep_ocean, dam_mountain_water_fjords, dam_mountain_water_shallow_sea, dam_ocean, dam_plains, dam_unknown, dam_urban, dam_water_deep_ocean, dam_water_fjords, dam_water_shallow_sea, dockyard_desert, dockyard_forest, dockyard_hills, dockyard_jungle, dockyard_lakes, dockyard_marsh, dockyard_mountain, dockyard_ocean, dockyard_plains, dockyard_unknown, dockyard_urban, dockyard_water_deep_ocean, dockyard_water_fjords, dockyard_water_shallow_sea, fuel_silo_desert, fuel_silo_forest, fuel_silo_hills, fuel_silo_jungle, fuel_silo_lakes, fuel_silo_marsh, fuel_silo_mountain, fuel_silo_ocean, fuel_silo_plains, fuel_silo_unknown, fuel_silo_urban, fuel_silo_water_deep_ocean, fuel_silo_water_fjords, fuel_silo_water_shallow_sea, industrial_complex_desert, industrial_complex_forest, industrial_complex_hills, industrial_complex_jungle, industrial_complex_lakes, industrial_complex_marsh, industrial_complex_mountain, industrial_complex_ocean, industrial_complex_plains, industrial_complex_unknown, industrial_complex_urban, industrial_complex_water_deep_ocean, industrial_complex_water_fjords, industrial_complex_water_shallow_sea, infrastructure_desert, infrastructure_forest, infrastructure_hills, infrastructure_jungle, infrastructure_lakes, infrastructure_marsh, infrastructure_mountain, infrastructure_ocean, infrastructure_plains, infrastructure_unknown, infrastructure_urban, infrastructure_water_deep_ocean, infrastructure_water_fjords, infrastructure_water_shallow_sea, land_facility_desert, land_facility_forest, land_facility_hills, land_facility_jungle, land_facility_lakes, land_facility_marsh, land_facility_mountain, land_facility_ocean, land_facility_plains, land_facility_unknown, land_facility_urban, land_facility_water_deep_ocean, land_facility_water_fjords, land_facility_water_shallow_sea, landmark_berlin_reichstag_desert, landmark_berlin_reichstag_forest, landmark_berlin_reichstag_hills, landmark_berlin_reichstag_jungle, landmark_berlin_reichstag_lakes, landmark_berlin_reichstag_marsh, landmark_berlin_reichstag_mountain, landmark_berlin_reichstag_ocean, landmark_berlin_reichstag_plains, landmark_berlin_reichstag_unknown, landmark_berlin_reichstag_urban, landmark_berlin_reichstag_water_deep_ocean, landmark_berlin_reichstag_water_fjords, landmark_berlin_reichstag_water_shallow_sea, landmark_berlin_volkshalle_desert, landmark_berlin_volkshalle_forest, landmark_berlin_volkshalle_hills, landmark_berlin_volkshalle_jungle, landmark_berlin_volkshalle_lakes, landmark_berlin_volkshalle_marsh, landmark_berlin_volkshalle_mountain, landmark_berlin_volkshalle_ocean, landmark_berlin_volkshalle_plains, landmark_berlin_volkshalle_unknown, landmark_berlin_volkshalle_urban, landmark_berlin_volkshalle_water_deep_ocean, landmark_berlin_volkshalle_water_fjords, landmark_berlin_volkshalle_water_shallow_sea, landmark_big_ben_desert, landmark_big_ben_forest, landmark_big_ben_hills, landmark_big_ben_jungle, landmark_big_ben_lakes, landmark_big_ben_marsh, landmark_big_ben_mountain, landmark_big_ben_ocean, landmark_big_ben_plains, landmark_big_ben_unknown, landmark_big_ben_urban, landmark_big_ben_water_deep_ocean, landmark_big_ben_water_fjords, landmark_big_ben_water_shallow_sea, landmark_colosseum_desert, landmark_colosseum_forest, landmark_colosseum_hills, landmark_colosseum_jungle, landmark_colosseum_lakes, landmark_colosseum_marsh, landmark_colosseum_mountain, landmark_colosseum_ocean, landmark_colosseum_plains, landmark_colosseum_unknown, landmark_colosseum_urban, landmark_colosseum_water_deep_ocean, landmark_colosseum_water_fjords, landmark_colosseum_water_shallow_sea, landmark_cristo_redentor_desert, landmark_cristo_redentor_forest, landmark_cristo_redentor_hills, landmark_cristo_redentor_jungle, landmark_cristo_redentor_lakes, landmark_cristo_redentor_marsh, landmark_cristo_redentor_mountain, landmark_cristo_redentor_ocean, landmark_cristo_redentor_plains, landmark_cristo_redentor_unknown, landmark_cristo_redentor_urban, landmark_cristo_redentor_water_deep_ocean, landmark_cristo_redentor_water_fjords, landmark_cristo_redentor_water_shallow_sea, landmark_eiffel_tower_desert, landmark_eiffel_tower_forest, landmark_eiffel_tower_hills, landmark_eiffel_tower_jungle, landmark_eiffel_tower_lakes, landmark_eiffel_tower_marsh, landmark_eiffel_tower_mountain, landmark_eiffel_tower_ocean, landmark_eiffel_tower_plains, landmark_eiffel_tower_unknown, landmark_eiffel_tower_urban, landmark_eiffel_tower_water_deep_ocean, landmark_eiffel_tower_water_fjords, landmark_eiffel_tower_water_shallow_sea, landmark_hagia_sophia_desert, landmark_hagia_sophia_forest, landmark_hagia_sophia_hills, landmark_hagia_sophia_jungle, landmark_hagia_sophia_lakes, landmark_hagia_sophia_marsh, landmark_hagia_sophia_mountain, landmark_hagia_sophia_ocean, landmark_hagia_sophia_plains, landmark_hagia_sophia_unknown, landmark_hagia_sophia_urban, landmark_hagia_sophia_water_deep_ocean, landmark_hagia_sophia_water_fjords, landmark_hagia_sophia_water_shallow_sea, landmark_hofburg_palace_desert, landmark_hofburg_palace_forest, landmark_hofburg_palace_hills, landmark_hofburg_palace_jungle, landmark_hofburg_palace_lakes, landmark_hofburg_palace_marsh, landmark_hofburg_palace_mountain, landmark_hofburg_palace_ocean, landmark_hofburg_palace_plains, landmark_hofburg_palace_unknown, landmark_hofburg_palace_urban, landmark_hofburg_palace_water_deep_ocean, landmark_hofburg_palace_water_fjords, landmark_hofburg_palace_water_shallow_sea, landmark_kremlin_desert, landmark_kremlin_forest, landmark_kremlin_hills, landmark_kremlin_jungle, landmark_kremlin_lakes, landmark_kremlin_marsh, landmark_kremlin_mountain, landmark_kremlin_ocean, landmark_kremlin_plains, landmark_kremlin_unknown, landmark_kremlin_urban, landmark_kremlin_water_deep_ocean, landmark_kremlin_water_fjords, landmark_kremlin_water_shallow_sea, landmark_sadabad_complex_desert, landmark_sadabad_complex_forest, landmark_sadabad_complex_hills, landmark_sadabad_complex_jungle, landmark_sadabad_complex_lakes, landmark_sadabad_complex_marsh, landmark_sadabad_complex_mountain, landmark_sadabad_complex_ocean, landmark_sadabad_complex_plains, landmark_sadabad_complex_unknown, landmark_sadabad_complex_urban, landmark_sadabad_complex_water_deep_ocean, landmark_sadabad_complex_water_fjords, landmark_sadabad_complex_water_shallow_sea, landmark_statue_of_liberty_desert, landmark_statue_of_liberty_forest, landmark_statue_of_liberty_hills, landmark_statue_of_liberty_jungle, landmark_statue_of_liberty_lakes, landmark_statue_of_liberty_marsh, landmark_statue_of_liberty_mountain, landmark_statue_of_liberty_ocean, landmark_statue_of_liberty_plains, landmark_statue_of_liberty_unknown, landmark_statue_of_liberty_urban, landmark_statue_of_liberty_water_deep_ocean, landmark_statue_of_liberty_water_fjords, landmark_statue_of_liberty_water_shallow_sea, landmark_taj_mahal_desert, landmark_taj_mahal_forest, landmark_taj_mahal_hills, landmark_taj_mahal_jungle, landmark_taj_mahal_lakes, landmark_taj_mahal_marsh, landmark_taj_mahal_mountain, landmark_taj_mahal_ocean, landmark_taj_mahal_plains, landmark_taj_mahal_unknown, landmark_taj_mahal_urban, landmark_taj_mahal_water_deep_ocean, landmark_taj_mahal_water_fjords, landmark_taj_mahal_water_shallow_sea, mega_gun_emplacement_desert, mega_gun_emplacement_forest, mega_gun_emplacement_hills, mega_gun_emplacement_jungle, mega_gun_emplacement_lakes, mega_gun_emplacement_marsh, mega_gun_emplacement_mountain, mega_gun_emplacement_ocean, mega_gun_emplacement_plains, mega_gun_emplacement_unknown, mega_gun_emplacement_urban, mega_gun_emplacement_water_deep_ocean, mega_gun_emplacement_water_fjords, mega_gun_emplacement_water_shallow_sea, naval_base_desert, naval_base_forest, naval_base_hills, naval_base_jungle, naval_base_lakes, naval_base_marsh, naval_base_mountain, naval_base_ocean, naval_base_plains, naval_base_unknown, naval_base_urban, naval_base_water_deep_ocean, naval_base_water_fjords, naval_base_water_shallow_sea, naval_facility_desert, naval_facility_forest, naval_facility_hills, naval_facility_jungle, naval_facility_lakes, naval_facility_marsh, naval_facility_mountain, naval_facility_ocean, naval_facility_plains, naval_facility_unknown, naval_facility_urban, naval_facility_water_deep_ocean, naval_facility_water_fjords, naval_facility_water_shallow_sea, nuclear_facility_desert, nuclear_facility_forest, nuclear_facility_hills, nuclear_facility_jungle, nuclear_facility_lakes, nuclear_facility_marsh, nuclear_facility_mountain, nuclear_facility_ocean, nuclear_facility_plains, nuclear_facility_unknown, nuclear_facility_urban, nuclear_facility_water_deep_ocean, nuclear_facility_water_fjords, nuclear_facility_water_shallow_sea, nuclear_reactor_desert, nuclear_reactor_forest, nuclear_reactor_heavy_water_desert, nuclear_reactor_heavy_water_forest, nuclear_reactor_heavy_water_hills, nuclear_reactor_heavy_water_jungle, nuclear_reactor_heavy_water_lakes, nuclear_reactor_heavy_water_marsh, nuclear_reactor_heavy_water_mountain, nuclear_reactor_heavy_water_ocean, nuclear_reactor_heavy_water_plains, nuclear_reactor_heavy_water_unknown, nuclear_reactor_heavy_water_urban, nuclear_reactor_heavy_water_water_deep_ocean, nuclear_reactor_heavy_water_water_fjords, nuclear_reactor_heavy_water_water_shallow_sea, nuclear_reactor_hills, nuclear_reactor_jungle, nuclear_reactor_lakes, nuclear_reactor_marsh, nuclear_reactor_mountain, nuclear_reactor_ocean, nuclear_reactor_plains, nuclear_reactor_unknown, nuclear_reactor_urban, nuclear_reactor_water_deep_ocean, nuclear_reactor_water_fjords, nuclear_reactor_water_shallow_sea, radar_station_desert, radar_station_forest, radar_station_hills, radar_station_jungle, radar_station_lakes, radar_station_marsh, radar_station_mountain, radar_station_ocean, radar_station_plains, radar_station_unknown, radar_station_urban, radar_station_water_deep_ocean, radar_station_water_fjords, radar_station_water_shallow_sea, rail_way_desert, rail_way_forest, rail_way_hills, rail_way_jungle, rail_way_lakes, rail_way_marsh, rail_way_mountain, rail_way_ocean, rail_way_plains, rail_way_unknown, rail_way_urban, rail_way_water_deep_ocean, rail_way_water_fjords, rail_way_water_shallow_sea, rocket_site_desert, rocket_site_forest, rocket_site_hills, rocket_site_jungle, rocket_site_lakes, rocket_site_marsh, rocket_site_mountain, rocket_site_ocean, rocket_site_plains, rocket_site_unknown, rocket_site_urban, rocket_site_water_deep_ocean, rocket_site_water_fjords, rocket_site_water_shallow_sea, stronghold_network_desert, stronghold_network_forest, stronghold_network_hills, stronghold_network_jungle, stronghold_network_lakes, stronghold_network_marsh, stronghold_network_mountain, stronghold_network_ocean, stronghold_network_plains, stronghold_network_unknown, stronghold_network_urban, stronghold_network_water_deep_ocean, stronghold_network_water_fjords, stronghold_network_water_shallow_sea, supply_node_desert, supply_node_forest, supply_node_hills, supply_node_jungle, supply_node_lakes, supply_node_marsh, supply_node_mountain, supply_node_ocean, supply_node_plains, supply_node_unknown, supply_node_urban, supply_node_water_deep_ocean, supply_node_water_fjords, supply_node_water_shallow_sea, synthetic_refinery_desert, synthetic_refinery_forest, synthetic_refinery_hills, synthetic_refinery_jungle, synthetic_refinery_lakes, synthetic_refinery_marsh, synthetic_refinery_mountain, synthetic_refinery_ocean, synthetic_refinery_plains, synthetic_refinery_unknown, synthetic_refinery_urban, synthetic_refinery_water_deep_ocean, synthetic_refinery_water_fjords, synthetic_refinery_water_shallow_sea
+* **Modified types**: air_base_desert, air_base_forest, air_base_hills, air_base_jungle, air_base_lakes, air_base_marsh, air_base_mountain, air_base_ocean, air_base_plains, air_base_unknown, air_base_urban, air_base_water_deep_ocean, air_base_water_fjords, air_base_water_shallow_sea, air_facility_desert, air_facility_forest, air_facility_hills, air_facility_jungle, air_facility_lakes, air_facility_marsh, air_facility_mountain, air_facility_ocean, air_facility_plains, air_facility_unknown, air_facility_urban, air_facility_water_deep_ocean, air_facility_water_fjords, air_facility_water_shallow_sea, anti_air_building_desert, anti_air_building_forest, anti_air_building_hills, anti_air_building_jungle, anti_air_building_lakes, anti_air_building_marsh, anti_air_building_mountain, anti_air_building_ocean, anti_air_building_plains, anti_air_building_unknown, anti_air_building_urban, anti_air_building_water_deep_ocean, anti_air_building_water_fjords, anti_air_building_water_shallow_sea, arms_factory_desert, arms_factory_forest, arms_factory_hills, arms_factory_jungle, arms_factory_lakes, arms_factory_marsh, arms_factory_mountain, arms_factory_ocean, arms_factory_plains, arms_factory_unknown, arms_factory_urban, arms_factory_water_deep_ocean, arms_factory_water_fjords, arms_factory_water_shallow_sea, bunker_desert, bunker_forest, bunker_hills, bunker_jungle, bunker_lakes, bunker_marsh, bunker_mountain, bunker_ocean, bunker_plains, bunker_unknown, bunker_urban, bunker_water_deep_ocean, bunker_water_fjords, bunker_water_shallow_sea, canal_kiel_desert, canal_kiel_forest, canal_kiel_hills, canal_kiel_jungle, canal_kiel_lakes, canal_kiel_marsh, canal_kiel_mountain, canal_kiel_ocean, canal_kiel_plains, canal_kiel_unknown, canal_kiel_urban, canal_kiel_water_deep_ocean, canal_kiel_water_fjords, canal_kiel_water_shallow_sea, canal_panama_desert, canal_panama_forest, canal_panama_hills, canal_panama_jungle, canal_panama_lakes, canal_panama_marsh, canal_panama_mountain, canal_panama_ocean, canal_panama_plains, canal_panama_unknown, canal_panama_urban, canal_panama_water_deep_ocean, canal_panama_water_fjords, canal_panama_water_shallow_sea, coastal_bunker_desert, coastal_bunker_forest, coastal_bunker_hills, coastal_bunker_jungle, coastal_bunker_lakes, coastal_bunker_marsh, coastal_bunker_mountain, coastal_bunker_ocean, coastal_bunker_plains, coastal_bunker_unknown, coastal_bunker_urban, coastal_bunker_water_deep_ocean, coastal_bunker_water_fjords, coastal_bunker_water_shallow_sea, commercial_nuclear_reactor_desert, commercial_nuclear_reactor_forest, commercial_nuclear_reactor_hills, commercial_nuclear_reactor_jungle, commercial_nuclear_reactor_lakes, commercial_nuclear_reactor_marsh, commercial_nuclear_reactor_mountain, commercial_nuclear_reactor_ocean, commercial_nuclear_reactor_plains, commercial_nuclear_reactor_unknown, commercial_nuclear_reactor_urban, commercial_nuclear_reactor_water_deep_ocean, commercial_nuclear_reactor_water_fjords, commercial_nuclear_reactor_water_shallow_sea, dam_desert, dam_forest, dam_hills, dam_jungle, dam_lakes, dam_marsh, dam_mountain, dam_mountain_desert, dam_mountain_forest, dam_mountain_hills, dam_mountain_jungle, dam_mountain_lakes, dam_mountain_marsh, dam_mountain_mountain, dam_mountain_ocean, dam_mountain_plains, dam_mountain_unknown, dam_mountain_urban, dam_mountain_water_deep_ocean, dam_mountain_water_fjords, dam_mountain_water_shallow_sea, dam_ocean, dam_plains, dam_unknown, dam_urban, dam_water_deep_ocean, dam_water_fjords, dam_water_shallow_sea, dockyard_desert, dockyard_forest, dockyard_hills, dockyard_jungle, dockyard_lakes, dockyard_marsh, dockyard_mountain, dockyard_ocean, dockyard_plains, dockyard_unknown, dockyard_urban, dockyard_water_deep_ocean, dockyard_water_fjords, dockyard_water_shallow_sea, fuel_silo_desert, fuel_silo_forest, fuel_silo_hills, fuel_silo_jungle, fuel_silo_lakes, fuel_silo_marsh, fuel_silo_mountain, fuel_silo_ocean, fuel_silo_plains, fuel_silo_unknown, fuel_silo_urban, fuel_silo_water_deep_ocean, fuel_silo_water_fjords, fuel_silo_water_shallow_sea, industrial_complex_desert, industrial_complex_forest, industrial_complex_hills, industrial_complex_jungle, industrial_complex_lakes, industrial_complex_marsh, industrial_complex_mountain, industrial_complex_ocean, industrial_complex_plains, industrial_complex_unknown, industrial_complex_urban, industrial_complex_water_deep_ocean, industrial_complex_water_fjords, industrial_complex_water_shallow_sea, infrastructure_desert, infrastructure_forest, infrastructure_hills, infrastructure_jungle, infrastructure_lakes, infrastructure_marsh, infrastructure_mountain, infrastructure_ocean, infrastructure_plains, infrastructure_unknown, infrastructure_urban, infrastructure_water_deep_ocean, infrastructure_water_fjords, infrastructure_water_shallow_sea, land_facility_desert, land_facility_forest, land_facility_hills, land_facility_jungle, land_facility_lakes, land_facility_marsh, land_facility_mountain, land_facility_ocean, land_facility_plains, land_facility_unknown, land_facility_urban, land_facility_water_deep_ocean, land_facility_water_fjords, land_facility_water_shallow_sea, landmark_berlin_reichstag_desert, landmark_berlin_reichstag_forest, landmark_berlin_reichstag_hills, landmark_berlin_reichstag_jungle, landmark_berlin_reichstag_lakes, landmark_berlin_reichstag_marsh, landmark_berlin_reichstag_mountain, landmark_berlin_reichstag_ocean, landmark_berlin_reichstag_plains, landmark_berlin_reichstag_unknown, landmark_berlin_reichstag_urban, landmark_berlin_reichstag_water_deep_ocean, landmark_berlin_reichstag_water_fjords, landmark_berlin_reichstag_water_shallow_sea, landmark_berlin_volkshalle_desert, landmark_berlin_volkshalle_forest, landmark_berlin_volkshalle_hills, landmark_berlin_volkshalle_jungle, landmark_berlin_volkshalle_lakes, landmark_berlin_volkshalle_marsh, landmark_berlin_volkshalle_mountain, landmark_berlin_volkshalle_ocean, landmark_berlin_volkshalle_plains, landmark_berlin_volkshalle_unknown, landmark_berlin_volkshalle_urban, landmark_berlin_volkshalle_water_deep_ocean, landmark_berlin_volkshalle_water_fjords, landmark_berlin_volkshalle_water_shallow_sea, landmark_big_ben_desert, landmark_big_ben_forest, landmark_big_ben_hills, landmark_big_ben_jungle, landmark_big_ben_lakes, landmark_big_ben_marsh, landmark_big_ben_mountain, landmark_big_ben_ocean, landmark_big_ben_plains, landmark_big_ben_unknown, landmark_big_ben_urban, landmark_big_ben_water_deep_ocean, landmark_big_ben_water_fjords, landmark_big_ben_water_shallow_sea, landmark_colosseum_desert, landmark_colosseum_forest, landmark_colosseum_hills, landmark_colosseum_jungle, landmark_colosseum_lakes, landmark_colosseum_marsh, landmark_colosseum_mountain, landmark_colosseum_ocean, landmark_colosseum_plains, landmark_colosseum_unknown, landmark_colosseum_urban, landmark_colosseum_water_deep_ocean, landmark_colosseum_water_fjords, landmark_colosseum_water_shallow_sea, landmark_cristo_redentor_desert, landmark_cristo_redentor_forest, landmark_cristo_redentor_hills, landmark_cristo_redentor_jungle, landmark_cristo_redentor_lakes, landmark_cristo_redentor_marsh, landmark_cristo_redentor_mountain, landmark_cristo_redentor_ocean, landmark_cristo_redentor_plains, landmark_cristo_redentor_unknown, landmark_cristo_redentor_urban, landmark_cristo_redentor_water_deep_ocean, landmark_cristo_redentor_water_fjords, landmark_cristo_redentor_water_shallow_sea, landmark_eiffel_tower_desert, landmark_eiffel_tower_forest, landmark_eiffel_tower_hills, landmark_eiffel_tower_jungle, landmark_eiffel_tower_lakes, landmark_eiffel_tower_marsh, landmark_eiffel_tower_mountain, landmark_eiffel_tower_ocean, landmark_eiffel_tower_plains, landmark_eiffel_tower_unknown, landmark_eiffel_tower_urban, landmark_eiffel_tower_water_deep_ocean, landmark_eiffel_tower_water_fjords, landmark_eiffel_tower_water_shallow_sea, landmark_forbidden_city_desert, landmark_forbidden_city_forest, landmark_forbidden_city_hills, landmark_forbidden_city_jungle, landmark_forbidden_city_lakes, landmark_forbidden_city_marsh, landmark_forbidden_city_mountain, landmark_forbidden_city_ocean, landmark_forbidden_city_plains, landmark_forbidden_city_unknown, landmark_forbidden_city_urban, landmark_forbidden_city_water_deep_ocean, landmark_forbidden_city_water_fjords, landmark_forbidden_city_water_shallow_sea, landmark_great_wall_section_desert, landmark_great_wall_section_forest, landmark_great_wall_section_hills, landmark_great_wall_section_jungle, landmark_great_wall_section_lakes, landmark_great_wall_section_marsh, landmark_great_wall_section_mountain, landmark_great_wall_section_ocean, landmark_great_wall_section_plains, landmark_great_wall_section_unknown, landmark_great_wall_section_urban, landmark_great_wall_section_water_deep_ocean, landmark_great_wall_section_water_fjords, landmark_great_wall_section_water_shallow_sea, landmark_hagia_sophia_desert, landmark_hagia_sophia_forest, landmark_hagia_sophia_hills, landmark_hagia_sophia_jungle, landmark_hagia_sophia_lakes, landmark_hagia_sophia_marsh, landmark_hagia_sophia_mountain, landmark_hagia_sophia_ocean, landmark_hagia_sophia_plains, landmark_hagia_sophia_unknown, landmark_hagia_sophia_urban, landmark_hagia_sophia_water_deep_ocean, landmark_hagia_sophia_water_fjords, landmark_hagia_sophia_water_shallow_sea, landmark_hakko_ichiu_desert, landmark_hakko_ichiu_forest, landmark_hakko_ichiu_hills, landmark_hakko_ichiu_jungle, landmark_hakko_ichiu_lakes, landmark_hakko_ichiu_marsh, landmark_hakko_ichiu_mountain, landmark_hakko_ichiu_ocean, landmark_hakko_ichiu_plains, landmark_hakko_ichiu_unknown, landmark_hakko_ichiu_urban, landmark_hakko_ichiu_water_deep_ocean, landmark_hakko_ichiu_water_fjords, landmark_hakko_ichiu_water_shallow_sea, landmark_hofburg_palace_desert, landmark_hofburg_palace_forest, landmark_hofburg_palace_hills, landmark_hofburg_palace_jungle, landmark_hofburg_palace_lakes, landmark_hofburg_palace_marsh, landmark_hofburg_palace_mountain, landmark_hofburg_palace_ocean, landmark_hofburg_palace_plains, landmark_hofburg_palace_unknown, landmark_hofburg_palace_urban, landmark_hofburg_palace_water_deep_ocean, landmark_hofburg_palace_water_fjords, landmark_hofburg_palace_water_shallow_sea, landmark_kremlin_desert, landmark_kremlin_forest, landmark_kremlin_hills, landmark_kremlin_jungle, landmark_kremlin_lakes, landmark_kremlin_marsh, landmark_kremlin_mountain, landmark_kremlin_ocean, landmark_kremlin_plains, landmark_kremlin_unknown, landmark_kremlin_urban, landmark_kremlin_water_deep_ocean, landmark_kremlin_water_fjords, landmark_kremlin_water_shallow_sea, landmark_nanjing_presidential_palace_desert, landmark_nanjing_presidential_palace_forest, landmark_nanjing_presidential_palace_gen_desert, landmark_nanjing_presidential_palace_gen_forest, landmark_nanjing_presidential_palace_gen_hills, landmark_nanjing_presidential_palace_gen_jungle, landmark_nanjing_presidential_palace_gen_lakes, landmark_nanjing_presidential_palace_gen_marsh, landmark_nanjing_presidential_palace_gen_mountain, landmark_nanjing_presidential_palace_gen_ocean, landmark_nanjing_presidential_palace_gen_plains, landmark_nanjing_presidential_palace_gen_unknown, landmark_nanjing_presidential_palace_gen_urban, landmark_nanjing_presidential_palace_gen_water_deep_ocean, landmark_nanjing_presidential_palace_gen_water_fjords, landmark_nanjing_presidential_palace_gen_water_shallow_sea, landmark_nanjing_presidential_palace_hills, landmark_nanjing_presidential_palace_jungle, landmark_nanjing_presidential_palace_lakes, landmark_nanjing_presidential_palace_marsh, landmark_nanjing_presidential_palace_mountain, landmark_nanjing_presidential_palace_ocean, landmark_nanjing_presidential_palace_plains, landmark_nanjing_presidential_palace_prc_desert, landmark_nanjing_presidential_palace_prc_forest, landmark_nanjing_presidential_palace_prc_hills, landmark_nanjing_presidential_palace_prc_jungle, landmark_nanjing_presidential_palace_prc_lakes, landmark_nanjing_presidential_palace_prc_marsh, landmark_nanjing_presidential_palace_prc_mountain, landmark_nanjing_presidential_palace_prc_ocean, landmark_nanjing_presidential_palace_prc_plains, landmark_nanjing_presidential_palace_prc_unknown, landmark_nanjing_presidential_palace_prc_urban, landmark_nanjing_presidential_palace_prc_water_deep_ocean, landmark_nanjing_presidential_palace_prc_water_fjords, landmark_nanjing_presidential_palace_prc_water_shallow_sea, landmark_nanjing_presidential_palace_unknown, landmark_nanjing_presidential_palace_urban, landmark_nanjing_presidential_palace_water_deep_ocean, landmark_nanjing_presidential_palace_water_fjords, landmark_nanjing_presidential_palace_water_shallow_sea, landmark_national_diet_desert, landmark_national_diet_forest, landmark_national_diet_hills, landmark_national_diet_jungle, landmark_national_diet_lakes, landmark_national_diet_marsh, landmark_national_diet_mountain, landmark_national_diet_ocean, landmark_national_diet_plains, landmark_national_diet_unknown, landmark_national_diet_urban, landmark_national_diet_water_deep_ocean, landmark_national_diet_water_fjords, landmark_national_diet_water_shallow_sea, landmark_sadabad_complex_desert, landmark_sadabad_complex_forest, landmark_sadabad_complex_hills, landmark_sadabad_complex_jungle, landmark_sadabad_complex_lakes, landmark_sadabad_complex_marsh, landmark_sadabad_complex_mountain, landmark_sadabad_complex_ocean, landmark_sadabad_complex_plains, landmark_sadabad_complex_unknown, landmark_sadabad_complex_urban, landmark_sadabad_complex_water_deep_ocean, landmark_sadabad_complex_water_fjords, landmark_sadabad_complex_water_shallow_sea, landmark_statue_of_liberty_desert, landmark_statue_of_liberty_forest, landmark_statue_of_liberty_hills, landmark_statue_of_liberty_jungle, landmark_statue_of_liberty_lakes, landmark_statue_of_liberty_marsh, landmark_statue_of_liberty_mountain, landmark_statue_of_liberty_ocean, landmark_statue_of_liberty_plains, landmark_statue_of_liberty_unknown, landmark_statue_of_liberty_urban, landmark_statue_of_liberty_water_deep_ocean, landmark_statue_of_liberty_water_fjords, landmark_statue_of_liberty_water_shallow_sea, landmark_taj_mahal_desert, landmark_taj_mahal_forest, landmark_taj_mahal_hills, landmark_taj_mahal_jungle, landmark_taj_mahal_lakes, landmark_taj_mahal_marsh, landmark_taj_mahal_mountain, landmark_taj_mahal_ocean, landmark_taj_mahal_plains, landmark_taj_mahal_unknown, landmark_taj_mahal_urban, landmark_taj_mahal_water_deep_ocean, landmark_taj_mahal_water_fjords, landmark_taj_mahal_water_shallow_sea, landmark_tokyo_imperial_palace_desert, landmark_tokyo_imperial_palace_forest, landmark_tokyo_imperial_palace_hills, landmark_tokyo_imperial_palace_jungle, landmark_tokyo_imperial_palace_lakes, landmark_tokyo_imperial_palace_marsh, landmark_tokyo_imperial_palace_mountain, landmark_tokyo_imperial_palace_ocean, landmark_tokyo_imperial_palace_plains, landmark_tokyo_imperial_palace_unknown, landmark_tokyo_imperial_palace_urban, landmark_tokyo_imperial_palace_water_deep_ocean, landmark_tokyo_imperial_palace_water_fjords, landmark_tokyo_imperial_palace_water_shallow_sea, mega_gun_emplacement_desert, mega_gun_emplacement_forest, mega_gun_emplacement_hills, mega_gun_emplacement_jungle, mega_gun_emplacement_lakes, mega_gun_emplacement_marsh, mega_gun_emplacement_mountain, mega_gun_emplacement_ocean, mega_gun_emplacement_plains, mega_gun_emplacement_unknown, mega_gun_emplacement_urban, mega_gun_emplacement_water_deep_ocean, mega_gun_emplacement_water_fjords, mega_gun_emplacement_water_shallow_sea, naval_base_desert, naval_base_forest, naval_base_hills, naval_base_jungle, naval_base_lakes, naval_base_marsh, naval_base_mountain, naval_base_ocean, naval_base_plains, naval_base_unknown, naval_base_urban, naval_base_water_deep_ocean, naval_base_water_fjords, naval_base_water_shallow_sea, naval_facility_desert, naval_facility_forest, naval_facility_hills, naval_facility_jungle, naval_facility_lakes, naval_facility_marsh, naval_facility_mountain, naval_facility_ocean, naval_facility_plains, naval_facility_unknown, naval_facility_urban, naval_facility_water_deep_ocean, naval_facility_water_fjords, naval_facility_water_shallow_sea, naval_headquarters_desert, naval_headquarters_forest, naval_headquarters_hills, naval_headquarters_jungle, naval_headquarters_lakes, naval_headquarters_marsh, naval_headquarters_mountain, naval_headquarters_ocean, naval_headquarters_plains, naval_headquarters_unknown, naval_headquarters_urban, naval_headquarters_water_deep_ocean, naval_headquarters_water_fjords, naval_headquarters_water_shallow_sea, naval_supply_hub_desert, naval_supply_hub_forest, naval_supply_hub_hills, naval_supply_hub_jungle, naval_supply_hub_lakes, naval_supply_hub_marsh, naval_supply_hub_mountain, naval_supply_hub_ocean, naval_supply_hub_plains, naval_supply_hub_unknown, naval_supply_hub_urban, naval_supply_hub_water_deep_ocean, naval_supply_hub_water_fjords, naval_supply_hub_water_shallow_sea, nuclear_facility_desert, nuclear_facility_forest, nuclear_facility_hills, nuclear_facility_jungle, nuclear_facility_lakes, nuclear_facility_marsh, nuclear_facility_mountain, nuclear_facility_ocean, nuclear_facility_plains, nuclear_facility_unknown, nuclear_facility_urban, nuclear_facility_water_deep_ocean, nuclear_facility_water_fjords, nuclear_facility_water_shallow_sea, nuclear_reactor_desert, nuclear_reactor_forest, nuclear_reactor_heavy_water_desert, nuclear_reactor_heavy_water_forest, nuclear_reactor_heavy_water_hills, nuclear_reactor_heavy_water_jungle, nuclear_reactor_heavy_water_lakes, nuclear_reactor_heavy_water_marsh, nuclear_reactor_heavy_water_mountain, nuclear_reactor_heavy_water_ocean, nuclear_reactor_heavy_water_plains, nuclear_reactor_heavy_water_unknown, nuclear_reactor_heavy_water_urban, nuclear_reactor_heavy_water_water_deep_ocean, nuclear_reactor_heavy_water_water_fjords, nuclear_reactor_heavy_water_water_shallow_sea, nuclear_reactor_hills, nuclear_reactor_jungle, nuclear_reactor_lakes, nuclear_reactor_marsh, nuclear_reactor_mountain, nuclear_reactor_ocean, nuclear_reactor_plains, nuclear_reactor_unknown, nuclear_reactor_urban, nuclear_reactor_water_deep_ocean, nuclear_reactor_water_fjords, nuclear_reactor_water_shallow_sea, radar_station_desert, radar_station_forest, radar_station_hills, radar_station_jungle, radar_station_lakes, radar_station_marsh, radar_station_mountain, radar_station_ocean, radar_station_plains, radar_station_unknown, radar_station_urban, radar_station_water_deep_ocean, radar_station_water_fjords, radar_station_water_shallow_sea, rail_way_desert, rail_way_forest, rail_way_hills, rail_way_jungle, rail_way_lakes, rail_way_marsh, rail_way_mountain, rail_way_ocean, rail_way_plains, rail_way_unknown, rail_way_urban, rail_way_water_deep_ocean, rail_way_water_fjords, rail_way_water_shallow_sea, rocket_site_desert, rocket_site_forest, rocket_site_hills, rocket_site_jungle, rocket_site_lakes, rocket_site_marsh, rocket_site_mountain, rocket_site_ocean, rocket_site_plains, rocket_site_unknown, rocket_site_urban, rocket_site_water_deep_ocean, rocket_site_water_fjords, rocket_site_water_shallow_sea, stronghold_network_desert, stronghold_network_forest, stronghold_network_hills, stronghold_network_jungle, stronghold_network_lakes, stronghold_network_marsh, stronghold_network_mountain, stronghold_network_ocean, stronghold_network_plains, stronghold_network_unknown, stronghold_network_urban, stronghold_network_water_deep_ocean, stronghold_network_water_fjords, stronghold_network_water_shallow_sea, supply_node_desert, supply_node_forest, supply_node_hills, supply_node_jungle, supply_node_lakes, supply_node_marsh, supply_node_mountain, supply_node_ocean, supply_node_plains, supply_node_unknown, supply_node_urban, supply_node_water_deep_ocean, supply_node_water_fjords, supply_node_water_shallow_sea, synthetic_refinery_desert, synthetic_refinery_forest, synthetic_refinery_hills, synthetic_refinery_jungle, synthetic_refinery_lakes, synthetic_refinery_marsh, synthetic_refinery_mountain, synthetic_refinery_ocean, synthetic_refinery_plains, synthetic_refinery_unknown, synthetic_refinery_urban, synthetic_refinery_water_deep_ocean, synthetic_refinery_water_fjords, synthetic_refinery_water_shallow_sea
 
-##  <a id="-ideagroup-_cost_factor"/>\<IdeaGroup\>_cost_factor
+##  <span id="production_cost_max_-navalequipment-"></span>production_cost_max_<NavalEquipment>
+
+* **Description**: Max naval equipment production cost.
+* Number with 0 decimal places
+* **Categories**: naval
+
+* **Modified types**: convoy, floating_harbor_equipment, repair_ship_hull, ship_hull_carrier, ship_hull_cruiser, ship_hull_heavy, ship_hull_light, ship_hull_submarine, support_ship_hull
+
+##  <span id="production_speed_-building-_factor"></span>production_speed_<Building>_factor
+
+* **Description**: Country building construction speed factor.
+* Number with 2 decimal places
+* **Categories**: country
+
+* **Modified types**: air_base, air_facility, anti_air_building, arms_factory, bunker, canal_kiel, canal_panama, coastal_bunker, commercial_nuclear_reactor, dam, dam_mountain, dockyard, fuel_silo, industrial_complex, infrastructure, land_facility, landmark_berlin_reichstag, landmark_berlin_volkshalle, landmark_big_ben, landmark_colosseum, landmark_cristo_redentor, landmark_eiffel_tower, landmark_forbidden_city, landmark_great_wall_section, landmark_hagia_sophia, landmark_hakko_ichiu, landmark_hofburg_palace, landmark_kremlin, landmark_nanjing_presidential_palace, landmark_nanjing_presidential_palace_gen, landmark_nanjing_presidential_palace_prc, landmark_national_diet, landmark_sadabad_complex, landmark_statue_of_liberty, landmark_taj_mahal, landmark_tokyo_imperial_palace, mega_gun_emplacement, naval_base, naval_facility, naval_headquarters, naval_supply_hub, nuclear_facility, nuclear_reactor, nuclear_reactor_heavy_water, radar_station, rail_way, rocket_site, stronghold_network, supply_node, synthetic_refinery
+
+##  <span id="-ideology-_drift"></span><Ideology>_drift
+
+* **Description**: Ideology drift.
+* Number with 2 decimal places
+* **Categories**: politics
+
+* **Modified types**: communism, democratic, fascism, neutrality
+
+##  <span id="module_-equipmentmodule-_design_cost_factor"></span>module_<EquipmentModule>_design_cost_factor
+
+* **Description**: Module design cost factor.
+* Number with 2 decimal places
+* **Categories**: naval, country, army
+
+* **Modified types**: NOR_rikstanken_turret, NOR_tank_rikstanken_armor, additional_machine_guns, advanced_flamethrower, air_air_radar_1, air_air_radar_2, air_ground_radar_1, air_ground_radar_2, aircraft_cannon_1_1x, aircraft_cannon_1_2x, aircraft_cannon_2_1x, aircraft_cannon_2_2x, airdropped_mines, amphibious_drive, armor_piercing_bomb_locks, armor_plate_large, armor_plate_medium, armor_plate_small, armor_skirts, auto_loader, big_ship_deck_space, bomb_locks, bomb_sights_1, bomb_sights_2, cannon_defense_turret, cannon_defense_turret_2x, carrier_ship_engine_1, carrier_ship_engine_2, carrier_ship_engine_3, carrier_ship_engine_4, carrier_ship_nuclear_engine_1, cruiser_ship_engine_1, cruiser_ship_engine_2, cruiser_ship_engine_3, cruiser_ship_engine_4, demining_coil, dive_brakes_small, dozer_blade, dp_light_battery_1, dp_light_battery_2, dp_light_battery_3, dp_light_battery_4, dp_ship_medium_1, dp_ship_secondaries_1, dp_ship_secondaries_2, dp_ship_secondaries_3, dp_ship_secondaries_4, drop_tanks, earthshaker_bomb_release, easy_maintenance, engine_1_1x, engine_1_2x, engine_1_3x, engine_1_4x, engine_1_6x, engine_2_1x, engine_2_2x, engine_2_3x, engine_2_4x, engine_2_6x, engine_3_1x, engine_3_2x, engine_3_3x, engine_3_4x, engine_3_6x, engine_4_1x, engine_4_2x, engine_4_3x, engine_4_4x, engine_4_6x, expanded_fuel_tank, extra_ammo_storage, fixed_explosive_charge, flamethrower, floats, flying_boat_large, flying_boat_medium, fuel_tanks_large, fuel_tanks_medium, fuel_tanks_small, guided_anti_ship_missile, heavy_bomb_locks, heavy_mg_2x, heavy_mg_4x, heavy_ship_engine_1, heavy_ship_engine_2, heavy_ship_engine_3, heavy_ship_engine_4, heavy_ship_nuclear_engine_1, hmg_defense_turret, hmg_defense_turret_2x, improved_rocket_propelled_bombs, jet_engine_1x, jet_engine_2x, jet_engine_3x, jet_engine_4x, jet_engine_6x, jet_engine_axial_1x, jet_engine_axial_2x, jet_engine_axial_3x, jet_engine_axial_4x, jet_engine_axial_6x, large_aircraft_cannon_1x, large_aircraft_cannon_2x, large_bomb_bay, lc_aircraft_catapult, lc_armored_skirts, lc_assault_gun, lc_bunker_emplacement, lc_command_center, lc_flamethrower_turret, lc_heavy_anti_air_battery, lc_heavy_anti_air_platform, lc_heavy_high_velocity_cannons, lc_heavy_naval_guns, lc_helipad, lc_high_impact_obliterator_cannon, lc_high_velocity_cannon_turret, lc_hull_mounted_railway_gun, lc_internal_ammunition_compartments, lc_internal_fuel_tanks, lc_light_anti_air_battery, lc_medium_cannon_turret, lc_medium_naval_guns, lc_obstacle_clearance_gear, lc_radar, lc_radio_1, lc_radio_2, lc_radio_3, lc_rocket_launcher, lc_smoke_generators, lc_stabilizers, lc_super_heavy_howitzer, lc_super_heavy_railway_gun, lc_wet_ammunition_storage, light_mg_2x, light_mg_4x, light_ship_engine_1, light_ship_engine_2, light_ship_engine_3, light_ship_engine_4, lmg_defense_turret, lmg_defense_turret_2x, medium_bomb_bay, non_strategic_materials_large, non_strategic_materials_medium, non_strategic_materials_small, radio_navigation_1, radio_navigation_2, recon_camera, rocket_engine_1, rocket_engine_2, rocket_engine_3, rocket_propelled_bombs, rocket_rails, secondary_turret_hmg, secondary_turret_small_cannon, self_sealing_fuel_tanks_large, self_sealing_fuel_tanks_medium, self_sealing_fuel_tanks_small, ship_airplane_launcher_1, ship_airplane_launcher_2, ship_anechoic_tile, ship_anti_air_1, ship_anti_air_2, ship_anti_air_3, ship_anti_air_4, ship_armor_bb_1, ship_armor_bb_2, ship_armor_bb_3, ship_armor_bc_1, ship_armor_bc_2, ship_armor_bc_3, ship_armor_carrier_deck, ship_armor_cruiser_1, ship_armor_cruiser_2, ship_armor_cruiser_3, ship_armor_cruiser_4, ship_armor_ice_carrier_deck_1, ship_armor_ice_carrier_deck_2, ship_armor_ice_carrier_deck_3, ship_armor_shbb, ship_deck_space, ship_depth_charge_1, ship_depth_charge_2, ship_depth_charge_3, ship_depth_charge_4, ship_engine_sub_aip_1, ship_engine_sub_aip_2, ship_engine_sub_aip_3, ship_escort_deck_space, ship_extra_fuel_tank, ship_fire_control_system_0, ship_fire_control_system_1, ship_fire_control_system_2, ship_fire_control_system_3, ship_heavy_battery_1, ship_heavy_battery_2, ship_heavy_battery_3, ship_heavy_battery_4, ship_light_battery_1, ship_light_battery_2, ship_light_battery_3, ship_light_battery_4, ship_light_battery_sub, ship_light_medium_battery_1, ship_light_medium_battery_2, ship_light_medium_battery_3, ship_light_medium_battery_4, ship_medium_battery_1, ship_medium_battery_2, ship_medium_battery_3, ship_medium_battery_4, ship_mine_layer_1, ship_mine_layer_sub, ship_mine_sweeper_1, ship_radar_1, ship_radar_2, ship_radar_3, ship_radar_4, ship_seaplane_tender_1, ship_seaplane_tender_2, ship_secondaries_1, ship_secondaries_2, ship_sonar_1, ship_sonar_2, ship_sonar_3, ship_sonar_4, ship_sub_snorkel_1, ship_sub_snorkel_2, ship_submarine_deck_space, ship_super_heavy_battery_1, ship_torpedo_1, ship_torpedo_2, ship_torpedo_3, ship_torpedo_4, ship_torpedo_sub_1, ship_torpedo_sub_2, ship_torpedo_sub_3, ship_torpedo_sub_4, ship_torpedo_sub_nuclear, slbm_launcher, sloped_armor, small_bomb_bay, smoke_launchers, squeezebore_adaptor, stabilizer, sub_missile_launcher, sub_ship_engine_1, sub_ship_engine_2, sub_ship_engine_3, sub_ship_engine_4, sub_ship_nuclear_engine_1, tank_anti_air_cannon, tank_anti_air_cannon_2, tank_anti_air_cannon_3, tank_auto_cannon, tank_auto_cannon_2, tank_bogie_suspension, tank_buster_1, tank_buster_2, tank_cast_armor, tank_christie_suspension, tank_close_support_gun, tank_diesel_engine, tank_gas_turbine_engine, tank_gasoline_engine, tank_half_track_suspension, tank_heavy_cannon, tank_heavy_cannon_2, tank_heavy_cannon_3, tank_heavy_fixed_superstructure_turret, tank_heavy_howitzer, tank_heavy_machine_gun, tank_heavy_three_man_tank_turret, tank_heavy_two_man_tank_turret, tank_high_velocity_cannon, tank_high_velocity_cannon_2, tank_high_velocity_cannon_3, tank_interleaved_suspension, tank_light_fixed_superstructure_turret, tank_light_one_man_tank_turret, tank_light_three_man_tank_turret, tank_light_two_man_tank_turret, tank_medium_cannon, tank_medium_cannon_2, tank_medium_fixed_superstructure_turret, tank_medium_howitzer, tank_medium_howitzer_2, tank_medium_one_man_tank_turret, tank_medium_three_man_tank_turret, tank_medium_two_man_tank_turret, tank_modern_tank_turret, tank_petrol_electric_engine, tank_radio_1, tank_radio_2, tank_radio_3, tank_riveted_armor, tank_rocket_launcher, tank_rocket_launcher_2, tank_small_cannon, tank_small_cannon_2, tank_super_heavy_cannon, tank_super_heavy_four_man_tank_turret, tank_super_heavy_three_man_tank_turret, tank_torsion_bar_suspension, tank_welded_armor, tank_wheeled_suspension, torpedo_mounting, torpedo_mounting_2, torpedo_mounting_3, wet_ammo_storage
+
+##  <span id="-ideagroup-_cost_factor"></span><IdeaGroup>_cost_factor
 
 * **Description**: Idea group cost factor.
 * Number with 0 decimal places
@@ -1348,37 +1398,141 @@ The listed decimal places is for display only. All numbers support up to
 
 * **Modified types**: academy_spirit, air_chief, air_force_academy_spirit, air_force_command_spirit, air_force_spirit, aircraft_manufacturer, army_chief, army_spirit, country, division_command_spirit, economy, hidden_ideas, high_command, industrial_concern, materiel_manufacturer, mobilization_laws, naval_academy_spirit, naval_command_spirit, naval_manufacturer, navy_chief, navy_spirit, political_advisor, tank_manufacturer, theorist, trade_laws
 
-##  <a id="state_-building-_max_level_terrain_limit"/>state_\<Building\>_max_level_terrain_limit
+##  <span id="-operation-_outcome"></span><Operation>_outcome
+
+* **Description**: Operation outcome modifier.
+* Number with 0 decimal places
+* **Categories**: intelligence_agency
+
+* **Modified types**: FRA_coup_in_central_africa, FRA_coup_in_indochina, FRA_coup_in_madagascar, FRA_coup_in_north_africa, FRA_coup_in_syria, FRA_coup_in_west_africa, FRA_instigate_workers_revolution_britain, FRA_instigate_workers_revolution_germany, FRA_instigate_workers_revolution_italy, FRA_instigate_workers_revolution_spain, bruneval_raid, capture_tito, heavy_water_raid, murder_trotsky, nuclear_espionage, operation_boost_resistance, operation_capture_cipher, operation_collaboration_government, operation_coordinated_strike, operation_coup_government, operation_fake_intel, operation_infiltrate_armed_forces_airforce, operation_infiltrate_armed_forces_army, operation_infiltrate_armed_forces_navy, operation_infiltrate_civilian, operation_make_resistance_contacts, operation_rescue_operative, operation_steal_tech, operation_steal_tech_airforce, operation_steal_tech_army, operation_steal_tech_civilian, operation_steal_tech_navy, operation_targeted_sabotage_industry, operation_targeted_sabotage_infrastructure, operation_targeted_sabotage_resources, operation_warsaw_uprising, raid_trotskys_villa, rescue_mussolini
+
+##  <span id="state_-building-_max_level_terrain_limit"></span>state_<Building>_max_level_terrain_limit
 
 * **Description**: Maximum allowed building level for terrain.
 * Number with 0 decimal places
 * **Categories**: state
 
-* **Modified types**: air_base, air_facility, anti_air_building, arms_factory, bunker, canal_kiel, canal_panama, coastal_bunker, commercial_nuclear_reactor, dam, dockyard, fuel_silo, industrial_complex, infrastructure, land_facility, landmark_berlin_reichstag, landmark_berlin_volkshalle, landmark_big_ben, landmark_colosseum, landmark_cristo_redentor, landmark_eiffel_tower, landmark_hagia_sophia, landmark_hofburg_palace, landmark_kremlin, landmark_sadabad_complex, landmark_statue_of_liberty, landmark_taj_mahal, mega_gun_emplacement, naval_base, naval_facility, nuclear_facility, nuclear_reactor, nuclear_reactor_heavy_water, radar_station, rail_way, rocket_site, stronghold_network, supply_node, synthetic_refinery
+* **Modified types**: air_base, air_facility, anti_air_building, arms_factory, bunker, canal_kiel, canal_panama, coastal_bunker, commercial_nuclear_reactor, dam, dockyard, fuel_silo, industrial_complex, infrastructure, land_facility, landmark_berlin_reichstag, landmark_berlin_volkshalle, landmark_big_ben, landmark_colosseum, landmark_cristo_redentor, landmark_eiffel_tower, landmark_forbidden_city, landmark_great_wall_section, landmark_hagia_sophia, landmark_hakko_ichiu, landmark_hofburg_palace, landmark_kremlin, landmark_nanjing_presidential_palace, landmark_nanjing_presidential_palace_gen, landmark_nanjing_presidential_palace_prc, landmark_national_diet, landmark_sadabad_complex, landmark_statue_of_liberty, landmark_taj_mahal, landmark_tokyo_imperial_palace, mega_gun_emplacement, naval_base, naval_facility, naval_headquarters, naval_supply_hub, nuclear_facility, nuclear_reactor, nuclear_reactor_heavy_water, radar_station, rail_way, rocket_site, stronghold_network, supply_node, synthetic_refinery
 
-##  <a id="-trait-_xp_gain_factor"/>\<Trait\>_xp_gain_factor
+##  <span id="-ideology-_acceptance"></span><Ideology>_acceptance
 
-* **Description**: Xp gain factor (used if the trait has prefix 'trait_').
-* Number with 2 decimal places
-* **Categories**: naval, country, army
-
-* **Modified types**: trait_BUL_ff_sympathizer, trait_BUL_tsar_loyalist, trait_BUL_zveno_member, trait_GRE_fascist_sympathizer, trait_GRE_marxist_acolyte, trait_GRE_stauch_monarchist, trait_GRE_venezelist_loyalist, trait_HUN_fascist_sympathies, trait_HUN_vitez, trait_SOV_bukharinist, trait_SOV_cowed_by_stalin_army, trait_SOV_cowed_by_stalin_navy, trait_SOV_determined, trait_SOV_foreign_military_advisor, trait_SOV_monarchist_sympathizer, trait_SOV_stalinist, trait_SOV_trotskyist, trait_SPA_carlist_loyalties, trait_SPA_falangist_loyalties, trait_SPA_nationalist_sympathies, trait_SPR_anti_stalinist_loyalties, trait_SPR_republican_loyalties, trait_SPR_stalinist_loyalties, trait_TUR_kemalist_champion, trait_cautious, trait_engineer, trait_mountaineer, trait_reckless
-
-##  <a id="-building-_max_level_terrain_limit"/>\<Building\>_max_level_terrain_limit
-
-* **Description**: Maximum allowed building level for specific terrain.
+* **Description**: Ideology acceptance.
 * Number with 0 decimal places
-* **Categories**: country
+* **Categories**: politics
 
-* **Modified types**: air_base_desert, air_base_forest, air_base_hills, air_base_jungle, air_base_lakes, air_base_marsh, air_base_mountain, air_base_ocean, air_base_plains, air_base_unknown, air_base_urban, air_base_water_deep_ocean, air_base_water_fjords, air_base_water_shallow_sea, air_facility_desert, air_facility_forest, air_facility_hills, air_facility_jungle, air_facility_lakes, air_facility_marsh, air_facility_mountain, air_facility_ocean, air_facility_plains, air_facility_unknown, air_facility_urban, air_facility_water_deep_ocean, air_facility_water_fjords, air_facility_water_shallow_sea, anti_air_building_desert, anti_air_building_forest, anti_air_building_hills, anti_air_building_jungle, anti_air_building_lakes, anti_air_building_marsh, anti_air_building_mountain, anti_air_building_ocean, anti_air_building_plains, anti_air_building_unknown, anti_air_building_urban, anti_air_building_water_deep_ocean, anti_air_building_water_fjords, anti_air_building_water_shallow_sea, arms_factory_desert, arms_factory_forest, arms_factory_hills, arms_factory_jungle, arms_factory_lakes, arms_factory_marsh, arms_factory_mountain, arms_factory_ocean, arms_factory_plains, arms_factory_unknown, arms_factory_urban, arms_factory_water_deep_ocean, arms_factory_water_fjords, arms_factory_water_shallow_sea, bunker_desert, bunker_forest, bunker_hills, bunker_jungle, bunker_lakes, bunker_marsh, bunker_mountain, bunker_ocean, bunker_plains, bunker_unknown, bunker_urban, bunker_water_deep_ocean, bunker_water_fjords, bunker_water_shallow_sea, canal_kiel_desert, canal_kiel_forest, canal_kiel_hills, canal_kiel_jungle, canal_kiel_lakes, canal_kiel_marsh, canal_kiel_mountain, canal_kiel_ocean, canal_kiel_plains, canal_kiel_unknown, canal_kiel_urban, canal_kiel_water_deep_ocean, canal_kiel_water_fjords, canal_kiel_water_shallow_sea, canal_panama_desert, canal_panama_forest, canal_panama_hills, canal_panama_jungle, canal_panama_lakes, canal_panama_marsh, canal_panama_mountain, canal_panama_ocean, canal_panama_plains, canal_panama_unknown, canal_panama_urban, canal_panama_water_deep_ocean, canal_panama_water_fjords, canal_panama_water_shallow_sea, coastal_bunker_desert, coastal_bunker_forest, coastal_bunker_hills, coastal_bunker_jungle, coastal_bunker_lakes, coastal_bunker_marsh, coastal_bunker_mountain, coastal_bunker_ocean, coastal_bunker_plains, coastal_bunker_unknown, coastal_bunker_urban, coastal_bunker_water_deep_ocean, coastal_bunker_water_fjords, coastal_bunker_water_shallow_sea, commercial_nuclear_reactor_desert, commercial_nuclear_reactor_forest, commercial_nuclear_reactor_hills, commercial_nuclear_reactor_jungle, commercial_nuclear_reactor_lakes, commercial_nuclear_reactor_marsh, commercial_nuclear_reactor_mountain, commercial_nuclear_reactor_ocean, commercial_nuclear_reactor_plains, commercial_nuclear_reactor_unknown, commercial_nuclear_reactor_urban, commercial_nuclear_reactor_water_deep_ocean, commercial_nuclear_reactor_water_fjords, commercial_nuclear_reactor_water_shallow_sea, dam_desert, dam_forest, dam_hills, dam_jungle, dam_lakes, dam_marsh, dam_mountain, dam_mountain_desert, dam_mountain_forest, dam_mountain_hills, dam_mountain_jungle, dam_mountain_lakes, dam_mountain_marsh, dam_mountain_mountain, dam_mountain_ocean, dam_mountain_plains, dam_mountain_unknown, dam_mountain_urban, dam_mountain_water_deep_ocean, dam_mountain_water_fjords, dam_mountain_water_shallow_sea, dam_ocean, dam_plains, dam_unknown, dam_urban, dam_water_deep_ocean, dam_water_fjords, dam_water_shallow_sea, dockyard_desert, dockyard_forest, dockyard_hills, dockyard_jungle, dockyard_lakes, dockyard_marsh, dockyard_mountain, dockyard_ocean, dockyard_plains, dockyard_unknown, dockyard_urban, dockyard_water_deep_ocean, dockyard_water_fjords, dockyard_water_shallow_sea, fuel_silo_desert, fuel_silo_forest, fuel_silo_hills, fuel_silo_jungle, fuel_silo_lakes, fuel_silo_marsh, fuel_silo_mountain, fuel_silo_ocean, fuel_silo_plains, fuel_silo_unknown, fuel_silo_urban, fuel_silo_water_deep_ocean, fuel_silo_water_fjords, fuel_silo_water_shallow_sea, industrial_complex_desert, industrial_complex_forest, industrial_complex_hills, industrial_complex_jungle, industrial_complex_lakes, industrial_complex_marsh, industrial_complex_mountain, industrial_complex_ocean, industrial_complex_plains, industrial_complex_unknown, industrial_complex_urban, industrial_complex_water_deep_ocean, industrial_complex_water_fjords, industrial_complex_water_shallow_sea, infrastructure_desert, infrastructure_forest, infrastructure_hills, infrastructure_jungle, infrastructure_lakes, infrastructure_marsh, infrastructure_mountain, infrastructure_ocean, infrastructure_plains, infrastructure_unknown, infrastructure_urban, infrastructure_water_deep_ocean, infrastructure_water_fjords, infrastructure_water_shallow_sea, land_facility_desert, land_facility_forest, land_facility_hills, land_facility_jungle, land_facility_lakes, land_facility_marsh, land_facility_mountain, land_facility_ocean, land_facility_plains, land_facility_unknown, land_facility_urban, land_facility_water_deep_ocean, land_facility_water_fjords, land_facility_water_shallow_sea, landmark_berlin_reichstag_desert, landmark_berlin_reichstag_forest, landmark_berlin_reichstag_hills, landmark_berlin_reichstag_jungle, landmark_berlin_reichstag_lakes, landmark_berlin_reichstag_marsh, landmark_berlin_reichstag_mountain, landmark_berlin_reichstag_ocean, landmark_berlin_reichstag_plains, landmark_berlin_reichstag_unknown, landmark_berlin_reichstag_urban, landmark_berlin_reichstag_water_deep_ocean, landmark_berlin_reichstag_water_fjords, landmark_berlin_reichstag_water_shallow_sea, landmark_berlin_volkshalle_desert, landmark_berlin_volkshalle_forest, landmark_berlin_volkshalle_hills, landmark_berlin_volkshalle_jungle, landmark_berlin_volkshalle_lakes, landmark_berlin_volkshalle_marsh, landmark_berlin_volkshalle_mountain, landmark_berlin_volkshalle_ocean, landmark_berlin_volkshalle_plains, landmark_berlin_volkshalle_unknown, landmark_berlin_volkshalle_urban, landmark_berlin_volkshalle_water_deep_ocean, landmark_berlin_volkshalle_water_fjords, landmark_berlin_volkshalle_water_shallow_sea, landmark_big_ben_desert, landmark_big_ben_forest, landmark_big_ben_hills, landmark_big_ben_jungle, landmark_big_ben_lakes, landmark_big_ben_marsh, landmark_big_ben_mountain, landmark_big_ben_ocean, landmark_big_ben_plains, landmark_big_ben_unknown, landmark_big_ben_urban, landmark_big_ben_water_deep_ocean, landmark_big_ben_water_fjords, landmark_big_ben_water_shallow_sea, landmark_colosseum_desert, landmark_colosseum_forest, landmark_colosseum_hills, landmark_colosseum_jungle, landmark_colosseum_lakes, landmark_colosseum_marsh, landmark_colosseum_mountain, landmark_colosseum_ocean, landmark_colosseum_plains, landmark_colosseum_unknown, landmark_colosseum_urban, landmark_colosseum_water_deep_ocean, landmark_colosseum_water_fjords, landmark_colosseum_water_shallow_sea, landmark_cristo_redentor_desert, landmark_cristo_redentor_forest, landmark_cristo_redentor_hills, landmark_cristo_redentor_jungle, landmark_cristo_redentor_lakes, landmark_cristo_redentor_marsh, landmark_cristo_redentor_mountain, landmark_cristo_redentor_ocean, landmark_cristo_redentor_plains, landmark_cristo_redentor_unknown, landmark_cristo_redentor_urban, landmark_cristo_redentor_water_deep_ocean, landmark_cristo_redentor_water_fjords, landmark_cristo_redentor_water_shallow_sea, landmark_eiffel_tower_desert, landmark_eiffel_tower_forest, landmark_eiffel_tower_hills, landmark_eiffel_tower_jungle, landmark_eiffel_tower_lakes, landmark_eiffel_tower_marsh, landmark_eiffel_tower_mountain, landmark_eiffel_tower_ocean, landmark_eiffel_tower_plains, landmark_eiffel_tower_unknown, landmark_eiffel_tower_urban, landmark_eiffel_tower_water_deep_ocean, landmark_eiffel_tower_water_fjords, landmark_eiffel_tower_water_shallow_sea, landmark_hagia_sophia_desert, landmark_hagia_sophia_forest, landmark_hagia_sophia_hills, landmark_hagia_sophia_jungle, landmark_hagia_sophia_lakes, landmark_hagia_sophia_marsh, landmark_hagia_sophia_mountain, landmark_hagia_sophia_ocean, landmark_hagia_sophia_plains, landmark_hagia_sophia_unknown, landmark_hagia_sophia_urban, landmark_hagia_sophia_water_deep_ocean, landmark_hagia_sophia_water_fjords, landmark_hagia_sophia_water_shallow_sea, landmark_hofburg_palace_desert, landmark_hofburg_palace_forest, landmark_hofburg_palace_hills, landmark_hofburg_palace_jungle, landmark_hofburg_palace_lakes, landmark_hofburg_palace_marsh, landmark_hofburg_palace_mountain, landmark_hofburg_palace_ocean, landmark_hofburg_palace_plains, landmark_hofburg_palace_unknown, landmark_hofburg_palace_urban, landmark_hofburg_palace_water_deep_ocean, landmark_hofburg_palace_water_fjords, landmark_hofburg_palace_water_shallow_sea, landmark_kremlin_desert, landmark_kremlin_forest, landmark_kremlin_hills, landmark_kremlin_jungle, landmark_kremlin_lakes, landmark_kremlin_marsh, landmark_kremlin_mountain, landmark_kremlin_ocean, landmark_kremlin_plains, landmark_kremlin_unknown, landmark_kremlin_urban, landmark_kremlin_water_deep_ocean, landmark_kremlin_water_fjords, landmark_kremlin_water_shallow_sea, landmark_sadabad_complex_desert, landmark_sadabad_complex_forest, landmark_sadabad_complex_hills, landmark_sadabad_complex_jungle, landmark_sadabad_complex_lakes, landmark_sadabad_complex_marsh, landmark_sadabad_complex_mountain, landmark_sadabad_complex_ocean, landmark_sadabad_complex_plains, landmark_sadabad_complex_unknown, landmark_sadabad_complex_urban, landmark_sadabad_complex_water_deep_ocean, landmark_sadabad_complex_water_fjords, landmark_sadabad_complex_water_shallow_sea, landmark_statue_of_liberty_desert, landmark_statue_of_liberty_forest, landmark_statue_of_liberty_hills, landmark_statue_of_liberty_jungle, landmark_statue_of_liberty_lakes, landmark_statue_of_liberty_marsh, landmark_statue_of_liberty_mountain, landmark_statue_of_liberty_ocean, landmark_statue_of_liberty_plains, landmark_statue_of_liberty_unknown, landmark_statue_of_liberty_urban, landmark_statue_of_liberty_water_deep_ocean, landmark_statue_of_liberty_water_fjords, landmark_statue_of_liberty_water_shallow_sea, landmark_taj_mahal_desert, landmark_taj_mahal_forest, landmark_taj_mahal_hills, landmark_taj_mahal_jungle, landmark_taj_mahal_lakes, landmark_taj_mahal_marsh, landmark_taj_mahal_mountain, landmark_taj_mahal_ocean, landmark_taj_mahal_plains, landmark_taj_mahal_unknown, landmark_taj_mahal_urban, landmark_taj_mahal_water_deep_ocean, landmark_taj_mahal_water_fjords, landmark_taj_mahal_water_shallow_sea, mega_gun_emplacement_desert, mega_gun_emplacement_forest, mega_gun_emplacement_hills, mega_gun_emplacement_jungle, mega_gun_emplacement_lakes, mega_gun_emplacement_marsh, mega_gun_emplacement_mountain, mega_gun_emplacement_ocean, mega_gun_emplacement_plains, mega_gun_emplacement_unknown, mega_gun_emplacement_urban, mega_gun_emplacement_water_deep_ocean, mega_gun_emplacement_water_fjords, mega_gun_emplacement_water_shallow_sea, naval_base_desert, naval_base_forest, naval_base_hills, naval_base_jungle, naval_base_lakes, naval_base_marsh, naval_base_mountain, naval_base_ocean, naval_base_plains, naval_base_unknown, naval_base_urban, naval_base_water_deep_ocean, naval_base_water_fjords, naval_base_water_shallow_sea, naval_facility_desert, naval_facility_forest, naval_facility_hills, naval_facility_jungle, naval_facility_lakes, naval_facility_marsh, naval_facility_mountain, naval_facility_ocean, naval_facility_plains, naval_facility_unknown, naval_facility_urban, naval_facility_water_deep_ocean, naval_facility_water_fjords, naval_facility_water_shallow_sea, nuclear_facility_desert, nuclear_facility_forest, nuclear_facility_hills, nuclear_facility_jungle, nuclear_facility_lakes, nuclear_facility_marsh, nuclear_facility_mountain, nuclear_facility_ocean, nuclear_facility_plains, nuclear_facility_unknown, nuclear_facility_urban, nuclear_facility_water_deep_ocean, nuclear_facility_water_fjords, nuclear_facility_water_shallow_sea, nuclear_reactor_desert, nuclear_reactor_forest, nuclear_reactor_heavy_water_desert, nuclear_reactor_heavy_water_forest, nuclear_reactor_heavy_water_hills, nuclear_reactor_heavy_water_jungle, nuclear_reactor_heavy_water_lakes, nuclear_reactor_heavy_water_marsh, nuclear_reactor_heavy_water_mountain, nuclear_reactor_heavy_water_ocean, nuclear_reactor_heavy_water_plains, nuclear_reactor_heavy_water_unknown, nuclear_reactor_heavy_water_urban, nuclear_reactor_heavy_water_water_deep_ocean, nuclear_reactor_heavy_water_water_fjords, nuclear_reactor_heavy_water_water_shallow_sea, nuclear_reactor_hills, nuclear_reactor_jungle, nuclear_reactor_lakes, nuclear_reactor_marsh, nuclear_reactor_mountain, nuclear_reactor_ocean, nuclear_reactor_plains, nuclear_reactor_unknown, nuclear_reactor_urban, nuclear_reactor_water_deep_ocean, nuclear_reactor_water_fjords, nuclear_reactor_water_shallow_sea, radar_station_desert, radar_station_forest, radar_station_hills, radar_station_jungle, radar_station_lakes, radar_station_marsh, radar_station_mountain, radar_station_ocean, radar_station_plains, radar_station_unknown, radar_station_urban, radar_station_water_deep_ocean, radar_station_water_fjords, radar_station_water_shallow_sea, rail_way_desert, rail_way_forest, rail_way_hills, rail_way_jungle, rail_way_lakes, rail_way_marsh, rail_way_mountain, rail_way_ocean, rail_way_plains, rail_way_unknown, rail_way_urban, rail_way_water_deep_ocean, rail_way_water_fjords, rail_way_water_shallow_sea, rocket_site_desert, rocket_site_forest, rocket_site_hills, rocket_site_jungle, rocket_site_lakes, rocket_site_marsh, rocket_site_mountain, rocket_site_ocean, rocket_site_plains, rocket_site_unknown, rocket_site_urban, rocket_site_water_deep_ocean, rocket_site_water_fjords, rocket_site_water_shallow_sea, stronghold_network_desert, stronghold_network_forest, stronghold_network_hills, stronghold_network_jungle, stronghold_network_lakes, stronghold_network_marsh, stronghold_network_mountain, stronghold_network_ocean, stronghold_network_plains, stronghold_network_unknown, stronghold_network_urban, stronghold_network_water_deep_ocean, stronghold_network_water_fjords, stronghold_network_water_shallow_sea, supply_node_desert, supply_node_forest, supply_node_hills, supply_node_jungle, supply_node_lakes, supply_node_marsh, supply_node_mountain, supply_node_ocean, supply_node_plains, supply_node_unknown, supply_node_urban, supply_node_water_deep_ocean, supply_node_water_fjords, supply_node_water_shallow_sea, synthetic_refinery_desert, synthetic_refinery_forest, synthetic_refinery_hills, synthetic_refinery_jungle, synthetic_refinery_lakes, synthetic_refinery_marsh, synthetic_refinery_mountain, synthetic_refinery_ocean, synthetic_refinery_plains, synthetic_refinery_unknown, synthetic_refinery_urban, synthetic_refinery_water_deep_ocean, synthetic_refinery_water_fjords, synthetic_refinery_water_shallow_sea
+* **Modified types**: communism, democratic, fascism, neutrality
 
-##  <a id="state_resource_cost_-resource-"/>state_resource_cost_\<Resource\>
+##  <span id="state_resource_-resource-"></span>state_resource_<Resource>
 
-* **Description**: State resource cost.
+* **Description**: State resource.
 * Number with 0 decimal places
 * **Categories**: state
 
-* **Modified types**: aluminium, chromium, oil, rubber, steel, tungsten
+* **Modified types**: aluminium, chromium, coal, oil, rubber, steel, tungsten
+
+##  <span id="country_resource_cost_-resource-"></span>country_resource_cost_<Resource>
+
+* **Description**: Country resource cost.
+* Number with 0 decimal places
+* **Categories**: country
+
+* **Modified types**: aluminium, chromium, coal, oil, rubber, steel, tungsten
+
+##  <span id="experience_gain_-unit-_mission_factor"></span>experience_gain_<Unit>_mission_factor
+
+* **Description**: Unit experience gain factor in missions.
+* Number with 0 decimal places
+* **Categories**: naval, country
+
+* **Modified types**: airborne_light_armor, amphibious_armor, amphibious_heavy_armor, amphibious_light_armor, amphibious_mechanized, amphibious_medium_armor, anti_air, anti_air_brigade, anti_tank, anti_tank_brigade, armored_car, armored_car_recon, armored_engineer, armored_maintenance, armored_signal, artillery, artillery_brigade, assault_engineer, ballistic_missile, battle_cruiser, battleship, bicycle_battalion, blackshirt_assault_battalion, bus, camelry, carrier, cas, cavalry, cv_cas, cv_fighter, cv_nav_bomber, cv_suicide_craft, destroyer, elephantry, engineer, explosive_ammo, fake_intel_unit, field_hospital, fighter, guided_missile, heavy_armor, heavy_cruiser, heavy_fighter, heavy_flame_tank, heavy_sp_anti_air_brigade, heavy_sp_artillery_brigade, heavy_tank_destroyer_brigade, helicopter_brigade, helicopter_field_hospital, helicopter_recon, helicopter_transport, infantry, irregular_infantry, jet_fighter, jet_strat_bomber, jet_tac_bomber, jungle_pioneers_support, land_cruiser, light_armor, light_cruiser, light_flame_tank, light_sp_anti_air_brigade, light_sp_artillery_brigade, light_tank_destroyer_brigade, light_tank_recon, logistics_company, long_range_patrol_support, maintenance_company, marine, marine_commando, maritime_patrol_plane, mechanized, medium_armor, medium_flame_tank, medium_sp_anti_air_brigade, medium_sp_artillery_brigade, medium_tank_destroyer_brigade, military_police, militia, modern_armor, modern_sp_anti_air_brigade, modern_sp_artillery_brigade, modern_tank_destroyer_brigade, mot_anti_air_brigade, mot_anti_tank_brigade, mot_artillery_brigade, mot_recon, mot_rocket_artillery_brigade, mothership, motorized, motorized_military_police, motorized_rocket_brigade, mountaineers, nav_bomber, nuclear_missile, paratrooper, penal_battalion, pioneer_support, railway_gun, ranger_battalion, rangers_support, recon, repair_ship, rocket_artillery, rocket_artillery_brigade, rocket_interceptor, sam_missile, scout_plane, self_propelled_super_heavy_artillery, signal_company, strat_bomber, strat_bomber_intercontinental, sturmtruppe_battalion, submarine, suicide_craft, super_heavy_armor, super_heavy_artillery, super_heavy_railway_gun, super_heavy_sp_anti_air_brigade, super_heavy_sp_artillery_brigade, super_heavy_tank_destroyer_brigade, support_ship, tac_bomber, transport_plane, winter_logistics_support
+
+##  <span id="-operation-_cost"></span><Operation>_cost
+
+* **Description**: Operation cost modifier.
+* Number with 0 decimal places
+* **Categories**: intelligence_agency
+
+* **Modified types**: FRA_coup_in_central_africa, FRA_coup_in_indochina, FRA_coup_in_madagascar, FRA_coup_in_north_africa, FRA_coup_in_syria, FRA_coup_in_west_africa, FRA_instigate_workers_revolution_britain, FRA_instigate_workers_revolution_germany, FRA_instigate_workers_revolution_italy, FRA_instigate_workers_revolution_spain, bruneval_raid, capture_tito, heavy_water_raid, murder_trotsky, nuclear_espionage, operation_boost_resistance, operation_capture_cipher, operation_collaboration_government, operation_coordinated_strike, operation_coup, operation_coup_government, operation_fake_intel, operation_infiltrate, operation_infiltrate_armed_forces_airforce, operation_infiltrate_armed_forces_army, operation_infiltrate_armed_forces_navy, operation_infiltrate_civilian, operation_make_resistance_contacts, operation_rescue_operative, operation_steal_tech_airforce, operation_steal_tech_army, operation_steal_tech_civilian, operation_steal_tech_navy, operation_targeted_sabotage_industry, operation_targeted_sabotage_infrastructure, operation_targeted_sabotage_resources, operation_warsaw_uprising, raid_trotskys_villa, rescue_mussolini, target_sabotage
+
+##  <span id="-doctrine-_track_mastery_gain_factor"></span><Doctrine>_track_mastery_gain_factor
+
+* **Description**: Mastery gain bonus factor.
+* Number with 0 decimal places
+* **Categories**: country
+
+* **Modified types**: armor, capital_ships, carriers, combat_support, fighter_aircraft, heavy_aircraft, infantry, medium_aircraft, operations, screens, strike_aircraft, submarines
+
+##  <span id="country_resource_-resource-"></span>country_resource_<Resource>
+
+* **Description**: Country resource.
+* Number with 0 decimal places
+* **Categories**: country
+
+* **Modified types**: aluminium, chromium, coal, oil, rubber, steel, tungsten
+
+##  <span id="-doctrine-_mastery_gain_factor"></span><Doctrine>_mastery_gain_factor
+
+* **Description**: Mastery gain bonus factor.
+* Number with 0 decimal places
+* **Categories**: country
+
+* **Modified types**: grand_battleplan, mass_assault, new_base_strike, new_battlefield_support, new_convoy_raiding, new_fleet_in_being, new_mobile_warfare, new_operational_integrity, new_strategic_destruction, superior_firepower
+
+##  <span id="state_production_speed_-building-_factor"></span>state_production_speed_<Building>_factor
+
+* **Description**: State building construction speed factor.
+* Number with 2 decimal places
+* **Categories**: state
+
+* **Modified types**: air_base, air_facility, anti_air_building, arms_factory, bunker, canal_kiel, canal_panama, coastal_bunker, commercial_nuclear_reactor, dam, dam_mountain, dockyard, fuel_silo, industrial_complex, infrastructure, land_facility, landmark_berlin_reichstag, landmark_berlin_volkshalle, landmark_big_ben, landmark_colosseum, landmark_cristo_redentor, landmark_eiffel_tower, landmark_forbidden_city, landmark_great_wall_section, landmark_hagia_sophia, landmark_hakko_ichiu, landmark_hofburg_palace, landmark_kremlin, landmark_nanjing_presidential_palace, landmark_nanjing_presidential_palace_gen, landmark_nanjing_presidential_palace_prc, landmark_national_diet, landmark_sadabad_complex, landmark_statue_of_liberty, landmark_taj_mahal, landmark_tokyo_imperial_palace, mega_gun_emplacement, naval_base, naval_facility, naval_headquarters, naval_supply_hub, nuclear_facility, nuclear_reactor, nuclear_reactor_heavy_water, radar_station, rail_way, rocket_site, stronghold_network, supply_node, synthetic_refinery
+
+##  <span id="local_resources_-resource-_factor"></span>local_resources_<Resource>_factor
+
+* **Description**: Local resources factor.
+* Number with 0 decimal places
+* **Categories**: country
+
+* **Modified types**: aluminium, chromium, coal, oil, rubber, steel, tungsten
+
+##  <span id="unit_-unit-_design_cost_factor"></span>unit_<Unit>_design_cost_factor
+
+* **Description**: Unit design cost factor.
+* Number with 2 decimal places
+* **Categories**: naval, country, army
+
+* **Modified types**: airborne_light_armor, amphibious_armor, amphibious_heavy_armor, amphibious_light_armor, amphibious_mechanized, amphibious_medium_armor, anti_air, anti_air_brigade, anti_tank, anti_tank_brigade, armored_car, armored_car_recon, armored_engineer, armored_maintenance, armored_signal, artillery, artillery_brigade, assault_engineer, ballistic_missile, battle_cruiser, battleship, bicycle_battalion, blackshirt_assault_battalion, bus, camelry, carrier, cas, cavalry, cv_cas, cv_fighter, cv_nav_bomber, cv_suicide_craft, destroyer, elephantry, engineer, explosive_ammo, fake_intel_unit, field_hospital, fighter, guided_missile, heavy_armor, heavy_cruiser, heavy_fighter, heavy_flame_tank, heavy_sp_anti_air_brigade, heavy_sp_artillery_brigade, heavy_tank_destroyer_brigade, helicopter_brigade, helicopter_field_hospital, helicopter_recon, helicopter_transport, infantry, irregular_infantry, jet_fighter, jet_strat_bomber, jet_tac_bomber, jungle_pioneers_support, land_cruiser, light_armor, light_cruiser, light_flame_tank, light_sp_anti_air_brigade, light_sp_artillery_brigade, light_tank_destroyer_brigade, light_tank_recon, logistics_company, long_range_patrol_support, maintenance_company, marine, marine_commando, maritime_patrol_plane, mechanized, medium_armor, medium_flame_tank, medium_sp_anti_air_brigade, medium_sp_artillery_brigade, medium_tank_destroyer_brigade, military_police, militia, modern_armor, modern_sp_anti_air_brigade, modern_sp_artillery_brigade, modern_tank_destroyer_brigade, mot_anti_air_brigade, mot_anti_tank_brigade, mot_artillery_brigade, mot_recon, mot_rocket_artillery_brigade, mothership, motorized, motorized_military_police, motorized_rocket_brigade, mountaineers, nav_bomber, nuclear_missile, paratrooper, penal_battalion, pioneer_support, railway_gun, ranger_battalion, rangers_support, recon, repair_ship, rocket_artillery, rocket_artillery_brigade, rocket_interceptor, sam_missile, scout_plane, self_propelled_super_heavy_artillery, signal_company, strat_bomber, strat_bomber_intercontinental, sturmtruppe_battalion, submarine, suicide_craft, super_heavy_armor, super_heavy_artillery, super_heavy_railway_gun, super_heavy_sp_anti_air_brigade, super_heavy_sp_artillery_brigade, super_heavy_tank_destroyer_brigade, support_ship, tac_bomber, transport_plane, winter_logistics_support
+
+##  <span id="production_cost_-building-_factor"></span>production_cost_<Building>_factor
+
+* **Description**: Building construction cost factor.
+* Number with 2 decimal places
+* **Categories**: country
+
+* **Modified types**: air_base, air_facility, anti_air_building, arms_factory, bunker, canal_kiel, canal_panama, coastal_bunker, commercial_nuclear_reactor, dam, dam_mountain, dockyard, fuel_silo, industrial_complex, infrastructure, land_facility, landmark_berlin_reichstag, landmark_berlin_volkshalle, landmark_big_ben, landmark_colosseum, landmark_cristo_redentor, landmark_eiffel_tower, landmark_forbidden_city, landmark_great_wall_section, landmark_hagia_sophia, landmark_hakko_ichiu, landmark_hofburg_palace, landmark_kremlin, landmark_nanjing_presidential_palace, landmark_nanjing_presidential_palace_gen, landmark_nanjing_presidential_palace_prc, landmark_national_diet, landmark_sadabad_complex, landmark_statue_of_liberty, landmark_taj_mahal, landmark_tokyo_imperial_palace, mega_gun_emplacement, naval_base, naval_facility, naval_headquarters, naval_supply_hub, nuclear_facility, nuclear_reactor, nuclear_reactor_heavy_water, radar_station, rail_way, rocket_site, stronghold_network, supply_node, synthetic_refinery
+
+##  <span id="repair_speed_-building-_factor"></span>repair_speed_<Building>_factor
+
+* **Description**: Country building repair speed factor.
+* Number with 2 decimal places
+* **Categories**: country
+
+* **Modified types**: air_base, air_facility, anti_air_building, arms_factory, bunker, canal_kiel, canal_panama, coastal_bunker, commercial_nuclear_reactor, dam, dam_mountain, dockyard, fuel_silo, industrial_complex, infrastructure, land_facility, landmark_berlin_reichstag, landmark_berlin_volkshalle, landmark_big_ben, landmark_colosseum, landmark_cristo_redentor, landmark_eiffel_tower, landmark_forbidden_city, landmark_great_wall_section, landmark_hagia_sophia, landmark_hakko_ichiu, landmark_hofburg_palace, landmark_kremlin, landmark_nanjing_presidential_palace, landmark_nanjing_presidential_palace_gen, landmark_nanjing_presidential_palace_prc, landmark_national_diet, landmark_sadabad_complex, landmark_statue_of_liberty, landmark_taj_mahal, landmark_tokyo_imperial_palace, mega_gun_emplacement, naval_base, naval_facility, naval_headquarters, naval_supply_hub, nuclear_facility, nuclear_reactor, nuclear_reactor_heavy_water, radar_station, rail_way, rocket_site, stronghold_network, supply_node, synthetic_refinery
+
+##  <span id="temporary_state_resource_-resource-"></span>temporary_state_resource_<Resource>
+
+* **Description**: Temporary state resource.
+* Number with 0 decimal places
+* **Categories**: state
+
+* **Modified types**: aluminium, chromium, coal, oil, rubber, steel, tungsten
+
+##  <span id="-ideacategory-_category_type_cost_factor"></span><IdeaCategory>_category_type_cost_factor
+
+* **Description**: Idea category type cost factor.
+* Number with 0 decimal places
+* **Categories**: country
+
+* **Modified types**: air_spirit, army_spirit, navy_spirit
 
 ## acclimatization_cold_climate_gain_factor
 
@@ -1585,6 +1739,26 @@ The listed decimal places is for display only. All numbers support up to
 * Number with 2 decimal places
 * **Categories**: air
 
+## air_invasion_division_cap
+
+* Number with 0 decimal places
+* **Categories**: air
+
+## air_invasion_plan_cap
+
+* Number with 0 decimal places
+* **Categories**: country
+
+## air_invasion_prep_days
+
+* Number with 1 decimal places
+* **Categories**: country
+
+## air_invasion_preparation
+
+* Number with 1 decimal places
+* **Categories**: air, unit_leader
+
 ## air_manpower_requirement_factor
 
 * Number with 2 decimal places
@@ -1700,6 +1874,11 @@ The listed decimal places is for display only. All numbers support up to
 * Number with 1 decimal places
 * **Categories**: naval, unit_leader
 
+## amphibious_invasion_against
+
+* Number with 1 decimal places
+* **Categories**: naval
+
 ## amphibious_invasion_defence
 
 * Number with 0 decimal places
@@ -1709,6 +1888,11 @@ The listed decimal places is for display only. All numbers support up to
 
 * Number with 1 decimal places
 * **Categories**: peace, aggressive
+
+## annex_subject_cost_factor
+
+* Number with 2 decimal places
+* **Categories**: country
 
 ## armor_factor
 
@@ -1780,6 +1964,16 @@ The listed decimal places is for display only. All numbers support up to
 * Number with 1 decimal places
 * **Categories**: army, defensive
 
+## army_claim_attack_factor
+
+* Number with 1 decimal places
+* **Categories**: army, aggressive
+
+## army_claim_defence_factor
+
+* Number with 1 decimal places
+* **Categories**: army, defensive
+
 ## army_core_attack_factor
 
 * Number with 1 decimal places
@@ -1804,6 +1998,11 @@ The listed decimal places is for display only. All numbers support up to
 
 * Number with 1 decimal places
 * **Categories**: army, defensive
+
+## army_experience_from_volunteers
+
+* Number with 1 decimal places
+* **Categories**: army
 
 ## army_fuel_capacity_factor
 
@@ -1895,6 +2094,11 @@ The listed decimal places is for display only. All numbers support up to
 * Number with 2 decimal places
 * **Categories**: army
 
+## army_retreat_speed_factor
+
+* Number with 2 decimal places
+* **Categories**: army, defensive
+
 ## army_speed_factor
 
 * Number with 2 decimal places
@@ -1939,6 +2143,11 @@ The listed decimal places is for display only. All numbers support up to
 
 * Number with 1 decimal places
 * **Categories**: army, defensive, aggressive
+
+## automatic_grant_medal_chance
+
+* Number with 0 decimal places
+* **Categories**: country
 
 ## autonomy_gain
 
@@ -1995,6 +2204,11 @@ The listed decimal places is for display only. All numbers support up to
 * Number with 2 decimal places
 * **Categories**: autonomy
 
+## autonomy_manpower_share_from_subjects
+
+* Number with 2 decimal places
+* **Categories**: autonomy
+
 ## base_fuel_gain
 
 * Number with 0 decimal places
@@ -2024,6 +2238,11 @@ The listed decimal places is for display only. All numbers support up to
 
 * Number with 2 decimal places
 * **Categories**: army, aggressive
+
+## can_guarantee_other_ideologies
+
+* Boolean
+* **Categories**: country
 
 ## can_master_build_for_us
 
@@ -2560,10 +2779,30 @@ The listed decimal places is for display only. All numbers support up to
 * Number with 2 decimal places
 * **Categories**: country
 
+## faction_influence_contribution_factor
+
+* Number with 2 decimal places
+* **Categories**: faction
+
+## faction_influence_war_score_factor
+
+* Number with 2 decimal places
+* **Categories**: faction
+
+## faction_subject_contribution_gain
+
+* Number with 2 decimal places
+* **Categories**: faction
+
 ## faction_trade_opinion_factor
 
 * Number with 2 decimal places
 * **Categories**: country, war_production
+
+## factory_energy_consumption
+
+* Number with 2 decimal places
+* **Categories**: country
 
 ## female_divisional_commander_chance
 
@@ -2710,6 +2949,11 @@ The listed decimal places is for display only. All numbers support up to
 * Number with 1 decimal places
 * **Categories**: country, defensive
 
+## headquarters_experience_gain_factor
+
+* Number with 2 decimal places
+* **Categories**: naval
+
 ## heat_attrition
 
 * Number with 1 decimal places
@@ -2730,7 +2974,17 @@ The listed decimal places is for display only. All numbers support up to
 * Number with 2 decimal places
 * **Categories**: country, war_production
 
+## industrial_capacity_dockyard_powered
+
+* Number with 2 decimal places
+* **Categories**: country, war_production
+
 ## industrial_capacity_factory
+
+* Number with 2 decimal places
+* **Categories**: country, war_production
+
+## industrial_capacity_factory_powered
 
 * Number with 2 decimal places
 * **Categories**: country, war_production
@@ -2785,10 +3039,20 @@ The listed decimal places is for display only. All numbers support up to
 * Number with 2 decimal places
 * **Categories**: intelligence_agency
 
+## intelligence_operation_speed
+
+* Number with 0 decimal places
+* **Categories**: intelligence_agency
+
 ## invasion_preparation
 
 * Number with 1 decimal places
 * **Categories**: naval, unit_leader
+
+## invasion_preparation_against
+
+* Number with 1 decimal places
+* **Categories**: naval
 
 ## join_faction_tension
 
@@ -2809,11 +3073,6 @@ The listed decimal places is for display only. All numbers support up to
 
 * Number with 0 decimal places
 * **Categories**: country, state
-
-## land_doctrine_cost_factor
-
-* Number with 2 decimal places
-* **Categories**: country
 
 ## land_equipment_upgrade_xp_cost
 
@@ -2970,6 +3229,11 @@ The listed decimal places is for display only. All numbers support up to
 * Number with 0 decimal places
 * **Categories**: state, war_production
 
+## local_factory_energy_consumption
+
+* Number with 0 decimal places
+* **Categories**: state
+
 ## local_factory_sabotage
 
 * Number with 0 decimal places
@@ -3084,6 +3348,11 @@ The listed decimal places is for display only. All numbers support up to
 
 * Number with 2 decimal places
 * **Categories**: country
+
+## max_organisation
+
+* Number with 0 decimal places
+* **Categories**: naval
 
 ## max_planning
 
@@ -3290,6 +3559,11 @@ The listed decimal places is for display only. All numbers support up to
 * Number with 2 decimal places
 * **Categories**: army
 
+## modifier_army_sub_unit_category_rocket_artillery_attack_factor
+
+* Number with 2 decimal places
+* **Categories**: army
+
 ## modifier_army_sub_unit_category_special_forces_max_org_factor
 
 * Number with 2 decimal places
@@ -3375,22 +3649,22 @@ The listed decimal places is for display only. All numbers support up to
 * Number with 2 decimal places
 * **Categories**: army
 
-## modifier_army_sub_unit_marines_attack_factor
+## modifier_army_sub_unit_marine_attack_factor
 
 * Number with 2 decimal places
 * **Categories**: army
 
-## modifier_army_sub_unit_marines_defence_factor
+## modifier_army_sub_unit_marine_defence_factor
 
 * Number with 2 decimal places
 * **Categories**: army
 
-## modifier_army_sub_unit_marines_max_org_factor
+## modifier_army_sub_unit_marine_max_org_factor
 
 * Number with 2 decimal places
 * **Categories**: army
 
-## modifier_army_sub_unit_marines_speed_factor
+## modifier_army_sub_unit_marine_speed_factor
 
 * Number with 2 decimal places
 * **Categories**: army
@@ -3530,6 +3804,11 @@ The listed decimal places is for display only. All numbers support up to
 * Number with 2 decimal places
 * **Categories**: naval, unit_leader, aggressive
 
+## naval_critical_score_chance_factor_against
+
+* Number with 2 decimal places
+* **Categories**: naval, unit_leader, aggressive
+
 ## naval_damage_factor
 
 * Number with 2 decimal places
@@ -3544,11 +3823,6 @@ The listed decimal places is for display only. All numbers support up to
 
 * Number with 0 decimal places
 * **Categories**: naval, unit_leader
-
-## naval_doctrine_cost_factor
-
-* Number with 2 decimal places
-* **Categories**: country
 
 ## naval_enemy_fleet_size_ratio_penalty_factor
 
@@ -3590,7 +3864,17 @@ The listed decimal places is for display only. All numbers support up to
 * Number with 0 decimal places
 * **Categories**: naval, unit_leader, aggressive
 
+## naval_hit_chance_against
+
+* Number with 0 decimal places
+* **Categories**: naval
+
 ## naval_invasion_capacity
+
+* Number with 0 decimal places
+* **Categories**: naval
+
+## naval_invasion_division_cap
 
 * Number with 0 decimal places
 * **Categories**: naval
@@ -3600,10 +3884,20 @@ The listed decimal places is for display only. All numbers support up to
 * Number with 0 decimal places
 * **Categories**: naval, unit_leader
 
+## naval_invasion_plan_cap
+
+* Number with 0 decimal places
+* **Categories**: country
+
 ## naval_invasion_planning_bonus_speed
 
 * Number with 0 decimal places
 * **Categories**: army, aggressive
+
+## naval_invasion_prep_days
+
+* Number with 0 decimal places
+* **Categories**: country
 
 ## naval_invasion_prep_speed
 
@@ -3628,6 +3922,11 @@ The listed decimal places is for display only. All numbers support up to
 ## naval_mines_effect_reduction
 
 * Number with 0 decimal places
+* **Categories**: naval
+
+## naval_mission_xp_factor
+
+* Number with 3 decimal places
 * **Categories**: naval
 
 ## naval_morale
@@ -3657,13 +3956,23 @@ The listed decimal places is for display only. All numbers support up to
 
 ## naval_retreat_speed
 
-* Number with 0 decimal places
+* Number with 1 decimal places
 * **Categories**: naval, unit_leader, defensive
 
 ## naval_retreat_speed_after_initial_combat
 
 * Number with 0 decimal places
 * **Categories**: naval, unit_leader, defensive
+
+## naval_ship_recovery_chance
+
+* Number with 0 decimal places
+* **Categories**: naval
+
+## naval_ship_recovery_chance_factor
+
+* Number with 0 decimal places
+* **Categories**: naval
 
 ## naval_speed_factor
 
@@ -3689,6 +3998,11 @@ The listed decimal places is for display only. All numbers support up to
 
 * Number with 0 decimal places
 * **Categories**: air
+
+## naval_supply_consumption_factor
+
+* Number with 1 decimal places
+* **Categories**: naval, defensive, aggressive
 
 ## naval_torpedo_cooldown_factor
 
@@ -3740,10 +4054,20 @@ The listed decimal places is for display only. All numbers support up to
 * Number with 2 decimal places
 * **Categories**: naval, unit_leader, aggressive
 
+## navy_capital_ship_attack_factor_against
+
+* Number with 2 decimal places
+* **Categories**: naval, aggressive
+
 ## navy_capital_ship_defence_factor
 
 * Number with 2 decimal places
 * **Categories**: naval, unit_leader, defensive
+
+## navy_capital_ship_defence_factor_against
+
+* Number with 2 decimal places
+* **Categories**: naval, defensive
 
 ## navy_carrier_air_agility_factor
 
@@ -3845,20 +4169,40 @@ The listed decimal places is for display only. All numbers support up to
 * Number with 2 decimal places
 * **Categories**: naval, unit_leader, aggressive
 
+## navy_screen_attack_factor_against
+
+* Number with 2 decimal places
+* **Categories**: naval, aggressive
+
 ## navy_screen_defence_factor
 
 * Number with 2 decimal places
 * **Categories**: naval, unit_leader, defensive
+
+## navy_screen_defence_factor_against
+
+* Number with 2 decimal places
+* **Categories**: naval, defensive
 
 ## navy_submarine_attack_factor
 
 * Number with 2 decimal places
 * **Categories**: naval, unit_leader, aggressive
 
+## navy_submarine_attack_factor_against
+
+* Number with 2 decimal places
+* **Categories**: naval, aggressive
+
 ## navy_submarine_defence_factor
 
 * Number with 2 decimal places
 * **Categories**: naval, unit_leader, defensive
+
+## navy_submarine_defence_factor_against
+
+* Number with 2 decimal places
+* **Categories**: naval, defensive
 
 ## navy_submarine_detection_factor
 
@@ -3980,6 +4324,11 @@ The listed decimal places is for display only. All numbers support up to
 * Number with 1 decimal places
 * **Categories**: army, aggressive
 
+## out_of_power_impact_factor
+
+* Number with 2 decimal places
+* **Categories**: country, war_production
+
 ## out_of_supply_factor
 
 * Number with 1 decimal places
@@ -4065,6 +4414,11 @@ The listed decimal places is for display only. All numbers support up to
 * Number with 2 decimal places
 * **Categories**: peace
 
+## planning_decay_rate_factor
+
+* Number with 2 decimal places
+* **Categories**: army, aggressive
+
 ## planning_speed
 
 * Number with 1 decimal places
@@ -4140,6 +4494,11 @@ The listed decimal places is for display only. All numbers support up to
 * Number with 2 decimal places
 * **Categories**: country, war_production
 
+## production_speed_buildings_powered_factor
+
+* Number with 2 decimal places
+* **Categories**: country, war_production
+
 ## production_speed_facility_factor
 
 * Number with 2 decimal places
@@ -4164,6 +4523,11 @@ The listed decimal places is for display only. All numbers support up to
 
 * Number with 0 decimal places
 * **Categories**: country
+
+## rangers_special_forces_contribution_factor
+
+* Number with 0 decimal places
+* **Categories**: army
 
 ## reassignment_duration_factor
 
@@ -4285,6 +4649,11 @@ The listed decimal places is for display only. All numbers support up to
 * Number with 0 decimal places
 * **Categories**: country
 
+## resources_to_overlord_factor
+
+* Number with 2 decimal places
+* **Categories**: autonomy
+
 ## river_crossing_factor
 
 * Number with 2 decimal places
@@ -4360,6 +4729,11 @@ The listed decimal places is for display only. All numbers support up to
 * Number with 1 decimal places
 * **Categories**: army
 
+## shore_bombardment_collateral_damage_factor
+
+* Number with 2 decimal places
+* **Categories**: country
+
 ## sickness_chance
 
 * Number with 2 decimal places
@@ -4395,6 +4769,11 @@ The listed decimal places is for display only. All numbers support up to
 * Number with 1 decimal places
 * **Categories**: army, defensive
 
+## special_forces_doctrine_cost_factor
+
+* Number with 2 decimal places
+* **Categories**: country
+
 ## special_forces_min
 
 * Number with 0 decimal places
@@ -4429,6 +4808,11 @@ The listed decimal places is for display only. All numbers support up to
 
 * Number with 0 decimal places
 * **Categories**: naval, unit_leader
+
+## spotting_chance_against
+
+* Number with 0 decimal places
+* **Categories**: naval
 
 ## stability_factor
 
@@ -4492,7 +4876,7 @@ The listed decimal places is for display only. All numbers support up to
 
 ## subjects_autonomy_gain
 
-* Number with 1 decimal places
+* Number with 2 decimal places
 * **Categories**: autonomy
 
 ## submarine_attack
@@ -4619,6 +5003,11 @@ The listed decimal places is for display only. All numbers support up to
 
 * Number with 1 decimal places
 * **Categories**: unit_leader, country
+
+## unit_medal_effectiveness
+
+* Number with 0 decimal places
+* **Categories**: country
 
 ## unit_upkeep_attrition_factor
 

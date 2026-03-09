@@ -3,32 +3,10 @@
 ## Table of Content
 
 * [Bindable Localization](#bindable-localization)
+* [Collections](#collections)
 * [Contextual Localization](#contextual-localization)
 * [Formatted Localization](#formatted-localization)
 * [Script Constants](#script-constants)
-
-## Formatted Localization
-Formatted localization is a concept for generating texts based on a specific token. It can for example, be used to
-generate a description of an idea from the ideas token. A formatted localization entry also accepts standard localization keys
-and raw localization strings giving the following allowed options:
-* A localization tag.
-* A string (can for example be used to inject things based on the [Localization Scope Object](#localization_scope_object) if one exists).
-* A formatter and it's associated tag.
-
-Documentation for the existing formatters can be found at [Localization formatter](localization_formatter.md).
-
-### Example
-```
-# Using a  formatter
-custom_effect_tooltip = idea_desc|canadian_pacific_railway
-
-# Using a standard loc key
-custom_effect_tooltip = WHILE_FOCUSING
-
-# Using a loc string with a localization scope object
-custom_effect_tooltip = "[ROOT.GetName]"
-```
-
 
 ## Bindable Localization
 Bindable localization is a modular way of binding localization parameters in script for the specified localization key.
@@ -76,6 +54,94 @@ The thing everyone wonders is if the meaning of life is 42. The rest is unimport
 # Using a formatter
 custom_effect_tooltip = idea_desc|canadian_pacific_railway
 ```
+
+
+## Formatted Localization
+Formatted localization is a concept for generating texts based on a specific token. It can for example, be used to
+generate a description of an idea from the ideas token. A formatted localization entry also accepts standard localization keys
+and raw localization strings giving the following allowed options:
+* A localization tag.
+* A string (can for example be used to inject things based on the [Localization Scope Object](#localization_scope_object) if one exists).
+* A formatter and it's associated tag.
+
+Documentation for the existing formatters can be found at [Localization formatter](localization_formatter.md).
+
+### Example
+```
+# Using a  formatter
+custom_effect_tooltip = idea_desc|canadian_pacific_railway
+
+# Using a standard loc key
+custom_effect_tooltip = WHILE_FOCUSING
+
+# Using a loc string with a localization scope object
+custom_effect_tooltip = "[ROOT.GetName]"
+```
+
+
+## Collections
+Collections are a collection of game objects of the same type, just like the game arrays.
+However, unlike arrays they support operations to transform, expand or filter the original
+collection in a unified and efficient way. In many cases, using arrays in combinations with
+triggers can achieve the same results as collections. However, in quite a few of them, collections
+are expected to be more efficient and easier to script. For example, checking that the number of
+owned states within the faction is larger than 42 would require doing an implicit loop over all faction members
+(using an all of trigger) and adding the number of owned states to a temporary variable.
+Finally, that variable would be compared to whatever value is needed. To make it clear to the
+player that probably needs a custom tooltip as well. With collections, you could achieve the
+same result with a single trigger:
+```
+collection_size = {
+	input = {
+		input = game:scope
+		operators = { faction_members owned_states }
+		name = "States owned by any faction member"
+	}
+	value > 42
+}
+```
+
+### Collection structure
+A collection contains three properties `input`, `operators` and `name`.
+Where both `operators` and `name` are optional.
+- `input` is the original set of item to use as the base of the collection.
+  All available inputs can be found in their [documentation](script_collection_input.md).
+- `operators` are all the operations that can be applied to the collection in order.
+  To generate the desired set of game items. All operators are documented [here](script_collection_operator.md).
+- `name` is the name of the collection. It is used to describe the collection where it is used.
+
+A collection is built from the `input` and the `operators` by going through all the items
+in the input and apply all the operators to that item in order. So in the example of the
+owned states within the faction, the collections input is the current scope (which we
+assume is a country). So for each country in the scope (one), the `faction_members
+operator is applied, that yields all the members of the faction (including the country itself).
+Now for every country in the faction, the operator `owned_states` is applied.
+This generates a set of states owned by the faction members.
+
+### Shorthand notations
+There is currently one shorthand notation for collections: Using only input. This allows you only provide
+the input to the collection instead of the complete object. For example, the following collections are equivalent:
+```
+my_collection = {
+	input = game:all_states
+}
+
+my_collection = game:all_states
+```
+
+### Uniqueness of game items
+There is one pitfall that should be noted, there is no guarantee that the objects in
+the collection is unique. So if we for example replace the `owned_states` operator with
+a `core_states` operator, the collection will contain the same state multiple times if
+multiple faction members has core of the same state.
+
+### Named collections
+A named collection is a collection that is defined in the collections database. It has a unique name
+and can be used as input in other collections. For more information see the [input documentation](script_collection_input.md).
+
+### Localization of collections
+A collection is localized using the `name` property. If the collection has no name, it will use the name of the input
+collection.
 
 
 ## Script Constants

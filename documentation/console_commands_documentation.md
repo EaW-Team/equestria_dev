@@ -22,7 +22,7 @@ Toggles 3D Stats
 
 ## AddFunds
 * Aliases: mio.AddFunds, IndustrialOrganisation.AddFunds
-* Arguments: \<Industrial Organisation token\> (optional), \<Funds amount\> (optional)
+* Arguments: <Industrial Organisation token> (optional), <Funds amount> (optional)
 
 "Add funds to one or all Military Industrial Organisations
 ex:
@@ -33,7 +33,7 @@ AddFunds // default funds amount added to all the player's MIOs"
 
 ## AddSize
 * Aliases: mio.AddSize, IndustrialOrganisation.AddSize
-* Arguments: \<Industrial Organisation token\> (optional), \<capacity amount\> (optional)
+* Arguments: <Industrial Organisation token> (optional), <capacity amount> (optional)
 
 "Add sizes to one or all Military Industrial Organisations.
 ex:
@@ -44,7 +44,7 @@ AddSize // adds 1 size to all the player's MIOs"
 
 ## AddTaskCapacity
 * Aliases: mio.AddTaskCapacity, IndustrialOrganisation.AddTaskCapacity
-* Arguments: \<Industrial Organisation token\> (optional), \<capacity amount\> (optional)
+* Arguments: <Industrial Organisation token> (optional), <capacity amount> (optional)
 
 "Add task capacity to one or all Military Industrial Organisations.
 Value can be negative but final task capacity will be capped at 0.
@@ -76,42 +76,42 @@ Simulates a crash (resulting in the game exiting).
 Shows your IP
 
 ## InternationalMarket.AddSubsidyForTags
-* Arguments: \<CIC\>, \<Archetype\>, \<Tag\>
+* Arguments: <CIC>, <Archetype>, <Tag>
 
 Add a Equipment Subsidy to the player's international market.
 
 ## InternationalMarket.AddSubsidyForTrigger
-* Arguments: \<CIC\>, \<Archetype\>, \<ScriptedTrigger\> 
+* Arguments: <CIC>, <Archetype>, <ScriptedTrigger> 
 
 Add a Equipment Subsidy to the player's international market.
 
 ## InternationalMarket.CancelPurchase
-* Arguments: \<SellerTag\>, \<BuyerTag\>, \<ContractIndex\>
+* Arguments: <SellerTag>, <BuyerTag>, <ContractIndex>
 
 Cancel the purchase contract between the seller and the buyer
 
 ## InternationalMarket.Dev.SetMarketRequestAutomation
-* Arguments: \<AcceptMarketAccess\>, \<SendMarketAccess\>, \<AcceptPurchase\>
+* Arguments: <AcceptMarketAccess>, <SendMarketAccess>, <AcceptPurchase>
 
 Set the market requests automation state
 
 ## InternationalMarket.ReleaseFromMarketStockpile
-* Arguments: \<EquipmentName\>, \<EquipmentAmount\>
+* Arguments: <EquipmentName>, <EquipmentAmount>
 
 Release equipment to main stockpile from market stockpile
 
 ## InternationalMarket.RequestPurchase
-* Arguments: \<SellerTag\>, \<BuyerTag\>, \<PaidCivs\>, \<EquipmentName\>, \<EquipmentAmount\>
+* Arguments: <SellerTag>, <BuyerTag>, <PaidCivs>, <EquipmentName>, <EquipmentAmount>
 
 Request Equipment Purchase.
 
 ## InternationalMarket.ReserveToMarketStockpile
-* Arguments: \<EquipmentName\>, \<EquipmentAmount\>
+* Arguments: <EquipmentName>, <EquipmentAmount>
 
 Reserve equipment from main stockpile to market stockpile
 
 ## InternationalMarket.SetPriceLevel
-* Arguments: \<EquipmentName\>, \<Level\>
+* Arguments: <EquipmentName>, <Level>
 
 Sets the price level for the given equipment in the Market Stockpile
 
@@ -141,24 +141,24 @@ Sets the randomcount to 0 or arg
 
 ## acclimatization
 * Aliases: acc
-* Arguments: \<climate_name\>, \<value 0-100\>
+* Arguments: <climate_name>, <value 0-100>
 
 Sets the acclimatization on a division(s).
 
 ## add_autonomy
 ## add_cic_bank
 * Aliases: stonks, cic, bank
-* Arguments: \<value\>
+* Arguments: <value>
 
 Add CIC to the CIC bank (negative value subtracts)
 
 ## add_core
-* Arguments: \<Province ID\>
+* Arguments: <Province ID>
 
 Add core
 
 ## add_critical_hit
-* Arguments: \<critical_hit_name\>
+* Arguments: <critical_hit_name>
 
 add critical hit to selected ships
 
@@ -173,7 +173,7 @@ Adds diplomatic entroute
 Gives player amount of equipment that has the specified name
 
 ## add_exile_manpower
-* Arguments: \<TAG\>, \<value\>
+* Arguments: <TAG>, <value>
 
 Adds legitimacy to specified tag. add_legitimacy TAG amount
 
@@ -188,9 +188,9 @@ Creates fake intel armies for the player
 Add an arrow around a strategic region
 
 ## add_ideas
-* Arguments: all|\<idea1\> \<idea2\> ...\>
+* Arguments: all|<idea1> <idea2> ...>
 
-Adds ideas (ministers or national spirits) with \<ID\> to the country. Use 'all' to add them all
+Adds ideas (ministers or national spirits) with <ID> to the country. Use 'all' to add them all
 
 ## add_intel
 
@@ -203,33 +203,33 @@ Set the values of a static intel pool against a specific country. E.g. `add_inte
 Gives player amount of latest equipment variants
 
 ## add_legitimacy
-* Arguments: \<TAG\>, \<value\>
+* Arguments: <TAG>, <value>
 
 Adds legitimacy to specified tag. add_legitimacy TAG amount
 
 ## add_mines
 * Aliases: mines
-* Arguments: \<Amount of naval mines\>
+* Arguments: <Amount of naval mines>
 
 Add naval mines to selected region(s)
 
 ## add_opinion
-* Arguments: \<Country tag\>
+* Arguments: <Country tag>
 
 Add opinion to/from tag
 
 ## add_party_popularity
-* Arguments: \<party\>, \<amount\>
+* Arguments: <party>, <amount>
 
 Adds party popularity for specified party to the current country
 
 ## add_rain
-* Arguments: \<rain_amount\>
+* Arguments: <rain_amount>
 
 Adds rain to the selected province
 
 ## add_snow
-* Arguments: \<snow_amount\>
+* Arguments: <snow_amount>
 
 Adds snow to the selected province
 
@@ -248,7 +248,7 @@ Gives/removes stability from player
 Add temp supply node
 
 ## add_temporary_buff
-* Arguments: \<buff_index\>
+* Arguments: <buff_index>
 
 adds temporary buff to selected units
 
@@ -315,7 +315,7 @@ Toggles the AI Trace window
 
 ## aircombat
 * Aliases: airc
-* Arguments: \<scenario name\>, \<result name\>, \<province id\>, \<state id with airbase\>, \<state id with airbase\>, \<equipment type\>, \<equipment type\>, [equipment creator country], [equipment creator country]
+* Arguments: <scenario name>, <result name>, <province id>, <state id with airbase>, <state id with airbase>, <equipment type>, <equipment type>, [equipment creator country], [equipment creator country]
 * Not available in release build
 
 Spawns an air combat in desired location.
@@ -351,7 +351,7 @@ Allows to learn all traits.
 Analyze theatres for errors.
 
 ## annex
-* Arguments: \<Target Country Tag\>
+* Arguments: <Target Country Tag>
 
 Begin annex/annexes the specified tag
 
@@ -365,27 +365,27 @@ Deliver a thermonuclear strike to every state in the game.
 Toggles bloom
 
 ## bop_add
-* Arguments: \<ID\>, \<value\>
+* Arguments: <ID>, <value>
 
 Changes the value of the specified power balance.
 
 ## bop_addmod
-* Arguments: \<ID\>, \<ModID\>
+* Arguments: <ID>, <ModID>
 
 Adds static modifier to a power balance.
 
 ## bop_remove
-* Arguments: \<ID\>
+* Arguments: <ID>
 
 Deactivates a power balance for the current country.
 
 ## bop_rmmod
-* Arguments: \<ID\>, \<ModID\>
+* Arguments: <ID>, <ModID>
 
 Removes static modifier from a power balance.
 
 ## bop_set
-* Arguments: \<ID\>
+* Arguments: <ID>
 
 Activates a power balance for the current country.
 
@@ -405,7 +405,7 @@ Prints a list of all your wars
 
 ## building_health
 * Aliases: bhealth
-* Arguments: \<building type\>, \<state or prov id\>, \<building level\>, \<health to add\>
+* Arguments: <building type>, <state or prov id>, <building level>, <health to add>
 
 Changes specified building health
 
@@ -423,7 +423,7 @@ Toggles the camera clamping
 Reloads the cities
 
 ## civilwar
-* Arguments: \<ideology\>, [target country tag]
+* Arguments: <ideology>, [target country tag]
 
 Spawns a civil war
 
@@ -446,10 +446,10 @@ Adds collaborations against selected country. Right click to select a country an
 Toggles debug display of normals/bounding boxes/collision
 
 ## combat_analyzer
-* Arguments: \<TAG1\>, \<TAG2\>, \<OOB1\>, \<OOB2\>, \<num runs\> OPTIONAL, \<num days\> OPTIONAL
+* Arguments: <TAG1>, <TAG2>, <OOB1>, <OOB2>, <num runs> OPTIONAL, <num days> OPTIONAL
 
 Runs a combat between the 2 OOBs owned by the two TAGs either until done or for the specified number of days. 
-Using \<num runs\> the combat will be run multiple times and the averages are printed
+Using <num runs> the combat will be run multiple times and the averages are printed
 
 ## combatsound
 
@@ -488,18 +488,18 @@ Create LEAN textures
 Puts timer info in clipboard
 
 ## damage_units
-* Arguments: \<org\>, \<str\>, \<num\>
+* Arguments: <org>, <str>, <num>
 
 Damage or heal selected units or units under pointer if there is none selected. Enter 1 argument to apply damage for both types, two for individual both types
 
 ## dbg_enable_scripted_gui
-* Arguments: \<scope\>
+* Arguments: <scope>
 * Not available in release build
 
 Enables scripted GUIs
 
 ## dbg_prov
-* Arguments: \<int\>
+* Arguments: <int>
 * Not available in release build
 
 Sets type of debugging information on provinces.
@@ -599,13 +599,13 @@ Start Counting events
 
 ## debug_force_capitulate
 * Aliases: dfc
-* Arguments: \<tag\>
+* Arguments: <tag>
 
 forces capitulation of a country on next daily tick
 
 ## debug_front_sections
 * Aliases: dbg_fs
-* Arguments: \<Theatre index\>, \<Front index\>, \<Section index\>
+* Arguments: <Theatre index>, <Front index>, <Section index>
 
 Visual debug of theatres, fronts and sections.
 
@@ -710,7 +710,7 @@ Will print the data type for all dynamic reference objects. Can only be used if 
 
 ## debug_unit_controller_weights
 * Aliases: dbg_ucw
-* Arguments: \<weight token\>
+* Arguments: <weight token>
 
 Visual debug of unit controller weights. Enable track_unit_controller_weights first!
 
@@ -759,7 +759,7 @@ Delete all armies and fleets of the specified countries.
 Delete all armies and fleets of ALL countries, except specified one.
 
 ## deltat
-* Arguments: \<speed factor\>
+* Arguments: <speed factor>
 
 control animation speeds
 
@@ -772,7 +772,7 @@ Disables the AI
 Disable weather simulation
 
 ## drop_cosmetic_tag
-* Arguments: \<country tag\>
+* Arguments: <country tag>
 
 Drops 'cosmetic tag' for a specified country
 
@@ -785,7 +785,7 @@ dumps cached random logs
 Compute and store the checksum in a file
 
 ## dump_equipment_loc
-* Arguments: desc: Dump equipment descriptions instead of the names, \<country_tag\>: Multiple allowed. Only include loc strings for the given countries. Generic loc strings are included if no tags are given, or with argument 'generic'., \<type\>: Multiple allowed. Only include equipment that are all of the given types, e.g. 'armor anti_tank' will only include tank destroyers., path=\<filepath\>: File path to write the dump to. Default is 'logs/equipment_loc.csv'.
+* Arguments: desc: Dump equipment descriptions instead of the names, <country_tag>: Multiple allowed. Only include loc strings for the given countries. Generic loc strings are included if no tags are given, or with argument 'generic'., <type>: Multiple allowed. Only include equipment that are all of the given types, e.g. 'armor anti_tank' will only include tank destroyers., path=<filepath>: File path to write the dump to. Default is 'logs/equipment_loc.csv'.
 
 Dumps equipment loc strings to file. All arguments are optional.
 
@@ -804,7 +804,7 @@ Toggles Easy Decisions Mode which makes all decisions with days_remove take only
 
 ## effect
 * Aliases: e
-* Arguments: \<tag\> scripted_effect_name
+* Arguments: <tag> scripted_effect_name
 
 Runs a scripted effect on selected scope
 
@@ -826,10 +826,16 @@ Enables the AI
 Enable weather simulation
 
 ## endraids
-* Arguments:  \<Success Level: 1-4 OR { failure, limitedsuccess, success, criticalsuccess}\>
+* Arguments:  <Success Level: 1-4 OR { failure, limitedsuccess, success, criticalsuccess}>
 * Not available in release build
 
 Instantly end all active raids, optionally with a specific success level
+
+## energy_ratio
+* Aliases: er
+* Arguments: Energy ratio
+
+Set Energy Ratio for the factories without coal consumption
 
 ## error
 
@@ -844,17 +850,55 @@ Runs the inlined effect on a selected scope
 Runs the inlined trigger on a selected scope
 
 ## event
-* Arguments: event id, \<Target Country Tag\>
+* Arguments: event id, <Target Country Tag>
 
 Executes an event
 
+## faction_goal_slot
+* Aliases: fgs
+* Arguments: category, amount
+* Not available in release build
+
+Adds a faction goal slot, categories are short medium long
+
+## faction_influence
+* Aliases: finf
+* Arguments: amount, countrytag
+* Not available in release build
+
+Adds faction influence (stored) to the country, on default it takes the player country if no tag is provided
+
+## faction_initiative
+* Aliases: fi
+* Arguments: amount, countrytag
+* Not available in release build
+
+Adds faction initiative to the country, on default it takes the player country if no tag is provided
+
+## faction_unlock
+* Aliases: fu
+* Arguments: type
+* Not available in release build
+
+Unlocks a part of the faction, can take the argument military (m) or research (r)
+
+## fast_forward
+* Arguments: <amount of days>, <observer>
+
+Fast forward a set amount of days
+
+## finish_decision
+* Arguments: <decision id> or "all"
+
+Finish timed missions instantly
+
 ## flagsoutput
-* Arguments: \<path\>
+* Arguments: <path>
 
 Creates texture atlas files from memory.
 
 ## focus_count
-* Arguments: \<Target Country Tag\>
+* Arguments: <Target Country Tag>
 
 Counts how many focuses a tag has. For science
 
@@ -870,7 +914,7 @@ Make the game forget that you have earned medals and ribbons.
 
 ## fow
 * Aliases: debug_fow
-* Arguments: \<Province ID\> OPTIONAL
+* Arguments: <Province ID> OPTIONAL
 
 Turns off fog of war in a province or in general
 
@@ -899,12 +943,12 @@ Adds/removes daily fuel gain for player
 Toggles fullscreen
 
 ## gain_xp
-* Arguments: \<trait\>
+* Arguments: <trait>
 
 Gain xp for selected leader or for a leader trait
 
 ## gamespeed
-* Arguments: speed \<0-5\>
+* Arguments: speed <0-5>
 
 Set the current game speed, pausing the game at speed 0.
 
@@ -926,22 +970,22 @@ Toggles gradient border painting
 Reloads gradient borders
 
 ## get_capital
-* Arguments: \<Country tag\>
+* Arguments: <Country tag>
 
 Get the capital of a country
 
 ## get_country_flag
-* Arguments: \<flag name\>
+* Arguments: <flag name>
 
 Gets country flag on specified TAG. Defaults to current country
 
 ## get_flag
-* Arguments: \<flag name\>
+* Arguments: <flag name>
 
 Get a flag
 
 ## get_var
-* Arguments: \<var name\>
+* Arguments: <var name>
 
 Gets a variable
 
@@ -1047,21 +1091,27 @@ Applies Ironman status to current game.
 
 ## launch_nuke
 * Aliases: ln
-* Arguments: [Nuke Type], \<Province ID\>, ...
+* Arguments: [Nuke Type], <Province ID>, ...
 
 Launch nuke to any specified province(s) without checking any conditions.
 
 ## list_flags
-* Arguments: \<scope\>
+* Arguments: <scope>
 
 Lists all flags in a scope or for the selected country/state/unitleader
+
+## list_hidden_focuses
+* Aliases: list_hd
+* Arguments: country tag
+
+lists all of the hidden focuses from a country
 
 ## list_ideas
 
 Dump all ideas to console (ministers or national spirits)
 
 ## list_modifiers
-* Arguments: \<scope\>
+* Arguments: <scope>
 
 Lists all modifiers in a scope or for the selected country/state/unitleader
 
@@ -1070,7 +1120,7 @@ Lists all modifiers in a scope or for the selected country/state/unitleader
 lists all temporary buffs on selected units
 
 ## list_vars
-* Arguments: \<scope\>
+* Arguments: <scope>
 
 Lists all variables in a scope or for the selected country/state/unitleader
 
@@ -1103,12 +1153,12 @@ Check modifiers for missing localization
 Check national spirits for missing localization
 
 ## lock_air_det
-* Arguments: \<CountryTag\>, \<Detection\> (0.0-1.0) OPTIONAL
+* Arguments: <CountryTag>, <Detection> (0.0-1.0) OPTIONAL
 
 Locks Air Detection for a country, omit detection value to reset
 
 ## lock_air_eff
-* Arguments: \<CountryTag\>, \<Efficiency\> (0.0-1.0) OPTIONAL
+* Arguments: <CountryTag>, <Efficiency> (0.0-1.0) OPTIONAL
 
 Locks Air Efficiency for a country, omit efficiency value to reset
 
@@ -1117,12 +1167,12 @@ Locks Air Efficiency for a country, omit efficiency value to reset
 Logs all instances of unit leader advisors not having the corresponding unit leader traits.
 
 ## manpower
-* Arguments: \<Amount\>
+* Arguments: <Amount>
 
 Adds manpower to player
 
 ## map_icon_reload_type
-* Arguments: \<NUM\> or \<help\>
+* Arguments: <NUM> or <help>
 * Not available in release build
 
 Specify a map icon type to reload
@@ -1142,8 +1192,13 @@ Toggle map names
 
 Mass conquer tool.
 
+## mastery
+* Arguments: mastery amount, [optional] track name
+
+Give doctrine mastery, globally or to a specific track
+
 ## metrics
-* Arguments: log_units|log_pools|player|air_mission|global|unit_assignments \<days\>|decision|log|file\<=file_name\>|tag=\<country_tag\>|add_tag=\<country_tag\>
+* Arguments: log_units|log_pools|player|air_mission|global|unit_assignments <days>|decision|log|file<=file_name>|tag=<country_tag>|add_tag=<country_tag>
 * Not available in release build
 
 Toggles collecting metrics
@@ -1160,7 +1215,7 @@ Adds more humans
 Adds more humans and assigns them to the highest scoring countries available
 
 ## moveunit
-* Arguments: \<Unit ID\>, \<Province ID\>
+* Arguments: <Unit ID>, <Province ID>
 
 Moves a unit to a province
 
@@ -1192,7 +1247,7 @@ Go to the nudge tool
 
 ## nukes
 * Aliases: nuke
-* Arguments: \<count\>
+* Arguments: <count>
 
 add nukes
 
@@ -1203,7 +1258,7 @@ Switches to play no country at all, and no longer shows messages or pauses the g
 
 ## occupationpaint
 * Aliases: op
-* Arguments: tag\<OPTIONAL\>
+* Arguments: tag<OPTIONAL>
 
 Toggles occupation painting. If specifying a tag, that country will be occupied.
 
@@ -1280,12 +1335,12 @@ Show whether you are currently logged into POPS or not.
 Gives political power to player
 
 ## prep_for_war
-* Arguments: \<TAG\>
+* Arguments: <TAG>
 
 Make AI country with specified TAG to prepare fight for another country 
 
 ## prepareraids
-* Arguments:  \<[Optional] the degree to which the raid should be prepared (0.0-1.0)\>
+* Arguments:  <[Optional] the degree to which the raid should be prepared (0.0-1.0)>
 * Not available in release build
 
 Instantly complete preparation of all active raids, optionally to a specific progress level
@@ -1319,7 +1374,7 @@ Runs a scripted effect on selected scope
 Print the intel value breakdown generated by radar
 
 ## profile
-* Arguments: \<on\> \<off\> \<print\> \<clear\>
+* Arguments: <on> <off> <print> <clear>
 
 profile options
 
@@ -1334,7 +1389,7 @@ Show province IDs on the map
 Toggles the debug info in province tooltip
 
 ## puppet
-* Arguments: \<Target Country Tag\>
+* Arguments: <Target Country Tag>
 
 Puppets the specified tag
 
@@ -1365,7 +1420,7 @@ reseeds random with specified seed or reseeds random
 Toggles the random logs.
 
 ## rebuildfronts
-* Arguments: \<Country tag\>
+* Arguments: <Country tag>
 * Not available in release build
 
 Rebuild fronts.
@@ -1373,6 +1428,11 @@ Rebuild fronts.
 ## rebuildlayers
 
 Reload mapmodes.
+
+## reduce_opinion
+* Arguments: <Country tag>
+
+Reduce opinion to/from tag
 
 ## release
 * Aliases: rls
@@ -1382,7 +1442,7 @@ Released a given country
 
 ## reload_textures
 * Aliases: rt, reload_texture
-* Arguments: \<optional file name filters...\>
+* Arguments: <optional file name filters...>
 
 Reloads all textures, with an optional filter to reload only files that include the given text
 
@@ -1396,7 +1456,7 @@ Reloads the shader
 Reloads the entire interface
 
 ## reloadoob
-* Arguments: \<Target Country Tag\>
+* Arguments: <Target Country Tag>
 
 Reloads OOBs
 
@@ -1405,22 +1465,22 @@ Reloads OOBs
 Reloads the technology database
 
 ## reloadweather
-* Arguments: \<randomseed\>
+* Arguments: <randomseed>
 
 Reload and regenerate weather
 
 ## remove_core
-* Arguments: \<Province ID\>
+* Arguments: <Province ID>
 
 Remove core
 
 ## remove_ideas
-* Arguments: all|\<idea1\> \<idea2\> ...
+* Arguments: all|<idea1> <idea2> ...
 
-Removes ideas (ministers or national spirits) with \<ID\> to the country. Use 'all' to remove them all
+Removes ideas (ministers or national spirits) with <ID> to the country. Use 'all' to remove them all
 
 ## research
-* Arguments: \<slot id\> or "all"
+* Arguments: <slot id> or "all"
 
 Researches an technology from research slot or all.
 
@@ -1463,18 +1523,18 @@ Creates a save file.
 
 ## select
 * Aliases: sel
-* Arguments: \<object id\>, \<object type id\> (optional)
+* Arguments: <object id>, <object type id> (optional)
 * Not available in release build
 
 select object by id
 
 ## set_cosmetic_tag
-* Arguments: \<country tag\>, \<cosmetic tag\>
+* Arguments: <country tag>, <cosmetic tag>
 
 Sets 'cosmetic tag' for a specified country
 
 ## set_country_flag
-* Arguments: \<flag name\>
+* Arguments: <flag name>
 
 Sets country flag on specified TAG for a duration. Defaults to current country and value 1 with infinite duration.
 
@@ -1485,12 +1545,12 @@ Sets country flag on specified TAG for a duration. Defaults to current country a
 Sets debug unit controller tag, other countries will not update units
 
 ## set_flag
-* Arguments: \<flag name\>
+* Arguments: <flag name>
 
 Set a flag
 
 ## set_global_flag
-* Arguments: \<flag name\>
+* Arguments: <flag name>
 
 Sets the specified global flag to a value. Defaults to 1
 
@@ -1499,17 +1559,17 @@ Sets the specified global flag to a value. Defaults to 1
 Sets mud for the selected province
 
 ## set_ruling_party
-* Arguments: \<ideology\>
+* Arguments: <ideology>
 
 Sets ruling party for the country
 
 ## set_var
-* Arguments: \<var name\>
+* Arguments: <var name>
 
 Set a variable
 
 ## set_weather
-* Arguments: \<weather_type\>
+* Arguments: <weather_type>
 
 Sets the weather for the selected province (and corresponding region)
 
@@ -1524,7 +1584,7 @@ Sets province controller
 Sets state owner
 
 ## show_all_medals
-* Arguments: \<bronze|silver|gold\>
+* Arguments: <bronze|silver|gold>
 
 Show all medals as achieved in the grid without actually earning them.
 
@@ -1536,13 +1596,17 @@ Show all ribbons as achieved in the grid without actually earning them.
 
 Toggle always showing of enemy ships
 
+## show_focuses
+
+shows all the hidden focuses
+
 ## show_medal
-* Arguments: \<medal_token\>, \<bronze|silver|gold\>
+* Arguments: <medal_token>, <bronze|silver|gold>
 
 Show the popup for earning a medal without actually earning it.
 
 ## show_ribbon
-* Arguments: \<ribbon_token\>
+* Arguments: <ribbon_token>
 
 Show the popup for earning a ribbon without actually earning it.
 
@@ -1594,7 +1658,7 @@ Send a message to a chat room.
 "Add a scientist with max skill in all specializations"
 
 ## sp_add_scientist
-* Arguments: \<Level\> (optional), \<Specialization\> (optional)
+* Arguments: <Level> (optional), <Specialization> (optional)
 
 "Add a scientist. Is specified a specialization and level that will be applied to the scientist. If no specialization is specified the level will be applied to all.
 ex:
@@ -1603,7 +1667,7 @@ sp_add_scientist 2
 sp_add_scientist"
 
 ## sp_add_selected_scientist_level
-* Arguments: \<Level\>, \<Specialization\> (optional)
+* Arguments: <Level>, <Specialization> (optional)
 
 "Add level and if specified, specifically to a specialization for a scientist. If no specialization is specified, the level will be added for each specialization. Requires the facility view with an attached scientist to be open.
 ex:
@@ -1611,7 +1675,7 @@ sp_add_scientist_level 3 nuclear
 sp_add_scientist_level 2"
 
 ## sp_add_selected_scientist_trait
-* Arguments: \<Trait\>
+* Arguments: <Trait>
 
 "Add a trait to the scientist. Requires the facility view with an attached scientist to be open.
 ex:
@@ -1625,7 +1689,7 @@ sp_available"
 
 ## sp_breakthrough
 * Aliases: sp_br
-* Arguments: \<amount\> optional \<specialization\>
+* Arguments: <amount> optional <specialization>
 
 "Create breakthrough points."
 
@@ -1660,7 +1724,7 @@ sp_remove_selected_scientist_trait my_trait_token"
 in a controlled province where the projects are researched."
 
 ## sp_set_selected_scientist_level
-* Arguments: \<Level\>, \<Specialization\> (optional)
+* Arguments: <Level>, <Specialization> (optional)
 
 "Set level and if specified, specifically to a specialization for a scientist. If no specialization is specified, the level will be added for each specialization. Requires the facility view with an attached scientist to be open.
 ex:
@@ -1674,14 +1738,14 @@ ex:
 sp_unlock_all"
 
 ## spawn
-* Arguments: \<SubUnit Type\>, \<Province ID\>, \<Amount\>
+* Arguments: <SubUnit Type>, <Province ID>, <Amount>
 * Not available in release build
 
 Spawns a unit in a province
 
 ## spawn_3D_models
 ## spawnactor
-* Arguments: \<Actorname\>, \<Province ID\>, \<Animation\> OPTIONAL
+* Arguments: <Actorname>, <Province ID>, <Animation> OPTIONAL
 
 Spawns an actor with an optional animation
 
@@ -1696,7 +1760,7 @@ Toggles sRGB
 Toggle the supply penalties due to bad supply flow
 
 ## tag
-* Arguments: \<Country tag\>
+* Arguments: <Country tag>
 
 Switch tag to another country
 
@@ -1706,7 +1770,7 @@ Test setting a country's color
 
 ## teleport
 * Aliases: tp
-* Arguments: \<province_id\>
+* Arguments: <province_id>
 
 Teleports selected armies or ships to the specified province
 
@@ -1720,7 +1784,7 @@ This is a placeholder command. Use it for your debug code if you need to quickly
 Enable / Disable tests
 
 ## test_naval_move_danger
-* Arguments: \<from region id\>, \<to region id\>
+* Arguments: <from region id>, <to region id>
 * Not available in release build
 
 Tests if path between two regions is blocked for surface warships
@@ -1730,12 +1794,12 @@ Tests if path between two regions is blocked for surface warships
 Sets if save game for failed test should be for current or previous day
 
 ## testevent
-* Arguments: \<Event ID\>, \<Character ID\>
+* Arguments: <Event ID>, <Character ID>
 
 Tests an event without triggering it
 
 ## testrtti
-* Arguments: \<test case\>
+* Arguments: <test case>
 
 Tests performance for RTTI
 
@@ -1810,12 +1874,12 @@ Toggle visibility of trade routes
 
 ## trigger
 * Aliases: t
-* Arguments: \<tag\> scripted_trigger_name
+* Arguments: <tag> scripted_trigger_name
 
 Runs a scripted trigger on selected scope
 
 ## trigger_ability
-* Arguments: \<ability_name\>
+* Arguments: <ability_name>
 
 triggers an ability
 
@@ -1850,7 +1914,7 @@ Updates the subunit database
 Show current game version
 
 ## war_relations
-* Arguments: \<tag\>
+* Arguments: <tag>
 
 Prints war relations info
 
@@ -1860,7 +1924,7 @@ Toggle weather simulation
 
 ## whitepeace
 * Aliases: wp
-* Arguments: \<country tags\>
+* Arguments: <country tags>
 
 White peace with the specified countries.
 

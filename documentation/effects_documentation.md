@@ -107,6 +107,7 @@
 * [add_corps_commander_role](#add_corps_commander_role)
 * [add_country_leader_role](#add_country_leader_role)
 * [add_country_leader_trait](#add_country_leader_trait)
+* [add_daily_mastery](#add_daily_mastery)
 * [add_days_mission_timeout](#add_days_mission_timeout)
 * [add_days_remove](#add_days_remove)
 * [add_decryption](#add_decryption)
@@ -117,12 +118,20 @@
 * [add_equipment_production](#add_equipment_production)
 * [add_equipment_subsidy](#add_equipment_subsidy)
 * [add_equipment_to_stockpile](#add_equipment_to_stockpile)
+* [add_faction_goal](#add_faction_goal)
+* [add_faction_goal_slot](#add_faction_goal_slot)
+* [add_faction_influence_ratio](#add_faction_influence_ratio)
+* [add_faction_influence_score](#add_faction_influence_score)
+* [add_faction_initiative](#add_faction_initiative)
+* [add_faction_power_projection](#add_faction_power_projection)
 * [add_field_marshal_role](#add_field_marshal_role)
 * [add_fuel](#add_fuel)
 * [add_ideas](#add_ideas)
 * [add_intel](#add_intel)
 * [add_legitimacy](#add_legitimacy)
 * [add_manpower](#add_manpower)
+* [add_mastery](#add_mastery)
+* [add_mastery_bonus](#add_mastery_bonus)
 * [add_mines](#add_mines)
 * [add_mio_policy_cooldown](#add_mio_policy_cooldown)
 * [add_mio_policy_cost](#add_mio_policy_cost)
@@ -174,6 +183,7 @@
 * [create_country_leader](#create_country_leader)
 * [create_equipment_variant](#create_equipment_variant)
 * [create_faction](#create_faction)
+* [create_faction_from_template](#create_faction_from_template)
 * [create_field_marshal](#create_field_marshal)
 * [create_import](#create_import)
 * [create_intelligence_agency](#create_intelligence_agency)
@@ -204,6 +214,7 @@
 * [every_country_division](#every_country_division)
 * [every_country_with_original_tag](#every_country_with_original_tag)
 * [every_enemy_country](#every_enemy_country)
+* [every_faction_member](#every_faction_member)
 * [every_military_industrial_organization](#every_military_industrial_organization)
 * [every_navy_leader](#every_navy_leader)
 * [every_neighbor_country](#every_neighbor_country)
@@ -271,6 +282,7 @@
 * [recall_attache](#recall_attache)
 * [recall_volunteers_from](#recall_volunteers_from)
 * [recruit_character](#recruit_character)
+* [reduce_focus_completion_cost](#reduce_focus_completion_cost)
 * [release](#release)
 * [release_autonomy](#release_autonomy)
 * [release_on_controlled](#release_on_controlled)
@@ -285,6 +297,7 @@
 * [remove_decision](#remove_decision)
 * [remove_decision_on_cooldown](#remove_decision_on_cooldown)
 * [remove_dynamic_modifier](#remove_dynamic_modifier)
+* [remove_faction_goal](#remove_faction_goal)
 * [remove_from_faction](#remove_from_faction)
 * [remove_from_tech_sharing_group](#remove_from_tech_sharing_group)
 * [remove_ideas](#remove_ideas)
@@ -311,6 +324,7 @@
 * [reverse_add_opinion_modifier](#reverse_add_opinion_modifier)
 * [scoped_play_song](#scoped_play_song)
 * [scoped_sound_effect](#scoped_sound_effect)
+* [select_tech_tree_icon_origin](#select_tech_tree_icon_origin)
 * [send_embargo](#send_embargo)
 * [send_equipment](#send_equipment)
 * [send_equipment_fraction](#send_equipment_fraction)
@@ -332,10 +346,15 @@
 * [set_equipment_fraction](#set_equipment_fraction)
 * [set_equipment_version_number](#set_equipment_version_number)
 * [set_faction_leader](#set_faction_leader)
+* [set_faction_manifest](#set_faction_manifest)
+* [set_faction_member_upgrade_min](#set_faction_member_upgrade_min)
 * [set_faction_name](#set_faction_name)
+* [set_faction_rule](#set_faction_rule)
 * [set_faction_spymaster](#set_faction_spymaster)
+* [set_faction_upgrade](#set_faction_upgrade)
 * [set_fuel](#set_fuel)
 * [set_fuel_ratio](#set_fuel_ratio)
+* [set_grand_doctrine](#set_grand_doctrine)
 * [set_keyed_oob](#set_keyed_oob)
 * [set_legitimacy](#set_legitimacy)
 * [set_major](#set_major)
@@ -361,6 +380,7 @@
 * [set_stability](#set_stability)
 * [set_state_controller](#set_state_controller)
 * [set_state_owner](#set_state_owner)
+* [set_sub_doctrine](#set_sub_doctrine)
 * [set_technology](#set_technology)
 * [set_truce](#set_truce)
 * [set_war_support](#set_war_support)
@@ -384,6 +404,7 @@
 * [unlock_decision_tooltip](#unlock_decision_tooltip)
 * [unlock_military_industrial_organization_tooltip](#unlock_military_industrial_organization_tooltip)
 * [unlock_national_focus](#unlock_national_focus)
+* [unlock_tactic](#unlock_tactic)
 * [upgrade_intelligence_agency](#upgrade_intelligence_agency)
 * [white_peace](#white_peace)
 
@@ -497,6 +518,8 @@
 * [set_state_province_controller](#set_state_province_controller)
 * [start_resistance](#start_resistance)
 * [state_event](#state_event)
+* [strategic_province_location](#strategic_province_location)
+* [strategic_state_location](#strategic_state_location)
 * [teleport_armies](#teleport_armies)
 * [transfer_state_to](#transfer_state_to)
 
@@ -508,6 +531,7 @@
 
 * [add_power_balance_modifier](#add_power_balance_modifier)
 * [add_power_balance_value](#add_power_balance_value)
+* [add_state_resistance_compliance_modifier](#add_state_resistance_compliance_modifier)
 * [add_to_array](#add_to_array)
 * [add_to_temp_array](#add_to_temp_array)
 * [add_to_temp_variable](#add_to_temp_variable)
@@ -538,6 +562,7 @@
 * [effect_tooltip](#effect_tooltip)
 * [event_option_tooltip](#event_option_tooltip)
 * [every_active_scientist](#every_active_scientist)
+* [every_collection_element](#every_collection_element)
 * [every_country](#every_country)
 * [every_possible_country](#every_possible_country)
 * [every_purchase_contract](#every_purchase_contract)
@@ -577,6 +602,7 @@
 * [remove_from_array](#remove_from_array)
 * [remove_from_temp_array](#remove_from_temp_array)
 * [remove_power_balance_modifier](#remove_power_balance_modifier)
+* [remove_state_resistance_compliance_modifier](#remove_state_resistance_compliance_modifier)
 * [reset_province_name](#reset_province_name)
 * [resize_array](#resize_array)
 * [resize_temp_array](#resize_temp_array)
@@ -590,6 +616,8 @@
 * [set_entity_position](#set_entity_position)
 * [set_entity_rotation](#set_entity_rotation)
 * [set_entity_scale](#set_entity_scale)
+* [set_faction_military_unlocked](#set_faction_military_unlocked)
+* [set_faction_research_unlocked](#set_faction_research_unlocked)
 * [set_global_flag](#set_global_flag)
 * [set_power_balance_gfx](#set_power_balance_gfx)
 * [set_province_name](#set_province_name)
@@ -990,6 +1018,36 @@ Example 2: HUN_miklos_horthy = { add_country_leader_trait = { ideology = oligarc
 Example 3: SOV = { add_country_leader_trait = underage_monarch }
 ```
 
+## add_daily_mastery
+
+* Supported Scopes: COUNTRY
+* Supported Targets: none
+
+Adds doctrine mastery daily for a certain duration.
+
+	You can use flexible filters to have this effect apply to all tracks that match the specified
+	folder, grand doctrine, subdoctrine or specific track. If a certain filter is not present, it will be counted as a pass.
+	For example, you can add mastery to all active tracks in all folders by not specifying any filters at all.
+
+	### Examples
+	```
+	GER = {
+		add_daily_mastery = {
+			amount = 0.1						# Amount of mastery to add per day
+			days = 90							# Number of days to apply the daily mastery gain for
+			name = [loc]                        # Loc key - will be used in descriptions to show the source of the mastery gain
+
+			# FILTERS:
+			folder = land						# Optional - will filter by tracks in the specified folder
+			grand_doctrine = mobile_warfare		# Optional - will filter by tracks in folders with the specified grand doctrine
+			sub_doctrine = mobile_infantry		# Optional - will filter by tracks with the specified subdoctrine
+			track = infantry					# Optional - will filter by tracks of the specified type
+			index = 1							# Optional - will filter by the track index within the folder (0-indexed).
+		}
+	}
+	```
+	
+
 ## add_days_mission_timeout
 
 * Supported Scopes: COUNTRY
@@ -1217,6 +1275,97 @@ add_equipment_to_stockpile = {
 add extra shared building slot to state
 ```
 
+## add_faction_goal
+
+* Supported Scopes: COUNTRY
+* Supported Targets: none
+
+Adds a goal to the current's country faction.
+
+### Examples
+```
+TAG = {
+	add_faction_goal = faction_goal_id
+}
+```
+
+
+## add_faction_goal_slot
+
+* Supported Scopes: COUNTRY
+* Supported Targets: none
+
+Adds extra goal slots to the faction for a specific category
+
+	### Examples
+	```
+	add_faction_goal_slot = {
+		category = medium_term # options: short_term, medium_term, long_term
+		value = 1
+	}
+	```
+
+
+## add_faction_influence_ratio
+
+* Supported Scopes: COUNTRY
+* Supported Targets: none
+
+Adds influence to the country based on the given ratio of the faction's total influence
+
+	### Examples
+	```
+	TAG = {
+		add_faction_influence_ratio = 0.1
+	}
+	```
+
+
+## add_faction_influence_score
+
+* Supported Scopes: COUNTRY
+* Supported Targets: none
+
+Adds influence to the country in the faction
+
+	### Examples
+	```
+	TAG = {
+		add_faction_influence_score = 100
+	}
+	```
+
+
+## add_faction_initiative
+
+* Supported Scopes: COUNTRY
+* Supported Targets: none
+
+Adds Faction Initiative points to the current country's faction.
+
+### Examples
+```
+TAG = {
+	add_faction_initiative = VALUE
+}
+```
+
+
+## add_faction_power_projection
+
+* Supported Scopes: COUNTRY
+* Supported Targets: none
+
+Adds power projection to the faction
+	
+	### Examples
+	```
+	TAG = {
+		add_faction_power_projection = 100
+	}
+	```
+
+
 ## add_field_marshal_role
 
 * Supported Scopes: COUNTRY, CHARACTER
@@ -1326,6 +1475,64 @@ Example: add_maneuver = 1
 ```
 Adds manpower to the country in scope or locally on a state if in state scope
 ```
+
+## add_mastery
+
+* Supported Scopes: COUNTRY
+* Supported Targets: none
+
+Adds doctrine mastery.
+
+	You can use flexible filters to have this effect apply to all tracks that match the specified
+	folder, grand doctrine, subdoctrine or specific track. If a certain filter is not present, it will be counted as a pass.
+	For example, you can add mastery to all active tracks in all folders by not specifying any filters at all.
+
+	### Examples
+	```
+	GER = {
+		add_mastery = {
+			amount = 100						# Amount of mastery to add
+
+			# FILTERS:
+			folder = land						# Optional - will filter by tracks in the specified folder
+			grand_doctrine = mobile_warfare		# Optional - will filter by tracks in folders with the specified grand doctrine
+			sub_doctrine = mobile_infantry		# Optional - will filter by tracks with the specified subdoctrine
+			track = infantry					# Optional - will filter by tracks of the specified type
+			index = 1							# Optional - will filter by the track index within the folder (0-indexed).
+		}
+	}
+	```
+	
+
+## add_mastery_bonus
+
+* Supported Scopes: COUNTRY
+* Supported Targets: none
+
+Get a bonus to doctrine mastery gain for a certain duration.
+
+	You can use flexible filters to have this effect apply to all tracks that match the specified
+	folder, grand doctrine, subdoctrine or specific track. If a certain filter is not present, it will be counted as a pass.
+	For example, you can add mastery to all active tracks in all folders by not specifying any filters at all.
+
+	### Examples
+	```
+	GER = {
+		add_mastery_bonus = {
+			bonus = 0.1							# Bonus factor, e.g. 0.1 = +10%
+			days = 90							# Number of days to apply the daily mastery gain for
+			name = [loc]                        # Loc key - will be used in descriptions to show the source of the mastery gain
+
+			# FILTERS:
+			folder = land						# Optional - will filter by tracks in the specified folder
+			grand_doctrine = mobile_warfare		# Optional - will filter by tracks in folders with the specified grand doctrine
+			sub_doctrine = mobile_infantry		# Optional - will filter by tracks with the specified subdoctrine
+			track = infantry					# Optional - will filter by tracks of the specified type
+			index = 1							# Optional - will filter by the track index within the folder (0-indexed).
+		}
+	}
+	```
+	
 
 ## add_max_trait
 
@@ -2008,6 +2215,25 @@ Adds a modifier to the state
 Example: add_state_modifier = { modifier = { local_non_core_manpower = 0.2 } }
 ```
 
+## add_state_resistance_compliance_modifier
+
+* Supported Scopes: any
+* Supported Targets: none
+
+```
+"![MD]
+Adds either a resistance or compliance modifier to a state.
+Can only use modifiers from the resistance_modifiers.txt/compliance_modifiers.txt that are marked as is_dynamic = yes
+
+#### Example
+```
+add_state_resistance_compliance_modifier  = {
+       modifier = dynamic_modifier_name
+	   state = 738
+}
+```"
+```
+
 ## add_tech_bonus
 
 * Supported Scopes: COUNTRY
@@ -2190,11 +2416,13 @@ Example:
 add_unit_bonus = {
   category_light_infantry = { # Subunit category bonuses
 	   soft_attack = 0.05
+	   name = [LOC_KEY] # Optional localization key for the bonus name
 	}
   
   cavalry = { # Subunit bonuses
 	   soft_attack = 0.05
        hard_attack = 0.05
+	   name = [LOC_KEY] # Optional localization key for the bonus name
 	}
 }"
 ```
@@ -2866,9 +3094,42 @@ create_equipment_variant = {
 * Supported Scopes: COUNTRY
 * Supported Targets: none
 
+Create a faction This effect is deprecated, prefer [create_faction_from_template](#create_faction_from_template) instead.
+It will use the FACTION_DEFAULT_EFFECT_TEMPLATE if the Deeper Factions DLC is enabled.
+### Examples
 ```
-create faction of specified name
+TAG = { # Creator's tag
+	create_faction = FACTION_NAME_LOC_ID
+}
 ```
+
+
+## create_faction_from_template
+
+* Supported Scopes: COUNTRY
+* Supported Targets: none
+
+Create a faction from a template allows for optional customization of name, icon and color.
+
+### Examples
+```
+TAG = { # Creator's tag
+	create_faction_from_template = faction_template_id
+}
+
+with custom name, icon and color
+
+Tag = { # Creator's tag
+
+ create_faction_from_template = {
+   template = faction_template_id
+   name = FACTION_NAME_LOC_ID
+   icon = GFX_faction_icon
+   color = { 0.5 0.5 0.5 }
+	}
+}
+```
+
 
 ## create_field_marshal
 
@@ -3482,6 +3743,43 @@ ex: GER = {
 }"
 ```
 
+## every_collection_element
+
+* Supported Scopes: any
+* Supported Targets: none
+
+Applies arbitrary effects to all elements of a collection. To learn more about collections,
+see the documentation in "common/collections"
+
+### General example
+```
+every_collection_element = {
+	input = {
+		input = collection_id # This can be a collection name or an inline definition of a collection
+		limit = {
+			# Trigger - limit effect execution to a subset of elements
+		}
+	}
+	# Effects to be executed
+}
+```
+
+### Scoped example
+```
+TAG = { # Some collections require a scope
+	every_collection_element = {
+		input = {
+			input = country:faction_members # for this collection, country scope is required
+			limit = {
+				# Trigger - limit effect execution to a subset of elements
+			}
+		}
+		# Effects to be executed
+	}
+}
+```
+
+
 ## every_controlled_state
 
 * Supported Scopes: COUNTRY
@@ -3591,6 +3889,26 @@ By default the effects are only displayed once, you may display them for each ma
 ex:
 SOV = {
 	every_enemy_country = {
+		tooltip = my_loc_key # Optional
+		random_select_amount = 3 # Optional
+		display_individual_scopes = yes # Optional - default = no
+		... country scope effects ...
+	}
+}"
+```
+
+## every_faction_member
+
+* Supported Scopes: COUNTRY
+* Supported Targets: none
+
+```
+"Executes children effects on every faction member of the country's faction in scope (if country does not have a faction it will only work on itself) (or \"random_select_amount\" of random country if specified) that fulfills the \"limit\" trigger.
+tooltip=key can be added to override tooltip title.
+By default the effects are only displayed once, you may display them for each matching country with display_individual_scopes.
+ex:
+SOV = {
+	every_faction_member = {
 		tooltip = my_loc_key # Optional
 		random_select_amount = 3 # Optional
 		display_individual_scopes = yes # Optional - default = no
@@ -4439,7 +4757,20 @@ Country leaves the faction
 * Supported Targets: none
 
 ```
-Sets what focus tree a country uses, retains finished shared focuses.
+"![MD]
+Sets what focus tree a country uses, retains finished shared focuses. Parameters:
+ * `keep_completed`: if set to yes (default no), then all completed focuses in the previous focus tree that exists in
+ the new focus tree will be kept as completed.
+ * `copy_completed_from` if is set to a valid country, then all completed focuses from that country will be marked as completed
+ in the new focus tree.
+ ### Examples
+ ```
+ load_focus_tree = { 
+	 tree = persian_focus_tree
+	 copy_completed_from = PER
+ }
+ ```
+ "
 ```
 
 ## load_oob
@@ -5357,6 +5688,21 @@ GER = { recruit_character = GER_Character_token }
 
 ```
 
+## reduce_focus_completion_cost
+
+* Supported Scopes: COUNTRY
+* Supported Targets: THIS, ROOT, PREV, FROM, OWNER, CONTROLLER, OCCUPIED, CAPITAL
+
+```
+"Reduce the cost needed to complete a specific focus. The cost accepts [script constants](script_concept_documentation.md#script-constants). The focus can be a uniform list or a single token.
+
+Example:
+reduce_focus_completion_cost = {
+  focus = focus_to_be_reduced
+  cost = 15
+}"
+```
+
 ## release
 
 * Supported Scopes: COUNTRY
@@ -5602,6 +5948,21 @@ remove_dynamic_modifier = {
 remove exile tag from scope unit leader. remove_exile_tag = yes
 ```
 
+## remove_faction_goal
+
+* Supported Scopes: COUNTRY
+* Supported Targets: none
+
+Remove a goal from the current's country faction.
+
+### Examples
+```
+TAG = {
+	remove_faction_goal = faction_goal_id
+}
+```
+
+
 ## remove_from_array
 
 * Supported Scopes: any
@@ -5844,6 +6205,25 @@ remove claim on state
 
 ```
 remove core on state
+```
+
+## remove_state_resistance_compliance_modifier
+
+* Supported Scopes: any
+* Supported Targets: none
+
+```
+"![MD]
+removes either a resistance or compliance modifier from a state.
+Can only use modifiers from the resistance_modifiers.txt/compliance_modifiers.txt that are marked as is_dynamic = yes
+
+#### Example
+```
+remove_state_resistance_compliance_modifier  = {
+       modifier = dynamic_modifier_name
+	   state = 738
+}
+```"
 ```
 
 ## remove_targeted_decision
@@ -6100,6 +6480,15 @@ Plays song from database only on in current scope's player
 
 ```
 Plays sound effect only on in current scope's player
+```
+
+## select_tech_tree_icon_origin
+
+* Supported Scopes: COUNTRY
+* Supported Targets: none
+
+```
+Override tech tree to use other countries icons
 ```
 
 ## send_embargo
@@ -6512,6 +6901,53 @@ set_equipment_version_number = {
 set current country as leader of its faction
 ```
 
+## set_faction_manifest
+
+* Supported Scopes: COUNTRY
+* Supported Targets: none
+
+Changes current country's faction manifest, the previous manifest is removed.
+
+### Examples
+```
+TAG = {
+	set_faction_manifest = faction_goal_id
+}
+```
+
+
+## set_faction_member_upgrade_min
+
+* Supported Scopes: COUNTRY
+* Supported Targets: none
+
+Set a faction's minimal requirements for an faction member upgrade group
+
+### Examples
+```
+TAG = {
+	set_faction_upgrade_min = {
+	upgrade = TOKEN_TO_FACTION_MEMBER_UPGRADE
+}
+}
+```
+
+
+## set_faction_military_unlocked
+
+* Supported Scopes: any
+* Supported Targets: none
+
+Sets wheter the current countries faction can make changes to the faction research section
+
+### Examples
+```
+TAG = {
+	_set_faction_military_unlocked = yes
+}
+```
+
+
 ## set_faction_name
 
 * Supported Scopes: STATE, COUNTRY
@@ -6521,6 +6957,36 @@ set current country as leader of its faction
 set_faction_name = NEW_LOC_KEY. Sets the faction name to whatever the new key localises to.
 ```
 
+## set_faction_research_unlocked
+
+* Supported Scopes: any
+* Supported Targets: none
+
+Sets wheter the current countries faction can make changes to the faction research section
+
+### Examples
+```
+TAG = {
+	set_faction_research_unlocked = yes
+}
+```
+
+
+## set_faction_rule
+
+* Supported Scopes: COUNTRY
+* Supported Targets: none
+
+Set a rule on the country's faction
+
+### Examples
+```
+TAG = {
+	set_faction_rule = rule_id
+}
+```
+
+
 ## set_faction_spymaster
 
 * Supported Scopes: COUNTRY
@@ -6529,6 +6995,21 @@ set_faction_name = NEW_LOC_KEY. Sets the faction name to whatever the new key lo
 ```
 set current country as spy master of its faction
 ```
+
+## set_faction_upgrade
+
+* Supported Scopes: COUNTRY
+* Supported Targets: none
+
+Set either a member upgrade for the specified tag
+
+### Examples
+```
+TAG = {
+	set_faction_upgrade = token
+}
+```
+
 
 ## set_fuel
 
@@ -6565,6 +7046,21 @@ set initial garrison strength. Example: set_garrison_strength = 0.5
 ```
 set global flag
 ```
+
+## set_grand_doctrine
+
+* Supported Scopes: COUNTRY
+* Supported Targets: none
+
+Activate (unlock and assign) the specified grand doctrine
+
+	### Examples
+	```
+	GER = {
+		set_grand_doctrine = mobile_warfare
+	}
+	```
+	
 
 ## set_keyed_oob
 
@@ -7231,6 +7727,37 @@ set_state_province_controller = {
 }
 ```
 
+## set_sub_doctrine
+
+* Supported Scopes: COUNTRY
+* Supported Targets: none
+
+Activate (unlock and assign) the specified subdoctrine.
+	By default, the subdoctrine is assigned to the first matching track that the system can find.
+	However, you can also specify a specific folder and track index to assign the subdoctrine to, in case
+	the same track appears in multiple folders, or multiple times in the same folder
+
+	### Examples - SIMPLE VERSION
+	```
+	GER = {
+		set_sub_doctrine = mobile_infantry
+	}
+	```
+	### Examples - EXTENDED VERSION
+	```
+	GER = {
+		set_sub_doctrine = {
+			sub_doctrine = mobile_infantry
+			folder = land # Optional, in case you need to specify the folder
+			track = 1 # Optional, in case you need to specify the track index within the folder.
+			# Note that this is the track index (starting with 0) among ALL the tracks in the folder, not just the ones that match the subdoctrine.
+			# So in a case where a grand doctrine has the tracks: 'infantry - armor - armor - operations', you would use
+			# track = 1 to refer to the first armor track, and track = 2 to refer to the second armor track.
+		}
+	}
+	```
+	
+
 ## set_technology
 
 * Supported Scopes: COUNTRY
@@ -7561,6 +8088,40 @@ Example: steal_random_tech_bonus = {
 	uses = 1
 }
 
+```
+
+## strategic_province_location
+
+* Supported Scopes: STATE
+* Supported Targets: none
+
+```
+"Add a strategic location to a province using state scope
+The available strategic locations is defined in strategic_locations and is specified with a province id.
+Can contain multiple strategic locations
+Ex:
+strategic_location = {
+  my_strategic_area = 3258 # Province ID
+  my_other_area = 1234
+}
+}"
+```
+
+## strategic_state_location
+
+* Supported Scopes: STATE
+* Supported Targets: none
+
+```
+"Add strategic locations to a state in scope
+The available strategic locations is defined in strategic_locations.
+Ex:
+10 = {
+  strategic_state_location = {
+    my_strategic_area = [province_id]
+    my_other_area = [province_id]
+  }
+}"
 ```
 
 ## subtract_from_temp_variable
@@ -7904,6 +8465,21 @@ mio:my_mio = {
 ```
 unlocks a focus for a country
 ```
+
+## unlock_tactic
+
+* Supported Scopes: COUNTRY
+* Supported Targets: none
+
+Unlocks the specified combat tactic for the country.
+
+	### Examples
+	```
+	GER = {
+		unlock_tactic = tactic_masterful_blitz
+	}
+	```
+	
 
 ## upgrade_intelligence_agency
 
