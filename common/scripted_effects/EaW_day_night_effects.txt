@@ -1,0 +1,474 @@
+#To add a new trait that will get properly updated with eternal night and day, follow these steps.
+#For this example, we'll assume the trait we're making is called "my_trait".
+#This is ONLY needed if a trait effets land night combat.
+#If you are consfused and don't feel confident doing it yourself, just ask me. -Blue
+
+##########################################
+###Step 1: Create your trait as normal.###
+##########################################
+#IMPORTANT: Do NOT make an allowed block for this trait. It ruins everything and is not needed.
+#my_trait = {
+#	type = land
+#	trait_type = personality_trait
+#
+#	modifier = {
+#		night = {
+#			attack = 0.1
+#			defence = 0.1
+#		}
+#	}
+#
+#	new_commander_weight = { factor = 0 }
+#}
+
+##############################################
+###Step 2: Create two copies of your trait.###
+##############################################
+#Call them my_trait_night_override and my_trait_day_override.
+#IMPORTANT: These three traits must come one after the other and the order must be my_trait, my_trait_night_override and my_trait_day_override
+
+#my_trait = {
+#	type = land
+#	trait_type = personality_trait
+#
+#	modifier = {
+#		night = {
+#			attack = 0.1
+#			defence = 0.1
+#		}
+#	}
+#
+#	new_commander_weight = { factor = 0 }
+#}
+#my_trait_night_override = {
+#	type = land
+#	trait_type = personality_trait
+#
+#	modifier = {
+#		night = {
+#			attack = 0.1
+#			defence = 0.1
+#		}
+#	}
+#
+#	new_commander_weight = { factor = 0 }
+#}
+#my_trait_day_override = {
+#	type = land
+#	trait_type = personality_trait
+#
+#	modifier = {
+#		night = {
+#			attack = 0.1
+#			defence = 0.1
+#		}
+#	}
+#
+#	new_commander_weight = { factor = 0 }
+#}
+
+##############################################
+###Step 3: Modify the copies of your traits###
+##############################################
+#Change any night bonuses to general bonuses for my_trait_night_override.
+#For my_trait_day_override simply remove the night bonuses completely.
+#You can use hidden_modifier blocks and custom_modifier tooltips to replicate the exact tooltip of the base trait if you wish.
+
+#my_trait = {
+#	type = land
+#	trait_type = personality_trait
+#
+#	modifier = {
+#		night = {
+#			attack = 0.1
+#			defence = 0.1
+#		}
+#	}
+#
+#	new_commander_weight = { factor = 0 }
+#}
+#my_trait_night_override = {
+#	type = land
+#	trait_type = personality_trait
+#
+#	modifier = {
+#		offsense = 0.1
+#		defence = 0.1
+#	}
+#
+#	new_commander_weight = { factor = 0 }
+#}
+#my_trait_day_override = {
+#	type = land
+#	trait_type = personality_trait
+#
+#	modifier = {
+#
+#	}
+#
+#	new_commander_weight = { factor = 0 }
+#}
+
+#################################################
+###Step 4: Add the on_add and on_remove blocks###
+#################################################
+#You need to add the following on_add and on_remove blocks to your base trait. Do NOT add these to the copies of your trait.
+#Make sure you update the set_temp_variable = { trait_token = token:my_trait } lines to be using the name of your trait.
+#my_trait = {
+#	type = land
+#	trait_type = personality_trait
+#
+#	modifier = {
+#		night = {
+#			attack = 0.1
+#			defence = 0.1
+#		}
+#	}
+#	
+#	on_add = {
+#		if = {
+#			limit = {
+#				has_global_flag = game_has_started
+#			}
+#			set_temp_variable = { trait_token = token:my_trait }
+#			night_trait_add_effect = yes
+#		}
+#	}
+#	
+#	on_remove = {
+#		if = {
+#			limit = {
+#				has_global_flag = game_has_started
+#			}
+#			set_temp_variable = { trait_token = token:my_trait }
+#			night_trait_remove_effect = yes
+#		}
+#	}
+#
+#	new_commander_weight = { factor = 0 }
+#}
+
+######################################
+###Step 5: Add gfx and localization###
+######################################
+#Add gfx and loc entries for the copies of your trait. Make sure they are identical (unless you don't want them to be for some reason)
+
+### Localization ###
+#my_trait: "My Trait"
+#my_trait_desc: "My description"
+#my_trait_night_override: "My Trait"
+#my_trait_night_override_desc: "My description"
+#my_trait_day_override: "My Trait"
+#my_trait_day_override_desc: "My description"
+
+### GFX ###
+#	spriteType = {
+#		name = "GFX_trait_my_trait"
+#		texturefile = "gfx/interface/traits/my_trait_icon.dds"
+#	}
+#	spriteType = {
+#		name = "GFX_trait_my_trait_night_override"
+#		texturefile = "gfx/interface/traits/my_trait_icon.dds"
+#	}
+#	spriteType = {
+#		name = "GFX_trait_my_trait_day_override"
+#		texturefile = "gfx/interface/traits/my_trait_icon.dds"
+#	}
+
+#######################################################
+###Step 6: Add your trait to the initialization list###
+#######################################################
+#Just copy and existing entry from the scripted effect below and add your trait to the list.
+#Once all this is done, the game will automatically switch between your original trait and its two copies depending on the day/night override.
+
+### Example ###
+#add_to_array = { global.night_trait_tokens = token:my_trait }
+
+#Scripted effect for initializing swap traits
+initialize_night_trait_tokens = {
+	add_to_array = { global.night_trait_tokens = token:night_guard_2 }
+	add_to_array = { global.night_trait_tokens = token:KIR_guerilla_leader }
+	add_to_array = { global.night_trait_tokens = token:queen_terror }
+	add_to_array = { global.night_trait_tokens = token:goddess_of_the_night }
+	add_to_array = { global.night_trait_tokens = token:night_guard }
+	add_to_array = { global.night_trait_tokens = token:sanguinary_prince }
+}
+
+#Console command for setting day/night overrides. Takes an integer arguement.
+#0 - clear overrides
+#1 - night override
+#2 - day override
+#Example usage: setDayNightOverride 1
+d_setDayNightOverride = {
+	if = {
+		limit = {
+			check_variable = { args^num < 1 }
+		}
+		log = "RPlease enter an arguement!!"
+	}
+	else = {
+		if = {
+			limit = {
+				check_variable = { args^0 = 0 }
+			}
+			EaW_clear_day_night_overrides = yes
+			log = "Cleared override"
+		}
+		else_if = {
+			limit = {
+				check_variable = { args^0 = 1 }
+			}
+			EaW_night_override = yes
+			log = "Set override to Ynight!"
+		}
+		else_if = {
+			limit = {
+				check_variable = { args^0 = 2 }
+			}
+			EaW_day_override = yes
+			log = "Set override to Yday!"
+		}
+		else = {
+			log = "RInvalid arguement!!"
+		}
+	}
+}
+EaW_clear_day_night_overrides = {
+	hidden_effect = {
+		if = {
+			limit = {
+				has_global_flag = EaW_night_override
+			}
+			every_possible_country = {
+				limit = {
+					NOT = { tag = ZZZ }
+				}
+				remove_dynamic_modifier = {
+					modifier = EaW_night_override_modifier
+				}
+				ZZZ = {
+					remove_opinion_modifier = {
+						target = PREV
+						modifier = ZZZ_night_override_opinion
+					}
+				}
+			}
+			clr_global_flag = EaW_night_override
+		}
+		if = {
+			limit = {
+				has_global_flag = EaW_day_override
+			}
+			every_possible_country = {
+				limit = {
+					NOT = { tag = ZZZ }
+				}
+				remove_dynamic_modifier = {
+					modifier = EaW_day_override_modifier
+				}
+				ZZZ = {
+					remove_opinion_modifier = {
+						target = PREV
+						modifier = ZZZ_day_override_opinion
+					}
+				}
+			}
+			clr_global_flag = EaW_day_override
+		}
+		update_unit_leader_traits = yes
+		ZZZ = {
+			drop_cosmetic_tag = yes
+			set_politics = {
+				ruling_party = neutrality
+				elections_allowed = no
+			}
+		}
+	}
+}
+EaW_night_override = {
+	hidden_effect = {
+		EaW_clear_day_night_overrides = yes
+		set_global_flag = EaW_night_override
+		update_unit_leader_traits = yes
+		every_possible_country = {
+			limit = {
+				NOT = { tag = ZZZ }
+			}
+			add_dynamic_modifier = {
+				modifier = EaW_night_override_modifier
+			}
+			reverse_add_opinion_modifier = {
+				target = ZZZ
+				modifier = ZZZ_night_override_opinion
+			}
+		}
+		ZZZ = {
+			set_cosmetic_tag = ZZZ_night_override
+			set_politics = {
+				ruling_party = democratic
+				elections_allowed = no
+			}
+		}
+	}
+}
+EaW_day_override = {
+	hidden_effect = {
+		EaW_clear_day_night_overrides = yes
+		set_global_flag = EaW_day_override
+		update_unit_leader_traits = yes
+		every_possible_country = {
+			limit = {
+				NOT = { tag = ZZZ }
+			}
+			add_dynamic_modifier = {
+				modifier = EaW_day_override_modifier
+			}
+			reverse_add_opinion_modifier = {
+				target = ZZZ
+				modifier = ZZZ_day_override_opinion
+			}
+		}
+		force_update_dynamic_modifier = yes
+		ZZZ = {
+			set_cosmetic_tag = ZZZ_day_override
+			set_politics = {
+				ruling_party = communism
+				elections_allowed = no
+			}
+		}
+	}
+}
+
+update_unit_leader_traits = {
+	set_global_flag = updating_unit_leader_traits
+	
+	#A different token offset is used for day, night, or none.
+	if = {
+		limit = {
+			has_global_flag = EaW_night_override
+		}
+		set_temp_variable = { replace_offset = 2 }
+	}
+	else_if = {
+		limit = {
+			has_global_flag = EaW_day_override
+		}
+		set_temp_variable = { replace_offset = 4 }
+	}
+	else = {
+		set_temp_variable = { replace_offset = 0 }
+	}
+	
+	for_each_scope_loop = {
+		array = global.unit_leaders_to_update
+		for_each_loop = {
+			array = night_related_traits
+			value = v
+			
+			#log = "Character: [THIS.GetName]"
+			
+			set_temp_variable = { replace_trait = v }
+			add_to_temp_variable = { replace_trait = replace_offset }
+			#log = "v: [?v.GetTokenKey]"
+			
+			set_temp_variable = { trait = v }
+			add_to_temp_variable = { trait = last_replaced_offset }
+			
+			#log = "replace_trait: [?replace_trait.GetTokenKey]"
+			#log = "trait: [?trait.GetTokenKey]"
+			
+			
+			meta_effect = {
+				text = {
+					remove_unit_leader_trait = [OLD_TRAIT]
+					add_unit_leader_trait = [NEW_TRAIT]
+				}
+				OLD_TRAIT = "[?trait.GetTokenKey]"
+				NEW_TRAIT = "[?replace_trait.GetTokenKey]"
+				#debug = yes
+			}
+		}
+		set_variable = { last_replaced_offset = replace_offset }
+	}
+	
+	clr_global_flag = updating_unit_leader_traits
+}
+
+night_trait_add_effect = {
+	if = {
+		limit = {
+			NOT = {
+				has_global_flag = updating_unit_leader_traits
+			}
+		}
+		log = "[GetDateText]: [THIS.GetName]: Night trait add effect for trait [?trait_token.GetTokenKey]"
+		
+		add_to_array = { night_related_traits = trait_token }
+		set_global_flag = updating_unit_leader_traits
+		if = {
+			limit = {
+				has_global_flag = EaW_night_override
+			}
+			set_variable = { last_replaced_offset = 2 }
+		}
+		else_if = {
+			limit = {
+				has_global_flag = EaW_day_override
+			}
+			set_variable = { last_replaced_offset = 4 }
+		}
+		else = {
+			set_variable = { last_replaced_offset = 0 }
+		}
+		set_temp_variable = { replace_trait = trait_token }
+		add_to_temp_variable = { replace_trait = last_replaced_offset }
+		meta_effect = {
+			text = {
+				remove_unit_leader_trait = [OLD_TRAIT]
+				add_unit_leader_trait = [NEW_TRAIT]
+			}
+			OLD_TRAIT = "[?trait_token.GetTokenKey]"
+			NEW_TRAIT = "[?replace_trait.GetTokenKey]"
+			#debug = yes
+		}
+		clr_global_flag = updating_unit_leader_traits
+		
+		if = {
+			limit = {
+				NOT = { is_in_array = { global.unit_leaders_to_update = THIS } }
+			}
+			add_to_array = { global.unit_leaders_to_update = THIS }
+		}
+	}
+}
+
+night_trait_remove_effect = {
+	if = {
+		limit = {
+			NOT = {
+				has_global_flag = updating_unit_leader_traits
+			}
+		}
+		log = "[GetDateText]: [THIS.GetName]: Night trait remove effect for trait [?trait_token.GetTokenKey]"
+		set_global_flag = updating_unit_leader_traits
+		remove_from_array = { night_related_traits = trait_token }
+		if = {
+			limit = {
+				check_variable = { night_related_traits^num < 1 }
+			}
+			remove_from_array = { global.unit_leaders_to_update = THIS }
+		}
+		clr_global_flag = updating_unit_leader_traits
+	}
+}
+
+test_effect = {
+	TBK_wallnut_drive = {
+		add_unit_leader_trait = sanguinary_prince
+	}
+}
+test_effect2 = {
+	TBK_wallnut_drive = {
+		remove_unit_leader_trait = sanguinary_prince
+	}
+}

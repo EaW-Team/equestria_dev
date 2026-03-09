@@ -5,6 +5,7 @@ Includes = {
 	"pdxmap.fxh"
 	"shadow.fxh"
 	"fow.fxh"
+	"zzz_eaw_functions.fxh"
 }
 
 PixelShader =
@@ -228,6 +229,9 @@ PixelShader =
 	[[
 		float4 main( VS_OUTPUT_TERRAIN Input ) : PDX_COLOR
 		{
+			//Check to see if any day/night overrides are needed
+			int dayNightStatus = dayNightOverrideCheck(GradientBorderChannel1);
+		
 			//return float4( 0, 1.0f, 0, 1.0f );
 			//clip( Input.prepos.y + TERRAIN_WATER_CLIP_HEIGHT - WATER_HEIGHT );
 
@@ -389,7 +393,7 @@ PixelShader =
 
 			float fShadowTerm = max(GetShadowScaled( SHADOW_WEIGHT_TERRAIN, Input.vScreenCoord, ShadowMap ), 0.1f );
 
-			CalculateSunLight( lightingProperties, fShadowTerm, diffuseLight, specularLight );
+			CalculateSunLight( lightingProperties, fShadowTerm, diffuseLight, specularLight, dayNightStatus );
 
 		#ifndef LOW_END_GFX
 			CalculatePointLights( lightingProperties, LightDataMap, LightIndexMap, diffuseLight, specularLight);
@@ -404,12 +408,12 @@ PixelShader =
 			specularLight += reflectiveColor * FresnelGlossy(lightingProperties._SpecularColor, -vEyeDir, lightingProperties._Normal, lightingProperties._Glossiness);
 		#endif
 
-			float3 vOut = ComposeLightSnow(lightingProperties, diffuseLight, specularLight, vSnowAlpha);
+			float3 vOut = ComposeLightSnow(lightingProperties, diffuseLight, specularLight, vSnowAlpha, dayNightStatus);
 
 			vOut = lerp( vOut, diffuse.rgb, BORDER_LIGHT_REMOVAL_FACTOR * ( 1 - vBloomAlpha ) );
 
 			float3 vGlobeNormal = CalcGlobeNormal( Input.prepos.xz );
-			float vNightFactor = DayNightFactor( vGlobeNormal );
+			float vNightFactor = DayNightFactor( vGlobeNormal, dayNightStatus );
 
 		#ifndef LOW_END_GFX
 			float3 CityLights = tex2D( CityLightsAndSnowNoise, Input.prepos.xz * CITY_LIGHTS_TILING ).rgb;
@@ -423,7 +427,7 @@ PixelShader =
 			vOut = ApplyDistanceFog( vOut, Input.prepos );
 		#endif
 
-			vOut = DayNightWithBlend( vOut, vGlobeNormal, lerp(BORDER_NIGHT_DESATURATION_MAX, 1.0f, vBloomAlpha) );
+			vOut = DayNightWithBlend( vOut, vGlobeNormal, lerp(BORDER_NIGHT_DESATURATION_MAX, 1.0f, vBloomAlpha), dayNightStatus );
 
 			DebugReturn(vOut, lightingProperties, fShadowTerm);
 
@@ -474,7 +478,7 @@ PixelShader =
 			float3 specularLight = vec3(0.0);
 			float fShadowTerm = GetShadowScaled( SHADOW_WEIGHT_TERRAIN, Input.vScreenCoord, ShadowMap );
 
-			CalculateSunLight( lightingProperties, fShadowTerm, diffuseLight, specularLight );
+			CalculateSunLight( lightingProperties, fShadowTerm, diffuseLight, specularLight, 2 );
 			CalculatePointLights( lightingProperties, LightDataMap, LightIndexMap, diffuseLight, specularLight);
 
 			float3 vOut = ComposeLight(lightingProperties, diffuseLight, specularLight );
