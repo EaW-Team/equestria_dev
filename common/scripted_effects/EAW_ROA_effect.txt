@@ -152,13 +152,14 @@ resistance_dm_lansin_calculations = {
 	}
 }
 ROA_civil_war_effect = { # United effect for Lansin's Uprising and Civil War after death of Augustus
-	every_owned_state = {
-		add_to_temp_array = { civil_war_states = THIS }
-	}
+	set_temp_variable = { temp_units_number = 20 }
+	add_to_temp_variable = { temp_units_number = num_armies }
+	every_owned_state = { add_to_temp_array = { civil_war_states = THIS } }
 	every_enemy_country = {
 		every_owned_state = {
 			add_to_temp_array = { civil_war_states = THIS }
 		}
+		add_to_temp_variable = { temp_units_number = num_armies }
 	}
 	if = {
 		limit = {
@@ -199,35 +200,10 @@ ROA_civil_war_effect = { # United effect for Lansin's Uprising and Civil War aft
 				war_economy
 				service_by_requirement
 			}
-			set_temp_variable = { lansin_strength = ROA.ROA_divs_calibration_var }
-			clamp_temp_variable = {
-				var = lansin_strength
-				min = 1
-				max = 10
-			}
-			multiply_temp_variable = { lansin_strength = 15 }
-			add_timed_idea = {
-				idea = ROA_lansin_uprising_idea
-				days = var:lansin_strength
-			}
-			multiply_temp_variable = { lansin_strength = 80 }
 			add_equipment_to_stockpile = {
 				type = infantry_equipment_0
-				amount = var:lansin_strength
+				amount = 5000
 				producer = ROA
-			}
-			division_template = {
-				name = "Militia"
-				is_locked = yes
-				template_counter = 6
-				regiments = {
-					infantry = { x = 0 y = 0 }
-					infantry = { x = 0 y = 1 }
-					infantry = { x = 0 y = 2 }
-					infantry = { x = 1 y = 0 }
-					infantry = { x = 1 y = 1 }
-				}
-				priority = 0
 			}
 			load_focus_tree = {
 				tree = roam_lansin_focus
@@ -243,12 +219,24 @@ ROA_civil_war_effect = { # United effect for Lansin's Uprising and Civil War aft
 								is_controlled_by = ROA
 								NOT = { is_core_of = ROA }
 							}
+							AND = {
+								is_owned_by = ROA
+								NOT = { is_controlled_by = ROA }
+							}
 							state = 1130
+							state = 1132
 							state = 1133
 						}
 					}
 					add_core_of = PREV
 					transfer_state_to = PREV
+				}
+				ROA = {
+					PREV = {
+						teleport_armies = {
+							to_state_array = owned_controlled_states
+						}
+					}
 				}
 			}
 			division_template = {
@@ -265,7 +253,7 @@ ROA_civil_war_effect = { # United effect for Lansin's Uprising and Civil War aft
 				priority = 0
 			}
 			for_loop_effect = {
-				end = 40
+				end = temp_units_number
 				random_controlled_state = {
 					create_unit = {
 						division = "division_template = \"Militia\" start_experience_factor = 1 start_equipment_factor = 1"
@@ -285,12 +273,6 @@ ROA_civil_war_effect = { # United effect for Lansin's Uprising and Civil War aft
 				}
 			}
 			set_nationality = { target_country = event_target:lansin_uprising }
-		}
-		every_enemy_country = { # Every country in war with ROA declares war on uprising too
-			declare_war_on = {
-				target = event_target:lansin_uprising
-				type = annex_everything
-			}
 		}
 		set_country_flag = uprising_happened
 	}
@@ -424,30 +406,27 @@ ROA_civil_war_effect = { # United effect for Lansin's Uprising and Civil War aft
 				allow_spawning_on_enemy_provs = yes
 			}
 		}
-		every_enemy_country = { # Every country in war with ROA declares war on uprising too
-			declare_war_on = {
-				target = event_target:legate_uprising
-				type = annex_everything
+	}
+	every_country_with_original_tag = {
+		original_tag_to_check = ROA
+		PREV = {
+			every_enemy_country = { # Every country in war with ROA declares war on uprising too
+				declare_war_on = {
+					target = PREV.PREV
+					type = annex_everything
+				}
 			}
 		}
-	}
-	every_country_with_original_tag = { # Every participant of the civil war declares war on each other
-		original_tag_to_check = ROA
-		declare_war_on = {
-			target = ROA
-			type = civil_war
+		every_other_country = { # Every participant of the civil war declares war on each other
+			limit = {
+				original_tag = ROA
+			}
+			declare_war_on = {
+				target = PREV
+				type = civil_war
+			}
+			add_civil_war_target = PREV
 		}
-		declare_war_on = {
-			target = event_target:legate_uprising
-			type = civil_war
-		}
-		declare_war_on = {
-			target = event_target:lansin_uprising
-			type = civil_war
-		}
-		add_civil_war_target = ROA
-		add_civil_war_target = event_target:legate_uprising
-		add_civil_war_target = event_target:lansin_uprising
 	}
 }
 new_leader_is_dassal = {
