@@ -127,12 +127,12 @@ NDefines.NAI.ARMY_LEADER_ASSIGN_EMPTYNESS_MALUS = 0.0                  				-- Fa
 NDefines.NAI.ARMY_LEADER_ASSIGN_OVERALL_SKILL_FACTOR = 750			-- default is 50
 NDefines.NAI.ARMY_LEADER_ASSIGN_DEFENSE_ATTACK_SKILL_FACTOR = 15	-- default is 3
 NDefines.NAI.ARMY_LEADER_ASSIGN_INVASION_ATTACK_SKILL_FACTOR = 20	-- default is 10
-NDefines.NAI.ARMY_LEADER_ASSIGN_ATTACK_SKILL_FACTOR = 250			-- default is 20
+NDefines.NAI.ARMY_LEADER_ASSIGN_ATTACK_SKILL_FACTOR = 350			-- default is 20
 NDefines.NAI.ARMY_LEADER_ASSIGN_DEFENSE_SKILL_FACTOR = 100          -- This times general's defense skill is added to score
 NDefines.NAI.ARMY_LEADER_ASSIGN_PLANNING_SKILL_FACTOR = 12			-- default is 7
 NDefines.NAI.ARMY_LEADER_ASSIGN_MAX_PLANNING = 0.2					-- default is 0.1
-NDefines.NAI.MIN_INVASION_PLAN_VALUE_TO_EXECUTE = 0.7				-- default is 50 
-NDefines.NAI.PLAN_AVG_PREPARATION_TO_EXECUTE = 0.7					-- default is 0.5, % or more average plan preparation before executing
+NDefines.NAI.MIN_INVASION_PLAN_VALUE_TO_EXECUTE = 0.3				-- default is 0.2 
+NDefines.NAI.PLAN_AVG_PREPARATION_TO_EXECUTE = 0.6					-- default is 0.5, % or more average plan preparation before executing
 
 NDefines.NAI.CHIEF_ADDED_WEIGHT_FACTOR = 15.0 					   	-- default is 12.5 Weight multiplier for chief roles over other advisor or idea types
 NDefines.NAI.ARMY_CHIEF_SCORE_MULTIPLIER = 5.0    					-- default is 2.0 score multiplier for hiring an army chief    
