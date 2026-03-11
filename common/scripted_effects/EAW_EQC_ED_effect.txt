@@ -372,4 +372,173 @@ EQS_ED_calculate_jetset_icon_pos = {
 	multiply_temp_variable = { jsp_pos = 3 }
 	add_to_variable = { EQS_AF_jetset_pos_var = jsp_pos }
 }
-	
+
+ED_conquering_equestria_effect = {
+	# The result is written into the temp variable effective_magic_balance
+	# Formula is arctan( (EQS magic - EQS magic) / 5000 )
+	ED_calculate_effective_magic_balance = yes 
+
+	EQC = { set_variable = { current_magic_balance = effective_magic_balance } }
+	EQS = { 
+		set_variable = { current_magic_balance = effective_magic_balance }
+		multiply_variable = { current_magic_balance = -1 }
+	}
+
+	hidden_effect = {
+		EQC = { # Make sure we know the scope
+			set_variable = { mission_days = 365 } # 1 year
+			set_temp_variable = { mission_days_mod = effective_magic_balance }
+			multiply_temp_variable = { mission_days_mod = 165 }
+			add_to_variable = { mission_days = mission_days_mod }
+			log = "Days for Equestria conquest mission: [?mission_days]"
+			
+			activate_mission = EQS_ED_the_invasion_of_equestria_mission
+			add_dynamic_modifier = { modifier = ED_magic_balance_effect }
+			ED_calculate_magic_balance_modifier = yes
+			force_update_dynamic_modifier = yes
+		}
+		EQS = {
+			activate_mission = EQS_ED_the_invasion_of_equestria_mission
+			# The effect of this is the negative to the EQC one due to the variable being multiplied by -1 for EQS
+			add_dynamic_modifier = { modifier = ED_magic_balance_effect } 
+			ED_calculate_magic_balance_modifier = yes
+			force_update_dynamic_modifier = yes
+		}
+	}
+}
+
+ED_calculate_effective_magic_balance = {
+	set_temp_variable = { magic_power_difference = EQC.art_debug_mod } 
+	subtract_from_temp_variable = { magic_power_difference = EQS.art_debug_mod } 
+	divide_temp_variable = { magic_power_difference = 5000 } 
+	set_temp_variable = {
+		sign = 1
+	}
+	if = {
+		limit = {
+			check_variable = { magic_power_difference < 0 }
+		}
+		set_temp_variable = { sign = -1 }
+	}
+	set_temp_variable = { arctan_argument = 1 }
+	if = {
+		limit = {
+			check_variable = { magic_power_difference > 1 }
+		}
+		set_country_flag = inverse_active
+		divide_temp_variable = { arctan_argument = magic_power_difference }
+	}
+	else = {
+		set_temp_variable = { arctan_argument = magic_power_difference }
+	}
+	ED_calculate_arctan = yes
+
+	set_temp_variable = { effective_magic_balance = arctan_result }
+	if = {
+		limit = {
+			has_country_flag = inverse_active
+		}
+		set_temp_variable = { effective_magic_balance = 1.571 } # pi/2
+		multiply_temp_variable = { effective_magic_balance = sign }
+		subtract_from_temp_variable = { effective_magic_balance = arctan_result }
+	}
+	log = "Effective Magic Balance: [?effective_magic_balance]"
+
+	clr_country_flag = inverse_active
+}
+
+ED_calculate_arctan = {
+	# x
+	set_temp_variable = { arctan_result = arctan_argument }
+
+	# x^3 / 3
+	set_temp_variable = { cubic = arctan_argument }
+	multiply_temp_variable = { cubic = arctan_argument }
+	multiply_temp_variable = { cubic = arctan_argument }
+	divide_temp_variable = { cubic = 3 }
+
+	# x^5 / 5
+	set_temp_variable = { quintic = arctan_argument }
+	multiply_temp_variable = { quintic = arctan_argument }
+	multiply_temp_variable = { quintic = arctan_argument }
+	multiply_temp_variable = { quintic = arctan_argument }
+	multiply_temp_variable = { quintic = arctan_argument }
+	divide_temp_variable = { quintic = 5 }
+
+	# x^7 / 7
+	set_temp_variable = { septic = arctan_argument }
+	multiply_temp_variable = { septic = arctan_argument }
+	multiply_temp_variable = { septic = arctan_argument }
+	multiply_temp_variable = { septic = arctan_argument }
+	multiply_temp_variable = { septic = arctan_argument }
+	multiply_temp_variable = { septic = arctan_argument }
+	multiply_temp_variable = { septic = arctan_argument }
+	divide_temp_variable = { septic = 7 }
+
+	# x^9 / 9
+	set_temp_variable = { nonic = arctan_argument }
+	multiply_temp_variable = { nonic = arctan_argument }
+	multiply_temp_variable = { nonic = arctan_argument }
+	multiply_temp_variable = { nonic = arctan_argument }
+	multiply_temp_variable = { nonic = arctan_argument }
+	multiply_temp_variable = { nonic = arctan_argument }
+	multiply_temp_variable = { nonic = arctan_argument }
+	divide_temp_variable = { nonic = 9 }
+
+	# x - x^3/3 + x^5/5 - x^7/7 + x^9/9
+	# This is the taylor series of the arctan to ninth order
+	# Yes, I know that this isn't optimal
+	# We should also use arctan(x) = pi/4 - arctan( (1-x)/(1+x) ) for values close to 1
+	# But I'm lazy
+	subtract_from_temp_variable = { arctan_result = cubic }
+	add_to_temp_variable = { arctan_result = quintic }
+	subtract_from_temp_variable = { arctan_result = septic }
+	add_to_temp_variable = { arctan_result = nonic }
+}
+
+ED_calculate_magic_balance_modifier = {
+	set_variable = { ED_magic_balance_mage_org = current_magic_balance }
+	multiply_variable = { ED_magic_balance_mage_org = 0.5 }
+	set_variable = { ED_magic_balance_command_power = current_magic_balance }
+	multiply_variable = { ED_magic_balance_command_power = 0.25 }
+	set_variable = { ED_magic_balance_war_stability_factor = current_magic_balance }
+	multiply_variable = { ED_magic_balance_war_stability_factor = 0.15 }
+	set_variable = { ED_magic_balance_army_attack_factor = current_magic_balance }
+	multiply_variable = { ED_magic_balance_army_attack_factor = 0.1 }
+	set_variable = { ED_magic_balance_out_of_supply_factor = current_magic_balance }
+	multiply_variable = { ED_magic_balance_out_of_supply_factor = -0.1 }
+}
+
+ED_decay_magical_balance_effect = {
+	if = {
+		limit = {
+			check_variable = {
+				current_magic_balance < 0
+			}
+		}
+		add_to_variable = {
+			current_magic_balance = 0.05
+		}
+		if = {
+			limit = {
+				current_magic_balance > -0.01
+			}
+			remove_dynamic_modifier = {
+				modifier = ED_magic_balance_effect
+			}
+		}
+	}
+	else = {
+		subtract_from_variable = {
+			current_magic_balance = 0.05
+		}
+		if = {
+			limit = {
+				current_magic_balance < 0.01
+			}
+			remove_dynamic_modifier = {
+				modifier = ED_magic_balance_effect
+			}
+		}
+	}
+}
