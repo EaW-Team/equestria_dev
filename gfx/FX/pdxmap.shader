@@ -435,14 +435,14 @@ PixelShader =
 			float4 generalColorTest = tex2D(GradientBorderChannel1, float2(Input.uv.x, 1.0-(Input.uv.y * 0.5)));
 			float4 ZZZColorTest1 = tex2D(GradientBorderChannel1, float2(0.10327, 0.999));
 			float4 ZZZColorTest2 = tex2D(GradientBorderChannel1, float2(0.10424, 0.999));
-			if ( (generalColorTest.r > 0.318 && generalColorTest.r < 0.319)
+			if ( ZZZColorTest1.r != ZZZColorTest2.r
+				&& (generalColorTest.r > 0.318 && generalColorTest.r < 0.319)
 				&& (generalColorTest.g > 0.535 && generalColorTest.g < 0.536)
 				&& (generalColorTest.b > 0.234 && generalColorTest.b < 0.235)
-				&& (ZZZColorTest1.r != ZZZColorTest2.r)
 				) {
 
 				float2 center = float2(0.2045, 0.727);
-				float dist = length(Input.uv - center);
+				float dist = length( float2( 1 * (Input.uv.x - center.x), Input.uv.y - center.y));
 
 				float alphaWaveAngle = dist * 40.0 - vGlobalTime;
 				float alphaWave = 0.15 * pow(sin(alphaWaveAngle), 2);
