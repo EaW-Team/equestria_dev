@@ -442,7 +442,7 @@ PixelShader =
 				) {
 
 				float2 center = float2(0.2045, 0.727);
-				float dist = length( float2( 1 * (Input.uv.x - center.x), Input.uv.y - center.y));
+				float dist = length( float2( 2 * (Input.uv.x - center.x), Input.uv.y - center.y));
 
 				float alphaWaveAngle = dist * 40.0 - vGlobalTime;
 				float alphaWave = 0.15 * pow(sin(alphaWaveAngle), 2);
