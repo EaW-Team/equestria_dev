@@ -441,11 +441,11 @@ PixelShader =
 				&& (generalColorTest.b > 0.234 && generalColorTest.b < 0.235)
 				) {
 
-				float2 center = float2(0.2045, 0.727);
+				float2 center = float2(0.207, 0.713);
 				float dist = length( float2( 2 * (Input.uv.x - center.x), Input.uv.y - center.y));
 
 				float alphaWaveAngle = dist * 40.0 - vGlobalTime;
-				float alphaWave = 0.15 * pow(sin(alphaWaveAngle), 2);
+				float alphaWave = 0.15 * sin(alphaWaveAngle) * sin(alphaWaveAngle);
 
 				float colorSelector = frac(alphaWaveAngle / (6 * 3.141592));
 				
