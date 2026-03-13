@@ -431,7 +431,7 @@ PixelShader =
 
 			DebugReturn(vOut, lightingProperties, fShadowTerm);
 
-			// Equestria's shield effect
+			// Equestria's shield effect for 2026 Evil Diarchy AF
 			float4 generalColorTest = tex2D(GradientBorderChannel1, float2(Input.uv.x, 1.0-(Input.uv.y * 0.5)));
 			float4 ZZZColorTest1 = tex2D(GradientBorderChannel1, float2(0.10327, 0.999));
 			float4 ZZZColorTest2 = tex2D(GradientBorderChannel1, float2(0.10424, 0.999));
@@ -441,11 +441,38 @@ PixelShader =
 				&& (ZZZColorTest1.r != ZZZColorTest2.r)
 				) {
 
-				float3 shieldColor = float3(1.0, 0.4, 0.7);
 				float2 center = float2(0.2045, 0.727);
 				float dist = length(Input.uv - center);
 
-				float alphaWave = 0.15 * pow(sin(dist * 40.0 - vGlobalTime), 2);
+				float alphaWaveAngle = dist * 40.0 - vGlobalTime;
+				float alphaWave = 0.15 * pow(sin(alphaWaveAngle), 2);
+
+				float colorSelector = frac(alphaWaveAngle / (6 * 3.141592));
+				
+				float3 shieldColor1 = float3(0.5, 0.0, 1.0);
+				float3 shieldColor2 = float3(1.0, 0.75, 0.0);
+				float3 shieldColor3 = float3(0.0, 0.75, 0.0);
+				float3 shieldColor4 = float3(0.0, 0.75, 1.0);
+				float3 shieldColor5 = float3(1.0, 0.0, 1.0);
+				float3 shieldColor = float3(1.0, 0.0, 0.0);
+
+				if (colorSelector < 1.0/6.0) {
+					shieldColor = shieldColor1;
+				}
+				else if (colorSelector < 2.0/6.0) {
+					shieldColor = shieldColor2;
+				}
+				else if (colorSelector < 3.0/6.0){
+					shieldColor = shieldColor3;
+					alphaWave *= 1.5;
+				}
+				else if (colorSelector < 4.0/6.0) {
+					shieldColor = shieldColor4;
+				}
+				else if (colorSelector < 5.0/6.0) {
+					shieldColor = shieldColor5;
+				}
+
 				vOut.rgb = vOut.rgb * (1.0 - alphaWave) + shieldColor * alphaWave;
 			}
 
