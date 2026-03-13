@@ -431,6 +431,24 @@ PixelShader =
 
 			DebugReturn(vOut, lightingProperties, fShadowTerm);
 
+			// Equestria's shield effect
+			// float4 generalColorTest = tex2D(GradientBorderChannel1, float2(Input.uv.x, 1.0-(Input.uv.y * 0.5)));
+			// float4 ZZZColorTest1 = tex2D(GradientBorderChannel1, float2(0.10327, 1.0-(0.5 * 0.5)));
+			// float4 ZZZColorTest2 = tex2D(GradientBorderChannel1, float2(0.104248, 1.0-(0.5 * 0.5)));
+			// if ( (generalColorTest.r > 0.318 && generalColorTest.r < 0.319)
+			// 	&& (generalColorTest.g > 0.535 && generalColorTest.g < 0.536)
+			// 	&& (generalColorTest.b > 0.234 && generalColorTest.b < 0.235)
+			// 	&& (ZZZColorTest1.r != ZZZColorTest2.r)
+			// 	) {
+
+			// 	float3 shieldColor = float3(1.0, 0.4, 0.7);
+			// 	float2 center = float2(0.2045, 0.727);
+			// 	float dist = length(Input.uv - center);
+
+			// 	float alphaWave = 0.15 * pow(sin(dist * 40.0 - vGlobalTime), 2);
+			// 	vOut.rgb = vOut.rgb * (1.0 - alphaWave) + shieldColor * alphaWave;
+			// }
+
 		#ifdef LOW_END_GFX
 			return float4( vOut, vNightFactor * CITY_LIGHTS_BLOOM_FACTOR );
 		#else
