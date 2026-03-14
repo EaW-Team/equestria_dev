@@ -10835,6 +10835,88 @@ KXN_Aerostat_Category = {
 }
 
 KXN_The_Long_March_Home_Category = {
+	KXN_Resettlement_Mission = {
+		icon = kirin_skull
+		allowed = { tag = KXN }
+		activation = { always = no }
+
+		selectable_mission = no
+		days_mission_timeout = 365
+		is_good = no
+
+		available = {
+			custom_trigger_tooltip = {
+				tooltip = KXN_Resettlement_Mission_Req_TT
+				check_variable = {
+					var = KXN.KXN_Resettlement_Mission_Num_Var
+					value = KXN.KXN_Resettlement_Mission_Req_Var
+					compare = greater_than_or_equals
+				}
+			}
+		}
+
+		fire_only_once = yes
+		
+		timeout_effect = {
+			log = "[GetDateText]: [Root.GetName]: Decision timeout KXN_Resettlement_Mission"
+			custom_effect_tooltip = KXN_Resettlement_Mission_TT
+			hidden_effect = {
+				start_civil_war = {
+					ideology = communism
+					size = 0.25
+					capital = 1086
+					keep_all_characters = yes
+					states_filter = {
+						is_capital = no
+						OR = {
+							is_core_of = KXN
+							has_dynamic_modifier = { modifier = KXN_Settler_Communities }
+						}
+					}
+					set_country_flag = KXN_Signal_Flare_Unlocked
+					set_country_flag = KXN_Vanguard_Flag
+					set_cosmetic_tag = KXN_communism
+				}
+				KCC = {
+					every_possible_country = {
+						limit = {
+							has_character = KXN_Signal_Flare
+						}
+						KXN_Signal_Flare = { set_nationality = PREV.PREV }
+					}
+					every_possible_country = {
+						limit = {
+							has_character = KXN_Congress
+						}
+						KXN_Congress = { set_nationality = PREV.PREV }
+					}
+					retire_ideology_leader = communism
+					add_country_leader_role = {
+						character = "KXN_Congress"
+						promote_leader = yes
+						country_leader = {
+							desc = ""
+							ideology = stalinism
+							expire = "1965.1.1.1"
+							traits = { }
+						}
+					}
+				}
+			}
+		}
+		
+		complete_effect = {
+			log = "[GetDateText]: [Root.GetName]: Decision KXN_Resettlement_Mission"
+			add_political_power = 150
+			add_stability = 0.05
+		}
+
+		cancel_trigger = {
+			hidden_trigger = {
+				has_civil_war = yes
+			}
+		}
+	}
 	KXN_Move_Capital_Decision = {
 		icon = SOV_place_hq
 		allowed = { tag = KXN }
@@ -11881,6 +11963,83 @@ KXN_The_Long_March_Home_Category = {
 		cancel_effect = {
 		}
 	}
+	KXN_Resettlement_Decision = {
+		icon = kirin_hq_up
+		allowed = { tag = KXN }
+		ai_will_do = { factor = 0 }
+		
+		state_target = yes
+		target_array = KXN.owned_controlled_states
+		on_map_mode = map_only
+		
+		visible = {
+			has_country_flag = KXN_Resettlement_Decision_Flag
+			has_country_flag = KXN_Resettlement_Decision_Show_Flag
+			FROM = {
+				OR = {
+					is_core_of = KXN
+					has_dynamic_modifier = { modifier = KXN_Settler_Communities }
+				}
+			}
+		}
+		
+		target_trigger = {
+			FROM = {
+				OR = {
+					is_core_of = KXN
+					has_dynamic_modifier = { modifier = KXN_Settler_Communities }
+				}
+			}
+		}
+		
+		highlight_states = {
+			highlight_states_trigger = {
+				state = FROM
+			}
+		}
+		
+		custom_cost_trigger = {
+			has_manpower > 49999
+		}
+
+		custom_cost_text = decision_cost_manpower_50000
+
+		days_remove = 30
+		days_re_enable = 60
+		
+		modifier = {
+			political_power_factor = -0.05
+			stability_factor = -0.025
+		}
+		
+		complete_effect = {
+			log = "[GetDateText]: [Root.GetName]: Decision KXN_Resettlement_Decision target: [From.GetName]"
+			hidden_effect = {
+				add_manpower = -50000
+			}
+		}
+
+		remove_effect = {
+			log = "[GetDateText]: [Root.GetName]: Decision remove KXN_Resettlement_Decision target: [From.GetName]"
+			add_stability = 0.01
+			if = {
+				limit = {
+					check_variable = { KXN_Survivors_MP_Var < 0 }
+				}
+				effect_tooltip = {
+					swap_ideas = {
+						remove_idea = KXN_Survivors_Fallen_Empire_DUMMY
+						add_idea = KXN_Survivors_Fallen_Empire_DUMMY_14
+					}
+				}
+				add_to_variable = { KXN_Survivors_MP_Var = 0.05 }
+			}
+			add_to_variable = { KXN_Resettlement_Mission_Num_Var = 50 }
+			FROM = {
+				add_manpower = 50000
+			}
+		}
+	}
 	KXN_Airlift_To_Remnant_HIDE = {
 		icon = generic_decision
 		allowed = { tag = KXN }
@@ -12048,6 +12207,30 @@ KXN_The_Long_March_Home_Category = {
 		complete_effect = {
 			set_country_flag = KXN_Rebuild_State_Show_Flag
 			custom_effect_tooltip = KXN_Rebuild_State_SHOW_tt
+		}
+	}
+	KXN_Resettlement_Decision_HIDE = {
+		icon = generic_decision
+		allowed = { tag = KXN }
+		visible = {
+			has_country_flag = KXN_Resettlement_Decision_Flag
+			has_country_flag = KXN_Resettlement_Decision_Show_Flag
+		}
+		complete_effect = {
+			clr_country_flag = KXN_Resettlement_Decision_Show_Flag
+			custom_effect_tooltip = KXN_Resettlement_Decision_HIDE_tt
+		}
+	}
+	KXN_Resettlement_Decision_SHOW = {
+		icon = generic_decision
+		allowed = { tag = KXN }
+		visible = {
+			has_country_flag = KXN_Resettlement_Decision_Flag
+			NOT = { has_country_flag = KXN_Resettlement_Decision_Show_Flag }
+		}
+		complete_effect = {
+			set_country_flag = KXN_Resettlement_Decision_Show_Flag
+			custom_effect_tooltip = KXN_Resettlement_Decision_SHOW_tt
 		}
 	}
 }
