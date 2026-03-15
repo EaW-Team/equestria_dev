@@ -20,7 +20,7 @@ PixelShader =
 		float3 colorTest = tex2D( gbChannel, testCoords).xyz;
 		
 		//Check if the navy map is active. If it is, we need to sample from the bottom of the gbChannel.
-		if (all(colorTest == navyMapGBColor)) {
+		if (colorTest.r == navyMapGBColor.r && colorTest.g == navyMapGBColor.g && colorTest.b == navyMapGBColor.b) {
 			colorTest = tex2D( gbChannel, float2(testCoords.x, testCoords.y + 0.5f)).xyz;
 		}
 		
