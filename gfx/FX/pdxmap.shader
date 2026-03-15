@@ -441,33 +441,72 @@ PixelShader =
 				float dist = length( float2( 2 * (Input.uv.x - center.x), Input.uv.y - center.y));
 
 				float alphaWaveAngle = dist * 40.0 - vGlobalTime;
-				float alphaWave = 0.15 * sin(alphaWaveAngle) * sin(alphaWaveAngle);
+				float alphaWave = 0.125 * sin(alphaWaveAngle) * sin(alphaWaveAngle);
+				// float alphaWave = 0.3;
 
-				float colorSelector = frac(alphaWaveAngle / (6 * 3.141592));
+				float colorSelector = frac(alphaWaveAngle / (1 * 3.141592));
 				
+				float3 shieldColor = float3(0.0, 0.0, 0.0);
+
 				float3 shieldColor1 = float3(0.5, 0.0, 1.0);
 				float3 shieldColor2 = float3(1.0, 0.75, 0.0);
 				float3 shieldColor3 = float3(0.0, 0.75, 0.0);
 				float3 shieldColor4 = float3(0.0, 0.75, 1.0);
 				float3 shieldColor5 = float3(1.0, 0.0, 1.0);
-				float3 shieldColor = float3(1.0, 0.0, 0.0);
+				float3 shieldColor6 = float3(1.0, 0.0, 0.0);
 
+				// 1 Color per wave variant
+
+				// if (colorSelector < 1.0/6.0) {
+				// 	shieldColor = shieldColor1;
+				// }
+				// else if (colorSelector < 2.0/6.0) {
+				// 	shieldColor = shieldColor2;
+				// }
+				// else if (colorSelector < 3.0/6.0){
+				// 	shieldColor = shieldColor3;
+				// 	alphaWave *= 1.5;
+				// }
+				// else if (colorSelector < 4.0/6.0) {
+				// 	shieldColor = shieldColor4;
+				// }
+				// else if (colorSelector < 5.0/6.0) {
+				// 	shieldColor = shieldColor5;
+				// }
+				// else {
+				// 	shieldColor = shieldColor6;
+				// }
+
+				// Each wave a rainbow variant
+
+				float3 shieldColorStart = float3(0.0, 0.0, 0.0);
+				float3 shieldColorEnd = float3(0.0, 0.0, 0.0);
 				if (colorSelector < 1.0/6.0) {
-					shieldColor = shieldColor1;
+					shieldColorStart = shieldColor1;
+					shieldColorEnd = shieldColor2;
 				}
 				else if (colorSelector < 2.0/6.0) {
-					shieldColor = shieldColor2;
+					shieldColorStart = shieldColor2;
+					shieldColorEnd = shieldColor3;
 				}
 				else if (colorSelector < 3.0/6.0){
-					shieldColor = shieldColor3;
-					alphaWave *= 1.5;
+					shieldColorStart = shieldColor3;
+					shieldColorEnd = shieldColor4;
 				}
 				else if (colorSelector < 4.0/6.0) {
-					shieldColor = shieldColor4;
+					shieldColorStart = shieldColor4;
+					shieldColorEnd = shieldColor5;
 				}
 				else if (colorSelector < 5.0/6.0) {
-					shieldColor = shieldColor5;
+					shieldColorStart = shieldColor5;
+					shieldColorEnd = shieldColor6;
 				}
+				else {
+					shieldColorStart = shieldColor6;
+					shieldColorEnd = shieldColor1;
+				}
+				float shieldGradient = frac(6.0 * colorSelector);
+				shieldColor = lerp(shieldColorStart, shieldColorEnd, shieldGradient);
 
 				vOut.rgb = vOut.rgb * (1.0 - alphaWave) + shieldColor * alphaWave;
 			}
