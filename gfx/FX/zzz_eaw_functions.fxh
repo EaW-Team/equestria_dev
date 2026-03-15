@@ -8,7 +8,7 @@ PixelShader =
 	[[
 	
 	//Color of the upper half of gbChannel1 while navy map mode is selected.
-	static const float4 navyMapGBColor = float4( 0.033203125f, 0.049804688f, 0.100097659f, 1.0f);
+	static const float3 navyMapGBColor = float3(0.033203125f, 0.049804688f, 0.100097659f);
 	
 	//Coordinates of the test point
 	static const float2 testCoords = float2( 0.10327f, 0.499f );
@@ -17,11 +17,11 @@ PixelShader =
 	int dayNightOverrideCheck(in sampler2D gbChannel) {
 		
 		//Sample the hidden province
-		float4 colorTest = tex2D( gbChannel, testCoords);
+		float3 colorTest = tex2D( gbChannel, testCoords).xyz;
 		
 		//Check if the navy map is active. If it is, we need to sample from the bottom of the gbChannel.
 		if (all(colorTest == navyMapGBColor)) {
-			colorTest = tex2D( gbChannel, float2(testCoords.x, testCoords.y + 0.5f));
+			colorTest = tex2D( gbChannel, float2(testCoords.x, testCoords.y + 0.5f)).xyz;
 		}
 		
 		//Base case for ideology map mode
