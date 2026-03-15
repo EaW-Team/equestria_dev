@@ -111,8 +111,8 @@ NDefines.NAI.RESEARCH_AHEAD_OF_TIME_FACTOR = 1.5 			-- vanilla 4.0 To which exte
 NDefines.NAI.RESEARCH_AHEAD_BONUS_FACTOR = 10.0          	-- vanilla 4.0 To which extent AI should care about ahead of time bonuses to research
 NDefines.NAI.RESEARCH_BONUS_FACTOR = 2.0 					-- vanilla 5.0 To which extent AI should care about bonuses to research
 
-NDefines.NAI.DESIRE_USE_XP_TO_UPGRADE_AIR_EQUIPMENT = 5.0   -- Vanilla is 1
-NDefines.NAI.DESIRE_USE_XP_TO_UPGRADE_NAVAL_EQUIPMENT = 5.0	-- Vanilla is 1
+NDefines.NAI.DESIRE_USE_XP_TO_UPGRADE_AIR_EQUIPMENT = 15.0   -- Vanilla is 1
+NDefines.NAI.DESIRE_USE_XP_TO_UPGRADE_NAVAL_EQUIPMENT = 15.0	-- Vanilla is 1
 NDefines.NAI.DESIRE_USE_XP_TO_UPGRADE_LAND_EQUIPMENT = 5.0 	-- Vanilla is 1
 NDefines.NAI.UPGRADE_DIVISION_RELUCTANCE = 3				-- was 14, vanilla is 7
 NDefines.NAI.DESIRE_USE_XP_TO_UPDATE_LAND_TEMPLATE = 25.0	-- vanilla 2.0
