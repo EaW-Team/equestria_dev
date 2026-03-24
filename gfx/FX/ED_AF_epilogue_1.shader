@@ -47,12 +47,12 @@ PixelShader =
 		float4 main( VS_OUTPUT v ) : PDX_COLOR
 		{
 			float vTime = Time - AnimationTime;
-			float opacity = vTime / 6;
+			float opacity = 1 - vTime / 6;
 
-			if (vTime > 6) {
-				return float4(0, 0, 0, 1);
+			if (opacity >= 0){
+				return float4(0, 0, 0, opacity);
 			}
-			return float4(1, 1, 1, opacity);
+			return float4(0, 0, 0, 0);
 		}
 	]]
 
@@ -61,12 +61,12 @@ PixelShader =
 		float4 main( VS_OUTPUT v ) : PDX_COLOR
 		{
 			float vTime = Time - AnimationTime;
-			float opacity = 1 - vTime / 6;
+			float opacity = vTime / 6;
 
-			if (opacity >= 0){
-				return float4(0, 0, 0, opacity);
+			if (vTime > 6) {
+				return float4(0, 0, 0, 1);
 			}
-			return float4(0, 0, 0, 0);
+			return float4(1, 1, 1, opacity);
 		}
 	]]
 }
