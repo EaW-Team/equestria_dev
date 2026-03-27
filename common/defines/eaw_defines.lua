@@ -148,6 +148,10 @@ NDefines.NAI.DIPLOMACY_SEND_ATTACHE_PP_FACTOR = 0.2 	-- default is 0.1 Desire to
 NDefines.NAI.CANCEL_COMBAT_DISADVANTAGE_RATIO = 1.25    -- default is 1.5, If the enemy's advantage ratio over us during (normal) combat is more than <value>, allow canceling the attack
 NDefines.NAI.CANCEL_COMBAT_MIN_DURATION_HOURS = 24      -- default is 48, Only allow cancelling (normal) combat if at least <value> hours have passed
 
+NDefines.NAI.GARRISON_TEMPLATE_SCORE_IC_FACTOR = 1.4		-- ai uses these defines while calculating garrison template score of a template.
+NDefines.NAI.GARRISON_TEMPLATE_SCORE_MANPOWER_FACTOR = 0.4  -- formula is (template_ic * ic_factor + template_manpower * manpower_factor ) / template_supression (lower is better)
+NDefines.NAI.JOIN_ALLY_BASE_DESIRE = 50		-- exactly what it says (vanilla is 20)
+
 NDefines.NAI.MIN_FACTORIES_TO_WANT_TO_IMPORT = {  -- minimum number of civilian factories the AI must have to consider importing a resource - per strategic resource. Default 0, array -should- be updated with new resources, or if the order changes.
 		5, -- oil -- EAW increased because of outdated societies
 		0, -- aluminium
