@@ -1,45 +1,870 @@
+FAT_debug_tab = {
+#MAKE SURE TO MANUALLY LOAD RESPECTIVE FLAGS
+#CHECK NATIONAL SPIRIT FILE FOR REFERENCE
+	FAT_debug_tree_main = {
+		complete_effect = {
+			load_focus_tree = {
+				tree = FAT_main_focus_tree
+				keep_completed = yes
+			}
+			mark_focus_tree_layout_dirty = yes
+		}
+	}
+	FAW_debug_tree_main = {
+		complete_effect = {
+			load_focus_tree = {
+				tree = FAW_main_focus_tree
+				keep_completed = yes
+			}
+			mark_focus_tree_layout_dirty = yes
+		}
+	}
+	FAT_debug_tree_skynavia = {
+		complete_effect = {
+			load_focus_tree = {
+				tree = fatass_skynavia_puppet_focus
+				keep_completed = yes
+			}
+			mark_focus_tree_layout_dirty = yes
+		}
+	}
+	FAT_debug_tree_NTR = {
+		complete_effect = {
+			load_focus_tree = {
+				tree = NTR_republic_puppet_tree
+				keep_completed = yes
+			}
+			mark_focus_tree_layout_dirty = yes
+		}
+	}
+}
+
+FAT_new_mareland_war_tab = {
+	FAT_new_mareland_war_mission = {
+		icon = GFX_decision_FAT_new_mareland_war_mission
+		ai_will_do = { base = 2500 }
+		is_good = no
+		allowed = {
+			OR = {
+				original_tag = FAT
+				original_tag = EQ1
+				original_tag = EQC
+			}
+		}
+		available = { always = no }
+		activation = {
+			FAT = { has_country_flag = FAT_new_mareland_war_active }
+		}
+		days_mission_timeout = 120
+		cancel_trigger = {
+			hidden_trigger = {
+				FAT = {
+					NOT = { has_country_flag = FAT_new_mareland_war_active }		
+				}
+			}
+		}
+		timeout_effect = {
+			effect_tooltip = { country_event = griffonRepublic.111 }
+			hidden_effect = {
+				if = {
+					limit = { original_tag = FAT }
+					clr_country_flag = FAT_new_mareland_war_active
+					country_event = griffonRepublic.111
+					EQ1 = { country_event = griffonRepublic.111 }
+				}
+			}
+		}
+	}
+	FAT_new_mareland_war_success = {
+		icon = GFX_decision_FAT_new_mareland_war_success
+		visible = { original_tag = FAT }
+		ai_will_do = { base = 2000 }
+		available = {
+			EQC = { has_capitulated = yes }
+		}
+		complete_effect = {
+			country_event = griffonRepublic.110
+			annex_country = { target = EQC }
+			hidden_effect = {
+				clr_country_flag = FAT_new_mareland_war_active
+				EQ1 = { country_event = griffonRepublic.110 }
+			}
+		}
+	}
+}
+
+FAT_reconstruction_decisions_tab = {
+	FAT_reconstruction_mission = {
+		icon = GFX_decision_FAT_reconstruction_mission
+		is_good = no
+		allowed = { original_tag = FAT }
+		available = { always = no }
+		days_mission_timeout = 700
+		activation = {
+			FAT = { has_country_flag = FAT_reconstruction_active }
+		}
+		cancel_trigger = {
+			FAT = {
+				NOT = { has_country_flag = FAT_reconstruction_active }
+			}
+		}
+		timeout_effect = {
+			effect_tooltip = { country_event = griffonRepublic.291 }
+			hidden_effect = {
+				clr_country_flag = FAT_reconstruction_active
+				set_country_flag = FAT_its_so_over
+				if = {
+					limit = { has_war = no }
+					country_event = griffonRepublic.291
+				}
+			}
+		}
+	}
+	FAT_reconstruction_success = {
+		icon = GFX_decision_FAT_reconstruction_success
+		allowed = { always = yes }
+		ai_will_do = {
+			base = 2000
+			modifier = {
+				factor = 0
+				has_country_flag = FAT_AI_fail_reconstruction
+			}
+		}
+		available = {
+			OR = {
+				has_completed_focus = FAT_the_liberation_of_griffonia
+				has_completed_focus = FAT_once_more_into_the_breach
+				has_completed_focus = FAT_in_the_defense_of_griffonia
+			}
+			if = {
+				limit = { is_ai = no }
+				check_variable = {
+					FAT_reconstruction_progress_value = 100
+					tooltip = FAT_reconstruction_progress_tt
+				}
+				check_variable = {
+					FAT_sectarianism_value < 45
+					tooltip = FAT_sectarianism_value_lower_than_45_tt
+				}
+				NOT = { FAT_has_entrenched_archonates = yes }
+				NOT = { FAT_has_entrenched_loyalists = yes }
+				NOT = { FAT_has_entrenched_regionalists = yes }
+			}
+		}
+		complete_effect = {
+			clr_country_flag = FAT_reconstruction_active
+			hidden_effect = {
+				country_event = { id = griffonRepublic.70 days = 75 }
+			}
+		}
+	}
+	FAT_gradual_reconstruction_mission = {
+		icon = GFX_decision_FAT_gradual_reconstruction_mission
+		allowed = { original_tag = FAT }
+		visible = { has_country_flag = FAT_reconstruction_active }
+		available = { always = no }
+		days_mission_timeout = FAT_sectarianism_value
+		is_good = yes
+		activation = {
+			has_country_flag = FAT_reconstruction_active
+			check_variable = { FAT_reconstruction_progress_value < 100 }
+		}
+		cancel_trigger = {
+			NOT = { has_country_flag = FAT_reconstruction_active }
+		}
+		timeout_effect = {
+			set_temp_variable = { reconstruction_progress_add_value = FAT_reconstruction_progress_default_increment }
+			FAT_increment_reconstruction_progress = yes
+			custom_effect_tooltip = FAT_increment_sectarianism_per_subdued_faction_tt
+			hidden_effect = {
+				set_temp_variable = { sectarianism_add_value = 0 }
+				if = {
+					limit = { FAT_has_subdued_archonates = yes }
+					add_to_temp_variable = { sectarianism_add_value = 3 }
+				}
+				if = {
+					limit = { FAT_has_subdued_loyalists = yes }
+					add_to_temp_variable = { sectarianism_add_value = 3 }
+				}
+				if = {
+					limit = { FAT_has_subdued_regionalists = yes }
+					add_to_temp_variable = { sectarianism_add_value = 3 }
+				}
+				FAT_increment_sectarianism = yes
+			}
+		}
+	}
+	FAT_republican_knights_1 = {
+		icon = GFX_decision_FAT_republican_knights_1
+		cost = 100
+		ai_will_do = { base = 500 }
+		days_remove = FAT_sectarianism_value
+		fire_only_once = yes
+		available = {
+			NOT = { has_country_flag = FAT_has_active_reconstruction_policy }
+		}
+		complete_effect = { set_country_flag = FAT_has_active_reconstruction_policy }
+		remove_effect = {
+			clr_country_flag = FAT_has_active_reconstruction_policy
+			set_country_flag = FAT_republican_knights_1_completed
+			country_event = griffonRepublic.147
+			if = {
+				limit = { FAT_has_cooperative_archonates = no }
+				FAT_set_archonates_cooperative = yes
+			}
+			set_temp_variable = { reconstruction_progress_add_value = 3 }
+			FAT_increment_reconstruction_progress = yes
+			add_tech_bonus = {
+				name = special_forces_bonus
+				bonus = 0.75
+				uses = 1
+				category = special_forces_tech
+			}
+			custom_effect_tooltip = { IDEA = FAT_FAW_army_dynamic_modifier localization_key = modify_idea_tt }
+			add_to_variable = {
+				FAT_army_org_factor = -0.05
+				tooltip = army_org_factor_tt
+			}
+			add_to_variable = {
+				FAT_command_power_gain = -0.01
+				tooltip = command_power_gain_tt
+			}
+		}
+	}
+	FAT_republican_knights_2 = {
+		icon = GFX_decision_FAT_republican_knights_1
+		cost = 25
+		ai_will_do = { base = 15 }
+		days_remove = FAT_sectarianism_value
+		visible = { has_country_flag = FAT_republican_knights_1_completed }
+		available = {
+			NOT = { has_country_flag = FAT_has_active_reconstruction_policy }
+		}
+		complete_effect = { set_country_flag = FAT_has_active_reconstruction_policy }
+		remove_effect = {
+			clr_country_flag = FAT_has_active_reconstruction_policy
+			if = {
+				limit = { FAT_has_cooperative_archonates = no }
+				FAT_set_archonates_cooperative = yes
+			}
+			set_temp_variable = { reconstruction_progress_add_value = 3 }
+			FAT_increment_reconstruction_progress = yes
+			add_tech_bonus = {
+				name = special_forces_bonus
+				bonus = 0.25
+				uses = 1
+				category = special_forces_tech
+			}
+			random_list = {
+				1 = {
+					custom_effect_tooltip = { IDEA = FAT_FAW_economy_dynamic_modifier localization_key = modify_idea_tt }
+					add_to_variable = {
+						FAT_monthly_population = -0.05
+						tooltip = monthly_population_tt
+					}
+				}
+				1 = {
+					custom_effect_tooltip = { IDEA = FAT_FAW_economy_dynamic_modifier localization_key = modify_idea_tt }
+					add_to_variable = {
+						FAT_research_speed_factor = -0.025
+						tooltip = research_speed_factor_tt
+					}
+				}
+				1 = {
+					custom_effect_tooltip = { IDEA = FAT_FAW_economy_dynamic_modifier localization_key = modify_idea_tt }
+					add_to_variable = {
+						FAT_production_speed_industrial_complex_factor = -0.10
+						tooltip = production_speed_industrial_complex_factor_tt
+					}
+				}
+			}
+		}
+	}
+	FAT_recruit_reichsarmee_personnel_1 = {
+		icon = GFX_decision_FAT_recruit_reichsarmee_personnel_1
+		cost = 100
+		ai_will_do = { base = 500 }
+		days_remove = FAT_sectarianism_value
+		fire_only_once = yes
+		available = {
+			NOT = { has_country_flag = FAT_has_active_reconstruction_policy }
+		}
+		complete_effect = { set_country_flag = FAT_has_active_reconstruction_policy }
+		remove_effect = {
+			clr_country_flag = FAT_has_active_reconstruction_policy
+			set_country_flag = FAT_recruit_reichsarmee_personnel_1_completed
+			if = {
+				limit = { FAT_has_cooperative_loyalists = no }
+				FAT_set_loyalists_cooperative = yes
+			}
+			set_temp_variable = { reconstruction_progress_add_value = 3 }
+			FAT_increment_reconstruction_progress = yes
+			GRI = {
+				GRI_helga_weisskopf = { set_nationality = FAT }
+				GRI_arnold_scheer = { set_nationality = FAT }
+				GRI_cornelio_galluzzo = { set_nationality = FAT }
+				GRI_august_duskwing = { set_nationality = FAT }
+			}
+			custom_effect_tooltip = { IDEA = FAT_FAW_army_dynamic_modifier localization_key = modify_idea_tt }
+			add_to_variable = {
+				FAT_political_power_factor = -0.10
+				tooltip = political_power_factor_tt
+			}
+			add_to_variable = {
+				FAT_army_morale_factor = -0.05
+				tooltip = army_morale_factor_tt
+			}
+		}
+	}
+	FAT_recruit_reichsarmee_personnel_2 = {
+		icon = GFX_decision_FAT_recruit_reichsarmee_personnel_1
+		cost = 25
+		ai_will_do = { base = 15 }
+		days_remove = FAT_sectarianism_value
+		available = {
+			NOT = { has_country_flag = FAT_has_active_reconstruction_policy }
+		}
+		visible = { has_country_flag = FAT_recruit_reichsarmee_personnel_1_completed }
+		complete_effect = { set_country_flag = FAT_has_active_reconstruction_policy }
+		remove_effect = {
+			clr_country_flag = FAT_has_active_reconstruction_policy
+			if = {
+				limit = { FAT_has_cooperative_loyalists = no }
+				FAT_set_loyalists_cooperative = yes
+			}
+			set_temp_variable = { reconstruction_progress_add_value = 3 }
+			FAT_increment_reconstruction_progress = yes
+			random_list = {
+				1 = {
+					custom_effect_tooltip = { IDEA = FAT_FAW_army_dynamic_modifier localization_key = modify_idea_tt }
+					add_to_variable = {
+						FAT_army_morale_factor = -0.10
+						tooltip = army_morale_factor_tt
+					}
+				}
+				1 = {
+					custom_effect_tooltip = { IDEA = FAT_FAW_army_dynamic_modifier localization_key = modify_idea_tt }
+					add_to_variable = {
+						FAT_max_planning = -0.10
+						tooltip = max_planning_factor_tt
+					}
+				}
+				1 = {
+					custom_effect_tooltip = { IDEA = FAT_FAW_army_dynamic_modifier localization_key = modify_idea_tt }
+					add_to_variable = {
+						FAT_army_org_factor = -0.10
+						tooltip = army_org_factor_tt
+					}
+				}
+			}
+		}
+	}
+	FAT_restore_free_cities_1 = {
+		icon = GFX_decision_FAT_restore_free_cities_1
+		cost = 100
+		ai_will_do = { base = 500 }
+		days_remove = FAT_sectarianism_value
+		fire_only_once = yes
+		available = {
+			NOT = { has_country_flag = FAT_has_active_reconstruction_policy }
+		}
+		complete_effect = {
+			set_country_flag = FAT_has_active_reconstruction_policy
+		}
+		remove_effect = {
+			clr_country_flag = FAT_has_active_reconstruction_policy
+			set_country_flag = FAT_restore_free_cities_1_complete
+			if = {
+				limit = { FAT_has_cooperative_regionalists = no }
+				FAT_set_regionalists_cooperative = yes
+			}
+			else = { FAT_set_regionalists_entrenched = yes }
+			add_to_variable = {
+				FAT_reconstruction_progress_default_increment = 1
+				tooltip = FAT_reconstruction_progress_default_increment_tt
+			}
+			add_advisor_role = {
+				character = ROU_gabriella_di_karthin
+				advisor = {
+					slot = political_advisor
+					idea_token = MDL_senate
+					cost = 100
+					traits = { FAT_mayorship_overseer }
+				}
+			}
+			custom_effect_tooltip = FAT_restore_free_cities_1_tt
+			effect_tooltip = {
+				add_dynamic_modifier = { modifier = FAT_free_city_modifier }
+			}
+			add_to_temp_array = { free_cities_states = 674 }
+			add_to_temp_array = { free_cities_states = 433 }
+			add_to_temp_array = { free_cities_states = 492 }
+			add_to_temp_array = { free_cities_states = 520 }
+			add_to_temp_array = { free_cities_states = 398 }
+			for_each_scope_loop = {
+				array = free_cities_states
+				if = {
+					limit = { is_owned_and_controlled_by = FAT }
+					add_dynamic_modifier = { modifier = FAT_free_city_modifier }
+				}
+			}
+		}
+	}
+	FAT_restore_free_cities_2 = {
+		icon = GFX_decision_FAT_restore_free_cities_1
+		cost = 25
+		ai_will_do = { base = 15 }
+		days_remove = FAT_sectarianism_value
+		visible = { has_country_flag = FAT_restore_free_cities_1_complete }
+		available = {
+			NOT = { has_country_flag = FAT_has_active_reconstruction_policy }
+		}
+		complete_effect = { set_country_flag = FAT_has_active_reconstruction_policy }
+		remove_effect = {
+			clr_country_flag = FAT_has_active_reconstruction_policy
+			set_temp_variable = { reconstruction_progress_add_value = 3 }
+			FAT_increment_reconstruction_progress = yes
+			if = {
+				limit = { FAT_has_cooperative_regionalists = no }
+				FAT_set_regionalists_cooperative = yes
+			}
+			random_list = {
+				1 = {
+					custom_effect_tooltip = { IDEA = FAT_FAW_economy_dynamic_modifier localization_key = modify_idea_tt }
+					add_to_variable = {
+						FAT_industrial_capacity_factory = -0.10
+						tooltip = industrial_capacity_factory_tt
+					}
+				}
+				1 = {
+					custom_effect_tooltip = { IDEA = FAT_FAW_economy_dynamic_modifier localization_key = modify_idea_tt }
+					add_to_variable = {
+						FAT_production_factory_efficiency_gain_factor = -0.10
+						tooltip = production_factory_efficiency_gain_factor_tt
+					}
+				}
+				1 = {
+					custom_effect_tooltip = { IDEA = FAT_FAW_economy_dynamic_modifier localization_key = modify_idea_tt }
+					add_to_variable = {
+						FAT_local_resources_factor = -0.10
+						tooltip = local_resources_factor_tt
+					}
+				}
+			}
+		}
+	}
+	FAT_officialize_griffish_state_language = {
+		icon = GFX_decision_FAT_officialize_griffish_state_language
+		cost = 25
+		days_remove = FAT_sectarianism_value
+		fire_only_once = yes
+		ai_will_do = { base = 15 }
+		available = {
+			NOT = { has_country_flag = FAT_has_active_reconstruction_policy }
+		}
+		complete_effect = { set_country_flag = FAT_has_active_reconstruction_policy }
+		remove_effect = {
+			clr_country_flag = FAT_has_active_reconstruction_policy
+			if = {
+				limit = { FAT_has_cooperative_regionalists = no }
+				FAT_set_regionalists_cooperative = yes
+			}
+			set_temp_variable = { reconstruction_progress_add_value = 5 }
+			FAT_increment_reconstruction_progress = yes
+			set_temp_variable = { sectarianism_add_value = -10 }
+			FAT_increment_sectarianism = yes
+			add_stability = -0.20
+			add_war_support = -0.20
+		}
+	}
+	FAT_federal_holidays_act = {
+		icon = GFX_decision_FAT_federal_holidays_act
+		cost = 25
+		ai_will_do = { base = 50 }
+		days_remove = FAT_sectarianism_value
+		fire_only_once = yes
+		modifier = { political_power_factor = -0.15 }
+		available = {
+			NOT = { has_country_flag = FAT_has_active_reconstruction_policy }
+			FAT_has_entrenched_loyalists = no
+		}
+		complete_effect = { set_country_flag = FAT_has_active_reconstruction_policy }
+		remove_effect = {
+			clr_country_flag = FAT_has_active_reconstruction_policy
+			country_event = griffonRepublic.124
+			if = {
+				limit = { FAT_has_entrenched_archonates = no }
+				FAT_set_archonates_entrenched = yes
+			}
+			set_temp_variable = { reconstruction_progress_add_value = 2 }
+			FAT_increment_reconstruction_progress = yes
+			set_temp_variable = { sectarianism_add_value = -1 }
+			FAT_increment_sectarianism = yes
+		}
+	}
+	FAT_cooperate_with_commies_to_hunt_down_imperials = {
+		icon = GFX_decision_FAT_cooperate_with_commies_to_hunt_down_imperials
+		cost = 50
+		ai_will_do = { base = 500 }
+		days_remove = FAT_sectarianism_value
+		fire_only_once = yes
+		available = {
+			NOT = { has_country_flag = FAT_has_active_reconstruction_policy }
+			FAT_has_entrenched_regionalists = no
+		}
+		visible = { FAT_has_subdued_loyalists = no }
+		modifier = {
+			consumer_goods_factor = 0.25
+			weekly_manpower = -250
+		}
+		complete_effect = { set_country_flag = FAT_has_active_reconstruction_policy }
+		remove_effect = {
+			clr_country_flag = FAT_has_active_reconstruction_policy
+			if = {
+				limit = { FAT_has_subdued_loyalists = no }
+				FAT_set_loyalists_subdued = yes
+			}
+			add_popularity = { ideology = communism popularity = 0.10 }
+		}
+	}
+	FAT_the_republic_is_marching = {
+		icon = GFX_decision_FAT_the_republic_is_marching
+		cost = 75
+		ai_will_do = { base = 500 }
+		days_remove = FAT_sectarianism_value
+		fire_only_once = yes
+		visible = { FAT_has_entrenched_loyalists = yes }
+		available = {
+			NOT = { has_country_flag = FAT_has_active_reconstruction_policy }
+			FAT_has_entrenched_regionalists = no
+		}
+		modifier = { stability_weekly = -0.01 }
+		complete_effect = { set_country_flag = FAT_has_active_reconstruction_policy }
+		remove_effect = {
+			clr_country_flag = FAT_has_active_reconstruction_policy
+			set_temp_variable = { reconstruction_progress_add_value = 1 }
+			FAT_increment_reconstruction_progress = yes
+			set_temp_variable = { sectarianism_add_value = -1 }
+			FAT_increment_sectarianism = yes
+			FAT_set_loyalists_cooperative = yes
+			FAT_set_regionalists_entrenched = yes
+			add_manpower = 15000
+			add_war_support = 0.10
+		}
+	}
+	FAT_religious_education_act = {
+		icon = GFX_decision_FAT_religious_education_act
+		cost = 50
+		ai_will_do = { base = 500 }
+		days_remove = FAT_sectarianism_value
+		fire_only_once = yes
+		available = {
+			NOT = { has_country_flag = FAT_has_active_reconstruction_policy }
+		}
+		modifier = { stability_weekly = 0.01 }
+		complete_effect = { set_country_flag = FAT_has_active_reconstruction_policy }
+		remove_effect = {
+			clr_country_flag = FAT_has_active_reconstruction_policy
+			if = {
+				limit = { FAT_has_cooperative_archonates = no }
+				FAT_set_archonates_cooperative = yes
+			}
+			set_temp_variable = { reconstruction_progress_add_value = 2 }
+			FAT_increment_reconstruction_progress = yes
+			custom_effect_tooltip = { IDEA = FAT_FAW_economy_dynamic_modifier localization_key = modify_idea_tt }
+			add_to_variable = {
+				FAT_research_speed_factor = -0.015
+				tooltip = research_speed_factor_tt
+			}
+		}
+	}
+	FAT_do_backroom_deals = {
+		icon = GFX_decision_FAT_do_backroom_deals
+		cost = 25
+		ai_will_do = { base = 50 }
+		days_remove = FAT_sectarianism_value
+		available = {
+			NOT = { has_country_flag = FAT_has_active_reconstruction_policy }
+			OR = {
+				FAT_has_entrenched_loyalists = no
+				FAT_has_entrenched_regionalists = no
+				FAT_has_entrenched_archonates = no
+			}
+		}
+		complete_effect = { set_country_flag = FAT_has_active_reconstruction_policy }
+		remove_effect = {
+			clr_country_flag = FAT_has_active_reconstruction_policy
+			set_temp_variable = { reconstruction_progress_add_value = 2 }
+			FAT_increment_reconstruction_progress = yes
+			set_temp_variable = { sectarianism_add_value = -2 }
+			FAT_increment_sectarianism = yes
+			random_list = {
+				1 = {
+					if = {
+						limit = { FAT_has_entrenched_loyalists = no }
+						FAT_set_loyalists_entrenched = yes
+					}
+				}
+				1 = {
+					if = {
+						limit = { FAT_has_entrenched_regionalists = no }
+						FAT_set_regionalists_entrenched = yes
+					}
+				}
+				1 = {
+					if = {
+						limit = { FAT_has_entrenched_archonates	= no }
+						FAT_set_archonates_entrenched = yes	
+					}
+				}
+			}
+		}
+	}
+#	FAT_debug_reconstruction_add_10 = {
+#		visible = { is_debug = yes }
+#		complete_effect = {
+#			set_temp_variable = { reconstruction_progress_add_value = 10 }
+#			FAT_increment_reconstruction_progress = yes
+#		}
+#	}
+#	FAT_debug_reconstruction_max_out = {
+#		visible = { is_debug = yes }
+#		complete_effect = {
+#			set_temp_variable = { reconstruction_progress_add_value = 100 }
+#			FAT_increment_reconstruction_progress = yes
+#		}
+#	}
+#	FAT_debug_sectarianism_add_10 = {
+#		visible = { is_debug = yes }
+#		complete_effect = {
+#			set_temp_variable = { sectarianism_add_value = 10 }
+#			FAT_increment_sectarianism = yes
+#		}
+#	}
+#	FAT_debug_sectarianism_max_out = {
+#		visible = { is_debug = yes }
+#		complete_effect = {
+#			set_temp_variable = { sectarianism_add_value = 50 }
+#			FAT_increment_sectarianism = yes
+#		}
+#	}
+}
+
+FAT_civil_war_tab = {
+	FAT_civil_war_win = {
+		visible = { has_country_flag = FAT_civil_war_active }
+		ai_will_do = { base = 2500 }
+		available = {
+			382 = { is_owned_and_controlled_by = ROOT }
+			if = {
+				limit = { original_tag = FAT }
+				ROU = { exists = no }
+				ANG = { exists = no }
+				STW = { exists = no }
+			}
+			if = {
+				limit = { original_tag = ROU }
+				FAT = { exists = no }
+				ANG = { exists = no }
+				STW = { exists = no }
+			}
+			if = {
+				limit = { original_tag = ANG }
+				ROU = { exists = no }
+				FAT = { exists = no }
+				STW = { exists = no }
+			}
+			if = {
+				limit = { original_tag = STW }
+				ROU = { exists = no }
+				ANG = { exists = no }
+				FAT = { exists = no }
+			}
+		}
+		complete_effect = {
+			if = {
+				limit = { original_tag = ANG }
+				set_cosmetic_tag = FAT_secessionist_herzland_formable
+				set_capital = { state = 382 remember_old_capital = no }
+			}
+			if = {
+				limit = {
+					OR = {
+						original_tag = STW
+						original_tag = ROU
+					}
+				}
+				save_global_event_target_as = griffonian_empire
+				set_variable = { global.griffonian_empire_var = THIS }
+			}
+			remove_ideas = FAT_herzland_civil_war
+			clr_country_flag = FAT_civil_war_active
+		}
+	}
+	FAT_civil_war_annex_FAT = {
+		icon = GFX_decision_FAT_civil_war_annex_FAT
+		visible = {
+			country_exists = FAT
+			NOT = { original_tag = FAT }
+		}
+		is_good = yes
+		available = { always = no }
+		activation = {
+			has_country_flag = FAT_civil_war_active
+			NOT = { original_tag = FAT }
+			country_exists = FAT
+			382 = { is_controlled_by = ROOT }
+		}
+		cancel_trigger = {
+			382 = {
+				NOT = { is_controlled_by = ROOT }
+			}
+		}
+		days_mission_timeout = 25
+		timeout_effect = {
+			hidden_effect = {
+				transfer_units_fraction= {
+					target = FAT
+					stockpile_ratio = 1
+					army_ratio = 0
+					air_ratio = 1
+					navy_ratio = 1
+					keep_unit_leaders_trigger = { has_trait = griffon_race_trait }
+				}
+			}
+			annex_country = { target = FAT transfer_troops = yes }		
+		}
+	}
+	FAT_civil_war_annex_ROU = {
+		icon = GFX_decision_FAT_civil_war_annex_ROU
+		visible = {
+			country_exists = ROU
+			NOT = { original_tag = ROU }
+		}
+		is_good = yes
+		available = { always = no }
+		activation = {
+			has_country_flag = FAT_civil_war_active
+			country_exists = ROU
+			NOT = { original_tag = ROU }
+			674 = { is_controlled_by = ROOT }		
+		}
+		cancel_trigger = {
+			674 = {
+				NOT = { is_controlled_by = ROOT }
+			}
+		}
+		days_mission_timeout = 25
+		timeout_effect = {
+			hidden_effect = {
+				transfer_units_fraction= {
+					target = ROU
+					stockpile_ratio = 1
+					army_ratio = 0
+					air_ratio = 1
+					navy_ratio = 1
+					keep_unit_leaders_trigger = { has_trait = griffon_race_trait }
+				}
+			}
+			annex_country = { target = ROU transfer_troops = yes }
+		}
+	}
+	FAT_civil_war_annex_ANG = {
+		icon = GFX_decision_FAT_officialize_griffish_state_language
+		visible = {
+			country_exists = ANG
+			NOT = { original_tag = ANG }
+		}
+		is_good = yes
+		available = { always = no }
+		activation = {
+			has_country_flag = FAT_civil_war_active
+			country_exists = ANG
+			NOT = { original_tag = ANG }
+			411 = { is_controlled_by = ROOT }		
+		}
+		cancel_trigger = {
+			411 = {
+				NOT = { is_controlled_by = ROOT }
+			}
+		}
+		days_mission_timeout = 25
+		timeout_effect = {
+			hidden_effect = {
+				transfer_units_fraction= {
+					target = ANG
+					stockpile_ratio = 1
+					army_ratio = 0
+					air_ratio = 1
+					navy_ratio = 1
+					keep_unit_leaders_trigger = { has_trait = griffon_race_trait }
+				}
+			}
+			annex_country = { target = ANG transfer_troops = yes }
+		}
+	}
+	FAT_civil_war_annex_STW = {
+		icon = GFX_decision_FAT_recruit_reichsarmee_personnel_1
+		visible = {
+			country_exists = STW
+			NOT = { original_tag = STW }
+		}
+		is_good = yes
+		available = { always = no }
+		activation = {
+			has_country_flag = FAT_civil_war_active
+			country_exists = STW
+			NOT = { original_tag = STW }
+			486 = { is_controlled_by = ROOT }		
+		}
+		cancel_trigger = {
+			486 = {
+				NOT = { is_controlled_by = ROOT }
+			}
+		}
+		days_mission_timeout = 25
+		timeout_effect = {
+			hidden_effect = {
+				transfer_units_fraction= {
+					target = STW
+					stockpile_ratio = 1
+					army_ratio = 0
+					air_ratio = 1
+					navy_ratio = 1
+					keep_unit_leaders_trigger = { has_trait = griffon_race_trait }
+				}
+			}
+			annex_country = { target = STW transfer_troops = yes }
+		}
+	}
+}
+
 FAT_our_history = {
-
-    FAT_i_quite_dislike_history = {
-
+	FAT_i_quite_dislike_history = {
 		icon = scroll
-
 		visible = {
 			NOT = { has_country_flag = FAT_i_hate_history }
+			FAW_has_restored_monarchy = no
 		}
-
-
 		cost = 0
 		fire_only_once = no
-		ai_will_do = {
-			factor = 0
-		}
-
+		ai_will_do = { base = 0 }
 		complete_effect = {
 			log = "[GetDateText]: [Root.GetName]: Decision FAT_i_quite_dislike_history"
 			custom_effect_tooltip = FAT_no_longer_history
 			set_country_flag = FAT_i_hate_history
 		}
 	}
-	
-    FAT_i_changed_my_mind = {
 
+	FAT_i_changed_my_mind = {
 		icon = scroll
-
 		visible = {
 			has_country_flag = FAT_i_hate_history
-			NOT = {
-				has_country_flag = dawnclaw_heresy_focustree
-			}
+			NOT = { has_country_flag = dawnclaw_heresy_focustree }
 		}
-		
-
 		cost = 0
 		fire_only_once = no
-		ai_will_do = {
-			factor = 0
-		}
-
+		ai_will_do = { base = 0 }
 		complete_effect = {
 			log = "[GetDateText]: [Root.GetName]: Decision FAT_i_changed_my_mind"
 			custom_effect_tooltip = FAT_longer_history
@@ -47,279 +872,191 @@ FAT_our_history = {
 		}
 	}
 	
-    FAT_storming_of_the_imperial_palace = {
-
-		icon = scroll
-
+	FAT_storming_of_the_imperial_palace = {
+		icon = GFX_decision_FAT_storming_of_the_imperial_palace
 		visible = {
 			NOT = { has_country_flag = FAT_i_hate_history }
 		}
-
-
 		cost = 0
 		fire_only_once = no
-		ai_will_do = {
-			factor = 0
-		}
-
+		ai_will_do = { base = 0 }
 		complete_effect = {
 			log = "[GetDateText]: [Root.GetName]: Decision FAT_storming_of_the_imperial_palace"
-			country_event = { id = griffonRepublic_history.2 }
+			country_event = griffonRepublic_history.2
 		}
 	}
-	
-    FAT_battle_at_the_griffing = {
 
-		icon = scroll
-
-        visible = {
+	FAT_battle_at_the_griffing = {
+		icon = GFX_decision_FAT_battle_at_the_griffing
+		visible = {
 			NOT = { has_country_flag = FAT_i_hate_history }
 		}
-
-
 		cost = 0
 		fire_only_once = no
-		ai_will_do = {
-			factor = 0
-		}
-
+		ai_will_do = { base = 0 }
 		complete_effect = {
 			log = "[GetDateText]: [Root.GetName]: Decision FAT_battle_at_the_griffing"
-			country_event = { id = griffonRepublic_history.3 }
+			country_event = griffonRepublic_history.3
 		}
 	}
 	
-    FAT_campaign_in_interriver = {
-
-		icon = scroll
-
-        visible = {
+	FAT_campaign_in_interriver = {
+		icon = GFX_decision_FAT_campaign_in_interriver
+		visible = {
 			NOT = { has_country_flag = FAT_i_hate_history }
 		}
-
 		cost = 0
 		fire_only_once = no
-		ai_will_do = {
-			factor = 0
-		}
-
+		ai_will_do = { base = 0 }
 		complete_effect = {
 			log = "[GetDateText]: [Root.GetName]: Decision FAT_campaign_in_interriver"
 			country_event = { id = griffonRepublic_history.4 }
 		}
 	}
 	
-    FAT_attack_on_vinnin = {
-
-		icon = scroll
-
-        visible = {
+  FAT_attack_on_vinnin = {
+		icon = GFX_decision_FAT_attack_on_vinnin
+		visible = {
 			NOT = { has_country_flag = FAT_i_hate_history }
 		}
-
-
 		cost = 0
 		fire_only_once = no
-		ai_will_do = {
-			factor = 0
-		}
-
+		ai_will_do = { base = 0 }
 		complete_effect = {
 			log = "[GetDateText]: [Root.GetName]: Decision FAT_attack_on_vinnin"
-			country_event = { id = griffonRepublic_history.5 }
+			country_event = griffonRepublic_history.5
 		}
 	}
 	
-    FAT_president_kemerskai = {
-
-		icon = scroll
-
-        visible = {
+	FAT_president_kemerskai = {
+		icon = GFX_decision_FAT_president_kemerskai
+		visible = {
 			NOT = { has_country_flag = FAT_i_hate_history }
 		}
-	
 		cost = 0
 		fire_only_once = no
-		ai_will_do = {
-			factor = 0
-		}
-
+		ai_will_do = { base = 0 }
 		complete_effect = {
 			log = "[GetDateText]: [Root.GetName]: Decision FAT_president_kemerskai"
-			country_event = { id = griffonRepublic_history.6 }
+			country_event = griffonRepublic_history.6
 		}
 	}
-	
-    FAT_second_campaign_in_interriver_fall_of_republic = {
 
-		icon = scroll
-
-        visible = {
+	FAT_second_campaign_in_interriver_fall_of_republic = {
+		icon = GFX_decision_FAT_second_campaign_in_interriver_fall_of_republic
+		visible = {
 			NOT = { has_country_flag = FAT_i_hate_history }
 		}
-		
 		cost = 0
 		fire_only_once = no
-		ai_will_do = {
-			factor = 0
-		}
-
+		ai_will_do = { base = 0 }
 		complete_effect = {
 			log = "[GetDateText]: [Root.GetName]: Decision FAT_second_campaign_in_interriver_fall_of_republic"
-			country_event = { id = griffonRepublic_history.7 }
+			country_event = griffonRepublic_history.7
 		}
 	}
 	
-    FAT_long_march = {
-
-		icon = scroll
-
-        visible = {
+	FAT_long_march = {
+		icon = GFX_decision_cat_FAT_long_march
+		visible = {
 			NOT = { has_country_flag = FAT_i_hate_history }
 		}
-		
-
 		cost = 0
 		fire_only_once = no
-		ai_will_do = {
-			factor = 0
-		}
-
+		ai_will_do = { base = 0 }
 		complete_effect = {
 			log = "[GetDateText]: [Root.GetName]: Decision FAT_long_march"
 			country_event = { id = griffonRepublic_history.8 }
 		}
 	}
 	
-    FAT_south_cloudbury_war = {
-
-		icon = scroll
-
-        visible = {
+	FAT_south_cloudbury_war = {
+		icon = GFX_decision_FAT_south_cloudbury_war
+		visible = {
 			NOT = { has_country_flag = FAT_i_hate_history }
 		}
-		
 		cost = 0
 		fire_only_once = no
-		ai_will_do = {
-			factor = 0
-		}
-
+		ai_will_do = { base = 0 }
 		complete_effect = {
 			log = "[GetDateText]: [Root.GetName]: Decision FAT_south_cloudbury_war"
-			country_event = { id = griffonRepublic_history.9 }
+			country_event = griffonRepublic_history.9
 		}
 	}
 	
-    FAT_taking_of_cloudbury = {
-
-		icon = scroll
-		
-        visible = {
+	FAT_taking_of_cloudbury = {
+		icon = GFX_decision_FAT_taking_of_cloudbury
+		visible = {
 			NOT = { has_country_flag = FAT_i_hate_history }
 		}
-		
-
 		cost = 0
 		fire_only_once = no
-		ai_will_do = {
-			factor = 0
-		}
-
+		ai_will_do = { base = 0 }
 		complete_effect = {
 			log = "[GetDateText]: [Root.GetName]: Decision FAT_taking_of_cloudbury"
-			country_event = { id = griffonRepublic_history.10 }
+			country_event = griffonRepublic_history.10
 		}
-	}
-	
-    FAT_the_986_election = {
+	}	
 
-		icon = scroll
-
-        visible = {
+	FAT_the_986_election = {
+		icon = GFX_decision_FAT_the_986_election
+		visible = {
 			NOT = { has_country_flag = FAT_i_hate_history }
 		}
-		
 		cost = 0
 		fire_only_once = no
-		ai_will_do = {
-			factor = 0
-		}
-
+		ai_will_do = { base = 0 }
 		complete_effect = {
 			log = "[GetDateText]: [Root.GetName]: Decision FAT_the_986_election"
-			country_event = { id = griffonRepublic_history.11 }
+			country_event = griffonRepublic_history.11
 		}
 	}
 
-    FAT_goddamnit_rosewing = {
-
-		icon = scroll
-
-        visible = {
+	FAT_goddamnit_rosewing = {
+		icon = GFX_decision_FAT_goddamnit_rosewing
+		visible = {
 			NOT = { has_country_flag = FAT_i_hate_history }
 		}
-		
-
 		cost = 0
 		fire_only_once = no
-		ai_will_do = {
-			factor = 0
-		}
-
+		ai_will_do = { base = 0 }
 		complete_effect = {
 			log = "[GetDateText]: [Root.GetName]: Decision FAT_goddamnit_rosewing"
-			country_event = { id = griffonRepublic_history.12 }
+			country_event = griffonRepublic_history.12
 		}
 	}
 
-    FAT_now_here_comes_suntail = {
-
-		icon = scroll
-
-        visible = {
+	FAT_now_here_comes_suntail = {
+		icon = GFX_decision_FAT_now_here_comes_suntail
+		visible = {
 			NOT = { has_country_flag = FAT_i_hate_history }
 		}
-		
-
 		cost = 0
 		fire_only_once = no
-		ai_will_do = {
-			factor = 0
-		}
-
+		ai_will_do = { base = 0 }
 		complete_effect = {
 			log = "[GetDateText]: [Root.GetName]: Decision FAT_now_here_comes_suntail"
-			country_event = { id = griffonRepublic_history.13 }
+			country_event = griffonRepublic_history.13
 		}
 	}
 
-    FAT_zoomer_time = {
-
-		icon = scroll
-
-        visible = {
+	FAT_zoomer_time = {
+		icon = GFX_decision_cat_FAT_zoomer_time
+		visible = {
 			NOT = { has_country_flag = FAT_i_hate_history }
 		}
-		
-
 		cost = 0
 		fire_only_once = no
-		ai_will_do = {
-			factor = 0
-		}
-
+		ai_will_do = { base = 0 }
 		complete_effect = {
 			log = "[GetDateText]: [Root.GetName]: Decision FAT_zoomer_time"
-			country_event = { id = griffonRepublic_history.14 }
+			country_event = griffonRepublic_history.14
 		}
 	}
 }
 
 FAT_ap_borderwars = {
-	
 	FAT_ap_rottendedam_borderwar = {
-
 		icon = border_war
 		allowed = {
 			original_tag = FAT
@@ -444,7 +1181,6 @@ FAT_ap_borderwars = {
 			}
 		}
 	}
-
 
 	FAT_ap_readewetter_borderwar = {
 
@@ -575,26 +1311,179 @@ FAT_ap_borderwars = {
 	}
 }
 
+FAW_ducal_upgrades_tab = {
+	FAW_give_empire_chapter_keeps = {
+		icon = GFX_decision_kirin_scroll
+		allowed = { original_tag = FAW }
+		available = { has_war = no }
+		visible = {
+			has_country_flag = FAW_chapter_keeps_unlocked
+			any_owned_state = {
+				NOT = {
+					is_in_array = { state_original_cores = FAT }
+					is_in_array = { state_original_cores = SRS }
+					is_in_array = { state_original_cores = NTR }
+					is_in_array = { state_original_cores = VED }
+					is_in_array = { state_original_cores = MNC }
+					is_in_array = { state_original_cores = HAU }
+					is_in_array = { state_original_cores = DED }
+					is_in_array = { state_original_cores = HLR }
+					has_state_flag = FAW_GRD_gift
+				}
+			}
+		}
+		complete_effect = {
+			custom_effect_tooltip = FAW_for_each_state_given_to_GRD_tt
+			effect_tooltip = {
+				add_to_variable = {
+					FAW_ducal_war_points = 5
+					tooltip = FAW_ducal_war_points_tt
+				}
+				add_political_power = 25
+				army_experience = 10
+			}
+			every_owned_state = {
+				limit = {
+					NOT = { has_state_flag = FAW_GRD_gift }
+					NOT = {
+						is_in_array = { state_original_cores = FAT }
+						is_in_array = { state_original_cores = SRS }
+						is_in_array = { state_original_cores = NTR }
+						is_in_array = { state_original_cores = VED }
+						is_in_array = { state_original_cores = MNC }
+						is_in_array = { state_original_cores = HAU }
+						is_in_array = { state_original_cores = DED }
+						is_in_array = { state_original_cores = HLR }
+					}
+				}
+				add_dynamic_modifier = { modifier = FAW_knight_chapter_keep_modifier }
+				hidden_effect = {
+					GRD = { transfer_state = PREV }
+					FAW = {
+						add_to_variable = { FAW_ducal_war_points = 5 }
+						add_political_power = 25
+						army_experience = 10
+					}
+				}
+			}
+		}
+	}
+	FAW_request_reichsarmee_reserves = {
+		icon = GFX_decision_FAT_recruit_reichsarmee_personnel_1
+		cost = 50
+		available = {
+			check_variable = {
+				var = FAW_ducal_war_points
+				value = 5
+				compare = greater_than_or_equals
+				tooltip = FAW_ducal_war_points_check_tt
+			}
+		}
+		complete_effect = {
+			add_to_variable = { FAW_ducal_war_points = -5 }
+		}
+		modifier = { weekly_manpower = 5000 }
+		days_remove = 50
+	}
+
+	FAW_build_new_keep = {
+		icon = GFX_decision_generic_fortification
+		cost = 50
+		available = {
+			check_variable = {
+				var = FAW_ducal_war_points
+				value = 5
+				compare = greater_than_or_equals
+				tooltip = FAW_ducal_war_points_check_tt
+			}
+		}
+		complete_effect = {
+			add_to_variable = { FAW_ducal_war_points = -5 }
+		}
+		days_remove = 50
+		remove_effect = {
+			custom_effect_tooltip = { IDEA = FAT_FAW_army_dynamic_modifier localization_key = modify_idea_tt }
+			add_to_variable = {
+				FAT_special_forces_cap = 0.025
+				tooltip = special_forces_cap_tt
+			}
+			GRD = {
+				random_owned_state = {
+					limit = {
+						NOT = {
+							has_dynamic_modifier = { modifier = FAW_knight_chapter_keep_modifier }
+						}
+					}
+					add_dynamic_modifier = { modifier = FAW_knight_chapter_keep_modifier }
+				}
+			}
+		}
+	}
+
+	FAW_get_an_imperial_civ = {
+		icon = GFX_decision_generic_factory
+		cost = 50
+		available = {
+			check_variable = {
+				var = FAW_ducal_war_points
+				value = 2
+				compare = greater_than_or_equals
+				tooltip = FAW_ducal_war_points_check_tt
+			}
+		}
+		days_remove = 50
+		complete_effect = {
+			add_to_variable = { FAW_ducal_war_points = -2 }
+		}
+		remove_effect = {
+			add_offsite_building = { type = industrial_complex level = 1 }
+		}
+	}
+
+	FAW_get_an_imperial_mil = {
+		icon = GFX_decision_generic_industry
+		cost = 50
+		available = {
+			check_variable = {
+				var = FAW_ducal_war_points
+				value = 2
+				compare = greater_than_or_equals
+				tooltip = FAW_ducal_war_points_check_tt
+			}
+		}
+		days_remove = 50
+		complete_effect = {
+			add_to_variable = { FAW_ducal_war_points = -2 }
+		}
+		remove_effect = {
+			add_offsite_building = { type = arms_factory level = 1 }
+		}
+	}
+#	FAW_debug_get_prestige = {
+#		visible = { is_debug = yes }
+#		complete_effect = {
+#			add_to_variable = {
+#				FAW_ducal_war_points = 250
+#				tooltip = FAW_ducal_war_points_tt
+#			}
+#		}
+#	}
+}
+
 foreign_politics = {
 	FAT_demand_griffenheim = {
 		icon = rifles
 		fire_only_once = yes
 		highlight_states = {
-			highlight_state_targets = {
-				state = 382
-			}
+			highlight_state_targets = { state = 382 }
 		}
-		allowed = {
-		    tag = FAT
-		}
+		allowed = { tag = FAT }
 		visible = {
 			has_completed_focus = FAT_finish_revolution
 			NOT = { owns_state = 382 }
 			FROM = {
 				exists = yes
-				NOT = {
-					tag = GRD
-				}
+				NOT = { tag = GRD }
 				owns_state = 382
 				NOT = { has_war_with = ROOT }
 			}
@@ -602,19 +1491,13 @@ foreign_politics = {
 		targets = { 382.owner }
 		target_trigger = {
 			FROM = {
-				NOT = {
-					tag = GRD
-				}
+				NOT = { tag = GRD }
 				owns_state = 382
 				NOT = { has_war_with = ROOT }
 			}
 		}
-		ai_will_do = {
-			factor = 10
-		}
-		available = {
-			is_subject = no
-		}
+		ai_will_do = { factor = 10 }
+		available = { is_subject = no }
 		complete_effect = {
 			log = "[GetDateText]: [Root.GetName]: Decision FAT_demand_griffenheim target: [From.GetName]"
 			FROM = {
@@ -625,9 +1508,7 @@ foreign_politics = {
 	
 	FAT_demand_faction_leadership = {
 		icon = generic_civil_support
-		allowed = {
-		    tag = FAT
-		}
+		allowed = { tag = FAT }
 		visible = {
 			has_completed_focus = FAT_tricolor_over_griffenheim
 			FROM = {
@@ -647,9 +1528,7 @@ foreign_politics = {
 				NOT = { owns_state = 382 }
 			}
 		}
-		target_root_trigger = {
-			has_completed_focus = FAT_tricolor_over_griffenheim
-		}
+		target_root_trigger = { has_completed_focus = FAT_tricolor_over_griffenheim }
 		cost = 50
 		targets = { faction_leader }
 		target_trigger = {
@@ -661,170 +1540,150 @@ foreign_politics = {
 		fire_only_once = yes
 		complete_effect = {
 			log = "[GetDateText]: [Root.GetName]: Decision FAT_demand_faction_leadership target: [From.GetName]"
-			FROM = {
-				country_event = griffonRepublic.95
-			}
+			FROM = { country_event = griffonRepublic.95 }
 		}
 	}
+
 	MIT_pain_and_suffering = {
-		allowed = {
-			original_tag = ZAI
-		}
-		visible = {
-			always = no
-		}
+		allowed = { original_tag = ZAI }
+		visible = { always = no }
 		cost = 1
 		complete_effect = {
 			country_event = { id = griffons.283 days = 1 }
 		}
 	}
-	FAT_create_faction = {
-		icon = generic_civil_support
-		allowed = {
-		    tag = FAT
+
+}
+
+political_actions = {
+	FAT_peaceout_haukland_mission = {
+		icon = crossed_swords
+		ai_will_do = { base = 2500 }
+		is_good = yes
+		allowed = { original_tag = FAW }
+		available = { always = no }
+		activation = {
+			659 = { is_owned_by = TRD }
+			has_war_with = TRD
+			658 = { is_controlled_by = FAW }
+			659 = { is_controlled_by = FAW }
+			660 = { is_controlled_by = FAW }
 		}
-		visible = {
-			has_completed_focus = FAT_pan_griffonian_cause
-		}
-		available = {
-			is_subject = no
-		}
-		ai_will_do = {
-			factor = 10
-			modifier = {
-				factor = 0
-				is_in_faction = yes
+		days_mission_timeout = 50
+		cancel_trigger = {
+			NOT = {
+				658 = { is_controlled_by = FAW }
+				659 = { is_controlled_by = FAW }
+				660 = { is_controlled_by = FAW }			
 			}
 		}
-		cost = 25
-		fire_only_once = yes
-		complete_effect = {
-			log = "[GetDateText]: [Root.GetName]: Decision FAT_create_faction"
-			if = {
-				limit = {
-					has_government = fascism
-				}
-				create_faction_from_template = faction_template_republican_pact_supremacist
-			}
-			else = {
-				create_faction_from_template = faction_template_republican_pact_moderate
+		timeout_effect = {
+			white_peace = TRD
+			FAW = {
+				transfer_state = 659
+				transfer_state = 658
+				transfer_state = 660
 			}
 		}
 	}
-	
-    FAT_guarantee_people = { 
-	    icon = griffon
-		cost = 50
-		fire_only_once = yes
+	FST_expand_in_the_north = {
+		icon = crossed_swords
+		cost = 25
 		ai_will_do = {
-		    factor = 160
-		}
-		allowed = {
-		    tag = FAW
-		}
-		visible = {
-			NOT = { has_guaranteed = FROM }
-		    has_completed_focus = FAT_the_greenback_accords 
-			is_subject = no
-			OR = {
-				is_faction_leader = yes
-				is_in_faction = no
-		    }
-			FROM = {
-				exists = yes
-				is_subject = no
-				has_war = no
-				is_neighbor_of = ROOT
-			    OR = {
-                    has_government = neutrality
-			        has_government = democratic
-			    }
-			    NOT = { 
-					has_country_flag = have_regular_puppets 
+			base = 500
+			modifier = {
+				factor = 0
+				OR = {
+					has_war = yes
+					any_of_potential_and_current_enemies_justifying_or_has_wargoal_on_THIS = yes
 				}
-            }
- 		}
-		target_array = neighbors
+			}
+		}
+		available = { has_war = no }
+		visible = {
+			has_country_flag = FST_north_expansions_unlocked
+			FROM = {
+				NOT = {
+					is_in_faction_with = ROOT
+					has_war_with = ROOT
+				}
+				OR = {
+					is_dynamic_country = no
+					has_civil_war = no
+				}
+			}
+		}
+		cancel_trigger = {
+			OR = {
+				has_war_with = FROM
+				NOT = { country_exists = FROM }
+			}
+		}
+		targets = { VED SRS MNC HAU }
+		targets_dynamic = yes
+		target_non_existing = no
 		target_trigger = {
 			FROM = {
-				is_neighbor_of = ROOT 
-			}
-			FROM = { 
 				OR = {
-					original_tag = TRD
-					original_tag = FAT
-					original_tag = FAW
+					original_tag = VED
 					original_tag = SRS
 					original_tag = MNC
 					original_tag = HAU
-					original_tag = VED
-					original_tag = AVI
-					original_tag = BAN
-					original_tag = EYR
-					original_tag = ERI
-					original_tag = BOI
-					original_tag = LAK
-					original_tag = AET
-					original_tag = FEZ
-					original_tag = HEL
-					original_tag = POM
-					original_tag = FLO
-					original_tag = JER
-					original_tag = JES
-					original_tag = JRR
-					original_tag = JEB
-					original_tag = JFT
-					original_tag = VIN
-					original_tag = ARA
-					original_tag = FRN
-					original_tag = TAL
-					original_tag = WNG
-					original_tag = FAL
-					original_tag = SIC
-					original_tag = CYA
-					original_tag = MIT
-					original_tag = GRW
-					original_tag = BRF
-					original_tag = GRU
-					original_tag = GRY
-					original_tag = LUS
-					original_tag = HLQ
-					tag = LNS
-					tag = LSC
-					tag = LSM
-					original_tag = JHZ
-					original_tag = JNG
-					original_tag = JGF
-					original_tag = JKR
-					original_tag = JOS
-					original_tag = JHP
-					original_tag = JRV
-					original_tag = JAS
-					original_tag = JEV
 				}
 			}
 		}
 		target_root_trigger = {
-		    has_completed_focus = FAT_the_greenback_accords 
-			is_subject = no
-			OR = {
-				is_faction_leader = yes
-				is_in_faction = no
-		    }
+			NOT = { has_war_with = FROM }
 		}
-		complete_effect = {
-			log = "[GetDateText]: [Root.GetName]: Decision FAT_guarantee_people target: [From.GetName]"
-			give_guarantee = FROM
+		days_remove = 50
+		complete_effect = { eaw_alert_send_imminent_declaration_of_war_FROM = yes }
+		remove_effect = {
+			log = "[GetDateText]: [Root.GetName]: Decision FST_expand_in_the_north"
+			set_temp_variable = { wargoal_target = FROM }
+			immediate_war_declare_on_wargoal_target = yes
+			eaw_clear_alert_imminent_declaration_of_war_FROM = yes
 		}
 	}
-}
+	FST_core_in_the_north = {
+		icon = crossed_swords
+		cost = 75
+		ai_will_do = { base = 500 }
+		available = { has_war = no }
+		visible = { has_country_flag = FST_north_expansions_unlocked }
+		cancel_trigger = { country_exists = FROM }
+		visible = {
+			any_occupied_country = { tag = FROM }
+			NOT = { country_exists = FROM }
+			FROM = {
+				NOT = { has_country_flag = FAT_has_been_cored }
+			}
+		}
+		targets = { VED SRS MNC HAU }
+		targets_dynamic = yes
+		target_non_existing = yes
+		target_trigger = {
+			FROM = {
+				OR = {
+					tag = VED
+					tag = SRS
+					tag = MNC
+					tag = HAU
+				}
+			}
+		}
 
-political_actions = {
+		days_remove = 50
+		remove_effect = {
+			log = "[GetDateText]: [Root.GetName]: Decision FST_expand_in_the_north"
+			FROM = {
+				set_country_flag = FAT_has_been_cored
+				add_to_ROOT_potential_cores = yes
+			}
+		}
+	}
 	FAT_rename_cloudbury = {
 		icon = generic_civil_support
-		allowed = {
-		    tag = FAT
-		}
+		allowed = { tag = FAT }
 		visible = {
 			has_idea = FAT_Kemerskais_legacy
 			OR = {
@@ -833,47 +1692,31 @@ political_actions = {
 			}
 		}
 		available = {
-			405 = {
-				is_owned_and_controlled_by = ROOT
-			}
+			405 = { is_owned_and_controlled_by = ROOT }
 		}
 		highlight_states = {
-			highlight_state_targets = {
-				state = 405
-			}
-			highlight_provinces = {
-				13224
-			}
+			highlight_state_targets = { state = 405 }
+			highlight_provinces = { 13224 }
 		}
 		fire_only_once = yes
 		complete_effect = {
 			log = "[GetDateText]: [Root.GetName]: Decision FAT_rename_cloudbury"
 			add_political_power = 15
 			set_province_name = { 
-			    id = 13224 
+			  id = 13224 
 				name = "Kemerskaistadt"
 			}
 		}
-		ai_will_do = {
-			factor = 100
-		}
+		ai_will_do = { factor = 100 }
 	}
 	
 	FAT_eulogy_for_grover_v = {
 		icon = eng_propaganda_campaigns
-		allowed = {
-		    tag = FAT
-		}
+		allowed = { tag = FAT }
 		visible = {
-			GRI = { 
-			    has_country_flag = GRI_emperor_dead 
-			}
-			NOT = {
-				has_idea = FAT_Kemerskais_legacy
-			}
-			NOT = {
-				has_country_flag = dawnclaw_heresy_focustree
-			}
+			GRI = { has_country_flag = GRI_emperor_dead }
+			NOT = { has_idea = FAT_Kemerskais_legacy }
+			NOT = { has_country_flag = dawnclaw_heresy_focustree }
 		}
 		cost = 5
 		fire_only_once = yes
@@ -881,26 +1724,16 @@ political_actions = {
 			log = "[GetDateText]: [Root.GetName]: Decision FAT_eulogy_for_grover_v"
 			country_event = kemerskaiSpeech.1
 		}
-		ai_will_do = {
-			factor = 10
-		}
+		ai_will_do = { factor = 10 }
 	}
 	
 	FAT_react_to_the_aquileian_revolution = {
 		icon = eng_propaganda_campaigns
-		allowed = {
-		    tag = FAT
-		}
+		allowed = { tag = FAT }
 		visible  = {
-			JER = { 
-			    has_government = democratic 
-			}
-			NOT = {
-				has_idea = FAT_Kemerskais_legacy
-			}
-			NOT = {
-				has_country_flag = dawnclaw_heresy_focustree
-			}
+			JER = { has_government = democratic }
+			NOT = { has_idea = FAT_Kemerskais_legacy }
+			NOT = { has_country_flag = dawnclaw_heresy_focustree }
 		}
 		cost = 5
 		fire_only_once = yes
@@ -908,26 +1741,16 @@ political_actions = {
 			log = "[GetDateText]: [Root.GetName]: Decision FAT_react_to_the_aquileian_revolution"
 			country_event = kemerskaiSpeech.2
 		}
-		ai_will_do = {
-			factor = 10
-		}
+		ai_will_do = { factor = 10 }
 	}
 	
 	FAT_react_to_the_skyfall_revolution = {
 		icon = eng_propaganda_campaigns
-		allowed = {
-		    tag = FAT
-		}
+		allowed = { tag = FAT }
 		visible  = {
-			TRD = { 
-			    has_government = democratic
-			}
-			NOT = {
-				has_idea = FAT_Kemerskais_legacy
-			}
-			NOT = {
-				has_country_flag = dawnclaw_heresy_focustree
-			}
+			TRD = {  has_government = democratic }
+			NOT = { has_idea = FAT_Kemerskais_legacy }
+			NOT = { has_country_flag = dawnclaw_heresy_focustree }
 		}
 		cost = 5
 		fire_only_once = yes
@@ -935,26 +1758,16 @@ political_actions = {
 			log = "[GetDateText]: [Root.GetName]: Decision FAT_react_to_the_skyfall_revolution"
 			country_event = kemerskaiSpeech.3
 		}
-		ai_will_do = {
-			factor = 10
-		}
+		ai_will_do = { factor = 10 }
 	}
 	
 	FAT_condemn_beakolini = {
 		icon = eng_propaganda_campaigns
-		allowed = {
-		    tag = FAT
-		}
+		allowed = { tag = FAT }
 		visible  = {
-			WNG = { 
-			    has_government = fascism
-			}
-			NOT = {
-				has_idea = FAT_Kemerskais_legacy
-			}
-			NOT = {
-				has_country_flag = dawnclaw_heresy_focustree
-			}
+			WNG = { has_government = fascism }
+			NOT = { has_idea = FAT_Kemerskais_legacy }
+			NOT = { has_country_flag = dawnclaw_heresy_focustree }
 		}
 		cost = 5
 		fire_only_once = yes
@@ -962,29 +1775,17 @@ political_actions = {
 			log = "[GetDateText]: [Root.GetName]: Decision FAT_condemn_beakolini"
 			country_event = kemerskaiSpeech.4
 		}
-		ai_will_do = {
-			factor = 10
-		}
+		ai_will_do = { factor = 10 }
 	}
 	
 	FAT_condemn_sickleclaw_dictatorship = {
 		icon = eng_propaganda_campaigns
-		allowed = {
-		    tag = FAT
-		}
+		allowed = { tag = FAT }
 		visible  = {
-			SRS = { 
-			    has_government = neutrality 
-			}
-			NOT = { 
-			    has_government = communism 
-			}
-			NOT = {
-				has_idea = FAT_Kemerskais_legacy
-			}
-			NOT = {
-				has_country_flag = dawnclaw_heresy_focustree
-			}
+			SRS = { has_government = neutrality }
+			NOT = { has_government = communism }
+			NOT = { has_idea = FAT_Kemerskais_legacy }
+			NOT = { has_country_flag = dawnclaw_heresy_focustree }
 		}
 		cost = 5
 		fire_only_once = yes
@@ -992,31 +1793,21 @@ political_actions = {
 			log = "[GetDateText]: [Root.GetName]: Decision FAT_condemn_sickleclaw_dictatorship"
 			country_event = kemerskaiSpeech.5
 		}
-		ai_will_do = {
-			factor = 10
-		}
+		ai_will_do = { factor = 10 }
 	}
 	
 	FAT_all_weapons_against_the_lord_protector = {
 		icon = eng_propaganda_campaigns
-		allowed = {
-		    tag = FAT
-		}
+		allowed = { tag = FAT }
 		visible = {
 			custom_trigger_tooltip = {
 				tooltip = FAT_lord_protector_reaction
 				hidden_trigger = {
-				GRI = { 
-					has_country_flag = GRI_junta_established 
-					}
+					GRI = { has_country_flag = GRI_junta_established }
 				}
 			}
-			NOT = {
-				has_idea = FAT_Kemerskais_legacy
-			}
-			NOT = {
-				has_country_flag = dawnclaw_heresy_focustree
-			}
+			NOT = { has_idea = FAT_Kemerskais_legacy }
+			NOT = { has_country_flag = dawnclaw_heresy_focustree }
 		}
 		cost = 5
 		fire_only_once = yes
@@ -1024,24 +1815,16 @@ political_actions = {
 			log = "[GetDateText]: [Root.GetName]: Decision FAT_all_weapons_against_the_lord_protector"
 			country_event = kemerskaiSpeech.6
 		}
-		ai_will_do = {
-			factor = 10
-		}
+		ai_will_do = { factor = 10 }
 	}
 	
 	FAT_war_has_come = {
 		icon = eng_propaganda_campaigns
-		allowed = {
-		    tag = FAT
-		}
+		allowed = { tag = FAT }
 		visible = {
 			has_war_with = GRI
-			NOT = {
-				has_idea = FAT_Kemerskais_legacy
-			}
-			NOT = {
-				has_country_flag = dawnclaw_heresy_focustree
-			}
+			NOT = { has_idea = FAT_Kemerskais_legacy }
+			NOT = { has_country_flag = dawnclaw_heresy_focustree }
 		}
 		cost = 25
 		fire_only_once = yes
@@ -1049,49 +1832,561 @@ political_actions = {
 			log = "[GetDateText]: [Root.GetName]: Decision FAT_war_has_come"
 			country_event = kemerskaiSpeech.7
 		}
-		ai_will_do = {
-			factor = 10
+		ai_will_do = { factor = 10 }
+	}
+}
+
+FAT_puppets_tab = {
+	FAT_puppet_PLB = {
+		icon = GFX_decision_FAT_puppet_PLB
+		cost = 25
+		fire_only_once = yes
+		visible = {
+			owns_state = 290
+			OR = {
+				original_tag = FAT
+				has_country_leader = { ruling_only = yes character = FAT_reinhard_suntail }
+			}
+		}
+		available = {
+			NOT = { country_exists = PLB }
+		}
+		complete_effect = {
+			hidden_effect = { FAT_create_dynamic_PLB = yes }
+			if = {
+				limit = { original_tag = FAT }
+				PLB = { set_cosmetic_tag = PLB_FAT_puppet }
+			}
+			else = {
+				PLB = { set_cosmetic_tag = PLB_FAW_puppet }
+			}
 		}
 	}
-	
-	#FAT_pardon_danior = {
-	#	icon = eng_trade_unions_support
-	#	allowed = {
-	#	    tag = FAT
-	#	}
-	#	visible = {
-	#	    custom_trigger_tooltip = {
-	#			tooltip = FAT_situation_in_nova_unfriendly
-	#			hidden_trigger = {
-	#				GRF = { 
-	#				    has_completed_focus = GRF_highhill_junta 
-	#				}
-	#			}
-	#		}
-	#	}
-	#	available ={
-	#		custom_trigger_tooltip = {
-	#			tooltip = FAT_situation_in_nova_unfriendly
-	#			hidden_trigger = {
-	#				GRF = { has_completed_focus = GRF_highhill_junta }
-	#			}
-	#		}
-	#	}
-	#	cost = 25
-	#	fire_only_once = yes
-	#	complete_effect = {
-	#		log = "[GetDateText]: [Root.GetName]: Decision FAT_pardon_danior"
-	#		GRF = {
-	#			effect_tooltip = {
-	#				GRF_daniel_crimsonbeak = {
-	#					set_nationality = ROOT
-	#				}
-	#			}
-	#			country_event = griffonRepublic.263
-	#		}
-	#	}
-	#	ai_will_do = {
-	#		factor = 1000
-	#	}
-	#}
+	FAT_transfer_to_GRF = {
+		icon = GFX_decision_FAT_puppet_GRF
+		cost = 0
+		visible = {
+			GRF = { is_subject_of = ROOT }
+			any_occupied_country = {
+				OR = {
+					tag = PNG
+					tag = STG
+					tag = STL
+					tag = GFF
+					tag = GRF
+				}
+			}
+		}
+		complete_effect = {
+			every_owned_state = {
+				limit = {
+					OR = {
+						is_in_array = { state_original_cores = GRF }
+						is_in_array = { state_original_cores = PNG }
+						is_in_array = { state_original_cores = STG }
+						is_in_array = { state_original_cores = STL }
+						is_in_array = { state_original_cores = GFF }
+					}
+				}
+				GRF = {
+					transfer_state = PREV
+					add_state_core = PREV
+				}
+			}
+		}
+	}
+	FAT_puppet_GRF = {
+		icon = GFX_decision_FAT_puppet_GRF
+		cost = 25
+		fire_only_once = yes
+		visible = {
+			owns_state = 243
+			OR = {
+				original_tag = FAT
+				has_country_leader = { ruling_only = yes character = FAT_reinhard_suntail }
+			}
+		}
+		available = {
+			NOT = { country_exists = GRF }
+		}
+		complete_effect = {
+			hidden_effect = { FAT_create_dynamic_GRF = yes }
+			if = {
+				limit = { original_tag = FAT }
+				GRF = { set_cosmetic_tag = GRF_FAT_puppet }
+			}
+			else = {
+				GRF = { set_cosmetic_tag = GRF_FAW_puppet }
+			}
+		}
+	}
+	FAT_puppet_LCT = {
+		icon = GFX_decision_FAT_puppet_LCT
+		cost = 25
+		fire_only_once = yes
+		visible = { owns_state = 387 }
+		available = {
+			NOT = { country_exists = LCT }
+		}
+		complete_effect = {
+			hidden_effect = { FAT_create_dynamic_LCT = yes }
+			if = {
+				limit = { original_tag = FAT }
+				LCT = { set_cosmetic_tag = LCT_FAT_puppet }
+			}
+			else_if = {
+				limit = {
+					has_country_leader = { ruling_only = yes character = FAT_reinhard_suntail }
+				}
+				LCT = { set_cosmetic_tag = LCT_FAW_puppet }
+			}
+			else = {
+				LCT = { set_cosmetic_tag = LCT_FAW_puppet_monarchist }
+			}
+		}
+	}
+	FAT_transfer_to_NTR = {
+		icon = GFX_decision_FAT_puppet_NTR
+		cost = 0
+		visible = {
+			NTR = { is_subject_of = ROOT }
+			any_occupied_country = {
+				OR = {
+					tag = HLR
+					tag = DED
+				}
+			}
+		}
+		complete_effect = {
+			every_owned_state = {
+				limit = {
+					OR = {
+						is_in_array = { state_original_cores = HLR }
+						is_in_array = { state_original_cores = DED }
+					}
+				}
+				NTR = {
+					transfer_state = PREV
+					add_state_core = PREV
+				}
+			}
+		}
+	}
+	FAT_promote_river_swirl = {
+		icon = GFX_decision_FAT_puppet_LCT
+		cost = 10
+		fire_only_once = yes
+		visible = {
+			has_government = democratic
+			LCT = {
+				is_subject_of = ROOT
+				owns_state = 619
+			}
+			NOT = { country_exists = RIV }
+		}
+		complete_effect = {
+			hidden_effect = {
+				LCT = {
+					if = {
+						limit = {
+							NOT = { has_government = democratic }
+						}
+						set_politics = { ruling_party = democratic }
+					}
+					every_possible_country = {
+						limit = { has_character = RCT_river_swirl }
+						RCT_river_swirl = { set_nationality = PREV.PREV }
+					}
+				}
+			}
+			LCT = { promote_character = RCT_river_swirl }
+		}
+	}
+	FAT_promote_nova_whirl = {
+		icon = GFX_decision_FAT_puppet_LCT
+		cost = 10
+		fire_only_once = yes
+		visible = {
+			has_government = communism
+			LCT = {
+				is_subject_of = ROOT
+				owns_state = 619
+			}
+			NOT = { country_exists = RCT }
+		}
+		complete_effect = {
+			hidden_effect = {
+				LCT = {
+					if = {
+						limit = {
+							NOT = { has_government = communism }
+						}
+						set_politics = { ruling_party = communism }
+					}
+					every_possible_country = {
+						limit = { has_character = RCT_nova_whirl }
+						RCT_nova_whirl = { set_nationality = PREV.PREV }
+					}
+				}
+			}
+			LCT = { promote_character = RCT_nova_whirl }
+		}
+	}
+	FAT_appoint_grimhoof = {
+		icon = GFX_decision_FAT_puppet_LCT	
+		cost = 10
+		fire_only_once = yes
+		visible = {
+			has_cosmetic_tag = FAW_UK
+			DEP = { exists = no }
+			LCT = {
+				is_subject_of = ROOT
+				owns_state = 544
+			}
+		}
+		complete_effect = {
+			LCT = {
+				effect_tooltip = {
+					every_possible_country = {
+						limit = { has_character = DEP_king_grimhoof }
+						DEP_king_grimhoof = { set_nationality = PREV.PREV }
+					}
+				}
+				hidden_effect = {
+					generate_character = {
+						token_base = FAW_grimhoof
+						name = FAW_grimhoof
+					}
+					if = {
+						limit = { has_character = FAW_grimhoof }
+						set_portraits = {
+							character = FAW_grimhoof
+							civilian = {
+								large = "gfx/leaders/DEP/King_Grimhoof.tga"
+							}
+						}
+						add_country_leader_role = {
+							character = FAW_grimhoof
+							country_leader = {
+								ideology = nazism
+								expire = "1965.1.1.1"
+								id=-1
+							}
+							promote_leader = yes
+						}
+						add_country_leader_role = {
+							character = FAW_grimhoof
+							country_leader = {
+								ideology = despotism
+								expire = "1965.1.1.1"
+								id=-1
+							}
+							promote_leader = yes
+						}
+						add_country_leader_role = {
+							character = FAW_grimhoof
+								country_leader = {
+								ideology = conservatism
+								expire = "1965.1.1.1"
+								id=-1
+							}
+							promote_leader = yes
+						}
+						add_country_leader_role = {
+							character = FAW_grimhoof
+							country_leader = {
+								ideology = socialist_monarchism
+								expire = "1965.1.1.1"
+								id=-1
+							}
+							promote_leader = yes
+						}
+					}
+				}
+			}
+		}
+	}
+	FAT_suntail_and_his_queen = {
+		icon = GFX_decision_FAT_puppet_LCT
+		cost = 10
+		ai_will_do = { base = 500 }
+		fire_only_once = yes
+		visible = {
+			has_country_leader = { ruling_only = yes character = FAT_reinhard_suntail }
+			LCT = { is_subject_of = ROOT }
+			NOT = { country_exists = BAK }
+		}
+		complete_effect = {
+			LCT = {
+				every_possible_country = {
+					limit = { has_character = BAK_firm_scow }
+					BAK_firm_scow = { set_nationality = PREV.PREV }
+				}
+				promote_character = BAK_firm_scow
+			}
+		}
+	}
+	FAT_transfer_to_LCT = {
+		icon = GFX_decision_FAT_puppet_LCT
+		cost = 0
+		ai_will_do = { base = 500 }
+		visible = {
+			LCT = { is_subject_of = ROOT }
+			any_occupied_country = {
+				OR = {
+					tag = FBK
+					tag = FIR
+					tag = WAT
+					tag = LCT
+					tag = BAK
+					tag = DEP
+					tag = DMT
+					tag = NIM
+					tag = WIT
+					tag = FRE
+					tag = OLV
+					tag = ZES
+					tag = NCH
+					tag = RCT
+					tag = BAR
+				}
+			}
+		}
+		complete_effect = {
+			every_owned_state = {
+				limit = {
+					OR = {
+						is_in_array = { state_original_cores = BAR }
+						is_in_array = { state_original_cores = FBK }
+						is_in_array = { state_original_cores = WAT }
+						is_in_array = { state_original_cores = FIR }
+						is_in_array = { state_original_cores = LCT }
+						is_in_array = { state_original_cores = BAK }
+						is_in_array = { state_original_cores = DEP }
+						is_in_array = { state_original_cores = DMT }
+						is_in_array = { state_original_cores = NIM }
+						is_in_array = { state_original_cores = WIT }
+						is_in_array = { state_original_cores = FRE }
+						is_in_array = { state_original_cores = OLV }
+						is_in_array = { state_original_cores = ZES }
+						is_in_array = { state_original_cores = NCH }
+						is_in_array = { state_original_cores = RCT }
+					}
+				}
+				LCT = {
+					transfer_state = PREV
+					add_state_core = PREV
+				}
+			}
+			LCT = {
+				if = {
+					limit = { owns_state = 619 }
+					set_capital = {
+						state = 619
+						remember_old_capital = no
+					}
+				}
+			}
+		}
+	}
+	FAT_puppet_EQC = {
+		icon = GFX_decision_FAT_puppet_EQC
+		cost = 25
+		ai_will_do = { base = 500 }
+		fire_only_once = yes
+		visible = { owns_state = 356 }
+		available = {
+			NOT = { country_exists = EQC }
+		}
+		complete_effect = {
+			hidden_effect = { FAT_create_dynamic_EQC = yes }
+			if = {
+				limit = { original_tag = FAT }
+				EQC = { set_cosmetic_tag = EQC_FAT_puppet }
+			}
+			else = {
+				if = {
+					limit = {
+						has_country_leader = { ruling_only = yes character = FAT_reinhard_suntail }
+					}
+					EQC = {
+						set_politics = { ruling_party = neutrality }
+					}
+				}
+				EQC = { set_cosmetic_tag = EQC_FAW_puppet }
+			}
+		}
+	}
+	FAT_puppet_MIT = {
+		ai_will_do = { base = 500 }
+		icon = GFX_decision_FAT_puppet_MIT
+		cost = 25
+		fire_only_once = yes
+		visible = { owns_state = 386 }
+		available = {
+			NOT = { country_exists = MIT }
+		}
+		complete_effect = {
+			hidden_effect = { FAT_create_dynamic_MIT = yes }
+			if = {
+				limit = { original_tag = FAT }
+				MIT = { set_cosmetic_tag = MIT_FAT_puppet }
+			}
+			else_if = {
+				limit = {
+					has_country_leader = { ruling_only = yes character = FAT_reinhard_suntail }
+				}
+				MIT = { set_cosmetic_tag = MIT_FAW_puppet }
+			}
+			else = {
+				MIT = {
+					generate_character = {
+						token_base = MIT_puppet_leader
+						name = MIT_puppet_leader
+					}
+					if = {
+						limit = { has_character = MIT_puppet_leader }
+						set_portraits = {
+							character = MIT_puppet_leader
+							civilian = { large ="gfx/leaders/MIT/agamemnon_iv.tga" }
+						}
+						add_country_leader_role = {
+							character = MIT_puppet_leader
+							country_leader = {
+								expire = "1965.1.1"
+								ideology = despotism
+								traits={ unpopular_monarch }
+							}
+							promote_leader = yes
+						}
+					}
+					set_party_name = {
+						ideology = neutrality
+						long_name = MIT_GRI_party_long
+						name = MIT_GRI_party
+					}
+					set_politics = {
+						ruling_party = neutrality
+						elections_allowed = no
+					}
+					add_popularity = {
+						ideology = neutrality
+						popularity = 0.15
+					}
+					set_cosmetic_tag = MIT_FAW_puppet_monarchist
+				}
+			}
+		}
+	}
+	FAT_puppet_NTR = {
+		icon = GFX_decision_FAT_puppet_NTR
+		cost = 25
+		ai_will_do = { base = 500 }
+		visible = { owns_state = 574 }
+		ai_will_do = { factor = 500 }
+		available = {
+			NOT = { country_exists = NTR }
+		}
+		complete_effect = {
+			hidden_effect = { FAT_create_dynamic_NTR = yes }
+			if = {
+				limit = { FAW_has_restored_monarchy = yes }
+				NTR = { set_cosmetic_tag = NTR_FAW_puppet_monarchist }
+				country_event = griffonRepublic.289
+				hidden_effect = {
+					NTR = {
+						generate_character = {
+							token_base = FAW_fiana
+							name = FAW_fiana
+						}
+						if = {
+							limit = { has_character = FAW_fiana }
+							set_portraits = {
+								character = FAW_fiana
+								civilian = {
+									large = "gfx/leaders/NTR/Princess_Fiana.tga"
+								}
+							}
+							add_country_leader_role = {
+								character = FAW_fiana
+								country_leader = {
+									ideology = nazism
+									expire = "1965.1.1.1"
+									id=-1
+								}
+								promote_leader = yes
+							}
+							add_country_leader_role = {
+								character = FAW_fiana
+								country_leader = {
+									ideology = despotism
+									expire = "1965.1.1.1"
+									id=-1
+								}
+								promote_leader = yes
+							}
+							add_country_leader_role = {
+								character = FAW_fiana
+									country_leader = {
+									ideology = conservatism
+									expire = "1965.1.1.1"
+									id=-1
+								}
+								promote_leader = yes
+							}
+							add_country_leader_role = {
+								character = FAW_fiana
+								country_leader = {
+									ideology = socialist_monarchism
+									expire = "1965.1.1.1"
+									id=-1
+								}
+								promote_leader = yes
+							}
+						}
+						set_party_name = {
+							ideology = neutrality
+							long_name = NTR_FAW_MONARCH_LONG
+							name = NTR_FAW_MONARCH
+						}
+						set_party_name = {
+							ideology = fascism
+							long_name = NTR_FAW_MONARCH_LONG
+							name = NTR_FAW_MONARCH
+						}
+						set_party_name = {
+							ideology = communism
+							long_name = NTR_FAW_MONARCH_LONG
+							name = NTR_FAW_MONARCH
+						}
+						set_party_name = {
+							ideology = democratic
+							long_name = NTR_FAW_MONARCH_LONG
+							name = NTR_FAW_MONARCH
+						}
+					}
+				}
+			}
+			else = {
+				country_event = griffonRepublic.139
+				if = {
+					limit = {
+						NOT = { has_country_flag = FAT_has_made_NTR_puppet }
+					}
+					set_country_flag = FAT_has_made_NTR_puppet
+					NTR = { load_focus_tree = NTR_republic_puppet_tree }
+				}
+				if = {
+					limit = {
+						has_country_leader = { ruling_only = yes character = FAT_reinhard_suntail }
+					}
+					NTR = { set_cosmetic_tag = FAW_NTR_puppet }
+				}
+				else = {
+					NTR = { set_cosmetic_tag = FAT_NTR_puppet }
+				}
+			}
+		}
+	}
 }
+
