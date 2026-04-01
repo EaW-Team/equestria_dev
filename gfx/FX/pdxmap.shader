@@ -434,8 +434,8 @@ PixelShader =
 			// Equestria's shield effect for 2026 Evil Diarchy AF
 			float3 shieldActiveColor = float3( 0.322265611f, 0.535156221f, 0.234374993f);
 
-			float3 generalColorTest = tex2D(GradientBorderChannel1, float2(Input.uv.x, 1.0-(Input.uv.y * 0.5))).xyz;
-			if (generalColorTest.r == shieldActiveColor.r && generalColorTest.g == shieldActiveColor.g && generalColorTest.b == shieldActiveColor.b) {
+			float3 generalColorTest = tex2D(GradientBorderChannel1, float2(Input.uv.x, 1.0-(Input.uv.y * 0.5))).xyz - shieldActiveColor;
+			if (abs(generalColorTest.x) < epsilon && abs(generalColorTest.y) < epsilon && abs(generalColorTest.z) < epsilon) {
 
 				float2 center = float2(0.207, 0.713);
 				float dist = length( float2( 2 * (Input.uv.x - center.x), Input.uv.y - center.y));

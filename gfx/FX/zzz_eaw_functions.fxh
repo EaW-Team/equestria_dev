@@ -9,6 +9,7 @@ PixelShader =
 	
 	//Color of the upper half of gbChannel1 while navy map mode is selected.
 	static const float3 navyMapGBColor = float3(0.033203125f, 0.049804688f, 0.100097659f);
+	static const float epsilon = 0.00196078431;
 	
 	//Coordinates of the test point
 	static const float2 testCoords = float2( 0.10327f, 0.499f );
@@ -20,7 +21,8 @@ PixelShader =
 		float3 colorTest = tex2D( gbChannel, testCoords).xyz;
 		
 		//Check if the navy map is active. If it is, we need to sample from the bottom of the gbChannel.
-		if (colorTest.r == navyMapGBColor.r && colorTest.g == navyMapGBColor.g && colorTest.b == navyMapGBColor.b) {
+		float3 delta = colorTest - navyMapGBColor;
+		if (abs(delta.x) < epsilon && abs(delta.y) < epsilon && abs(delta.z) < epsilon) {
 			colorTest = tex2D( gbChannel, float2(testCoords.x, testCoords.y + 0.5f)).xyz;
 		}
 		
