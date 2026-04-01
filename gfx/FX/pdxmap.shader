@@ -5,6 +5,7 @@ Includes = {
 	"pdxmap.fxh"
 	"shadow.fxh"
 	"fow.fxh"
+	"zzz_eaw_functions.fxh"
 }
 
 PixelShader =
@@ -228,6 +229,9 @@ PixelShader =
 	[[
 		float4 main( VS_OUTPUT_TERRAIN Input ) : PDX_COLOR
 		{
+			//Check to see if any day/night overrides are needed
+			int dayNightStatus = dayNightOverrideCheck(GradientBorderChannel1);
+		
 			//return float4( 0, 1.0f, 0, 1.0f );
 			//clip( Input.prepos.y + TERRAIN_WATER_CLIP_HEIGHT - WATER_HEIGHT );
 
@@ -389,7 +393,7 @@ PixelShader =
 
 			float fShadowTerm = max(GetShadowScaled( SHADOW_WEIGHT_TERRAIN, Input.vScreenCoord, ShadowMap ), 0.1f );
 
-			CalculateSunLight( lightingProperties, fShadowTerm, diffuseLight, specularLight );
+			CalculateSunLight( lightingProperties, fShadowTerm, diffuseLight, specularLight, dayNightStatus );
 
 		#ifndef LOW_END_GFX
 			CalculatePointLights( lightingProperties, LightDataMap, LightIndexMap, diffuseLight, specularLight);
@@ -404,12 +408,12 @@ PixelShader =
 			specularLight += reflectiveColor * FresnelGlossy(lightingProperties._SpecularColor, -vEyeDir, lightingProperties._Normal, lightingProperties._Glossiness);
 		#endif
 
-			float3 vOut = ComposeLightSnow(lightingProperties, diffuseLight, specularLight, vSnowAlpha);
+			float3 vOut = ComposeLightSnow(lightingProperties, diffuseLight, specularLight, vSnowAlpha, dayNightStatus);
 
 			vOut = lerp( vOut, diffuse.rgb, BORDER_LIGHT_REMOVAL_FACTOR * ( 1 - vBloomAlpha ) );
 
 			float3 vGlobeNormal = CalcGlobeNormal( Input.prepos.xz );
-			float vNightFactor = DayNightFactor( vGlobeNormal );
+			float vNightFactor = DayNightFactor( vGlobeNormal, dayNightStatus );
 
 		#ifndef LOW_END_GFX
 			float3 CityLights = tex2D( CityLightsAndSnowNoise, Input.prepos.xz * CITY_LIGHTS_TILING ).rgb;
@@ -423,9 +427,89 @@ PixelShader =
 			vOut = ApplyDistanceFog( vOut, Input.prepos );
 		#endif
 
-			vOut = DayNightWithBlend( vOut, vGlobeNormal, lerp(BORDER_NIGHT_DESATURATION_MAX, 1.0f, vBloomAlpha) );
+			vOut = DayNightWithBlend( vOut, vGlobeNormal, lerp(BORDER_NIGHT_DESATURATION_MAX, 1.0f, vBloomAlpha), dayNightStatus );
 
 			DebugReturn(vOut, lightingProperties, fShadowTerm);
+
+			// Equestria's shield effect for 2026 Evil Diarchy AF
+			float3 shieldActiveColor = float3( 0.322265611f, 0.535156221f, 0.234374993f);
+
+			float3 generalColorTest = tex2D(GradientBorderChannel1, float2(Input.uv.x, 1.0-(Input.uv.y * 0.5))).xyz;
+			if (generalColorTest.r == shieldActiveColor.r && generalColorTest.g == shieldActiveColor.g && generalColorTest.b == shieldActiveColor.b) {
+
+				float2 center = float2(0.207, 0.713);
+				float dist = length( float2( 2 * (Input.uv.x - center.x), Input.uv.y - center.y));
+
+				float alphaWaveAngle = dist * 40.0 - vGlobalTime;
+				float alphaWave = 0.125 * sin(alphaWaveAngle) * sin(alphaWaveAngle);
+				// float alphaWave = 0.3;
+
+				float colorSelector = frac(alphaWaveAngle / (1 * 3.141592));
+				
+				float3 shieldColor = float3(0.0, 0.0, 0.0);
+
+				float3 shieldColor1 = float3(0.5, 0.0, 1.0);
+				float3 shieldColor2 = float3(1.0, 0.75, 0.0);
+				float3 shieldColor3 = float3(0.0, 0.75, 0.0);
+				float3 shieldColor4 = float3(0.0, 0.75, 1.0);
+				float3 shieldColor5 = float3(1.0, 0.0, 1.0);
+				float3 shieldColor6 = float3(1.0, 0.0, 0.0);
+
+				// 1 Color per wave variant
+
+				// if (colorSelector < 1.0/6.0) {
+				// 	shieldColor = shieldColor1;
+				// }
+				// else if (colorSelector < 2.0/6.0) {
+				// 	shieldColor = shieldColor2;
+				// }
+				// else if (colorSelector < 3.0/6.0){
+				// 	shieldColor = shieldColor3;
+				// 	alphaWave *= 1.5;
+				// }
+				// else if (colorSelector < 4.0/6.0) {
+				// 	shieldColor = shieldColor4;
+				// }
+				// else if (colorSelector < 5.0/6.0) {
+				// 	shieldColor = shieldColor5;
+				// }
+				// else {
+				// 	shieldColor = shieldColor6;
+				// }
+
+				// Each wave a rainbow variant
+
+				float3 shieldColorStart = float3(0.0, 0.0, 0.0);
+				float3 shieldColorEnd = float3(0.0, 0.0, 0.0);
+				if (colorSelector < 1.0/6.0) {
+					shieldColorStart = shieldColor1;
+					shieldColorEnd = shieldColor2;
+				}
+				else if (colorSelector < 2.0/6.0) {
+					shieldColorStart = shieldColor2;
+					shieldColorEnd = shieldColor3;
+				}
+				else if (colorSelector < 3.0/6.0){
+					shieldColorStart = shieldColor3;
+					shieldColorEnd = shieldColor4;
+				}
+				else if (colorSelector < 4.0/6.0) {
+					shieldColorStart = shieldColor4;
+					shieldColorEnd = shieldColor5;
+				}
+				else if (colorSelector < 5.0/6.0) {
+					shieldColorStart = shieldColor5;
+					shieldColorEnd = shieldColor6;
+				}
+				else {
+					shieldColorStart = shieldColor6;
+					shieldColorEnd = shieldColor1;
+				}
+				float shieldGradient = frac(6.0 * colorSelector);
+				shieldColor = lerp(shieldColorStart, shieldColorEnd, shieldGradient);
+
+				vOut.rgb = vOut.rgb * (1.0 - alphaWave) + shieldColor * alphaWave;
+			}
 
 		#ifdef LOW_END_GFX
 			return float4( vOut, vNightFactor * CITY_LIGHTS_BLOOM_FACTOR );
@@ -474,7 +558,7 @@ PixelShader =
 			float3 specularLight = vec3(0.0);
 			float fShadowTerm = GetShadowScaled( SHADOW_WEIGHT_TERRAIN, Input.vScreenCoord, ShadowMap );
 
-			CalculateSunLight( lightingProperties, fShadowTerm, diffuseLight, specularLight );
+			CalculateSunLight( lightingProperties, fShadowTerm, diffuseLight, specularLight, 2 );
 			CalculatePointLights( lightingProperties, LightDataMap, LightIndexMap, diffuseLight, specularLight);
 
 			float3 vOut = ComposeLight(lightingProperties, diffuseLight, specularLight );
