@@ -20,14 +20,6 @@ add_eaw_alert = {
 		}
 		add_to_array = { array = eaw_alerts value = alert_id index = 0 }
 		add_to_array = { array = eaw_alert_color value = alert_color index = 0 }
-		if = {
-			limit = {
-				NOT = {
-					has_variable = alert_data
-				}
-			}
-			set_temp_variable = { alert_data = -1 }
-		}
 		add_to_array = { array = eaw_alert_data value = alert_data index = 0 }
 		
 		hidden_effect = {
@@ -63,7 +55,6 @@ remove_eaw_alert = {
 
 # Alert click effect
 eaw_alert_click = {
-
 	# DO NOT DELETE THIS
 	# Follow this template:
 	# if = {
@@ -76,8 +67,17 @@ eaw_alert_click = {
 	eaw_alert_update_gui = yes
 }
 
-# Alert cancel effect
+# Alert right click/cancel effect
 eaw_alert_right_click = {
+	# DO NOT DELETE THIS
+	# Follow this template:
+	# if = {
+	# 	limit = {
+	# 		check_variable = { eaw_alerts^alert_idx = token:<token ID> }
+	# 	}
+	# 	<effects>
+	# }
+
 	remove_from_array = { array = eaw_alerts index = alert_idx }
 	remove_from_array = { array = eaw_alert_color index = alert_idx }
 	remove_from_array = { array = eaw_alert_data index = alert_idx }
@@ -89,6 +89,101 @@ eaw_alert_update_gui = {
 		limit = {
 			is_ai = no
 		}
-		add_to_variable = { eaw_alertbar_dirty = 0.001 }
+		add_to_variable = { eaw_alertbar_dirty = 0.00001 } # haha new variable system
 	}
+}
+
+## Misc. scripted effects ##
+
+## scripted effects for the imminent declaration of war alert
+
+# args: temp_target (type TAG)
+eaw_alert_send_imminent_declaration_of_war = {
+	hidden_effect = {
+		every_country = {
+			limit = {
+				OR = {
+					tag = var:temp_target
+					is_ally_with = var:temp_target
+					is_guaranteed_by = var:temp_target
+				}
+			}
+			set_temp_variable = { alert_id = token:eaw_alert_imminent_declaration_of_war }
+			set_temp_variable = { alert_color = 2 }
+			add_eaw_alert_unless_exists = yes
+			if = {
+				limit = {
+					NOT = {
+						is_in_array = { eaw_alert_list_of_imminent_declaration = ROOT }
+					}
+				}
+				add_to_array = { eaw_alert_list_of_imminent_declaration = ROOT }
+				eaw_alert_update_gui = yes
+
+				add_ai_strategy = {
+					type = prepare_for_war
+					id = ROOT
+					value = 1000
+				}
+			}
+		}
+		var:temp_target = {
+			ROOT = {
+				add_ai_strategy = {
+					type = prepare_for_war
+					id = PREV
+					value = 1000
+				}
+			}
+		}
+	}
+}
+
+# args: temp_target (type TAG)
+eaw_clear_alert_imminent_declaration_of_war = {
+	hidden_effect = {
+		every_country = {
+			limit = {
+				OR = {
+					tag = var:temp_target
+					is_ally_with = var:temp_target
+					is_guaranteed_by = var:temp_target
+				}
+			}
+			if = {
+				limit = {
+					check_variable = { eaw_alert_list_of_imminent_declaration^num = 1 }
+				}
+				set_temp_variable = { alert_id = token:eaw_alert_imminent_declaration_of_war }
+				remove_eaw_alert = yes
+			}
+			remove_from_array = { eaw_alert_list_of_imminent_declaration = ROOT }
+			eaw_alert_update_gui = yes
+
+			add_ai_strategy = {
+				type = prepare_for_war
+				id = ROOT
+				value = -1000
+			}
+		}
+		var:temp_target = {
+			ROOT = {
+				add_ai_strategy = {
+					type = prepare_for_war
+					id = PREV
+					value = -1000
+				}
+			}
+		}		
+	}
+}
+
+eaw_alert_send_imminent_declaration_of_war_FROM = {
+	set_temp_variable = { temp_target = FROM }
+	eaw_alert_send_imminent_declaration_of_war = yes
+}
+
+eaw_clear_alert_imminent_declaration_of_war_FROM = {
+	set_temp_variable = { temp_target = FROM }
+	eaw_clear_alert_imminent_declaration_of_war = yes
 }

@@ -61,6 +61,7 @@ encourage the AI in different directions.
 		}
 		
 		# Specifications about how a matching equipment variant should be designed.
+		history = yes #Indicates which folder this design will appear in, inside the designer, if applicable.
 		target_variant = {
 			# An additional weight indicating how much the particular design is worth, if it matches.
 			match_value = <numeric weight>
@@ -117,7 +118,8 @@ encourage the AI in different directions.
 		}
 		
 		# List of hard requirements that all must match for this design to be usable.
-		# These follow the same pattern as a slot entry above within target_variant = { modules = { ... } },
+		# These follow the same pattern as a slot entry above within
+		target_variant = { modules = { ... } },
 		# but without being tied to an individual slot.
 		requirements = {
 			module = <requirements>
