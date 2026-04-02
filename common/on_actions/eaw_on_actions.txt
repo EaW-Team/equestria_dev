@@ -466,6 +466,29 @@ on_actions = {
 					scoped_play_song = anbennar_AF_deioderan
 				}
 			}
+			#ZZZ safety check
+			if = {
+				limit = {
+					OR = {
+						tag = ZZZ
+						FROM = { tag = zzz }
+					}
+				}
+				white_peace = FROM
+			}
+		}
+	}
+	
+	#ROOT is sender, FROM is receiver.
+	on_send_volunteers = {
+		effect = {
+			#ZZZ safety check
+			if = {
+				limit = {
+					tag = ZZZ
+				}
+				recall_volunteers_from = FROM
+			}
 		}
 	}
 
@@ -1799,10 +1822,18 @@ on_actions = {
 					tag = DED
 					FROM = {
 						NOT = {
-							original_tag = ZAI
-							has_cosmetic_tag = Terathopia
-							has_cosmetic_tag = Terathopia_2
-							has_cosmetic_tag = Terathopia_3
+							AND = {
+								original_tag = ZAI
+								OR = {
+									has_cosmetic_tag = Terathopia
+									has_cosmetic_tag = Terathopia_2
+									has_cosmetic_tag = Terathopia_3
+								}
+							}
+							AND = {
+								original_tag = EQC
+								has_cosmetic_tag = EQC_ED_cosmetic_new_mareland
+							}
 						}
 					}
 				}
@@ -2791,7 +2822,25 @@ on_actions = {
 					}
 				}
 			}
-			
+			if = {
+				limit = {
+					FROM = {
+						original_tag = TRD
+					}
+				}
+				every_other_country = {
+					limit = {
+						OR = {
+							has_idea = TRD_trading_with_skyfall_1
+							has_idea = TRD_trading_with_skyfall_2
+						}
+					}
+					add_opinion_modifier = {
+						target = ROOT
+						modifier = TRD_disrupted_trade
+					}
+				}
+			}
 
 			actually_fix_weapon_techs = yes
 		}
@@ -4515,6 +4564,21 @@ on_actions = {
 					white_peace = FROM
 				}
 			}
+			if = {
+				limit = {
+					OR = {
+						AND = {
+							tag = NLR
+							has_global_flag = EaW_night_override
+						}
+						AND = {
+							tag = event_target:solar_empire
+							has_global_flag = EaW_day_override
+						}
+					}
+				}
+				EaW_clear_day_night_overrides = yes
+			}
 		}
 	}
 	#ROOT is free nation FROM is releaser
@@ -4645,6 +4709,10 @@ on_actions = {
 										has_cosmetic_tag = Terathopia_2
 										has_cosmetic_tag = Terathopia_3
 									}
+								}
+								AND = {
+									original_tag = EQC
+									has_cosmetic_tag = EQC_ED_cosmetic_new_mareland
 								}
 							}
 						}
@@ -4985,7 +5053,15 @@ on_actions = {
 
 	on_government_change = {
 		effect = {
-			log = "[GetDateText]: ROOT: [Root.GetName] on_government_change"
+		
+			#Stops the log message from appearing in the console when using setDayNightOverride command
+			if = {
+				limit = {
+					NOT = { tag = ZZZ }
+				}
+				log = "[GetDateText]: ROOT: [Root.GetName] on_government_change"
+			}
+			
 			if = {
 				limit = { original_tag = CRY }
 				CRY_restore_establishment = yes
@@ -5449,6 +5525,21 @@ on_actions = {
 				}
 			}
 			
+			#This state needs to be impossible for any country but ZZZ to control.
+			if = {
+				limit = {
+					FROM = {
+						tag = ZZZ
+					}
+					FROM.FROM = {
+						state = 1209
+					}
+				}
+				log = "State 1209 was taken from ZZZ. This should never happen!"
+				ZZZ = {
+					transfer_state = 1209
+				}
+			}
 		}
 	}
 
@@ -5594,6 +5685,25 @@ on_actions = {
 			FROM = { update_global_arrays = yes }
 		}
 	}
+	
+	#ROOT is the country which guarantees, FROM is the country that is guaranteed. 
+	on_guarantee = {
+		effect = {
+			#ZZZ safety check
+			if = {
+				limit = {
+					FROM = {
+						tag = ZZZ
+					}
+				}
+				diplomatic_relation = {
+					country = ZZZ
+					relation = guarantee
+					active = no
+				}
+			}
+		}
+	}
 
 	#FROM is faction leader on join faction requests. THIS DOES NOT FIRE ON ADD_TO_FACTION EFFECT! USE ON_OFFER_JOIN_FACTION!
 	on_join_faction = {
@@ -5667,6 +5777,13 @@ on_actions = {
 					}
 				}
 				add_ideas = MIT_command_council_idea2
+			}
+			#ZZZ safety check
+			if = {
+				limit = {
+					tag = ZZZ
+				}
+				leave_faction = yes
 			}
 			update_global_arrays = yes
 		}
@@ -5750,6 +5867,21 @@ on_actions = {
 					RIV_rec_member4
 				}
 				add_ideas = RIV_river_union_member1
+			}
+			
+			#ZZZ safety check
+			if = {
+				limit = {
+					tag = ZZZ
+				}
+				FROM = {
+					set_autonomy = {
+						target = ROOT
+						autonomous_state = autonomy_free
+						end_wars = yes
+						end_civil_wars = yes
+					}
+				}
 			}
 		}
 	}
@@ -5935,6 +6067,18 @@ on_actions = {
 	on_generate_wargoal = {
 		effect = {
 			log = "[GetDateText] ROOT: [Root.GetName] FROM: [From.GetName] on_generate_wargoal"
+			#ZZZ safety check
+			if = {
+				limit = {
+					FROM = {
+						tag = ZZZ
+					}
+				}
+				remove_wargoal = {
+					type = all
+					target = FROM
+				}
+			}
 			if = {
 				limit = {
 					ROOT = { tag = KXN }
@@ -6092,7 +6236,15 @@ on_actions = {
 	on_ruling_party_change = {
 		# temp var old_ideology_token is available for effects
 		effect = {
-			log = "[GetDateText]: ROOT: [Root.GetName] on_ruling_party_change"
+		
+			#Stops the log message from appearing in the console when using setDayNightOverride command
+			if = {
+				limit = {
+					NOT = { tag = ZZZ }
+				}
+				log = "[GetDateText]: ROOT: [Root.GetName] on_ruling_party_change"
+			}
+			
 			ZES_oppressive_countries_calculate = yes
 			CRY_restore_establishment = yes
 			if = {
@@ -6284,6 +6436,18 @@ on_actions = {
 						}
 					}
 					add_to_array = { global.countries_that_sent_attaches = THIS }
+				}
+			}
+		}
+	}
+	
+	#This keeps ZZZ's hidden faction at the back of the list
+	on_create_faction = {
+		effect = {
+			ZZZ = {
+				country_event = {
+					id = utility.19
+					hours = 1
 				}
 			}
 		}
