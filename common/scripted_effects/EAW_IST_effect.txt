@@ -75,9 +75,9 @@ IST_coordinates_security = {
 	}
 }
 IST_civil_war_effect = {
-	every_controlled_state = { # Transfers States and gives Cores
+	every_controlled_state = {
 		limit = {
-			not_a_core_of_ROOT = yes
+			NOT = { is_core_of = ROOT }
 		}
 		if = {
 			limit = {
@@ -90,8 +90,7 @@ IST_civil_war_effect = {
 				}
 			}
 			add_to_temp_array = { chisimbi_states = THIS }
-			set_variable = { resistance_state_var = resistance }
-			clamp_variable = { var = resistance_state_var min = 0 }
+			add_to_variable = { ROOT.chisimbi_resistance = resistance }
 		}
 		else_if = {
 			limit = {
@@ -104,8 +103,7 @@ IST_civil_war_effect = {
 				}
 			}
 			add_to_temp_array = { kiria_states = THIS }
-			set_variable = { resistance_state_var = resistance }
-			clamp_variable = { var = resistance_state_var min = 0 }
+			add_to_variable = { ROOT.kiria_resistance = resistance }
 		}
 		else_if = {
 			limit = {
@@ -115,8 +113,7 @@ IST_civil_war_effect = {
 				}
 			}
 			add_to_temp_array = { zaikiria_states = THIS }
-			set_variable = { resistance_state_var = resistance }
-			clamp_variable = { var = resistance_state_var min = 0 }
+			add_to_variable = { ROOT.zaikiria_resistance = resistance }
 		}
 		else_if = {
 			limit = {
@@ -126,12 +123,8 @@ IST_civil_war_effect = {
 				}
 			}
 			add_to_temp_array = { zongo_states = THIS }
-			set_variable = { resistance_state_var = resistance }
-			clamp_variable = { var = resistance_state_var min = 0 }
+			add_to_variable = { ROOT.zongo_resistance = resistance }
 		}
-		#else = {
-		# States which you aren't supposed to conquer - TODO?
-		#}
 	}
 	create_dynamic_country = {
 		original_tag = IST
@@ -155,7 +148,6 @@ IST_civil_war_effect = {
 				}
 				transfer_state_to = PREV
 			}
-			add_to_variable = { ROOT.chisimbi_resistance = resistance_state_var }
 		}
 		set_temp_variable = { temp_1 = ROOT.chisimbi_resistance }
 		set_temp_variable = { temp_2 = chisimbi_states^num }
@@ -173,9 +165,9 @@ IST_civil_war_effect = {
 			random_scope_in_array = {
 				array = chisimbi_states
 				limit = {
-					any_neighbor_state = { is_controlled_by = PREV.PREV }
+					any_neighbor_state = { is_controlled_by = PREV.PREV count = 2 }
 				}
-				transfer_state_to = PREV
+				transfer_state_to = event_target:IST_chisimbi_resistance
 			}
 		}
 		set_politics = {
@@ -192,7 +184,8 @@ IST_civil_war_effect = {
 			war_economy
 			extensive_conscription
 		}
-		create_faction_from_template = faction_template_aby_com_alliance
+		create_faction_from_template = faction_template_regional
+		set_faction_name = IST_resistance_front_faction
 		division_template = {
 			name = "Militia"
 			is_locked = yes
@@ -235,7 +228,6 @@ IST_civil_war_effect = {
 				}
 				transfer_state_to = PREV
 			}
-			add_to_variable = { ROOT.kiria_resistance = resistance_state_var }
 		}
 		set_temp_variable = { temp_1 = ROOT.kiria_resistance }
 		set_temp_variable = { temp_2 = kiria_states^num }
@@ -247,13 +239,12 @@ IST_civil_war_effect = {
 		clamp_temp_variable = { var = temp_divs min = 16 }
 		#
 		multiply_temp_variable = { temp_1 = kiria_states^num }
-		#subtract_from_temp_variable = { temp_1 = num_controlled_states }
 		for_loop_effect = {
 			end = temp_1
 			random_scope_in_array = {
 				array = kiria_states
 				limit = {
-					any_neighbor_state = { is_controlled_by = PREV.PREV }
+					any_neighbor_state = { is_controlled_by = PREV.PREV count = 2 }
 				}
 				transfer_state_to = PREV
 			}
@@ -315,7 +306,6 @@ IST_civil_war_effect = {
 				}
 				transfer_state_to = PREV
 			}
-			add_to_variable = { ROOT.zaikiria_resistance = resistance_state_var }
 		}
 		set_temp_variable = { temp_1 = ROOT.zaikiria_resistance }
 		set_temp_variable = { temp_2 = zaikiria_states^num }
@@ -333,7 +323,7 @@ IST_civil_war_effect = {
 			random_scope_in_array = {
 				array = zaikiria_states
 				limit = {
-					any_neighbor_state = { is_controlled_by = PREV.PREV }
+					any_neighbor_state = { is_controlled_by = PREV.PREV count = 2 }
 				}
 				transfer_state_to = PREV
 			}
@@ -391,7 +381,6 @@ IST_civil_war_effect = {
 				}
 				transfer_state_to = PREV
 			}
-			add_to_variable = { ROOT.zongo_resistance = resistance_state_var }
 		}
 		set_temp_variable = { temp_1 = ROOT.zongo_resistance }
 		set_temp_variable = { temp_2 = zongo_states^num }
@@ -409,6 +398,11 @@ IST_civil_war_effect = {
 			random_scope_in_array = {
 				array = zongo_states
 				limit = {
+					OR = {
+						state = 1124
+						state = 1126
+						state = 1189
+					}
 					any_neighbor_state = { is_controlled_by = PREV.PREV }
 				}
 				transfer_state_to = PREV
@@ -459,6 +453,35 @@ IST_civil_war_effect = {
 			limit = {
 				tag = IST
 			}
+			every_controlled_state = {
+				limit = {
+					NOT = { any_neighbor_state = { is_controlled_by = ROOT } }
+				}
+				if = {
+					limit = {
+						is_in_array = { chisimbi_states = THIS }
+					}
+					transfer_state_to = event_target:IST_chisimbi_resistance
+				}
+				else_if = {
+					limit = {
+						is_in_array = { kiria_states = THIS }
+					}
+					transfer_state_to = event_target:IST_kiria_resistance
+				}
+				else_if = {
+					limit = {
+						is_in_array = { zaikiria_states = THIS }
+					}
+					transfer_state_to = event_target:IST_zaikiria_resistance
+				}
+				else_if = {
+					limit = {
+						is_in_array = { zongo_states = THIS }
+					}
+					transfer_state_to = event_target:IST_zongo_resistance
+				}
+			}
 		}
 		else = {
 			add_civil_war_target = IST
@@ -472,6 +495,8 @@ IST_civil_war_effect = {
 				}
 				event_target:IST_chisimbi_resistance = { add_to_faction = PREV }
 			}
+			set_major = yes
+			add_ideas = IST_our_own_masters
 		}
 	}
 }
@@ -629,83 +654,4 @@ IST_recursive_tooltip_2 = {
         add_to_temp_variable = { current_index = 1 }
         IST_recursive_tooltip_2 = yes
     }
-}
-IST_switch_focus_tree_effect = {
-	if = {
-		limit = {
-			NOT = {
-				has_country_flag = magliblian_jungle_war_tree_flag 
-				has_country_flag = magliblian_middle_war_tree_flag
-				has_country_flag = magliblian_post_war_tree_flag
-			}
-		}
-		set_country_flag = magliblian_jungle_war_tree_flag
-		load_focus_tree = magliblian_jungle_war_tree
-	}
-	else_if = {
-		limit = {
-			has_country_flag = magliblian_jungle_war_tree
-		}
-		clr_country_flag = magliblian_jungle_war_tree
-		set_country_flag = magliblian_middle_war_tree_flag
-		load_focus_tree = magliblian_middle_war_tree
-	}
-	else_if = {
-		limit = {
-			has_country_flag = magliblian_middle_war_tree_flag
-		}
-		hidden_effect = {
-			complete_national_focus = { focus = IST_focus_war_6 use_side_message = yes }
-			complete_national_focus = { focus = IST_focus_war_7 use_side_message = yes }
-			complete_national_focus = { focus = IST_focus_war_9 use_side_message = yes }
-			complete_national_focus = { focus = IST_focus_war_10 use_side_message = yes }
-			complete_national_focus = { focus = IST_focus_war_11 use_side_message = yes }
-			complete_national_focus = { focus = IST_focus_war_13 use_side_message = yes }
-			complete_national_focus = { focus = IST_jungle_rumbles_with_fire use_side_message = yes }
-			complete_national_focus = { focus = IST_focus_war_15 use_side_message = yes }
-			complete_national_focus = { focus = IST_focus_war_16 use_side_message = yes }
-			complete_national_focus = { focus = IST_focus_war_17 use_side_message = yes }
-			complete_national_focus = { focus = IST_focus_war_18 use_side_message = yes }
-			complete_national_focus = { focus = IST_focus_war_19 use_side_message = yes }
-			complete_national_focus = { focus = IST_focus_war_20 use_side_message = yes }
-			complete_national_focus = { focus = IST_focus_war_21 use_side_message = yes }
-			complete_national_focus = { focus = IST_focus_war_22 use_side_message = yes }
-			complete_national_focus = { focus = IST_focus_army_1 use_side_message = yes }
-			complete_national_focus = { focus = IST_focus_army_4 use_side_message = yes }
-			complete_national_focus = { focus = IST_focus_army_5 use_side_message = yes }
-			complete_national_focus = { focus = IST_focus_army_6 use_side_message = yes }
-			complete_national_focus = { focus = IST_focus_army_7 use_side_message = yes }
-			complete_national_focus = { focus = IST_focus_army_2 use_side_message = yes }
-			complete_national_focus = { focus = IST_focus_army_12 use_side_message = yes }
-			complete_national_focus = { focus = IST_focus_army_3 use_side_message = yes }
-			complete_national_focus = { focus = IST_focus_army_8 use_side_message = yes }
-			complete_national_focus = { focus = IST_focus_army_9 use_side_message = yes }
-			complete_national_focus = { focus = IST_focus_army_10 use_side_message = yes }
-			complete_national_focus = { focus = IST_focus_army_11 use_side_message = yes }
-			complete_national_focus = { focus = IST_focus_army_14 use_side_message = yes }
-			complete_national_focus = { focus = IST_focus_army_15 use_side_message = yes }
-			complete_national_focus = { focus = IST_focus_army_20 use_side_message = yes }
-			complete_national_focus = { focus = IST_focus_army_21 use_side_message = yes }
-			complete_national_focus = { focus = IST_focus_army_16 use_side_message = yes }
-			complete_national_focus = { focus = IST_focus_army_17 use_side_message = yes }
-			complete_national_focus = { focus = IST_focus_army_22 use_side_message = yes }
-			complete_national_focus = { focus = IST_focus_army_23 use_side_message = yes }
-			complete_national_focus = { focus = IST_focus_army_24 use_side_message = yes }
-			complete_national_focus = { focus = IST_focus_army_18 use_side_message = yes }
-			complete_national_focus = { focus = IST_focus_army_25 use_side_message = yes }
-			complete_national_focus = { focus = IST_focus_army_27 use_side_message = yes }
-			country_event = { id = maglibing_postkiria.3 days = 30 }
-		}
-		clr_country_flag = magliblian_middle_war_tree_flag
-		set_country_flag = magliblian_post_war_tree_flag
-		load_focus_tree = magliblian_post_war_tree
-	}
-	else_if = {
-		limit = {
-			has_country_flag = magliblian_post_war_tree_flag
-		}
-		clr_country_flag = magliblian_post_war_tree_flag
-		set_country_flag = magliblian_epilogue_tree_flag
-		load_focus_tree = magliblian_epilogue_tree
-	}
 }
