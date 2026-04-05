@@ -63,6 +63,10 @@ PixelShader =
 			AddressU = "Clamp"
 			AddressV = "Clamp"
 		}
+
+
+
+
 	}
 }
 
@@ -108,6 +112,65 @@ VertexShader =
 
 PixelShader =
 {
+	MainCode PixelShaderUp
+	[[
+		float4 main( VS_OUTPUT v ) : PDX_COLOR
+		{
+		    float4 OutColor = tex2D( MapTexture, v.vTexCoord );
+
+		#ifdef MASKING
+			float4 MaskColor = tex2D( MaskingTexture, v.vMaskingTexCoord );
+			OutColor.a *= MaskColor.a;
+		#endif
+
+			
+			OutColor *= Color;
+			return OutColor;
+		}
+	]]
+
+	MainCode PixelShaderDown
+	[[
+		float4 main( VS_OUTPUT v ) : PDX_COLOR
+		{
+		    float4 OutColor = tex2D( MapTexture, v.vTexCoord );
+
+		#ifdef MASKING
+			float4 MaskColor = tex2D( MaskingTexture, v.vTexCoord );
+			OutColor.a *= MaskColor.a;
+		#endif
+			
+			OutColor *= Color;
+
+			float vTime = 0.9 - saturate( (Time - AnimationTime) * 16 );
+			vTime *= vTime;
+			vTime = 0.9*0.9 - vTime;
+		    float4 MixColor = float4( 0.15, 0.15, 0.15, 0 ) * vTime;
+		    OutColor.rgb -= ( 0.5 + OutColor.rgb ) * MixColor.rgb;
+
+			return OutColor;
+		}
+	]]
+
+	MainCode PixelShaderDisable
+	[[
+		float4 main( VS_OUTPUT v ) : PDX_COLOR
+		{
+		    float4 OutColor = tex2D( MapTexture, v.vTexCoord );
+		    float Grey = dot( OutColor.rgb, float3( 0.212671f, 0.715160f, 0.072169f ) ); 
+		    OutColor.rgb = float3(Grey, Grey, Grey);
+
+		#ifdef MASKING
+			float4 MaskColor = tex2D( MaskingTexture, v.vTexCoord );
+			OutColor.a *= MaskColor.a;
+		#endif
+
+
+			OutColor *= Color;
+		    return OutColor;
+		}	
+	]]
+
 	MainCode PixelShaderOver
 	[[
 		float4 main( VS_OUTPUT v ) : PDX_COLOR
@@ -125,18 +188,13 @@ PixelShader =
 
 			OutColor *= Color;
 			
-			float vTime = 4 * (Time - AnimationTime);
-			OutColor.a *= clamp(vTime, 0, 1);
+			float vTime = 0.9 - saturate( (Time - AnimationTime) * 4 );
+			vTime *= vTime;
+			vTime = 0.9*0.9 - vTime;
+		    float4 MixColor = float4( 0.15, 0.15, 0.15, 0 ) * vTime;
+		    OutColor.rgb += ( 0.5 + OutColor.rgb ) * MixColor.rgb;
 			
 			return OutColor;
-		}
-	]]
-
-	MainCode PixelShaderOff
-	[[
-		float4 main( VS_OUTPUT v ) : PDX_COLOR
-		{
-		    return float4(0.0, 0.0, 0.0, 0.0);
 		}
 	]]
 }
@@ -153,19 +211,19 @@ BlendState BlendState
 Effect Up
 {
 	VertexShader = "VertexShader"
-	PixelShader = "PixelShaderOff"
+	PixelShader = "PixelShaderUp"
 }
 
 Effect Down
 {
 	VertexShader = "VertexShader"
-	PixelShader = "PixelShaderOff"
+	PixelShader = "PixelShaderDown"
 }
 
 Effect Disable
 {
 	VertexShader = "VertexShader"
-	PixelShader = "PixelShaderOff"
+	PixelShader = "PixelShaderDisable"
 }
 
 Effect Over
@@ -173,4 +231,3 @@ Effect Over
 	VertexShader = "VertexShader"
 	PixelShader = "PixelShaderOver"
 }
-
