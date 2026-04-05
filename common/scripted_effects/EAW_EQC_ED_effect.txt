@@ -1,0 +1,701 @@
+AF26 = {
+	# Add dev startup code
+	if = {
+		limit = {
+			is_debug = yes 
+		}
+		EQS = { set_country_flag = debug_ed_eqs }
+		EQC = { set_country_flag = debug_ed_eqs }
+	}
+	every_possible_country = {
+		limit = {
+			has_character = EQC_ED_emergency_council
+		}
+		EQC_ED_emergency_council = {
+			set_nationality = EQS
+		}
+	}
+
+	EQS = {
+		retire_character = EQS_princess_celestia
+		retire_character = EQS_princess_luna
+		set_variable = { max_excavation_projects = 1 }
+		set_variable = { EQS_snitch_artefacts_day_reeneable = 75 }
+		set_variable = { EQS_AF_resource_investing_limit = 25 }
+		set_variable = { EQS_AF_base_success_chance = 35 }
+		set_variable = { current_research_artefact = -1 }
+		set_variable = { EQS_AF_excavation_cost = 40 }
+	}
+
+	EQC = {
+		load_focus_tree = eqc_ed_focus
+		set_politics = {
+			ruling_party = fascism
+			elections_allowed = no
+			long_name = EQC_ED_party_long
+			name = EQC_ED_party
+		}
+		set_popularities = {
+			democratic = 4
+			neutrality = 1
+			fascism = 95
+			communism = 0
+		}
+		promote_character = {
+			character = EQC_ED_theevilsisters
+			ideology = nazism
+		}
+
+		set_cosmetic_tag = EQC_ED_cosmetic_new_mareland
+	}
+
+	EQS = {
+		end_puppet = EQC
+		EQC = { leave_faction = yes }
+
+		load_focus_tree = eqs_ed_focus
+
+		if = {
+			limit = {
+				EQS = {
+					has_character = EQC_ED_emergency_council
+				}
+			}
+			promote_character = {
+				character = EQC_ED_emergency_council
+				ideology = conservatism
+			}
+		}
+
+		remove_ideas = alicorn_sisters
+		remove_ideas = harmonic_stagnation
+
+		set_country_flag = EQS_ED_harmony_magic_enabled
+		set_country_flag = ED_artefact_mechanic_enabled
+	}
+}
+
+ED_recalculate_centre_for_artefact_research_vars = {
+	if = {
+		limit = {
+			has_country_flag = EQS_ED_enable_research_speed_from_artefacts
+		}
+		set_variable = { EQS_ED_cfar_research_speed_var = 0.01 }
+		multiply_variable = { EQS_ED_cfar_research_speed_var = artifacts_acquired_array^num }
+	}
+	else = {
+		set_variable = { EQS_ED_cfar_research_speed_var = 0 }
+	}
+	if = {
+		limit = {
+			has_country_flag = EQS_ED_enable_stability_from_artefacts
+		}
+		set_variable = { EQS_ED_cfar_stability_factor_var = 0.01 }
+		multiply_variable = { EQS_ED_cfar_stability_factor_var = artifacts_acquired_array^num }
+	}
+	else = {
+		set_variable = { EQS_ED_cfar_stability_factor_var = 0 }
+	}
+	if = {
+		limit = {
+			has_country_flag = EQS_ED_enable_army_org_from_artefacts
+		}
+		set_variable = { EQS_ED_cfar_army_org_factor_var = 0.01 }
+		multiply_variable = { EQS_ED_cfar_army_org_factor_var = artifacts_acquired_array^num }
+	}
+	else = {
+		set_variable = { EQS_ED_cfar_army_org_factor_var = 0 }
+	}
+	if = {
+		limit = {
+			has_country_flag = EQS_ED_enable_construction_from_artefacts
+		}
+		set_variable = { EQS_ED_cfar_construction_speed_var = 0.01 }
+		multiply_variable = { EQS_ED_cfar_construction_speed_var = artifacts_acquired_array^num }
+	}
+	else = {
+		set_variable = { EQS_ED_cfar_construction_speed_var = 0 }
+	}
+	if = {
+		limit = {
+			has_country_flag = EQS_ED_enable_factory_output_from_artefacts
+		}
+		set_variable = { EQS_ED_cfar_factory_output_var = 0.01 }
+		multiply_variable = { EQS_ED_cfar_factory_output_var = artifacts_acquired_array^num }
+	}
+	else = {
+		set_variable = { EQS_ED_cfar_factory_output_var = 0 }
+	}
+	if = {
+		limit = {
+			has_country_flag = EQS_ED_enable_research_speed_from_artefacts
+			has_country_flag = EQS_ED_enable_stability_from_artefacts
+			has_country_flag = EQS_ED_enable_army_org_from_artefacts
+			has_country_flag = EQS_ED_enable_construction_from_artefacts
+			has_country_flag = EQS_ED_enable_factory_output_from_artefacts
+		}
+		if = {
+			limit = {
+				NOT = { has_country_flag = EQS_ED_has_enabled_artefact_power_from_artefacts }
+			}
+			set_country_flag = EQS_ED_has_enabled_artefact_power_from_artefacts
+			set_variable = { EQS_ED_cfar_artefact_power_var = 0.1 }
+
+			add_to_array = { ROOT.artifacts_affect_token = token:EQS_ED_centre_for_artefact_research_fake_idea }
+			add_to_array = { ROOT.artifacts_affect_value = 0.1 }
+		}
+	}
+	else = {
+		set_variable = { EQS_ED_cfar_artefact_power_var = 0 }
+	}
+
+	force_update_dynamic_modifier = yes
+}
+
+d_artifacts_add_dummy = {
+	
+	add_to_array = { ROOT.artifacts_acquired_array = token:EQC_dummy_artifact_idea }	
+	add_to_array = { ROOT.artifacts_acquired_array = token:EQC_actual_artifact }	
+	add_ideas = EQC_dummy_artifact_idea
+	add_ideas = EQC_actual_artifact
+	artifacts_apply_mods_pb = yes 
+	set_country_flag = artifacts_menu_visible
+}
+
+artifacts_apply_mods_pb = {
+	set_temp_variable = { new_pb = 0 }
+	for_each_loop = {
+		array = artifacts_acquired_power 
+		value = n
+
+		add_to_temp_variable = { new_pb = n }
+	}
+	set_variable = { power_pb_var = new_pb }
+	set_temp_variable = { pb_mod = 1 }
+	add_to_temp_variable = { pb_mod = modifier@artifact_strength_factor }
+	multiply_temp_variable = { new_pb = pb_mod }
+	set_variable = { art_debug_mod = new_pb }
+	add_to_variable = { zzz_update_arts = 0.01 }
+}
+
+remove_art_power_effect = {
+	
+	for_each_loop = {
+		array = ROOT.artifacts_affect_token
+		value = fel_v 
+		index = fel_i
+		break = token_ptr
+
+		if = {
+			limit = {
+				check_variable = { fel_v = remove_idea_pointer }
+			}
+			set_variable = { current_idea_index = fel_i }
+			set_temp_variable = { token_ptr = 1 }
+		}
+		
+		remove_from_array = { array = ROOT.artifacts_affect_token index = current_idea_index }
+		remove_from_array = { array = ROOT.artifacts_affect_value index = current_idea_index }
+	}
+	
+}
+
+thaumaturgy_roll = {
+	
+	set_temp_variable = { success_chance = 3.5 }
+
+	if = {
+		limit = {
+			has_mastery = { amount = 500 track = operations }
+		}
+		add_to_temp_variable = { success_chance = 0.6 }
+	}
+	else_if = {
+		limit = {
+			has_mastery = { amount = 300 track = operations }
+		}
+		add_to_temp_variable = { success_chance = 0.4 }
+	}
+	else_if = {
+		limit = {
+			has_mastery = { amount = 100 track = operations }
+		}
+		add_to_temp_variable = { success_chance = 0.2 }
+	}
+	
+	set_temp_variable = { aa_effect = FROM.building_level@anti_air_building }
+	divide_temp_variable = { aa_effect = 10 } ### 1 AA gives -0.1 
+	subtract_from_temp_variable = { success_chance = aa_effect }
+	
+	if = {
+		limit = {
+			FROM.owner = { has_tech = future_radar_5 }
+		}
+		subtract_from_temp_variable = { success_chance = 0.3 }
+	}
+	else_if = {
+		limit = {
+			FROM.owner = { has_tech = future_radar_4 }
+		}
+		subtract_from_temp_variable = { success_chance = 0.25 }
+	}
+	else_if = {
+		limit = {
+			FROM.owner = { has_tech = future_radar_3 }
+		}
+		subtract_from_temp_variable = { success_chance = 0.2 }
+	}
+	else_if = {
+		limit = {
+			FROM.owner = { has_tech = future_radar_2 }
+		}
+		subtract_from_temp_variable = { success_chance = 0.15 }
+	}
+	else_if = {
+		limit = {
+			FROM.owner = { has_tech = future_radar }
+		}
+		subtract_from_temp_variable = { success_chance = 0.1 }
+	}
+	
+	if = {
+		limit = {
+			ROOT = { is_special_project_completed = sp:sp_pegasi_void_suit }
+		}
+		add_to_temp_variable = { success_chance = 0.25 }
+	}
+	if = {
+		limit = {
+			ROOT = { is_special_project_completed = sp:sp_magical_imperceptibility_studies } ### LaR Only 
+		}
+		add_to_temp_variable = { success_chance = 0.15 }
+	}
+	
+	if = {
+		limit = {
+			ROOT = { is_special_project_completed = sp:sp_air_advanced_jet_engine } 
+		}
+		add_to_temp_variable = { success_chance = 0.3 }
+	}
+	else_if = {
+		limit = {
+			ROOT = { is_special_project_completed = sp:sp_air_axial_jet_engine } 
+		}
+		add_to_temp_variable = { success_chance = 0.2 }
+	}
+	else_if = {
+		limit = {
+			ROOT = { is_special_project_completed = sp:sp_air_jet_engine } 
+		}
+		add_to_temp_variable = { success_chance = 0.1 }
+	}	
+	
+	if = {
+		limit = {
+			NOT = { has_dlc = "La Resistance" }
+		}
+		set_temp_variable = { dec_st = modifier@decryption }
+		FROM = { set_temp_variable = { ROOT.enc_st = owner:modifier@encryption } }
+		
+		subtract_from_temp_variable = { dec_st = enc_st }
+		if = {
+			limit = {
+				check_variable = { var = dec_st value = 0 compare = greater_than_or_equals }
+			}
+			add_to_temp_variable = { success_chance = 0.2 }
+		}
+	}
+	else = {
+		
+		set_temp_variable = { int_level = ROOT.air_intel@FROM.owner }
+		
+		divide_temp_variable = { int_level = 400 } #### 0 to 1 -> 0 to 0.25
+		add_to_temp_variable = { success_chance = int_level }
+	}
+	
+	if = {
+		limit = {
+			FROM = { is_owned_by = EQC }
+		}
+		add_to_temp_variable = { success_chance = -1.5 }
+	}
+	
+	set_variable = { roll_result = success_chance }
+}
+
+d_add_arts_debug = {
+
+	add_ideas = EQC_actual_artifact
+	add_ideas = EQS_shard_of_transformation_artefact
+	add_ideas = EQS_star_swirls_hat_artefact
+	add_ideas = EQS_yickslurs_helm_artefact
+	add_ideas = EQS_knuckerbockers_shell_artefact
+	add_ideas = EQS_auroras_amulet_artefact
+	add_ideas = EQS_grovers_crown_artefact
+	add_ideas = EQS_talisman_of_mirage_artefact
+	add_ideas = EQS_clover_the_clevers_cloak_artefact
+	add_ideas = EQS_rings_of_scorchero_artefact
+	add_ideas = EQS_truth_talisman_of_tonatiuh_artefact
+	add_ideas = EQS_horn_of_the_abada_artefact
+	add_ideas = EQS_silver_shawl_of_shadows_artefact
+	add_ideas = EQS_crystal_heart_artefact
+
+}
+
+d_add_arts_debug_EQC = {
+	add_ideas = {
+		EQC_scepter_of_arantigos_artefact
+		EQC_reichskrone_artefact
+		EQC_elixir_of_life_artefact
+		EQC_griffichronicon_artefact
+		EQC_sword_of_grover_ii_artefact
+		EQC_idol_of_maar_artefact
+		EQC_wittenlander_tome_artefact
+		EQC_pearl_of_the_mountain_artefact
+		EQC_head_of_an_eygsic_spider_artefact
+		EQC_reactor_core_artefact
+		EQC_grimoire_of_magehold_artefact
+		EQC_vial_of_holy_water_artefact
+		EQC_vikingar_drinking_horn_artefact
+		EQC_statue_of_sycaecia_artefact
+		EQC_the_oovervinnlighet_artefact
+	}
+}
+
+EQS_ED_calculate_jetset_icon_pos = {
+	
+	add_to_variable = { jetset_suspicion_level = tmp_jspdrift }
+	clamp_variable = { var = jetset_suspicion_level min = jsc_minimum max = jsc_maximum }
+
+	set_variable = { EQS_AF_jetset_pos_var = 20 }
+	set_temp_variable = { jsp_pos = jetset_suspicion_level }
+	multiply_temp_variable = { jsp_pos = 3 }
+	add_to_variable = { EQS_AF_jetset_pos_var = jsp_pos }
+	
+	hidden_effect = {
+		if = {
+			limit = {
+				check_variable = { jetset_suspicion_level = jsc_maximum }
+			}
+			if = {
+				limit = {
+					has_country_flag = EQS_ED_jetset_compromised_flag
+				}
+				country_event = evildiarchy_equestria.19 # Bah-Döööp (you failed)
+			}
+			else = {
+				country_event = evildiarchy_equestria.18
+			}
+		}
+	}	
+}
+
+ED_conquering_equestria_effect = {
+	# The result is written into the temp variable effective_magic_balance
+	# Formula is arctan( (EQS magic - EQS magic) / 5000 )
+	ED_calculate_effective_magic_balance = yes 
+
+	EQC = { set_variable = { current_magic_balance = effective_magic_balance } }
+	EQS = { 
+		set_variable = { current_magic_balance = effective_magic_balance }
+		multiply_variable = { current_magic_balance = -1 }
+	}
+
+	hidden_effect = {
+		EQC = { # Make sure we know the scope
+			set_variable = { mission_days = 365 } # 1 year
+			set_temp_variable = { mission_days_mod = effective_magic_balance }
+			multiply_temp_variable = { mission_days_mod = 100 }
+			add_to_variable = { mission_days = mission_days_mod }
+			log = "Days for Equestria conquest mission: [?mission_days]"
+			
+			activate_mission = EQS_ED_the_invasion_of_equestria_mission
+			add_dynamic_modifier = { modifier = ED_magic_balance_effect }
+			ED_calculate_magic_balance_modifier = yes
+			force_update_dynamic_modifier = yes
+		}
+		EQS = {
+			activate_mission = EQS_ED_the_invasion_of_equestria_mission
+
+			if = {
+				limit = {
+					NOT = {
+						has_game_rule = {
+							rule = tno_april_fool
+							option = TNO_APRIL_FOOL
+						}
+					}
+				}
+				# The effect of this is the negative to the EQC one due to the variable being multiplied by -1 for EQS
+				add_dynamic_modifier = { modifier = ED_magic_balance_effect } 
+				ED_calculate_magic_balance_modifier = yes
+				force_update_dynamic_modifier = yes
+			}
+		}
+	}
+}
+
+ED_calculate_effective_magic_balance = {
+	set_temp_variable = { magic_power_difference = EQC.art_debug_mod } 
+	subtract_from_temp_variable = { magic_power_difference = EQS.art_debug_mod } 
+	divide_temp_variable = { magic_power_difference = 5000 } 
+	set_temp_variable = {
+		sign = 1
+	}
+	if = {
+		limit = {
+			check_variable = { magic_power_difference < 0 }
+		}
+		set_temp_variable = { sign = -1 }
+	}
+	set_temp_variable = { arctan_argument = 1 }
+	if = {
+		limit = {
+			check_variable = { magic_power_difference > 1 }
+		}
+		set_country_flag = inverse_active
+		divide_temp_variable = { arctan_argument = magic_power_difference }
+	}
+	else = {
+		set_temp_variable = { arctan_argument = magic_power_difference }
+	}
+	ED_calculate_arctan = yes
+
+	set_temp_variable = { effective_magic_balance = arctan_result }
+	if = {
+		limit = {
+			has_country_flag = inverse_active
+		}
+		set_temp_variable = { effective_magic_balance = 1.571 } # pi/2
+		multiply_temp_variable = { effective_magic_balance = sign }
+		subtract_from_temp_variable = { effective_magic_balance = arctan_result }
+	}
+	log = "Effective Magic Balance: [?effective_magic_balance]"
+
+	clr_country_flag = inverse_active
+}
+
+ED_calculate_arctan = {
+	# x
+	set_temp_variable = { arctan_result = arctan_argument }
+
+	# x^3 / 3
+	set_temp_variable = { cubic = arctan_argument }
+	multiply_temp_variable = { cubic = arctan_argument }
+	multiply_temp_variable = { cubic = arctan_argument }
+	divide_temp_variable = { cubic = 3 }
+
+	# x^5 / 5
+	set_temp_variable = { quintic = arctan_argument }
+	multiply_temp_variable = { quintic = arctan_argument }
+	multiply_temp_variable = { quintic = arctan_argument }
+	multiply_temp_variable = { quintic = arctan_argument }
+	multiply_temp_variable = { quintic = arctan_argument }
+	divide_temp_variable = { quintic = 5 }
+
+	# x^7 / 7
+	set_temp_variable = { septic = arctan_argument }
+	multiply_temp_variable = { septic = arctan_argument }
+	multiply_temp_variable = { septic = arctan_argument }
+	multiply_temp_variable = { septic = arctan_argument }
+	multiply_temp_variable = { septic = arctan_argument }
+	multiply_temp_variable = { septic = arctan_argument }
+	multiply_temp_variable = { septic = arctan_argument }
+	divide_temp_variable = { septic = 7 }
+
+	# x^9 / 9
+	set_temp_variable = { nonic = arctan_argument }
+	multiply_temp_variable = { nonic = arctan_argument }
+	multiply_temp_variable = { nonic = arctan_argument }
+	multiply_temp_variable = { nonic = arctan_argument }
+	multiply_temp_variable = { nonic = arctan_argument }
+	multiply_temp_variable = { nonic = arctan_argument }
+	multiply_temp_variable = { nonic = arctan_argument }
+	multiply_temp_variable = { nonic = arctan_argument }
+	multiply_temp_variable = { nonic = arctan_argument }
+	divide_temp_variable = { nonic = 9 }
+
+	# x - x^3/3 + x^5/5 - x^7/7 + x^9/9
+	# This is the taylor series of the arctan to ninth order
+	# Yes, I know that this isn't optimal
+	# We should also use arctan(x) = pi/4 - arctan( (1-x)/(1+x) ) for values close to 1
+	# But I'm lazy
+	subtract_from_temp_variable = { arctan_result = cubic }
+	add_to_temp_variable = { arctan_result = quintic }
+	subtract_from_temp_variable = { arctan_result = septic }
+	add_to_temp_variable = { arctan_result = nonic }
+}
+
+ED_calculate_magic_balance_modifier = {
+	set_variable = { ED_magic_balance_mage_org = current_magic_balance }
+	multiply_variable = { ED_magic_balance_mage_org = 0.5 }
+	set_variable = { ED_magic_balance_command_power = current_magic_balance }
+	multiply_variable = { ED_magic_balance_command_power = 0.25 }
+	set_variable = { ED_magic_balance_war_stability_factor = current_magic_balance }
+	multiply_variable = { ED_magic_balance_war_stability_factor = 0.15 }
+	set_variable = { ED_magic_balance_army_attack_factor = current_magic_balance }
+	multiply_variable = { ED_magic_balance_army_attack_factor = 0.2 }
+	set_variable = { ED_magic_balance_out_of_supply_factor = current_magic_balance }
+	multiply_variable = { ED_magic_balance_out_of_supply_factor = -0.1 }
+}
+
+ED_decay_magical_balance_effect = {
+	if = {
+		limit = {
+			check_variable = {
+				current_magic_balance < 0
+			}
+		}
+		add_to_variable = {
+			current_magic_balance = 0.05
+		}
+		if = {
+			limit = {
+				check_variable = { current_magic_balance > -0.01 }
+			}
+			remove_dynamic_modifier = {
+				modifier = ED_magic_balance_effect
+			}
+		}
+	}
+	else = {
+		subtract_from_variable = {
+			current_magic_balance = 0.05
+		}
+		if = {
+			limit = {
+				check_variable = { current_magic_balance < 0.01 }
+			}
+			remove_dynamic_modifier = {
+				modifier = ED_magic_balance_effect
+			}
+		}
+	}
+	ED_calculate_magic_balance_modifier = yes
+}
+
+## Shield effect for EQS ##
+
+ED_turn_on_EQS_shield = {
+	hidden_effect = {
+		EQS = {
+			set_cosmetic_tag = EQS_shield_active
+		}
+		goto_state = 1
+	}
+}
+
+ED_turn_off_EQS_shield = {
+	hidden_effect = {
+		EQS = {
+			if = {
+				limit = {
+					has_cosmetic_tag = EQS_shield_active
+				}
+				drop_cosmetic_tag = yes
+			}
+		}
+	}
+}
+
+## Dialogue box
+
+ED_start_ominous_white = {
+	hidden_effect = {
+		scoped_play_song = ominous_riser
+		set_country_flag = EQS_EQC_AF_ominous_white_display
+	}
+}
+
+ED_start_dialogue_gui = {
+	hidden_effect = {
+		scoped_play_song = Neighsayer_Equestrias_Finest
+	}
+	set_country_flag = EQS_EQC_AF_dialogue_display
+	set_country_flag = EQS_EQC_AF_dialogue_display_unskipped_dialogue
+	clear_array = EQS_EQC_AF_dialogue_entry
+	for_loop_effect = {
+		start = 1
+		end = 23
+		value = v
+
+		add_to_array = { array = EQS_EQC_AF_dialogue_entry value = v index = 0 }
+	}
+}
+
+ED_skip_dialogue = {
+	clr_country_flag = EQS_EQC_AF_dialogue_display_unskipped_dialogue
+	set_country_flag = EQS_EQC_AF_dialogue_display_skipped_dialogue
+}
+
+EQS_AF_display_invest_chance = {
+	
+	set_variable = { eqs_aff_potential_invest = 0 }
+	set_temp_variable = { pp_effect = current_pp_toinvest }
+	multiply_temp_variable = { pp_effect = 0.2 }
+	set_temp_variable = { cp_effect = current_cp_toinvest }
+	multiply_temp_variable = { cp_effect = 0.2 }
+	set_temp_variable = { eq_effect = current_eq_toinvest }
+	multiply_temp_variable = { eq_effect = 0.2 }
+	
+	add_to_variable = { eqs_aff_potential_invest = pp_effect }
+	add_to_variable = { eqs_aff_potential_invest = cp_effect }
+	add_to_variable = { eqs_aff_potential_invest = eq_effect }
+}
+
+EQS_AF_calculate_snitch_chance = {
+	
+	set_temp_variable = { base_tmp = EQS_AF_base_success_chance }
+	set_temp_variable = { pp_effect = current_pp_toinvest }
+	multiply_temp_variable = { pp_effect = 0.2 }
+	set_temp_variable = { cp_effect = current_cp_toinvest }
+	multiply_temp_variable = { cp_effect = 0.2 }
+	set_temp_variable = { eq_effect = current_eq_toinvest }
+	multiply_temp_variable = { eq_effect = 0.2 }
+	
+	add_to_temp_variable = { base_tmp = pp_effect }
+	add_to_temp_variable = { base_tmp = cp_effect }
+	add_to_temp_variable = { base_tmp = eq_effect }
+	if = {
+		limit = {
+			has_idea = AF26_daring_do_advisor
+		}
+		add_to_temp_variable = { base_tmp = 15 }
+	}
+	
+	set_temp_variable = { tmp_check_var = base_tmp }
+	round_temp_variable = tmp_check_var 
+	set_variable = { EQS_ED_successful_excavation_chance = tmp_check_var }
+}
+
+EQC_AF_populate_artefacts_list = {
+	
+	### Griffonia ones 
+	
+	add_to_array = { global.states_with_artefacts = 665 }
+	665 = { set_variable = { artefact_in_state = token:EQC_elixir_of_life_artefact } }
+	add_to_array = { global.states_with_artefacts = 382 }
+	382 = { set_variable = { artefact_in_state = token:EQC_griffichronicon_artefact } }
+	add_to_array = { global.states_with_artefacts = 492 }
+	492 = { set_variable = { artefact_in_state = token:EQC_sword_of_grover_ii_artefact } }
+	add_to_array = { global.states_with_artefacts = 495 }
+	495 = { set_variable = { artefact_in_state = token:EQC_idol_of_maar_artefact } }
+	add_to_array = { global.states_with_artefacts = 617 }
+	617 = { set_variable = { artefact_in_state = token:EQC_wittenlander_tome_artefact } }
+	add_to_array = { global.states_with_artefacts = 637 }
+	637 = { set_variable = { artefact_in_state = token:EQC_pearl_of_the_mountain_artefact } }
+	add_to_array = { global.states_with_artefacts = 586 }
+	586 = { set_variable = { artefact_in_state = token:EQC_head_of_an_eygsic_spider_artefact } }
+	add_to_array = { global.states_with_artefacts = 625 }
+	625 = { set_variable = { artefact_in_state = token:EQC_reactor_core_artefact } }
+	add_to_array = { global.states_with_artefacts = 642 }
+	642 = { set_variable = { artefact_in_state = token:EQC_vial_of_holy_water_artefact } }
+	add_to_array = { global.states_with_artefacts = 412 }
+	412 = { set_variable = { artefact_in_state = token:EQC_vikingar_drinking_horn_artefact } }
+	add_to_array = { global.states_with_artefacts = 445 }
+	445 = { set_variable = { artefact_in_state = token:EQC_statue_of_sycaecia_artefact } }
+	add_to_array = { global.states_with_artefacts = 429 }
+	429 = { set_variable = { artefact_in_state = token:EQC_the_oovervinnlighet_artefact } }
+	add_to_array = { global.states_with_artefacts = 389 }
+	389 = { set_variable = { artefact_in_state = token:EQC_idol_of_boreas_artefact } }
+}
