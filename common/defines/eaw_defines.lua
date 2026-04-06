@@ -240,4 +240,4 @@ NDefines.NFactions.FACTION_INTELLIGENCE_ALLOWED_ADVISOR_TRAIT = {
 	"TBK_AF_lightbringer_advisor",
 	"TBK_AF_lightbringer_advisor_expanded"
 }
-NDefines.NDoctrines.TRAINING_MASTERY_GAIN_FACTOR = 0.05 -- vanilla is 0.1
+NDefines.NDoctrines.TRAINING_MASTERY_GAIN_FACTOR = 0.075 -- vanilla is 0.1
