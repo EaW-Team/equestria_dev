@@ -10805,6 +10805,222 @@ KXN_Tributaries_Category = {
 }
 
 KXN_Aerostat_Category = {
+	KXN_Aerostat_Transport_Decision = {
+		icon = X
+		allowed = { tag = KXN }
+		ai_will_do = { factor = 20 }
+		
+		state_target = yes
+		on_map_mode = map_only
+		
+		visible = {
+			NOT = { has_country_flag = KXN_Aerostat_Transport_Active_Flag }
+		}
+		
+		target_trigger = {
+			FROM = {
+				is_controlled_by_ROOT_or_ally = yes
+				air_base > 2
+				any_state = {
+					NOT = { state = PREV }
+					is_controlled_by_ROOT_or_ally = yes
+					air_base > 2
+				}
+			}
+		}
+		
+		available = {
+			divisions_in_state = {
+				size > 0
+				state = FROM
+			}
+		}
+		
+		highlight_states = {
+			highlight_states_trigger = {
+				state = FROM
+			}
+		}
+		
+		custom_cost_text = decision_cost_airship_50
+		custom_cost_trigger = {
+			has_equipment = { medium_airship_equipment_0 > 49 }
+		}
+		
+		complete_effect = {
+			set_country_flag = KXN_Aerostat_Transport_Active_Flag
+			clear_array = KXN.KXN_Aerostat_Transport_Array
+			clear_global_event_target = KXN_Aerostat_Transport_Origin
+			FROM = {
+				save_global_event_target_as = KXN_Aerostat_Transport_Origin
+			}
+			custom_effect_tooltip = KXN_Aerostat_Transport_Decision_TT
+			every_state = {
+				display_individual_scopes = yes
+				limit = {
+					NOT = { state = FROM }
+					is_controlled_by_ROOT_or_ally = yes
+					air_base > 2
+				}
+				add_to_array = { KXN.KXN_Aerostat_Transport_Array = THIS }
+			}
+			hidden_effect = {
+				country_event = { id = lan_kir_utility.222 days = 30 }
+				add_equipment_to_stockpile = {
+					type = medium_airship_equipment_0
+					amount = -50
+				}
+			}
+			custom_effect_tooltip = decision_cost_airship_50_return_tt
+		}
+	}
+	KXN_Aerostat_Transport_Decision_Choose = {
+		icon = X
+		allowed = { tag = KXN }
+		ai_will_do = { factor = 20 }
+		
+		state_target = yes
+		target_array = KXN.KXN_Aerostat_Transport_Array
+		on_map_mode = map_only
+		
+		visible = {
+			has_country_flag = KXN_Aerostat_Transport_Active_Flag
+			FROM = {
+				NOT = {
+					state = event_target:KXN_Aerostat_Transport_Origin
+				}
+			}
+		}
+		
+		target_trigger = {
+			FROM = {
+				NOT = {
+					state = event_target:KXN_Aerostat_Transport_Origin
+				}
+			}
+		}
+		
+		available = {
+			KXN = {
+				divisions_in_state = {
+					size > 0
+					state = event_target:KXN_Aerostat_Transport_Origin
+				}
+				if = {
+					limit = {
+						divisions_in_state = {
+							size > 10
+							state = event_target:KXN_Aerostat_Transport_Origin
+						}
+						event_target:KXN_Aerostat_Transport_Origin = {
+							KXN = {
+								set_temp_variable = { KXN_Aerostat_Transport_Req_Var = KXN.num_armies_in_state@PREV }
+								multiply_temp_variable = { KXN_Aerostat_Transport_Req_Var = 5 }
+								subtract_from_temp_variable = { KXN_Aerostat_Transport_Req_Var = 51 }
+							}
+						}
+					}
+					has_equipment = { medium_airship_equipment_0 > KXN_Aerostat_Transport_Req_Var }
+				}
+			}
+		}
+		
+		highlight_states = {
+			highlight_states_trigger = {
+				state = FROM
+			}
+		}
+		
+		complete_effect = {
+			clr_country_flag = KXN_Aerostat_Transport_Active_Flag
+			
+			hidden_effect = {
+				event_target:KXN_Aerostat_Transport_Origin = {
+					KXN = {
+						set_temp_variable = { KXN_Aerostat_Transport_Req_TT_Var = KXN.num_armies_in_state@PREV }
+					}
+				}
+				if = {
+					limit = {
+						divisions_in_state = {
+							size > 10
+							state = event_target:KXN_Aerostat_Transport_Origin
+						}
+					}
+					event_target:KXN_Aerostat_Transport_Origin = {
+						KXN = {
+							set_temp_variable = { KXN_Aerostat_Transport_Req_Var = KXN_Aerostat_Transport_Req_TT_Var }
+							multiply_temp_variable = { KXN_Aerostat_Transport_Req_Var = 5 }
+							subtract_from_temp_variable = { KXN_Aerostat_Transport_Req_Var = 50 }
+							subtract_from_temp_variable = { KXN_Aerostat_Transport_Req_Neg_Var = KXN_Aerostat_Transport_Req_Var }
+							add_equipment_to_stockpile = {
+								type = medium_airship_equipment_0
+								amount = KXN_Aerostat_Transport_Req_Neg_Var
+							}
+							add_to_array = { KXN_Aerostat_Transport_Req_Array = KXN_Aerostat_Transport_Req_Var }
+							country_event = { id = lan_kir_utility.2222 days = 30 }
+						}
+					}
+				}
+			}
+			
+			hidden_effect = {
+				event_target:KXN_Aerostat_Transport_Origin = {
+					set_temp_variable = { KXN.KXN_Aerostat_Transport_Distance = distance_to@FROM }
+					set_temp_variable = { KXN.KXN_Aerostat_Transport_Distance_Org_Damage_Var = KXN.KXN_Aerostat_Transport_Distance }
+					multiply_temp_variable = { KXN.KXN_Aerostat_Transport_Distance_Org_Damage_Var = 0.035 }
+					clamp_temp_variable = { var = KXN.KXN_Aerostat_Transport_Distance_Org_Damage_Var max = 50 }
+					set_temp_variable = { KXN.KXN_Aerostat_Transport_Total_Org_Damage_Var = KXN.KXN_Aerostat_Transport_Distance_Org_Damage_Var }
+					add_to_temp_variable = { KXN.KXN_Aerostat_Transport_Total_Org_Damage_Var = KXN.KXN_Aerostat_Transport_Base_Org_Damage_Var }
+					divide_temp_variable = { KXN.KXN_Aerostat_Transport_Total_Org_Damage_Var = 100 }
+					set_temp_variable = { KXN.KXN_Aerostat_Transport_Distance_Str_Damage_Var = KXN.KXN_Aerostat_Transport_Distance }
+					multiply_temp_variable = { KXN.KXN_Aerostat_Transport_Distance_Str_Damage_Var = 0.015 }
+					clamp_temp_variable = { var = KXN.KXN_Aerostat_Transport_Distance_Str_Damage_Var max = 90 }
+					set_temp_variable = { KXN.KXN_Aerostat_Transport_Total_Str_Damage_Var = KXN.KXN_Aerostat_Transport_Distance_Str_Damage_Var }
+					add_to_temp_variable = { KXN.KXN_Aerostat_Transport_Total_Str_Damage_Var = KXN.KXN_Aerostat_Transport_Base_Str_Damage_Var }
+					divide_temp_variable = { KXN.KXN_Aerostat_Transport_Total_Str_Damage_Var = 100 }
+					KXN = {
+						meta_effect = {
+							text = {
+								damage_units = {
+									state = PREV
+									limit = { tag = ROOT }
+									org_damage = [Aerostat_Transport_Org_Damage]
+									str_damage = [Aerostat_Transport_Str_Damage]
+									ratio = yes
+									army = yes
+									navy = no
+								}
+							}
+							Aerostat_Transport_Org_Damage = "[?KXN.KXN_Aerostat_Transport_Total_Org_Damage_Var]"
+							Aerostat_Transport_Str_Damage = "[?KXN.KXN_Aerostat_Transport_Total_Str_Damage_Var]"
+						}
+					}
+				}
+			}
+			
+			custom_effect_tooltip = KXN_Aerostat_Transport_Decision_Choose_TT
+			
+			if = {
+				limit = {
+					divisions_in_state = {
+						size > 10
+						state = event_target:KXN_Aerostat_Transport_Origin
+					}
+				}
+				custom_effect_tooltip = GetAerostatTransportReq_TT
+			}
+			
+			event_target:KXN_Aerostat_Transport_Origin = {
+				teleport_armies = {
+					limit = {
+						tag = ROOT
+					}
+					to_state = FROM
+				}
+			}
+		}
+	}
 	KXN_Aerostat_CAS_Decision = {
 		icon = airship_defence
 		allowed = { tag = KXN }
