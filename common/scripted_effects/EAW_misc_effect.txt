@@ -414,26 +414,6 @@ reapply_secondary_cosmetic_tags = {
 		}
 	}
 	else_if = {
-		limit = {
-			OR = {
-				original_tag = FAT
-				original_tag = FAW
-			}
-		}
-		if = {
-			limit = { has_completed_focus = FST_new_dawn_for_the_republic }
-			set_cosmetic_tag = FAT
-		}
-		else_if = {
-			limit = { has_completed_focus = FST_kingly_ambitions }
-			set_cosmetic_tag = FAT_Kingdom
-		}
-		else_if = {
-			limit = { has_completed_focus = FAT_new_dawn_over_cloudbury }
-			set_cosmetic_tag = FAT_Cloudbury
-		}
-	}
-	else_if = {
 		limit = { original_tag = FLO }
 		if = {
 			limit = { has_completed_focus = FBK_crown_gering }
@@ -2554,6 +2534,8 @@ actually_fix_weapon_techs = {
 			magical_weapons_kirin_vanguards = 0
 			infantry_weapons_kirin_braves = 0
 			magical_weapons_kirin_braves = 0
+			motorized_military_police_generic_equipment = 0
+			motorized_military_police_KXN_equipment = 0
 		}
 		if = {
 			limit = {
@@ -2855,7 +2837,23 @@ actually_fix_weapon_techs = {
 				set_technology = { popup = no infantry_weapons_knights = 1 }
 			}
 		}
-   }
+		if = { # Set Motorized Military Police equipment
+			limit = {
+				OR = {
+					has_tech = KXN_Motorcycle_Military_Police  
+					has_tech = sp_armored_motorized_military_police_tech
+					has_template_containing_unit = motorized_military_police
+				}
+			}
+			if = {
+				limit = { tag = KXN }
+				set_technology = { popup = no motorized_military_police_KXN_equipment = 1 }
+			}
+			else = {
+				set_technology = { popup = no motorized_military_police_generic_equipment = 1 }
+			}
+		}
+	}
 }
 
 FRN_anger_fascists = {
@@ -3048,12 +3046,8 @@ remove_storm_king = {
 
 FAT_kill_kemerskai = {
 	every_possible_country = {
-		limit = {
-			has_character = FAT_alexander_kemerskai
-		}
-		FAT_alexander_kemerskai = {
-			retire = yes
-		}
+		limit = { has_character = FAT_alexander_kemerskai }
+		FAT_alexander_kemerskai = { retire = yes }
 	}
 	set_global_flag = keremeskai_dead
 }
@@ -3062,37 +3056,34 @@ FAT_kill_kemerskai = {
 # expects disband_fraction variable to be set
 disband_units_fraction = {
 	log = "disband_units_fraction: [This.GetName] is disbanding [?disband_fraction] of their army"
-	SOL = {
-		set_temp_variable = {
-			old_manpower = manpower_k
-		}
-	}
-	random_state = {
-		limit = {
-			is_coastal = no
-			owner = {
-				PREV = {
-					is_fully_controlled_by = PREV
+	create_dynamic_country = {
+		original_tag = SOL
+		set_temp_variable = { old_manpower = manpower_k }
+		random_state = {
+			limit = {
+				is_coastal = no
+				OWNER = {
+					PREV = {
+						is_fully_controlled_by = PREV
+					}
 				}
 			}
+			OWNER = { set_temp_variable = { disband_state_owner = THIS } }
+			set_temp_variable = { disband_state = THIS }
+			set_state_owner_to = PREV
 		}
-		owner = { save_event_target_as = disband_state_owner }
-		save_event_target_as = disband_state
-		SOL = { set_state_owner = PREV }
-	}
-	transfer_units_fraction = {
-		target = SOL
-		size = 0
-		target_organization = 1
-		source_organization = 1
-		army_ratio = var:disband_fraction
-		keep_unit_leaders_trigger = {
-			always = yes
+		PREV = {
+			transfer_units_fraction = {
+				target = PREV
+				size = 0
+				target_organization = 1
+				source_organization = 1
+				army_ratio = var:disband_fraction
+				keep_unit_leaders_trigger = { always = yes }
+			}
 		}
-	}
-	SOL = {
 		every_state = {
-			SOL = {
+			PREV = {
 				delete_unit = {
 					state = PREV
 					disband = yes
@@ -3129,12 +3120,14 @@ disband_units_fraction = {
 				always = yes
 			}
 		}
-	}
-	event_target:disband_state = {
-		event_target:disband_state_owner = { set_state_owner = PREV }
-	}
-	annex_country = {
-		target = SOL transfer_troops = yes
+		ROOT = {
+			var:disband_state_owner = { 
+				set_state_owner = var:disband_state
+			}
+			annex_country = {
+				target = PREV transfer_troops = yes
+			}
+		}
 	}
 }
 
@@ -3351,6 +3344,7 @@ make_hate_DED_and_EWI = {
 	if = {
 		limit = {
 			NOT = {
+				original_tag = ZZZ
 				original_tag = DED
 				original_tag = EWI
 				has_country_flag = FIR_is_necromancer
@@ -4093,3 +4087,13 @@ remove_country_ideas = {
 		}
 	}
 }
+
+rename_stalliongrad_states = {
+	235 = { set_state_name = EQS_vp_ladimir }
+	168 = {
+		reset_state_name = yes
+	}
+	reset_province_name = 200
+	set_global_flag = stg_renamed
+}
+
