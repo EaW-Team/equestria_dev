@@ -10815,6 +10815,7 @@ KXN_Aerostat_Category = {
 		
 		visible = {
 			NOT = { has_country_flag = KXN_Aerostat_Transport_Active_Flag }
+			NOT = { has_global_flag = KXN_The_Shattering_Happened }
 		}
 		
 		target_trigger = {
@@ -10824,7 +10825,7 @@ KXN_Aerostat_Category = {
 				any_state = {
 					NOT = { state = PREV }
 					is_controlled_by_ROOT_or_ally = yes
-					air_base > 2
+					air_base > 0
 				}
 			}
 		}
@@ -10841,6 +10842,8 @@ KXN_Aerostat_Category = {
 				state = FROM
 			}
 		}
+		
+		days_re_enable = 30
 		
 		custom_cost_text = decision_cost_airship_50
 		custom_cost_trigger = {
@@ -10860,7 +10863,7 @@ KXN_Aerostat_Category = {
 				limit = {
 					NOT = { state = FROM }
 					is_controlled_by_ROOT_or_ally = yes
-					air_base > 2
+					air_base > 0
 				}
 				add_to_array = { KXN.KXN_Aerostat_Transport_Array = THIS }
 			}
@@ -10885,6 +10888,7 @@ KXN_Aerostat_Category = {
 		
 		visible = {
 			has_country_flag = KXN_Aerostat_Transport_Active_Flag
+			NOT = { has_global_flag = KXN_The_Shattering_Happened }
 			FROM = {
 				NOT = {
 					state = event_target:KXN_Aerostat_Transport_Origin
@@ -10901,6 +10905,9 @@ KXN_Aerostat_Category = {
 		}
 		
 		available = {
+			FROM = {
+				air_base > 2
+			}
 			KXN = {
 				divisions_in_state = {
 					size > 0
@@ -10971,14 +10978,36 @@ KXN_Aerostat_Category = {
 					multiply_temp_variable = { KXN.KXN_Aerostat_Transport_Distance_Org_Damage_Var = 0.035 }
 					clamp_temp_variable = { var = KXN.KXN_Aerostat_Transport_Distance_Org_Damage_Var max = 50 }
 					set_temp_variable = { KXN.KXN_Aerostat_Transport_Total_Org_Damage_Var = KXN.KXN_Aerostat_Transport_Distance_Org_Damage_Var }
-					add_to_temp_variable = { KXN.KXN_Aerostat_Transport_Total_Org_Damage_Var = KXN.KXN_Aerostat_Transport_Base_Org_Damage_Var }
 					divide_temp_variable = { KXN.KXN_Aerostat_Transport_Total_Org_Damage_Var = 100 }
 					set_temp_variable = { KXN.KXN_Aerostat_Transport_Distance_Str_Damage_Var = KXN.KXN_Aerostat_Transport_Distance }
 					multiply_temp_variable = { KXN.KXN_Aerostat_Transport_Distance_Str_Damage_Var = 0.015 }
 					clamp_temp_variable = { var = KXN.KXN_Aerostat_Transport_Distance_Str_Damage_Var max = 90 }
 					set_temp_variable = { KXN.KXN_Aerostat_Transport_Total_Str_Damage_Var = KXN.KXN_Aerostat_Transport_Distance_Str_Damage_Var }
-					add_to_temp_variable = { KXN.KXN_Aerostat_Transport_Total_Str_Damage_Var = KXN.KXN_Aerostat_Transport_Base_Str_Damage_Var }
 					divide_temp_variable = { KXN.KXN_Aerostat_Transport_Total_Str_Damage_Var = 100 }
+					if = {
+						limit = {
+							FROM = {
+								is_controlled_by_ROOT_or_ally = yes
+								OWNER = {
+									has_war_with = KXN
+								}
+							}
+							NOT = {
+								can_build_railway = {
+									build_only_on_allied = yes
+									start_state = event_target:KXN_Aerostat_Transport_Origin
+									target_state = FROM
+								}
+							}
+						}
+						set_temp_variable = { KXN.KXN_AerostatTransportConAir_Var = 1 }
+						add_to_temp_variable = { KXN.KXN_Aerostat_Transport_Total_Org_Damage_Var = KXN.KXN_Aerostat_Transport_ConAir_Org_Damage_Var }
+						add_to_temp_variable = { KXN.KXN_Aerostat_Transport_Total_Str_Damage_Var = KXN.KXN_Aerostat_Transport_ConAir_Str_Damage_Var }
+					}
+					add_to_temp_variable = { KXN.KXN_Aerostat_Transport_Total_Org_Damage_Var = KXN.KXN_Aerostat_Transport_Base_Org_Damage_Var }
+					add_to_temp_variable = { KXN.KXN_Aerostat_Transport_Total_Str_Damage_Var = KXN.KXN_Aerostat_Transport_Base_Str_Damage_Var }
+					clamp_temp_variable = { var = KXN.KXN_Aerostat_Transport_Total_Org_Damage_Var max = 1 }
+					clamp_temp_variable = { var = KXN.KXN_Aerostat_Transport_Total_Str_Damage_Var max = 1 }
 					KXN = {
 						meta_effect = {
 							text = {
@@ -11019,6 +11048,23 @@ KXN_Aerostat_Category = {
 					to_state = FROM
 				}
 			}
+		}
+	}
+	KXN_Aerostat_Transport_Recall = {
+		icon = X
+		allowed = { tag = KXN }
+		ai_will_do = { factor = 20 }
+		
+		visible = {
+			has_country_flag = KXN_Aerostat_Transport_Active_Flag
+			NOT = { has_global_flag = KXN_The_Shattering_Happened }
+		}
+		
+		complete_effect = {
+			custom_effect_tooltip = KXN_Aerostat_Transport_Recall_TT
+			clr_country_flag = KXN_Aerostat_Transport_Active_Flag
+			clear_array = KXN.KXN_Aerostat_Transport_Array
+			clear_global_event_target = KXN_Aerostat_Transport_Origin
 		}
 	}
 	KXN_Aerostat_CAS_Decision = {
