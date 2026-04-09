@@ -164,6 +164,29 @@ north_zebrican_war = {
 	set_stance_partial_war = {
 		ai_will_do = {
 			factor = 100
+			modifier = {
+				factor = 0
+				OR = {
+					is_faction_leader = no
+					AND = { # no alliance at all, both parties set stances "in parallel"
+						NOT = { has_global_flag = NZW_alliance_signed }
+						OR = { # if the other party is a human, don't interfere
+							AND = {
+								tag = NZ1
+								NZ2 = {
+									is_ai = no
+								}
+							}
+							AND = {
+								tag = NZ2
+								NZ1 = {
+									is_ai = no
+								}
+							}
+						}
+					}
+				}
+			}
 		}
 		available = {
 			if = {
@@ -292,6 +315,9 @@ north_zebrican_war = {
 		
 		complete_effect = {
 			log = "[GetDateText]: [Root.GetName]: Decision WNG_join_the_war target: [From.GetName]"
+			set_temp_variable = { temp_target = HIP }
+			eaw_alert_send_imminent_declaration_of_war = yes
+			
 			HIP = {
                 add_ai_strategy = {
                     type = prepare_for_war
@@ -302,6 +328,9 @@ north_zebrican_war = {
 		}
 		remove_effect = {
 			log = "[GetDateText]: [Root.GetName]: Decision remove WNG_join_the_war target: [From.GetName]"
+			set_temp_variable = { temp_target = HIP }
+			eaw_clear_alert_imminent_declaration_of_war = yes
+			
 			HIP = {
                 add_ai_strategy = {
                     type = prepare_for_war
@@ -569,10 +598,12 @@ north_zebrican_war = {
 							days = 2
 						}
 						clr_country_flag = NZW_war_participant
+						set_country_flag = NZW_former_war_participant
 						set_country_flag = HIP_third_party_defeat
 					}
 					else = {
 						clr_country_flag = NZW_war_participant
+						set_country_flag = NZW_former_war_participant
 						set_country_flag = HIP_averted_nzw
 					}
 				}
@@ -707,20 +738,40 @@ north_zebrican_war = {
 			}
 		}
 		available = {
-			NZ1 = {
-				OR = {
-					exists = no
-					is_subject = yes
-					has_capitulated = yes
-					has_war = no
+			if = {
+				limit = {
+					NZ1 = {
+						OR = {
+							has_country_flag = NZW_war_participant
+							has_country_flag = NZW_former_war_participant
+						}
+					}
+				}
+				NZ1 = {
+					OR = {
+						exists = no
+						is_subject = yes
+						has_capitulated = yes
+						has_war = no
+					}
 				}
 			}
-			NZ2 = {
-				OR = {
-					exists = no
-					is_subject = yes
-					has_capitulated = yes
-					has_war = no
+			if = {
+				limit = {
+					NZ2 = {
+						OR = {
+							has_country_flag = NZW_war_participant
+							has_country_flag = NZW_former_war_participant
+						}
+					}
+				}
+				NZ2 = {
+					OR = {
+						exists = no
+						is_subject = yes
+						has_capitulated = yes
+						has_war = no
+					}
 				}
 			}
 			NOT = {
