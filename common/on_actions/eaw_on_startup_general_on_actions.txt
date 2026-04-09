@@ -6,6 +6,7 @@ on_actions = {
 			log = "[GetDateText] Equestria at War main on_startup begin"
 			# General country setup
 			set_global_flag = game_has_started
+			ZZZ = { initialize_night_trait_tokens = yes }
 			
 			every_collection_element = {
 				input = collection:countries_hurt_by_storm_king
@@ -15,6 +16,7 @@ on_actions = {
 				add_opinion_modifier = { target = SLC modifier = distrustful_relations }
 				add_opinion_modifier = { target = BLT modifier = distrustful_relations }
 				add_opinion_modifier = { target = CZR modifier = distrustful_relations }
+				set_country_flag = distrusts_the_yetis
 			}
 			if = {
 				limit = {
@@ -70,6 +72,9 @@ on_actions = {
 				}
 			}
 			every_state = {
+				limit = {
+					NOT = { state = 1209 }
+				}
 				if = {
 					limit = {
 						is_on_continent = europe #Equestria
@@ -88,7 +93,7 @@ on_actions = {
 					}
 					add_to_array = { global.africa_states = THIS }
 				}
-				add_to_variable = { global.total_state_count = 1 }
+				add_to_variable = { global.wc_states_required = 1 }
 			}
 			add_to_array = { global.river_cup_states = 619.id }
 			add_to_array = { global.river_cup_states = 387.id }
@@ -354,6 +359,47 @@ on_actions = {
 			set_global_flag = continent_flags_set
 
 			every_possible_country = {
+			
+				#Create a list of all generals who have night related traits.
+				every_unit_leader = {
+					for_each_loop = {
+						array = global.night_trait_tokens
+						value = v
+						
+						#Loop through all the traits in initialize_night_trait_tokens and see if the unit leader has any.
+						#For some reason there's no trigger to check if a unit leader has a trait.
+						#replace_unit_leader_trait is a broken effect that does not work properly (it doesn't even have official documentation lol).
+						#However, it does add the "trait" if and only if the unit leader has the specified "replace" trait.
+						#This can be used to see if the unit leader has the "replace" trait by checking for a custom modifier in night_test_trait.
+						#Ask me for further details. -Blue
+						meta_effect = {
+							text = {
+								replace_unit_leader_trait = {
+									trait = night_test_trait
+									replace = [TRAIT]
+								}
+							}
+							TRAIT = "[?v.GetTokenKey]"
+						}
+						if = {
+							#If this is true, then the unit leader has v as a trait
+							limit = {
+								check_variable = { leader_modifier@night_test_trait_modifier = 1 }
+							}
+							add_to_array = { night_related_traits = v }
+							if = {
+								limit = {
+									NOT = { is_in_array = { global.unit_leaders_to_update = THIS } }
+								}
+								add_to_array = { global.unit_leaders_to_update = THIS }
+							}
+							
+							#Remove the test trait
+							remove_unit_leader_trait = night_test_trait
+						}
+					}
+				}
+				
 				add_ai_strategy = {
 					type = pp_spend_priority
 					id = guarantee
@@ -496,6 +542,10 @@ on_actions = {
 					add_ideas = hippogriff_race
 				}
 				else_if = {
+					limit = { is_hyena_race = yes }
+					add_ideas = hyena_race
+				}
+				else_if = {
 					limit = { is_zebra_race = yes }
 					add_ideas = zebra_race
 				}
@@ -534,6 +584,10 @@ on_actions = {
 				else_if = {
 					limit = { is_yeti_race = yes }
 					add_ideas = yeti_race
+					country_event = {
+						id = fantasyflavor.18
+						days = 320
+					}
 				}
 				else_if = {
 					limit = { is_polar_race = yes }
@@ -1026,6 +1080,56 @@ on_actions = {
 					}
 					set_state_flag = JEV_cores
 				}
+			}
+			for_each_scope_loop = {
+				array = HAY.original_cores
+				set_state_flag = great_lakes_state
+				add_to_array = { global.great_lake_states = THIS }
+			}
+			for_each_scope_loop = {
+				array = ZUG.original_cores
+				set_state_flag = great_lakes_state
+				add_to_array = { global.great_lake_states = THIS }
+			}
+			for_each_scope_loop = {
+				array = MSS.original_cores
+				set_state_flag = great_lakes_state
+				add_to_array = { global.great_lake_states = THIS }
+			}
+			for_each_scope_loop = {
+				array = ZWA.original_cores
+				set_state_flag = great_lakes_state
+				add_to_array = { global.great_lake_states = THIS }
+			}
+			for_each_scope_loop = {
+				array = MAZ.original_cores
+				set_state_flag = great_lakes_state
+				add_to_array = { global.great_lake_states = THIS }
+			}
+			for_each_scope_loop = {
+				array = ZEL.original_cores
+				set_state_flag = great_lakes_state
+				add_to_array = { global.great_lake_states = THIS }
+			}
+			for_each_scope_loop = {
+				array = SON.original_cores
+				set_state_flag = great_lakes_state
+				add_to_array = { global.great_lake_states = THIS }
+			}
+			for_each_scope_loop = {
+				array = MSH.original_cores
+				set_state_flag = great_lakes_state
+				add_to_array = { global.great_lake_states = THIS }
+			}
+			for_each_scope_loop = {
+				array = TIM.original_cores
+				set_state_flag = great_lakes_state
+				add_to_array = { global.great_lake_states = THIS }
+			}
+			for_each_scope_loop = {
+				array = ALO.original_cores
+				set_state_flag = great_lakes_state
+				add_to_array = { global.great_lake_states = THIS }
 			}
 			log = "[GetDateText] Equestria at War main on_startup end"
 		}
