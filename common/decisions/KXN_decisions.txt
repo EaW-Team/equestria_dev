@@ -10806,7 +10806,7 @@ KXN_Tributaries_Category = {
 
 KXN_Aerostat_Category = {
 	KXN_Aerostat_Transport_Decision = {
-		icon = X
+		icon = airship_mooring
 		allowed = { tag = KXN }
 		ai_will_do = { factor = 20 }
 		
@@ -10816,6 +10816,8 @@ KXN_Aerostat_Category = {
 		visible = {
 			NOT = { has_country_flag = KXN_Aerostat_Transport_Active_Flag }
 			NOT = { has_global_flag = KXN_The_Shattering_Happened }
+			has_country_flag = KXN_Aerostat_Transport_Decision_Show_Flag
+			has_country_flag = KXN_Focus_MAST_Flag
 		}
 		
 		target_trigger = {
@@ -10880,7 +10882,7 @@ KXN_Aerostat_Category = {
 		}
 	}
 	KXN_Aerostat_Transport_Decision_Choose = {
-		icon = X
+		icon = airship_mooring
 		allowed = { tag = KXN }
 		ai_will_do = { factor = 20 }
 		
@@ -10949,8 +10951,19 @@ KXN_Aerostat_Category = {
 					divide_temp_variable = { KXN.KXN_Aerostat_Transport_Duration = 100 }
 					clamp_temp_variable = { var = KXN.KXN_Aerostat_Transport_Duration min = 1 }
 					KXN = {
-						set_variable = { KXN_Aerostat_Transport_Req_TT_Var = KXN.num_armies_in_state@PREV }
 						set_country_flag = KXN_Aerostat_Transport_Ongoing_Flag
+						set_variable = { KXN_Aerostat_Transport_Req_TT_Var = KXN.num_armies_in_state@PREV }
+						set_temp_variable = { KXN_Aerostat_Transport_Req_Var = KXN_Aerostat_Transport_Req_TT_Var }
+						multiply_temp_variable = { KXN_Aerostat_Transport_Req_Var = 5 }
+						subtract_from_temp_variable = { KXN_Aerostat_Transport_Req_Var = 50 }
+						set_temp_variable = { KXN_Aerostat_Transport_Req_Neg_Var = 0 }
+						subtract_from_temp_variable = { KXN_Aerostat_Transport_Req_Neg_Var = KXN_Aerostat_Transport_Req_Var }
+						add_equipment_to_stockpile = {
+							type = medium_airship_equipment_0
+							amount = KXN_Aerostat_Transport_Req_Neg_Var
+						}
+						add_to_array = { KXN_Aerostat_Transport_Req_Array = KXN_Aerostat_Transport_Req_Var }
+						country_event = { id = lan_kir_utility.2222 days = 30 }
 					}
 				}
 				KXN_SEND_TO_ISLAND = yes
@@ -10987,13 +11000,6 @@ KXN_Aerostat_Category = {
 							set_temp_variable = { KXN_Aerostat_Transport_Req_Var = KXN_Aerostat_Transport_Req_TT_Var }
 							multiply_temp_variable = { KXN_Aerostat_Transport_Req_Var = 5 }
 							subtract_from_temp_variable = { KXN_Aerostat_Transport_Req_Var = 50 }
-							subtract_from_temp_variable = { KXN_Aerostat_Transport_Req_Neg_Var = KXN_Aerostat_Transport_Req_Var }
-							add_equipment_to_stockpile = {
-								type = medium_airship_equipment_0
-								amount = KXN_Aerostat_Transport_Req_Neg_Var
-							}
-							add_to_array = { KXN_Aerostat_Transport_Req_Array = KXN_Aerostat_Transport_Req_Var }
-							country_event = { id = lan_kir_utility.2222 days = 30 }
 						}
 					}
 				}
@@ -11094,7 +11100,7 @@ KXN_Aerostat_Category = {
 		}
 	}
 	KXN_Aerostat_Transport_Recall = {
-		icon = X
+		icon = airship_mooring
 		allowed = { tag = KXN }
 		ai_will_do = { factor = 20 }
 		
@@ -11110,6 +11116,33 @@ KXN_Aerostat_Category = {
 			clear_variable = KXN.KXN_Aerostat_Transport_Req_TT_Var
 			clr_country_flag = KXN_Aerostat_Transport_Ongoing_Flag
 			clear_global_event_target = KXN_Aerostat_Transport_Origin
+		}
+	}
+	KXN_Aerostat_Transport_Decision_HIDE = {
+		icon = airship_mooring
+		allowed = { tag = KXN }
+		visible = {
+			has_country_flag = KXN_Focus_MAST_Flag
+			has_country_flag = KXN_Aerostat_Transport_Decision_Show_Flag
+			NOT = { has_country_flag = KXN_Aerostat_Transport_Active_Flag }
+			NOT = { has_global_flag = KXN_The_Shattering_Happened }
+		}
+		complete_effect = {
+			clr_country_flag = KXN_Aerostat_Transport_Decision_Show_Flag
+			custom_effect_tooltip = KXN_Aerostat_Transport_Decision_HIDE_tt
+		}
+	}
+	KXN_Aerostat_Transport_Decision_SHOW = {
+		icon = airship_mooring
+		allowed = { tag = KXN }
+		visible = {
+			has_country_flag = KXN_Focus_MAST_Flag
+			NOT = { has_country_flag = KXN_Aerostat_Transport_Decision_Show_Flag }
+			NOT = { has_global_flag = KXN_The_Shattering_Happened }
+		}
+		complete_effect = {
+			set_country_flag = KXN_Aerostat_Transport_Decision_Show_Flag
+			custom_effect_tooltip = KXN_Aerostat_Transport_Decision_SHOW_tt
 		}
 	}
 	KXN_Aerostat_CAS_Decision = {
@@ -11406,26 +11439,6 @@ KXN_Aerostat_Category = {
 			custom_effect_tooltip = decision_cost_airship_25_return_tt
 		}
 	}
-	KXN_Aerostat_Bomb_Upgrade_Decision = {
-		icon = CTH_Militarists
-		allowed = { tag = KXN }
-		ai_will_do = { factor = 0 }
-
-		fire_only_once = yes
-		custom_cost_text = decision_cost_CP_25_army_xp_50
-		custom_cost_trigger = {
-			has_army_experience > 50
-			check_variable = { var = command_power value = 25 compare = greater_than_or_equals }
-		}
-		
-		complete_effect = {
-			log = "[GetDateText]: [Root.GetName]: Decision KXN_Aerostat_Bomb_Upgrade_Decision"
-			hidden_effect = { army_experience = -50 add_command_power = -25 }
-			set_variable = { var = KXN_Aerostat_Bomb_Decision_Damage_Var value = 1.25 }
-			add_ideas = KXN_Aerostatic_Bombardment_Platform
-			custom_effect_tooltip = KXN_Aerostatic_Bombardment_Platform_tt
-		}
-	}
 	KXN_Aerostat_Bomb_Decision_HIDE = {
 		icon = airship_bomb
 		allowed = { tag = KXN }
@@ -11512,6 +11525,26 @@ KXN_Aerostat_Category = {
 		complete_effect = {
 			set_country_flag = KXN_Aerostat_Patrol_Decision_Show_Flag
 			custom_effect_tooltip = KXN_Aerostat_Patrol_Decision_SHOW_tt
+		}
+	}
+	KXN_Aerostat_Bomb_Upgrade_Decision = {
+		icon = CTH_Militarists
+		allowed = { tag = KXN }
+		ai_will_do = { factor = 0 }
+
+		fire_only_once = yes
+		custom_cost_text = decision_cost_CP_25_army_xp_50
+		custom_cost_trigger = {
+			has_army_experience > 50
+			check_variable = { var = command_power value = 25 compare = greater_than_or_equals }
+		}
+		
+		complete_effect = {
+			log = "[GetDateText]: [Root.GetName]: Decision KXN_Aerostat_Bomb_Upgrade_Decision"
+			hidden_effect = { army_experience = -50 add_command_power = -25 }
+			set_variable = { var = KXN_Aerostat_Bomb_Decision_Damage_Var value = 1.25 }
+			add_ideas = KXN_Aerostatic_Bombardment_Platform
+			custom_effect_tooltip = KXN_Aerostatic_Bombardment_Platform_tt
 		}
 	}
 }
