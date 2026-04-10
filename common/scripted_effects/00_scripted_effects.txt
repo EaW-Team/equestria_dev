@@ -1848,3 +1848,249 @@ immediate_war_declare_on_wargoal_target = {
 	}
 }
 
+#Returns 3 arrays
+#temp_city_vps for VPs bigger than 10
+#temp_town_vps for VPs bigger than 5
+#temp_village_vps for all smaller VPs
+get_vp_provinces_by_size = {
+	hidden_effect = {
+		clear_temp_array = temp_state_vp_provinces
+		clear_temp_array = temp_city_vps
+		clear_temp_array = temp_town_vps
+		clear_temp_array = temp_village_vps
+		set_variable = { test_province = 0 }
+		set_variable = { state_province_count = 0 }
+		
+		set_temp_variable = { old_owner = owner }
+		transfer_state_to = SOL
+		SOL = {
+			meta_effect = {
+				text = {
+					create_faction = "[STATE_NAME]"
+				}
+				STATE_NAME = "[PREV.GetName]"
+			}
+			division_template = {
+				name = "ABABABABABABABABA"
+				is_locked = yes
+				regiments = {
+					infantry = { x = 0 y = 0 }
+				}
+			}
+		}
+		set_state_name = "ABABABABABABABABA"
+		for_each_loop = {
+			array = global.province_controllers
+			value = v
+			index = i
+			break = break
+			
+			if = {
+				limit = {
+					check_variable = { v = SOL }
+				}
+				add_to_temp_variable = { state_province_count = 1 }
+				meta_effect = {
+					text = {
+						add_victory_points = {
+							province = [PROVINCE]
+							value = 100
+						}
+					}
+					PROVINCE = "[?i]"
+				}
+				if = {
+					limit = {
+						SOL = {
+							meta_trigger = {
+								text = {
+									has_template = "[CAPITAL_NAME]"
+								}
+								CAPITAL_NAME = "[PREV.GetCapitalVictoryPointName]"
+							}
+						}
+					}
+					set_temp_variable = { test_province = i }
+				}
+				else = {
+					add_to_temp_array = { temp_state_vp_provinces = i }
+				}
+				meta_effect = {
+					text = {
+						add_victory_points = {
+							province = [PROVINCE]
+							value = -100
+						}
+					}
+					PROVINCE = "[?i]"
+				}
+			}
+		}
+		if = { #Only test VP values in states that actually have VPs
+			limit = {
+				check_variable = { temp_state_vp_provinces^num > 0 }
+			}
+			if = {
+				limit = {
+					check_variable = { state_province_count > 1 }
+				}
+				if = { #For states with multiple provinces that are all VPs (literally just Romau)
+					limit = {
+						check_variable = { test_province = 0 }
+					}
+					
+					#Romau is the only one, so we'll just hardcode it. Fallback is counting all provinces as cities
+					if = {
+						limit = {
+							state = 674
+						}
+						add_to_temp_array = { temp_town_vps = 4071 }
+						add_to_temp_array = { temp_city_vps = 1027 }
+					}
+					else = {
+						for_each_loop = {
+							array = temp_state_vp_provinces
+							value = v
+							add_to_temp_array = { temp_city_vps = v }
+						}
+					}
+				}
+				else = { #For normal states
+					for_each_loop = {
+						array = temp_state_vp_provinces
+						value = v
+						meta_effect = {
+							text = {
+								add_victory_points = {
+									province = [TEST_PROVINCE]
+									value = 101
+								}
+								add_victory_points = {
+									province = [PROVINCE]
+									value = 100
+								}
+							}
+							PROVINCE = "[?v]"
+							TEST_PROVINCE = "[?test_province]"
+						}
+						set_temp_variable = { temp_vps = 0 }
+						while_loop_effect = {
+							limit = {
+								NOT = {
+									SOL = {
+										meta_trigger = {
+											text = {
+												has_template = "[CAPITAL_NAME]"
+											}
+											CAPITAL_NAME = "[PREV.GetCapitalVictoryPointName]"
+										}
+									}
+								}
+							}
+							meta_effect = {
+								text = {
+									add_victory_points = {
+										province = [PROVINCE]
+										value = -5
+									}
+								}
+								PROVINCE = "[?v]"
+								#debug = yes
+							}
+							add_to_temp_variable = { temp_vps = 5 }
+						}
+						if = {
+							limit = {
+								check_variable = { temp_vps > 10 }
+							}
+							add_to_temp_array = { temp_city_vps = v }
+						}
+						else_if = {
+							limit = {
+								check_variable = { temp_vps > 5 }
+							}
+							add_to_temp_array = { temp_town_vps = v }
+						}
+						else = {
+							add_to_temp_array = { temp_village_vps = v }
+						}
+						
+						set_temp_variable = { temp_vps_to_restore = -100 }
+						add_to_temp_variable = { temp_vps_to_restore = temp_vps }
+						meta_effect = {
+							text = {
+								add_victory_points = {
+									province = [TEST_PROVINCE]
+									value = -101
+								}
+								add_victory_points = {
+									province = [PROVINCE]
+									value = [VPS_AMOUT]
+								}
+							}
+							PROVINCE = "[?v]"
+							TEST_PROVINCE = "[?test_province]"
+							VPS_AMOUT = "[?temp_vps_to_restore]"
+						}
+					}
+				}
+			}
+			else = { #For 1 province states with VPs
+				
+				#Impossible to determine the actual VP amount in this case. So we'll base it on the state category.
+				if = {
+					limit = {
+						OR = {
+							has_state_category = city
+							has_state_category = large_city
+							has_state_category = metropolis
+							has_state_category = megalopolis
+						}
+					}
+					add_to_temp_array = { temp_city_vps = temp_state_vp_provinces^0 }
+				}
+				else_if = {
+					limit = {
+						OR = {
+							has_state_category = large_town
+							has_state_category = town
+						}
+					}
+					add_to_temp_array = { temp_town_vps = temp_state_vp_provinces^0 }
+				}
+				else = {
+					add_to_temp_array = { temp_village_vps = temp_state_vp_provinces^0 }
+				}
+			}
+		}
+		meta_effect = {
+			text = {
+				set_state_name = "[FACTION]"
+			}
+			FACTION = "[SOL.GetFactionName]"
+		}
+		SOL = {
+			delete_unit_template_and_units = {
+				division_template = "ABABABABABABABABA"
+			}
+			dismantle_faction = yes
+		}
+		transfer_state_to = var:old_owner
+		
+		for_each_loop = {
+			array = temp_city_vps
+			value = v
+			log = "City VP: [?v]"
+		}
+		for_each_loop = {
+			array = temp_town_vps
+			value = v
+			log = "Town VP: [?v]"
+		}
+		for_each_loop = {
+			array = temp_village_vps
+			value = v
+			log = "Village VP: [?v]"
+		}
+	}
+}
