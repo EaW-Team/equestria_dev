@@ -12,7 +12,7 @@ PixelShader =
 	static const float epsilon = 0.00196078431;
 	
 	//Coordinates of the test point
-	static const float2 testCoords = float2( 0.10327f, 0.499f );
+	static const float2 testCoords = float2( 0.9675f, 0.499f );
 	
 	//Untility function to check if day/night overrides need to be applied
 	int dayNightOverrideCheck(in sampler2D gbChannel) {
