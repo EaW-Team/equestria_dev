@@ -192,60 +192,146 @@ AES_will_declare_on_recursive_tooltip = {
         AES_will_declare_on_recursive_tooltip = yes
     }
 }
+
+#temp_states array is input
 AES_normalize_names = {
-	set_temp_variable = { temp_state_num = state_number }
-	add_to_temp_variable = { temp_state_num = 1 }
-	custom_effect_tooltip = AES_normalize_names_tt
 	hidden_effect = {
-		if = {
-			limit = {
-				NOT = { has_state_flag = AES_has_been_normalized }
-			}
-			get_vp_provinces_by_size = yes
-			for_each_loop = {
-				array = temp_city_vps
-				value = v
-				add_to_variable = { ROOT.city_number = 1 }
-				meta_effect = {
-					text = {
-						set_province_name = { id = [PROVINCE] name = "City [NUMBER]" }
+		for_each_scope_loop = {
+			array = temp_states
+			if = {
+				limit = {
+					NOT = { has_state_flag = AES_has_been_normalized }
+				}
+				add_building_construction = {
+					type = province_test_building
+					level = 1
+					instant_build = yes
+					province = {
+						all_provinces = yes
+						limit_to_victory_point > 0
 					}
-					PROVINCE = "[?v]"
-					NUMBER = "[?ROOT.city_number]"
 				}
-			}
-			for_each_loop = {
-				array = temp_town_vps
-				value = v
-				add_to_variable = { ROOT.town_number = 1 }
-				meta_effect = {
-					text = {
-						set_province_name = { id = [PROVINCE] name = "Town [NUMBER]" }
+				add_building_construction = {
+					type = province_test_building
+					level = 1
+					instant_build = yes
+					province = {
+						all_provinces = yes
+						limit_to_victory_point > 5
 					}
-					PROVINCE = "[?v]"
-					NUMBER = "[?ROOT.town_number]"
 				}
-			}
-			for_each_loop = {
-				array = temp_village_vps
-				value = v
-				add_to_variable = { ROOT.village_number = 1 }
-				meta_effect = {
-					text = {
-						set_province_name = { id = [PROVINCE] name = "Village [NUMBER]" }
+				add_building_construction = {
+					type = province_test_building
+					level = 1
+					instant_build = yes
+					province = {
+						all_provinces = yes
+						limit_to_victory_point > 10
 					}
-					PROVINCE = "[?v]"
-					NUMBER = "[?ROOT.village_number]"
 				}
 			}
-			add_to_variable = { ROOT.state_number = 1 }
-			meta_effect = {
-				text = {
-					set_state_name = "State [NUMBER]"
-				}
-				NUMBER = "[?ROOT.state_number]"
-			}
-			set_state_flag = AES_has_been_normalized
 		}
+		1 = {
+			for_each_loop = {
+				array = global.province_controllers
+				index = i
+				if = {
+					limit = {
+						meta_trigger = {
+							text = {
+								any_province_building_level = {
+									province = {
+										id = [PROVINCE]
+									}
+									building = province_test_building
+									level > 2
+								}
+							}
+							PROVINCE = "[?i]"
+						}
+					}
+					add_to_variable = { ROOT.city_number = 1 }
+					meta_effect = {
+						text = {
+							set_province_name = { id = [PROVINCE] name = "City [NUMBER]" }
+						}
+						PROVINCE = "[?i]"
+						NUMBER = "[?ROOT.city_number]"
+					}
+				}
+				else_if = {
+					limit = {
+						meta_trigger = {
+							text = {
+								any_province_building_level = {
+									province = {
+										id = [PROVINCE]
+									}
+									building = province_test_building
+									level > 1
+								}
+							}
+							PROVINCE = "[?i]"
+						}
+					}
+					add_to_variable = { ROOT.town_number = 1 }
+					meta_effect = {
+						text = {
+							set_province_name = { id = [PROVINCE] name = "Town [NUMBER]" }
+						}
+						PROVINCE = "[?i]"
+						NUMBER = "[?ROOT.town_number]"
+					}
+				}
+				else_if = {
+					limit = {
+						meta_trigger = {
+							text = {
+								any_province_building_level = {
+									province = {
+										id = [PROVINCE]
+									}
+									building = province_test_building
+									level > 0
+								}
+							}
+							PROVINCE = "[?i]"
+						}
+					}
+					add_to_variable = { ROOT.village_number = 1 }
+					meta_effect = {
+						text = {
+							set_province_name = { id = [PROVINCE] name = "Village [NUMBER]" }
+						}
+						PROVINCE = "[?i]"
+						NUMBER = "[?ROOT.village_number]"
+					}
+				}
+			}
+		}
+		for_each_scope_loop = {
+			array = temp_states
+			if = {
+				limit = {
+					NOT = { has_state_flag = AES_has_been_normalized }
+				}
+				set_building_level = {
+					type = province_test_building
+					level = 0
+					province = {
+						all_provinces = yes
+					}
+				}
+				add_to_variable = { ROOT.state_number = 1 }
+				meta_effect = {
+					text = {
+						set_state_name = "State [NUMBER]"
+					}
+					NUMBER = "[?ROOT.state_number]"
+				}
+				set_state_flag = AES_has_been_normalized
+			}
+		}
+		clear_temp_array = temp_states
 	}
 }
