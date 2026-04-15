@@ -220,5 +220,51 @@ PixelShader =
 		return diffuse + specular;
 	}
 	
+	//Overloaded snow related functions
+	float GetSnow( float4 vMudSnowColor, float alpha )
+	{
+		return max(lerp( vMudSnowColor.b, vMudSnowColor.g, vFoWOpacity_FoWTime_SnowMudFade_MaxGameSpeed.z ), alpha * 0.5); //Get winter;
+	}
+
+	float3 ApplySnow( float3 vColor, float3 vPos, inout float3 vNormal, float4 vMudSnowColor, in sampler2D SnowTextureSampler,
+					 in sampler2D SnowNoise, inout float vGlossiness, inout float vSnowAlphaOut, in float alpha)
+	{
+		float vSnowFade = saturate( vPos.y - SNOW_START_HEIGHT );
+		float vNormalFade = saturate( saturate( vNormal.y - SNOW_NORMAL_START ) * SNOW_CLIFFS );
+		float4 vSnowTexture = tex2D( SnowTextureSampler, vPos.xz * SNOW_TILING );
+		float vNoise = tex2D( SnowNoise, vPos.xz * SNOW_NOISE_TILING ).a;
+		
+		float vIsSnow = GetSnow( vMudSnowColor, alpha ); 
+
+		//Increase snow on ridges
+		float vTransp = vNoise;
+		vTransp += saturate( vPos.y - SNOW_RIDGE_START_HEIGHT )*( saturate( (vNormal.y-0.9f) * 1000.0f )*vIsSnow );
+		vTransp = saturate( vTransp );
+		
+		float vSnow = saturate( saturate( vTransp - ( 1.0f - vIsSnow ) ) * 5.0f );
+		float vFrost = saturate( saturate( vTransp + 0.5f ) - ( 1.0f - vIsSnow ) );
+		
+		float vOpacity = cam_distance( SNOW_CAM_MIN, SNOW_CAM_MAX );
+		vOpacity = SNOW_OPACITY_MIN + vOpacity * ( SNOW_OPACITY_MAX - SNOW_OPACITY_MIN );
+		
+		float vSnowAlpha = saturate( ( saturate( vSnow + vFrost ) * vSnowFade * vNormalFade * saturate(vIsSnow * 2.25) * vOpacity ) );
+		float vMinSnow = smoothstep( 0.0f, 1.0f, vIsSnow );
+		
+		vColor = lerp( vColor, vSnowTexture.a * SNOW_COLOR, vSnowAlphaOut * saturate( vSnowAlpha + ( SNOW_FROST_MIN_EFFECT * vMinSnow ) ) );
+
+		// if we want to flatten
+		//vNormal.y += 1.0f * vSnowAlpha;
+		//vNormal = normalize( vNormal );
+
+		float3 vSnowNormal = normalize( vSnowTexture.rbg - 0.5f );
+		vSnowNormal = normalize( RotateVectorByVector( vSnowNormal, vNormal ) );
+		vNormal = normalize(lerp( vNormal, vSnowNormal, vSnowAlpha )); // mah physics!
+
+		vSnowAlphaOut = vSnowAlpha;
+		vGlossiness += vSnowTexture.a * vSnowAlpha * SNOW_SPEC_GLOSS_MULT;
+
+		return vColor;
+	}
+	
 	]]
 }

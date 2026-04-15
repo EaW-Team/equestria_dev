@@ -240,11 +240,11 @@ PixelShader =
 {
 	MainCode PixelShader
 	[[
-		float3 ApplyRiverSnow( float3 vColor, float3 vReflectColor, float3 vPos, inout float3 vNormal, float4 vMudSnowColor, in sampler2D SnowNoise, in float waterSideAlpha, out float vOutSpecGloss )
+		float3 ApplyRiverSnow( float3 vColor, float3 vReflectColor, float3 vPos, inout float3 vNormal, float4 vMudSnowColor, in sampler2D SnowNoise, in float waterSideAlpha, out float vOutSpecGloss, in float alpha )
 		{
 			float vNoiseColor = tex2D( SnowNoise, vPos.xz * SNOW_ICE_NOISE_TILING ).a;
 		
-			float vIsSnow = GetSnow( vMudSnowColor );
+			float vIsSnow = GetSnow( vMudSnowColor, alpha );
 
 			float vOpacity = cam_distance( SNOW_CAM_MIN, SNOW_CAM_MAX );
 			vOpacity = SNOW_OPACITY_MIN + vOpacity * ( SNOW_OPACITY_MAX - SNOW_OPACITY_MIN );
@@ -366,7 +366,7 @@ PixelShader =
 			float vSnowSpecGloss = 0;
 		#ifndef LOW_END_GFX
 			float4 vMudSnow = GetMudSnowColor( Input.vPrePos_Fade.xyz, SnowMudTexture );
-			diffuse = ApplyRiverSnow( diffuse.rgb, reflectiveColor, Input.vPrePos_Fade.xyz, normal, vMudSnow, CityLightsAndSnowNoise, waterSideAlpha.x, vSnowSpecGloss );
+			diffuse = ApplyRiverSnow( diffuse.rgb, reflectiveColor, Input.vPrePos_Fade.xyz, normal, vMudSnow, CityLightsAndSnowNoise, waterSideAlpha.x, vSnowSpecGloss, tex2D( ProvinceSecondaryColorMap, Input.vWorldUV ).a );
 		#endif
 			
 			float vSpecularIntensity = lerp(.085, 0.051, vSnowSpecGloss);

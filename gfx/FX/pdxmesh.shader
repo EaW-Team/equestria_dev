@@ -423,9 +423,9 @@ PixelShader =
 
 	MainCode PixelPdxMeshStandard
 	[[
-		float3 ApplySnowMesh( float3 vColor, float3 vPos, inout float3 vNormal, float4 vFoWColor, out float vSnowAlpha )
+		float3 ApplySnowMesh( float3 vColor, float3 vPos, inout float3 vNormal, float4 vFoWColor, out float vSnowAlpha, in float alpha )
 		{
-			float vIsSnow = GetSnow( vFoWColor );
+			float vIsSnow = GetSnow( vFoWColor, alpha );
 			float vSnowFade = saturate( saturate( vNormal.y - saturate( 1.0f - vIsSnow ) )*vIsSnow*5.5f*saturate( ( vNormal.y - 0.5f ) * 1000.0f ) );
 						
 			float vOpacity = cam_distance( SNOW_CAM_MIN, SNOW_CAM_MAX );
@@ -502,22 +502,22 @@ PixelShader =
 			// self shadowing
 			float fShadowTerm = 1.0f;//CalculateShadowCascaded(vPos, ShadowMap);
 			//fShadowTerm = (1.0f - SHADOW_WEIGHT_MESH) + SHADOW_WEIGHT_MESH * fShadowTerm;
-
+			
+			float2 map_uv = float2( ( ( vPos.x+0.5f ) / MAP_SIZE_X ), ( ( vPos.z+0.5f-MAP_SIZE_Y ) / -MAP_SIZE_Y ));
+			
 			float vSnowAlpha = 0;
 		#ifdef PDX_SNOW
 			float4 vFoWColor = GetMudSnowColor( vPos, SnowMudData );
-			vColor = ApplySnowMesh( vColor, vPos, vNormal, vFoWColor, vSnowAlpha );	
+			vColor = ApplySnowMesh( vColor, vPos, vNormal, vFoWColor, vSnowAlpha, tex2D( ProvinceSecondaryColorMap, map_uv ).a );
 		#endif
 
 		#ifdef PDX_GRADIENT_BORDERS
 			// Gradient Borders
-			float2 map_uv = float2( ( ( vPos.x+0.5f ) / MAP_SIZE_X ), ( ( vPos.z+0.5f-MAP_SIZE_Y ) / -MAP_SIZE_Y ));
-			
 			float vBloomAlpha = 0.0f;
 			gradient_border_apply( vColor.rgb, vNormal, map_uv, GradientBorderChannel1, GradientBorderChannel2, 1.0f, vGBCamDistOverride_GBOutlineCutoff.zw, vGBCamDistOverride_GBOutlineCutoff.xy, vBloomAlpha );
 
 			// Secondary color mask
-			secondary_color_mask( vColor.rgb, vNormal, map_uv, ProvinceSecondaryColorMap, vBloomAlpha );	
+			//secondary_color_mask( vColor.rgb, vNormal, map_uv, ProvinceSecondaryColorMap, vBloomAlpha );	
 		#endif
 		
 			lightingProperties._WorldSpacePos = vPos;

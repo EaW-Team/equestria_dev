@@ -229,12 +229,12 @@ PixelShader =
 {
 	MainCode PixelShader
 	[[
-		float3 ApplyIce( float3 vColor, float2 vPos, inout float3 vNormal, float4 vMudSnowColor, float2 vIceUV, out float vIceFade )
+		float3 ApplyIce( float3 vColor, float2 vPos, inout float3 vNormal, float4 vMudSnowColor, float2 vIceUV, out float vIceFade, in float alpha )
 		{
 			float4 vIceDiffuse = tex2D( IceDiffuse, vIceUV );
 			float vIceNoise = tex2D( IceNoise, ( vPos + 0.5f ) * ICE_NOISE_TILING ).r;
 		
-			float vSnow = saturate( GetSnow( vMudSnowColor ) - 0.0f );
+			float vSnow = saturate( GetSnow( vMudSnowColor, alpha ) - 0.0f );
 			
 
 			vIceFade = vSnow*8.0f;
@@ -343,7 +343,7 @@ PixelShader =
 			float vIceFade = 0.0f;
 		#ifndef LOW_END_GFX
 			float4 vMudSnowColor = GetMudSnowColor( Input.pos, SnowMudTexture );
-			refractiveColor = ApplyIce( refractiveColor, Input.pos.xz, normal, vMudSnowColor, Input.uv_ice, vIceFade );
+			refractiveColor = ApplyIce( refractiveColor, Input.pos.xz, normal, vMudSnowColor, Input.uv_ice, vIceFade, tex2D( ProvinceSecondaryColorMap, Input.uv ).a );
 
 			vRefractionDistortion *= 1.0f - vIceFade;
 			vSpecularIntensity += vIceFade * 0.07f;
@@ -364,10 +364,10 @@ PixelShader =
 			float3 Darkness = float3(0,0,0); 
 			refractiveColor = lerp(refractiveColor, Darkness, 0.2f);
 			
-			secondary_color_mask( refractiveColor, normal, 
-				Input.uv - vRefractionDistortion * 0.001, 
-				ProvinceSecondaryColorMap, 
-				vBloomAlpha );
+			//secondary_color_mask( refractiveColor, normal, 
+			//	Input.uv - vRefractionDistortion * 0.001, 
+			//	ProvinceSecondaryColorMap, 
+			//	vBloomAlpha );
 
 			LightingProperties lightingProperties;
 			lightingProperties._WorldSpacePos = Input.pos;

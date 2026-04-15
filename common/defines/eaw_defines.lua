@@ -49,6 +49,8 @@ NDefines.NMilitary.EXPERIENCE_COMBAT_FACTOR = 0.05
 NDefines.NMilitary.ARMY_EXP_BASE_LEVEL = 5
 NDefines.NMilitary.BASE_CAPTURE_EQUIPMENT_RATIO = 0.02
 NDefines.NMilitary.BASE_FEMALE_DIVISIONAL_COMMANDER_CHANCE = 0.5 -- 50% of time by default, female_divisional_commander_chance modifier is additive
+NDefines.NMilitary.BORDER_WAR_ATTRITION_FACTOR = 0.0			   -- How much of borderwar balance of power makes it into attrition
+NDefines.NMilitary.BORDER_WAR_VICTORY = 100.0					   -- At wich border war balance of power is victory declared
 
 NDefines.NNavy.SCREENS_TO_CAPITAL_RATIO = 3.0 -- Vanilla is 4.0, mostly AI stuff
 NDefines.NNavy.NAVAL_MINES_INTEL_DIFF_FACTOR = 0.1 -- Vanilla is 0.5, reverted to pre-AAT value
