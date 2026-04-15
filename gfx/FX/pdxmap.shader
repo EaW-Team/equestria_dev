@@ -445,15 +445,6 @@ PixelShader =
 
 				float colorSelector = frac(alphaWaveAngle / (1 * 3.141592));
 
-				float3 shieldColorArray[7];
-				shieldColorArray[0] = float3(0.5, 0.0, 1.0);
-				shieldColorArray[1] = float3(1.0, 0.75, 0.0);
-				shieldColorArray[2] = float3(0.0, 0.75, 0.0);
-				shieldColorArray[3] = float3(0.0, 0.75, 1.0);
-				shieldColorArray[4] = float3(1.0, 0.0, 1.0);
-				shieldColorArray[5] = float3(1.0, 0.0, 0.0);
-				shieldColorArray[6] = shieldColorArray[0];
-
 				float secondShieldIndex = ceil(6 * colorSelector);
 				float firstShieldIndex = secondShieldIndex - 1;
 
