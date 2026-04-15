@@ -59,18 +59,18 @@ VertexShader =
 		    VS_OUTPUT Out;
 			Out.vTexCoord = v.vTexCoord;
 			Out.vPosition_in = float4(v.vPosition, 0); // The magic to avoid the sampler : doing pixel manipulation after the vertex shader
-			float size_img[] = {128.0, 8.0};
-			float angle = (float)(((int)(Offset * 3.0) >> 7) & 0xFF)/256.0 * 2*3.14159265;
+			float2 size_img = float2(128.0, 8.0);
+			float angle = float((int(Offset.x * 3.0) >> 7) & 0xFF)/256.0 * 2*3.14159265;
 
 			float3 tmp_position = v.vPosition;
-			tmp_position.x -= size_img[0]/2;
-			tmp_position.y -= size_img[1]/2;
+			tmp_position.x -= size_img.x/2;
+			tmp_position.y -= size_img.y/2;
 			float3x3 rot_matrice = float3x3(cos(angle), -sin(angle), 0.0,
 											sin(angle), cos(angle), 0.0,
 											0.0, 0.0, 0.0);
 			tmp_position = mul(rot_matrice, tmp_position);
-			tmp_position.x += size_img[0]/2;
-			tmp_position.y += size_img[1]/2;
+			tmp_position.x += size_img.x/2;
+			tmp_position.y += size_img.y/2;
 			Out.vPosition  = mul( WorldViewProjectionMatrix, float4( tmp_position.xyz, 1 ) );
 			
 		    return Out;
@@ -86,20 +86,20 @@ PixelShader =
 	[[
 		float4 main( VS_OUTPUT v ) : PDX_COLOR
 		{
-			float bound_size[] = {5.0, 3.0, 5.0};
-			float size_link = (float)((int)(Offset * 3.0) & 0x7F);
+			float3 bound_size = float3(5.0, 3.0, 5.0);
+			float size_link = float(int(Offset.x * 3.0) & 0x7F);
 			float max_size_link = 3.0*39.0;
 			float size_img = 128.0;
-			float bound_size_link = (size_img - (bound_size[0] + size_link + bound_size[2])) / 2;
+			float bound_size_link = (size_img - (bound_size.x + size_link + bound_size.z)) / 2;
 			float2 tmp;
 
 			// Translation to center the link
 			float2 pos_trans = float2(v.vPosition_in.x - bound_size_link,
 									  v.vPosition_in.y);
-			if (pos_trans.x < bound_size[0]) {
+			if (pos_trans.x < bound_size.x) {
 				// Left bound
 				tmp = float2((pos_trans.x) / 3 / size_img, pos_trans.y / 8.0);
-			} else if (pos_trans.x < bound_size[0] + size_link) {
+			} else if (pos_trans.x < bound_size.x + size_link) {
 				// Middle section
 				tmp = float2((pos_trans.x) / 3 / size_img, pos_trans.y / 8.0);
 			} else {
@@ -110,7 +110,7 @@ PixelShader =
 			float4 OutColor = tex2D( MapTexture, tmp);
 			// Masking if out of link bounds
 			if ((v.vPosition_in.x <= bound_size_link) ||
-				(v.vPosition_in.x > size_link + bound_size[0] + bound_size[2] + bound_size_link)) {
+				(v.vPosition_in.x > size_link + bound_size.x + bound_size.z + bound_size_link)) {
 				OutColor = float4(0, 0, 0, 0);
 			}
 			return OutColor;
@@ -122,30 +122,30 @@ PixelShader =
 	[[
 		float4 main( VS_OUTPUT v ) : PDX_COLOR
 		{
-			float bound_size[] = {5.0, 3.0, 5.0};
-			float size_link = (float)((int)(Offset * 3.0) & 0x7F);
+			float3 bound_size = float3(5.0, 3.0, 5.0);
+			float size_link = float(int(Offset.x * 3.0) & 0x7F);
 			float max_size_link = 3.0*39.0;
 			float size_img = 128.0;
-			float bound_size_link = (size_img - (bound_size[0] + size_link + bound_size[2])) / 2;
+			float bound_size_link = (size_img - (bound_size.x + size_link + bound_size.z)) / 2;
 			float2 tmp;
 
 			int middle_section_anim_duration = 5;
-			int animated_filling[2] = {2, 2};
-			int static_component[2] = {bound_size[0] - animated_filling[0],
-									   bound_size[1] - animated_filling[1]};
+			int2 animated_filling = int2(2, 2);
+			int2 static_component = int2(bound_size.x - animated_filling.x,
+									   bound_size.y - animated_filling.y);
 
 			// Linear filling rate => Double the size, double the time to fill the link
-			int filling = (int)floor((Time - AnimationTime)*100);
-			int anim_bound = min(static_component[0] - 1 + animated_filling[0] + size_link + animated_filling[1] + middle_section_anim_duration - 1, filling);
+			int filling = int(floor((Time - AnimationTime)*100));
+			int anim_bound = int(min(static_component.x - 1 + animated_filling.x + size_link + animated_filling.y + middle_section_anim_duration - 1, filling));
 			//anim_bound = 2 + 2 + size_link + 5; // Debugging line, to test fixed bound value
 
 			// Translating to center the link
 			float2 pos_trans = float2(v.vPosition_in.x - bound_size_link,
 									  v.vPosition_in.y);
-			if (pos_trans.x < bound_size[0]) {
+			if (pos_trans.x < bound_size.x) {
 				// Left bound
 				tmp = float2((pos_trans.x) / 3 / size_img, pos_trans.y / 8.0);
-			} else if (pos_trans.x < bound_size[0] + size_link) {
+			} else if (pos_trans.x < bound_size.x + size_link) {
 				// Middle section
 				tmp = float2((pos_trans.x) / 3 / size_img, pos_trans.y / 8.0);
 			} else {
@@ -156,27 +156,27 @@ PixelShader =
 			// Animation
 			// anim_bound is the progress of filling
 			// stable_bound is when there is no more transitory pixels state to the left of this value
-			int pos_x = (int)pos_trans.x;
+			int pos_x = int(pos_trans.x);
 			int stable_bound = anim_bound - middle_section_anim_duration;
 			if (pos_x <= stable_bound) {
 				tmp.x += 2.0/3.0;
 			} else if (pos_x <= anim_bound) {
-				if (pos_x < bound_size[0]) {
+				if (pos_x < bound_size.x) {
 					// Left bound
-					tmp.x = (128.0 + pos_x + max(anim_bound - static_component[0], 0)*13.0 + 0.5) / 3.0 / size_img;
-				} else if (pos_x < size_link + bound_size[0]) {
+					tmp.x = (128.0 + pos_x + max(anim_bound - static_component.x, 0)*13.0 + 0.5) / 3.0 / size_img;
+				} else if (pos_x < size_link + bound_size.x) {
 					// Middle section
 					tmp.x = (128.0 + 5.0 + (anim_bound - pos_x)*13.0 + 0.5) / 3.0 / size_img;
 				} else {
 					// Right bound
-					tmp.x = (128.0 + 9.0 + pos_x - (size_link + bound_size[0] + 1) + (anim_bound - (size_link + bound_size[0]))*13.0 + 0.5) / 3.0 / size_img;
+					tmp.x = (128.0 + 9.0 + pos_x - (size_link + bound_size.x + 1) + (anim_bound - (size_link + bound_size.x))*13.0 + 0.5) / 3.0 / size_img;
 				}
 			}
 			
 			float4 OutColor = tex2D( MapTexture, tmp);
 			// Masking if out of link bounds
 			if ((v.vPosition_in.x <= bound_size_link) ||
-				(v.vPosition_in.x > size_link + bound_size[0] + bound_size[2] + bound_size_link)) {
+				(v.vPosition_in.x > size_link + bound_size.x + bound_size.z + bound_size_link)) {
 				OutColor = float4(0, 0, 0, 0);
 			}
 			return OutColor;

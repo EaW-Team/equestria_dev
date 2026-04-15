@@ -77,7 +77,7 @@ PixelShader =
 		float4 main( VS_OUTPUT v ) : PDX_COLOR
 		{
 			// Play the animation with a delay
-			float time_offset = (Offset*8) / 100.0;
+			float time_offset = (Offset.x*8) / 100.0;
 			float2 frame_offset = float2(min(max(floor((Time - AnimationTime - time_offset)*14), 0)/8.0, 7.0/8.0), 0.0);
 			float vTime = saturate( (Time - AnimationTime)*16 );
 		    float4 OutColor = tex2D( MapTexture, v.vTexCoord + frame_offset);

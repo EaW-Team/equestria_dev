@@ -449,7 +449,7 @@ PixelShader =
 				float firstShieldIndex = secondShieldIndex - 1;
 
 				float shieldGradient = frac(6.0 * colorSelector);
-				float3 shieldColor = lerp(shieldColorArray[firstShieldIndex], shieldColorArray[secondShieldIndex], shieldGradient);
+				float3 shieldColor = lerp(shieldColorArray[int(firstShieldIndex)], shieldColorArray[int(secondShieldIndex)], shieldGradient);
 
 				vOut.rgb = vOut.rgb * (1.0 - alphaWave) + shieldColor * alphaWave;
 			}
