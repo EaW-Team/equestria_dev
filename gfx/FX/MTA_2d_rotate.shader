@@ -34,11 +34,9 @@ VertexShader =
 		{
 			VS_OUTPUT Out;
 			float vTime = Time - AnimationTime;
-			float pi = 3.141592654;
-			float vAngle = vTime;
 			float2 center = float2(60, 60);
 
-			float xFinal = v.vPosition.x * abs(sin(vAngle)) + center.x * (1 - abs(sin(vAngle)));
+			float xFinal = v.vPosition.x * abs(sin(vTime)) + center.x * (1 - abs(sin(vTime)));
 			float yFinal = v.vPosition.y;
 
 			Out.vPosition = mul(WorldViewProjectionMatrix, float4(xFinal, yFinal, v.vPosition.z, 1));
@@ -55,12 +53,7 @@ PixelShader =
 		float4 main( VS_OUTPUT v ) : PDX_COLOR
 		{
 			float vTime = Time - AnimationTime;
-			float pi = 3.141592654;
-			float vAngle = vTime;
-
-			if (sin(vAngle) < 0){
-				v.vTexCoord.x = -v.vTexCoord.x;
-			}
+			v.vTexCoord.x = sign(sin(vTime)) * v.vTexCoord.x;
 
 			float4 OutColor = tex2D(MapTexture,v.vTexCoord);
 			
