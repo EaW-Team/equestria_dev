@@ -772,7 +772,6 @@ HIE_JRNL_debug_add_all_notes = {
 
 	HIE_JRNL_update_dirty = yes
 }
-
 # Adds a new writing page in the journal
 HIE_JRNL_add_journal_writing = {	
 	add_to_array = { HIE_JRNL_pages_list = temp_writing_id }
@@ -899,4 +898,122 @@ HIE_JRNL_page_turn_jump_left = {
 
 HIE_JRNL_page_turn_jump_right = {
 	set_variable = { HIE_JRNL_prev_page = @right_special }
+}
+
+raze_states_test = {
+	add_to_temp_array = { temp_states = THIS }
+	HIE_raze_vps = yes
+}
+
+#temp_states array is input
+HIE_raze_vps = {
+	hidden_effect = {
+		for_each_scope_loop = {
+			array = temp_states
+			if = {
+				limit = {
+					NOT = { has_state_flag = HIE_has_been_razed }
+				}
+				add_building_construction = {
+					type = province_test_building
+					level = 1
+					instant_build = yes
+					province = {
+						all_provinces = yes
+						limit_to_victory_point > 0
+					}
+				}
+				add_building_construction = {
+					type = province_test_building
+					level = 1
+					instant_build = yes
+					province = {
+						all_provinces = yes
+						limit_to_victory_point > 14
+					}
+				}
+			}
+		}
+		1 = {
+			for_each_loop = {
+				array = global.province_controllers
+				index = i
+				if = {
+					limit = {
+						meta_trigger = {
+							text = {
+								any_province_building_level = {
+									province = {
+										id = [PROVINCE]
+									}
+									building = province_test_building
+									level > 1
+								}
+							}
+							PROVINCE = "[?i]"
+						}
+					}
+					meta_effect = {
+						text = {
+							set_province_name = { id = 20309 name = VICTORY_POINTS_[PROVINCE] }
+						}
+						PROVINCE = "[?i]"
+					}
+					meta_effect = {
+						text = {
+							set_victory_points = {
+								province = [PROVINCE]
+								value = 1
+							}
+							set_province_name = { id = [PROVINCE] name = "[NAME]" }
+						}
+						PROVINCE = "[?i]"
+						NAME = "[GetRuins] [1209.GetCapitalVictoryPointName]"
+					}
+				}
+				else_if = {
+					limit = {
+						meta_trigger = {
+							text = {
+								any_province_building_level = {
+									province = {
+										id = [PROVINCE]
+									}
+									building = province_test_building
+									level > 0
+								}
+							}
+							PROVINCE = "[?i]"
+						}
+					}
+					meta_effect = {
+						text = {
+							set_victory_points = {
+								province = [PROVINCE]
+								value = 0
+							}
+						}
+						PROVINCE = "[?i]"
+					}
+				}
+			}
+		}
+		for_each_scope_loop = {
+			array = temp_states
+			if = {
+				limit = {
+					NOT = { has_state_flag = HIE_has_been_razed }
+				}
+				set_building_level = {
+					type = province_test_building
+					level = 0
+					province = {
+						all_provinces = yes
+					}
+				}
+				set_state_flag = HIE_has_been_razed
+			}
+		}
+		clear_temp_array = temp_states
+	}
 }
