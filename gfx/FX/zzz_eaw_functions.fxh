@@ -9,7 +9,6 @@ PixelShader =
 	
 	//Color of the upper half of gbChannel1 while navy map mode is selected.
 	static const float3 navyMapGBColor = float3(0.033203125f, 0.049804688f, 0.100097659f);
-	static const float3 shielfColorArray[3] = { float3(0.1, 0.1, 0.1), float3(0.1, 0.1, 0.1), float3(0.1, 0.1, 0.1)};
 	static const float epsilon = 0.00196078431;
 	
 	//Coordinates of the test point
