@@ -248,8 +248,9 @@ PixelShader =
 			float3 vNormal = float3(0,1,0);
 			float vSnowAlpha = 0;
 			#ifdef PDX_SNOW
+				float snowMaskFactor = 1.0f - getSecondaryMaskFactor();
 				float4 vFoWColor = GetMudSnowColor( vPos, SnowMudTexture );
-				Color.rgb = ApplySnowMesh( Color.rgb, vPos, vNormal, vFoWColor, vSnowAlpha, tex2D( ProvinceSecondaryColorMap, map_uv ).a );	
+				Color.rgb = ApplySnowMesh( Color.rgb, vPos, vNormal, vFoWColor, vSnowAlpha, tex2D( ProvinceSecondaryColorMap, map_uv ).a * snowMaskFactor );	
 			#endif
 
 			#ifdef PDX_GRADIENT_BORDERS
@@ -258,7 +259,7 @@ PixelShader =
 				gradient_border_apply( Color.rgb, vNormal, map_uv, GradientBorderChannel1, GradientBorderChannel2, 1.0f, vGBCamDistOverride_GBOutlineCutoff.zw, vGBCamDistOverride_GBOutlineCutoff.xy, vBloomAlpha );
 
 				// Secondary color mask
-				//secondary_color_mask( Color.rgb, vNormal, map_uv, ProvinceSecondaryColorMap, vBloomAlpha );	
+				secondary_color_mask( Color.rgb, vNormal, map_uv, ProvinceSecondaryColorMap, vBloomAlpha, getSecondaryMaskFactor() );
 			#endif
 
 			Color.a *= vRailwayAlpha;

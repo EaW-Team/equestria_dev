@@ -300,5 +300,22 @@ PixelShader =
 		return vColor;
 	}
 	
+	void secondary_color_mask( inout float3 vColor, float3 vNormal, float2 vUV, in sampler2D TexMaskSampler, inout float vBloomAlpha, in float alpha )
+	{
+		float4 vColorMask = tex2D( TexMaskSampler, vUV ).rgba;
+		
+		float vOccupationMask = CalculateOccupationMask( vUV );
+		vOccupationMask *= vColorMask.a;
+		vBloomAlpha = vBloomAlpha * ( 1.0f - (vOccupationMask * alpha) );
+		vColor = lerp( vColor, vColorMask.rgb, vOccupationMask * alpha );
+	}
+	
+	//Returns 1 if in construction menu, else 0
+	float getSecondaryMaskFactor()
+	{
+		//vGBCamDistOverride_GBOutlineCutoff.x is 0.6 in the construction menu. So multiply by 1.6666666666 to make it 1
+		return (1.0f - vGBCamDistOverride_GBOutlineCutoff.x) * 1.6666666666f;
+	}
+	
 	]]
 }

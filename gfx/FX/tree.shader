@@ -356,8 +356,9 @@ PixelShader =
 			
 			float vSnowAlpha = 0;
 		#ifndef LOW_END_GFX
+			float snowMaskFactor = 1.0f - getSecondaryMaskFactor();
 			float4 vFoWColor = GetMudSnowColor( In.vPos, SnowMudData );
-			vColor = ApplySnowTree( vColor, In.vPos, vNormal, vFoWColor, vSnowAlpha, tex2D( ProvinceSecondaryColorMap, uv ).a );	
+			vColor = ApplySnowTree( vColor, In.vPos, vNormal, vFoWColor, vSnowAlpha, tex2D( ProvinceSecondaryColorMap, uv ).a * snowMaskFactor );	
 		#endif
 
 			// Gradient Borders
@@ -365,7 +366,7 @@ PixelShader =
 			gradient_border_apply( vColor.rgb, vNormal, uv, GradientBorderChannel1, GradientBorderChannel2, 1.0f, vGBCamDistOverride_GBOutlineCutoff.zw, vGBCamDistOverride_GBOutlineCutoff.xy, vBloomAlpha );
 
 			// Secondary color mask
-			//secondary_color_mask( vColor.rgb, vNormal, uv, ProvinceSecondaryColorMap, vBloomAlpha );			
+			secondary_color_mask( vColor.rgb, vNormal, uv, ProvinceSecondaryColorMap, vBloomAlpha, getSecondaryMaskFactor() );			
 
 			float vSpecular 	= TREE_SPECULAR;
 			float vRoughness 	= TREE_ROUGHNESS;

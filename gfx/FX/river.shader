@@ -366,7 +366,8 @@ PixelShader =
 			float vSnowSpecGloss = 0;
 		#ifndef LOW_END_GFX
 			float4 vMudSnow = GetMudSnowColor( Input.vPrePos_Fade.xyz, SnowMudTexture );
-			diffuse = ApplyRiverSnow( diffuse.rgb, reflectiveColor, Input.vPrePos_Fade.xyz, normal, vMudSnow, CityLightsAndSnowNoise, waterSideAlpha.x, vSnowSpecGloss, tex2D( ProvinceSecondaryColorMap, Input.vWorldUV ).a );
+			float snowMaskFactor = 1.0f - getSecondaryMaskFactor();
+			diffuse = ApplyRiverSnow( diffuse.rgb, reflectiveColor, Input.vPrePos_Fade.xyz, normal, vMudSnow, CityLightsAndSnowNoise, waterSideAlpha.x, vSnowSpecGloss, tex2D( ProvinceSecondaryColorMap, Input.vWorldUV ).a * snowMaskFactor );
 		#endif
 			
 			float vSpecularIntensity = lerp(.085, 0.051, vSnowSpecGloss);
