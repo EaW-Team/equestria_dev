@@ -302,12 +302,15 @@ PixelShader =
 	
 	void secondary_color_mask( inout float3 vColor, float3 vNormal, float2 vUV, in sampler2D TexMaskSampler, inout float vBloomAlpha, in float alpha )
 	{
+		float alphaAdjusted = min(alpha, 1.0f);
 		float4 vColorMask = tex2D( TexMaskSampler, vUV ).rgba;
 		
 		float vOccupationMask = CalculateOccupationMask( vUV );
 		vOccupationMask *= vColorMask.a;
 		vBloomAlpha = vBloomAlpha * ( 1.0f - (vOccupationMask * alpha) );
 		vColor = lerp( vColor, vColorMask.rgb, vOccupationMask * alpha );
+		vBloomAlpha = vBloomAlpha * ( 1.0f - (vOccupationMask * alphaAdjusted) );
+		vColor = lerp( vColor, vColorMask.rgb, vOccupationMask * alphaAdjusted );
 	}
 	
 	//Returns 1 if in construction menu, else 0
@@ -315,6 +318,25 @@ PixelShader =
 	{
 		//vGBCamDistOverride_GBOutlineCutoff.x is 0.6 in the construction menu. So multiply by 1.6666666666 to make it 1
 		return (1.0f - vGBCamDistOverride_GBOutlineCutoff.x) * 1.6666666666f;
+	}
+	
+	float getSecondaryMaskFactor(float4 secondaryColor)
+	{
+		float cond1 = 1.0 - step(0.2, secondaryColor.r);
+		float cond2 = step(0.9, secondaryColor.r) * (1.0 - step(0.34, secondaryColor.g));
+		float cond3 = step(0.4, secondaryColor.g);
+		float cond4 = step(0.00001, secondaryColor.b);
+	
+		return saturate(cond1 + cond2 + cond3 + cond4);
+		
+		//Equivalent to
+		
+		//if (secondaryColor.r < 0.2f || (secondaryColor.r > 0.9 && secondaryColor.g < 0.34)|| secondaryColor.g > 0.4f || secondaryColor.b > 0.0f) {
+		//	return 1.0f;
+		//}
+		//else {
+		//	return 0.0f;
+		//}
 	}
 	
 	]]

@@ -351,7 +351,8 @@ PixelShader =
 			float vSnowAlpha = 1-vSpec;
 			diffuse.rgb = GetOverlay( diffuse.rgb, TerrainColor.rgb, COLORMAP_OVERLAY_STRENGTH );
 			
-			float snowMaskFactor = 1.0f - getSecondaryMaskFactor();
+			float4 secondaryColor = tex2D( ProvinceSecondaryColorMap, Input.uv2 ); 
+			float snowMaskFactor = 1.0f - getSecondaryMaskFactor(secondaryColor);
 			
 			float4 vMudSnow = GetMudSnowColor( Input.prepos, SnowMudData );
 			//float tempFloat = min(tex2D( ProvinceSecondaryColorMap, Input.uv2 ).a, vGBCamDistOverride_GBOutlineCutoff.x - (0.41 * constructionTest));
@@ -363,7 +364,11 @@ PixelShader =
 			gradient_border_apply( diffuse.rgb, normal, Input.uv2, GradientBorderChannel1, GradientBorderChannel2, 1.0f, vGBCamDistOverride_GBOutlineCutoff.zw, vGBCamDistOverride_GBOutlineCutoff.xy, vBloomAlpha );
 
 			// Secondary color mask
-			secondary_color_mask( diffuse.rgb, normal, Input.uv2, ProvinceSecondaryColorMap, vBloomAlpha, getSecondaryMaskFactor() );
+			
+			float3 checkColor = float3( 0.76f, 0.4f, 1.0f);
+			float eppy = 0.5;
+			float3 diff = checkColor - secondaryColor;
+			secondary_color_mask( diffuse.rgb, normal, Input.uv2, ProvinceSecondaryColorMap, vBloomAlpha, 1.0f - snowMaskFactor );
 
 			LightingProperties lightingProperties;
 			lightingProperties._WorldSpacePos = Input.prepos;
