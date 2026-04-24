@@ -237,6 +237,8 @@ NDefines.NFactions.FACTION_INTELLIGENCE_ALLOWED_ADVISOR_TRAIT = {
 	"JER_kindly_enigma",
 	"JER_kindly_enigma_lar",
 	"head_of_intelligence_useless",
+	"HYE_little_shadow_lar",
+	"HYE_little_shadow",
 	"TBK_AF_lightbringer_advisor",
 	"TBK_AF_lightbringer_advisor_expanded"
 }
