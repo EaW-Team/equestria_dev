@@ -926,3 +926,139 @@ sunderer_nuke_effect = {
 		clr_state_flag = NCH_this_was_nuked_before
 	}
 }
+
+
+### In case this needs to be maintained and Yuri isn't available ###
+#
+# The way this code works:
+# 1) First it gets the total amount of indexes in army_leaders or navy_leaders arrays for a given country (NCH in this case)
+# 2) Records that value, subtracts it by one, that way it gets the "ID" of the recently created unit leader and records into a temp variable
+# 3) After that it checks if the generated leader is female (else character is assumed as male), they are assigned a random ID into a variable set within the character scope
+# 4) That variable is checked in EAW_NCH_scripted_localization.txt through [GetNCHLeaderInTraining], if a character isn't a pre-defined unique one, then they are a generic character 
+#	that has a portrait ID, which assigns them a corresponding portrait to that ID. Both their actual portrait and portrait in my GUI line up that way.
+# 5) This code only comes into effect once NCH recruited all the possible army and naval leaders so what I've described in point 1 and 2 does not break.
+#	If breakage does occur - see if there's something happening to how pre-defined army and navy leaders were recruited.
+#
+# Few things of note:
+# 1) Naval leaders despite having a separate effect have ID numbers that come after the the army IDs to avoid confusion, It is highly recommended that it stays
+#	this way so it is easier to handle
+# 2) If you are adding new generic portraits - don't forget to adjust set_variable_to_random so that it can generate a number corresponding to the check of ID in
+#	the scripted loc file
+# 3) In case you are having trouble understanding how the GUI interacts with this or how it functions in general - 
+#	see eaw_NCH_guis.txt, EAW_NCH_scripted_localization.txt, NCH_decisions.txt
+# 4) These effects are executed via an event that is fired from on_unit_leader_created on action in eaw_on_actions, they have to be executed via an event
+#	because for no apparent reason the game refuses to set the portraits from there, had to use a workaround instead 
+# 5) I've left logging effects but commented them out in case someone might need to debug this
+
+NCH_academy_random_army_leader_handler_effect = {
+	set_temp_variable = { index_total = army_leaders }
+	subtract_from_temp_variable = { index_total = 1 }
+	set_temp_variable = { portrait_change_leader = army_leaders^index_total }
+	
+	if = {
+		limit = {
+			var:portrait_change_leader = {
+				is_female = yes
+			}
+		}
+		var:portrait_change_leader = {
+			set_variable_to_random = {
+				var = NCH_portrait_id
+				min = 11
+				max = 16
+				integer = yes
+			}
+			meta_effect = {
+				text = { set_portraits = { army = { large = "[PORTRAIT]" small = "[PORTRAIT]" } } }
+				PORTRAIT = "[GetNCHRandomPortraitArmy]"
+			}
+			# meta_effect = {
+			# 	text = {
+			# 		log = "[ID]"
+			# 	}
+			# 	ID = "[GetNCHRandomPortraitArmy]"
+			# }
+			# log = "[GetDateText]: [Root.GetName]: Leader is [?portrait_change_leader.GetName]; Their Portrait ID is [?NCH_portrait_id]; Character is female;"
+		}
+	}
+	else = {
+		var:portrait_change_leader = {
+			clear_variable = NCH_portrait_id
+			set_variable_to_random = {
+				var = NCH_portrait_id
+				min = 1
+				max = 10
+				integer = yes
+			}
+			set_variable = { NCH_portrait_key = NCH_portrait_id }
+			meta_effect = {
+				text = { set_portraits = { army = { large = "[PORTRAIT]" small = "[PORTRAIT]" } } }
+				PORTRAIT = "[GetNCHRandomPortraitArmy]"
+			}
+			# meta_effect = {
+			# 	text = {
+			# 		log = "[ID]"
+			# 	}
+			# 	ID = "[GetNCHRandomPortraitArmy]"
+			# }
+			# log = "[GetDateText]: [Root.GetName]: Leader is [?portrait_change_leader.GetName]; Their Portrait ID is [?NCH_portrait_id]; Character is male;"
+		}
+	}
+}
+
+
+NCH_academy_random_navy_leader_handler_effect = {
+	set_temp_variable = { index_total = navy_leaders }
+	subtract_from_temp_variable = { index_total = 1 }
+	set_temp_variable = { portrait_change_leader = navy_leaders^index_total }
+	
+	if = {
+		limit = {
+			var:portrait_change_leader = {
+				is_female = yes
+			}
+		}
+		var:portrait_change_leader = {
+			set_variable_to_random = {
+				var = NCH_portrait_id
+				min = 20
+				max = 22
+				integer = yes
+			}
+			meta_effect = {
+				text = { set_portraits = { navy = { large = "[PORTRAIT]" small = "[PORTRAIT]" } } }
+				PORTRAIT = "[GetNCHRandomPortraitNavy]"
+			}
+			# meta_effect = {
+			# 	text = {
+			# 		log = "[ID]"
+			# 	}
+			# 	ID = "[GetNCHRandomPortraitNavy]"
+			# }
+			# log = "[GetDateText]: [Root.GetName]: Leader is [?portrait_change_leader.GetName]; Their Portrait ID is [?NCH_portrait_id]; Character is female;"
+		}
+	}
+	else = {
+		var:portrait_change_leader = {
+			clear_variable = NCH_portrait_id
+			set_variable_to_random = {
+				var = NCH_portrait_id
+				min = 17
+				max = 19
+				integer = yes
+			}
+			set_variable = { NCH_portrait_key = NCH_portrait_id }
+			meta_effect = {
+				text = { set_portraits = { navy = { large = "[PORTRAIT]" small = "[PORTRAIT]" } } }
+				PORTRAIT = "[GetNCHRandomPortraitNavy]"
+			}
+			# meta_effect = {
+			# 	text = {
+			# 		log = "[ID]"
+			# 	}
+			# 	ID = "[GetNCHRandomPortraitNavy]"
+			# }
+			# log = "[GetDateText]: [Root.GetName]: Leader is [?portrait_change_leader.GetName]; Their Portrait ID is [?NCH_portrait_id]; Character is male;"
+		}
+	}
+}
