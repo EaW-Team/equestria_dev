@@ -5602,6 +5602,257 @@ country_event = {
 	}
 }
 
+country_event = {
+	id = yale_dem.102
+	immediate = {log = "[GetDateText]: [Root.GetName]: event yale_dem.102"}
+	title = yale_dem.102.t
+	desc = yale_dem.102.d
+	picture = GFX_event_minitrue
+
+	is_triggered_only = yes
+
+	immediate = {
+		set_variable = { WNG_acceptance_chance = 100 }
+		log = "WNG_acceptance_change(1): [?WNG_acceptance_chance]"
+		if = {
+			limit = {
+				WNG = {
+					has_government = fascism
+				}
+			}
+			multiply_variable = { WNG_acceptance_chance = 0.5 }
+		}
+		log = "WNG_acceptance_change(2): [?WNG_acceptance_chance]"
+		else_if = {
+			limit = {
+				WNG = {
+					has_government = neutrality
+				}
+			}
+			multiply_variable = { WNG_acceptance_chance = 0.75 }
+		}
+		log = "WNG_acceptance_change(3): [?WNG_acceptance_chance]"
+		if = {
+			limit = {
+				WNG = {
+					has_opinion = {
+						target = ROOT
+						value > 100
+					}
+				}
+			}
+			multiply_variable = { WNG_acceptance_chance = 1.2 }
+		}
+		log = "WNG_acceptance_change(4): [?WNG_acceptance_chance]"
+		if = {
+			limit = {
+				WNG = {
+					has_opinion = {
+						target = ROOT
+						value < 0
+					}
+				}
+			}
+			multiply_variable = { WNG_acceptance_chance = 0.8 }
+		}
+		log = "WNG_acceptance_change(5): [?WNG_acceptance_chance]"
+		if = {
+			limit = {
+				strength_ratio = {
+					tag = WNG
+					ratio > 2.5
+				}
+			}
+			multiply_variable = { WNG_acceptance_chance = 1.2 }
+		}
+		log = "WNG_acceptance_change(6): [?WNG_acceptance_chance]"
+		if = {
+			limit = {
+				strength_ratio = {
+					tag = WNG
+					ratio < 1
+				}
+			}
+			multiply_variable = { WNG_acceptance_chance = 0.6 }
+		}
+		log = "WNG_acceptance_change(7): [?WNG_acceptance_chance]"
+		if = {
+			limit = {
+				strength_ratio = {
+					tag = WNG
+					ratio < 0.5
+				}
+				WNG = {
+					OR = {
+						has_government = fascism
+						has_government = neutrality
+					}
+				}
+			}
+			multiply_variable = { WNG_acceptance_chance = 0 }
+		}
+		log = "WNG_acceptance_change(8): [?WNG_acceptance_chance]"
+		if = {
+			limit = {
+				BOI = {
+					is_guaranteed_by = WNG
+				}
+			}
+			multiply_variable = { WNG_acceptance_chance = 0.8 }
+			subtract_from_variable = { WNG_acceptance_chance = -10 }
+		}
+		log = "WNG_acceptance_change(9): [?WNG_acceptance_chance]"
+		if = {
+			limit = {
+				WNG = {
+					owns_state = 389 # Griffonstone
+				}
+			}
+			multiply_variable = { WNG_acceptance_chance = 0.5 }
+			subtract_from_variable = { WNG_acceptance_chance = -40 }
+		}
+		log = "WNG_acceptance_change(10): [?WNG_acceptance_chance]"
+
+		clamp_variable = {
+			var = WNG_acceptance_chance
+			min = 0
+			max = 100
+		}
+		log = "WNG_acceptance_change(11): [?WNG_acceptance_chance]"
+
+		set_variable = { WNG_denial_chance = 100 }
+		subtract_from_variable = { WNG_denial_chance = WNG_acceptance_chance }
+	}
+	
+	option = {
+		name = yale_dem.102.a
+
+		ai_chance = { base = 100 }
+
+		WNG = {
+			country_event = yale_dem.103
+		}
+
+		custom_effect_tooltip = YAL_wingbardy_diplo_chance_tt
+	}
+
+	option = {
+		name = yale_dem.102.b
+
+		ai_chance = { base = 0 }
+
+		custom_effect_tooltip = YAL_wingbardy_diplo_backdown_tt
+		
+		uncomplete_national_focus = {
+			focus = YAL_seek_amends_with_wingbardy
+		}
+	}
+}
+
+country_event = {
+	id = yale_dem.103
+	immediate = {log = "[GetDateText]: [Root.GetName]: event yale_dem.103"}
+	title = yale_dem.103.t
+	desc = yale_dem.103.d
+	picture = GFX_event_minitrue
+
+	is_triggered_only = yes
+	
+	option = {
+		name = yale_dem.103.a
+		
+		ai_chance = {
+			base = var:YAL.WNG_acceptance_chance
+		}
+
+		custom_effect_tooltip = YAL_wingbardy_diplo_pact_effect_tt
+
+		YAL = {
+			country_event = {
+				id = yale_dem.104
+				days = 2
+			}
+		}
+	}
+
+	option = {
+		name = yale_dem.103.b
+
+		ai_chance = {
+			base = var:YAL.WNG_denial_chance
+		}
+		YAL = {
+			country_event = {
+				id = yale_dem.105
+				days = 2
+			}
+		}
+	}
+}
+
+country_event = {
+	id = yale_dem.104
+	immediate = {log = "[GetDateText]: [Root.GetName]: event yale_dem.104"}
+	title = yale_dem.104.t
+	desc = yale_dem.104.d
+	picture = GFX_event_minitrue
+
+	is_triggered_only = yes
+
+	immediate = {
+		hidden_effect = {
+			WNG = {
+				every_owned_state = {
+					limit = {
+						OR = {
+							is_core_of = BOI
+							is_core_of = LAK
+						}
+					}
+					transfer_state_to = YAL
+				}
+				diplomatic_relation = {
+					country = BOI
+					relation = guarantee
+					active = no
+				}
+			}
+			BOI = {
+				if = {
+					limit = {
+						is_in_faction_with = WNG
+						NOT = { is_faction_leader = yes }
+					}
+					leave_faction = yes
+				}
+			}
+			diplomatic_relation = {
+				country = WNG
+				relation = non_aggression_pact
+				active = yes
+			}
+		}
+	}
+	
+	option = {
+		name = yale_dem.104.a
+	}
+}
+
+country_event = {
+	id = yale_dem.105
+	immediate = {log = "[GetDateText]: [Root.GetName]: event yale_dem.105"}
+	title = yale_dem.105.t
+	desc = yale_dem.105.d
+	picture = GFX_event_minitrue
+
+	is_triggered_only = yes
+	
+	option = {
+		name = yale_dem.105.a
+	}
+}
+
 country_event = { #Project is behind schedule
 	id = yale_archive.1
 	immediate = {log = "[GetDateText]: [Root.GetName]: event yale_archive.1"}
