@@ -214,6 +214,8 @@
 * [divisions_in_state](#divisions_in_state)
 * [enemies_naval_strength_ratio](#enemies_naval_strength_ratio)
 * [enemies_strength_ratio](#enemies_strength_ratio)
+* [energy_ratio](#energy_ratio)
+* [equipment_cost](#equipment_cost)
 * [estimated_intel_max_armor](#estimated_intel_max_armor)
 * [estimated_intel_max_piercing](#estimated_intel_max_piercing)
 * [exists](#exists)
@@ -239,6 +241,7 @@
 * [has_air_experience](#has_air_experience)
 * [has_allowed_idea_with_traits](#has_allowed_idea_with_traits)
 * [has_annex_war_goal](#has_annex_war_goal)
+* [has_any_grand_doctrine](#has_any_grand_doctrine)
 * [has_any_license](#has_any_license)
 * [has_any_power_balance](#has_any_power_balance)
 * [has_army_experience](#has_army_experience)
@@ -717,7 +720,7 @@ var = num_dogs
 * Supported Targets: none
 
 ```
-"Return true if the character has an advisor role and they can be fired.
+Return true if the character has an advisor role and they can be fired.
 Warning: will return false if the character has no advisor role or it does not match the input slot. You should use has_advisor_role trigger first to really test the can_be_fired flag.
 
 Examples:
@@ -729,7 +732,7 @@ some_character_scope = {
 
 some_character_scope = {
   advisor_can_be_fired = yes # or no
-}"
+}
 ```
 
 ## agency_upgrade_number
@@ -793,13 +796,13 @@ Will compare towards the amount of divisions an ai wants to have.
 * Supported Targets: THIS, ROOT, PREV, FROM, OWNER, CONTROLLER, OCCUPIED, CAPITAL
 
 ```
-"Checks if all active scientists of the Country in scope matches the triggers.
+Checks if all active scientists of the Country in scope matches the triggers.
 ex: GER = {
   all_active_scientists = {
 	tooltip = my_loc_key # Optional
      ... Character scope triggers ...
   }
-}"
+}
 ```
 
 ## all_allied_country
@@ -817,7 +820,7 @@ Check if all allied countries meet the trigger. Does not include the country its
 * Supported Targets: none
 
 ```
-"Checks if All Army Leader of the Country in scope match the triggers.
+Checks if All Army Leader of the Country in scope match the triggers.
 tooltip=key can be defined to override title.
 ex: GER = {
   all_army_leader = {
@@ -825,7 +828,7 @@ ex: GER = {
 	include_invisible = yes # Optional - default = no
     ... character scope triggers ...
   }
-}"
+}
 ```
 
 ## all_character
@@ -963,7 +966,7 @@ all_country_with_original_tag = {
 * Supported Targets: THIS, ROOT, PREV, FROM, OWNER, CONTROLLER, OCCUPIED, CAPITAL
 
 ```
-"Checks if all Military Industrial Organisations of the Country in scope match the triggers.
+Checks if all Military Industrial Organisations of the Country in scope match the triggers.
 tooltip=key can be defined to override title.
 ex: GER = {
   any_military_industrial_organization = {
@@ -971,7 +974,7 @@ ex: GER = {
 	include_invisible = yes # Optional - default = no
     ... MIO scope triggers ...
   }
-}"
+}
 ```
 
 ## all_navy_leader
@@ -980,7 +983,7 @@ ex: GER = {
 * Supported Targets: none
 
 ```
-"Checks if all Navy Leaders of the Country in scope match the triggers.
+Checks if all Navy Leaders of the Country in scope match the triggers.
 tooltip=key can be defined to override title.
 ex: GER = {
   all_navy_leader = {
@@ -988,7 +991,7 @@ ex: GER = {
 	include_invisible = yes # Optional - default = no
     ... character scope triggers ...
   }
-}"
+}
 ```
 
 ## all_neighbor_country
@@ -1082,14 +1085,14 @@ check if all owned states meets the trigger. tooltip=key can be defined to overr
 * Supported Targets: THIS, ROOT, PREV, FROM, OWNER, CONTROLLER, OCCUPIED, CAPITAL
 
 ```
-"Checks if all purchase contracts of the Country in scope matches the triggers.
+Checks if all purchase contracts of the Country in scope matches the triggers.
 tooltip=key can be defined to override title.
 ex: GER = {
   all_purchase_contracts = {
 	tooltip = my_loc_key # Optional
      ... Purchase Contract scope triggers ...
   }
-}"
+}
 ```
 
 ## all_scientists
@@ -1098,14 +1101,14 @@ ex: GER = {
 * Supported Targets: THIS, ROOT, PREV, FROM, OWNER, CONTROLLER, OCCUPIED, CAPITAL
 
 ```
-"Checks if all scientists of the Country in scope matches the triggers.
+Checks if all scientists of the Country in scope matches the triggers.
 tooltip=key can be defined to override title.
 ex: GER = {
   all_scientists = {
 	tooltip = my_loc_key # Optional
      ... Character scope triggers ...
   }
-}"
+}
 ```
 
 ## all_state
@@ -1132,7 +1135,7 @@ check if all subject countries meet the trigger. tooltip=key can be defined to o
 * Supported Targets: none
 
 ```
-"Checks if all Unit Leaders of the Country in scope match the triggers.
+Checks if all Unit Leaders of the Country in scope match the triggers.
 tooltip=key can be defined to override title.
 ex: GER = {
   all_unit_leader = {
@@ -1140,7 +1143,7 @@ ex: GER = {
 	include_invisible = yes # Optional - default = no
     ... character scope triggers ...
   }
-}"
+}
 ```
 
 ## alliance_naval_strength_ratio
@@ -1219,13 +1222,13 @@ all inside trigger must be true
 * Supported Targets: THIS, ROOT, PREV, FROM, OWNER, CONTROLLER, OCCUPIED, CAPITAL
 
 ```
-"Checks if at least one active scientist of the Country in scope matches the triggers.
+Checks if at least one active scientist of the Country in scope matches the triggers.
 ex: GER = {
   any_active_scientist = {
 	tooltip = my_loc_key # Optional
     ... Character scope triggers ...
   }
-}"
+}
 ```
 
 ## any_allied_country
@@ -1243,7 +1246,7 @@ Check if any allied country meets the trigger. Does not include the country itse
 * Supported Targets: none
 
 ```
-"Checks if at least one Army Leader of the Country in scope matches the triggers.
+Checks if at least one Army Leader of the Country in scope matches the triggers.
 tooltip=key can be defined to override title.
 ex: GER = {
   any_army_leader = {
@@ -1251,7 +1254,7 @@ ex: GER = {
 	include_invisible = yes # Optional - default = no
     ... character scope triggers ...
   }
-}"
+}
 ```
 
 ## any_character
@@ -1442,7 +1445,7 @@ check if any neighbor country in the home area meets the trigger. tooltip=key ca
 * Supported Targets: THIS, ROOT, PREV, FROM, OWNER, CONTROLLER, OCCUPIED, CAPITAL
 
 ```
-"Checks if at least one Military Industrial Organisation of the Country in scope matches the triggers.
+Checks if at least one Military Industrial Organisation of the Country in scope matches the triggers.
 tooltip=key can be defined to override title.
 ex: GER = {
   any_military_industrial_organization = {
@@ -1450,7 +1453,7 @@ ex: GER = {
 	include_invisible = yes # Optional - default = no
     ... MIO scope triggers ...
   }
-}"
+}
 ```
 
 ## any_navy_leader
@@ -1459,7 +1462,7 @@ ex: GER = {
 * Supported Targets: none
 
 ```
-"Checks if at least one Navy Leader of the Country in scope matches the triggers.
+Checks if at least one Navy Leader of the Country in scope matches the triggers.
 tooltip=key can be defined to override title.
 ex: GER = {
   any_navy_leader = {
@@ -1467,7 +1470,7 @@ ex: GER = {
 	include_invisible = yes # Optional - default = no
     ... character scope triggers ...
   }
-}"
+}
 ```
 
 ## any_neighbor_country
@@ -1631,14 +1634,14 @@ any_province_building_level = {
 * Supported Targets: THIS, ROOT, PREV, FROM, OWNER, CONTROLLER, OCCUPIED, CAPITAL
 
 ```
-"Checks if at least one Purchase contract of the Country in scope matches the triggers. 
+Checks if at least one Purchase contract of the Country in scope matches the triggers. 
 tooltip=key can be defined to override title.
 ex: GER = {
   any_purchase_contract = {
 	tooltip = my_loc_key # Optional
     ... Purchase Contract scope triggers ...
   }
-}"
+}
 ```
 
 ## any_scientist
@@ -1647,14 +1650,14 @@ ex: GER = {
 * Supported Targets: THIS, ROOT, PREV, FROM, OWNER, CONTROLLER, OCCUPIED, CAPITAL
 
 ```
-"Checks if at least one scientist of the Country in scope matches the triggers. 
+Checks if at least one scientist of the Country in scope matches the triggers. 
 tooltip=key can be defined to override title.
 ex: GER = {
   any_scientist = {
 	tooltip = my_loc_key # Optional
     ... Character scope triggers ...
   }
-}"
+}
 ```
 
 ## any_state
@@ -1740,7 +1743,7 @@ check if any subject country meets the trigger. tooltip=key can be defined to ov
 * Supported Targets: none
 
 ```
-"Checks if at least one Unit Leader of the Country in scope matches the triggers.
+Checks if at least one Unit Leader of the Country in scope matches the triggers.
 tooltip=key can be defined to override title.
 ex: GER = {
   any_unit_leader = {
@@ -1748,7 +1751,7 @@ ex: GER = {
 	include_invisible = yes # Optional - default = no
     ... character scope triggers ...
   }
-}"
+}
 ```
 
 ## any_war_score
@@ -1820,7 +1823,7 @@ Example: average_stats > 10
 ```
 Checks if the current scope has the specified amount of the specified building. 
 Usage: <Building> < <int>
-Supported buildings: infrastructure, arms_factory, industrial_complex, air_base, supply_node, rail_way, naval_facility, naval_base, bunker, coastal_bunker, stronghold_network, dockyard, anti_air_building, synthetic_refinery, fuel_silo, radar_station, mega_gun_emplacement, rocket_site, naval_supply_hub, naval_headquarters, nuclear_reactor, nuclear_reactor_heavy_water, commercial_nuclear_reactor, nuclear_facility, air_facility, land_facility, dam, dam_mountain, canal_kiel, canal_panama, landmark_big_ben, landmark_colosseum, landmark_cristo_redentor, landmark_eiffel_tower, landmark_statue_of_liberty, landmark_kremlin, landmark_hofburg_palace, landmark_berlin_reichstag, landmark_berlin_volkshalle, landmark_taj_mahal, landmark_sadabad_complex, landmark_hagia_sophia, landmark_forbidden_city, landmark_nanjing_presidential_palace, landmark_nanjing_presidential_palace_prc, landmark_nanjing_presidential_palace_gen, landmark_great_wall_section, landmark_tokyo_imperial_palace, landmark_national_diet, landmark_hakko_ichiu.
+Supported buildings: infrastructure, arms_factory, industrial_complex, air_base, supply_node, rail_way, naval_facility, naval_base, bunker, coastal_bunker, stronghold_network, dockyard, anti_air_building, synthetic_refinery, fuel_silo, radar_station, mega_gun_emplacement, rocket_site, naval_supply_hub, naval_headquarters, nuclear_reactor, nuclear_reactor_heavy_water, commercial_nuclear_reactor, nuclear_facility, air_facility, land_facility, dam, dam_mountain, canal_kiel, canal_panama, energy_infrastructure, industrial_infrastructure, landmark_big_ben, landmark_colosseum, landmark_cristo_redentor, landmark_eiffel_tower, landmark_statue_of_liberty, landmark_kremlin, landmark_hofburg_palace, landmark_berlin_reichstag, landmark_berlin_volkshalle, landmark_taj_mahal, landmark_sadabad_complex, landmark_hagia_sophia, landmark_forbidden_city, landmark_nanjing_presidential_palace, landmark_nanjing_presidential_palace_prc, landmark_nanjing_presidential_palace_gen, landmark_great_wall_section, landmark_tokyo_imperial_palace, landmark_national_diet, landmark_hakko_ichiu, landmark_prague_castle, landmark_bojnice_castle.
 ```
 
 ## buyer
@@ -1838,11 +1841,11 @@ Check the buyer country. Example: buyer = GER
 * Supported Targets: none
 
 ```
-"Checks if the faction from the country in scope has a free slot for a supportive scientist for the country with the specialization type
+Checks if the faction from the country in scope has a free slot for a supportive scientist for the country with the specialization type
 ex:
 Ger = {
 	can_assign_supportive_scientist_to_faction = specialization_land
-}"
+}
 ```
 
 ## can_be_country_leader
@@ -1899,13 +1902,13 @@ can_build_railway = {
 * Supported Targets: none
 
 ```
-"Checks if the country (as ROOT) and state in scope can build a building in the state.
+Checks if the country (as ROOT) and state in scope can build a building in the state.
 ex:
 GER = {
 	65 = {
 		can_construct_building = land_facility
 	}
-}"
+}
 ```
 
 ## can_declare_war_on
@@ -2073,7 +2076,7 @@ Check the amount of casualties in thousands a country has suffered in all of it'
 * Supported Targets: any
 
 ```
-"Compares a variable to a number or another variable
+Compares a variable to a number or another variable
 ex:
 check_variable = {
 	var = varname
@@ -2090,7 +2093,7 @@ check_variable = { varname = 0 }
 check_variable = { varname > 12 }
 check_variable = { varname < 42 }
 check_variable = { varname > another_varname }
-"
+
 ```
 
 ## civilwar_target
@@ -2272,9 +2275,9 @@ Checks conscription ratio of the country compared to target conscription ratio.
 * Supported Targets: none
 
 ```
-"Check if contract contains equipment category, equipment archetype or equipment.
+Check if contract contains equipment category, equipment archetype or equipment.
 Example:
-    contract_contains_equipment = infantry_equipment"
+    contract_contains_equipment = infantry_equipment
 ```
 
 ## controls_province
@@ -2348,9 +2351,12 @@ Checks the size of a given collection.
 			operators = { faction_members }
 			name = FACTION
 		}
-		unit = armor # (optional) checks the number of unit type
+		unit = armor  # (optional) checks the number of subunits that have the correct equipment type
 		buildings = {industrial_complex } # (optional) checks the number of building types in total
 		manpower = yes # (optional, default: no) checks the number of deployed manpower
+		equipment_ratio = 0.9 (optional, only works with land units default 0) what percentage of equipment the division needs to atleast have to be counted
+		unit_category = { marine marine_commando category_fighter }(optional) checks the number of sub units that match a certain sub unit definition / category
+		stockpile = light_tank_equipment (optional) counts the amount of a certain archetype in the countries stockpile
 		size > 10
 	}
 	```
@@ -2390,11 +2396,11 @@ Checks the current conscription amount of the country.
 * Supported Scopes: any
 * Supported Targets: none
 
-An `AND` trigger that has an overriden custom tooltip.
+An `AND` trigger that has an overridden custom tooltip.
 A positive tooltip can be set with `tooltip` and the tooltip to be used inside a NOT can be set with `not_tooltip`.
-If no positive tooltip is provided and the root key is a localization key (not a formatter, see [formatted localization](script_concept_documentation.md#formatted_localization)),
+If no positive tooltip is provided and the root key is a localization key (not a formatter, see [formatted localization](script_concept_documentation.md#formatted-localization)),
 then a negative tooltip will be generated by appending `_NOT` to the root localization for the positive tooltip.
-Both tooltip and `not_tooltip` are [bindable localizations](script_concept_documentation.md#bindable_localization).
+Both tooltip and `not_tooltip` are [bindable localizations](script_concept_documentation.md#bindable-localization).
 
 ### Examples
 ```
@@ -2613,6 +2619,24 @@ Compares the estimated navy strength between the scope country and all its enemi
 
 ```
 Compares the estimated army strength between the scope country and all its enemies
+```
+
+## energy_ratio
+
+* Supported Scopes: COUNTRY
+* Supported Targets: none
+
+```
+energy_ratio > 0.8 - Compare current energy fulfilment to the factories, with 1 being 100% and 0 being 0%
+```
+
+## equipment_cost
+
+* Supported Scopes: COUNTRY
+* Supported Targets: none
+
+```
+check cost of equipment production line
 ```
 
 ## estimated_intel_max_armor
@@ -3051,6 +3075,21 @@ Checks a country has annex war goal on another country
 Returns true if the game has any custom difficulty on
 ```
 
+## has_any_grand_doctrine
+
+* Supported Scopes: COUNTRY
+* Supported Targets: none
+
+Checks if any grand doctrine is currently assigned to the given folder
+
+	### Examples
+	```
+	TAG = {
+		has_any_grand_doctrine = land
+	}
+	```
+	
+
 ## has_any_license
 
 * Supported Scopes: COUNTRY
@@ -3116,9 +3155,9 @@ checks for amount of divisions, additionally of a specified type
 * Supported Targets: none
 
 ```
-"Check that ratio of atrillery battalions in the composition of a side of combating troops are over a certain level.
+Check that ratio of atrillery battalions in the composition of a side of combating troops are over a certain level.
 For example:
-has_artillery_ratio > 0.1"
+has_artillery_ratio > 0.1
 ```
 
 ## has_attache
@@ -3207,7 +3246,7 @@ Checks if a there is a border against a state/country
 * Supported Targets: none
 
 ```
-"Checks if the country in scope has enough breakthroughs within a given specialization.
+Checks if the country in scope has enough breakthroughs within a given specialization.
 specialization = <specialization_token>
 value = <point>
 ex: GER = {
@@ -3216,7 +3255,7 @@ ex: GER = {
 		value = 1
       }
 	}
-"
+
 ```
 
 ## has_built
@@ -3285,9 +3324,9 @@ check value of casualties malus to war support 0-1: Example has_casualties_war_s
 * Supported Targets: none
 
 ```
-"Check that ratio of cavalry battalions in the composition of a side of combating troops are over a certain level.
+Check that ratio of cavalry battalions in the composition of a side of combating troops are over a certain level.
 For example:
-has_cavalry_ratio > 0.5"
+has_cavalry_ratio > 0.5
 ```
 
 ## has_character
@@ -3357,13 +3396,13 @@ check if combatant has modifier
 * Supported Targets: any
 
 ```
-"Return true if the input achievement is found in currently loaded mods, and if this achievement has been completed (either in current game or in a previous one)
+Return true if the input achievement is found in currently loaded mods, and if this achievement has been completed (either in current game or in a previous one)
 
 Example:
 has_completed_custom_achievement = {
 	mod = my_mod_unique_id # set in common/achievements files
 	achievement = my_achievement_token
-}"
+}
 ```
 
 ## has_completed_faction_goal
@@ -3723,11 +3762,11 @@ checks if current scope or global scope has the specified event target saved
 * Supported Targets: none
 
 ```
-"Checks if the country in scope has a facility with specialization.
+Checks if the country in scope has a facility with specialization.
 ex:
 SOV = {
 	has_facility_specialization = specialization_nuclear
-}"
+}
 ```
 
 ## has_faction_goal
@@ -4057,7 +4096,7 @@ Checks if the country has reached the specified number of mastery levels (reward
 	TAG = {
 		has_mastery_level = {
 			amount = 2
-			subdoctrine = mobile_infantry
+			sub_doctrine = mobile_infantry
 		}
 	}
 	```
@@ -4087,13 +4126,13 @@ check country has military access to specified country
 * Supported Targets: none
 
 ```
-"Checks if the Country in scope has a  Military Industrial Organisation matching the input token.
+Checks if the Country in scope has a  Military Industrial Organisation matching the input token.
 Can use variable as input.
 ex: 
 GER = { 
   has_military_industrial_organization = infantry_mio_token
   has_military_industrial_organization = var:my_mio_var
-}"
+}
 ```
 
 ## has_mined
@@ -4131,12 +4170,12 @@ has_mines = {
 * Supported Targets: none
 
 ```
-"Checks if the Military Industrial Organisation in scope has the input equipment type.
+Checks if the Military Industrial Organisation in scope has the input equipment type.
 (possible values can be found in script_enum_equipment_bonus_type and in common/equipment_groups)
 ex:
 mio:my_mio = {
 	has_mio_equipment_type = my_equipment_type_token
-}"
+}
 ```
 
 ## has_mio_flag
@@ -4145,7 +4184,7 @@ mio:my_mio = {
 * Supported Targets: any
 
 ```
-"Check if flag has been set within the military industrial organization in scope.
+Check if flag has been set within the military industrial organization in scope.
 May checks on the value or date/days since last modified date.
 Examples:
 has_mio_flag = my_flag
@@ -4154,7 +4193,7 @@ has_mio_flag = {
 	value < 12 (optional)
 	date > 1936.3.25 (optional, compare with the date where the flag was last modified )
 	days > 365 (optional, compare with the number of days since the flag was last modified )
-}"
+}
 ```
 
 ## has_mio_number_of_completed_traits
@@ -4163,14 +4202,14 @@ has_mio_flag = {
 * Supported Targets: none
 
 ```
-"Make comparaison on the number of unlocked traits of the military industrial organization in the scope.
+Make comparaison on the number of unlocked traits of the military industrial organization in the scope.
 Can use < or > to compare the value with either a fixed value or from a variable.
 ex:
 var:my_mio_var = {
 	has_mio_number_of_completed_traits > 5
 	has_mio_number_of_completed_traits < 2
 	has_mio_number_of_completed_traits > var:my_number_var
-}"
+}
 ```
 
 ## has_mio_policy
@@ -4179,11 +4218,11 @@ var:my_mio_var = {
 * Supported Targets: none
 
 ```
-"Checks if the Military Industrial Organisation in scope has an allowed policy matching the input token.
+Checks if the Military Industrial Organisation in scope has an allowed policy matching the input token.
 ex:
 mio:my_mio = {
 	has_mio_policy = my_policy_token
-}"
+}
 ```
 
 ## has_mio_policy_active
@@ -4192,11 +4231,11 @@ mio:my_mio = {
 * Supported Targets: none
 
 ```
-"Checks if the Military Industrial Organisation in scope has an allowed matching the input token, which is currently attached to the MIO.
+Checks if the Military Industrial Organisation in scope has an allowed matching the input token, which is currently attached to the MIO.
 ex:
 mio:my_mio = {
 	has_mio_policy_active = my_policy_token
-}"
+}
 ```
 
 ## has_mio_research_category
@@ -4205,11 +4244,11 @@ mio:my_mio = {
 * Supported Targets: none
 
 ```
-"Checks if the Military Industrial Organisation in scope has the input research category.
+Checks if the Military Industrial Organisation in scope has the input research category.
 ex:
 mio:my_mio = {
 	has_mio_research_category = my_research_category_token
-}"
+}
 ```
 
 ## has_mio_size
@@ -4218,14 +4257,14 @@ mio:my_mio = {
 * Supported Targets: none
 
 ```
-"Make comparaison on the size of the military industrial organization in the scope.
+Make comparaison on the size of the military industrial organization in the scope.
 Can use < or > to compare the value with either a fixed value or with a variable.
 ex:
 var:my_mio_var = {
 	has_mio_size > 5
 	has_mio_size < 2
 	has_mio_size > var:my_number_var
-}"
+}
 ```
 
 ## has_mio_trait
@@ -4234,14 +4273,14 @@ var:my_mio_var = {
 * Supported Targets: none
 
 ```
-"Checks if the Military Industrial Organisation in scope has a trait matching the input token.
+Checks if the Military Industrial Organisation in scope has a trait matching the input token.
 ex:
 mio:my_mio = {
 	has_mio_trait = my_trait_token
 	has_mio_trait = {
 		trait = my_trait_token
 	}
-}"
+}
 ```
 
 ## has_nationality
@@ -4374,10 +4413,10 @@ is country at offensive war without specific ally present
 * Supported Targets: none
 
 ```
-"checks if division has an officer with the provided name key.
+checks if division has an officer with the provided name key.
 Examples:
 	has_officer_name = FIN_nikke_parmi
-"
+
 ```
 
 ## has_operation_token
@@ -4455,7 +4494,7 @@ has_power_balance_modifier = {
 * Supported Targets: any
 
 ```
-"Check if flag has been set within the special project in scope.
+Check if flag has been set within the special project in scope.
 May checks on the value or date/days since last modified date.
 Examples:
 has_project_flag = my_flag
@@ -4464,7 +4503,7 @@ has_project_flag = {
 	value < 12 (optional)
 	date > 1936.3.25 (optional, compare with the date where the flag was last modified )
 	days > 365 (optional, compare with the number of days since the flag was last modified )
-}"
+}
 ```
 
 ## has_railway_connection
@@ -4581,15 +4620,18 @@ Checks for amount of resources in a given collection.
 * Supported Scopes: COUNTRY
 * Supported Targets: none
 
-```
 checks for amount of resources in country (the balance by default)
-Example:
-has_resources_in_country = {
-	resource = chromium
-	amount > 10
-	extracted = no # (optional, default: no) checks extracted amount instead of country balance
-	buildings = no # (optional, default: no) checks only amount from local buildings instead of country balance
-```
+	Example:
+	```
+	has_resources_in_country = {
+		resource = chromium
+		amount > 10
+		only_imported = no # (optional, default: no) checks only imported resources instead of country balance
+		extracted = no # (optional, default: no) checks extracted amount instead of country balance
+		buildings = no # (optional, default: no) checks only amount from local buildings instead of country balance
+	}
+	```
+	
 
 ## has_resources_rights
 
@@ -4621,7 +4663,7 @@ Example: has_rule = can_puppet
 * Supported Targets: none
 
 ```
-"Checks if the scientist of the character in scope matches the skill level condition for a specialization. Supports < > = operators.
+Checks if the scientist of the character in scope matches the skill level condition for a specialization. Supports < > = operators.
 level = <int>
 specialization = <specialization_token>
 ex: my_character = {
@@ -4630,7 +4672,7 @@ ex: my_character = {
 	    specialization = specialization_nuclear
       }
 	}
-"
+
 ```
 
 ## has_scientist_specialization
@@ -4639,11 +4681,11 @@ ex: my_character = {
 * Supported Targets: none
 
 ```
-"Checks if the country in scope has a scientist with a skill level of at least 1 in specialization.
+Checks if the country in scope has a scientist with a skill level of at least 1 in specialization.
 ex:
 SOV = {
 	has_scientist_specialization = specialization_nuclear
-}"
+}
 ```
 
 ## has_shine_effect_on_focus
@@ -4861,10 +4903,10 @@ has_unit_leader_flag = {
 * Supported Targets: none
 
 ```
-"Check if the combatant has at least one of the provided unit types.
+Check if the combatant has at least one of the provided unit types.
 For example:
 has_unit_type = amphibious_mechanized
-"
+
 ```
 
 ## has_variable
@@ -4969,8 +5011,42 @@ ENG = {
 * Supported Scopes: STATE, COUNTRY, CHARACTER, COMBATANT, ACE, STRATEGIC_REGION, OPERATION, INDUSTRIAL_ORG, PURCHASE_CONTRACT, RAID_INSTANCE, SPECIAL_PROJECT, FACTION
 * Supported Targets: THIS, ROOT, PREV, FROM, OWNER, CONTROLLER, OCCUPIED, CAPITAL
 
+A hidden trigger, that will not be displayed in the tooltip.
+The trigger can still be evaluate when generating a tooltip.
+This might be required in the following cases:
+
+* The trigger has a side effect (e.g. temporary variables).
+* The trigger uses random numbers (e.g. acts on a random state)
+
+There are three possible evaluation techniques to use when computing tooltips for
+hidden_triggers:
+
+* `eval` - Standard evalulation of the trigger.
+This is most likely what you need if you have a trigger that has side effects or random parts.
+* `no_eval` - If you have no random parts or side effects, then this will give you a slightly faster computation of the tooltip.
+* `legacy` - Previous behaviour that is similar to `eval` but a lot less predictable.
+Using this explicitly is very likely a bug.
+
+#### Examples
 ```
-a hidden trigger, anything in it not shown in tooltips
+hidden_trigger = {
+	tooltip_evaluation = eval
+	set_temp_variable = { unlock_compare = 0 }			
+	all_collection_elements = {
+		collection = {
+			input = game:scope
+			operators =  { faction_members }
+		}
+		add_to_temp_variable = { unlock_compare = num_armies }
+	}
+}
+```
+
+```
+hidden_trigger = {
+	tooltip_evaluation = no_eval
+	add_political_power = 10
+}
 ```
 
 ## ic_ratio
@@ -5053,13 +5129,13 @@ checks if the country activated their active cipher decryption bonuses. Example 
 * Supported Targets: any
 
 ```
-"Checks if the scientist of the character in scope is assigned to a project
+Checks if the scientist of the character in scope is assigned to a project
 is_scientist_active = <bool>
 ex: my_character = {
         is_scientist_active = yes
         is_scientist_active = no
 	}
-"
+
 ```
 
 ## is_advisor
@@ -5559,14 +5635,14 @@ Check if current game is ironman.
 * Supported Targets: any
 
 ```
-"return true if the state is composed exclusively of one-province-islands.
+return true if the state is composed exclusively of one-province-islands.
 More precisly, all provinces in the state have no land neighbor.
 Or if they do they are connected by a strait.
 (cf. is_one_state_island for checking if the state itself is an island)
 ex: 145 = {
 	is_island_state = yes
 	is_island_state = no
-}"
+}
 ```
 
 ## is_justifying_wargoal_against
@@ -5676,11 +5752,11 @@ check if country is a major
 * Supported Targets: none
 
 ```
-"Checks if the Military Industrial Organisation in scope matches the input token
+Checks if the Military Industrial Organisation in scope matches the input token
 ex:
 var:my_mio_var = {
   is_military_industrial_organization = my_mio_token
-}"
+}
 ```
 
 ## is_mio_assigned_to_task
@@ -5689,12 +5765,12 @@ var:my_mio_var = {
 * Supported Targets: none
 
 ```
-"Checks if the Military Industrial Organisation in scope is assigned to at least 1 task.
+Checks if the Military Industrial Organisation in scope is assigned to at least 1 task.
 ex:
 mio:my_mio = {
 	is_mio_assigned_to_task = yes
 	is_mio_assigned_to_task = no
-}"
+}
 ```
 
 ## is_mio_available
@@ -5703,12 +5779,12 @@ mio:my_mio = {
 * Supported Targets: none
 
 ```
-"Checks if the available AND visible triggers in the Military Industrial Organisation in scope return true.
+Checks if the available AND visible triggers in the Military Industrial Organisation in scope return true.
 ex:
 mio:my_mio = {
 	is_mio_available = yes
 	is_mio_available = no
-}"
+}
 ```
 
 ## is_mio_trait_available
@@ -5717,7 +5793,7 @@ mio:my_mio = {
 * Supported Targets: none
 
 ```
-"Checks if the Military Industrial Organisation in scope has a trait matching the input token, which is also available.
+Checks if the Military Industrial Organisation in scope has a trait matching the input token, which is also available.
 ex:
 mio:my_mio = {
 	is_mio_trait_available = my_trait_token
@@ -5726,7 +5802,7 @@ mio:my_mio = {
 		check_mio_parent_completed = no # Optional, yes by default
         check_mio_mutually_exclusive = no # Optional, yes by default
 	}
-}"
+}
 ```
 
 ## is_mio_trait_completed
@@ -5735,14 +5811,14 @@ mio:my_mio = {
 * Supported Targets: none
 
 ```
-"Checks if the Military Industrial Organisation in scope has a trait matching the input token, which is also completed.
+Checks if the Military Industrial Organisation in scope has a trait matching the input token, which is also completed.
 ex:
 mio:my_mio = {
 	is_mio_trait_completed = my_trait_token
 	is_mio_trait_completed = {
 		trait = my_trait_token
 	}
-}"
+}
 ```
 
 ## is_mio_visible
@@ -5751,12 +5827,12 @@ mio:my_mio = {
 * Supported Targets: none
 
 ```
-"Checks if the visible trigger in the Military Industrial Organisation in scope returns true.
+Checks if the visible trigger in the Military Industrial Organisation in scope returns true.
 ex:
 mio:my_mio = {
 	is_mio_visible = yes
 	is_mio_visible = no
-}"
+}
 ```
 
 ## is_navy_chief
@@ -5822,13 +5898,13 @@ GER = {
 * Supported Targets: any
 
 ```
-"return true if the state is a one-state-island.
+return true if the state is a one-state-island.
 More precisely, all provinces in the state have no land neighbor.
 Or if they do they are connected by a strait or the neighbor is inside the state.
 ex: 145 = {
 	is_one_state_island = yes
 	is_one_state_island = no
-}"
+}
 ```
 
 ## is_operation_type
@@ -5985,12 +6061,12 @@ is_running_operation = {
 * Supported Targets: any
 
 ```
-"Checks if the scientist of the character in scope is injured
+Checks if the scientist of the character in scope is injured
 is_scientist_injured = <bool>
 ex: my_character = {
         is_scientist_active = yes
 	}
-"
+
 ```
 
 ## is_special_project_being_researched
@@ -5999,13 +6075,13 @@ ex: my_character = {
 * Supported Targets: none
 
 ```
-"Checks if the country in scope is currently researching the special project in input.
+Checks if the country in scope is currently researching the special project in input.
 ex:
 SOV = {
 	is_special_project_being_researched = sp:my_project
 	is_special_project_being_researched = var:my_project_var
 	is_special_project_being_researched = PREV # accepts variables and keywords
-}"
+}
 ```
 
 ## is_special_project_completed
@@ -6014,13 +6090,13 @@ SOV = {
 * Supported Targets: none
 
 ```
-"Checks if the country in scope has completed the special project in input.
+Checks if the country in scope has completed the special project in input.
 ex:
 SOV = {
 	is_special_project_completed = sp:my_project
 	is_special_project_completed = var:my_project_var
 	is_special_project_completed = PREV # accepts variables and keywords
-}"
+}
 ```
 
 ## is_spymaster
@@ -6687,7 +6763,7 @@ Check number of units commanded by the unit leader
 * Supported Targets: any
 
 ```
-"Checks the occupation law for an occupied country, occupied state, or the default occupation law of an occupying country.
+Checks the occupation law for an occupied country, occupied state, or the default occupation law of an occupying country.
 
 - If THIS is a country and it's the same as the PREV country, then THIS's default law is checked.
 - If THIS is a country and it's different from the PREV country, then PREV's country law for THIS is checked.
@@ -6696,7 +6772,7 @@ Check number of units commanded by the unit leader
 Example:
 GER = { occupation_law = autonomous_occupation }
 GER = { POL = { occupation_law = foreign_civilian_oversight } }
-123 = { occupation_law = local_police_force_garrison }"
+123 = { occupation_law = local_police_force_garrison }
 ```
 
 ## occupied_country_tag
@@ -7086,10 +7162,10 @@ var_list = { a b c } #optional
 * Supported Targets: none
 
 ```
-"Check if the victory points of the combatants province is larger or less than the provinded amount.
+Check if the victory points of the combatants province is larger or less than the provinded amount.
 For example:
 province_vp > 2
-province_vp < 3"
+province_vp < 3
 ```
 
 ## received_expeditionary_forces
@@ -7219,7 +7295,7 @@ Example: round_temp_variable = num_dogs
 * Supported Targets: none
 
 ```
-"Check if the current scope exist.
+Check if the current scope exist.
 This differ from for example exists that checks if the country of the scope exists.
 This checks if the scope for the country exists and the other if the country itself exists in the game.
 Note that variable scopes are always valid scopes.
@@ -7233,7 +7309,7 @@ sp:sp_land_flamethrower_tank = {
 var:my_var = {
 	scope_exists = yes # Always true since variables are always valid scopes
 }
-"
+
 ```
 
 ## seller

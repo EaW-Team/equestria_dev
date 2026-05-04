@@ -9,6 +9,30 @@
 * [game all_states](#game-all_states)
 * [game scope](#game-scope)
 
+## collection NAME
+Use a named collection as input.
+
+### Example
+Checks if there are more than 42 members in the collection named "my_named_collection".
+```
+collection_size = {
+    input = collection:my_named_collection
+    value > 42
+}
+```
+
+
+## constant NAME
+Use a constant as input.
+### Example
+Checks if there are more than 42 members in the collection named "my_named_collection".
+```
+collection_size = {
+	input = constant:my_constant
+	value > 42
+}
+```
+
 ## game all_countries
 All existing countries (including government in exile).
 ### Example
@@ -64,28 +88,4 @@ collection_size = {
 }
 ```
 
-
-## collection NAME
-Use a named collection as input.
-
-### Example
-Checks if there are more than 42 members in the collection named "my_named_collection".
-```
-collection_size = {
-    input = collection:my_named_collection
-    value > 42
-}
-```
-
-
-## constant NAME
-Use a constant as input.
-### Example
-Checks if there are more than 42 members in the collection named "my_named_collection".
-```
-collection_size = {
-	input = constant:my_constant
-	value > 42
-}
-```
 
