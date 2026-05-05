@@ -6,13 +6,47 @@ PixelShader =
 {
 	Code
 	[[
+	//Color constants for EQS' shield in AF 2026
+	#ifdef PDX_DIRECTX_9
+	static const float3 shieldColorArray[7] = {
+		float3(0.5, 0.0, 1.0),
+		float3(1.0, 0.75, 0.0),
+		float3(0.0, 0.75, 0.0),
+		float3(0.0, 0.75, 1.0),
+		float3(1.0, 0.0, 1.0),
+		float3(1.0, 0.0, 0.0),
+		float3(0.5, 0.0, 1.0)
+	};
+	#endif
+	#ifdef PDX_DIRECTX_11
+	static const float3 shieldColorArray[7] = {
+		float3(0.5, 0.0, 1.0),
+		float3(1.0, 0.75, 0.0),
+		float3(0.0, 0.75, 0.0),
+		float3(0.0, 0.75, 1.0),
+		float3(1.0, 0.0, 1.0),
+		float3(1.0, 0.0, 0.0),
+		float3(0.5, 0.0, 1.0)
+	};
+	#endif
+	#ifdef PDX_OPENGL
+	static const float3 shieldColorArray[7] = float3[7](
+		float3(0.5, 0.0, 1.0),
+		float3(1.0, 0.75, 0.0),
+		float3(0.0, 0.75, 0.0),
+		float3(0.0, 0.75, 1.0),
+		float3(1.0, 0.0, 1.0),
+		float3(1.0, 0.0, 0.0),
+		float3(0.5, 0.0, 1.0)
+	);
+	#endif
 	
 	//Color of the upper half of gbChannel1 while navy map mode is selected.
 	static const float3 navyMapGBColor = float3(0.033203125f, 0.049804688f, 0.100097659f);
 	static const float epsilon = 0.00196078431;
 	
 	//Coordinates of the test point
-	static const float2 testCoords = float2( 0.10327f, 0.499f );
+	static const float2 testCoords = float2( 0.9675f, 0.499f );
 	
 	//Untility function to check if day/night overrides need to be applied
 	int dayNightOverrideCheck(in sampler2D gbChannel) {

@@ -15,93 +15,7 @@ variable.
 * [military_industrial_organization](#dynamic-variables-for-scope-military_industrial_organization)
 * [special_project](#dynamic-variables-for-scope-special_project)
 
-## dynamic_variables_documentation.mdglobal
-
-### countries
-* description: get array of all countries (including non existing
-
-### date
-* description: get date value that can be comparable to other date values and localized using GetDateString/GetDateStringShortMonth/GetDateStringNoHour/GetDateStringNoHourLong scripted locs
-
-### difficulty
-* description: check if the difficulty is above or below specified value 0-2 (difficulty enum). Example: difficulty > 0 (above easy)
-* (Auto generated using the trigger with same name)
-
-### global_resource_extracted
-* description: total amount of specific resource extracted by the world, resource type is defined in target global_resource_extracted@steel
-
-### global_resource_extracted_total
-* description: total amount of resources extracted by the world
-
-### ideology_groups
-* description: array of objects in ideology_groups database
-
-### majors
-* description: get array of all majors (including non existing
-
-### num_days
-* description: current total days
-
-### num_of_career_profile_points
-* description: check amount of gained career points
-* (Auto generated using the trigger with same name)
-
-### operations
-* description: array of objects in operations database
-
-### pc_turn
-* description: Checks turn number in PC.
-Example:
-pc_turn > 20
-* (Auto generated using the trigger with same name)
-
-### power_balance_daily_change
-* description: compares current total daily change of a power balance
-
-Example:
-power_balance_daily_change = {
-	id = power_balance_id
-	value > 0.5 # supported operators are: >, < and =
-}
-* (Auto generated using the trigger with same name)
-
-### power_balance_value
-* description: compares current value of a power balance
-
-Example:
-power_balance_value = {
-	id = power_balance_id
-	value > 0.5 # supported operators are: >, < and =
-}
-* (Auto generated using the trigger with same name)
-
-### power_balance_weekly_change
-* description: compares current total weekly change of a power balance
-
-Example:
-power_balance_weekly_change = {
-	id = power_balance_id
-	value > 0.5 # supported operators are: >, < and =
-}
-* (Auto generated using the trigger with same name)
-
-### province_controllers
-* description: get array of all province controllers. Example: province_controllers^4135
-
-### states
-* description: get array of all states
-
-### technology
-* description: array of objects in technology database
-
-### threat
-* description: check the global threat value (world tension). 0-1 value
-* (Auto generated using the trigger with same name)
-
-### year
-* description: current year
-
-## dynamic_variables_documentation.mdcountry
+## Dynamic variables for scope country
 
 ### agency_upgrade_number
 * description: Checks the number of upgrade done in the intelligence agency. 
@@ -372,6 +286,10 @@ decryption_progress = {
 
 ### enemies_strength_ratio
 * description: Compares the estimated army strength between the scope country and all its enemies
+* (Auto generated using the trigger with same name)
+
+### energy_ratio
+* description: energy_ratio > 0.8 - Compare current energy fulfilment to the factories, with 1 being 100% and 0 being 0%
 * (Auto generated using the trigger with same name)
 
 ### exiles
@@ -1045,7 +963,131 @@ CZE = { pc_total_score > 400 }
 ### total_equipment_produced_train
 * description: Total produced equipment of typetrain
 
-## dynamic_variables_documentation.mdstate
+## Dynamic variables for scope global
+
+### countries
+* description: get array of all countries (including non existing
+
+### date
+* description: get date value that can be comparable to other date values and localized using GetDateString/GetDateStringShortMonth/GetDateStringNoHour/GetDateStringNoHourLong scripted locs
+
+### difficulty
+* description: check if the difficulty is above or below specified value 0-2 (difficulty enum). Example: difficulty > 0 (above easy)
+* (Auto generated using the trigger with same name)
+
+### global_resource_extracted
+* description: total amount of specific resource extracted by the world, resource type is defined in target global_resource_extracted@steel
+
+### global_resource_extracted_total
+* description: total amount of resources extracted by the world
+
+### ideology_groups
+* description: array of objects in ideology_groups database
+
+### majors
+* description: get array of all majors (including non existing
+
+### num_days
+* description: current total days
+
+### num_of_career_profile_points
+* description: check amount of gained career points
+* (Auto generated using the trigger with same name)
+
+### operations
+* description: array of objects in operations database
+
+### pc_turn
+* description: Checks turn number in PC.
+Example:
+pc_turn > 20
+* (Auto generated using the trigger with same name)
+
+### power_balance_daily_change
+* description: compares current total daily change of a power balance
+
+Example:
+power_balance_daily_change = {
+	id = power_balance_id
+	value > 0.5 # supported operators are: >, < and =
+}
+* (Auto generated using the trigger with same name)
+
+### power_balance_value
+* description: compares current value of a power balance
+
+Example:
+power_balance_value = {
+	id = power_balance_id
+	value > 0.5 # supported operators are: >, < and =
+}
+* (Auto generated using the trigger with same name)
+
+### power_balance_weekly_change
+* description: compares current total weekly change of a power balance
+
+Example:
+power_balance_weekly_change = {
+	id = power_balance_id
+	value > 0.5 # supported operators are: >, < and =
+}
+* (Auto generated using the trigger with same name)
+
+### province_controllers
+* description: get array of all province controllers. Example: province_controllers^4135
+
+### states
+* description: get array of all states
+
+### technology
+* description: array of objects in technology database
+
+### threat
+* description: check the global threat value (world tension). 0-1 value
+* (Auto generated using the trigger with same name)
+
+### year
+* description: current year
+
+## Dynamic variables for scope military_industrial_organization
+
+### funds
+* description: Funds of the military industrial organization
+
+### max_task_capacity
+* description: Maximum task capacity of the military industrial organization.
+
+### modifier
+* description: Value of the modifier stored in the military industrial organization.
+ex: modifier@military_industrial_organization_research_bonus
+
+### number_of_currently_assigned_tasks
+* description: Number of tasks the military industrial organization is currently assigned to
+
+### number_of_unlocked_traits
+* description: Number of unlocked traits of the military industrial organization.
+
+### number_of_unused_trait_points
+* description: Number of unused trait points of the military industrial organization
+
+### research_bonus
+* description: Research bonus of the military industrial organization when assigned to a research slot
+
+### size
+* description: Size of the military industrial organization
+
+## Dynamic variables for scope special_project
+
+### facility_province_id
+* description: The province that the project is researched in
+
+### facility_state
+* description: State that the project is researched in
+
+### scientist
+* description: The scientist that researches the project
+
+## Dynamic variables for scope state
 
 ### arms_factory_level
 * description: military factory level in the state
@@ -1125,7 +1167,7 @@ days_since_last_strategic_bombing < 10
 * description: Checks for state strategic value
 * (Auto generated using the trigger with same name)
 
-## dynamic_variables_documentation.mdunit_leader
+## Dynamic variables for scope unit_leader
 
 ### army_attack_level
 * description: attack level of the leader
@@ -1330,42 +1372,4 @@ Example: planning_skill_level > 5
 
 ### unit_ratio_ready_for_plan
 * description: ratio of units that are ready for plan
-
-## dynamic_variables_documentation.mdmilitary_industrial_organization
-
-### funds
-* description: Funds of the military industrial organization
-
-### max_task_capacity
-* description: Maximum task capacity of the military industrial organization.
-
-### modifier
-* description: Value of the modifier stored in the military industrial organization.
-ex: modifier@military_industrial_organization_research_bonus
-
-### number_of_currently_assigned_tasks
-* description: Number of tasks the military industrial organization is currently assigned to
-
-### number_of_unlocked_traits
-* description: Number of unlocked traits of the military industrial organization.
-
-### number_of_unused_trait_points
-* description: Number of unused trait points of the military industrial organization
-
-### research_bonus
-* description: Research bonus of the military industrial organization when assigned to a research slot
-
-### size
-* description: Size of the military industrial organization
-
-## dynamic_variables_documentation.mdspecial_project
-
-### facility_province_id
-* description: The province that the project is researched in
-
-### facility_state
-* description: State that the project is researched in
-
-### scientist
-* description: The scientist that researches the project
 
