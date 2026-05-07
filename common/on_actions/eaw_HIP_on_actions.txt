@@ -23,4 +23,330 @@ on_actions = {
 			}
 		}
 	}
+
+	on_puppet = {
+		effect = {
+			if = {
+				limit = {
+					FROM = {
+						original_tag = HIP
+						has_country_flag = HIP_siren_takeover
+					}
+				}
+				FROM = {
+					set_country_flag = { flag = bypass_annex_compliance days = 1 value = 1 }
+					annex_country = {
+						target = ROOT
+						transfer_troops = no
+					}
+				}
+			}
+			if = {
+				limit = {
+					FROM = { original_tag = HIP }
+					ROOT = { original_tag = BAT }
+				}
+				FROM = {
+					set_country_flag = { flag = bypass_annex_compliance days = 1 value = 1 } #I don't know why. I don't know how. But something related to this is crashing the game. Too Bad! -Knife.
+					annex_country = { target = ROOT  } #Play as Harmonist HIP, win NZW, Kill WNG first, then kill NZW participants. Puppet BAT, crash game. Why? I don't even.
+				}
+			}
+			
+			if = {
+				limit = {
+					FROM = {
+						tag = HIP
+						has_government = fascism
+						has_country_flag = HIP_arisfirst_government
+					}
+					ROOT = { tag = WAR }
+				}
+				ROOT = {
+					add_country_leader_role = {
+						character = WAR_king_zarizel_ii
+						promote_leader = yes
+						country_leader = {
+							expire = "1965.1.1"
+							ideology = oligarchism
+						}
+					}
+					set_cosmetic_tag = WAR_HIP_protectorate
+					remove_country_leader_trait = patriot_king
+					add_stability = -0.05
+					set_politics = {
+						ruling_party = neutrality
+						elections_allowed = no
+					}
+					set_party_name = {
+						ideology = neutrality
+						long_name = WAR_neutrality_party_HIP_long
+						name = WAR_neutrality_party_HIP
+					}
+					add_popularity = {
+						ideology = neutrality
+						popularity = 0.20
+					}
+					add_popularity = {
+						ideology = democratic
+						popularity = 0.20
+					}
+					country_event = {
+						id = arisfirst.712
+						months = 14
+					}
+					add_ideas = fascist_influence
+				}
+			}
+		}
+	}
+
+	on_release_as_puppet = {
+		effect = {
+			if = {
+				limit = {
+					FROM = {
+						tag = HIP
+						has_government = fascism
+						has_country_flag = HIP_arisfirst_government
+					}
+					ROOT = { tag = WAR }
+				}
+				ROOT = {
+					add_country_leader_role = {
+						character = WAR_king_zarizel_ii
+						promote_leader = yes
+						country_leader = {
+							expire = "1965.1.1"
+							ideology = oligarchism
+						}
+					}
+					set_cosmetic_tag = WAR_HIP_protectorate
+					remove_country_leader_trait = patriot_king
+					add_stability = -0.05
+					set_politics = {
+						ruling_party = neutrality
+						elections_allowed = no
+					}
+					set_party_name = {
+						ideology = neutrality
+						long_name = WAR_neutrality_party_HIP_long
+						name = WAR_neutrality_party_HIP
+					}
+					add_popularity = {
+						ideology = neutrality
+						popularity = 0.20
+					}
+					add_popularity = {
+						ideology = democratic
+						popularity = 0.20
+					}
+					country_event = {
+						id = arisfirst.712
+						months = 15
+					}
+					add_ideas = fascist_influence
+				}
+			}
+		}
+	}
+
+	on_government_change = {
+		effect = {
+			if = {
+				limit = {
+					original_tag = EQS
+					NOT = { has_government = democratic }
+				}
+				if = {
+					limit = {
+						HIP = {
+							OR = {
+								is_in_faction_with = EQS
+								has_war_together_with = EQS
+							}
+							is_subject = no
+							NOT = {has_government = fascism}
+						}
+					}
+					HIP = {
+						every_country = {
+							limit = {
+								OR = {
+									tag = HIP
+									is_subject_of = HIP
+									has_country_flag = HIP_alliance_member
+								}
+								is_in_faction_with = EQS
+							}
+							leave_faction = yes
+							add_ai_strategy = {
+								type = alliance
+								id = "EQS"
+								value = -200
+							}
+							add_ai_strategy = {
+								type = alliance
+								id = "HIP"
+								value = 200
+							}
+						}
+						every_other_country = {
+							limit = {
+								OR = {
+									is_on_equestrian_continent = yes
+									is_in_faction_with = WNG
+								}
+								has_war_with = EQS
+							}
+							set_country_flag = { flag = bypass_on_peaceconference_ended days = 1 value = 1 }
+							every_country = {
+								limit = {
+									OR = {
+										tag = HIP
+										is_subject_of = HIP
+										has_country_flag = HIP_alliance_member
+										AND = {
+											is_in_faction_with = HIP
+											NOT = {is_in_faction_with = EQS}
+										}
+									}
+								}
+								set_country_flag = { flag = bypass_on_peaceconference_ended days = 1 value = 1 }
+								white_peace = PREV
+								remove_wargoal = {
+									type = all
+									target = PREV
+								}
+							}
+						}
+						if = {
+							limit = {
+								has_country_flag = HIP_won_north_zebrican_war
+							}
+							create_faction_from_template = faction_template_HIP_middle_sea_treaty
+							every_other_country = {
+								limit = {
+									OR = {
+										has_country_flag = HIP_alliance_member
+										is_subject_of = HIP
+									}
+								}
+								HIP = {add_to_faction = PREV}
+							}
+						}
+					}
+				}
+			}
+		}
+	}
+
+	on_capitulation = {
+		effect = {
+			if = {
+				limit = {
+					original_tag = EQS
+					has_government = democratic
+					FROM = {
+						NOT = { has_wargoal_against = HIP }
+					}
+					HIP = {
+						exists = yes
+						has_capitulated = no
+						NOT = {
+							any_owned_state = {
+								OR = {
+									is_controlled_by = FROM
+									CONTROLLER = {
+										is_ally_with = FROM
+									}
+								}
+							}
+						}
+						has_war_with = FROM
+					}
+				}
+				HIP = {
+					if = {
+						limit = { is_in_faction_with = EQS }
+						leave_faction = yes
+					}
+					if = {
+						limit = { has_war_with = FROM }
+						set_country_flag = { flag = bypass_on_peaceconference_ended days = 1 value = 1 }
+						FROM = { set_country_flag = { flag = bypass_on_peaceconference_ended days = 1 value = 1 } }
+						white_peace = FROM
+						remove_wargoal = {
+							type = all
+							target = FROM
+						}
+					}
+					if = {
+						limit = {
+							has_country_flag = HIP_alliance_member
+						}
+						create_faction_from_template = faction_template_HIP_middle_sea_treaty
+						every_other_country = {
+							limit = {
+								OR = {
+									has_country_flag = HIP_alliance_member
+									is_subject_of = HIP
+								}
+							}
+							HIP = {add_to_faction = PREV}
+						}
+						every_other_country = {
+							limit = {
+								OR = {
+									has_country_flag = HIP_alliance_member
+									is_subject_of = HIP
+									AND = {
+										is_in_faction_with = HIP
+										NOT = {
+											is_in_faction_with = EQS
+										}
+									}
+								}
+							}
+							if = {
+								limit = { has_war_with = FROM }
+								set_country_flag = { flag = bypass_on_peaceconference_ended days = 1 value = 1 }
+								white_peace = FROM
+							}
+						}
+					}
+					HIP = {country_event = hippogriff.83}
+				}
+			}
+		}
+	}
+
+	on_offer_join_faction = {
+		effect = {
+			if = {
+				limit = { original_tag = HIP }
+				FROM = {
+					add_ai_strategy = {
+						id = "HIP"
+						type = alliance
+						value = 100
+					}
+				}
+			}
+		}
+	}
+
+	on_join_faction = {
+		effect = {
+			if = {
+				limit = {
+					FROM = { original_tag = HIP }
+				}
+				add_ai_strategy = {
+					id = "HIP"
+					type = alliance
+					value = 100
+				}
+			}
+		}
+	}
 }
