@@ -1,5 +1,6 @@
 name="Equestria at War"
 path="mod/equestria/"
+replace_path="common/abilities"
 replace_path="common/ai_equipment"
 replace_path="common/ai_focuses"
 replace_path="common/ai_peace"
