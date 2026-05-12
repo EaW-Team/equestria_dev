@@ -16,6 +16,8 @@ a civil war, ...
 * [All Console Commands](#all-console-commands)
 * [All Tweakable Variables](#all-tweakable-variables)
 
+## All Console Commands
+
 ## 3dstats
 
 Toggles 3D Stats
@@ -119,11 +121,6 @@ Sets the price level for the given equipment in the Market Stockpile
 * Not available in release build
 
 List regions center point that is located within another region
-
-## PopsFileStorage.Sync
-* Not available in release build
-
-Sync POP File Storage
 
 ## PostEffectVolumes.Default
 * Arguments: posteffect_values name
@@ -359,6 +356,12 @@ Begin annex/annexes the specified tag
 
 Deliver a thermonuclear strike to every state in the game.
 
+## auto_unpause
+* Arguments: [speed 1-5]
+* Not available in release build
+
+Auto-unpause at given speed (1-5) when clients catch up. No argument to disable.
+
 ## bloom
 * Not available in release build
 
@@ -558,11 +561,6 @@ Analyse all characters' portraits and write failures in error log
 ## debug_cities
 
 Toggles Cities painting mode on/off
-
-## debug_commands
-* Not available in release build
-
-Printing commandcount to message.log
 
 ## debug_crash
 * Aliases: crash
@@ -854,31 +852,32 @@ Runs the inlined trigger on a selected scope
 
 Executes an event
 
+## exit
+* Not available in release build
+
+Exit game
+
 ## faction_goal_slot
 * Aliases: fgs
 * Arguments: category, amount
-* Not available in release build
 
 Adds a faction goal slot, categories are short medium long
 
 ## faction_influence
 * Aliases: finf
 * Arguments: amount, countrytag
-* Not available in release build
 
 Adds faction influence (stored) to the country, on default it takes the player country if no tag is provided
 
 ## faction_initiative
 * Aliases: fi
 * Arguments: amount, countrytag
-* Not available in release build
 
 Adds faction initiative to the country, on default it takes the player country if no tag is provided
 
 ## faction_unlock
 * Aliases: fu
 * Arguments: type
-* Not available in release build
 
 Unlocks a part of the faction, can take the argument military (m) or research (r)
 
@@ -1307,27 +1306,6 @@ Pauses the game after X hours have passed after command is called
 
 Pauses the game when trigger activates
 
-## pops_account_disconnect_steam
-* Not available in release build
-
-Disconnect Paradox account from Steam
-
-## pops_account_login
-* Arguments: email, password
-* Not available in release build
-
-Login to a POPS Account
-
-## pops_account_logout
-* Not available in release build
-
-Login to a POPS Account
-
-## pops_account_status
-* Not available in release build
-
-Show whether you are currently logged into POPS or not.
-
 ## pp
 * Aliases: political_power
 * Arguments: PP amount
@@ -1521,6 +1499,43 @@ Makes a savegame (Test_01), loads the savegame, makes a new savegame (Test_02). 
 
 Creates a save file.
 
+## scenario_testing.clear_production
+* Not available in release build
+
+Clear all countries production lines
+
+## scenario_testing.default
+* Not available in release build
+
+Set pre-defined conditions
+
+## scenario_testing.delete_equipment_stockpile
+* Not available in release build
+
+Delete all equipment in the stockpile
+
+## scenario_testing.run_all_tests
+* Not available in release build
+
+Run all tests
+
+## scenario_testing.run_fixture
+* Arguments: <test_file>
+* Not available in release build
+
+Run all tests in a test file
+
+## scenario_testing.run_test
+* Arguments: <test_name>
+* Not available in release build
+
+Run a test
+
+## scenario_testing.stop_evaluation
+* Not available in release build
+
+Stop all test evaluation of eventually and always effects
+
 ## select
 * Aliases: sel
 * Arguments: <object id>, <object type id> (optional)
@@ -1629,29 +1644,6 @@ Toggle simplified naval transports
 * Not available in release build
 
 Sleep
-
-## social_addfriend
-* Arguments: Context Index, Account ID
-* Not available in release build
-
-Add a friend to friends list
-
-## social_debuginfo
-* Not available in release build
-
-Print debug info about the social layer
-
-## social_joinroom
-* Arguments: Context Index, Room Name, Nick Name
-* Not available in release build
-
-Join a chat room using the given social context
-
-## social_sendmessage
-* Arguments: Context Index, Room Name, Message
-* Not available in release build
-
-Send a message to a chat room.
 
 ## sp_add_mastermind
 
