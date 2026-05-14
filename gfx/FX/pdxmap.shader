@@ -367,7 +367,7 @@ PixelShader =
 			
 			float3 checkColor = float3( 0.76f, 0.4f, 1.0f);
 			float eppy = 0.5;
-			float3 diff = checkColor - secondaryColor;
+			float3 diff = checkColor - secondaryColor.rgb;
 			secondary_color_mask( diffuse.rgb, normal, Input.uv2, ProvinceSecondaryColorMap, vBloomAlpha, 1.0f - snowMaskFactor );
 
 			LightingProperties lightingProperties;
