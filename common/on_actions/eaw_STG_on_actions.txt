@@ -6,6 +6,113 @@ on_actions = {
 			}
 		}
 	}
+
+	on_peaceconference_ended = {
+		effect = {
+			# PUT EVERYTHING IN THE IF BELOW
+			# THE bypass_on_peaceconference_ended FLAG **HAS** TO BE SET BEFORE CALLING THE white_peace COMMAND AND CLEARED AFTERWARDS
+			if = {
+				limit = {
+					NOT = {
+						has_country_flag = bypass_on_peaceconference_ended
+						FROM = { has_country_flag = bypass_on_peaceconference_ended }
+					}
+				}
+				log = "[GetDateText]: ROOT: [Root.GetName] FROM: [From.GetName] on_peaceconference_ended"
+				if = { # workaround to hopefully fix the weird GRF behavior
+					limit = {
+						original_tag = STG
+						FROM = {
+							original_tag = GRF
+						}
+						any_country_with_original_tag = {
+							original_tag_to_check = GRF
+							is_subject_of = ROOT
+						}
+					}
+					random_country_with_original_tag = {
+						original_tag_to_check = GRF
+						limit = {
+							is_subject_of = STG
+						}
+						country_event = { id = griffons.142 days = 5 }
+					}
+				}
+				if = {		#triggereing when EQS falls after Tricky attack
+					limit = {
+						original_tag = STG
+						FROM = {
+							OR = {
+								tag = EQS
+								tag = NLR
+							}
+						}
+						has_completed_focus = STG_a_tricky_attack
+					}
+					country_event = { id = stalliongrad_sinister.48 days = 2 }
+				}
+				if = {		#triggereing when EQS or NLR falls after ECW
+					limit = {
+						original_tag = STG
+						FROM = {
+							OR = {
+								tag = EQS
+								tag = NLR
+							}
+						}
+						has_completed_focus = STG_warplane_south
+						OR = {
+							EQS = { 
+								OR = {
+									exists = no
+									is_subject_of = ROOT
+								}
+							}
+							NLR = { 
+								OR = {
+									exists = no
+									is_subject_of = ROOT
+								}
+							}
+						}
+					}
+					country_event = { id = stalliongrad_sinister.53 days = 1 }
+				}
+				if = {		#triggereing when CRY falls after warplane crystal
+					limit = {
+						original_tag = STG
+						FROM = {
+							original_tag = CRY
+						}
+						has_completed_focus = STG_warplane_crystal
+					}
+					country_event = { id = stalliongrad_sinister.83 days = 2 }
+				}
+				if = {
+					limit = {
+						tag = STG
+						is_ai = yes
+						has_government = communism
+						FROM = {
+							tag = PLB
+							PLB = { is_subject_of = ROOT }
+						}
+					}
+					every_owned_state = {
+						limit = {
+							is_core_of = PLB
+							NOT = {
+								is_core_of = ROOT
+								is_claimed_by = ROOT
+							}
+						}
+						transfer_state_to = PLB
+					}
+				}
+			}
+		}
+	}
+
 	on_monthly_STG = {
 		effect = {
 			if = {
@@ -505,6 +612,87 @@ on_actions = {
 				}
 				ROOT = { set_country_flag = STG_masha_cant_coup }
 			}
+			if = {
+				limit = {
+					original_tag = STG
+					STL = {
+						has_defensive_war_with = STG
+						NOT = { # to account for NG thing
+							AND = {
+								is_in_faction_with = EQS
+								has_completed_focus = STL_help_equestria_ng
+							}
+						}
+					}
+				}
+				STL_set_up_STG_war_defensive = yes
+			}
+		}
+		effect = {
+			if = { #SOV is attacker - bad SOV gets properly punished
+				limit = {
+					ROOT = { original_tag = STG }
+					STG = {
+						has_country_flag = STG_propaganda_peace_active_flag
+						NOT = { has_country_flag = STG_punished_for_breaking_flag }
+					}
+				}
+				country_event = { id = Stalliongrad_propaganda_capmaign_events.2 hours = 4 random_hours = 2 }
+			}
+			else_if = { #SOV is defender - SOV gets mild punishment // #TODO_Manu: This is not triggering when someone declares on SOV
+				limit = {
+					FROM = { original_tag = STG }
+					STG = {
+						has_country_flag = STG_propaganda_peace_active_flag
+						NOT = { has_country_flag = STG_punished_for_breaking_flag }
+					}
+				}
+				country_event = { id = Stalliongrad_propaganda_capmaign_events.3 hours = 4 random_hours = 2 }
+			}
+		}
+	}
+
+	on_government_change = {
+		effect = {
+			if = {
+				limit = {
+					original_tag = STG
+					is_subject = no
+				}
+				reapply_secondary_cosmetic_tags = yes
+			}
+		}
+	}
+
+	on_leave_faction = {
+		effect = {
+			if = {
+				limit = {
+					tag = STG
+				}
+				country_event = { id = stalliongrad_old.151 hours = 1 }
+			}
+		}
+	}
+
+	on_peace = {
+		effect = {
+			if = {
+				limit = {
+					tag = STG
+				}
+				country_event = { id = stalliongrad_old.151 hours = 1 }
+			}
+			if = {
+				limit = {
+					OR = {
+						tag = STG
+						tag = STL
+					}
+					has_global_flag = STG_STL_fighting
+				}
+				clr_global_flag = STG_STL_fighting
+			}
 		}
 	}
 
@@ -653,6 +841,108 @@ on_actions = {
 						}
 						add_to_variable = { ROOT.current_civs = building_level@industrial_complex }
 						add_to_variable = { ROOT.current_mils = building_level@arms_factory }
+					}
+				}
+			}
+		}
+	}
+
+	on_daily_STG = {
+		# war escalation effects
+		effect = {
+			IF = {
+				limit = {
+					has_global_flag = STG_STL_fighting
+				}
+				# Desertions begin
+				IF = {
+					limit = {
+						NOT = { has_country_flag = STG_desertions_flag }
+						check_variable = { STL.STL_war_escalation_level > 3 }
+					}
+					set_country_flag = STG_desertions_flag
+					country_event = {
+						id = escalation_war.8
+						hours = 6
+						random_hours = 8
+					}
+				}
+				# Industrial sabotage
+				IF = {
+					limit = {
+						NOT = { has_country_flag = STG_sabotage_flag }
+						check_variable = { STL.STL_war_escalation_level > 4 }
+					}
+					set_country_flag = STG_sabotage_flag
+					country_event = {
+						id = escalation_war.9
+						hours = 6
+						random_hours = 8
+					}
+				}
+				# Global trade issues
+				IF = {
+					limit = {
+						NOT = { has_country_flag = STG_trade_issues_flag }
+						check_variable = { STL.STL_war_escalation_level > 5 }
+					}
+					set_country_flag = STG_trade_issues_flag
+					country_event = {
+						id = escalation_war.10
+						hours = 6
+						random_hours = 8
+					}
+				}
+				# International humilitation
+				IF = {
+					limit = {
+						NOT = { has_country_flag = STG_humiliation_flag }
+						check_variable = { STL.STL_war_escalation_level > 6 }
+					}
+					set_country_flag = STG_humiliation_flag
+					country_event = {
+						id = escalation_war.11
+						hours = 6
+						random_hours = 8
+					}
+				}
+				# Mountain partisans
+				IF = {
+					limit = {
+						NOT = { has_country_flag = STG_partisans_flag }
+						check_variable = { STL.STL_war_escalation_level > 7 }
+					}
+					set_country_flag = STG_partisans_flag
+					country_event = {
+						id = escalation_war.12
+						hours = 6
+						random_hours = 8
+					}
+				}
+				# Armor units disrupted
+				IF = {
+					limit = {
+						NOT = { has_country_flag = STG_armor_disrupted_flag }
+						check_variable = { STL.STL_war_escalation_level > 8 }
+					}
+					set_country_flag = STG_armor_disrupted_flag
+					country_event = {
+						id = escalation_war.13
+						hours = 6
+						random_hours = 8
+					}
+				}
+				# Stalliongrad on the brink
+				IF = {
+					limit = {
+						NOT = { has_country_flag = STG_stg_brink_flag }
+						check_variable = { STL.STL_war_escalation_level > 9 }
+					}
+					set_country_flag = STG_stg_brink_flag
+					country_event = {
+						id = escalation_war.14
+						hours = 6
+						random_hours = 8
 					}
 				}
 			}
