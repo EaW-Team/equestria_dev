@@ -59,7 +59,6 @@ PixelShader =
 		{
             int nb_frames = 14;
             // Get the inputs parameters
-            int offsetInt = int(round(Offset.x*nb_frames));
             int start_frame   = 1;
             int end_frame     = 14;
             int frame_per_sec = 180;
