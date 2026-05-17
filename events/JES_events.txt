@@ -76,6 +76,12 @@ country_event = { #Tarrin calls for aid!
 			enemy = FRN
 			hostility_reason = asked_to_join
 		}
+		if = {
+			limit = {
+				is_faction_leader = yes
+			}
+			add_to_faction = FROM
+		}
 		give_military_access = FROM
 		FROM = {
 			give_military_access = ROOT
@@ -146,7 +152,7 @@ country_event = { #Francistria retreats from Tarrin
 
 	option = {
 		name = tarrin.4.a
-		add_war_support = -0.25
+		add_war_support = -0.15
 		add_political_power = 150
 		add_stability = 0.1
 	}
@@ -447,6 +453,7 @@ country_event = { #Angry monarkiddies
 	option = {
 		name = tarrin.15.a
 		add_ideas = JES_monarchist_rebels
+		custom_effect_tooltip = JES_monarkiddie_warning
 		if = {
 			limit = {
 				JER = {
@@ -458,11 +465,18 @@ country_event = { #Angry monarkiddies
 					}
 				}
 			}
-			custom_effect_tooltip = JES_monarkiddie_warning
 			hidden_effect = {
 				country_event = {
 					id = tarrin.34
 					days = 300
+				}
+			}
+		}
+		else = {
+			hidden_effect = {
+				country_event = {
+					id = tarrin.34
+					days = 400
 				}
 			}
 		}
@@ -949,25 +963,25 @@ country_event = { #Hidden event cleaning the mess
 		435 = {
 			force_disable_resistance = JER
 			cancel_resistance = yes
-			remove_resistance_target = 435
+			#remove_resistance_target = 435
 			add_core_of = ROOT
 		}
 		448 = {
 			force_disable_resistance = JER
 			cancel_resistance = yes
-			remove_resistance_target = 448
+			#remove_resistance_target = 448
 			add_core_of = ROOT
 		}
 		376 = {
 			force_disable_resistance = JER
 			cancel_resistance = yes
-			remove_resistance_target = 376
+			#remove_resistance_target = 376
 			add_core_of = ROOT
 		}
 		517 = {
 			force_disable_resistance = JER
 			cancel_resistance = yes
-			remove_resistance_target = 517
+			#remove_resistance_target = 517
 			add_core_of = ROOT
 		}
 	}
@@ -1243,7 +1257,34 @@ country_event = { #Monarkiddie coup
 	id = tarrin.34
 	immediate = {log = "[GetDateText]: [Root.GetName]: event tarrin.34"}
 	title = tarrin.34.t
-	desc = tarrin.34.d
+	desc = {
+		text = tarrin.34.d_mon_aquileia
+		trigger = { 
+			JER = {
+				has_government = neutrality
+				exists = yes
+				has_global_flag = JER_revolution_ended
+				NOT = {
+					has_country_flag = JER_democracy_established
+				}
+			}
+		}
+	}
+	desc = {
+		text = tarrin.34.d_no_mon_aquileia
+		trigger = { 
+			NOT = {
+				JER = {
+					has_government = neutrality
+					exists = yes
+					has_global_flag = JER_revolution_ended
+					NOT = {
+						has_country_flag = JER_democracy_established
+					}
+				}
+			}
+		}
+	}
 	picture = GFX_event_griffon_with_gun
 	is_triggered_only = yes
 	trigger = {
@@ -1251,8 +1292,64 @@ country_event = { #Monarkiddie coup
 	}
 	option = {
 		name = tarrin.34.a
-		JER = {
-			country_event = tarrin.35
+		custom_effect_tooltip = GAME_OVER_TT
+		if = {
+			limit = {
+				is_in_faction = yes
+			}
+			if = {
+				limit = {
+					is_faction_leader = no
+				}
+				leave_faction = yes
+			}
+			else = {
+				dismantle_faction = yes
+			}
+		}
+		if = {
+			limit = {
+				JER = {
+					has_government = neutrality
+					exists = yes
+					has_global_flag = JER_revolution_ended
+					NOT = {
+						has_country_flag = JER_democracy_established
+					}
+				}
+			}
+			JER = {
+				country_event = tarrin.35
+			}
+		}
+		else = {
+			add_stability = -0.25
+			add_political_power = -100
+			hidden_effect = {
+				load_focus_tree = generic_griffon_focus
+				JES_leontina_pandionne = {
+					remove_unit_leader_role = yes
+					remove_advisor_role = {
+						slot = army_chief
+					}
+				}
+				JES_meinard_nocere = {
+					remove_unit_leader_role = yes
+					remove_advisor_role = {
+						slot = army_chief
+					}
+				}
+				JES_corina_trasviraire = {
+					remove_unit_leader_role = yes
+					remove_advisor_role = {
+						slot = army_chief
+					}
+				}
+				SOL = { change_tag_from = ROOT }
+			}
+			set_politics = {
+				ruling_party = neutrality
+			}
 		}
 	}
 }
@@ -1598,5 +1695,103 @@ country_event = { #Tarrinian slavery
 		#show_ideas_tooltip = JAK_not_a_jak
 		#custom_effect_tooltip = available_political_advisor
 		#show_ideas_tooltip = MIT_Randy
+	}
+}
+country_event = { #Border war warning 1
+	id = tarrin.48
+	immediate = {log = "[GetDateText]: [Root.GetName]: event tarrin.48"}
+	title = tarrin.48.t
+	desc = tarrin.48.d
+	picture = GFX_event_griffon_soldier
+
+	is_triggered_only = yes
+
+	option = { #fight!
+		name = tarrin.48.a
+		ai_chance = {
+			factor = 10
+			modifier = {
+				has_war = yes
+				factor = 0.3
+			}
+		}
+		FROM = {
+			start_border_war = {
+				change_state_after_war = no
+				attacker = {
+					state = 487
+					num_provinces = 5
+					on_win = tarrin.38
+					on_lose = tarrin.39
+					on_cancel = tarrin.40
+				}
+
+				defender = {
+					state = 500
+					num_provinces = 5
+					on_win = tarrin.41
+					on_lose = tarrin.42
+					on_cancel = tarrin.43
+				}
+			}
+		}
+	}
+	option = { #give up
+		name = tarrin.48.b
+		ai_chance = {
+			factor = 1
+		}
+		FROM = {
+			country_event = tarrin.38
+		}
+	}
+}
+country_event = { #Border war warning 2
+	id = tarrin.49
+	immediate = {log = "[GetDateText]: [Root.GetName]: event tarrin.49"}
+	title = tarrin.49.t
+	desc = tarrin.49.d
+	picture = GFX_event_griffon_soldier
+
+	is_triggered_only = yes
+
+	option = { #fight!
+		name = tarrin.49.a
+		ai_chance = {
+			factor = 10
+			modifier = {
+				has_war = yes
+				factor = 0.3
+			}
+		}
+		FROM = {
+			start_border_war = {
+				change_state_after_war = no
+				attacker = {
+					state = 487
+					num_provinces = 5
+					on_win = tarrin.44
+					on_lose = tarrin.39
+					on_cancel = tarrin.40
+				}
+
+				defender = {
+					state = 401
+					num_provinces = 5
+					on_win = tarrin.41
+					on_lose = tarrin.42
+					on_cancel = tarrin.43
+				}
+			}
+		}
+	}
+	option = { #give up
+		name = tarrin.49.b
+		ai_chance = {
+			factor = 1
+		}
+		FROM = {
+			country_event = tarrin.44
+		}
 	}
 }
