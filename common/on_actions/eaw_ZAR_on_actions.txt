@@ -1,0 +1,238 @@
+on_actions = {
+	on_startup = {
+		effect = {
+			ZAR = {
+				refresh_compliance_values = yes
+				ZAR_save_starting_core_NZ = yes
+			}
+		}
+	}
+
+	on_civil_war_end = {
+		effect = {
+			if = {
+				limit = {
+					original_tag = ZAR
+					has_country_flag = ZAR_wormy
+					FROM = {
+						has_country_leader = { character = TBK_vasile ruling_only = yes }
+					}
+				}
+				country_event = zarantia_worm.13
+			}
+		}
+	}
+
+	on_weekly_ZAR = {
+		effect = {
+			if = {
+				limit = { has_idea = ZAR_trans_zebharan_caravans }
+				add_equipment_to_stockpile = {
+					type = infantry_equipment
+					amount = 15
+				}
+			}
+			if = {
+				limit = { has_idea = ZAR_flourishing_trans_zebharan_caravans }
+				add_equipment_to_stockpile = {
+					type = infantry_equipment
+					amount = 25
+				}
+				add_equipment_to_stockpile = {
+					type = support_equipment
+					amount = 5
+				}
+			}
+			if = {
+				limit = { has_idea = ZAR_awesome_trans_zebharan_caravans }
+				add_equipment_to_stockpile = {
+					type = infantry_equipment
+					amount = 50
+				}
+				add_equipment_to_stockpile = {
+					type = support_equipment
+					amount = 10
+				}
+			}
+#			if = {
+#				limit = { has_idea = ZAR_wasting_eqpt }
+#				add_equipment_to_stockpile = {
+#					type = infantry_equipment
+#					amount = -25
+#				}
+#			}
+#			if = {
+#				limit = { has_idea = ZAR_wasting_eqpt_2 }
+#				add_equipment_to_stockpile = {
+#					type = infantry_equipment
+#					amount = -20
+#				}
+#			}
+#			if = {
+#				limit = { has_idea = ZAR_wasting_eqpt_4 }
+#				add_equipment_to_stockpile = {
+#					type = infantry_equipment
+#					amount = -10
+#				}
+#			}
+#			if = {
+#				limit = { has_idea = ZAR_wasting_eqpt_3 }
+#				add_equipment_to_stockpile = {
+#					type = infantry_equipment
+#					amount = -15
+#				}
+#			}
+#			if = {
+#				limit = { has_idea = ZAR_wasting_eqpt_5 }
+#				add_equipment_to_stockpile = {
+#					type = infantry_equipment
+#					amount = -5
+#				}
+#			}
+		}
+	}
+
+	on_monthly_ZAR = {
+		effect = {
+			if = {
+				limit = { has_country_flag = ZAR_monthly_wurms_flag }
+				ZAR_monthly_wurms = yes
+			}
+		}
+	}
+
+	on_peaceconference_ended = {
+		effect = {
+			# PUT EVERYTHING IN THE IF BELOW
+			# THE bypass_on_peaceconference_ended FLAG **HAS** TO BE SET BEFORE CALLING THE white_peace COMMAND AND CLEARED AFTERWARDS
+			if = {
+				limit = {
+					NOT = {
+						has_country_flag = bypass_on_peaceconference_ended
+						FROM = { has_country_flag = bypass_on_peaceconference_ended }
+					}
+				}
+				log = "[GetDateText]: ROOT: [Root.GetName] FROM: [From.GetName] on_peaceconference_ended"
+				if = {
+					limit = {
+						ROOT = { tag = ZAR }
+						#This thing was just pointless I think. I hate NZ peace deals.
+						#NOT = {
+						#	country_exists = BAT
+						#}
+						FROM = { tag = BAT }
+					}
+					if = {
+						limit = { country_exists = TBK }
+
+						#ZAR beat Chiropterra with Tobuck, transfers states to it.
+						if = {
+							limit = {
+								BAT = { is_subject_of = ZAR }
+							}
+							TBK = {
+								set_country_flag = { flag = bypass_annex_compliance days = 1 value = 1 }
+								annex_country = {
+									target = BAT
+									transfer_troops = no
+								}
+							}
+						}
+						if = {
+							limit = {
+								ZAR = {
+									any_owned_state = { is_core_of = BAT }
+								}
+							}
+							every_owned_state = {
+								if = {
+									limit = { is_core_of = BAT }
+									TBK = { transfer_state = PREV }
+								}
+							}
+						}
+					}
+					else = {
+						if = {
+							limit = {
+								BAT = { is_subject_of = ZAR }
+							}
+							ZAR = {
+								set_country_flag = { flag = bypass_annex_compliance days = 1 value = 1 }
+								annex_country = {
+									target = BAT
+									transfer_troops = no
+								}
+							}
+						}
+						if = { # No effects
+							limit = {
+								OR = {
+									ZAR = { has_country_flag = ZAR_wormy }
+									BAT = { has_country_flag = BAT_national_catastrophe }
+								}
+							}
+							#Nothing happens, ZAR is in worm path, or BAT came in for a revenge and died again. This will not release BAT.
+						}
+						else_if = {
+							limit = {
+								all_of_scopes = {
+									array = ZAR_BAT_states
+									owner = { tag = ZAR }
+								}
+							}
+							#ZAR beat Chiropterra on it's own
+							ZAR = {
+								country_event = {
+									id = zarantia.44
+									days = 1
+								}
+							}
+						}
+						else_if = {
+							limit = {
+								any_of_scopes = {
+									array = ZAR_BAT_states
+									owner = { tag = HIP }
+								}
+							}
+							#Foreign Intervention
+							every_owned_state = {
+								limit = {
+									is_in_array = {
+										array = ZAR.ZAR_BAT_states
+										value = THIS
+									}
+								}
+								transfer_state_to = HIP
+							}
+
+							country_event = {
+								id = zarantia.445
+								days = 1
+							}
+						}
+					}
+				}
+				if = {
+					limit = {
+						ROOT = { tag = ZAR }
+						NOT = {
+							country_exists = TBK
+							country_exists = BAT
+						}
+						any_owned_state = { is_core_of = BAT }
+						FROM = { tag = TBK }
+					}
+					#Release BAT after killing Tobuck if Tobuck didn't release it by itself.
+
+					country_event = {
+						id = zarantia.444
+						days = 1
+					}
+
+				}
+			}
+		}
+	}
+}
