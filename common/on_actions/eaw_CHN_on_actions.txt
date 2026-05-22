@@ -1,0 +1,732 @@
+on_actions = {
+	on_startup = {
+		effect = {
+			CHN = {
+				find_global_platonic_countries = yes
+				country_lock_all_division_template = yes
+				add_opinion_modifier = { target = EQS modifier = distrustful_relations }
+				reverse_add_opinion_modifier = { target = EQS modifier = distrustful_relations }
+				add_opinion_modifier = { target = CRY modifier = distrustful_relations }
+				reverse_add_opinion_modifier = { target = CRY modifier = distrustful_relations }
+				add_opinion_modifier = { target = EQC modifier = distrustful_relations }
+				reverse_add_opinion_modifier = { target = EQC modifier = distrustful_relations }
+				add_opinion_modifier = { target = EQS modifier = CHN_Embargo }
+				reverse_add_opinion_modifier = { target = EQS modifier = CHN_Embargo }
+				add_opinion_modifier = { target = CRY modifier = CHN_Embargo }
+				reverse_add_opinion_modifier = { target = CRY modifier = CHN_Embargo }
+				add_opinion_modifier = { target = EQC modifier = CHN_Embargo }
+				reverse_add_opinion_modifier = { target = EQC modifier = CHN_Embargo }
+				add_opinion_modifier = { target = GRI modifier = CHN_GRI_Friendship }
+				reverse_add_opinion_modifier = { target = GRI modifier = CHN_GRI_Friendship }
+				set_country_flag = CHN_tank_AI_strategy
+				# if = { #Switch this back on for 1 update when EQS Rework is close to release
+				# 	limit = {
+				# 		EQS = { is_ai = no }
+				# 		NOT = {
+				# 			has_game_rule = {
+				# 				rule = great_war_ai_buffs
+				# 				option = CHN_AI_GW_BUFFS
+				# 			}
+				# 		}
+				# 	}
+				# 	set_country_flag = CHN_mass_infantry_AI_strategy
+				# }
+				# else = {
+				# 	set_country_flag = CHN_tank_AI_strategy
+				# }
+			}
+		}
+	}
+
+	on_declare_war = {
+		effect = {
+			if = {
+				limit = { tag = CHN }
+				if = {
+					limit = {
+						NOT = { has_global_flag = the_war }
+						FROM = { original_tag = EQS }
+					}
+					country_event = { id = changelingattache.13 days = 1 }
+					news_event = { id = news.3 days = 1 }
+					EQS = {
+						set_variable = {
+							var = mane_six_event_counter
+							value = 0
+						}
+						country_event = {
+							id = equestria.172
+							days = 5
+						}
+						if = {
+							limit = {
+								EQC = { is_ally_with = PREV }
+							}
+							EQC = { set_country_flag = together_with_EQS }
+						}
+					}
+				}
+				if = {
+					limit = {
+						has_government = fascism
+						has_completed_focus = demand_equestria
+						NOT = { country_exists = VAN EQS = { is_ai = yes } }
+						FROM = {
+							OR = {
+								original_tag = EQS
+								tag = NLR
+							}
+						}
+					}
+					country_event = { id = changelings.32 days = 1 random_hours = 48 }#days to hours applied
+				}
+				if = {
+					limit = {
+						has_country_leader = { ruling_only = yes character = CHN_queen_chrysalis }
+						FROM = {
+							original_tag = OLE
+						}
+					}
+					for_each_scope_loop = {
+						array = global.majors
+						if = {
+							limit = {
+								exists = yes
+								is_major = yes
+								is_on_equestrian_continent = yes
+								NOT = {
+									original_tag = CHN
+									original_tag = OLE
+									has_war_with = CHN
+									has_capitulated = yes
+									is_subject_of = CHN
+								}
+							}
+							country_event = { id = changeling_diplo.4 days = 2 }
+						}
+					}
+				}
+			}
+		}
+	}
+
+	on_capitulation = {
+		effect = {
+			if = {
+				limit = {
+					tag = CHN
+					FROM = { tag = CCN }
+				}
+				transfer_navy = { target = FROM }
+			}
+
+			if = {
+				limit = { tag = CHN }
+				GRI = { country_event = changelingattache.14 }
+				if = {
+					limit = {
+						FROM = {
+							is_ai = no
+							original_tag = OLE
+							is_in_faction = no
+							is_subject = no
+							NOT = {
+								is_guaranteed_by = EQS
+							}
+						}
+					}
+					FROM = {
+						set_country_flag = OLE_defeated_changelings_alone
+					}
+				}
+				if = {
+					limit = {
+						FROM = {
+							tag = EQS
+							has_country_flag = EQS_received_KIR_volunteers
+						}
+					}
+					KIR = {
+						country_event = { id = kirin.761 days = 7 }
+					}
+				}
+			}
+
+			if = {
+				limit = {
+					ROOT = { tag = ZRS }
+					FROM = { tag = CHN }
+				}
+				FROM = {
+					annex_country = { target = ZRS }
+					country_event = { id = changelings_paxchrysalia.8401 hours = 36 }
+				}
+				1 = { set_resistance = 100 }
+				5 = { set_resistance = 100 }
+			}
+
+			if = {
+				limit = {
+					tag = CCN
+					FROM = { tag = CHN }
+				}
+				CHN = { country_event = { id = changelings.63 days = 1 } }
+			}
+		}
+	}
+
+	on_annex = {
+		effect = {
+			if = {
+				limit = {
+					tag = CHN
+					FROM = { original_tag = OLE }
+				}
+				FROM = { set_country_flag = OLE_was_annexed }
+			}
+			if = {
+				limit = {
+					FROM = {
+						tag = GRI
+						GRI_synovial = { is_unit_leader = yes }
+					}
+				}
+				remove_ideas = CHN_GRI_Attache_For_GRI
+				CHN = { remove_ideas = CHN_GRI_Attache_For_CHN }
+				FROM = {
+					GRI_thranx = { set_nationality = CHN }
+					GRI_synovial = {
+						set_nationality = CHN
+						set_portraits = {
+							army = { large ="GFX_Synovial_CHN_cap" }
+						}
+					}
+				}
+			}
+		}
+	}
+
+	on_war_relation_added = {
+		effect = {
+			CHN = {
+				find_global_platonic_countries = yes 
+			}
+			if = {
+				limit = {
+					ROOT = {
+						OR = {
+							tag = CHN
+							is_in_faction_with = CHN
+							is_subject_of = CHN
+						}
+					}
+					FROM = {
+						has_idea = YAK_anti_chrysalis_pact_3
+					}
+				}
+				FROM = {
+					country_event = newyaks.50
+				}
+			}
+			if = {
+				limit = {
+					original_tag = CHN
+					NOT = {
+						has_government = democratic
+					}
+					PLB = {
+						has_defensive_war_with = CHN
+						is_subject = no
+					}
+				}
+				if = {
+					limit = {
+						NOT = {
+							has_global_flag = CHN_great_northern_war
+						}
+					}
+					set_global_flag = CHN_great_northern_war
+					news_event = {
+						id = plb_news.1
+						days = 1
+					}
+				}
+			}
+		}
+	}
+	on_peaceconference_ended = {
+		effect = {
+			CHN = {
+				find_global_platonic_countries = yes 
+			}
+		}
+	}
+	on_puppet = {
+		effect = {
+			if = {
+				limit = {
+					FROM = {
+						original_tag = CHN
+						has_country_flag = CHN_FRV_flag
+					}
+				}
+				ROOT = { set_cosmetic_tag = CFR_PUPPET }
+			}
+			if = {
+				limit = {
+					has_country_flag = is_changeling_puppet
+					NOT = { tag = EQS }
+				}
+				country_event = changelings.910
+			}
+			if = {
+				limit = { original_tag = CHN }
+				CHN_demilitarise = yes
+				if = {
+					limit = {
+						FROM = {
+							OR = {
+								original_tag = EQS
+								original_tag = CRY
+								AND = {
+									original_tag = CES
+									has_country_flag = CES_resistance_path
+								}
+							}
+							has_government = democratic
+						}
+					}
+					FROM = {
+						country_event = { id = news.2101 days = 1 }
+						if = {
+							limit = {
+								is_ai = yes
+							}
+							every_owned_state = {
+								limit = {
+									is_core_of = CHN
+								}
+								transfer_state_to = CHN
+							}
+						}
+					}
+					CHN = {
+						drop_cosmetic_tag = yes
+						set_cosmetic_tag = CHN_thorax
+					}
+					EQS_force_OLE_release_when_puppeting_CHN = yes
+				}
+				load_focus_tree = generic_focus
+				CHN_handle_fascist_communist_overlord = yes
+			}
+		}
+	}
+
+	on_release_as_puppet = {
+		effect = {
+			if = {
+				limit = {
+					FROM = {
+						original_tag = CHN
+						has_country_flag = CHN_FRV_flag
+					}
+				}
+				ROOT = { set_cosmetic_tag = CFR_PUPPET }
+			}
+			if = {
+				limit = { original_tag = CHN }
+				CHN_handle_fascist_communist_overlord = yes
+				CHN_demilitarise = yes
+			}
+
+			if = {
+				limit = {
+					FROM = {
+						is_subject = no
+						original_tag = CHN
+						has_government = fascism
+					}
+					ROOT = {
+						NOT = { ## insert tags with specially-named ruling parties as necessary ##
+							original_tag = MAN
+						}
+					}
+				}
+				ROOT = {
+					set_party_name = {
+						ideology = fascism
+						long_name = CHN_puppet_changeling_administration
+						name = CHN_puppet_changeling_administration
+					}
+					add_popularity = {
+						ideology = fascism
+						popularity = 0.25
+					}
+				}
+			}
+		}
+	}
+
+	on_subject_free = {
+		effect = {
+			if = {
+				limit = {
+					has_country_flag = is_changeling_puppet
+					NOT = { tag = EQS }
+				}
+				country_event = changelings.910
+			}
+			else_if = {
+				limit = {
+					has_country_flag = is_changeling_puppet
+					original_tag = EQS
+					num_of_controlled_states > 15
+					controls_fillydelphia = yes
+					controls_manehattan = yes
+					controls_los_pegasus = yes
+					controls_baltimare = yes
+					controls_canterlot = yes
+				}
+				country_event = changelings.911
+			}
+		}
+	}
+
+	on_liberate = {
+		effect = {
+			if = {
+				limit = {
+					has_country_flag = is_changeling_puppet
+					NOT = { tag = EQS }
+				}
+				country_event = changelings.910
+			}
+		}
+	}
+
+	on_monthly_CHN = {
+		effect = {
+			if = {
+				limit = {
+					NOT = { has_global_flag = christmas_truce_fired }
+					check_variable = { global.month = 12 }
+					event_target:equestria = {
+						exists = yes
+						has_government = democratic
+						has_war_with = CHN
+						CHN = { has_government = fascism }
+						fascism < 0.1
+					}
+				}
+				event_target:equestria = { country_event = { id = equestria.181 days = 24 random = 48 } }#days to hours applied
+			}
+		}
+	}
+
+	on_weekly_CHN = {
+		effect = {
+			if = {
+				limit = { has_active_mission = CHN_acornage_colonisation_decision }
+				CHN = { save_current_manpower = yes }
+				136 = { add_manpower = -5000 }
+				137 = { add_manpower = 1250 }
+				138 = { add_manpower = 1250 }
+				172 = { add_manpower = 1250 }
+				175 = { add_manpower = 1250 }
+				CHN = { restore_previous_manpower = yes }
+			}
+			if = {
+				limit = {
+					has_active_mission = CHN_vanhoover_colonisation_decision
+					NOT = { has_country_flag = CHN_vanhoover_colonisation_decision_updated_flag }
+				}
+				CHN = { save_current_manpower = yes }
+				14 = { add_manpower = -5000 }
+				45 = { add_manpower = 1250 }
+				72 = { add_manpower = 1250 }
+				73 = { add_manpower = 1250 }
+				172 = { add_manpower = 1250 }
+				CHN = { restore_previous_manpower = yes }
+			}
+			if = {
+				limit = {
+					has_active_mission = CHN_vanhoover_colonisation_decision
+					has_country_flag = CHN_vanhoover_colonisation_decision_updated_flag
+				}
+				CHN = { save_current_manpower = yes }
+				14 = { add_manpower = -100 }
+				45 = { add_manpower = 25 }
+				72 = { add_manpower = 25 }
+				73 = { add_manpower = 25 }
+				172 = { add_manpower = 25 }
+				CHN = { restore_previous_manpower = yes }
+			}
+			if = {
+				limit = { has_idea = CHN_equestria_chaos3 }
+				every_controlled_state = {
+					limit = {
+						is_core_of = EQS
+						compliance > 40
+					}
+					set_compliance = 40
+				}
+			}
+			if = {
+				limit = { has_idea = CHN_equestria_chaos2 }
+				every_controlled_state = {
+					limit = {
+						is_core_of = EQS
+						compliance > 60
+					}
+					set_compliance = 60
+				}
+			}
+			if = {
+				limit = { has_idea = CHN_equestria_chaos1 }
+				every_controlled_state = {
+					limit = {
+						is_core_of = EQS
+						compliance > 80
+					}
+					set_compliance = 80
+				}
+			}
+			if = {
+				limit = {
+					has_completed_focus = CHN_post_war_5
+					is_ai = yes
+					check_variable = { CHN_amount_of_allowed_battalions < num_battalions }
+				}
+				set_temp_variable = { disband_fraction = num_battalions }
+				subtract_from_temp_variable = { disband_fraction = CHN_amount_of_allowed_battalions }
+				divide_temp_variable = { disband_fraction = num_battalions }
+				clamp_temp_variable = {
+					var = disband_fraction ## I suppose this is to stop CHN from disbanding too much of their army at once?
+					min = 0
+					max = 0.1
+				}
+				disband_units_fraction = yes
+			}
+			if = {
+				limit = {
+					has_completed_focus = CHN_post_war_5
+					check_variable = { CHN_amount_of_allowed_battalions < CHN.num_battalions }
+				}
+				subtract_from_variable = { CHN_love_variable = CHN_excess_battalions_cost }
+			}
+		}
+	}
+
+	on_peaceconference_ended = {
+		effect = {
+			# PUT EVERYTHING IN THE IF BELOW
+			# THE bypass_on_peaceconference_ended FLAG **HAS** TO BE SET BEFORE CALLING THE white_peace COMMAND AND CLEARED AFTERWARDS
+			if = {
+				limit = {
+					NOT = {
+						has_country_flag = bypass_on_peaceconference_ended
+						FROM = { has_country_flag = bypass_on_peaceconference_ended }
+					}
+				}
+				log = "[GetDateText]: ROOT: [Root.GetName] FROM: [From.GetName] on_peaceconference_ended"
+				if = {
+					limit = {
+						tag = CHN
+						has_country_leader = { ruling_only = yes character = CHN_queen_chrysalis }
+					}
+					country_event = { id = changelings_paxchrysalia.1000 hours = 1 } #it has triggers inside
+					if = {
+						limit = {
+							FROM = {
+								OR = {
+									original_tag = EQS
+									original_tag = NLR
+								}
+							}
+						}
+						if = {
+							limit = { country_exists = FROM FROM = { is_subject_of = ROOT } }
+							annex_country = { target = FROM }
+						}
+						country_event = news.1121
+					}
+				}
+				else_if = {
+					limit = {
+						FROM = { tag = CHN }
+					}
+					STG = { country_event = { id = stalliongrad.151 days = 2 } }
+					GRI = { country_event = { id = changelingattache.14 days = 1 } }
+					if = {
+						limit = {
+							FROM = {
+								OR = {
+									has_government = democratic
+									has_government = communism
+								}
+								OR = {
+									has_character = CHN_trimmel
+									has_character = CHN_vect
+									has_character = CHN_opteris
+								}
+							}
+						}
+
+						# SOL is used as limbo
+						CHN_trimmel = { set_nationality = SOL }
+						CHN_vect = { set_nationality = SOL }
+						CHN_opteris = { set_nationality = SOL }
+
+						if = {
+							limit = { original_tag = STG }
+							country_event = { id = news.2201 days = 1 }
+						}
+					}
+				}
+
+				if = {
+					limit = {
+						tag = CHN
+						FROM = { tag = CCN }
+					}
+					set_country_flag = { flag = bypass_annex_compliance days = 1 value = 1 }
+					annex_country = { target = FROM }
+				}
+				else_if = {
+					limit = {
+						tag = CCN
+						FROM = { tag = CHN }
+					}
+					set_country_flag = { flag = bypass_annex_compliance days = 1 value = 1 }
+					annex_country = { target = FROM }
+				}
+
+				if = {
+					limit = {
+						FROM = {
+							tag = GRI
+							GRI_synovial = { is_unit_leader = yes }
+						}
+					}
+					remove_ideas = CHN_GRI_Attache_For_GRI
+					CHN = { remove_ideas = CHN_GRI_Attache_For_CHN }
+					FROM = {
+						GRI_thranx = { set_nationality = CHN }
+						GRI_synovial = {
+							set_nationality = CHN
+							set_portraits = {
+								army = { large ="GFX_Synovial_CHN_cap" }
+							}
+						}
+					}
+				}
+				if = {
+					limit = {
+						has_global_flag = the_war
+						NOT = { has_global_flag = the_war_ended }
+						FROM = { tag = CHN }
+					}
+					set_global_flag = the_war_ended
+				}
+			}
+		}
+	}
+
+	on_daily_CHN = {
+		effect = {
+			IF = {
+				limit = {
+					has_global_flag = CHN_great_northern_war
+				}
+				# Italian Public Concerned
+				IF = {
+					limit = {
+						NOT = { has_country_flag = CHN_pulic_concerned_flag }
+						check_variable = { PLB.PLB_war_escalation_level > 3 }
+					}
+					set_country_flag = CHN_pulic_concerned_flag
+					country_event = {
+						id = northern_war.12
+						hours = 6
+						random_hours = 8
+					}
+				}
+				# Army of Africa Disheartened
+				IF = {
+					limit = {
+						NOT = { has_country_flag = CHN_army_of_africa_flag }
+						check_variable = { PLB.PLB_war_escalation_level > 4 }
+					}
+					set_country_flag = CHN_army_of_africa_flag
+					country_event = {
+						id = northern_war.13
+						hours = 6
+						random_hours = 8
+					}
+				}
+				# Unrest in the Colonies
+				IF = {
+					limit = {
+						NOT = { has_country_flag = CHN_unrest_in_the_colonies_flag }
+						check_variable = { PLB.PLB_war_escalation_level > 5 }
+					}
+					set_country_flag = CHN_unrest_in_the_colonies_flag
+					country_event = {
+						id = northern_war.14
+						hours = 6
+						random_hours = 8
+					}
+				}
+				# Italian Public Questions War Effort
+				IF = {
+					limit = {
+						NOT = { has_country_flag = CHN_war_effort_questioned_flag }
+						check_variable = { PLB.PLB_war_escalation_level > 6 }
+					}
+					set_country_flag = CHN_war_effort_questioned_flag
+					country_event = {
+						id = northern_war.15
+						hours = 6
+						random_hours = 8
+					}
+				}
+				# Mass Desertions
+				IF = {
+					limit = {
+						NOT = { has_country_flag = CHN_mass_desertions_flag }
+						check_variable = { PLB.PLB_war_escalation_level > 7 }
+					}
+					set_country_flag = CHN_mass_desertions_flag
+					country_event = {
+						id = northern_war.16
+						hours = 6
+						random_hours = 8
+					}
+				}
+				# Uproar in the Colonies
+				IF = {
+					limit = {
+						NOT = { has_country_flag = CHN_uproar_colonies_flag }
+						check_variable = { PLB.PLB_war_escalation_level > 9 }
+					}
+					set_country_flag = CHN_uproar_colonies_flag
+					country_event = {
+						id = northern_war.17
+						hours = 6
+						random_hours = 8
+					}
+				}
+			}
+			if = {
+				limit = {
+					NOT = { has_idea = CHN_operation_river_idea }
+					has_tech = CHN_operation_river_tech
+				}
+				set_technology = {
+					popup = no
+					CHN_operation_river_tech = 0
+				}
+			}
+		}
+	}
+}
