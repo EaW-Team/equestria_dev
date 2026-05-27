@@ -66,6 +66,8 @@ raid_type_id = {
 
 	ai_min_success_chance = 0.1 # [Optional] Per-type override of RAIDS_MIN_SUCCESS_FOR_LAUNCH (0.0-1.0).
 
+	max_distance = 500 # [Optional] Hard cap on source-to-target path length, in universal distance units (same space as the engine's path lengths). Sources further away than this cannot be used. AI ignores this when unlimited_ai_range = yes.
+
 	fire_only_once = yes # if the raid can only be executed once
 	days_re_enable = 60 # How many days before the raid can be created again against the same target.
 	                    # There is RAID_DEFAULT_TARGET_COOLDOWN_DAYS define which is used if no value is specified in script.
