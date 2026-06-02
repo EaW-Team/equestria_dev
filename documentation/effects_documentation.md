@@ -36,7 +36,6 @@
 * [add_scientist_trait](#add_scientist_trait)
 * [add_scientist_xp](#add_scientist_xp)
 * [add_skill_level](#add_skill_level)
-* [add_temporary_buff_to_units](#add_temporary_buff_to_units)
 * [add_timed_unit_leader_trait](#add_timed_unit_leader_trait)
 * [add_trait](#add_trait)
 * [add_unit_leader_trait](#add_unit_leader_trait)
@@ -58,6 +57,7 @@
 * [print_variables](#print_variables)
 * [promote_character](#promote_character)
 * [promote_leader](#promote_leader)
+* [release_from_captivity](#release_from_captivity)
 * [remove_advisor_role](#remove_advisor_role)
 * [remove_country_leader_role](#remove_country_leader_role)
 * [remove_country_leader_trait](#remove_country_leader_trait)
@@ -285,6 +285,7 @@
 * [reduce_focus_completion_cost](#reduce_focus_completion_cost)
 * [release](#release)
 * [release_autonomy](#release_autonomy)
+* [release_captured_generals_from](#release_captured_generals_from)
 * [release_on_controlled](#release_on_controlled)
 * [release_puppet](#release_puppet)
 * [release_puppet_on_controlled](#release_puppet_on_controlled)
@@ -404,6 +405,7 @@
 * [unlock_decision_tooltip](#unlock_decision_tooltip)
 * [unlock_military_industrial_organization_tooltip](#unlock_military_industrial_organization_tooltip)
 * [unlock_national_focus](#unlock_national_focus)
+* [unlock_subunit](#unlock_subunit)
 * [unlock_tactic](#unlock_tactic)
 * [upgrade_intelligence_agency](#upgrade_intelligence_agency)
 * [white_peace](#white_peace)
@@ -539,6 +541,7 @@
 * [add_victory_points](#add_victory_points)
 * [build_railway](#build_railway)
 * [cancel_border_war](#cancel_border_war)
+* [capture_by](#capture_by)
 * [change_tag_from](#change_tag_from)
 * [clamp_temp_variable](#clamp_temp_variable)
 * [clamp_variable](#clamp_variable)
@@ -628,7 +631,6 @@
 * [set_victory_points](#set_victory_points)
 * [sound_effect](#sound_effect)
 * [start_border_war](#start_border_war)
-* [store_ref](#store_ref)
 * [subtract_from_temp_variable](#subtract_from_temp_variable)
 * [subtract_from_variable](#subtract_from_variable)
 * [unlock_mio_policy_tooltip](#unlock_mio_policy_tooltip)
@@ -2230,15 +2232,6 @@ add_state_resistance_compliance_modifier  = {
 adds a limited use tech bonus
 ```
 
-## add_temporary_buff_to_units
-
-* Supported Scopes: CHARACTER
-* Supported Targets: none
-
-```
-Add buffs to units that are belongs to the army group/navy of this unit leader
-```
-
 ## add_threat
 
 * Supported Scopes: COUNTRY
@@ -2336,28 +2329,32 @@ Example: add_to_temp_array = {
 * Supported Scopes: any
 * Supported Targets: none
 
+Adds a value, a variable, or a [math expression](script_math_expression.md) to a temp variable.
+
+### Examples
 ```
-Adds a value or a variable to a temp variable
-Example: add_to_temp_variable = {
-var = num_dogs
-	value = 42
-	tooltip = loc_str_id_with_LEFT_and_RIGHT  #localized text with LEFT and RIGHT tokens in it, tokens will replaced by values
+add_to_temp_variable = { num_dogs = 42 }
+add_to_temp_variable = {
+	num_dogs = { value = num_cats  multiply = 2 }
 }
 ```
+
 
 ## add_to_variable
 
 * Supported Scopes: any
 * Supported Targets: none
 
+Adds a value, a variable, or a [math expression](script_math_expression.md) to a variable.
+
+### Examples
 ```
-Adds a value or a variable to another one
-Example: add_to_variable = {
-var = num_dogs
-	value = 42
-	tooltip = loc_str_id_with_LEFT_and_RIGHT  #localized text with LEFT and RIGHT tokens in it, tokens will replaced by values
+add_to_variable = { num_dogs = 42 }
+add_to_variable = {
+	num_dogs = { value = num_cats  multiply = 2 }
 }
 ```
+
 
 ## add_to_war
 
@@ -2448,6 +2445,9 @@ add_units_to_division_template = {
   }
   support = {
      military_police = 0 # (Adds military_police to first available slot on first (and likely only) column of supports (x=0))
+  }
+  regimental_support = {
+     military_police = 0 # (Adds military_police to first available slot on first regiment 
   }
 }
 ```
@@ -2599,6 +2599,27 @@ cancels resistance activity for a core country.
 use along with force_disable_resistance to disable resistance forever
 Example : cancel_resistance = yes
 ```
+
+## capture_by
+
+* Supported Scopes: any
+* Supported Targets: ROOT
+
+Make the Unit Leader in scope be captured by the specified country (needs to be a general).
+Optionally specify the province where the leader is held captive.
+
+### Example
+```
+capture_by = GER
+
+capture_by = FROM
+
+capture_by = {
+  country = GER
+  province = 1234
+}
+```
+
 
 ## capture_operative
 
@@ -3568,29 +3589,38 @@ dismantle faction led by the current country
 * Supported Scopes: any
 * Supported Targets: none
 
+Divides a temp variable by a value, another variable, or a [math expression](script_math_expression.md).
+`if_zero` specifies the value to assign if the divisor is zero (default is zero).
+
+### Examples
 ```
-Divies a temp variable to a value or another variable
-Example: divide_temp_variable = {
-var = num_dogs
-	value = 42
-	tooltip = loc_str_id_with_LEFT_and_RIGHT  #localized text with LEFT and RIGHT tokens in it, tokens will replaced by values
-	if_zero = 0 # the value to assign if the divisor is zero (default is zero)
+divide_temp_variable = { num_dogs = 2 }
+divide_temp_variable = {
+	var = num_dogs
+	value = 2
+	if_zero = 0
+}
+divide_temp_variable = {
+	num_dogs = { value = num_cats  add = 1 }
 }
 ```
+
 
 ## divide_variable
 
 * Supported Scopes: any
 * Supported Targets: none
 
+Divides a variable by a value, another variable, or a [math expression](script_math_expression.md).
+
+### Examples
 ```
-Divies a variable to a value or another variable
-Example: divide_variable = {
-var = num_dogs
-	value = 42
-	tooltip = loc_str_id_with_LEFT_and_RIGHT  #localized text with LEFT and RIGHT tokens in it, tokens will replaced by values
+divide_variable = { num_dogs = 2 }
+divide_variable = {
+	num_dogs = { value = num_cats  add = 1 }
 }
 ```
+
 
 ## division_template
 
@@ -4984,28 +5014,32 @@ modulo_variable = {
 * Supported Scopes: any
 * Supported Targets: none
 
+Multiplies a temp variable by a value, another variable, or a [math expression](script_math_expression.md).
+
+### Examples
 ```
-Multiplies a temp variable to a value or another variable
-Example: set_temp_variable = {
-var = num_dogs
-	value = 42
-	tooltip = loc_str_id_with_LEFT_and_RIGHT  #localized text with LEFT and RIGHT tokens in it, tokens will replaced by values
+multiply_temp_variable = { num_dogs = 2 }
+multiply_temp_variable = {
+	num_dogs = { value = num_cats  add = 1 }
 }
 ```
+
 
 ## multiply_variable
 
 * Supported Scopes: any
 * Supported Targets: none
 
+Multiplies a variable by a value, another variable, or a [math expression](script_math_expression.md).
+
+### Examples
 ```
-Multiplies a variable to a value or another variable
-Example: set_variable = {
-var = num_dogs
-	value = 42
-	tooltip = loc_str_id_with_LEFT_and_RIGHT  #localized text with LEFT and RIGHT tokens in it, tokens will replaced by values
+multiply_variable = { num_dogs = 2 }
+multiply_variable = {
+	num_dogs = { value = num_cats  add = 1 }
 }
 ```
+
 
 ## navy_experience
 
@@ -5050,7 +5084,7 @@ news_event = {
 Fires a operative leader event for owner country.
 Example:
 operative_leader_event = {
-	id = generic.17 # The event to fire.
+	id = mtg_exile_leader_added.1 # The event to fire.
 	# Optional Fields:
 	originator = TAG # The originator of the event (default to the owner of the operative)
 	recipient = TAG # The recipient of the event (default to the owner of the operative)
@@ -5063,7 +5097,7 @@ operative_leader_event = {
 		# Note:  random_hours and random_days can both be used and will simply be added together.
 	random = 6 # Equivalent to random_hours; preserverd for backwards compatibility.
 	random = { chance = 50 ... } # Specify a set of child effects to execute as part of this effect, with a percentage chance of randomly happening or not (as a group, not individually).
-	tooltip = generic.17.t # Manually specify which tooltip to use for this effect.
+	tooltip = mtg_exile_leader_added.1.t # Manually specify which tooltip to use for this effect.
 	set_from = TAG # Set the scope of the From in the scripted localization
 	set_from_from = TAG # Set the scope of the From.From in the scripted localization
 	set_root = TAG # Set the scope of the Root in the scripted localization
@@ -5712,6 +5746,38 @@ ENG = {
   release_non_owned_controlled = yes # default no. if yes you will release states you only control as well  force_change_controller_for_non_ally_controlled = yes # default = no. if yes it will change the controller of the states you or your allies don't control (ie if an enemy occupying it, the ownership will change but not controller) }
 }
 ```
+
+## release_captured_generals_from
+
+* Supported Scopes: COUNTRY
+* Supported Targets: none
+
+Makes the scoped country release all captured generals from the specified country kept in the specified province.
+If no province is specified, all generals are released.
+
+### Example
+```
+release_captured_generals_from = {
+  target = GER
+  province = <province> (optional)
+}
+
+release_captured_generals_from = FROM
+```
+
+
+## release_from_captivity
+
+* Supported Scopes: CHARACTER
+* Supported Targets: none
+
+Releases the scoped army leader from captivity. Has no effect if the leader is not captured.
+
+### Example
+```
+var:target_leader = { release_from_captivity = yes }
+```
+
 
 ## release_on_controlled
 
@@ -7756,14 +7822,22 @@ sets technology level(s) on country. example : set_technology = {
 * Supported Scopes: any
 * Supported Targets: none
 
+Sets a temp variable to a value, another variable, or a [math expression](script_math_expression.md).
+`tooltip` can be used to override tooltip title with LEFT and RIGHT tokens.
+
+### Examples
 ```
-Sets a temp variable to a value or another variable
-Example: set_temp_variable = {
-var = num_dogs
+set_temp_variable = { num_dogs = 42 }
+set_temp_variable = {
+	var = num_dogs
 	value = 42
-	tooltip = loc_str_id_with_LEFT_and_RIGHT  #localized text with LEFT and RIGHT tokens in it, tokens will replaced by values
+	tooltip = loc_str_id_with_LEFT_and_RIGHT
+}
+set_temp_variable = {
+	num_dogs = { value = num_cats  multiply = 2  add = 1 }
 }
 ```
+
 
 ## set_temp_variable_to_random
 
@@ -7816,14 +7890,22 @@ set unit organization to current * value: set_unit_organization = 0.5, values be
 * Supported Scopes: any
 * Supported Targets: none
 
+Sets a variable to a value, another variable, or a [math expression](script_math_expression.md).
+`tooltip` can be used to override tooltip title with LEFT and RIGHT tokens.
+
+### Examples
 ```
-Sets a variable to a value or another variable
-Example: set_variable = {
-var = num_dogs
+set_variable = { num_dogs = 42 }
+set_variable = {
+	var = num_dogs
 	value = 42
-	tooltip = loc_str_id_with_LEFT_and_RIGHT  #localized text with LEFT and RIGHT tokens in it, tokens will replaced by values
+	tooltip = loc_str_id_with_LEFT_and_RIGHT
+}
+set_variable = {
+	num_dogs = { value = num_cats  multiply = 2  add = 1 }
 }
 ```
+
 
 ## set_variable_to_random
 
@@ -8068,15 +8150,6 @@ Example: steal_random_tech_bonus = {
 
 ```
 
-## store_ref
-
-* Supported Scopes: any
-* Supported Targets: none
-
-```
-
-```
-
 ## strategic_province_location
 
 * Supported Scopes: STATE
@@ -8116,28 +8189,32 @@ Ex:
 * Supported Scopes: any
 * Supported Targets: none
 
+Subtracts a value, a variable, or a [math expression](script_math_expression.md) from a temp variable.
+
+### Examples
 ```
-Subtracts a value or a variable to a temp variable
-Example: subtract_from_temp_variable = {
-var = num_dogs
-	value = 42
-	tooltip = loc_str_id_with_LEFT_and_RIGHT  #localized text with LEFT and RIGHT tokens in it, tokens will replaced by values
+subtract_from_temp_variable = { num_dogs = 5 }
+subtract_from_temp_variable = {
+	num_dogs = { value = num_cats  multiply = 2 }
 }
 ```
+
 
 ## subtract_from_variable
 
 * Supported Scopes: any
 * Supported Targets: none
 
+Subtracts a value, a variable, or a [math expression](script_math_expression.md) from a variable.
+
+### Examples
 ```
-Subtracts a value or a variable to another one
-Example: subtract_from_variable = {
-var = num_dogs
-	value = 42
-	tooltip = loc_str_id_with_LEFT_and_RIGHT  #localized text with LEFT and RIGHT tokens in it, tokens will replaced by values
+subtract_from_variable = { num_dogs = 5 }
+subtract_from_variable = {
+	num_dogs = { value = num_cats  multiply = 2 }
 }
 ```
+
 
 ## supply_units
 
@@ -8353,7 +8430,7 @@ Example: uncomplete_national_focus = {
 Fires a unit leader event for owner country.
 Example:
 unit_leader_event = {
-	id = generic.17 # The event to fire.
+	id = mtg_exile_leader_added.1 # The event to fire.
 	# Optional Fields:
 	hours = 12 # The number of hours to wait before firing the event.
 	days = 5 # The number of days to wait before firing the event.
@@ -8364,7 +8441,7 @@ unit_leader_event = {
 		# Note:  random_hours and random_days can both be used and will simply be added together.
 	random = 6 # Equivalent to random_hours; preserverd for backwards compatibility.
 	random = { chance = 50 ... } # Specify a set of child effects to execute as part of this effect, with a percentage chance of randomly happening or not (as a group, not individually).
-	tooltip = generic.17.t # Manually specify which tooltip to use for this effect.
+	tooltip = mtg_exile_leader_added.1.t # Manually specify which tooltip to use for this effect.
 }
 
 ```
@@ -8452,6 +8529,21 @@ mio:my_mio = {
 ```
 unlocks a focus for a country
 ```
+
+## unlock_subunit
+
+* Supported Scopes: COUNTRY
+* Supported Targets: none
+
+Unlocks the specified subunit for the country.
+
+	### Examples
+	```
+	GER = {
+		unlock_subunit = rangers_support
+	}
+	```
+	
 
 ## unlock_tactic
 

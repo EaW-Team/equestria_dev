@@ -244,11 +244,6 @@ Gives/removes stability from player
 
 Add temp supply node
 
-## add_temporary_buff
-* Arguments: <buff_index>
-
-adds temporary buff to selected units
-
 ## add_war_support
 * Aliases: ws
 * Arguments: unity amount
@@ -420,6 +415,11 @@ Ignore superiority in the strategic areas crossed by a naval invasion order
 ## cameraclamp
 
 Toggles the camera clamping
+
+## capture_commander
+* Arguments: <owner_tag>, <leader>
+
+Capture an enemy commander for the player country. <province_id> is required if the commander is not deployed.
 
 ## cityreload
 
@@ -852,11 +852,6 @@ Runs the inlined trigger on a selected scope
 
 Executes an event
 
-## exit
-* Not available in release build
-
-Exit game
-
 ## faction_goal_slot
 * Aliases: fgs
 * Arguments: category, amount
@@ -1109,14 +1104,14 @@ lists all of the hidden focuses from a country
 
 Dump all ideas to console (ministers or national spirits)
 
+## list_leader_modifiers
+
+Lists the leader and unit modifiers on the leader of each selected army
+
 ## list_modifiers
 * Arguments: <scope>
 
 Lists all modifiers in a scope or for the selected country/state/unitleader
-
-## list_temporary_buffs
-
-lists all temporary buffs on selected units
 
 ## list_vars
 * Arguments: <scope>
@@ -1498,43 +1493,6 @@ Makes a savegame (Test_01), loads the savegame, makes a new savegame (Test_02). 
 * Aliases: save
 
 Creates a save file.
-
-## scenario_testing.clear_production
-* Not available in release build
-
-Clear all countries production lines
-
-## scenario_testing.default
-* Not available in release build
-
-Set pre-defined conditions
-
-## scenario_testing.delete_equipment_stockpile
-* Not available in release build
-
-Delete all equipment in the stockpile
-
-## scenario_testing.run_all_tests
-* Not available in release build
-
-Run all tests
-
-## scenario_testing.run_fixture
-* Arguments: <test_file>
-* Not available in release build
-
-Run all tests in a test file
-
-## scenario_testing.run_test
-* Arguments: <test_name>
-* Not available in release build
-
-Run a test
-
-## scenario_testing.stop_evaluation
-* Not available in release build
-
-Stop all test evaluation of eventually and always effects
 
 ## select
 * Aliases: sel
