@@ -1,0 +1,189 @@
+on_actions = {
+	on_war_relation_added = {
+		effect = {
+			if = {
+				limit = {
+					SLC = {
+						has_idea = SLC_hydra_timer
+					}
+					FROM = {
+						is_major = yes
+					}
+				}
+				FROM = {
+					add_ideas = SLC_reactionary_hydra_idea
+				}
+			}
+		}
+	}
+
+	on_puppet = {
+		effect = {
+			if = {
+				limit = {
+					FROM = {
+						original_tag = SLC
+						has_completed_focus = SLC_our_utopia
+					}
+				}
+				ROOT = {
+					if = {
+						limit = {
+							SLC = { has_cosmetic_tag = SLC_commie_collapse_left_side_utopia }
+						}
+						add_ideas = SLC_left_side_utopia_subject_idea
+					}
+					else = { add_ideas = SLC_right_side_utopia_subject_idea }
+				}
+			}
+		}
+	}
+
+	on_annex = {
+		effect = {
+			if = {
+				limit = {
+					FROM = { tag = SLC }
+				}
+				set_victory_points = {
+					province = 14316
+					value = 5
+				}
+				set_province_name = { id = 14316 name = SLC_province_14316_1}
+			}
+		}
+	}
+
+	on_state_control_changed = {
+		effect = {
+			# SLC
+			if = {
+				limit = {
+					FROM.FROM = { state = 982 }
+					original_tag = SLC
+				}
+				country_event = SLC_storm_civil_war.10
+			}
+			# SLC fervour change
+			if = {
+				limit = {
+					original_tag = SLC
+					has_completed_focus = SLC_force_application_not_projection
+				}
+				@FERVOUR_GAIN_PER_1K_POP = 0.005 ### This means you gain 0.5% fervour per 100k in the state you take
+				set_temp_variable = { i_fervour = FROM.FROM.state_population_k }
+				multiply_temp_variable = { i_fervour = @FERVOUR_GAIN_PER_1K_POP }
+				SLC_cbc_modify_fervour = yes
+			}
+			else_if = {
+				limit = {
+					FROM = {
+						original_tag = SLC
+						has_completed_focus = SLC_force_application_not_projection
+					}
+				}
+				FROM = {
+					@FERVOUR_LOSS_PER_1K_POP = -0.003 ### This means you lose 0.3% fervour per 100k in the state you take
+					set_temp_variable = { i_fervour = FROM.FROM.state_population_k }
+					multiply_temp_variable = { i_fervour = @FERVOUR_LOSS_PER_1K_POP }
+					SLC_cbc_modify_fervour = yes
+				}
+			}
+		}
+	}
+
+	on_weekly_SLC = {
+		effect = {
+			if = {
+				limit = {
+					has_completed_focus = SLC_cant_refuse
+				}
+				for_each_scope_loop = {
+					array = SLC:SLC_tag_arms_dealing_array
+					add_equipment_to_stockpile = {
+						type = infantry_equipment 
+						amount = 30
+						producer = SLC
+					}
+					add_equipment_to_stockpile = {
+						type = support_equipment
+						amount = 10
+						producer = SLC
+					}
+					add_equipment_to_stockpile = {
+						type = artillery_equipment_1
+						amount = 5
+						producer = SLC
+					}
+					add_equipment_to_stockpile = {
+						type = motorized_equipment
+						amount = 5
+						producer = SLC
+					}
+				}
+			}
+
+			if = {
+				limit = {
+					has_country_flag = SLC_cbc_fervour_activated
+				}
+
+				set_temp_variable = { i_fervour = modifier@SLC_cbc_weekly_fervour }
+				SLC_cbc_modify_fervour = yes
+				set_variable = { SLC_display_weekly_fervour = modifier@SLC_cbc_weekly_fervour }
+			}
+
+			if = {
+				limit = {
+					has_war_with = UZE
+					has_war_with = HYE
+					has_war_with = GAR
+					has_war_with = CNT
+				}
+				
+				set_country_flag = SLC_im_better_flag
+			}
+
+			if = {
+				limit = {
+					original_tag = SLC
+					has_completed_focus = SLC_force_application_not_projection
+					check_variable = {
+						SLC_cbc_fervour < 0.001
+					}
+					check_variable = { SLC.occupied_countries^num > 0 }
+				}
+				FROM = {
+					country_event = { id = SLC_commie_collapse_tree.1 }
+				}
+			}
+		}
+	}
+
+	on_peaceconference_ended = {
+		effect = {
+			# PUT EVERYTHING IN THE IF BELOW
+			# THE bypass_on_peaceconference_ended FLAG **HAS** TO BE SET BEFORE CALLING THE white_peace COMMAND AND CLEARED AFTERWARDS
+			if = {
+				limit = {
+					NOT = {
+						has_country_flag = bypass_on_peaceconference_ended
+						FROM = { has_country_flag = bypass_on_peaceconference_ended }
+					}
+				}
+				log = "[GetDateText]: ROOT: [Root.GetName] FROM: [From.GetName] on_peaceconference_ended"
+				if = {
+					limit = {
+						ROOT = {
+							tag = SLC
+							has_country_flag = SLC_uzerasi_revolt_begun
+						}
+						NOT = { country_exists = UZE }
+						FROM = { tag = UZE }
+					}
+					country_event = { id = SLC_uzerasi_revolt.11 days = 3 }
+				}
+			}
+		}
+	}
+}
