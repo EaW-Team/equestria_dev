@@ -219,6 +219,8 @@ NDefines.NFactions.FACTION_INTELLIGENCE_ALLOWED_ADVISOR_TRAIT = {
 	"HUN_stalinist_agent",
 	"JAP_tokko_chief",
 	"CHI_spymaster",
+	"AST_intelligence_director",
+	"AST_indomitable_scout",
 	"head_of_intelligence_kirin",
 	"HEL_general_secretary",
 	"HEL_general_secretary_lar",
