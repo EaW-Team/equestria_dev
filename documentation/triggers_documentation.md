@@ -27,6 +27,7 @@
 * [advisor_can_be_fired](#advisor_can_be_fired)
 * [attack_skill_level](#attack_skill_level)
 * [average_stats](#average_stats)
+* [can_be_captured](#can_be_captured)
 * [can_be_country_leader](#can_be_country_leader)
 * [can_select_trait](#can_select_trait)
 * [defense_skill_level](#defense_skill_level)
@@ -60,8 +61,10 @@
 * [is_exiled_leader_from](#is_exiled_leader_from)
 * [is_female](#is_female)
 * [is_field_marshal](#is_field_marshal)
+* [is_general_captured](#is_general_captured)
 * [is_high_command](#is_high_command)
 * [is_hired_as_advisor](#is_hired_as_advisor)
+* [is_in_state](#is_in_state)
 * [is_leading_army](#is_leading_army)
 * [is_leading_army_group](#is_leading_army_group)
 * [is_leading_army_in_province](#is_leading_army_in_province)
@@ -72,6 +75,7 @@
 * [is_operative](#is_operative)
 * [is_operative_captured](#is_operative_captured)
 * [is_political_advisor](#is_political_advisor)
+* [is_promoted_from_unit](#is_promoted_from_unit)
 * [is_scientist_injured](#is_scientist_injured)
 * [is_theorist](#is_theorist)
 * [is_unit_leader](#is_unit_leader)
@@ -83,6 +87,7 @@
 * [operative_leader_operation](#operative_leader_operation)
 * [planning_skill_level](#planning_skill_level)
 * [skill](#skill)
+* [tag](#tag)
 
 ## Triggers for scope COMBATANT
 
@@ -215,7 +220,6 @@
 * [enemies_naval_strength_ratio](#enemies_naval_strength_ratio)
 * [enemies_strength_ratio](#enemies_strength_ratio)
 * [energy_ratio](#energy_ratio)
-* [equipment_cost](#equipment_cost)
 * [estimated_intel_max_armor](#estimated_intel_max_armor)
 * [estimated_intel_max_piercing](#estimated_intel_max_piercing)
 * [exists](#exists)
@@ -241,6 +245,8 @@
 * [has_air_experience](#has_air_experience)
 * [has_allowed_idea_with_traits](#has_allowed_idea_with_traits)
 * [has_annex_war_goal](#has_annex_war_goal)
+* [has_any_captured_general](#has_any_captured_general)
+* [has_any_general_captured_by](#has_any_general_captured_by)
 * [has_any_grand_doctrine](#has_any_grand_doctrine)
 * [has_any_license](#has_any_license)
 * [has_any_power_balance](#has_any_power_balance)
@@ -264,6 +270,7 @@
 * [has_collaboration](#has_collaboration)
 * [has_completed_faction_goal](#has_completed_faction_goal)
 * [has_completed_focus](#has_completed_focus)
+* [has_completed_goal](#has_completed_goal)
 * [has_completed_subdoctrine](#has_completed_subdoctrine)
 * [has_completed_track](#has_completed_track)
 * [has_contested_owner](#has_contested_owner)
@@ -380,6 +387,7 @@
 * [is_in_peace_conference](#is_in_peace_conference)
 * [is_in_tech_sharing_group](#is_in_tech_sharing_group)
 * [is_justifying_wargoal_against](#is_justifying_wargoal_against)
+* [is_leader_visible](#is_leader_visible)
 * [is_lend_leasing](#is_lend_leasing)
 * [is_licensing_any_to](#is_licensing_any_to)
 * [is_licensing_to](#is_licensing_to)
@@ -628,6 +636,7 @@
 * [career_profile_has_player_flag](#career_profile_has_player_flag)
 * [career_profile_set_temp_playthrough_variable](#career_profile_set_temp_playthrough_variable)
 * [career_profile_set_temp_variable](#career_profile_set_temp_variable)
+* [check_expr](#check_expr)
 * [check_variable](#check_variable)
 * [clamp_temp_variable](#clamp_temp_variable)
 * [clear_temp_array](#clear_temp_array)
@@ -638,6 +647,7 @@
 * [custom_override_tooltip](#custom_override_tooltip)
 * [custom_trigger_tooltip](#custom_trigger_tooltip)
 * [date](#date)
+* [debug_math_expr](#debug_math_expr)
 * [difficulty](#difficulty)
 * [divide_temp_variable](#divide_temp_variable)
 * [find_highest_in_array](#find_highest_in_array)
@@ -705,14 +715,16 @@ Example: add_to_temp_array = {
 * Supported Scopes: any
 * Supported Targets: none
 
+Adds a value, a variable, or a [math expression](script_math_expression.md) to a temporary variable.
+
+### Examples
 ```
-Adds a value or a variable to a temporary variable
-Example: add_to_temp_variable = {
-var = num_dogs
-	value = 42
-	tooltip = loc_str_id_with_LEFT_and_RIGHT  #localized text with LEFT and RIGHT tokens in it, tokens will replaced by values. _NOT is added to end for negative trigger
+add_to_temp_variable = { num_dogs = 42 }
+add_to_temp_variable = {
+	num_dogs = { value = num_cats  multiply = 2 }
 }
 ```
+
 
 ## advisor_can_be_fired
 
@@ -1823,7 +1835,7 @@ Example: average_stats > 10
 ```
 Checks if the current scope has the specified amount of the specified building. 
 Usage: <Building> < <int>
-Supported buildings: infrastructure, arms_factory, industrial_complex, air_base, supply_node, rail_way, naval_facility, naval_base, bunker, coastal_bunker, stronghold_network, dockyard, anti_air_building, synthetic_refinery, fuel_silo, radar_station, mega_gun_emplacement, rocket_site, naval_supply_hub, naval_headquarters, nuclear_reactor, nuclear_reactor_heavy_water, commercial_nuclear_reactor, nuclear_facility, air_facility, land_facility, dam, dam_mountain, canal_kiel, canal_panama, energy_infrastructure, industrial_infrastructure, landmark_big_ben, landmark_colosseum, landmark_cristo_redentor, landmark_eiffel_tower, landmark_statue_of_liberty, landmark_kremlin, landmark_hofburg_palace, landmark_berlin_reichstag, landmark_berlin_volkshalle, landmark_taj_mahal, landmark_sadabad_complex, landmark_hagia_sophia, landmark_forbidden_city, landmark_nanjing_presidential_palace, landmark_nanjing_presidential_palace_prc, landmark_nanjing_presidential_palace_gen, landmark_great_wall_section, landmark_tokyo_imperial_palace, landmark_national_diet, landmark_hakko_ichiu, landmark_prague_castle, landmark_bojnice_castle.
+Supported buildings: infrastructure, arms_factory, industrial_complex, air_base, supply_node, rail_way, naval_facility, naval_base, bunker, coastal_bunker, stronghold_network, dockyard, anti_air_building, synthetic_refinery, fuel_silo, radar_station, mega_gun_emplacement, rocket_site, naval_supply_hub, naval_headquarters, nuclear_reactor, nuclear_reactor_heavy_water, commercial_nuclear_reactor, nuclear_facility, air_facility, land_facility, dam, dam_mountain, cataract_dam_mountain, canal_kiel, canal_panama, energy_infrastructure, industrial_infrastructure, landmark_big_ben, landmark_colosseum, landmark_cristo_redentor, landmark_eiffel_tower, landmark_statue_of_liberty, landmark_kremlin, landmark_hofburg_palace, landmark_berlin_reichstag, landmark_berlin_volkshalle, landmark_taj_mahal, landmark_sadabad_complex, landmark_hagia_sophia, landmark_forbidden_city, landmark_nanjing_presidential_palace, landmark_nanjing_presidential_palace_prc, landmark_nanjing_presidential_palace_gen, landmark_great_wall_section, landmark_tokyo_imperial_palace, landmark_national_diet, landmark_hakko_ichiu, landmark_prague_castle, landmark_bojnice_castle.
 ```
 
 ## buyer
@@ -1846,6 +1858,15 @@ ex:
 Ger = {
 	can_assign_supportive_scientist_to_faction = specialization_land
 }
+```
+
+## can_be_captured
+
+* Supported Scopes: CHARACTER
+* Supported Targets: none
+
+```
+can_be_captured = yes/no - Checks if the current character can be captured while deployed in a division
 ```
 
 ## can_be_country_leader
@@ -2069,6 +2090,22 @@ GER = {
 ```
 Check the amount of casualties in thousands a country has suffered in all of it's wars
 ```
+
+## check_expr
+
+* Supported Scopes: any
+* Supported Targets: any
+
+Evaluates a math expression and returns true when the result is non-zero.
+
+### Parameters
+- `Expression`: Any supported math expression.
+
+### Example
+```
+check_expr = { value = 2  add = 3  greater_than = 4 }
+```
+
 
 ## check_variable
 
@@ -2495,6 +2532,24 @@ days_since_last_strategic_bombing < 10
 Check value of purchase contract completion. Example: deal_completition < 0.6
 ```
 
+## debug_math_expr
+
+* Supported Scopes: any
+* Supported Targets: any
+
+Evaluates a math expression and writes the numeric result to the tooltip.
+
+Always returns true and is intended for debugging scripts.
+
+### Parameters
+- `Expression`: Any supported math expression.
+
+### Example
+```
+debug_math_expr = { value = 120  add = 15  clamp = { min = 0  max = 100 } }
+```
+
+
 ## decryption_progress
 
 * Supported Scopes: COUNTRY
@@ -2552,14 +2607,16 @@ check distance between two states
 * Supported Scopes: any
 * Supported Targets: none
 
+Divides a temporary variable by a value, another variable, or a [math expression](script_math_expression.md).
+
+### Examples
 ```
-Divies a temporary variable by a value or another variable
-Example: divide_temp_variable = {
-var = num_dogs
-	value = 42
-	tooltip = loc_str_id_with_LEFT_and_RIGHT  #localized text with LEFT and RIGHT tokens in it, tokens will replaced by values. _NOT is added to end for negative trigger
+divide_temp_variable = { num_dogs = 2 }
+divide_temp_variable = {
+	num_dogs = { value = num_cats  add = 1 }
 }
 ```
+
 
 ## division_has_battalion_in_template
 
@@ -2628,15 +2685,6 @@ Compares the estimated army strength between the scope country and all its enemi
 
 ```
 energy_ratio > 0.8 - Compare current energy fulfilment to the factories, with 1 being 100% and 0 being 0%
-```
-
-## equipment_cost
-
-* Supported Scopes: COUNTRY
-* Supported Targets: none
-
-```
-check cost of equipment production line
 ```
 
 ## estimated_intel_max_armor
@@ -3066,6 +3114,21 @@ has_available_idea_with_traits = {
 Checks a country has annex war goal on another country
 ```
 
+## has_any_captured_general
+
+* Supported Scopes: COUNTRY
+* Supported Targets: none
+
+Checks if any of the generals of the scoped country is captured by another country
+
+### Examples
+```
+FRA = {
+	has_any_captured_general = yes
+}
+```
+
+
 ## has_any_custom_difficulty_setting
 
 * Supported Scopes: any
@@ -3074,6 +3137,21 @@ Checks a country has annex war goal on another country
 ```
 Returns true if the game has any custom difficulty on
 ```
+
+## has_any_general_captured_by
+
+* Supported Scopes: COUNTRY
+* Supported Targets: THIS, ROOT, PREV, FROM, OWNER, CONTROLLER, OCCUPIED, CAPITAL
+
+Checks if the scoped country has any unit leader captured by the target country
+
+### Examples
+```
+FRA = {
+	has_any_general_captured_by = GER # This will be true if any of France's generals are captured by Germany
+}
+```
+
 
 ## has_any_grand_doctrine
 
@@ -3428,6 +3506,22 @@ TAG = {
 ```
 has country completed focus
 ```
+
+## has_completed_goal
+
+* Supported Scopes: COUNTRY
+* Supported Targets: any
+
+Checks if the country was a member of a faction when a specific goal was completed.
+Persists across faction disband/recreate, unlike has_completed_faction_goal.
+
+### Examples
+```
+TAG = {
+	has_completed_goal = goal_id
+}
+```
+
 
 ## has_completed_subdoctrine
 
@@ -4016,10 +4110,10 @@ Country has specific active license
 Example: has_license = {
 	from = TAG # has license from this country, optional
 	 #if archetype is specified equipment should not be specified
-	archetype = light_tank_equipment #any armor license
+	archetype = light_tank_chassis #any light tank chassis license
 	equipment = { # classical equipment reference
 		type = light_tank_equipment_2
-		version = 0
+		version = 0 # optional: omit to match any version of the type
 	}
 }
 ```
@@ -5506,6 +5600,21 @@ Checks if state is fully controlled by specified tag
 checks if fully decrypted a cipher. Example is_fully_decrypted = GER
 ```
 
+## is_general_captured
+
+* Supported Scopes: CHARACTER
+* Supported Targets: none
+
+Checks if the scoped unit leader (general) is captured (by any country)
+
+### Examples
+```
+my_character = {
+	is_general_captured = yes
+}
+```
+
+
 ## is_government_in_exile
 
 * Supported Scopes: COUNTRY
@@ -5610,6 +5719,29 @@ Checks if the first province in the state is connected to the capital of its own
 Checks if the country is currently in a peaceconference
 ```
 
+## is_in_state
+
+* Supported Scopes: CHARACTER
+* Supported Targets: THIS, ROOT, PREV, FROM, CAPITAL
+
+Checks if the character is in a specific state.
+Works for deployed generals (HQ location), scientists (facility location including faction programs), and operatives (mission location).
+
+### Example
+```
+# Check if a general is in a specific state
+any_unit_leader = {
+	is_in_state = 64 # Brandenburg
+}
+
+# Check if any scientist is in the capital
+every_character = {
+	limit = { is_active_scientist = yes }
+	is_in_state = root.capital
+}
+```
+
+
 ## is_in_tech_sharing_group
 
 * Supported Scopes: COUNTRY
@@ -5655,6 +5787,15 @@ Checks if country is justifying a wargoal against the target.
 Example: ENG = { is_justifying_wargoal_against = GER }
 ```
 
+## is_leader_visible
+
+* Supported Scopes: COUNTRY
+* Supported Targets: any
+
+```
+Checks if the leader is visible to its owner (is_visible trigger in the leader's script)
+```
+
 ## is_leading_army
 
 * Supported Scopes: CHARACTER
@@ -5679,7 +5820,7 @@ is_leading_army_group = yes/no - Checks if the current unit leader is leading an
 * Supported Targets: none
 
 ```
-is_leading_army_in_province = province_id # checks if the current unit leader is leading an army that has any division in a specific province
+is_leading_army_in_province = province_id # checks if the current unit leader is leading an army that has any division in a specific province. Block form { province = X include_field_marshal = yes } also counts a field marshal whose subordinate generals have a division in the province
 ```
 
 ## is_leading_volunteer_group
@@ -5729,10 +5870,10 @@ Country is licensing specific equipment to target. License is active
 Example: is_licensing_to = {
 	target = TAG # licensing to this country
 	 #if archetype is specified equipment should not be specified
-	archetype = light_tank_equipment #any armor license
+	archetype = light_tank_chassis #any light tank chassis license
 	equipment = { # classical equipment reference
 		type = light_tank_equipment_2
-		version = 0
+		version = 0 # optional: omit to match any version of the type
 	}
 }
 ```
@@ -6013,6 +6154,21 @@ is_preparing_operation = {
  target = ITA 
  operation = operation_infiltrate_armed_forces_navy}
 ```
+
+## is_promoted_from_unit
+
+* Supported Scopes: CHARACTER
+* Supported Targets: none
+
+Checks if a unit leader was promoted from a unit (division or ship).
+
+### Example
+```
+any_unit_leader = {
+	is_promoted_from_unit = yes
+}
+```
+
 
 ## is_puppet
 
@@ -6301,14 +6457,16 @@ modulo_temp_variable = {
 * Supported Scopes: any
 * Supported Targets: none
 
+Multiplies a temporary variable by a value, another variable, or a [math expression](script_math_expression.md).
+
+### Examples
 ```
-Multiplies a temporary variable by a value or another variable
-Example: multiply_temp_variable = {
-var = num_dogs
-	value = 42
-	tooltip = loc_str_id_with_LEFT_and_RIGHT  #localized text with LEFT and RIGHT tokens in it, tokens will replaced by values. _NOT is added to end for negative trigger
+multiply_temp_variable = { num_dogs = 2 }
+multiply_temp_variable = {
+	num_dogs = { value = num_cats  add = 1 }
 }
 ```
+
 
 ## naval_strength_comparison
 
@@ -7326,14 +7484,21 @@ Check the seller country. Example: seller = GER
 * Supported Scopes: any
 * Supported Targets: none
 
+Sets a temporary variable to a value, another variable, or a [math expression](script_math_expression.md).
+
+### Examples
 ```
-Sets a temporary variable to a value or another variable
-Example: set_temp_variable = {
-var = num_dogs
+set_temp_variable = { num_dogs = 42 }
+set_temp_variable = {
+	var = num_dogs
 	value = 42
-	tooltip = loc_str_id_with_LEFT_and_RIGHT  #localized text with LEFT and RIGHT tokens in it, tokens will replaced by values. _NOT is added to end for negative trigger
+	tooltip = loc_str_id_with_LEFT_and_RIGHT
+}
+set_temp_variable = {
+	num_dogs = { value = num_cats  multiply = 2  add = 1 }
 }
 ```
+
 
 ## set_temp_variable_to_random
 
@@ -7461,14 +7626,16 @@ Compares the estimated army strength between the scope country and the one set w
 * Supported Scopes: any
 * Supported Targets: none
 
+Subtracts a value, a variable, or a [math expression](script_math_expression.md) from a temporary variable.
+
+### Examples
 ```
-Subtracts a value or a variable to a temporary variable
-Example: subtract_from_temp_variable = {
-var = num_dogs
-	value = 42
-	tooltip = loc_str_id_with_LEFT_and_RIGHT  #localized text with LEFT and RIGHT tokens in it, tokens will replaced by values. _NOT is added to end for negative trigger
+subtract_from_temp_variable = { num_dogs = 5 }
+subtract_from_temp_variable = {
+	num_dogs = { value = num_cats  multiply = 2 }
 }
 ```
+
 
 ## surrender_progress
 
@@ -7481,7 +7648,7 @@ check if a country is close to surrendering
 
 ## tag
 
-* Supported Scopes: COUNTRY, COMBATANT
+* Supported Scopes: COUNTRY, CHARACTER, COMBATANT
 * Supported Targets: THIS, ROOT, PREV, FROM, OWNER, CONTROLLER, OCCUPIED, CAPITAL
 
 ```
