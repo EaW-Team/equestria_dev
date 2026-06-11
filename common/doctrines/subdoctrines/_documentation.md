@@ -9,7 +9,8 @@
 
 ```
 bicycle_heroes = {
-    track = infantry   # Refers to the script name of a track
+    track = infantry   # Refers to the script name of a track. Can also be a list of tracks, e.g. { infantry armor }
+    allow_in_multiple_tracks = yes # Optional - if yes, this subdoctrine can be assigned to multiple tracks *at the same time*. Default is no.
     name = SUBDOCTRINE_BICYCLE_HEROES   # Loc key
     description = SUBDOCTRINE_BICYCLE_HEROES_DESC   # Bindable loc
     icon = GFX_subdoctrine_bicycle_heroes   # Refers to the script name of an icon
@@ -40,6 +41,8 @@ bicycle_heroes = {
         }
     }
     
+    xor = { other_subdoctrine_a other_subdoctrine_b } # Optional - lists subdoctrines that cannot be active simultaneously in a different track within the same folder. Replacing this subdoctrine with an xor'd one on the *same* track is still allowed.
+
     mastery = { # This will override the default mastery conditions for the track
         multiplier = 5.0 # Multiplies manpower contribution to mastery gain (in this case, 5 times less manpower is needed to gain the same amount of mastery)
         sub_units = { # Which subunits contribute to mastery gain?
