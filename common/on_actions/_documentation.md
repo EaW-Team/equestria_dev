@@ -2,7 +2,7 @@
 
 Try to keep this reasonably up-to-date, please.
 
-(updated 2024-11)
+(updated 2026-05)
 
 ### General
 - `on_startup`
@@ -18,6 +18,7 @@ Try to keep this reasonably up-to-date, please.
 - `on_paradrop`
 
 ### Politics
+- `on_stage_coup`                       - ROOT is the country that stages the coup, FROM is the target country  
 - `on_coup_succeeded`
 - `on_government_change`
 - `on_ruling_party_change`
@@ -46,6 +47,18 @@ Try to keep this reasonably up-to-date, please.
 - `on_liberate`
 - `on_release_as_free`
 - `on_release_as_puppet`
+- `on_guarantee`                        - 	ROOT is the country which guarantees, FROM is the country that is guaranteed.
+- `on_military_access`                  - 	ROOT is the country which requested, FROM is the country that accepted.
+- `on_offer_military_access`            -   ROOT is the country which offered, FROM is the country that accepted.
+- `on_call_allies`
+- `on_join_allies`
+- `on_lend_lease`
+- `on_incoming_lend_lease`
+- `on_send_expeditionary_force`
+- `on_return_expeditionary_forces`
+- `on_request_expeditionary_forces`
+- `on_peace_proposal`
+- `on_send_attache`
 
 ### Faction
 - `on_create_faction`
@@ -69,6 +82,7 @@ Try to keep this reasonably up-to-date, please.
 - `on_state_control_changed`
 
 ### Wargoals
+- `on_generate_wargoal`                 -   ROOT is the wargoal owner, FROM is the wargoal target
 - `on_justifying_wargoal_pulse`
 - `on_wargoal_expire`
 
@@ -79,6 +93,7 @@ Try to keep this reasonably up-to-date, please.
 - `on_army_leader_lost_combat`
 - `on_unit_leader_level_up`
 - `on_army_leader_promoted`
+- `on_deployed_leader_defeated`
 
 ### Aces
 - `on_ace_promoted`
