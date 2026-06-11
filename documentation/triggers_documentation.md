@@ -5820,7 +5820,7 @@ is_leading_army_group = yes/no - Checks if the current unit leader is leading an
 * Supported Targets: none
 
 ```
-is_leading_army_in_province = province_id # checks if the current unit leader is leading an army that has any division in a specific province
+is_leading_army_in_province = province_id # checks if the current unit leader is leading an army that has any division in a specific province. Block form { province = X include_field_marshal = yes } also counts a field marshal whose subordinate generals have a division in the province
 ```
 
 ## is_leading_volunteer_group
