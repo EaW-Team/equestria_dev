@@ -1,0 +1,534 @@
+on_actions = {
+	on_startup = {
+		effect = {
+			CTH = {
+				give_resource_rights = { receiver = WNG state = 703 }
+				give_resource_rights = { receiver = SIC state = 706 }
+			}
+		}
+	}
+
+	on_puppet = {
+		effect = {
+			CTH_load_ideology_focus = yes
+
+			if = {
+				limit = {
+					ROOT = { original_tag = CTH }
+					FROM = { original_tag = CVA }
+				}
+				FROM = {
+					set_country_flag = { flag = bypass_annex_compliance days = 1 value = 1 }
+					annex_country = { target = ROOT  }
+				}
+			}
+		}
+	}
+
+	on_release_as_puppet = {
+		effect = {
+			CTH_load_ideology_focus = yes
+		}
+	}
+
+	on_capitulation = {
+		effect = {
+			if = {
+				limit = {
+					original_tag = CTH
+					has_country_flag = CTH_limited_CGI_war_flag
+				}
+				clr_country_flag = CTH_limited_CGI_war_flag
+			}
+		}
+	}
+
+	on_new_term_election = {
+		effect = {
+			if = {
+				limit = { tag = CTH }
+				if = {
+					limit = { has_country_flag = CTH_colthage_zarcaid }
+					country_event = { id = colthage_other.57 }
+				}
+				else_if = {
+					limit = {
+						OR = {
+							has_country_flag = CTH_colthage_constitutionalist
+							has_country_flag = CTH_colthage_harmonite
+						}
+					}
+					country_event = { id = colthage_other.139 }
+				}
+			}
+		}
+	}
+
+	on_unit_leader_created = {
+		effect = {
+			if = {
+				limit = {
+					is_army_leader = yes
+					FROM = {
+						original_tag = CTH
+						has_completed_focus = CTH_medical_science
+					}
+				}
+				add_unit_leader_trait = healthy_trait
+			}
+		}
+	}
+
+	on_civil_war_end = {
+		effect = {
+			if = {
+				limit = {
+					tag = CTA
+					FROM = { tag = CTC }
+				}
+				country_event = colthage_civil_war.8
+			}
+			else_if = {
+				limit = {
+					tag = CTC
+					FROM = { tag = CTA }
+				}
+				country_event = colthage_civil_war.9
+				if = {
+					limit = {
+						CVA = { exists = yes }
+					}
+					CVA = { country_event = colthage_civil_war.16 }
+				}
+			}
+			else_if = {
+				limit = {
+					OR = {
+						tag = CTC
+						tag = CTB
+					}
+					NOT = { has_country_flag = CTH_dont_trigger_this_twice }
+					FROM = {
+						original_tag = CTH
+						has_country_flag = CTH_colthage_militarists
+					}
+				}
+				CTC = {
+					set_country_flag = CTH_dont_trigger_this_twice
+					country_event = {
+						id = colthage_civil_war.12
+						days = 7
+					}
+				}
+				CTB = {
+					set_country_flag = CTH_dont_trigger_this_twice
+					country_event = {
+						id = colthage_civil_war.12
+						days = 7
+					}
+				}
+			}
+			else_if = {
+				limit = {
+					tag = CTC
+					FROM = { tag = CTB }
+				}
+				country_event = colthage_civil_war.13
+			}
+			else_if = {
+				limit = {
+					tag = CTB
+					FROM = {
+						tag = CTC
+					}
+				}
+				country_event = colthage_civil_war.14
+			}
+			else_if = {
+				limit = {
+					original_tag = CTH
+					has_country_flag = CTH_colthage_militarists
+					OR = {
+						AND = {
+							FROM = { tag = CTC }
+							CTB = { exists = no }
+						}
+						AND = {
+							FROM = { tag = CTB }
+							CTC = { exists = no }
+						}
+					}
+				}
+				country_event = colthage_civil_war.15
+			}
+		}
+	}
+
+	on_weekly_CTH = {
+		effect = {
+			if = {
+				limit = {
+					has_country_flag = CTH_colthage_zarcaid
+					has_war_with = CTC
+					surrender_progress > 0.49
+				}
+				CTC = {
+					country_event = colthage_civil_war.10
+				}
+			}
+			if = {
+				limit = {
+					has_country_flag = CTH_MZN_CW_guns
+					has_idea = CTH_MZO_zur_improvised_weapons
+				}
+				add_equipment_to_stockpile = {
+					type = infantry_equipment
+					amount = 50
+					producer = CTH
+				}
+			}
+		}
+	}
+	on_monthly_CTH = {
+		effect = {
+			#If PDX ever adds on_state_ownership_changed, move this there
+			if = {
+				limit = {
+					any_owned_state = {
+						has_dynamic_modifier = {
+							modifier = coltvan_unrest
+						}
+					}
+				}
+				every_owned_state = {
+					limit = {
+						is_controlled_by = ROOT
+						is_core_of = CVA
+						NOT = {
+							is_core_of = CTH
+						}
+						NOT = {
+							has_dynamic_modifier = {
+								modifier = coltvan_unrest
+							}
+							has_dynamic_modifier = {
+								modifier = coltvan_defiance
+							}
+							has_dynamic_modifier = {
+								modifier = coltvan_rebellion
+							}
+							has_dynamic_modifier = {
+								modifier = coltvan_peace
+							}
+						}
+					}
+					add_dynamic_modifier = {
+						modifier = coltvan_unrest
+					}
+				}
+			}
+			else_if = {
+				limit = {
+					any_owned_state = {
+						has_dynamic_modifier = {
+							modifier = coltvan_defiance
+						}
+					}
+				}
+				every_owned_state = {
+					limit = {
+						is_controlled_by = ROOT
+						is_core_of = CVA
+						NOT = {
+							is_core_of = CTH
+						}
+						NOT = {
+							has_dynamic_modifier = {
+								modifier = coltvan_unrest
+							}
+							has_dynamic_modifier = {
+								modifier = coltvan_defiance
+							}
+							has_dynamic_modifier = {
+								modifier = coltvan_rebellion
+							}
+							has_dynamic_modifier = {
+								modifier = coltvan_peace
+							}
+						}
+					}
+					add_dynamic_modifier = {
+						modifier = coltvan_defiance
+					}
+				}
+			}
+			else_if = {
+				limit = {
+					any_owned_state = {
+						has_dynamic_modifier = {
+							modifier = coltvan_rebellion
+						}
+					}
+				}
+				every_owned_state = {
+					limit = {
+						is_controlled_by = ROOT
+						is_core_of = CVA
+						NOT = {
+							is_core_of = CTH
+						}
+						NOT = {
+							has_dynamic_modifier = {
+								modifier = coltvan_unrest
+							}
+							has_dynamic_modifier = {
+								modifier = coltvan_defiance
+							}
+							has_dynamic_modifier = {
+								modifier = coltvan_rebellion
+							}
+							has_dynamic_modifier = {
+								modifier = coltvan_peace
+							}
+						}
+					}
+					add_dynamic_modifier = {
+						modifier = coltvan_rebellion
+					}
+				}
+			}
+			else_if = {
+				limit = {
+					any_owned_state = {
+						has_dynamic_modifier = {
+							modifier = coltvan_peace
+						}
+					}
+				}
+				every_owned_state = {
+					limit = {
+						is_controlled_by = ROOT
+						is_core_of = CVA
+						NOT = {
+							is_core_of = CTH
+						}
+						NOT = {
+							has_dynamic_modifier = {
+								modifier = coltvan_unrest
+							}
+							has_dynamic_modifier = {
+								modifier = coltvan_defiance
+							}
+							has_dynamic_modifier = {
+								modifier = coltvan_rebellion
+							}
+							has_dynamic_modifier = {
+								modifier = coltvan_peace
+							}
+						}
+					}
+					add_dynamic_modifier = {
+						modifier = coltvan_peace
+					}
+				}
+			}
+			if = {
+				limit = {
+					any_owned_state = {
+						has_dynamic_modifier = {
+							modifier = colthaginian_landlords
+						}
+					}
+				}
+				every_owned_state = {
+					limit = {
+						is_controlled_by = ROOT
+						is_core_of = CVA
+						NOT = {
+							is_core_of = CTH
+						}
+						NOT = {
+							has_dynamic_modifier = {
+								modifier = colthaginian_landlords
+							}
+							has_dynamic_modifier = {
+								modifier = minor_land_reforms
+							}
+						}
+					}
+					add_dynamic_modifier = {
+						modifier = colthaginian_landlords
+					}
+				}
+			}
+			else_if = {
+				limit = {
+					any_owned_state = {
+						has_dynamic_modifier = {
+							modifier = minor_land_reforms
+						}
+					}
+				}
+				every_owned_state = {
+					limit = {
+						is_controlled_by = ROOT
+						is_core_of = CVA
+						NOT = {
+							is_core_of = CTH
+						}
+						NOT = {
+							has_dynamic_modifier = {
+								modifier = colthaginian_landlords
+							}
+							has_dynamic_modifier = {
+								modifier = minor_land_reforms
+							}
+						}
+					}
+					add_dynamic_modifier = {
+						modifier = minor_land_reforms
+					}
+				}
+			}
+		}
+	}
+
+	on_peaceconference_ended = {
+		effect = {
+			# PUT EVERYTHING IN THE IF BELOW
+			# THE bypass_on_peaceconference_ended FLAG **HAS** TO BE SET BEFORE CALLING THE white_peace COMMAND AND CLEARED AFTERWARDS
+			if = {
+				limit = {
+					NOT = {
+						has_country_flag = bypass_on_peaceconference_ended
+						FROM = { has_country_flag = bypass_on_peaceconference_ended }
+					}
+				}
+				log = "[GetDateText]: ROOT: [Root.GetName] FROM: [From.GetName] on_peaceconference_ended"
+				if = {
+					limit = { has_global_flag = CTH_third_civil_war }
+					if = {
+						limit = {
+							original_tag = TRO
+							OR = {
+								AND = {
+									NOT = { country_exists = HIE }
+									FROM = { tag = MZN }
+								}
+								AND = {
+									NOT = { country_exists = MZN }
+									FROM = { tag = HIE }
+								}
+							}
+							CVA = {
+								OR = {
+									exists = no
+									is_subject_of = ROOT
+								}
+							}
+						}
+						if = {
+							limit = { country_exists = FROM }
+							set_country_flag = { flag = bypass_annex_compliance days = 1 value = 1 }
+							annex_country = { target = FROM }
+						}
+						country_event = {
+							id = trotkart_colthage.8 hours = 1 #For end of civil war event when added
+						}
+					}
+					if = {
+						limit = {
+							original_tag = TRO
+							OR = {
+								AND = {
+									NOT = { country_exists = HIE }
+									FROM = { tag = MZN }
+								}
+								AND = {
+									NOT = { country_exists = MZN }
+									FROM = { tag = HIE }
+								}
+							}
+							CVA = {
+							  OR = {
+									exists = yes
+									NOT = { is_subject_of = ROOT }
+								}
+							}
+						}
+						if = {
+							limit = { country_exists = FROM }
+							set_country_flag = { flag = bypass_annex_compliance days = 1 value = 1 }
+							annex_country = { target = FROM }
+						}
+						country_event = {
+							id = trotkart_colthage.29 hours = 1 #For end of civil war event when added
+						}
+					}
+					if = {
+						limit = {
+							original_tag = TRO
+							NOT = {
+								country_exists = HIE
+								country_exists = MZN
+							}
+							FROM = { tag = CVA }
+						}
+						if = {
+							limit = { country_exists = FROM }
+							set_country_flag = { flag = bypass_annex_compliance days = 1 value = 1 }
+							annex_country = { target = FROM }
+						}
+						country_event = {
+							id = trotkart_colthage.8 hours = 1 #For end of civil war event when added
+						}
+					}
+					if = {
+						limit = {
+							tag = MZN
+							OR = {
+								AND = {
+									NOT = { country_exists = HIE }
+									FROM = { tag = TRO }
+								}
+								AND = {
+									NOT = { country_exists = TRO }
+									FROM = { tag = HIE }
+								}
+							}
+						}
+						if = {
+							limit = { country_exists = FROM }
+							set_country_flag = { flag = bypass_annex_compliance days = 1 value = 1 }
+							annex_country = { target = FROM }
+						}
+						country_event = {
+							id = colthage_monzano_cw_untriggered.1 hours = 1 #For end of civil war event when added
+						}
+					}
+					if = {
+						limit = {
+							original_tag = HIE
+							OR = {
+								AND = {
+									NOT = { country_exists = MZN }
+									FROM = { tag = TRO }
+								}
+								AND = {
+									NOT = { country_exists = TRO }
+									FROM = { tag = MZN }
+								}
+							}
+						}
+						if = {
+							limit = { country_exists = FROM }
+							set_country_flag = { flag = bypass_annex_compliance days = 1 value = 1 }
+							annex_country = { target = FROM }
+						}
+						country_event = { id = hippone_sekrit.12 hours = 1 }
+					}
+				}
+			}
+		}
+	}
+}
