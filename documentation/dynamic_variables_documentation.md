@@ -211,6 +211,9 @@ compare_autonomy_progress_ratio > 0.5
 * description: A trigger to check convoy threat for a country. Controlled by NAVAL_CONVOY_DANGER defines. Returns a value between 0 and 1. Example convoy_threat > 0.5 
 * (Auto generated using the trigger with same name)
 
+### convoys_destroyed
+* description: total number of convoys destroyed by this country
+
 ### core_compliance
 * description: returns core compliance of target country
 
@@ -245,6 +248,9 @@ Examples:
 	GER = { OR = { has_capitulated = no days_since_capitulated > 14 } } # Germany is not both actively and recently capitulated
 
 * (Auto generated using the trigger with same name)
+
+### days_until_next_election
+* description: days until the next election. -1 if never
 
 ### decryption_progress
 * description: checks decryption ratio against a country. Example: 
@@ -1194,6 +1200,9 @@ Example: attack_skill_level > 5
 
 ### avg_offensive_combat_status
 * description: average progress of offensive combats
+
+### avg_unit_entrenchment_ratio
+* description: average entrenchment ratio of all units
 
 ### avg_unit_planning_ratio
 * description: average planning ratio of all units

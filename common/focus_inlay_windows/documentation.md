@@ -31,6 +31,11 @@ inlay_window_id = {
             }
         }
     }
+    scripted_progressbars = { # list of progressbars that should fill up based on a variable
+        icon_name = { # Name of the progressbar (must be an icon that is a a subcomponent of "gui_component_name" or a button, with a "progressbartype" as its spriteType)
+            progress = <variable_name>
+        }
+    }
 }
 ```
 

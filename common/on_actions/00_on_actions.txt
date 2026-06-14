@@ -423,7 +423,11 @@ on_actions = {
 					trait = sick
 					days = 30
 				}
-				unit_leader_event = { id = generic.17 }
+				set_unit_leader_flag = {
+					flag = recently_sick
+					value = 1
+					days = 180
+				}
 			}
 		}
 	}
@@ -444,7 +448,6 @@ on_actions = {
 					trait = wounded
 					days = 90
 				}
-				unit_leader_event = { id = generic.18 }
 			}
 		}
 	}
@@ -465,7 +468,6 @@ on_actions = {
 					trait = wounded
 					days = 90
 				}
-				unit_leader_event = { id = generic.18 }
 			}
 		}
 	}
@@ -484,6 +486,78 @@ on_actions = {
 	on_pride_of_the_fleet_sunk = {
 	}
 
+	on_deployed_leader_defeated = {
+		effect = {
+			if = {
+				limit = {
+					is_character = EQS_princess_celestia
+					has_character_flag = EQS_celestia_is_db
+				}
+				FROM = {
+					country_event = solarempire.49
+				}
+				OWNER = {
+					country_event = solarempire.50
+				}
+			}
+			else = {
+				set_temp_variable = { 
+					capture_chance = {
+						value = 1
+						subtract = modifier@general_capture_avoidance_chance
+					}
+				}
+				owner = {
+					subtract_from_temp_variable = {
+						capture_chance = modifier@general_capture_avoidance_chance
+					}
+				}
+				if = {
+					limit = {
+						check_variable = { num_battalions_with_type@hq_support_unicorn_teleporters > 0 }
+					}
+					subtract_from_temp_variable = {
+						capture_chance = 0.1
+					}
+				}
+				if = {
+					limit = {
+						check_variable = { num_battalions_with_type@hq_support_astrologican > 0 }
+					}
+					subtract_from_temp_variable = {
+						capture_chance = 0.15
+					}
+				}
+				multiply_temp_variable = { capture_chance = 100 }
+				clamp_temp_variable = {
+					var = capture_chance
+					min = 0
+					max = 100
+				}
+				round_temp_variable = capture_chance
+
+				random = {
+					chance = var:capture_chance
+					if = {
+						limit = { can_be_captured = yes }
+						# TODO TAOG: a percentage chance to be captured? Other effects otherwise? # lol we did this :D get better pdx
+						capture_by = FROM
+					}
+					else = {
+						# uncapturable leaders (e.g. country leaders) get wounded instead
+						if = {
+							limit = { NOT = { has_trait = wounded } }
+							add_timed_unit_leader_trait = {
+								trait = wounded
+								days = 90
+							}
+						}
+					}
+				}
+			}
+		}
+	}
+
 	# root country that invades
 	# scope state that is invaded
 	# from scope state that the invasion started
@@ -497,7 +571,11 @@ on_actions = {
 							 size > 0
 							 state = PREV
 						}
-						 has_tech = marines_commandos_demolition 
+						has_mastery_level = {
+							amount = 3
+						 	sub_doctrine = marines_1
+						 	#has_tech = marines_commandos_demolition - old equivalent
+						}  
 					}
 					NOT = { has_state_flag = marines_commando_effect }
 					OWNER = { NOT = { tag = ROOT } }
@@ -538,20 +616,9 @@ on_actions = {
 	}
 	
 	on_unit_leader_promote_from_ranks_veteran = { #Unit leader scope, FROM is unit
-		effect = {
-			FROM = {
-				add_random_valid_trait_from_unit = {
-					character = ROOT
-				}
-			}
-			set_unit_leader_flag = field_promotion_achievement
-		}
 	}
 
 	on_unit_leader_promote_from_ranks_green = { #Unit leader scope, FROM is unit
-		effect = {
-			set_unit_leader_flag = field_promotion_achievement
-		}
 	}
 
 	on_add_history = { #Unit Scope
@@ -566,7 +633,13 @@ on_actions = {
 		effect = {
 			if = {
 				limit = { 
-					FROM = { has_tech = paras_dispersed_drop } 
+					FROM = { 
+						has_mastery_level = {
+							amount = 1
+							sub_doctrine = paratroopers_1
+						}
+						#has_tech = paras_dispersed_drop - old equivalent
+					} 
 					NOT = { 
 						has_state_flag = {
 						    flag = para_drop_effect
@@ -579,7 +652,13 @@ on_actions = {
 			}
 			if = {
 				limit = { 
-					FROM = { has_tech = paras_combat_drop } 
+					FROM = { 
+						has_mastery_level = {
+							amount = 1
+							sub_doctrine = paratroopers_2
+						}
+						#has_tech = paras_combat_drop  - old equivalent
+					} 
 					NOT = { 
 						has_state_flag = {
 						    flag = para_drop_effect
