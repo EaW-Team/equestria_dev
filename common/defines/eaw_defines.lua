@@ -40,6 +40,7 @@ NDefines.NProduction.MINIMUM_NUMBER_OF_FACTORIES_TAKEN_BY_CONSUMER_GOODS_PERCENT
 NDefines.NProduction.MAX_EQUIPMENT_RESOURCES_NEED = 4
 
 NDefines.NBuildings.RADAR_RANGE_MAX = 416 --each level is 36, we've gone from 6 levels (40 to 220, 5 increases) to 12 levels (40 to 436, 11 increases)
+NDefines.NBuildings.MAX_SHARED_SLOTS = 30
 
 NDefines.NMilitary.PLAN_EXECUTE_CAREFUL_MAX_FORT = 4
 NDefines.NMilitary.TRAINING_MAX_LEVEL = 10
@@ -218,6 +219,8 @@ NDefines.NFactions.FACTION_INTELLIGENCE_ALLOWED_ADVISOR_TRAIT = {
 	"HUN_stalinist_agent",
 	"JAP_tokko_chief",
 	"CHI_spymaster",
+	"AST_intelligence_director",
+	"AST_indomitable_scout",
 	"head_of_intelligence_kirin",
 	"HEL_general_secretary",
 	"HEL_general_secretary_lar",
