@@ -64,6 +64,10 @@ raid_type_id = {
 		}
 	}
 
+	ai_min_success_chance = 0.1 # [Optional] Per-type override of RAIDS_MIN_SUCCESS_FOR_LAUNCH (0.0-1.0).
+
+	max_distance = 500 # [Optional] Hard cap on source-to-target path length, in universal distance units (same space as the engine's path lengths). Sources further away than this cannot be used. AI ignores this when unlimited_ai_range = yes.
+
 	fire_only_once = yes # if the raid can only be executed once
 	days_re_enable = 60 # How many days before the raid can be created again against the same target.
 	                    # There is RAID_DEFAULT_TARGET_COOLDOWN_DAYS define which is used if no value is specified in script.
@@ -287,7 +291,7 @@ As another note on the terminology of these outcomes, unfortunately there were s
 
 # Success Chance Formulas & Modifiers
 
-"Success Chance Formulas" are essentially lists of different **modifiers** which can affect the probability of a certain
+"Success Chance Formulas" are essentially lists of different **success chance modifiers** which can affect the probability of a certain
 raid outcome. They are used in *success_factors* in the RaidType (see above). *success*, *critical* and *disaster* are all
 scripted in the same way through this formula construct.
 
@@ -309,7 +313,9 @@ scripted in the same way through this formula construct.
 - *critical* defines the probability of a successful raid being a critical success (conditional probability)
 - *disaster* defines the probability of a raid being a critical failure (not conditional)
 
-### List of modifiers:
+## Predefined success chance modifiers:
+
+### Generic:
 - *prep_time*: The preparation progress. Reference values from 0.0 (no preparation) to 1.0 (full preparation).
 - *experience*: The experience of the unit assigned to the raid. Reference values from 0.0-1.0
 - *anti_air*: The anti-air defense value of the target state. Reference values e.g. from 0 to 5 (meaning 5 basic AA buildings)
@@ -320,13 +326,13 @@ scripted in the same way through this formula construct.
 - *interception*: The number of enemy planes executing interception missions in the target region.
 - *intel*: The amount of intel the actor country has on the target. Reference values depend on defines.
 
-#### Air Units Only:
+### Air Units Only:
 - *air_defence*: The air defense value of the air unit assigned to the raid. Typical reference values from 0 to 50
 - *air_agility*: The air agility value of the air unit assigned to the raid. Typical reference values from 0 to 50
 - *strategic_bomber*: The strategic bombing value of the air unit assigned to the raid. Reference values from 0 to 1
 - *reliability*: The reliability (fraction) of the air unit assigned to the raid. Reference values from 0 to 1
 
-#### Land Units Only:
+### Land Units Only:
 - *recon*: The recon level of the land unit assigned to the raid, if there is one. Typical reference values from 0 to 10
 - *organisation*: The organisation (absolute) of the land unit assigned to the raid, if there is one. Reference values from 0 to 100+
 - *strength*: The strength (factor) of the land unit assigned to the raid, if there is one. Reference values from 0.0 to 1.0
@@ -389,6 +395,139 @@ success_factors = {
         }
     }
 }
+```
+
+## Custom success chance modifiers:
+
+Success chance modifiers can also be scripted in a custom way, where a MTTH block is used to sample the "source" value that the modifier is based on.
+
+For example, a success modifier can be scripted that scales based on the political power of the actor country, through the 'political_power' variable:
+```
+political_power_test = {
+    scope = country # Needed because we need to sample a dynamic variable from the country scope
+    formula = {
+        # MTTH block
+        base = 1
+        modifier = {
+            factor = political_power # Dynamically mapped name variable
+        }
+    }
+    weight = 0.1
+    reference = 500
+    can_actor_affect = yes # If true, this modifier will be included in the list of measures the actor country can take to increase the success chance of the raid
+    can_target_affect = no # If true, this modifier will be included in the list of countermeasures the target country can take to decreases the success chance of the raid
+}
+```
+Since *weight = 0.1* and *reference = 500*, this means that if the actor country has 500 political power, the success chance will be increased by 10%.
+
+You can also use custom success modifiers to do conditional checks, e.g. increasing success chance if the actor country has taken a certain focus:
+```
+completed_focus_test = {
+    formula = {
+        # MTTH block
+        base = 0
+        modifier = {
+            has_completed_focus = GER_prioritize_economic_growth
+            add = 1
+        }
+    }
+    weight = 0.1
+    can_actor_affect = yes # If true, this modifier will be included in the list of measures the actor country can take to increase the success chance of the raid
+    can_target_affect = no # If true, this modifier will be included in the list of countermeasures the target country can take to decreases the success chance of the raid
+}
+```
+
+### Scopes for custom success chance modifiers
+
+Custom success chance modifiers generally support these scopes:
+- *country*
+- *state* (raid target)
+- *character* (unit leader)
+- *unit* (division)
+
+Note that in the examples above, the *political_power_test* modifier has explicitly defined *scope = country*.
+This is because it uses the *political_power* variable, which needs to be sampled from a country, but the dependence on country scope cannot be implicitly deduced from the variable alone.
+Unfortunately, the system currently does not support sampling variables from multiple sources. Since the modifiers can support any of the three scopes above, we need to explicitly define the scope when using dynamic variables to make sure we are sampling the variable from the correct source.
+
+In the second case, we do not need to explicitly define the scope, since the trigger *completed_focus* can be implicitly deduced to belong to country scope.
+
+#### Some example of state-scoped custom success chance modifiers:
+
+```
+infrastructure = {
+    scope = state # Needed because we need to sample a dynamic variable from the state scope
+    formula = {
+        base = 1
+        modifier = {
+            factor = infrastructure_level
+        }
+    }
+    weight = -0.1
+    reference = 5
+    can_target_affect = yes
+    can_actor_affect = no
+}
+
+capital = {
+    formula = {
+        base = 0
+        modifier = {
+            is_capital = yes
+            add = 1
+        }
+    }
+    weight = 0.1
+    can_target_affect = no
+    can_actor_affect = no
+}
+```
+
+### Unit-based custom success chance modifiers
+
+If a custom success chance modifier only uses unit or character scope, it will be displayed already in the unit selection menu. Here are some examples of how unit/character modifiers can be set up:
+
+Sampling a dynamic variable from the unit leader, e.g. the planning skill level:
+```
+planning_skill_test = {
+    scope = character # Needed because we need to sample a dynamic variable from the character scope
+    formula = {
+        base = 1
+        modifier = {
+            factor = planning_level
+        }
+    }
+    weight = 0.1
+    reference = 5
+    can_target_affect = no
+    can_actor_affect = yes
+}
+```
+
+Using a unit-scope trigger:
+```
+division_check = {
+    formula = {
+        base = 0
+        modifier = {
+            division_has_battalion_in_template = marine
+            add = 1
+        }
+    }
+    weight = 0.15
+    can_target_affect = no
+    can_actor_affect = yes
+}
+```
+
+### Localization for custom success chance modifiers
+
+Given a custom success chance modifier named `political_power_test`, the game will look for the following loc strings to display the modifier in the UI:
+```
+success_modifier_political_power_test: "£pol_power §HPolitical Power§!"
+success_modifier_political_power_test_negative: "low £pol_power §HPolitical Power§!" # Optional (displayed if the modifier has negative effect)
+success_modifier_political_power_test_improvement: "- Increase £pol_power §HPolitical Power§!" # Optional (but required if can_actor_affect is true)
+success_modifier_political_power_test_counterplay: "- Decrease enemy £pol_power §HPolitical Power§!" # Optional
+success_modifier_political_power_test_source: "£pol_power $VAL|H0$/$MAX|H0$" # Optional
 ```
 
 # Raid Instance Effects
@@ -466,7 +605,8 @@ raid_add_unit_experience = <value> # The value is 0.0-1.0, representing progress
 
 example:
 
-# Gain 25% progress towards the max level
+Gain 25% progress towards the max level
+```
 raid_add_unit_experience = 0.25
 ```
 Supports both explicit values and variables
