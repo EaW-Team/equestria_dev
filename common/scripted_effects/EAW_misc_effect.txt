@@ -760,6 +760,25 @@ decrease_illiteracy_by_two_levels = {
 	}
 }
 
+
+increase_illiteracy = {
+	if = {
+		limit = { has_idea = lack_of_scientists1 }
+		swap_ideas = { add_idea = lack_of_scientists remove_idea = lack_of_scientists1 }
+	}
+	else_if = {
+		limit = { has_idea = lack_of_scientists2 }
+		swap_ideas = { add_idea = lack_of_scientists1 remove_idea = lack_of_scientists2 }
+	}
+	else_if = {
+		limit = { has_idea = lack_of_scientists3 }
+		swap_ideas = { add_idea = lack_of_scientists2 remove_idea = lack_of_scientists3 }
+	}
+	else_if = {
+		limit = { has_idea = no_lack_of_scientists }
+		swap_ideas = { add_idea = lack_of_scientists3 remove_idea = no_lack_of_scientists }
+	}
+}
 remove_illiteracy = {
 	remove_ideas = lack_of_scientists
 	remove_ideas = lack_of_scientists1
@@ -4343,3 +4362,89 @@ rename_stalliongrad_states = {
 	set_global_flag = stg_renamed
 }
 
+#A convoluted scripted effect for dynamically getting the capital province of the current state.
+#Returns the capital province through the capital_province temp variable.
+#Is fairly intrusive as it involves transferring the state to SOL for an instant. Use with caution.
+get_state_capital_province = {
+	hidden_effect = {
+		set_temp_variable = { old_owner = owner }
+		transfer_state_to = SOL
+		SOL = {
+			meta_effect = {
+				text = {
+					division_template = {
+						name = "[CAPITAL_NAME]"
+						is_locked = yes
+						regiments = {
+							infantry = { x = 0 y = 0 }
+						}
+					}
+					create_faction = "[STATE_NAME]"
+				}
+				CAPITAL_NAME = "[PREV.GetCapitalVictoryPointName]"
+				STATE_NAME = "[PREV.GetName]"
+			}
+		}
+		set_state_name = "ABABABABABABABABA"
+		for_each_loop = {
+			array = global.province_controllers
+			value = v
+			index = i
+			break = break
+
+			if = {
+				limit = {
+					check_variable = { v = SOL }
+				}
+				meta_effect = {
+					text = {
+						add_victory_points = {
+							province = [PROVINCE]
+							value = 100
+						}
+					}
+					PROVINCE = "[?i]"
+				}
+				if = {
+					limit = {
+						SOL = {
+							meta_trigger = {
+								text = {
+									has_template = "[CAPITAL_NAME]"
+								}
+								CAPITAL_NAME = "[PREV.GetCapitalVictoryPointName]"
+							}
+						}
+					}
+					set_temp_variable = { capital_province = i }
+					set_temp_variable = { break = 1 }
+				}
+				meta_effect = {
+					text = {
+						add_victory_points = {
+							province = [PROVINCE]
+							value = -100
+						}
+					}
+					PROVINCE = "[?i]"
+				}
+			}
+		}
+		meta_effect = {
+			text = {
+				set_state_name = "[FACTION]"
+				SOL = {
+					delete_unit_template_and_units = {
+						division_template = "[CAPITAL_NAME]"
+					}
+				}
+			}
+			FACTION = "[SOL.GetFactionName]"
+			CAPITAL_NAME = "[THIS.GetCapitalVictoryPointName]"
+		}
+		SOL = {
+			dismantle_faction = yes
+		}
+		transfer_state_to = var:old_owner
+	}
+}
