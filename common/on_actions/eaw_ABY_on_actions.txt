@@ -1,0 +1,1021 @@
+on_actions = {
+	on_startup = {
+		effect = {
+			ABY = {
+				add_ideas = big_science_base
+				adjust_research_modifier = yes
+				give_resource_rights = { receiver = WNG state = 1201 }
+			}
+		}
+	}
+
+	on_declare_war = {
+		effect = {
+			if = {
+				limit = {
+					original_tag = ABY
+					FROM = { original_tag = MDL }
+					NOT = { has_country_flag = ABY_MDL_war_lost }
+				}
+				ABY = {
+					activate_targeted_decision = {
+						target = MDL
+						decision = ABY_MDL_war_timer
+					}
+				}
+			}
+			else_if = {
+				limit = {
+					OR = {
+						AND = {
+							tag = WNG
+							FROM = {
+								tag = ABY
+							}
+						}
+						AND = {
+							tag = ABY
+							FROM = {
+								tag = WNG
+							}
+						}
+					}
+					ABY = {
+						has_idea = ABY_risk_of_famine
+					}
+				}
+				ABY = {
+					country_event = {
+						id = abyssinia.44
+						days = 1
+					}
+				}
+			}
+		}
+	}
+
+	on_war_relation_added = {
+		effect = {
+			if = {
+				limit = {
+					OR = {
+						AND = {
+							original_tag = WNG
+							FROM = {
+								original_tag = ABY
+							}
+						}
+						AND = {
+							original_tag = ABY
+							FROM = {
+								original_tag = WNG
+							}
+						}
+					}
+				}
+				ABY = {
+					if = {
+						limit = {
+							has_idea = ABY_risk_of_famine
+						}
+						country_event = {
+							id = abyssinia.44
+							days = 1
+						}
+					}
+					if = {
+						limit = {
+							has_government = fascism
+							NOT = {
+								has_country_flag = ABY_unleashed_potential
+							}
+						}
+						country_event = {
+							id = abyssinia.144
+							days = 3
+						}
+					}
+					else_if = {
+						limit = {
+							has_government = communism
+							NOT = {
+								has_country_flag = ABY_conscripts_raised
+							}
+						}
+						country_event = {
+							id = abyssinia.175
+							days = 3
+						}
+					}
+				}
+			}
+		}
+	}
+
+	on_army_leader_lost_combat = {
+		effect = {
+			if = {
+				limit = {
+					FROM = {
+						original_tag = ABY
+						NOT = { has_country_flag = ABY_general_killed }
+					}
+				}
+				if = {
+					limit = {
+						has_character_flag = ABY_doomed_to_die
+						set_temp_variable = { chance = 0.50 }
+						check_variable = { random < chance }
+						NOT = { has_trait = wounded }
+					}
+					unit_leader_event = { id = abyssinia.33 }
+				}
+			}
+		}
+	}
+
+	on_capitulation = {
+		effect = {
+			if = {
+				limit = {
+					original_tag = ABY
+					has_country_flag = ABY_limited_MDL_war_flag
+				}
+				clr_country_flag = ABY_limited_MDL_war_flag
+			}
+			if = {
+				limit = {
+					original_tag = ABY
+					ABY = { is_subject = no }
+					FROM = { original_tag = WNG }
+				}
+				FROM = {
+					set_country_flag = { flag = bypass_annex_compliance days = 1 value = 1 }
+					annex_country = { target = ROOT }
+				}
+				if = {
+					limit = { has_cosmetic_tag = ABY_patriotic_revolt }
+					drop_cosmetic_tag = yes
+					set_cosmetic_tag = ABY_default_cosmetic
+				}
+			}
+			if = {
+				limit = {
+					original_tag = ABY
+					FROM = { has_country_flag = SON_ABY_war_white_peace_flag }
+				}
+				ABY = {
+					overlord = { country_event = zarhay.152 }
+				}
+			}
+			if = {
+				limit = {
+					OR = {
+						original_tag = EQS
+						original_tag = EQC
+					}
+					has_government = democratic
+					ABY = {
+						exists = yes
+						has_capitulated = no
+						NOT = {
+							any_owned_state = {
+								OR = {
+									is_controlled_by = FROM
+									CONTROLLER = { is_ally_with = FROM }
+								}
+							}
+						}
+						has_war_with = FROM
+					}
+				}
+				ABY = {
+					if = {
+						limit = { is_in_faction_with = EQS }
+						leave_faction = yes
+					}
+					else_if = {
+						limit = { is_in_faction_with = EQC }
+						leave_faction = yes
+					}
+					if = {
+						limit = { has_war_with = FROM }
+						set_country_flag = { flag = bypass_on_peaceconference_ended days = 1 value = 1 }
+						white_peace = FROM
+						remove_wargoal = {
+							type = all
+							target = FROM
+						}
+					}
+				}
+			}
+			else_if = {
+				limit = {
+					original_tag = ABY
+					has_war_with = FROM
+					OR = {
+						is_in_faction_with = EQS
+						is_in_faction_with = EQC
+					}
+					FROM = { is_zebrican_continent_country = yes }
+				}
+				leave_faction = yes
+				if = {
+					limit = {
+						EQS = { has_war_with = FROM }
+					}
+					EQS = {
+						set_country_flag = { flag = bypass_on_peaceconference_ended days = 1 value = 1 }
+						white_peace = FROM
+						every_other_country = {
+							limit = {
+								has_war_with = FROM
+								is_in_faction_with = EQS
+							}
+							set_country_flag = { flag = bypass_on_peaceconference_ended days = 1 value = 1 }
+							white_peace = FROM
+						}
+					}
+				}
+				else_if = {
+					limit = {
+						EQC = { has_war_with = FROM }
+					}
+					EQC = {
+						set_country_flag = { flag = bypass_on_peaceconference_ended days = 1 value = 1 }
+						white_peace = FROM
+						every_other_country = {
+							limit = {
+								has_war_with = FROM
+								is_in_faction_with = EQC
+							}
+							set_country_flag = { flag = bypass_on_peaceconference_ended days = 1 value = 1 }
+							white_peace = FROM
+						}
+					}
+				}
+			}
+		}
+	}
+
+	on_capitulation_immediate = {
+		effect = {
+			if = {
+				limit = {
+					original_tag = MDL
+					FROM = { original_tag = ABY }
+				}
+				FROM = { country_event = abyssinia.49 }
+			}
+			if = {
+				limit = {
+					OR = {
+						any_occupied_country = { original_tag = ABY }
+						has_war_with = ABY
+						has_war_with = ABP
+					}
+					NOT = { is_zebrican_continent_country = yes }
+					NOT = { has_global_flag = katztime } #Not during Katzen AF
+				}
+				if = {
+					limit = {
+						ABP = { exists = yes }
+					}
+					every_owned_state = {
+						limit = {
+							OR = {
+								is_core_of = ABY
+								is_claimed_by = ABY
+							}
+						}
+						transfer_state_to = ABP
+					}
+				}
+				else = {
+					every_owned_state = {
+						limit = {
+							OR = {
+								is_core_of = ABY
+								is_claimed_by = ABY
+							}
+						}
+						transfer_state_to = ABY 
+					}
+				}
+				ABY = {
+					if = {
+						limit = { has_cosmetic_tag = ABY_patriotic_revolt }
+						drop_cosmetic_tag = yes
+						set_cosmetic_tag = ABY_default_cosmetic
+					}
+					set_capital = {
+						state = 775
+						remember_old_capital = no
+					}
+				}
+			}
+		}
+	}
+
+	on_ruling_party_change = {
+		effect = {
+			if = {
+				limit = { original_tag = ABY }
+				if = {
+					limit = {
+						NOT = {
+							has_government = neutrality
+							has_government = democratic
+						}
+						has_power_balance = { id = ABY_neutral_harmony }
+					}
+					remove_power_balance = { id = ABY_neutral_harmony }
+				}
+			}
+		}
+	}
+
+	on_puppet = {
+		effect = {
+			if = {
+				limit = {
+					ROOT = { original_tag = MGY }
+					FROM = { original_tag = ABY }
+				}
+				generate_character = {
+					token_base = ABY_MGY_ankha
+					name = ABY_MGY_ankha
+				}
+				if = {
+					limit = { has_character = ABY_MGY_ankha }
+					set_portraits = {
+						character = ABY_MGY_ankha 
+						army = { 
+							large = "gfx/leaders/ABY/oh_no.tga"
+						}
+					}
+				}
+				add_country_leader_role = {
+					character = ABY_MGY_ankha
+					country_leader = {
+						expire = "1965.1.1"
+						ideology = conservatism
+						desc = ABY_MGY_ankha_desc
+					}
+					promote_leader = yes
+				}
+				add_country_leader_role = {
+					character = ABY_MGY_ankha
+					country_leader = {
+						expire = "1965.1.1"
+						ideology = despotism
+						desc = ABY_MGY_ankha_desc
+					}
+					promote_leader = yes
+				}
+				add_country_leader_role = {
+					character = ABY_MGY_ankha
+					country_leader = {
+						expire = "1965.1.1"
+						ideology = nazism
+						desc = ABY_MGY_ankha_desc
+					}
+					promote_leader = yes
+				}
+			}
+			if = {
+				limit = {
+					ROOT = { original_tag = ABY }
+				}
+				if = {
+					limit = {
+						OR = {
+							has_cosmetic_tag = ABY_patriotic_revolt
+							has_cosmetic_tag = ABY_bitchdom
+						}
+					}
+					drop_cosmetic_tag = yes
+				}
+			}
+		}
+	}
+
+	on_release_as_puppet = {
+		effect = {
+			if = {
+				limit = {
+					ROOT = { original_tag = MGY }
+					FROM = { original_tag = ABY }
+				}
+				generate_character = {
+					token_base = ABY_MGY_ankha
+					name = ABY_MGY_ankha
+				}
+				if = {
+					limit = { has_character = ABY_MGY_ankha }
+					set_portraits = {
+						character = ABY_MGY_ankha 
+						army = { 
+							large = "gfx/leaders/ABY/oh_no.tga"
+						}
+					}
+				}
+				add_country_leader_role = {
+					character = ABY_MGY_ankha
+					country_leader = {
+						expire = "1965.1.1"
+						ideology = conservatism
+						desc = ABY_MGY_ankha_desc
+					}
+					promote_leader = yes
+				}
+				add_country_leader_role = {
+					character = ABY_MGY_ankha
+					country_leader = {
+						expire = "1965.1.1"
+						ideology = despotism
+						desc = ABY_MGY_ankha_desc
+					}
+					promote_leader = yes
+				}
+				add_country_leader_role = {
+					character = ABY_MGY_ankha
+					country_leader = {
+						expire = "1965.1.1"
+						ideology = nazism
+						desc = ABY_MGY_ankha_desc
+					}
+					promote_leader = yes
+				}
+			}
+			if = {
+				limit = {
+					ROOT = { original_tag = ABY }
+				}
+				if = {
+					limit = {
+						OR = {
+							has_cosmetic_tag = ABY_patriotic_revolt
+							has_cosmetic_tag = ABY_bitchdom
+						}
+					}
+					drop_cosmetic_tag = yes
+				}
+			}
+		}
+	}
+
+	on_civil_war_end = {
+		effect = {
+			if = {
+				limit = { original_tag = ABY }
+				if = {
+					limit = {
+						FROM = { has_government = communism }
+					}
+					country_event = abyssinia.129
+				}
+				else_if = {
+					limit = {
+						has_government = communism
+						NOT = { has_country_flag = ABY_first_civil_war_end }
+					}
+					country_event = abyssinia.159
+				}
+				else_if = {
+					limit = {
+						has_government = communism
+						has_focus_tree = ABY_cummunism_real_civil_war_tree
+						OR = {
+							AND = {
+								FROM = { original_tag = ABY }
+								var:global.donkey_revolt_var = { exists = no }
+							}
+							AND = {
+								FROM = { original_tag = ASS }
+								var:global.cat_revolt_var = { exists = no }
+							}
+						}
+					}
+					country_event = abyssinia.183
+				}
+				if = {
+					limit = { has_cosmetic_tag = ABY_patriotic_revolt }
+					drop_cosmetic_tag = yes
+					set_cosmetic_tag = ABY_default_cosmetic
+				}
+			}
+			else_if = {
+				limit = {
+					original_tag = ASS
+					has_cosmetic_tag = ABY_new_donkeystan
+					FROM = {
+						original_tag = ABY
+						has_government = communism
+					}
+				}
+				if = {
+					limit = {
+						ASS = {
+							exists = yes
+							has_government = fascism
+							NOT = { has_war_with = ROOT }
+						}
+					}
+					ASS = { country_event = abyssinia.184 }
+				}
+			}
+		}
+	}
+
+	on_weekly_ABY = {
+		effect = {
+			if = {
+				limit = {
+					OR = {
+						has_country_leader_with_trait = ABY_slightly_less_melancholic
+						has_country_leader_with_trait = ABY_half_melancholic
+						has_country_leader_with_trait = ABY_bloomer
+						has_country_leader_with_trait = ABY_road_to_enlightenment
+					}
+					NOT = {
+						has_country_flag = ABY_gomez_absent
+					}
+				}
+				add_to_variable = {
+					var = ABY_gomez_mental_stability
+					value = modifier@ABY_mental_stability_drift
+				}
+				clamp_variable = {
+					var = ABY_gomez_mental_stability
+					min = 0
+					max = 100
+				}
+				if = {
+					limit = {
+						NOT = {
+							has_country_flag = ABY_low_stab_event_triggered
+						}
+						check_variable = { ABY_gomez_mental_stability < 11 }
+					}
+					country_event = abyssinia.34
+				}
+				if = {
+					limit = {
+						is_ai = no
+						check_variable = { ABY_gomez_mental_stability < 10 }
+					}
+					ABY_alert_raise_1 = yes
+				}
+				if = {
+					limit = {
+						is_ai = no
+						check_variable = { ABY_gomez_mental_stability = 0 }
+					}
+					country_event = abyssinia.35
+				}
+				if = {
+					limit = {
+						is_ai = no
+						NOT = {
+							has_country_flag = ABY_kinda_high_stab_event_triggered
+						}
+						check_variable = { ABY_gomez_mental_stability > 84.9 }
+					}
+					country_event = abyssinia.239
+				}
+				if = {
+					limit = {
+						NOT = {
+							has_country_flag = ABY_high_stab_event_triggered
+						}
+						has_country_leader_with_trait = ABY_bloomer
+						check_variable = { ABY_gomez_mental_stability > 99 }
+					}
+					country_event = abyssinia.200
+				}
+			}
+			else_if = {
+				limit = {
+					has_government = fascism
+					has_country_flag = ABY_potion_machine_unlocked
+				}
+				add_to_variable = {
+					var = ABY_potion_doses_ready
+					value = ABY_slaves_multiplied_by_efficiency
+				}
+				if = {
+					limit = {
+						check_variable = { ABY_potion_doses_ready > 999999 }
+					}
+					set_variable = { ABY_potion_doses_ready = 1000000 }
+				}
+				set_variable = { ABY_potion_doses_ready_k = ABY_potion_doses_ready }
+				divide_variable = { ABY_potion_doses_ready_k = 1000 }
+				round_variable = ABY_potion_doses_ready_k
+				if = {
+					limit = {
+						has_country_flag = ABY_final_battle
+						NOT = {
+							has_country_flag = ABY_epilogue
+						}
+						has_war = no
+						OR = {
+							owns_state = 868
+							SDL = {
+								is_subject_of = ROOT
+							}
+							SDC = {
+								is_subject_of = ROOT
+							}
+							SDF = {
+								is_subject_of = ROOT
+							}
+							SDS = {
+								is_subject_of = ROOT
+							}
+						}
+					}
+					country_event = abyssinia.148
+				}
+			}
+		}
+	}
+	on_monthly_ABY = {
+		effect = {
+			if = {
+				limit = {
+					has_war = yes
+				}
+				if = {
+					limit = {
+						NOT = {
+							has_country_flag = ABY_war_death_event_triggered
+							has_country_flag = ABY_gomez_absent
+						}
+						OR = {
+							has_government = neutrality
+							has_government = democratic
+						}
+						casualties_k > 50
+					}
+					country_event = abyssinia.119
+				}
+			}
+			if = {
+				limit = {
+					has_government = fascism
+					has_country_flag = ABY_potion_machine_unlocked
+					has_country_flag = ABY_slave_tax_enabled
+					check_variable = {
+						ABY_catrina_slaves < ABY_catrina_slaves_cap
+					}
+				}
+				every_owned_state = {
+					limit = {
+						NOT = {
+							is_core_of = ROOT
+						}
+					}
+					add_to_temp_variable = { temp_manpower = state_population_k }
+				}
+				divide_temp_variable = { temp_manpower = 100 }
+				round_temp_variable = temp_manpower
+				add_to_variable = {
+					var = ABY_catrina_slaves
+					value = temp_manpower
+				}
+				ABY_witchweed_recalculate_production = yes
+			}
+			if = {
+				limit = {
+					has_country_flag = ABY_unlock_noble_loyalty
+				}
+				if = {
+					limit = {
+						owns_state = 784
+						any_of = {
+							array = ABY_noble_loyalties
+							value = v
+							index = i
+							check_variable = { i = 13 }
+							check_variable = { v = -1 }
+						}
+						784 = {
+							NOT = {
+								has_dynamic_modifier = {
+									modifier = ABY_disloyal_local_noble
+								}
+							}
+						}
+					}
+					784 = {
+						add_dynamic_modifier = {
+							modifier = ABY_disloyal_local_noble
+						}
+					}
+				}
+				if = {
+					limit = {
+						owns_state = 1200
+						any_of = {
+							array = ABY_noble_loyalties
+							value = v
+							index = i
+							check_variable = { i = 2 }
+							check_variable = { v = -1 }
+						}
+						1200 = {
+							NOT = {
+								has_dynamic_modifier = {
+									modifier = ABY_disloyal_local_noble
+								}
+							}
+						}
+					}
+					1200 = {
+						add_dynamic_modifier = {
+							modifier = ABY_disloyal_local_noble
+						}
+					}
+				}
+				if = {
+					limit = {
+						owns_state = 1201
+						any_of = {
+							array = ABY_noble_loyalties
+							value = v
+							index = i
+							check_variable = { i = 2 }
+							check_variable = { v = -1 }
+						}
+						1201 = {
+							NOT = {
+								has_dynamic_modifier = {
+									modifier = ABY_disloyal_local_noble
+								}
+							}
+						}
+					}
+					1201 = {
+						add_dynamic_modifier = {
+							modifier = ABY_disloyal_local_noble
+						}
+					}
+				}
+				if = {
+					limit = {
+						owns_state = 741
+						any_of = {
+							array = ABY_noble_loyalties
+							value = v
+							index = i
+							check_variable = { i = 15 }
+							check_variable = { v = -1 }
+						}
+						741 = {
+							NOT = {
+								has_dynamic_modifier = {
+									modifier = ABY_disloyal_local_noble
+								}
+							}
+						}
+					}
+					741 = {
+						add_dynamic_modifier = {
+							modifier = ABY_disloyal_local_noble
+						}
+					}
+				}
+				if = {
+					limit = {
+						owns_state = 740
+						any_of = {
+							array = ABY_noble_loyalties
+							value = v
+							index = i
+							check_variable = { i = 15 }
+							check_variable = { v = -1 }
+						}
+						740 = {
+							NOT = {
+								has_dynamic_modifier = {
+									modifier = ABY_disloyal_local_noble
+								}
+							}
+						}
+					}
+					740 = {
+						add_dynamic_modifier = {
+							modifier = ABY_disloyal_local_noble
+						}
+					}
+				}
+				if = {
+					limit = {
+						owns_state = 738
+						any_of = {
+							array = ABY_noble_loyalties
+							value = v
+							index = i
+							check_variable = { i = 15 }
+							check_variable = { v = -1 }
+						}
+						738 = {
+							NOT = {
+								has_dynamic_modifier = {
+									modifier = ABY_disloyal_local_noble
+								}
+							}
+						}
+					}
+					738 = {
+						add_dynamic_modifier = {
+							modifier = ABY_disloyal_local_noble
+						}
+					}
+				}
+			}
+		}
+	}
+
+	on_monthly = {
+		effect = {
+			#Workaround to dynamic tag not getting on_monthly
+			if = {
+				limit = {
+					original_tag = ABY
+					has_war = yes
+				}
+				if = {
+					limit = {
+						NOT = {
+							has_country_flag = ABY_no_peace
+						}
+						any_enemy_country = {
+							OR = {
+								owns_state = 1201
+								owns_state = 1200
+							}
+							NOT = {
+								original_tag = ABY
+							}
+						}
+						surrender_progress < 0.05
+						controls_state = 1201
+						controls_state = 1200
+					}
+					country_event = wingbardy.601
+				}
+			}
+		}
+	}
+
+	# Aby rebels against non-Zebrican occupier
+	on_weekly = {
+		effect = {
+			if = {
+				limit = {
+					NOT = {
+						is_zebrican_continent_country = yes
+					}
+					OR = {
+						AND = {
+							surrender_progress > 0.19
+							has_war = yes
+						}
+						AND = {
+							any_occupied_country = {
+								original_tag = ABY
+							}
+							core_resistance = {
+								occupied_country_tag = ABY
+								value > 79
+							}
+						}
+					}
+					OR = {
+						AND = {
+							ABY = {
+								exists = no
+							}
+							any_occupied_country = {
+								original_tag = ABY
+							}
+							775 = {
+								is_owned_and_controlled_by = ROOT
+							}
+							OR = {
+								779 = {
+									is_owned_and_controlled_by = ROOT
+								}
+								777 = {
+									is_owned_and_controlled_by = ROOT
+								}
+								778 = {
+									is_owned_and_controlled_by = ROOT
+								}
+								780 = {
+									is_owned_and_controlled_by = ROOT
+								}
+								774 = {
+									is_owned_and_controlled_by = ROOT
+								}
+								782 = {
+									is_owned_and_controlled_by = ROOT
+								}
+							}
+						}
+						ABY = {
+							is_subject_of = ROOT
+							has_capitulated = no
+						}
+					}
+				}
+				country_event = abyssinia.124
+			}
+		}
+	}
+
+	on_peaceconference_ended = {
+		effect = {
+			# PUT EVERYTHING IN THE IF BELOW
+			# THE bypass_on_peaceconference_ended FLAG **HAS** TO BE SET BEFORE CALLING THE white_peace COMMAND AND CLEARED AFTERWARDS
+			if = {
+				limit = {
+					NOT = {
+						has_country_flag = bypass_on_peaceconference_ended
+						FROM = { has_country_flag = bypass_on_peaceconference_ended }
+					}
+				}
+				log = "[GetDateText]: ROOT: [Root.GetName] FROM: [From.GetName] on_peaceconference_ended"
+				#apparently on_capitulation_immediate doesnt always trigger so copied this here
+				if = {
+					limit = {
+						ABY = {
+							exists = yes
+							is_subject = no
+							has_cosmetic_tag = ABY_patriotic_revolt
+						}
+						any_owned_state = {
+							is_core_of = ABY
+						}
+						#NOT = {
+						#	is_zebrican_continent_country = yes
+						#}
+						NOT = {
+							has_war_with = ABY
+						}
+						NOT = { has_global_flag = katztime } #Not during Katzen AF
+						#OR = {
+						#	FROM = {
+						#		original_tag = ABY
+						#	}
+						#	has_war_with = ABY
+						#}
+					}
+					if = {
+						limit = {
+							ABP = {
+								exists = yes
+							}
+						}
+						every_owned_state = {
+							limit = {
+								OR = {
+									is_core_of = ABY
+									is_claimed_by = ABY
+								}
+							}
+							transfer_state_to = ABP
+						}
+					}
+					else = {
+						every_owned_state = {
+							limit = {
+								OR = {
+									is_core_of = ABY
+									is_claimed_by = ABY
+								}
+							}
+							transfer_state_to = ABY 
+						}
+					}
+					ABY = {
+						if = {
+							limit = {
+								has_cosmetic_tag = ABY_patriotic_revolt
+							}
+							drop_cosmetic_tag = yes
+							set_cosmetic_tag = ABY_default_cosmetic
+						}
+						set_capital = {
+							state = 775
+							remember_old_capital = no
+						}
+					}
+				}
+			}
+		}
+	}
+}

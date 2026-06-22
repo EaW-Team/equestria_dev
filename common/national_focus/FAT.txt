@@ -2271,7 +2271,7 @@ shared_focus = {
 		log = "[GetDateText]: [Root.GetName]: Focus FAT_agriculture_mechanization"
 		custom_effect_tooltip = { IDEA = FAT_FAW_economy_dynamic_modifier localization_key = modify_idea_tt }
 		add_to_variable = {
-			add_to_variable = 0.10
+			FAT_monthly_population = 0.10
 			tooltip = monthly_population_tt
 		}
 		add_to_variable = {
@@ -2448,10 +2448,9 @@ shared_focus = {
 shared_focus = {
 	id = FAT_live_long_and_prosper
 	icon = {
-		trigger = { FAW_has_restored_monarchy = yes }
-		value = GFX_focus_FAT_live_long_and_prosper_monarch
+		GFX_focus_FAT_live_long_and_prosper_monarch = { FAW_has_restored_monarchy = yes }
+		GFX_focus_FAT_live_long_and_prosper = yes
 	}
-	icon = GFX_focus_FAT_live_long_and_prosper
 	prerequisite = { focus = FAT_cement_factories }
 	prerequisite = { focus = FAT_natural_riches }
 	x = 0
@@ -2478,10 +2477,9 @@ shared_focus = {
 shared_focus = {
 	id = FAT_risen_from_ruins
 	icon = {
-		trigger = { FAW_has_restored_monarchy = yes }
-		value = GFX_focus_FAT_risen_from_ruins_monarch
+		GFX_focus_FAT_risen_from_ruins_monarch = { FAW_has_restored_monarchy = yes }
+		GFX_focus_FAT_risen_from_ruins = yes
 	}
-	icon = GFX_focus_FAT_risen_from_ruins
 	available = { has_war = no }
 	prerequisite = { focus = FAT_live_long_and_prosper }
 	prerequisite = { focus = FAT_resource_stuff }
@@ -2513,10 +2511,9 @@ shared_focus = {
 shared_focus = {
 	id = FAT_republican_college
 	icon = {
-		trigger = { FAW_has_restored_monarchy = yes }
-		value = GFX_focus_FAT_republican_college_monarch
+		GFX_focus_FAT_republican_college_monarch = { FAW_has_restored_monarchy = yes }
+		GFX_focus_FAT_republican_college = yes
 	}
-	icon = GFX_focus_FAT_republican_college
 	prerequisite = { focus = FAT_literacy_campaign }
 	x = 1
 	y = 1
@@ -2712,7 +2709,25 @@ shared_focus = {
 	completion_reward = {
 		log = "[GetDateText]: [Root.GetName]: Focus FAT_pan_griffonian_cause"
 		FAT_create_republican_pact = yes
-		hidden_effect = { add_ideas = FAT_republican_pact }
+		hidden_effect = {
+			add_ideas = FAT_republican_pact
+			every_other_country = {
+				limit = {
+					OR = {
+						original_tag = GRI
+						original_tag = FEA
+						original_tag = STW
+						original_tag = BRZ
+						original_tag = ROU
+						original_tag = YAL
+						original_tag = KAT
+						original_tag = ANG
+						original_tag = PYT
+					}
+				}
+				country_event = griffonRepublic.305
+			}
+		}
 		FAT_invite_members_to_anti_empire_coalition = yes
 		hidden_effect = {
 			if = {
@@ -2871,11 +2886,22 @@ shared_focus = {
 		SRS = { exists_outside_sphere_of_influence = no }
 	}
 	will_lead_to_war_with = SRS
-	will_lead_to_war_with = NTR	# ai_strategy #???
 	completion_reward = {
 		log = "[GetDateText]: [Root.GetName]: Focus FAT_retake_north"
 		set_temp_variable = { wargoal_target = SRS }
-		expand_sphere_of_influence_to_wargoal_target = yes
+		immediate_war_declare_on_wargoal_target = yes
+		hidden_effect = {
+			if = {
+				limit = {
+					NTR = {
+						is_subject = no
+						NOT = { is_in_faction_with = ROOT }
+						has_war_with = SRS
+					}
+				}
+				set_country_flag = FAT_has_fought_SRS_with_NTR
+			}
+		}
 	}
 	search_filters = { FOCUS_FILTER_ANNEXATION }
 }
@@ -2888,9 +2914,13 @@ shared_focus = {
 		focus = FAT_reconcile_with_north
 	}
 	available = {
-		OR = {
-			SRS = { is_in_faction_with = ROOT }
-			522 = { is_owned_and_controlled_by = ROOT }
+		custom_trigger_tooltip = {
+			tooltip = FAT_skynavia_dealt_with_tt
+			OR = {
+				SRS = { is_in_faction_with = ROOT }
+				SRS = { exists = no }
+				522 = { is_owned_and_controlled_by = ROOT }
+			}
 		}
 	}
 	bypass = {
@@ -2915,6 +2945,17 @@ shared_focus = {
 				SRS = { is_in_faction_with = ROOT }
 			}
 			country_event = griffonRepublic.136
+		}
+		else_if = {
+			limit = {
+				SRS = { exists = no }
+				NTR = { owns_state = 522 }
+				has_country_flag = FAT_has_fought_SRS_with_NTR
+			}
+			country_event = griffonRepublic.303
+			hidden_effect = {
+				NTR = { country_event = griffonRepublic.303 }
+			}
 		}
 		else = {
 			SRS = { add_to_ROOT_potential_cores = yes }
@@ -3395,12 +3436,11 @@ shared_focus = {
 shared_focus = {
 	id = FAT_and_the_family
 	icon = {
-		trigger = {
+		GFX_focus_FAT_and_the_family_alternate = {
 			GRI = { has_completed_focus = GRI_shoot_the_nobles }
 		}
-		value = GFX_focus_FAT_and_the_family_alternate
+		GFX_focus_FAT_and_the_family = yes
 	}
-	icon = GFX_focus_FAT_and_the_family
 	prerequisite = { focus = FAT_fate_of_grover }
 	x = 0
 	y = 1
@@ -3742,8 +3782,21 @@ shared_focus = {
 	ai_will_do = { base = 250 }
 	completion_reward = {
 		log = "[GetDateText]: [Root.GetName]: Focus FAT_totaler_krieg"
-		add_stability = -0.10
-		add_ideas = tot_economic_mobilisation
+		add_stability = -0.05
+		add_war_support = 0.05
+		set_temp_variable = { reconstruction_progress_add_value = 2 }
+		FAT_increment_reconstruction_progress = yes
+		custom_effect_tooltip = { IDEA = FAT_FAW_army_dynamic_modifier localization_key = modify_idea_tt }
+		add_to_variable = {
+			FAT_land_reinforce_rate = 0.05
+			tooltip = land_reinforce_rate_tt
+		}
+		if = {
+			limit = {
+				NOT = { has_idea = tot_economic_mobilisation }
+			}
+			add_ideas = tot_economic_mobilisation
+		}
 	}
 	search_filters = { FOCUS_FILTER_MANPOWER FOCUS_FILTER_POLITICAL FOCUS_FILTER_INDUSTRY FOCUS_FILTER_STABILITY }
 }
@@ -6285,8 +6338,10 @@ shared_focus = {
 		}
 		add_stability = 0.025
 		set_country_flag = imperial_politicians_freed
-		custom_effect_tooltip = available_political_advisor
-		show_ideas_tooltip = FAT_iris
+		every_possible_country = {
+			limit = { has_character = GRI_iris_silverclaw }
+			GRI_iris_silverclaw = { set_nationality = ROOT }
+		}
 	}
 	search_filters = { FOCUS_FILTER_STABILITY }
 }
@@ -6626,6 +6681,7 @@ shared_focus = {
 		has_country_flag = FAT_focus_democratic
 		FAT_aquileia_is_pangriffonian = yes
 	}
+	bypass = { has_war_with = JE1 }
 	completion_reward = {
 		log = "[GetDateText]: [Root.GetName]: Focus FAT_pangriffonian_cause_in_aquileia"
 		add_opinion_modifier = {
@@ -6648,6 +6704,7 @@ shared_focus = {
 	y = 1
 	relative_position_id = FAT_pangriffonian_cause_in_aquileia
 	prerequisite = { focus = FAT_pangriffonian_cause_in_aquileia }
+	bypass = { has_war_with = JE1 }
 	completion_reward = {
 		log = "[GetDateText]: [Root.GetName]: Focus FAT_begin_economic_integration"
 		build_railway = {
@@ -6666,6 +6723,7 @@ shared_focus = {
 	y = 1
 	relative_position_id = FAT_pangriffonian_cause_in_aquileia
 	prerequisite = { focus = FAT_pangriffonian_cause_in_aquileia }
+	bypass = { has_war_with = JE1 }
 	completion_reward = {
 		log = "[GetDateText]: [Root.GetName]: Focus FAT_begin_military_integration"
 		add_mastery_bonus = {
@@ -6687,6 +6745,7 @@ shared_focus = {
 	relative_position_id = FAT_pangriffonian_cause_in_aquileia
 	prerequisite = { focus = FAT_begin_economic_integration }
 	prerequisite = { focus = FAT_begin_military_integration }
+	bypass = { has_war_with = JE1 }
 	completion_reward = {
 		log = "[GetDateText]: [Root.GetName]: Focus FAT_one_pangriffonian_republic"
 		JE1 = {
@@ -6711,6 +6770,7 @@ shared_focus = {
 		has_country_flag = FAT_focus_democratic
 		FAT_aquileia_is_amicable = yes
 	}
+	bypass = { has_war_with = JE1 }
 	completion_reward = {
 		log = "[GetDateText]: [Root.GetName]: Focus FAT_republican_cause_in_aquileia"
 		add_opinion_modifier = {
@@ -6730,6 +6790,7 @@ shared_focus = {
 	cost = 2
 	prerequisite = { focus = FAT_republican_cause_in_aquileia }
 	icon = GFX_goal_generic_political_pressure
+	bypass = { has_war_with = JE1 }
 	completion_reward = {
 		log = "[GetDateText]: [Root.GetName]: Focus FAT_establish_diplomatic_channels"
 		JE1 = { country_event = griffonRepublic.99 }
@@ -6748,6 +6809,7 @@ shared_focus = {
 	relative_position_id = FAT_republican_cause_in_aquileia
 	cost = 2
 	prerequisite = { focus = FAT_republican_cause_in_aquileia }
+	bypass = { has_war_with = JE1 }
 	completion_reward = {
 		log = "[GetDateText]: [Root.GetName]: Focus FAT_trade_deals_with_aquileia"
 		JE1 = { country_event = griffonRepublic.101 }
@@ -6767,6 +6829,7 @@ shared_focus = {
 	prerequisite = { focus = FAT_establish_diplomatic_channels }
 	prerequisite = { focus = FAT_trade_deals_with_aquileia }
 	ai_will_do = { base = 50 }
+	bypass = { has_war_with = JE1 }
 	completion_reward = {
 		log = "[GetDateText]: [Root.GetName]: Focus FAT_offer_unification_proposal_to_aquileia"
 		JE1 = {
@@ -7625,12 +7688,11 @@ shared_focus = {
 shared_focus = {
 	id = FAT_the_monarchs_show_their_colors
 	icon = {
-		trigger = {
+		GFX_focus_FAT_the_monarchs_show_their_colors_NMM = {
 			EQ1 = { original_tag = NLR }
 		}
-		value = GFX_focus_FAT_the_monarchs_show_their_colors_NMM
+		GFX_focus_FAT_the_monarchs_show_their_colors = yes
 	}
-	icon = GFX_focus_FAT_the_monarchs_show_their_colors
 	x = -7
 	y = 4
 	cost = 1
@@ -7694,7 +7756,14 @@ shared_focus = {
 	relative_position_id = FAT_the_monarchs_show_their_colors
 	prerequisite = { focus = FAT_the_monarchs_show_their_colors }
 	available = {
-		owns_state = 377
+		377 = {
+			owner = {
+				OR = {
+					original_tag = ROOT
+					is_in_faction_with = ROOT
+				}
+			}
+		}
 		FAT_new_mareland_is_monarchist_hold = yes
 	}
 	bypass = {
@@ -7774,7 +7843,16 @@ shared_focus = {
 			has_war = yes
 		}
 	}
-	available = { owns_state = 377 }
+	available = {
+		377 = {
+			owner = {
+				OR = {
+					original_tag = ROOT
+					is_in_faction_with = ROOT
+				}
+			}
+		}
+	}
 	bypass = {
 		EQC = { exists_outside_sphere_of_influence = no }
 	}
@@ -8169,7 +8247,10 @@ shared_focus = {
 		has_political_power > 50
 	}
 	bypass = {
-		JE1 = { is_in_faction_with = ROOT }
+		hidden_trigger = { has_country_flag = FAT_aquileia_is_faction_member }
+	}
+	bypass_effect = {
+		TRD = { add_to_ROOT_potential_original_cores = yes }
 	}
 	cancel_if_invalid = no
 	continue_if_invalid = yes
@@ -10703,10 +10784,9 @@ shared_focus = {
 shared_focus = {
 	id = FAT_new_navy
 	icon = {
-		trigger = { FAW_has_restored_monarchy = yes }
-		value = GFX_focus_FAT_new_navy_monarch
+		GFX_focus_FAT_new_navy_monarch = { FAW_has_restored_monarchy = yes }
+		GFX_focus_FAT_new_navy = yes
 	}
-	icon = GFX_focus_FAT_new_navy
 	cost = 4.30
 	prerequisite = { focus = FAT_new_military }
 	available = {
@@ -11095,10 +11175,9 @@ shared_focus = {
 shared_focus = {
 	id = FAT_new_airforce
 	icon = {
-		trigger = { FAW_has_restored_monarchy = yes }
-		value = GFX_focus_FAT_new_airforce_monarch
+		GFX_focus_FAT_new_airforce_monarch = { FAW_has_restored_monarchy = yes }
+		GFX_focus_FAT_new_airforce = yes
 	}
-	icon = GFX_focus_FAT_new_airforce
 	cost = 4.30
 	available = {
 		NOT = { has_idea = FAT_unruly_army_idea }
@@ -11452,10 +11531,9 @@ shared_focus = {
 shared_focus = {
 	id = FAT_glorious_fat_air_force
 	icon = {
-		trigger = { FAW_has_restored_monarchy = yes }
-		value = GFX_focus_FAT_glorious_fat_air_force_monarch
+		GFX_focus_FAT_glorious_fat_air_force_monarch = { FAW_has_restored_monarchy = yes }
+		GFX_focus_FAT_glorious_fat_air_force = yes
 	}
-	icon = GFX_focus_FAT_glorious_fat_air_force
 	cost = 7.2
 	relative_position_id = FAT_new_airforce
 	prerequisite = {
@@ -11602,7 +11680,7 @@ shared_focus = {
 	x = 8
 	y = 0
 	cost = 3
-	ai_will_do = { base = 20 }
+	ai_will_do = { base = 250 }
 	allow_branch = { has_country_flag = FAW_focus_warlord }
 	completion_reward = {
 		log = "[GetDateText]: [Root.GetName]: Focus FST_the_war_against_kemerskai"
@@ -11618,7 +11696,7 @@ shared_focus = {
 	x = 1
 	y = 1
 	cost = 3
-	ai_will_do = { base = 20 }
+	ai_will_do = { base = 250 }
 	prerequisite = { focus = FST_the_war_against_kemerskai }
 	completion_reward = {
 		log = "[GetDateText]: [Root.GetName]: Focus FST_pacify_the_military"
@@ -11650,7 +11728,7 @@ shared_focus = {
 	x = 2
 	y = 2
 	cost = 3
-	ai_will_do = { base = 20 }
+	ai_will_do = { base = 250 }
 	prerequisite = { focus = FST_pacify_the_military }
 	completion_reward = {
 		log = "[GetDateText]: [Root.GetName]: Focus FST_free_the_prisoners"
@@ -11724,7 +11802,7 @@ shared_focus = {
 	x = -1
 	y = 1
 	cost = 3
-	ai_will_do = { base = 20 }
+	ai_will_do = { base = 250 }
 	prerequisite = { focus = FST_the_war_against_kemerskai }
 	completion_reward = {
 		log = "[GetDateText]: [Root.GetName]: Focus FST_loot_the_armories"
@@ -11747,7 +11825,7 @@ shared_focus = {
 	x = -2
 	y = 2
 	cost = 3
-	ai_will_do = { base = 20 }
+	ai_will_do = { base = 250 }
 	prerequisite = { focus = FST_loot_the_armories }
 	completion_reward = {
 		log = "[GetDateText]: [Root.GetName]: Focus FST_loot_the_homes"
@@ -11770,7 +11848,7 @@ shared_focus = {
 	x = 0
 	y = 2
 	cost = 3
-	ai_will_do = { base = 20 }
+	ai_will_do = { base = 250 }
 	prerequisite = {
 		focus = FST_loot_the_armories
 		focus = FST_pacify_the_military
@@ -11791,7 +11869,7 @@ shared_focus = {
 	x = 0
 	y = 3
 	cost = 5
-	ai_will_do = { base = 20 }
+	ai_will_do = { base = 250 }
 	available = {
 		has_civil_war = no
 		hidden_trigger = {
@@ -11839,7 +11917,7 @@ shared_focus = {
 	x = 0
 	y = 4
 	cost = 5
-	ai_will_do = { base = 20 }
+	ai_will_do = { base = 250 }
 	available = { has_war = no }
 	prerequisite = { focus = FST_consolidatemilitaryrule }
 	completion_reward = {
@@ -11864,7 +11942,7 @@ shared_focus = {
 		NOT = { has_completed_focus = FST_the_unthinkable_option }
 	}
 	cost = 2.9
-	ai_will_do = { base = 20 }
+	ai_will_do = { base = 250 }
 	prerequisite = { focus = FST_thepowerstruggle }
 	available = {
 		has_country_leader = { ruling_only = yes character = FAT_reinhard_suntail }
@@ -11886,7 +11964,7 @@ shared_focus = {
 	x = -1
 	y = 1
 	cost = 2.9
-	ai_will_do = { base = 20 }
+	ai_will_do = { base = 150 }
 	prerequisite = { focus = FST_victory_for_suntail }
 	mutually_exclusive = { focus = FST_a_false_marshal }
 	completion_reward = {
@@ -11940,7 +12018,7 @@ shared_focus = {
 	x = 1
 	y = 1
 	cost = 2.9
-	ai_will_do = { base = 20 }
+	ai_will_do = { base = 300 }
 	prerequisite = { focus = FST_victory_for_suntail }
 	mutually_exclusive = { focus = FST_cult_of_the_two_marshals }
 	completion_reward = {
@@ -11972,7 +12050,7 @@ shared_focus = {
 	x = 1
 	y = 1
 	cost = 5
-	ai_will_do = { base = 20 }
+	ai_will_do = { base = 250 }
 	available = {
 		has_war = no
 		has_country_leader = {
@@ -12019,7 +12097,7 @@ shared_focus = {
 		NOT = { has_completed_focus = FST_new_dawn_for_the_republic }
 	}
 	cost = 2.9
-	ai_will_do = { base = 20 }
+	ai_will_do = { base = 250 }
 	prerequisite = { focus = FST_thepowerstruggle }
 	available = {
 		has_country_leader = {
@@ -12047,7 +12125,7 @@ shared_focus = {
 	x = -1
 	y = 1
 	cost = 2.9
-	ai_will_do = { base = 20 }
+	ai_will_do = { base = 300 }
 	prerequisite = { focus = FST_victory_for_rosewing }
 	mutually_exclusive = { focus = FST_the_perfect_scapegoat }
 	completion_reward = {
@@ -12068,7 +12146,7 @@ shared_focus = {
 	x = 1
 	y = 1
 	cost = 2.9
-	ai_will_do = { base = 20 }
+	ai_will_do = { base = 100 }
 	prerequisite = { focus = FST_victory_for_rosewing }
 	mutually_exclusive = { focus = FST_rally_the_old_revolutionaries }
 	completion_reward = {
@@ -12089,7 +12167,7 @@ shared_focus = {
 	x = 1
 	y = 1
 	cost = 5
-	ai_will_do = { base = 20 }
+	ai_will_do = { base = 250 }
 	available = {
 		has_war = no
 		has_country_leader = {
@@ -12129,7 +12207,7 @@ shared_focus = {
 	x = 4
 	y = 1
 	cost = 7.2
-	ai_will_do = { base = 20 }
+	ai_will_do = { base = 250 }
 	available = { has_war = no }
 	prerequisite = { focus = FST_the_unthinkable_option }
 	mutually_exclusive = { focus = FST_placate_the_fascists }
@@ -12166,7 +12244,7 @@ shared_focus = {
 	x = -3
 	y = 1
 	cost = 7.2
-	ai_will_do = { base = 20 }
+	ai_will_do = { base = 25 }
 	available = { has_war = no }
 	prerequisite = { focus = FST_the_unthinkable_option }
 	mutually_exclusive = { focus = FST_monarchy_with_republican_characteristics }
@@ -12186,7 +12264,7 @@ shared_focus = {
 	x = -3
 	y = 3
 	cost = 7.2
-	ai_will_do = { base = 20 }
+	ai_will_do = { base = 250 }
 	prerequisite = {
 		focus = FST_power_to_the_duke
 		focus = FST_replace_the_duke
@@ -12204,7 +12282,7 @@ shared_focus = {
 	x = -5
 	y = 3
 	cost = 7.2
-	ai_will_do = { base = 20 }
+	ai_will_do = { base = 250 }
 	prerequisite = {
 		focus = FST_power_to_the_duke
 		focus = FST_replace_the_duke
@@ -12240,7 +12318,7 @@ shared_focus = {
 	x = -3
 	y = 6
 	cost = 7.2
-	ai_will_do = { base = 20 }
+	ai_will_do = { base = 250 }
 	prerequisite = { focus = FST_a_parliament_of_generals }
 	prerequisite = { focus = FST_send_in_the_troops }
 	prerequisite = { focus = FST_restoring_mountain_industry }
@@ -12260,7 +12338,7 @@ shared_focus = {
 	x = -5
 	y = 5
 	cost = 7.2
-	ai_will_do = { base = 20 }
+	ai_will_do = { base = 250 }
 	available = { has_completed_focus = FAT_new_military }
 	prerequisite = { focus = FST_increase_military_influence }
 	completion_reward = {
@@ -12288,7 +12366,7 @@ shared_focus = {
 	x = -4
 	y = 4
 	cost = 7.2
-	ai_will_do = { base = 20 }
+	ai_will_do = { base = 250 }
 	prerequisite = { focus = FST_deal_with_the_republicans }
 	completion_reward = {
 		log = "[GetDateText]: [Root.GetName]: Focus FST_restore_religion"
@@ -12313,7 +12391,7 @@ shared_focus = {
 	x = -1
 	y = 3
 	cost = 7.2
-	ai_will_do = { base = 20 }
+	ai_will_do = { base = 250 }
 	prerequisite = {
 		focus = FST_power_to_the_duke
 		focus = FST_replace_the_duke
@@ -12331,7 +12409,7 @@ shared_focus = {
 	x = -1
 	y = 5
 	cost = 7.2
-	ai_will_do = { base = 20 }
+	ai_will_do = { base = 250 }
 	prerequisite = { focus = FST_self_sufficiency }
 	completion_reward = {
 		log = "[GetDateText]: [Root.GetName]: Focus FST_restoring_mountain_industry"
@@ -12358,7 +12436,7 @@ shared_focus = {
 	x = -2
 	y = 4
 	cost = 4
-	ai_will_do = { base = 20 }
+	ai_will_do = { base = 250 }
 	prerequisite = { focus = FST_deal_with_the_republicans }
 	completion_reward = {
 		log = "[GetDateText]: [Root.GetName]: Focus FST_root_out_the_bandits"
@@ -12380,7 +12458,7 @@ shared_focus = {
 	x = -3
 	y = 5
 	cost = 7.2
-	ai_will_do = { base = 20 }
+	ai_will_do = { base = 250 }
 	prerequisite = { focus = FST_root_out_the_bandits }
 	prerequisite = { focus = FST_restore_religion }
 	completion_reward = {
@@ -12423,7 +12501,7 @@ shared_focus = {
 	x = -4
 	y = 2
 	cost = 7.2
-	ai_will_do = { base = 20 }
+	ai_will_do = { base = 250 }
 	prerequisite = { focus = FST_placate_the_fascists }
 	mutually_exclusive = { focus = FST_replace_the_duke }
 	completion_reward = {
@@ -12439,7 +12517,7 @@ shared_focus = {
 	x = -2
 	y = 2
 	cost = 7.2
-	ai_will_do = { base = 20 }
+	ai_will_do = { base = 250 }
 	prerequisite = { focus = FST_placate_the_fascists }
 	mutually_exclusive = { focus = FST_power_to_the_duke }
 	completion_reward = {
@@ -12455,7 +12533,7 @@ shared_focus = {
 	x = -3
 	y = 7
 	cost = 5
-	ai_will_do = { base = 20 }
+	ai_will_do = { base = 250 }
 	prerequisite = {
 		focus = FST_a_dynasty_to_last
 		focus = FST_curtail_military_power
@@ -13776,6 +13854,16 @@ shared_focus = {
 	relative_position_id = FST_pan_griffonian_cause
 	prerequisite = { focus = FST_pan_griffonian_cause }
 	cost = 1
+	bypass = {
+		659 = {
+			owner = {
+				NOT = {
+					original_tag = FAW
+					original_tag = HAU
+				}
+			}
+		}
+	}
 	available = {
 		HAU = { exists = no }
 		659 = { is_owned_and_controlled_by = ROOT }
@@ -14486,6 +14574,19 @@ shared_focus = {
 			has_war = yes
 			factor = 0
 		}
+	}
+	bypass = {
+		FLO = { exists_outside_sphere_of_influence = no }
+		POM = { exists_outside_sphere_of_influence = no }
+		TRD = { exists_outside_sphere_of_influence = no }
+		FEZ = { exists_outside_sphere_of_influence = no }
+		AET = { exists_outside_sphere_of_influence = no }
+		HEL = { exists_outside_sphere_of_influence = no }
+		JER = { exists_outside_sphere_of_influence = no }
+		JEB = { exists_outside_sphere_of_influence = no }
+		JRR = { exists_outside_sphere_of_influence = no }
+		JFT = { exists_outside_sphere_of_influence = no }
+		VIN = { exists_outside_sphere_of_influence = no }
 	}
 	will_lead_to_war_with = FLO
 	will_lead_to_war_with = POM
@@ -15266,21 +15367,17 @@ shared_focus = {
 shared_focus = {
 	id = FST_the_riverpony_debate
 	icon = {
-		trigger = {
+		GFX_focus_FST_the_riverpony_debate_has_puppet = {
 			LCT = { is_subject_of = FAW }
 		}
-		value = GFX_focus_FST_the_riverpony_debate_has_puppet
-	}
-	icon = {
-		trigger = {
+		GFX_focus_FST_the_riverpony_debate_firmscow = {
 			BAK = {
 				exists = yes
 				has_completed_focus = BAK_proclaim_union_fascist
 			}
 		}
-		value = GFX_focus_FST_the_riverpony_debate_firmscow
+		GFX_focus_FST_the_riverpony_debate_nofirmscow = yes
 	}
-	icon = GFX_focus_FST_the_riverpony_debate_nofirmscow
 	dynamic = yes
 	x = 8
 	y = 5
@@ -16707,13 +16804,12 @@ shared_focus = {
 shared_focus = {
 	id = FAT_no_more_warlords_in_cloudbury
 	icon = {
-		trigger = {
+		GFX_focus_FAT_no_more_warlords_in_cloudbury_pone = {
 			NTR = { owns_state = 485 }
 			FAW = { exists = no }
 		}
-		value = GFX_focus_FAT_no_more_warlords_in_cloudbury_pone
+		GFX_focus_FAT_no_more_warlords_in_cloudbury = yes
 	}
-	icon = GFX_focus_FAT_no_more_warlords_in_cloudbury
 	dynamic = yes
 	x = 1
 	y = 1
@@ -16863,10 +16959,9 @@ shared_focus = {
 shared_focus = {
 	id = FAT_give_the_empire_its_traitors
 	icon = {
-		trigger = { FAW_can_submit_to_empire = no }
-		value = GFX_focus_FAT_give_the_empire_its_traitors_alternate
+		GFX_focus_FAT_give_the_empire_its_traitors_alternate = { FAW_can_submit_to_empire = no }
+		GFX_focus_FAT_give_the_empire_its_traitors = yes
 	}
-	icon = GFX_focus_FAT_give_the_empire_its_traitors
 	x = 2
 	y = 1
 	cost = 7.2
@@ -16904,10 +16999,19 @@ shared_focus = {
 				set_autonomy = {
 					target = ROOT
 					autonomy_state = autonomy_nominal_vassal
+					end_wars = no
 				}
 			}
 			HAU = { retire_character = HAU_hermann_meyer }
 			SRS = { retire_character = SRS_asper_sickleclaw }
+			hidden_effect = {
+				if = {
+					limit = {
+						NOT = { has_government = neutrality }
+					}
+					set_politics = { ruling_party = neutrality }
+				}
+			}
 		}
 		else = {
 			set_temp_variable = { wargoal_target = GRD }
