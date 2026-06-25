@@ -4299,11 +4299,17 @@ rename_stalliongrad_states = {
 
 #A convoluted scripted effect for dynamically getting the capital province of the current state.
 #Returns the capital province through the capital_province temp variable.
-#Is fairly intrusive as it involves transferring the state to SOL for an instant. Use with caution.
+#Avoid using in performance intensive code.
 get_state_capital_province = {
 	hidden_effect = {
-		set_temp_variable = { old_owner = owner }
-		transfer_state_to = SOL
+		add_building_construction = {
+			type = province_test_building
+			level = 1
+			instant_build = yes
+			province = {
+				all_provinces = yes
+			}
+		}
 		SOL = {
 			meta_effect = {
 				text = {
@@ -4329,7 +4335,18 @@ get_state_capital_province = {
 
 			if = {
 				limit = {
-					check_variable = { v = SOL }
+					meta_trigger = {
+						text = {
+							any_province_building_level = {
+								province = {
+									id = [PROVINCE]
+								}
+								building = province_test_building
+								level > 0
+							}
+						}
+						PROVINCE = "[?i]"
+					}
 				}
 				meta_effect = {
 					text = {
@@ -4380,6 +4397,12 @@ get_state_capital_province = {
 		SOL = {
 			dismantle_faction = yes
 		}
-		transfer_state_to = var:old_owner
+		set_building_level = {
+			type = province_test_building
+			level = 0
+			province = {
+				all_provinces = yes
+			}
+		}
 	}
 }
