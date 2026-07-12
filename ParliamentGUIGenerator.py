@@ -246,7 +246,7 @@ class UI(tk.Frame):
 		self.run_script.pack(side="top")
 
 	def select_image_path(self):
-		self.select_image_file = filedialog.askopenfilename(initialdir=curr_dir + "\gfx")
+		self.select_image_file = filedialog.askopenfilename(initialdir=curr_dir + r"\gfx")
 		self.load_image(self.select_image_file)
 
 	def load_image(self, pth):

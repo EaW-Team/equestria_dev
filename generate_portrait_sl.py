@@ -48,12 +48,12 @@ def get_clean_dct(fname):
         gender = ""
         entry = []
         for line in value:
-            if cat and gender and re.search(r"}", line):
+            if cat and gender and re.search(r"}", str(line)):
                 k = "%s_%s_%s" % (key, cat, gender)
                 clean_dct[k] = entry.copy()
                 entry = []
                 gender = ""
-            if cat and gender and not re.search(r"{", line):
+            if cat and gender and not re.search(r"{", str(line)):
                 entry.append(line.strip())
             match = re.match(r"\s*(army|navy|operative)", line)
             if match:
@@ -69,7 +69,7 @@ def generate_sl(clean_dict):
         for key2, value2 in clean_dict.items():
             if key != key2 and not key in duplicates and not key2 in duplicates:
                 if functools.reduce(lambda i, j : i and j, map(lambda m, k: m == k, value, value2), True):
-                    if re.search(r"(africa|asia|europe)", key):
+                    if re.search(r"(africa|asia|europe)", str(key)):
                         duplicates.add(key2)
                     else:
                         duplicates.add(key)
@@ -84,11 +84,13 @@ def generate_sl(clean_dict):
         name = Get_%s
     ''' % (len(types), tag)
         for idx, name in enumerate(types):
-            entry += '''    text = {
-            trigger = { state = %d }
-            localization_key = "GFX_%s_portrait"
-        }
-    ''' % (idx+1, re.search(r"([^/\.]+)\.", name).group(1))
+                    
+            if (temp := re.search(r"([^/\.]+)\.", str(name))) is not None:
+                entry += '''    text = {
+                trigger = { state = %d }
+                localization_key = "GFX_%s_portrait"
+            }
+        ''' % (idx+1, re.search(r"([^/\.]+)\.", str(name)).group(1))
         entry += "}"
         out.append(entry)
     return out
@@ -107,11 +109,12 @@ for key, value in clean_dct_o.items():
         st.add(x)
 
 for x in sorted(st):
-    txt = '''    spriteType = {
+    if (temp := re.search(r"([^/\.]+)\.", str(x))) is not None:
+        txt = '''    spriteType = {
         name = "GFX_%s"
         textureFile = %s
-    }''' % (re.search(r"([^/\.]+)\.", x).group(1), x)
-    out.append(txt)
+    }''' % (re.search(r"([^/\.]+)\.", str(x)).group(1), x)
+        out.append(txt)
 
 out.append("}")
 

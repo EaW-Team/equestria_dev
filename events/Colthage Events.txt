@@ -1313,9 +1313,9 @@ country_event = {
 		name = colthage_civil_war.2.b
 		hidden_effect = {
 			CTH_setup_CTC = yes
+			CTC = { change_tag_from = ROOT }
 		}
 		set_global_flag = colthaginian_civil_war
-		CTC = { change_tag_from = ROOT }
 	}
 }
 
@@ -2231,7 +2231,10 @@ country_event = { # Colthage gets event to make peace with Quaggatai
 		set_truce = { target = CGI days = 365 }
 		every_other_country = {
 			limit = {
-				is_in_faction_with = ROOT
+				OR = {
+					has_war_with = ROOT
+					is_in_faction_with = ROOT
+				}
 				has_war_with = CGI
 			}
 			set_country_flag = { flag = bypass_on_peaceconference_ended days = 1 value = 1 }
@@ -2289,6 +2292,7 @@ country_event = { # Quaggatai informed of CTH enforcing peace
 		name = colthage_other.9.a
 		add_stability = -0.25
 		add_political_power = -100
+		set_country_flag = CGI_coltdar_lost
 	}
 }
 country_event = { # Owner of kar-alpaka required to give clay
@@ -2766,13 +2770,85 @@ country_event = { #Colthage demands war reps
 	id = colthage_other.29
 	immediate = {log = "[GetDateText]: [Root.GetName]: event colthage_other.29"}
 	title = colthage_other.29.t
-	desc = colthage_other.29.d
+	desc = {
+		text = colthage_other.29.d_slc
+		trigger = {
+			tag = SLC
+			SLC = {
+				has_country_leader = {
+					ruling_only = yes
+					character = SLC_stormleucus_icepaw
+				}
+			}
+		}
+	}
+	desc = {
+		text = colthage_other.29.d_slc_rav
+		trigger = {
+			tag = SLC
+			SLC = {
+				has_country_leader = {
+					ruling_only = yes
+					character = SLC_ravakh_cloudcracker
+				}
+			}
+		}
+	}
+	desc = {
+		text = colthage_other.29.d
+		trigger = {
+			NOT = {
+				tag = SLC
+			}
+		}
+	}
 
 	picture = GFX_event_colthage
 	is_triggered_only = yes
 
-	option = { 
+	option = {
 		name = colthage_other.29.a
+		trigger = {
+			NOT = {
+				tag = SLC
+			}
+		}
+		add_political_power = 25
+		effect_tooltip = {
+			FROM = {
+				country_event = colthage_other.30
+			}
+		}
+	}
+	option = {
+		name = colthage_other.29.a_slc
+		trigger = {
+			tag = SLC
+			SLC = {
+				has_country_leader = {
+					ruling_only = yes
+					character = SLC_stormleucus_icepaw
+				}
+			}
+		}
+		add_political_power = 25
+		effect_tooltip = {
+			FROM = {
+				country_event = colthage_other.30
+			}
+		}
+	}
+	option = {
+		name = colthage_other.29.a_slc_rav
+		trigger = {
+			tag = SLC
+			SLC = {
+				has_country_leader = {
+					ruling_only = yes
+					character = SLC_ravakh_cloudcracker
+				}
+			}
+		}
 		add_political_power = 25
 		effect_tooltip = {
 			FROM = {
@@ -2922,12 +2998,7 @@ country_event = { #Colthaginian air force
 			folder = land 
 			name = colthage_other.32.t
 		}
-		add_doctrine_cost_reduction = {
-			name = airdoctrine_bonus
-			cost_reduction = 0.5
-			uses = 1
-			category = air_doctrine
-		}
+		air_fighter_mastery_doctrine_50 = yes
 	}
 	option = { #Air force as part of navy
 		name = colthage_other.32.c
@@ -3468,6 +3539,7 @@ country_event = { #They accepted
 		add_to_array = {
 			ROOT.trade_partners = FROM
 		}
+		CTH_trade_recalc_gui = yes
 	}
 }
 country_event = { #Welp they refused
@@ -4826,6 +4898,12 @@ country_event = { #Zarcid supporters on trial
 		}
 		CTH_remove_1_scientifid_power = yes
 		CTH_remove_1_military_faction_power = yes
+		if = {
+			limit = {
+				has_country_flag = CTH_baltazar_zakbar_flag
+			}
+			clr_country_flag = CTH_baltazar_zakbar_flag
+		}
 		effect_tooltip = {
 			if = {
 				limit = {
@@ -4851,6 +4929,14 @@ country_event = { #Zarcid supporters on trial
 					remove_unit_leader_role = yes
 				}
 			}
+			if = {
+				limit = {
+					has_character = CTH_baltazar_zakbar
+				}
+				CTH_baltazar_zakbar = {
+					remove_scientist_role = yes
+				}
+			}
 		}
 		hidden_effect = {
 			if = {
@@ -4874,6 +4960,14 @@ country_event = { #Zarcid supporters on trial
 					has_character = CTH_jebzel_zoblos
 				}
 				CTH_jebzel_zoblos = {
+					set_nationality = SOL
+				}
+			}
+			if = {
+				limit = {
+					has_character = CTH_baltazar_zakbar
+				}
+				CTH_baltazar_zakbar = {
 					set_nationality = SOL
 				}
 			}
@@ -5685,14 +5779,14 @@ country_event = { #victoria 2 reference
 		army_experience = 15
 		if = {
 			limit = {
-				has_dlc = "Arms Against Tyranny"
+				OR = {
+					has_dlc = "No Compromise, No Surrender"					
+					has_dlc = "Arms Against Tyranny"
+				}
 			}
-			add_doctrine_cost_reduction = {
-				name = special_forces_bonus
-				cost_reduction = 0.75
-				uses = 1
-				category = cat_mountaineers_doctrine
-			}
+			set_temp_variable = { temp_track = 1 }
+			set_temp_variable = { temp_value = 75 }
+			specforce_mastery_doctrine_effect = yes
 			add_tech_bonus = {
 				name = special_forces_bonus
 				bonus = 0.75
@@ -7195,6 +7289,8 @@ country_event = { #Warlord(s) coup zaryes
 					promote_leader = yes
 				}
 			}
+			drop_cosmetic_tag = yes
+			set_cosmetic_tag = CTH_zoblos_cosmetic
 			set_variable = { CTH_zoblos_power = 3 } 
 			set_variable = { CTH_zoblos_loyalty = 3 }
 			custom_effect_tooltip = CTH_warlord_disloyalty_tt
@@ -7260,12 +7356,35 @@ country_event = { #Warlord(s) coup zaryes
 }
 country_event = { #Warlord declares independence
 	id = colthage_other.122
-	immediate = {log = "[GetDateText]: [Root.GetName]: event colthage_other.122"}
 	title = colthage_other.122.t
 	desc = colthage_other.122.d
 
 	picture = GFX_event_colthage
 	is_triggered_only = yes
+	
+	immediate = {
+		log = "[GetDateText]: [Root.GetName]: event colthage_other.122"
+		hidden_effect = {
+			if = {
+				limit = {
+					NOT = { 
+						country_exists = CTC 
+					}
+				}
+				create_dynamic_country = {
+					original_tag = CTH
+					reserve_dynamic_country = yes
+					unlock_hq = yes
+					set_country_flag = CTH_colthage_constitutionalist
+					transfer_race_ideas = yes
+					transfer_society_ideas = yes
+					transfer_science_ideas = yes
+					transfer_poverty_ideas= yes
+					transfer_illiteracy_ideas = yes
+				}
+			}
+		}
+	}
 
 	option = {
 		name = colthage_other.122.a
@@ -7308,11 +7427,11 @@ country_event = { #Warlord declares independence
 				}
 				transfer_units_fraction = {
 					target = TRO
-					size = 0.25
-					stockpile_ratio = 0.25
-					army_ratio = 0.25
-					navy_ratio = 0.1
-					air_ratio = 0.25
+					size = 0.33
+					stockpile_ratio = 0.33
+					army_ratio = 0.33
+					navy_ratio = 0.33
+					air_ratio = 0.33
 					keep_unit_leaders_trigger = {
 						OR = {
 							has_id = 1926
@@ -7357,6 +7476,10 @@ country_event = { #Warlord declares independence
 				}
 				set_variable = { CTH_zerutra_power = 0 } 
 				set_variable = { CTH_zerutra_loyalty = 0 }
+				create_wargoal = { 
+					type = annex_everything 
+					target = TRO 
+				}
 			}
 			if = {
 				limit = {
@@ -7393,11 +7516,11 @@ country_event = { #Warlord declares independence
 				}
 				transfer_units_fraction = {
 					target = CTC
-					size = 0.25
-					stockpile_ratio = 0.25
-					army_ratio = 0.25
-					navy_ratio = 0.1
-					air_ratio = 0.25
+					size = 0.33
+					stockpile_ratio = 0.33
+					army_ratio = 0.33
+					navy_ratio = 0
+					air_ratio = 0.33
 					keep_unit_leaders_trigger = {
 						OR = {
 							has_id = 1926
@@ -7454,6 +7577,12 @@ country_event = { #Warlord declares independence
 						}
 						set_nationality = SOL
 					}
+					ROOT = {
+						create_wargoal = { 
+							type = annex_everything 
+							target = PREV
+						}
+					}
 				}
 				set_variable = { CTH_zoblos_power = 0 } 
 				set_variable = { CTH_zoblos_loyalty = 0 }
@@ -7496,11 +7625,11 @@ country_event = { #Warlord declares independence
 				}
 				transfer_units_fraction = {
 					target = HIE
-					size = 0.25
-					stockpile_ratio = 0.25
-					army_ratio = 0.25
-					navy_ratio = 0.5
-					air_ratio = 0.25
+					size = 0.33
+					stockpile_ratio = 0.33
+					army_ratio = 0.33
+					navy_ratio = 0.66
+					air_ratio = 0.33
 					keep_unit_leaders_trigger = {
 						OR = {
 							has_id = 1926
@@ -7545,6 +7674,10 @@ country_event = { #Warlord declares independence
 				}
 				set_variable = { CTH_ochzors_power = 0 } 
 				set_variable = { CTH_ochzors_loyalty = 0 }
+				create_wargoal = { 
+					type = annex_everything 
+					target = HIE
+				}
 			}
 		}
 	}
@@ -7696,6 +7829,13 @@ country_event = { #Leader makes the junta an advisory council and makes himself 
 		set_variable = { CTH_zoblos_loyalty = 0 } #out of 3
 		set_variable = { CTH_ochzors_power = 0 } #out of 3
 		set_variable = { CTH_ochzors_loyalty = 0 } #out of 3
+		if = {
+			limit = {
+				has_idea = CTH_no_co_sufrit
+			}
+			clr_country_flag = CTH_no_co_sufrit_flag
+			remove_ideas = CTH_no_co_sufrit
+		}
 	}
 }
 country_event = { #establishment of colthaginian raj
@@ -7847,6 +7987,7 @@ country_event = { #establishment of colthaginian raj
 		hidden_effect = {
 			create_dynamic_country = {
 				original_tag = HIN
+				unlock_hq = yes
 				set_AI_strategies_on_every_possible_country_delayed = yes
 				set_research_slots = 3
 				ROOT = {
@@ -8079,6 +8220,7 @@ country_event = { #establishment of new colthage
 		hidden_effect = {
 			create_dynamic_country = {
 				original_tag = MCW
+				unlock_hq = yes
 				set_AI_strategies_on_every_possible_country_delayed = yes
 				set_research_slots = 3
 				ROOT = {
@@ -10360,46 +10502,6 @@ country_event = { # Dutchy cannot be stopped or contained
 	option = { #
 		name = colthage_other.171.a
 		add_political_power = 150
-	}
-}
-country_event = { #Why...
-	id = colthage_other.999
-	immediate = {log = "[GetDateText]: [Root.GetName]: event colthage_other.999"}
-	title = colthage_other.999.t
-	desc = colthage_other.999.d
-	picture = GFX_event_the_sphere
-	fire_only_once = yes
-	is_triggered_only = yes
-	immediate = {
-		hidden_effect = {
-			scoped_play_song = "Resonant_Tonality_Father_Of_Monsters"
-		}
-	}
-	option = {
-		name = colthage_other.999.a
-		trigger = {
-			date > 1009.9.8
-			has_country_flag = eorgodkf
-			has_country_flag = urgaad
-			has_country_flag = argathos
-		}
-		jfgdjfjlp = yes
-	}
-	option = {
-		name = colthage_other.999.b
-		trigger = {
-			NOT = {
-				AND = {
-					date > 1009.9.8
-					has_country_flag = eorgodkf
-					has_country_flag = urgaad
-					has_country_flag = argathos
-				}
-			}
-		}
-		hidden_effect = {
-			country_event = country_capitulated.1
-		}
 	}
 }
 ### News events

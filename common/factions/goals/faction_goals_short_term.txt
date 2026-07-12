@@ -240,22 +240,27 @@ faction_goal_unlock_research = {
 		FROM = { has_faction_research_unlocked = no }
 	}
 	select_effect = {
-		set_temp_variable = { total_techs = 0 }
-		every_collection_element = {
-			input = {
-				input = game:scope
-				operators =  {
-					faction_members
+		scope:faction = {
+			set_temp_variable = {
+				total_techs = {
+					value = 0
+					every_collection = {
+						named_collection = faction_members
+						add = {
+							value = num_researched_technologies
+							multiply = {
+								value = 0
+								if = { limit = { value = num_researched_technologies  less_than = 50 }  add = 1.25 }
+								else_if = { limit = { value = num_researched_technologies  less_than = 75 }  add = 1.2 }
+								else_if = { limit = { value = num_researched_technologies  less_than = 100 }  add = 1.15 }
+								else_if = { limit = { value = num_researched_technologies  less_than = 150 }  add = 1.1 }
+								else_if = { limit = { value = num_researched_technologies  less_than = 200 }  add = 1.05 }
+							}
+						}
+					}
+					round = yes
 				}
 			}
-			add_to_temp_variable = { total_techs = num_researched_technologies }
-		}
-		
-		multiply_temp_variable = {
-			var = total_techs
-			value = 1.20
-		}
-		scope:faction = {
 			set_variable = { unlock_military_techs_researched_target = total_techs }
 		}
 	}
@@ -263,23 +268,43 @@ faction_goal_unlock_research = {
 		scope:faction = {
 			hidden_trigger = {
 				tooltip_evaluation = eval
-				set_temp_variable = { unlock_military_techs_researched_compare = 0 }			
-				all_collection_elements = {
-					collection = {
-						input = game:scope
-						operators =  { faction_members }
+				set_temp_variable = {
+					unlock_military_techs_researched_compare_temp_target = {
+						value = 0
+						every_collection = {
+							named_collection = faction_members
+							add = num_researched_technologies
+						}
 					}
-					add_to_temp_variable = { unlock_military_techs_researched_compare = num_researched_technologies }
 				}
-				set_temp_variable = { unlock_military_techs_researched_compare_temp_target = unlock_military_techs_researched_compare }
-				multiply_temp_variable = { unlock_military_techs_researched_compare_temp_target = 1.20 }
+				set_temp_variable = {
+					unlock_military_techs_researched_compare = {
+						value = 0
+						every_collection = {
+							named_collection = faction_members
+							add = {
+								value = num_researched_technologies
+								multiply = {
+									value = 0
+									if = { limit = { value = num_researched_technologies  less_than = 50 }  add = 1.25 }
+									else_if = { limit = { value = num_researched_technologies  less_than = 75 }  add = 1.2 }
+									else_if = { limit = { value = num_researched_technologies  less_than = 100 }  add = 1.15 }
+									else_if = { limit = { value = num_researched_technologies  less_than = 150 }  add = 1.1 }
+									else_if = { limit = { value = num_researched_technologies  less_than = 200 }  add = 1.05 }
+								}
+							}
+						}
+						round = yes
+					}
+				}
 			}
+
 			if = {
 				limit = {
 					has_variable = unlock_military_techs_researched_target
 				}
 				check_variable = {
-					var = unlock_military_techs_researched_compare
+					var = unlock_military_techs_researched_compare_temp_target
 					value = unlock_military_techs_researched_target
 					compare = greater_than
 					tooltip = "GOAL_T_TRIGGER_A"
@@ -287,8 +312,8 @@ faction_goal_unlock_research = {
 			}
 			else = {
 				check_variable = {
-					var = unlock_military_techs_researched_compare
-					value = unlock_military_techs_researched_compare_temp_target
+					value = unlock_military_techs_researched_compare
+					var = unlock_military_techs_researched_compare_temp_target
 					compare = greater_than
 					tooltip = "GOAL_T_TRIGGER_A"
 				}
@@ -569,29 +594,48 @@ faction_goal_unlock_military = {
 #faction_goal_production_quotas = {
 #	name = production_quotas_goal_name
 #	description = production_quotas_goal_desc
+#	group = FOCUS_FILTER_INDUSTRY
 #	category = short_term
 #	allowed = {
-#		tag = SOV
+#		original_tag = SOV
+#	}
+#	available = {
+#		has_war = no
 #	}
 #	completed = {
-#		
-#		custom_trigger_tooltip = {
-#			tooltip = "TODO Count faction Equipment - tanks - Infantry EQ - Planes"
-#			check_variable = { ROOT.num_equipment@infantry_equipment > 1000}
+#		count_in_collection = {
+#			collection = {
+#				input = game:scope
+#				operators = { faction_members }
+#				name = FACTION_NAME
+#			}
+#			stockpile = infantry_equipment
+#			size > 100000
 #		}
-#		#count_in_collection = {
-#		#	collection = {
-#		#		input = game:scope
-#		#		operators = { faction_members }
-#		#		name = FACTION_NAME
-#		#	}
-#		#	equipment = { infantry_equipment }
-#		#	size > 50000
-#		#}
-#		
+#		count_in_collection = {
+#			collection = {
+#				input = game:scope
+#				operators = { faction_members }
+#				name = FACTION_NAME
+#			}
+#			stockpile = artillery_equipment
+#			size > 2500
+#		}
+#		count_in_collection = {
+#			collection = {
+#				input = game:scope
+#				operators = { faction_members }
+#				name = FACTION_NAME
+#			}
+#			stockpile = support_equipment
+#			size > 1000
+#		}
 #	}
 #	complete_effect = {
 #		add_faction_power_projection = 200
+#		custom_effect_tooltip = generic_skip_one_line_tt
+#		custom_effect_tooltip = THE_FACTION_LEADER
+#		add_faction_initiative = 1
 #		custom_effect_tooltip = generic_skip_one_line_tt
 #		custom_effect_tooltip = INFLUENCE_ABOVE_30_PERCENT
 #		every_faction_member = {
@@ -827,7 +871,7 @@ faction_goal_spy_master = {
 			gain_random_agency_upgrade = yes
 		}
 		every_faction_member = { # Fallback in case someone completed everything
-			visible_when_empty = yes
+			visible_when_empty = no
 			limit = {
 				has_intelligence_agency = yes
 				agency_upgrade_number > 30
@@ -846,34 +890,94 @@ faction_goal_spy_master = {
 }
 
 
-#faction_goal_convoy_sufficiency = {
-#	name = convoy_sufficiency_goal_name
-#	description = convoy_sufficiency_goal_desc
-#	completed = {
-#		count_in_collection = {
-#			collection = {
-#				input = game:scope
-#				operators = { faction_members }
-#				name = FACTION_NAME
+faction_goal_convoy_sufficiency = {
+	name = convoy_sufficiency_goal_name
+	description = convoy_sufficiency_goal_desc
+	category = short_term
+	group = FOCUS_FILTER_INDUSTRY
+	completed = {
+		ROOT = {
+			add_to_temp_variable = { temp_convoys = num_equipment@convoy }
+			hidden_trigger = {
+				all_allied_country = {
+					add_to_temp_variable = { temp_convoys = num_equipment@convoy }
+				}
+			}
+			set_temp_variable = { temp_convoys_tt = temp_convoys }
+			subtract_from_temp_variable = { temp_convoys_tt = num_equipment@convoy }
+			subtract_from_temp_variable = { temp_convoys_tt = num_equipment@convoy }
+			custom_override_tooltip = {
+				tooltip = {
+					localization_key = faction_goal_stockpile_convoys_tt
+					NUM = 1000
+				}
+				check_variable = { temp_convoys > 999 }
+			}
+		}
+	}
+	complete_effect = {
+		add_faction_power_projection = 100
+		custom_effect_tooltip = generic_skip_one_line_tt
+		custom_effect_tooltip = THE_FACTION_LEADER
+		add_faction_initiative = 1
+		custom_effect_tooltip = generic_skip_one_line_tt
+		every_faction_member = {
+			tooltip = AT_LEAST_200_CONVOYS
+			visible_when_empty = yes 
+			limit = {
+				has_navy_size = {
+				    size > 199
+				    type = convoy
+				}
+			}
+			navy_experience = 50
+		}
+	}
+	ai_will_do = {
+		base = 1
+		modifier = {  
+			add = -1
+			collection_size = {
+				input = {
+					input = game:all_states
+					operators = {
+						limit = {
+							is_coastal = yes
+							is_controlled_by_ROOT_or_ally = yes
+						}
+					}
+				}
+				value < 1
+			}
+		}
+#		modifier = {  
+#			add = 1
+#			OR = {
+#				original_tag = ENG
+#				original_tag = USA
+#				original_tag = JAP
+#				original_tag = ITA
+#				original_tag = FRA
 #			}
-#			equipment = { convoy }
-#			size > 1000
 #		}
-#	}
-#	complete_effect = {
-#		add_faction_power_projection = 200
-#		custom_effect_tooltip = generic_skip_one_line_tt
-#		every_faction_member = {
-#			tooltip = AT_LEAST_50_MILS
-#			visible_when_empty = yes 
-#			limit = {
-#				num_of_military_factories > 49
-#			}
-#			add_faction_initiative = 1
-#		}
-#		
-#	}
-#}
+		modifier = {  
+			add = 1
+			collection_size = {
+				input = {
+					input = game:all_states
+					operators = {
+						limit = {
+							is_coastal = yes
+							is_controlled_by_ROOT_or_ally = yes
+						}
+					}
+				}
+				value > 19
+			}
+		}
+	}
+}
+
 
 faction_goal_ensure_military_r_d = {
 	name = ensure_military_r_d_goal_name
@@ -1203,8 +1307,6 @@ faction_goal_a_great_fortress = {
 
 ### War Waging
 
-
-
 faction_goal_preemptive_strike_on_fascism = {
 	name = preemptive_strike_on_fascism_goal_name
 	description = preemptive_strike_on_fascism_goal_desc
@@ -1362,18 +1464,49 @@ faction_goal_an_armored_fist = {
 	visible = {
 
 	}
+	
+	#Don't ask
+	#I don't know what the game is smoking when it evaluates this trigger block. But it requires this awfulness to generate a correct tooltip.
 	completed = {
-		count_in_collection = {
-			collection = {
-			    input = game:scope
-			    operators = { faction_members }
-			    name = FACTION
+		ROOT = {
+			hidden_trigger = {
+				add_to_temp_variable = { temp_armor_units = num_battalions_with_type@light_armor }
+				add_to_temp_variable = { temp_armor_units = num_battalions_with_type@medium_armor }
+				add_to_temp_variable = { temp_armor_units = num_battalions_with_type@heavy_armor }
+				add_to_temp_variable = { temp_armor_units = num_battalions_with_type@amphibious_armor }
+				add_to_temp_variable = { temp_armor_units = num_battalions_with_type@amphibious_light_armor }
+				add_to_temp_variable = { temp_armor_units = num_battalions_with_type@amphibious_medium_armor }
+				add_to_temp_variable = { temp_armor_units = num_battalions_with_type@amphibious_heavy_armor }
+				all_allied_country = {
+					add_to_temp_variable = { temp_armor_units = num_battalions_with_type@light_armor }
+					add_to_temp_variable = { temp_armor_units = num_battalions_with_type@medium_armor }
+					add_to_temp_variable = { temp_armor_units = num_battalions_with_type@heavy_armor }
+					add_to_temp_variable = { temp_armor_units = num_battalions_with_type@amphibious_armor }
+					add_to_temp_variable = { temp_armor_units = num_battalions_with_type@amphibious_light_armor }
+					add_to_temp_variable = { temp_armor_units = num_battalions_with_type@amphibious_medium_armor }
+					add_to_temp_variable = { temp_armor_units = num_battalions_with_type@amphibious_heavy_armor }
+				}
 			}
-			unit = armor
-			size > 14
+			set_temp_variable = { temp_armor_units_tt = temp_armor_units }
+			subtract_from_temp_variable = { temp_armor_units_tt = num_battalions_with_type@light_armor }
+			subtract_from_temp_variable = { temp_armor_units_tt = num_battalions_with_type@medium_armor }
+			subtract_from_temp_variable = { temp_armor_units_tt = num_battalions_with_type@heavy_armor }
+			subtract_from_temp_variable = { temp_armor_units_tt = num_battalions_with_type@amphibious_armor }
+			subtract_from_temp_variable = { temp_armor_units_tt = num_battalions_with_type@amphibious_light_armor }
+			subtract_from_temp_variable = { temp_armor_units_tt = num_battalions_with_type@amphibious_medium_armor }
+			subtract_from_temp_variable = { temp_armor_units_tt = num_battalions_with_type@amphibious_heavy_armor }
+			subtract_from_temp_variable = { temp_armor_units_tt = num_battalions_with_type@light_armor }
+			subtract_from_temp_variable = { temp_armor_units_tt = num_battalions_with_type@medium_armor }
+			subtract_from_temp_variable = { temp_armor_units_tt = num_battalions_with_type@heavy_armor }
+			subtract_from_temp_variable = { temp_armor_units_tt = num_battalions_with_type@amphibious_armor }
+			subtract_from_temp_variable = { temp_armor_units_tt = num_battalions_with_type@amphibious_light_armor }
+			subtract_from_temp_variable = { temp_armor_units_tt = num_battalions_with_type@amphibious_medium_armor }
+			subtract_from_temp_variable = { temp_armor_units_tt = num_battalions_with_type@amphibious_heavy_armor }
+			custom_trigger_tooltip = {
+				tooltip = faction_goal_an_armored_fist_tt
+				check_variable = { temp_armor_units > 49 }
+			}
 		}
-		
-		
 	}
 	complete_effect = {
 		add_faction_power_projection = 200
@@ -1406,15 +1539,28 @@ faction_goal_an_infantry_army = {
 	description = an_infantry_army_goal_desc
 	category = short_term
 	group = FOCUS_FILTER_ARMY_XP
+	
+	#Don't ask
+	#I don't know what the game is smoking when it evaluates this trigger block. But it requires this awfulness to generate a correct tooltip.
 	completed = {
-		count_in_collection = {
-		    collection = {
-		        input = game:scope
-		        operators = { faction_members }
-		        name = FACTION
-		    }
-		   unit = infantry
-		   size > 249
+		ROOT = {
+			hidden_trigger = {
+				add_to_temp_variable = { temp_inf_units = num_battalions_with_type@infantry }
+				add_to_temp_variable = { temp_inf_units = num_battalions_with_type@magical_infantry }
+				all_allied_country = {
+					add_to_temp_variable = { temp_inf_units = num_battalions_with_type@infantry }
+					add_to_temp_variable = { temp_inf_units = num_battalions_with_type@magical_infantry }
+				}
+			}
+			set_temp_variable = { temp_inf_units_tt = temp_inf_units }
+			subtract_from_temp_variable = { temp_inf_units_tt = num_battalions_with_type@infantry }
+			subtract_from_temp_variable = { temp_inf_units_tt = num_battalions_with_type@magical_infantry }
+			subtract_from_temp_variable = { temp_inf_units_tt = num_battalions_with_type@infantry }
+			subtract_from_temp_variable = { temp_inf_units_tt = num_battalions_with_type@magical_infantry }
+			custom_trigger_tooltip = {
+				tooltip = faction_goal_an_infantry_army_tt
+				check_variable = { temp_inf_units > 249 }
+			}
 		}
 	}
 	complete_effect = {

@@ -701,3 +701,13 @@ ai_strategy = {
 	value = 100 # Percentage between 0 and 100
 }
 ```
+
+### `coast_defense`
+Used to set the coast defense for a strategic region
+```
+ai_strategy = {
+	type = coast_defense
+	id = 35 # Strategic region Id
+	value = 100 # Percentage between 0 and 100
+}
+```
