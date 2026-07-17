@@ -23,6 +23,12 @@ focus_tree = {
 	shared_focus = BLT_talk_with_bevak
 	#BLT_focus_ryiz
 	shared_focus = BLT_talk_with_ryiz
+
+	#BLT_focus_mid_start
+	shared_focus = BLT_coming_into_our_own
+	shared_focus = BLT_MILITARY_01
+	shared_focus = BLT_MILITARY_02
+	shared_focus = BLT_MILITARY_03
 }
 
 # =====
@@ -670,7 +676,7 @@ shared_focus = {
 		log = "[GetDateText]: [Root.GetName]: Focus BLT_take_the_fleet_for_a_ride"
 		custom_effect_tooltip = { IDEA = BLT_military_dynamic_modifier localization_key = modify_idea_tt }
 		add_to_variable = {
-			BLT_air_accidents_factor = 0.05
+			BLT_air_accidents_factor = -0.05
 			tooltip = air_accidents_factor_tt
 		}
 	}
@@ -745,10 +751,12 @@ shared_focus = {
 		focus = BLT_take_the_fleet_for_a_ride
 		focus = BLT_invest_in_better_airguns
 	}
+	available = { has_any_grand_doctrine = air }
 	ai_will_do = { base = @BLT_FOCUS_PREFERENCE_AI_BASE_WEIGHT }
 	completion_reward = {
 		log = "[GetDateText]: [Root.GetName]: Focus BLT_role_of_the_airfleet"
 		air_experience = 5
+		country_event = boltria.23
 	}
 }
 
@@ -1129,8 +1137,10 @@ shared_focus = {
 	}
 	completion_reward = {
 		log = "[GetDateText]: [Root.GetName]: Focus BLT_the_rights_of_petition"
-		add_stability = 0.05
-		add_war_support = -0.10
+		custom_effect_tooltip = BLT_the_rights_of_petition_tt
+		add_war_support = -0.05
+		custom_effect_tooltip = BLT_boltrus_is_conniving_IF
+		custom_effect_tooltip = BLT_the_rights_of_petition_1_tt
 		custom_effect_tooltip = BLT_boltrus_is_austere_IF
 		custom_effect_tooltip = BLT_will_not_remove_war_support_tt
 		custom_effect_tooltip = BLT_boltrus_is_gallant_IF
@@ -1138,7 +1148,7 @@ shared_focus = {
 		hidden_effect = {
 			if = {
 				limit = { BLT_boltrus_is_austere = yes }
-				add_war_support = 0.10
+				add_war_support = 0.05
 			}
 			if = {
 				limit = { BLT_boltrus_is_gallant = yes }
@@ -1147,6 +1157,25 @@ shared_focus = {
 					days = 5
 				}
 			}
+
+			if = {
+				limit = { BLT_boltrus_is_conniving = yes }
+				set_temp_variable = { boltrus_is_conniving_value = 1 }
+			}
+			set_temp_variable = {
+				stability_points = {
+					value = num_of_civilian_factories
+					if = {
+						limit = {
+							value = boltrus_is_conniving_value
+							equals = 1
+						}
+						multiply = 2
+					}
+					divide = 100
+				}
+			}
+			add_stability = var:stability_points
 		}
 	}
 }
@@ -1295,6 +1324,7 @@ shared_focus = {
 	}
 	completion_reward = {
 		log = "[GetDateText]: [Root.GetName]: Focus BLT_yeti_camel_relations"
+		add_popularity = { ideology = neutrality popularity = -0.10 }
 	}
 }
 
@@ -1661,9 +1691,9 @@ shared_focus = {
 	}
 	completion_reward = {
 		log = "[GetDateText]: [Root.GetName]: Focus BLT_boltrian_citizenship_initiative"
-		add_war_support = 0.025
+		custom_effect_tooltip = BLT_boltrian_citizenship_initiative_tt
 		custom_effect_tooltip = BLT_boltrus_is_tactical_IF
-		effect_tooltip = { add_war_support = 0.05 }
+		effect_tooltip = { add_war_support = 0.035 }
 		custom_effect_tooltip = BLT_boltrus_is_gallant_IF
 		effect_tooltip = {
 			add_stability = 0.025
@@ -1684,9 +1714,19 @@ shared_focus = {
 			}
 		}
 		hidden_effect = {
+			set_temp_variable = {
+				manpower_points = {
+					value = manpower_k
+					subtract = 0.5
+					round = yes
+					divide = 100
+				}
+			}
+			add_war_support = var:manpower_points
+
 			if = {
 				limit = { BLT_boltrus_is_tactical = yes }
-				add_war_support = 0.05
+				add_war_support = 0.035
 			}
 			if = {
 				limit = { BLT_boltrus_is_gallant = yes }
@@ -1798,6 +1838,12 @@ shared_focus = {
 				remove_idea = BLT_diamond_road_start
 				add_idea = BLT_diamond_road_1
 			}
+		}
+		add_tech_bonus = {
+			name = BLT_diversify_away_from_diamond_road
+			bonus = 1.0
+			uses = 1
+			category = electronics
 		}
 		custom_effect_tooltip = { IDEA = BLT_economy_dynamic_modifier localization_key = modify_idea_tt }
 		add_to_variable = {
@@ -2235,6 +2281,11 @@ shared_focus = {
 		log = "[GetDateText]: [Root.GetName]: Focus BLT_standardize_army_salary"
 		add_political_power = -50
 		add_war_support = 0.05
+		if = {
+			limit = { has_variable = BLT_bevak_loyalty_value }
+			set_temp_variable = { loyalty_change_value = 10 }
+			BLT_modify_bevak_loyalty = yes
+		}
 		custom_effect_tooltip = BLT_boltrus_is_austere_IF
 		effect_tooltip = {
 			custom_effect_tooltip = { IDEA = BLT_military_dynamic_modifier localization_key = modify_idea_tt }
@@ -2377,6 +2428,43 @@ shared_focus = {
 	}
 	completion_reward = {
 		log = "[GetDateText]: [Root.GetName]: Focus BLT_welcome_new_officers"
+		#TODO: Camel generals
+		custom_effect_tooltip = BLT_has_completed_legacy_of_the_expeditionary_legion_tt
+		effect_tooltip = {
+			every_character = {
+				limit = {
+					is_unit_leader = yes
+					NOT = { is_character = BLT_king_boltrus }
+				}
+				add_defense = 1
+			}
+		}
+		custom_effect_tooltip = BLT_has_completed_learning_the_camel_way_tt
+		custom_effect_tooltip = BLT_welcome_new_officers_1_tt
+		hidden_effect = {
+			if = {
+				limit = { has_completed_focus = BLT_legacy_of_the_expeditionary_legion }
+				every_character = {
+					limit = {
+						is_unit_leader = yes
+						NOT = { is_character = BLT_king_boltrus }
+					}
+					add_defense = 1
+				}
+			}
+			else_if = {
+				limit = { has_completed_focus = BLT_learning_the_camel_way }
+				random_unit_leader = {
+					limit = {
+						NOT = { has_trait = desert_fox }
+					}
+					add_trait = {
+						character = THIS
+						trait = desert_fox
+					}
+				}
+			}
+		}
 	}
 }
 
@@ -2422,6 +2510,54 @@ shared_focus = {
 			bonus = 0.5
 			uses = 1
 			category = support_tech
+		}
+		custom_effect_tooltip = BLT_has_completed_legacy_of_the_expeditionary_legion_tt
+		effect_tooltip = {
+			add_tech_bonus = {
+				name = BLT_reintegrate_specialized_regiments
+				bonus = 0.5
+				uses = 1
+				category = support_tech
+			}
+		}
+		custom_effect_tooltip = BLT_has_completed_learning_the_camel_way_tt
+		effect_tooltip = {
+			add_tech_bonus = {
+				name = BLT_learning_the_camel_way
+				bonus = 0.25
+				uses = 1
+				category = race_tech
+			}
+			add_equipment_to_stockpile = { 
+				type = support_equipment
+				amount = 50
+				producer = ROOT
+			}
+		}
+		hidden_effect = {
+			if = {
+				limit = { has_completed_focus = BLT_legacy_of_the_expeditionary_legion }
+				add_tech_bonus = {
+					name = BLT_reintegrate_specialized_regiments
+					bonus = 0.5
+					uses = 1
+					category = support_tech
+				}
+			}
+			else_if = {
+				limit = { has_completed_focus = BLT_learning_the_camel_way }
+				add_tech_bonus = {
+					name = BLT_learning_the_camel_way
+					bonus = 0.25
+					uses = 1
+					category = race_tech
+				}
+				add_equipment_to_stockpile = { 
+					type = support_equipment
+					amount = 50
+					producer = ROOT
+				}
+			}
 		}
 	}
 }
@@ -2954,9 +3090,15 @@ shared_focus = {
 		log = "[GetDateText]: [Root.GetName]: Focus BLT_permanent_end_to_looting"
 		add_stability = 0.035
 		custom_effect_tooltip = BLT_permanent_end_to_looting_tt
+		custom_effect_tooltip = BLT_boltrus_is_hardened_IF
+		custom_effect_tooltip = BLT_permanent_end_to_looting_2_tt
 		custom_effect_tooltip = BLT_boltrus_is_brave_IF
 		custom_effect_tooltip = BLT_permanent_end_to_looting_1_tt
 		hidden_effect = {
+			if = {
+				limit = { BLT_boltrus_is_hardened = yes }
+				set_temp_variable = { boltrus_is_hardened_value = 1 }
+			}
 			if = {
 				limit = { BLT_boltrus_is_brave = yes }
 				add_to_temp_variable = { boltrus_is_brave_value = 1 }
@@ -2974,6 +3116,10 @@ shared_focus = {
 					clamp = {
 						min = 0
 						max = 1000
+					}
+					add = {
+						value = party_popularity@democratic
+						multiply = var:boltrus_is_hardened_value
 					}
 					if = {
 						limit = {
@@ -3257,7 +3403,10 @@ shared_focus = {
 					}
 				}
 			}
-			country_event = { id = boltria.3 days = 2 }
+			country_event = {
+				id = boltria.3
+				days = 2
+			}
 		}
 	}
 	bypass_effect = {
@@ -3322,7 +3471,10 @@ shared_focus = {
 					}
 				}
 			}
-			country_event = { id = boltria.3 days = 2 }
+			country_event = {
+				id = boltria.3
+				days = 2
+			}
 		}
 	}
 	ai_will_do = {
@@ -3564,3 +3716,57 @@ shared_focus = {
 # =============
 # ESTABLISHMENT
 # =============
+
+shared_focus = {
+	id = BLT_coming_into_our_own
+	icon = GFX_goal_zebra_storm#REPLACE
+	cost = 1#REPLACE
+	x = 16
+	y = 1
+	allow_branch = { has_country_flag = BLT_focus_mid_start }
+	ai_will_do = { base = @BLT_FOCUS_PREFERENCE_AI_BASE_WEIGHT }
+	completion_reward = {
+		log = "[GetDateText]: [Root.GetName]: Focus BLT_coming_into_our_own"
+		add_dynamic_modifier = { modifier = BLT_economy_dynamic_modifier }
+	}
+}
+
+shared_focus = {
+	id = BLT_MILITARY_01
+	icon = GFX_goal_zebra_storm#REPLACE
+	cost = 1#REPLACE
+	x = 9
+	y = 1
+	allow_branch = { has_country_flag = BLT_focus_mid_start }
+	ai_will_do = { base = @BLT_FOCUS_PREFERENCE_AI_BASE_WEIGHT }
+	completion_reward = {
+		log = "[GetDateText]: [Root.GetName]: Focus BLT_MILITARY_01"
+	}
+}
+
+shared_focus = {
+	id = BLT_MILITARY_02
+	icon = GFX_goal_zebra_storm#REPLACE
+	cost = 1#REPLACE
+	x = 7
+	y = 1
+	allow_branch = { has_country_flag = BLT_focus_mid_start }
+	ai_will_do = { base = @BLT_FOCUS_PREFERENCE_AI_BASE_WEIGHT }
+	completion_reward = {
+		log = "[GetDateText]: [Root.GetName]: Focus BLT_MILITARY_02"
+		add_dynamic_modifier = { modifier = BLT_military_dynamic_modifier }
+	}
+}
+
+shared_focus = {
+	id = BLT_MILITARY_03
+	icon = GFX_goal_zebra_storm#REPLACE
+	cost = 1#REPLACE
+	x = 5
+	y = 1
+	allow_branch = { has_country_flag = BLT_focus_mid_start }
+	ai_will_do = { base = @BLT_FOCUS_PREFERENCE_AI_BASE_WEIGHT }
+	completion_reward = {
+		log = "[GetDateText]: [Root.GetName]: Focus BLT_MILITARY_03"
+	}
+}
