@@ -4997,18 +4997,30 @@ CHN_love_consumption_mechanic = {
 					add_command_power = -30
 			}
 			### Operation starts here ###
-			set_temp_variable = { CHN_weekly_love_gain_state_var_DECISION_TEMP = CHN_weekly_love_gain_state_var }
-			multiply_temp_variable = { CHN_weekly_love_gain_state_var_DECISION_TEMP = 10 }
 			if = {
 				limit = {
 					check_variable = { CHN_amount_of_allowed_battalions < CHN.num_battalions }
 				}
-				set_temp_variable = { CHN_temporary_variable_amount_of_battalions = CHN_amount_of_allowed_battalions }
-				divide_temp_variable = { CHN_temporary_variable_amount_of_battalions = CHN_weekly_love_gain_state_var_DECISION_TEMP }
+				set_temp_variable = { 
+					CHN_temporary_variable_amount_of_battalions = {
+						value = CHN_amount_of_allowed_battalions
+						divide = {
+							value = CHN_weekly_love_gain_state_var
+							multiply = 10
+						}
+					}
+				}
 			}
 			else = {
-				set_temp_variable = { CHN_temporary_variable_amount_of_battalions = num_battalions }
-				divide_temp_variable = { CHN_temporary_variable_amount_of_battalions = CHN_weekly_love_gain_state_var_DECISION_TEMP }
+				set_temp_variable = { 
+					CHN_temporary_variable_amount_of_battalions = {
+						value = num_battalions
+						divide = {
+							value = CHN_weekly_love_gain_state_var
+							multiply = 10
+						}
+					}
+				}
 			}
 			### Above: if exceeds cap limit, then the cap will be used. ###
 			set_variable = { CHN_number_of_states_under_occupation_var = 0 }
@@ -5020,18 +5032,24 @@ CHN_love_consumption_mechanic = {
 			}
 			subtract_from_variable = { CHN_number_of_states_under_occupation_var = CHN.num_core_states }
 			### Above: gained total number of all states under CHN occupation to be used in calculations below ###
-			set_temp_variable = { CHN_number_of_states_under_occupation_var_TEMP = CHN_number_of_states_under_occupation_var }
-			set_temp_variable = { CHN_resistance_level_of_number_of_states_under_occupation_var_TEMP = CHN_resistance_level_of_number_of_states_under_occupation_var }
-			divide_temp_variable = { CHN_resistance_level_of_number_of_states_under_occupation_var_TEMP = CHN_number_of_states_under_occupation_var_TEMP }
-			### Above: obtained averaged value of Resistance across all occupied states (out of 100) ###
-			set_variable = { CHN_average_resistance_level_of_states_under_occupation_var = CHN_resistance_level_of_number_of_states_under_occupation_var_TEMP }
-			set_variable = { CHN_average_resistance_level_100_TEMP = 100 }
-			subtract_from_variable = { CHN_average_resistance_level_100_TEMP = CHN_average_resistance_level_of_states_under_occupation_var }
-			divide_variable = { CHN_average_resistance_level_100_TEMP = 100 } ## change to percentage ##
-			set_variable = { CHN_average_resistance_level_of_states_under_occupation_var_TEMP = CHN_average_resistance_level_100_TEMP }
-			### the percentage modifier dependent on average resistance of occupied states for the formula ###
-			multiply_temp_variable = { CHN_temporary_variable_amount_of_battalions = CHN_average_resistance_level_of_states_under_occupation_var_TEMP } ## original gain times resistance factor ##
-			set_variable = { CHN_military_love_acquisition_decision_erot_gain = CHN_temporary_variable_amount_of_battalions }
+			set_variable = { 
+				CHN_average_resistance_level_of_states_under_occupation_var = {
+					value = CHN_resistance_level_of_number_of_states_under_occupation_var
+					divide = CHN_number_of_states_under_occupation_var
+					### Above: obtained averaged value of Resistance across all occupied states (out of 100) ###
+				}
+			}
+			set_variable = {
+				CHN_military_love_acquisition_decision_erot_gain = {
+					value = CHN_temporary_variable_amount_of_battalions
+				 	multiply = { ## original gain times resistance factor ##
+						value = 100
+						subtract = CHN_average_resistance_level_of_states_under_occupation_var
+						divide = 100 ## change to percentage ##
+						### the percentage modifier dependent on average resistance of occupied states for the formula ###
+					}
+				}
+			}
 			set_country_flag = CHN_military_love_acquisition_decision_in_progress
 		}
 	}
@@ -5078,22 +5096,26 @@ CHN_love_consumption_mechanic = {
 					add_political_power = -50
 					add_command_power = -30
 			}
-			set_temp_variable = { CHN_gain_love_decision_var_S_TEMP = CHN_weekly_love_gain_state_var }
-			set_temp_variable = { CHN_gain_love_decision_var_B_TEMP = CHN.num_battalions }
-			set_temp_variable = { CHN_gain_love_decision_var_BR_TEMP = CHN_weekly_love_gain_state_var }
-			multiply_temp_variable = { CHN_gain_love_decision_var_BR_TEMP = 10 }
-			set_variable = { CHN_gain_love_decision_var_BD = 0 }
-			if = {
-				limit = {
-					check_variable = { CHN_gain_love_decision_var_BR_TEMP > CHN.num_battalions }
+			set_temp_variable = { 
+				CHN_gain_love_decision_var_BR_TEMP = {
+				 	value = CHN_weekly_love_gain_state_var
+					multiply = 10
 				}
-				set_temp_variable = { CHN_gain_love_decision_var_BD_TEMP = 0 }
-				subtract_from_temp_variable = { CHN_gain_love_decision_var_BR_TEMP = CHN.num_battalions }
-				divide_temp_variable = { CHN_gain_love_decision_var_BR_TEMP = 10 }
-				set_variable = { CHN_gain_love_decision_var_BD = CHN_gain_love_decision_var_BR_TEMP }
 			}
-			subtract_from_temp_variable = { CHN_gain_love_decision_var_S_TEMP = CHN_gain_love_decision_var_BD }
-			multiply_temp_variable = { CHN_gain_love_decision_var_S_TEMP = 0.005 }
+			set_temp_variable = {
+				CHN_gain_love_decision_var_BD = {
+					value = 0
+					if = {
+						limit = {
+							value = CHN_gain_love_decision_var_BR_TEMP
+							greater_than = CHN.num_battalions
+						}
+						add = CHN_gain_love_decision_var_BR_TEMP
+						subtract = CHN.num_battalions
+						divide = 10
+					}
+				}
+			}
 			### Average Resistance Level Calculations ###
 			set_variable = { CHN_number_of_states_under_occupation_var = 0 }
 			set_variable = { CHN_resistance_level_of_number_of_states_under_occupation_var = 0 }
@@ -5103,16 +5125,25 @@ CHN_love_consumption_mechanic = {
 				add_to_variable = { PREV.CHN_resistance_level_of_number_of_states_under_occupation_var = THIS.resistance }
 			}
 			subtract_from_variable = { CHN_number_of_states_under_occupation_var = CHN.num_core_states }
-			set_temp_variable = { CHN_number_of_states_under_occupation_var_TEMP = CHN_number_of_states_under_occupation_var }
-			set_temp_variable = { CHN_resistance_level_of_number_of_states_under_occupation_var_TEMP = CHN_resistance_level_of_number_of_states_under_occupation_var }
-			divide_temp_variable = { CHN_resistance_level_of_number_of_states_under_occupation_var_TEMP = CHN_number_of_states_under_occupation_var_TEMP }
-			set_variable = { CHN_average_resistance_level_of_states_under_occupation_var = CHN_resistance_level_of_number_of_states_under_occupation_var_TEMP }
-			set_variable = { CHN_average_resistance_level_100_TEMP = 100 }
-			subtract_from_variable = { CHN_average_resistance_level_100_TEMP = CHN_average_resistance_level_of_states_under_occupation_var }
-			divide_variable = { CHN_average_resistance_level_100_TEMP = 100 } ## change to percentage ##
-			set_variable = { CHN_average_resistance_level_of_states_under_occupation_var_TEMP = CHN_average_resistance_level_100_TEMP }
+			set_variable = {
+				CHN_average_resistance_level_of_states_under_occupation_var = {
+					value = CHN_resistance_level_of_number_of_states_under_occupation_var
+					divide = CHN_number_of_states_under_occupation_var
+				}
+			}
 			###
-			multiply_temp_variable = { CHN_gain_love_decision_var_S_TEMP = CHN_average_resistance_level_of_states_under_occupation_var_TEMP } ## times resistance factor ###
+			set_temp_variable = {
+				CHN_gain_love_decision_var_S_TEMP = {
+					value = CHN_weekly_love_gain_state_var
+					subtract = CHN_gain_love_decision_var_BD
+					multiply = 0.005
+					multiply = { ## times resistance factor ###
+						value = 100
+						subtract = CHN_average_resistance_level_of_states_under_occupation_var
+						divide = 100 ## change to percentage ##
+					}
+				}
+			}
 			if = {
 				limit = {
 					has_idea = CHN_collection_troops
@@ -5561,9 +5592,13 @@ CHN_love_consumption_mechanic = {
 					ROOT = { add_to_variable = { CHN_compliance_80_love_decision_states_var = 1 } }
 				}
 			}
-			set_variable = { CHN_compliance_80_love_decision_states_for_tt_var = CHN_compliance_80_love_decision_states_var }
-			multiply_variable = { CHN_compliance_80_love_decision_states_var = 0.002 }
-			add_to_variable = { CHN_compliance_80_love_decision_states_var = 0.001 }
+			set_variable = {
+				CHN_compliance_80_love_decision_states_for_tt_var = {
+					value = CHN_compliance_80_love_decision_states_var
+					multiply = 0.002
+					add = 0.001
+				}
+			}
 			set_variable = { CHN_compliance_80_love_decision_love_gain_var = CHN_compliance_80_love_decision_states_var }
 		}
 		remove_effect = {
