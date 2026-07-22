@@ -45,11 +45,10 @@ on_actions = {
 							}
 							has_idea = no_crystals_reactor_prevent
 						}
-						set_temp_variable = {
-							tot_crystal_resource_income = resource_produced@crystals
-						}
-						add_to_temp_variable = {
-							tot_crystal_resource_income = resource_imported@crystals
+						check_expr = {
+							value = resource_produced@crystals
+							add = resource_imported@crystals
+							greater_than = -1
 						}
 						check_variable = { tot_crystal_resource_income > -1 }
 					}
@@ -71,14 +70,12 @@ on_actions = {
 					}
 				}
 				else_if = {
-					limit = { 
-						set_temp_variable = {
-							tot_crystal_resource_income = resource_produced@crystals
+					limit = {
+						check_expr = {
+							value = resource_produced@crystals
+							add = resource_imported@crystals
+							less_than = 0
 						}
-						add_to_temp_variable = {
-							tot_crystal_resource_income = resource_imported@crystals
-						}
-						check_variable = { tot_crystal_resource_income < 0 }
 						OR = {
 							nuclear_reactor > 0
 							nuclear_reactor_heavy_water > 0
@@ -99,35 +96,27 @@ on_actions = {
 					}
 
 					set_variable = {
-						tot_reactor_res = modifier@total_crystal_consumption_reactors
+						tot_res_shortage = {
+							value = resource_produced@crystals
+							add = resource_imported@crystals
+							divide = modifier@total_crystal_consumption_reactors
+						}
 					}
 
 					set_variable = {
-						tot_res_shortage = resource_produced@crystals
-					}
-					add_to_variable = {
-						tot_res_shortage = resource_imported@crystals
-					}
-					
-					divide_variable = {
-						tot_res_shortage = tot_reactor_res 
-					}
-
-					set_variable = {
-						var_no_crystals_reactor = modifier@nuclear_production_factor
-					}
-					
-					multiply_variable = {
-						var_no_crystals_reactor = tot_res_shortage
+						var_no_crystals_reactor = {
+							value = modifier@nuclear_production_factor
+							multiply = tot_res_shortage
+						}
 					}
 					
 					set_variable = {
-						var_no_crystals_thermoreactor = modifier@thermonuclear_production_factor
+						var_no_crystals_thermoreactor = {
+							value = modifier@thermonuclear_production_factor
+							multiply = tot_res_shortage
+						}
 					}
 
-					multiply_variable = {
-						var_no_crystals_thermoreactor = tot_res_shortage
-					}
 					clamp_variable = {
 						var = var_no_crystals_reactor
 						max = 0
@@ -251,9 +240,12 @@ on_actions = {
 					limit = {
 						has_country_flag = MAN_unlocked_dynamic_modifier_flag
 					}
-					set_temp_variable = { MAN_dynamic_modifier_central_variable_TEMP = MAN_lovetax_variable }
-					divide_temp_variable = { MAN_dynamic_modifier_central_variable_TEMP = 100 }
-					set_variable = { MAN_dynamic_modifier_central_variable = MAN_dynamic_modifier_central_variable_TEMP }
+					set_variable = {
+						MAN_dynamic_modifier_central_variable = {
+							value = MAN_lovetax_variable
+							multiply = 100
+						}
+					}
 					if = {
 						limit = {
 							check_variable = {
@@ -284,8 +276,12 @@ on_actions = {
 						has_completed_focus = CHN_post_war_5
 					}
 					### State Total (S) :  [ directly-controlled non-core states + (indirectly-controlled states / 2) ]
-					set_temp_variable = { CHN_weekly_love_gain_state_var_TEMP = CHN.num_of_controlled_states }
-					subtract_from_temp_variable = { CHN_weekly_love_gain_state_var_TEMP = CHN.num_core_states }
+					set_temp_variable = {
+						CHN_weekly_love_gain_state_var_TEMP = {
+							value = CHN.num_of_controlled_states
+							subtract = CHN.num_core_states
+						}
+					}
 					set_variable = { CHN_directly_controlled_noncorestates_var = CHN_weekly_love_gain_state_var_TEMP }
 					set_temp_variable = { CHN_weekly_love_gain_state_PUPPETS_var_TEMP = 0 }
 					for_each_scope_loop = {
@@ -297,17 +293,23 @@ on_actions = {
 					add_to_temp_variable = { CHN_weekly_love_gain_state_var_TEMP = CHN_weekly_love_gain_state_PUPPETS_var_TEMP }
 					set_variable = { CHN_weekly_love_gain_state_var = CHN_weekly_love_gain_state_var_TEMP }
 					### The above gives us (S)
-					set_temp_variable = { CHN_amount_of_allowed_battalions_TEMP = CHN_weekly_love_gain_state_var }
-					add_to_temp_variable = { CHN_amount_of_allowed_battalions_TEMP = 10 } ### base of 10 states
-					multiply_temp_variable = { CHN_amount_of_allowed_battalions_TEMP = 10 } ### 10 Battalions for each State
+					set_temp_variable = {
+						CHN_amount_of_allowed_battalions_TEMP = {
+							value = CHN_weekly_love_gain_state_var
+							add = 10 ### base of 10 states
+							multiply = 10 ### 10 Battalions for each State
+						}
+					}
 					if = {
 						limit = {
 							has_idea = CHN_billeting_system
 						}
 						multiply_temp_variable = { CHN_amount_of_allowed_battalions_TEMP = 1.15 } ## +15% bonus from focus-unlocked idea ##
 					}
-					set_variable = { CHN_amount_of_allowed_battalions = CHN_amount_of_allowed_battalions_TEMP }
-					round_variable = CHN_amount_of_allowed_battalions
+					set_variable = {
+						CHN_amount_of_allowed_battalions = CHN_amount_of_allowed_battalions_TEMP
+						round = yes
+					}
 					### ( ( 10 + (S) ) x 10 ) = Amount of Battalions allowed for Free ###
 					set_variable = { CHN_excess_battalions = 0 }
 					set_variable = { CHN_excess_battalions_cost = 0 }
@@ -315,25 +317,33 @@ on_actions = {
 						limit = {
 							check_variable = { CHN_amount_of_allowed_battalions < CHN.num_battalions } ### if battalions exceed carrying capacity
 						}
-						set_temp_variable = { CHN_excess_battalions_TEMP = CHN.num_battalions }
-						subtract_from_temp_variable = { CHN_excess_battalions_TEMP = CHN_amount_of_allowed_battalions }
-						add_to_variable = { CHN_excess_battalions = CHN_excess_battalions_TEMP } ### total amount of excess battalions
-						set_temp_variable = { CHN_excess_battalions_cost_TEMP = CHN_excess_battalions }
-						multiply_temp_variable = { CHN_excess_battalions_cost_TEMP = 0.001 } ### extra Love cost of 0.001 erots per battalion
-						add_to_variable = { CHN_excess_battalions_cost = CHN_excess_battalions_cost_TEMP } ### total cost of excess battalions
+						add_to_variable = { 
+							CHN_excess_battalions = { ### total amount of excess battalions
+								value = CHN.num_battalions
+								subtract = CHN_amount_of_allowed_battalions
+							}
+						}
+						add_to_variable = {
+							CHN_excess_battalions_cost = { ### total cost of excess battalions
+								value = CHN_excess_battalions
+								multiply = 0.001 ### extra Love cost of 0.001 erots per battalion
+							}
+						}
 					} ### and then on_weekly to subtract Love cost from above, and a dynamic modifier that penalises having negative Love
 				}
 				if = {
 					limit = {
 						check_variable = { CHN_love_variable < 0 }
 					}
-					set_temp_variable = { CHN_penalty_from_love_deficit_var_TEMP = CHN_love_variable }
-					divide_temp_variable = { CHN_penalty_from_love_deficit_var_TEMP = 4 }
-					set_variable = { CHN_penalty_from_love_deficit_var = CHN_penalty_from_love_deficit_var_TEMP }
-					clamp_variable = {
-						var = CHN_penalty_from_love_deficit_var
-						min = -1.50
-						max = 0
+					set_variable = {
+						CHN_penalty_from_love_deficit_var = {
+							value = CHN_love_variable
+							divide = 4
+							clamp = {
+								min = -1.50
+								max = 0
+							}
+						}
 					}
 					add_dynamic_modifier = { modifier = CHN_love_deficit_dynamic_modifier }
 				}
@@ -341,8 +351,6 @@ on_actions = {
 					limit = {
 						has_country_flag = CHN_continuous_love_harvesting_flag
 					}
-					set_temp_variable = { CHN_continuous_love_harvesting_LOVE_var_TEMP = CHN_weekly_love_gain_state_var }
-					divide_temp_variable = { CHN_continuous_love_harvesting_LOVE_var_TEMP = 20000 } ## that is, multiply by 0.005% ##
 					### Average Resistance Level Calculations ###
 					set_variable = { CHN_number_of_states_under_occupation_var = 0 }
 					set_variable = { CHN_resistance_level_of_number_of_states_under_occupation_var = 0 }
@@ -352,16 +360,24 @@ on_actions = {
 						add_to_variable = { PREV.CHN_resistance_level_of_number_of_states_under_occupation_var = THIS.resistance }
 					}
 					subtract_from_variable = { CHN_number_of_states_under_occupation_var = CHN.num_core_states }
-					set_temp_variable = { CHN_number_of_states_under_occupation_var_TEMP = CHN_number_of_states_under_occupation_var }
-					set_temp_variable = { CHN_resistance_level_of_number_of_states_under_occupation_var_TEMP = CHN_resistance_level_of_number_of_states_under_occupation_var }
-					divide_temp_variable = { CHN_resistance_level_of_number_of_states_under_occupation_var_TEMP = CHN_number_of_states_under_occupation_var_TEMP }
-					set_variable = { CHN_average_resistance_level_of_states_under_occupation_var = CHN_resistance_level_of_number_of_states_under_occupation_var_TEMP }
-					set_variable = { CHN_average_resistance_level_100_TEMP = 100 }
-					subtract_from_variable = { CHN_average_resistance_level_100_TEMP = CHN_average_resistance_level_of_states_under_occupation_var }
-					divide_variable = { CHN_average_resistance_level_100_TEMP = 100 } ## change to percentage ##
-					set_variable = { CHN_average_resistance_level_of_states_under_occupation_var_TEMP = CHN_average_resistance_level_100_TEMP }
+					set_variable = {
+						CHN_average_resistance_level_of_states_under_occupation_var = {
+							value = CHN_resistance_level_of_number_of_states_under_occupation_var 
+							divide = CHN_number_of_states_under_occupation_var
+						}
+					}
 					###
-					multiply_temp_variable = { CHN_continuous_love_harvesting_LOVE_var_TEMP = CHN_average_resistance_level_of_states_under_occupation_var_TEMP }
+					set_temp_variable = {
+						CHN_continuous_love_harvesting_LOVE_var_TEMP = {
+							value = CHN_weekly_love_gain_state_var
+							divide = 2000 ## that is, multiply by 0.005% ##
+							multiply = {
+								value = 100
+								subtract = CHN_average_resistance_level_of_states_under_occupation_var
+								divide = 100 ## change to percentage ##
+							}
+						}
+					}
 					if = {
 						limit = {
 							has_idea = CHN_love_refineries
@@ -375,9 +391,12 @@ on_actions = {
 					limit = {
 						has_country_flag = CHN_acquired_pony_slave_dynamic_modifier
 					}
-					set_temp_variable = { CHN_acquired_pony_slave_dynamic_modifier_var_TEMP = CHN.core_compliance@EQS }
-					divide_temp_variable = { CHN_acquired_pony_slave_dynamic_modifier_var_TEMP = 1000 }
-					set_variable = { CHN_acquired_pony_slave_dynamic_modifier_var = CHN_acquired_pony_slave_dynamic_modifier_var_TEMP }
+					set_variable = {
+						CHN_acquired_pony_slave_dynamic_modifier_var = {
+							value = CHN.core_compliance@EQS
+							divide = 1000
+						}
+					}
 				}
 				if = {
 					limit = {
@@ -746,25 +765,6 @@ on_actions = {
 					clr_country_flag = ABY_limited_MDL_war_flag
 				}
 			}
-		}
-	}
-
-	on_daily_ZAI = {
-		effect = {
-        	if = {
-        		limit = {
-					date < 1009.9.10
-					date > 1009.9.8
-        			check_variable = { djgkdh = 999 }
-					NOT = {
-						has_completed_focus = zebra_political_effort
-						has_completed_focus = zebra_industrial_effort
-						has_completed_focus = zebra_aviation_effort
-						has_completed_focus = zebra_naval_effort
-					}
-        		}
-        		country_event = { id = colthage_other.999 hours = 2 }
-        	}
 		}
 	}
 }
