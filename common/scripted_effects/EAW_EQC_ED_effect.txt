@@ -431,7 +431,19 @@ EQS_ED_calculate_jetset_icon_pos = {
 ED_conquering_equestria_effect = {
 	# The result is written into the temp variable effective_magic_balance
 	# Formula is arctan( (EQS magic - EQS magic) / 5000 )
-	ED_calculate_effective_magic_balance = yes 
+	set_temp_variable = { #ED_calculate_effective_magic_balance
+		effective_magic_balance = {
+			value = {
+				#magic_power_difference
+				value = EQC.art_debug_mod
+				subtract = EQS.art_debug_mod
+				divide = 5000
+			}
+			atan = yes
+		}
+	}
+
+	log = "Effective Magic Balance: [?effective_magic_balance]"
 
 	EQC = { set_variable = { current_magic_balance = effective_magic_balance } }
 	EQS = { 
@@ -481,97 +493,6 @@ ED_conquering_equestria_effect = {
 			}
 		}
 	}
-}
-
-ED_calculate_effective_magic_balance = {
-	set_temp_variable = { magic_power_difference = EQC.art_debug_mod } 
-	subtract_from_temp_variable = { magic_power_difference = EQS.art_debug_mod } 
-	divide_temp_variable = { magic_power_difference = 5000 } 
-	set_temp_variable = {
-		sign = 1
-	}
-	if = {
-		limit = {
-			check_variable = { magic_power_difference < 0 }
-		}
-		set_temp_variable = { sign = -1 }
-	}
-	set_temp_variable = { arctan_argument = 1 }
-	if = {
-		limit = {
-			check_variable = { magic_power_difference > 1 }
-		}
-		set_country_flag = inverse_active
-		divide_temp_variable = { arctan_argument = magic_power_difference }
-	}
-	else = {
-		set_temp_variable = { arctan_argument = magic_power_difference }
-	}
-	ED_calculate_arctan = yes
-
-	set_temp_variable = { effective_magic_balance = arctan_result }
-	if = {
-		limit = {
-			has_country_flag = inverse_active
-		}
-		set_temp_variable = { effective_magic_balance = 1.571 } # pi/2
-		multiply_temp_variable = { effective_magic_balance = sign }
-		subtract_from_temp_variable = { effective_magic_balance = arctan_result }
-	}
-	log = "Effective Magic Balance: [?effective_magic_balance]"
-
-	clr_country_flag = inverse_active
-}
-
-ED_calculate_arctan = {
-	# x
-	set_temp_variable = { arctan_result = arctan_argument }
-
-	# x^3 / 3
-	set_temp_variable = { cubic = arctan_argument }
-	multiply_temp_variable = { cubic = arctan_argument }
-	multiply_temp_variable = { cubic = arctan_argument }
-	divide_temp_variable = { cubic = 3 }
-
-	# x^5 / 5
-	set_temp_variable = { quintic = arctan_argument }
-	multiply_temp_variable = { quintic = arctan_argument }
-	multiply_temp_variable = { quintic = arctan_argument }
-	multiply_temp_variable = { quintic = arctan_argument }
-	multiply_temp_variable = { quintic = arctan_argument }
-	divide_temp_variable = { quintic = 5 }
-
-	# x^7 / 7
-	set_temp_variable = { septic = arctan_argument }
-	multiply_temp_variable = { septic = arctan_argument }
-	multiply_temp_variable = { septic = arctan_argument }
-	multiply_temp_variable = { septic = arctan_argument }
-	multiply_temp_variable = { septic = arctan_argument }
-	multiply_temp_variable = { septic = arctan_argument }
-	multiply_temp_variable = { septic = arctan_argument }
-	divide_temp_variable = { septic = 7 }
-
-	# x^9 / 9
-	set_temp_variable = { nonic = arctan_argument }
-	multiply_temp_variable = { nonic = arctan_argument }
-	multiply_temp_variable = { nonic = arctan_argument }
-	multiply_temp_variable = { nonic = arctan_argument }
-	multiply_temp_variable = { nonic = arctan_argument }
-	multiply_temp_variable = { nonic = arctan_argument }
-	multiply_temp_variable = { nonic = arctan_argument }
-	multiply_temp_variable = { nonic = arctan_argument }
-	multiply_temp_variable = { nonic = arctan_argument }
-	divide_temp_variable = { nonic = 9 }
-
-	# x - x^3/3 + x^5/5 - x^7/7 + x^9/9
-	# This is the taylor series of the arctan to ninth order
-	# Yes, I know that this isn't optimal
-	# We should also use arctan(x) = pi/4 - arctan( (1-x)/(1+x) ) for values close to 1
-	# But I'm lazy
-	subtract_from_temp_variable = { arctan_result = cubic }
-	add_to_temp_variable = { arctan_result = quintic }
-	subtract_from_temp_variable = { arctan_result = septic }
-	add_to_temp_variable = { arctan_result = nonic }
 }
 
 ED_calculate_magic_balance_modifier = {
