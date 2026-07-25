@@ -3137,6 +3137,7 @@ GRF_sending_mercs_cat = {
 				has_government = neutrality
 				is_subject = no
 			}
+			has_war = no
 		}
 		visible = {
 			NOT = { has_country_flag = agreed_to_mercs_@FROM }
@@ -3159,6 +3160,21 @@ GRF_sending_mercs_cat = {
 					has_idea = detached_country
 				}
 				does_not_have_communal_society = yes
+				if = {
+					limit = { ROOT = { tag = GRF } }
+					NOT = {
+						has_idea = GRF_got_mercs
+						has_idea = GRF_got_mercs_delayed
+						has_idea = GRF_got_mercs_delayed_payment
+					}
+				}
+				else = {
+					NOT = {
+						has_idea = TRD_got_mercs
+						has_idea = TRD_got_mercs_delayed
+						has_idea = TRD_got_mercs_delayed_payment
+					}
+				}
 				has_opinion = {
 					target = ROOT
 					value > -30
@@ -3203,6 +3219,21 @@ GRF_sending_mercs_cat = {
 					has_idea = detached_country
 				}
 				does_not_have_communal_society = yes
+				if = {
+					limit = { ROOT = { tag = GRF } }
+					NOT = {
+						has_idea = GRF_got_mercs
+						has_idea = GRF_got_mercs_delayed
+						has_idea = GRF_got_mercs_delayed_payment
+					}
+				}
+				else = {
+					NOT = {
+						has_idea = TRD_got_mercs
+						has_idea = TRD_got_mercs_delayed
+						has_idea = TRD_got_mercs_delayed_payment
+					}
+				}
 				has_opinion = {
 					target = ROOT
 					value > -30
@@ -3388,6 +3419,63 @@ GRF_sending_mercs_cat = {
 			}
 		}
 
+		cancel_trigger = {
+			OR = {
+				has_war = yes
+				has_capitulated = yes
+				is_subject = yes
+				if = {
+					limit = { tag = GRF }
+					NOT = { has_idea = GRF_send_mercs }
+				}
+				else = {
+					NOT = {
+						AND = {
+							has_completed_focus = TRD_robber_baron
+							has_government = neutrality
+							is_subject = no
+						}
+					}
+				}
+				FROM = {
+					OR = {
+						exists = no
+						has_war = no
+						has_capitulated = yes
+						is_in_faction_with = ROOT
+						is_subject_of = ROOT
+						has_war_with = ROOT
+						has_war_together_with = ROOT
+					}
+				}
+			}
+		}
+
+		cancel_effect = {
+			log = "[GetDateText]: [Root.GetName]: Decision cancelled GRF_send_mercs_mis target: [From.GetName]"
+			FROM = {
+				add_ai_strategy = {
+					type = befriend
+					id = ROOT
+					value = -500
+				}
+				clr_country_flag = mercs_delayed_payment_@ROOT
+			}
+			add_ai_strategy = {
+				type = support
+				id = FROM
+				value = -20
+			}
+			add_ai_strategy = {
+				type = send_volunteers_desire
+				id = FROM
+				value = -999
+			}
+			clr_country_flag = agreed_to_mercs_@FROM
+			clr_country_flag = mercs_in_progress
+			GRF_recalc_mercs = yes
+		}
+
 		is_good = no
 		days_mission_timeout = 30
 
@@ -3408,6 +3496,7 @@ GRF_sending_mercs_cat = {
 			FROM = {
 				add_opinion_modifier = { target = ROOT modifier = GRF_failed_to_deliver_mercs }
 				set_country_flag = { flag = refused_mercs_from_@ROOT value = 1 days = 180 }
+				clr_country_flag = mercs_delayed_payment_@ROOT
 				country_event = griffons.63
 				add_ai_strategy = {
 					type = befriend
@@ -3417,6 +3506,7 @@ GRF_sending_mercs_cat = {
 			}
 			clr_country_flag = agreed_to_mercs_@FROM
 			clr_country_flag = mercs_in_progress
+			GRF_recalc_mercs = yes
 		}
 
 		complete_effect = {
@@ -3569,7 +3659,7 @@ GRF_sending_mercs_cat = {
 	}
 	GRF_send_mercs_reward_delayed = {
 		icon = rifles
-		days_mission_timeout = var:GRF_send_mercs_reward_delayed_duration
+		days_mission_timeout = var:GRF_send_mercs_reward_delayed_duration_@FROM
 		selectable_mission = no
 		allowed = { always = no }
 		available = {
@@ -3583,9 +3673,11 @@ GRF_sending_mercs_cat = {
 		fire_only_once = yes
 		complete_effect = {
 			log = "[GetDateText]: [Root.GetName]: Decision GRF_send_mercs_reward_delayed target: [From.GetName]"
+			clear_variable = GRF_send_mercs_reward_delayed_duration_@FROM
 		}
 		timeout_effect = {
 			log = "[GetDateText]: [Root.GetName]: Decision timeout GRF_send_mercs_reward_delayed target: [From.GetName]"
+			clear_variable = GRF_send_mercs_reward_delayed_duration_@FROM
 		}
 	}
 	TRD_send_mercs_reward_delayed = {
