@@ -230,6 +230,7 @@ NDefines.NFactions.FACTION_INTELLIGENCE_ALLOWED_ADVISOR_TRAIT = {
 	"head_of_ohs_lar",
 	"cryptologic_genius_lar",
 	"cryptologic_genius",
+	"agent_of_smile",
 	"agent_of_smile_lar",
 	"great_nobody",
 	"great_nobody_lar",
