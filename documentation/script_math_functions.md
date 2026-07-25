@@ -5,6 +5,9 @@
 * [<](#)
 * [>](#)
 * [add](#add)
+* [and](#and)
+* [atan](#atan)
+* [atan2](#atan2)
 * [clamp](#clamp)
 * [cos](#cos)
 * [divide](#divide)
@@ -12,19 +15,23 @@
 * [every_collection](#every_collection)
 * [greater_than_or_equals](#greater_than_or_equals)
 * [if](#if)
+* [lerp](#lerp)
 * [less_than_or_equals](#less_than_or_equals)
 * [log](#log)
 * [max](#max)
 * [min](#min)
 * [mod](#mod)
 * [multiply](#multiply)
+* [not](#not)
 * [not_equals](#not_equals)
+* [or](#or)
 * [pow](#pow)
 * [root](#root)
 * [round](#round)
 * [sin](#sin)
 * [subtract](#subtract)
 * [tan](#tan)
+* [xor](#xor)
 
 ## <
 Returns 1 if the accumulator is less than the value, otherwise 0.
@@ -50,6 +57,37 @@ Adds a value to the accumulator.
 ### Example
 ```
 { value = 5.0  add = num_factories }
+```
+
+
+## and
+Returns 1 if both the accumulator and the value are non-zero, otherwise 0.
+
+### Example
+```
+{ value = 1  and = 1 }
+```
+
+
+## atan
+Sets the accumulator to the arctangent of itself. The result is expressed in radians.
+
+Note: this is computed with a numerical approximation and may be off by a few hundredths of a radian. Follow with `round = yes` if you need an exact result.
+
+### Example
+```
+{ value = 1  atan = yes }
+```
+
+
+## atan2
+Sets the accumulator to the quadrant-aware arctangent atan2(y, x), where the accumulator is y and the value is x. The result is expressed in radians.
+
+Note: this is computed with a numerical approximation and may be off by a few hundredths of a radian; follow with `round = yes` if you need an exact result. The degenerate case atan2(0, 0) returns roughly pi/2 rather than 0.
+
+### Example
+```
+{ value = 1  atan2 = 1 }
 ```
 
 
@@ -122,6 +160,15 @@ Note that the limit is a math expression. It is considered true if the value is 
 ```
 
 
+## lerp
+Linearly interpolates from the accumulator towards `to` by `alpha`, where alpha is clamped between 0 and 1. An alpha of 0 keeps the accumulator, 1 returns `to`.
+
+### Example
+```
+{ value = 10  lerp = { to = 20  alpha = 0.5 } }
+```
+
+
 ## less_than_or_equals
 Returns 1 if the accumulator is less than or equal to the value, otherwise 0.
 
@@ -179,12 +226,30 @@ Multiplies the accumulator by a value.
 ```
 
 
+## not
+Returns 1 if the accumulator is zero, otherwise 0.
+
+### Example
+```
+{ value = 0  not = yes }
+```
+
+
 ## not_equals
 Returns 1 if the accumulator does not equal the value, otherwise 0.
 
 ### Example
 ```
 { value = 7  not_equals = 5 }
+```
+
+
+## or
+Returns 1 if either the accumulator or the value is non-zero, otherwise 0.
+
+### Example
+```
+{ value = 0  or = 1 }
 ```
 
 
@@ -246,6 +311,15 @@ Sets the accumulator to the tangent of itself. The angle is expressed in radians
 ### Example
 ```
 { value = 0  tan = yes }
+```
+
+
+## xor
+Returns 1 if exactly one of the accumulator and the value is non-zero, otherwise 0.
+
+### Example
+```
+{ value = 1  xor = 0 }
 ```
 
 

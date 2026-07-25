@@ -1,6 +1,6 @@
 NDefines.NGame.START_DATE = "1007.1.1.12"
 NDefines.NGame.END_DATE = "1030.1.1.1"
-NDefines.NGame.HANDS_OFF_START_TAG = "DRG"
+NDefines.NGame.HANDS_OFF_START_TAG = "ZZZ"
 NDefines.NGame.MAX_EFFECT_ITERATION = 50000
 
 NDefines.NDiplomacy.TENSION_TIME_SCALE_START_DATE = "1012.1.1.12" -- increased from 1007 due to Great War being the main huge wakeup call -- Starting at this date, the tension values will be scaled down (will be equal to 1 before that)
