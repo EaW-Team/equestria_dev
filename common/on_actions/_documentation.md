@@ -93,8 +93,7 @@ Try to keep this reasonably up-to-date, please.
 - `on_army_leader_lost_combat`
 - `on_unit_leader_level_up`
 - `on_army_leader_promoted`
-- `on_unit_leader_promote_from_ranks_veteran`
-- `on_unit_leader_promote_from_ranks_green`
+- `on_deployed_leader_defeated`
 
 ### Aces
 - `on_ace_promoted`

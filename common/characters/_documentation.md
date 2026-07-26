@@ -14,6 +14,16 @@ my_character_token = {
 }
 ```
 
+## Capture flags
+
+```
+my_character_token = {
+	# Optional - if no, the character cannot be captured as a general at all (default yes).
+	# Note: characters with a country leader role are always treated as uncapturable.
+	can_be_captured = no
+}
+```
+
 ## Scientist role
 
 ```

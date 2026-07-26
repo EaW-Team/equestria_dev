@@ -6,6 +6,7 @@
 * [Collections](#collections)
 * [Contextual Localization](#contextual-localization)
 * [Formatted Localization](#formatted-localization)
+* [Math Expressions](#math-expressions)
 * [Script Constants](#script-constants)
 
 ## Bindable Localization
@@ -179,6 +180,38 @@ custom_effect_tooltip = WHILE_FOCUSING
 custom_effect_tooltip = "[ROOT.GetName]"
 ```
 
+
+## Math Expressions
+```
+
+Math expressions allow for mathematical calculations using constants, scoped variables and mathematical functions.
+Using math expressions is expected to be more performant than using temporary variables for calculations.
+
+All math expressions are based on fixed point arithmetic. For boolean operations, 0.0 is considered false and any
+other value is considered true. All operators that return a boolean value will return 1.0 for true and 0.0 for false.
+
+A list of math functions can be found [here](script_math_functions.md).
+
+### Syntax
+Math expressions use a base value (`value = ...`) that is then modified by sequential statements.
+Statements can either be:
+* No argument statement (e.g. `round = yes`) that simply applies an operation to the accumulator.
+* Simple statements that takes one or more math expression as argument (e.g. `add = 5`, `clamp = { min = 0 max = 100 }`).
+* Control flow statements that take a block of statements as argument (e.g. `if = { limit = { value = x  greater_than = 10 }  add = 100 }`).
+* Collection iterators that takes a named collection and a block of modification statements to apply for each element. The collection elements will be scoped to.
+
+### Error Handling
+If a math expression fails to parse properly, it will be replaced with the value 0.0 for runtime operations.
+
+### Examples
+```
+{ value = num_cavalry
+  add = num_motorized
+  add = num_mechanized
+  greater_than = { value = num_units  multiply = 0.4 }
+}
+```
+```
 
 ## Script Constants
 Script constants are a way to define constants in scripts that can be reused in any script file (except for other script constants files).
