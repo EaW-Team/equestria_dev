@@ -134,6 +134,7 @@ def write_facts(
     current_version: str,
     steam_previous_version: str,
     salt: str,
+    checksum: str,
     rules: list[h.Rule],
     entries: list[tuple[str, h.Entry]],
     force: bool,
@@ -153,6 +154,7 @@ def write_facts(
         f"salt\t{salt}",
         f"version\t{current_version}",
         f"steam_previous_version\t{steam_previous_version}",
+        f"checksum\t{checksum}",
     ]
     lines.extend(
         f"rule\t{rule.directory}\t{rule.extension}" for rule in rules
@@ -221,6 +223,7 @@ def main() -> int:
                 version,
                 args.steam_previous_version,
                 salt,
+                checksum,
                 rules,
                 entries,
                 args.force,

@@ -163,7 +163,11 @@ def read_facts(path: Path) -> tuple[str, list[Rule], dict[str, Entry]]:
             if kind == "salt" and len(fields) == 2:
                 salt = fields[1]
             elif (
-                kind in {"version", "steam_previous_version"}
+                kind in {
+                    "version",
+                    "steam_previous_version",
+                    "checksum",
+                }
                 and len(fields) == 2
             ):
                 continue
