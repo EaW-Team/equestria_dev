@@ -8,11 +8,17 @@ permissions:
   contents: write
 
 env:
-  STEAM_APP_ID: "394360"
+  STEAM_APP_ID: ${{ vars.HOI4_APP_ID }}
+  VANILLA_FACTS_PATH: ${{ vars.HOI4_VANILLA_FACTS_PATH }}
   STEAM_WORKSHOP_ITEM_ID: "1826643372"
 
 jobs:
+  update-vanilla-facts:
+    uses: ./.github/workflows/update-vanilla-facts.yml
+    secrets: inherit
+
   build:
+    needs: update-vanilla-facts
     runs-on: ubuntu-latest
     steps:
       - name: Check out release
@@ -20,6 +26,35 @@ jobs:
         with:
           ref: ${{ github.event.release.tag_name }}
           fetch-depth: 1
+
+      - name: Download latest vanilla checksum facts
+        env:
+          GITHUB_TOKEN: ${{ github.token }}
+        shell: bash
+        run: |
+          set -euo pipefail
+          encoded_facts_path="$(
+            jq -rn --arg path "$VANILLA_FACTS_PATH" \
+              '$path | split("/") | map(@uri) | join("/")'
+          )"
+          mkdir -p "$(dirname "$VANILLA_FACTS_PATH")"
+          curl --fail --silent --show-error --location \
+            -H "Accept: application/vnd.github.raw+json" \
+            -H "Authorization: Bearer $GITHUB_TOKEN" \
+            -H "Cache-Control: no-cache" \
+            -H "X-GitHub-Api-Version: 2022-11-28" \
+            --get \
+            --data-urlencode \
+              "ref=${{ github.event.repository.default_branch }}" \
+            "$GITHUB_API_URL/repos/$GITHUB_REPOSITORY/contents/$encoded_facts_path" \
+            --output "$VANILLA_FACTS_PATH"
+          grep -Fxq "# hoi4-vanilla-facts-v1" "$VANILLA_FACTS_PATH" || {
+            echo "::error::Downloaded vanilla facts are invalid."
+            exit 1
+          }
+          awk -F '\t' '$1 == "version" {
+            print "Vanilla facts version: " $2
+          }' "$VANILLA_FACTS_PATH"
 
       - name: Set up ImageMagick
         uses: mfinelli/setup-imagemagick@v8.0.0
@@ -35,7 +70,7 @@ jobs:
         id: hoi4_checksum
         run: |
           checksum="$(python3 .github/scripts/hoi4_checksum.py \
-            .github/scripts/vanilla-1.19.2.0.a729.tsv \
+            "$VANILLA_FACTS_PATH" \
             build/equestria)"
           if [[ ! "$checksum" =~ ^[0-9a-f]{32}$ ]]; then
             echo "::error::Checksum generator returned an invalid value: $checksum"

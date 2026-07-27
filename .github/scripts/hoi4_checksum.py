@@ -162,6 +162,11 @@ def read_facts(path: Path) -> tuple[str, list[Rule], dict[str, Entry]]:
             kind = fields[0]
             if kind == "salt" and len(fields) == 2:
                 salt = fields[1]
+            elif (
+                kind in {"version", "steam_previous_version"}
+                and len(fields) == 2
+            ):
+                continue
             elif kind == "rule" and len(fields) == 3:
                 rules.append(
                     Rule(normalize_virtual_path(fields[1]), fields[2])

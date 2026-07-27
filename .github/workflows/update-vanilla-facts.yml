@@ -1,0 +1,224 @@
+name: Update vanilla checksum facts
+
+on:
+  schedule:
+    - cron: "17 5 * * *"
+  workflow_dispatch:
+    inputs:
+      push_branch:
+        description: Branch to update; defaults to the repository default branch
+        required: false
+        default: ""
+        type: string
+  workflow_call:
+    inputs:
+      push_branch:
+        description: Branch to update; defaults to the repository default branch
+        required: false
+        default: ""
+        type: string
+    secrets:
+      STEAM_USERNAME:
+        description: Steam account username
+        required: true
+      STEAM_CONFIG_VDF:
+        description: Base64-encoded SteamCMD config/config.vdf
+        required: true
+      DEPLOY_KEY:
+        description: Optional SSH private key used to push facts updates
+        required: false
+
+permissions:
+  contents: write
+
+concurrency:
+  group: update-vanilla-facts-${{ github.repository }}
+  cancel-in-progress: false
+
+env:
+  APP_ID: ${{ vars.HOI4_APP_ID }}
+  FACTS_PATH: ${{ vars.HOI4_VANILLA_FACTS_PATH }}
+  PUSH_BRANCH: ${{ inputs.push_branch || github.event.repository.default_branch }}
+  STEAMCMD_IMAGE: steamcmd/steamcmd:ubuntu-22
+
+jobs:
+  update:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Prepare update check
+        env:
+          GITHUB_TOKEN: ${{ github.token }}
+          STEAM_CONFIG_VDF: ${{ secrets.STEAM_CONFIG_VDF }}
+          STEAM_USERNAME: ${{ secrets.STEAM_USERNAME }}
+        shell: bash
+        run: |
+          set -euo pipefail
+
+          [[ "$APP_ID" =~ ^[1-9][0-9]*$ ]] || {
+            echo "::error::HOI4_APP_ID must be a nonzero decimal App ID."
+            exit 1
+          }
+          [[ -n "$STEAM_USERNAME" ]] || {
+            echo "::error::STEAM_USERNAME is required."
+            exit 1
+          }
+          [[ -n "$STEAM_CONFIG_VDF" ]] || {
+            echo "::error::STEAM_CONFIG_VDF is required."
+            exit 1
+          }
+          [[ -n "$FACTS_PATH" && "$FACTS_PATH" != /* && "$FACTS_PATH" != *\\* ]] || {
+            echo "::error::HOI4_VANILLA_FACTS_PATH must be a repository-relative POSIX path."
+            exit 1
+          }
+          case "/$FACTS_PATH/" in
+            *"/./"*|*"/../"*|*"//"*)
+              echo "::error::HOI4_VANILLA_FACTS_PATH contains an invalid path component."
+              exit 1
+              ;;
+          esac
+
+          steam_home="$RUNNER_TEMP/steam-home"
+          install -d -m 700 "$steam_home/Steam/config"
+          if ! printf '%s' "$STEAM_CONFIG_VDF" |
+              base64 --decode > "$steam_home/Steam/config/config.vdf"; then
+            echo "::error::STEAM_CONFIG_VDF is not valid base64."
+            exit 1
+          fi
+          chmod 600 "$steam_home/Steam/config/config.vdf"
+
+          download_repository_file() {
+            local relative_path="$1"
+            local output_path="$2"
+            local encoded_path
+            encoded_path="$(
+              jq -rn --arg path "$relative_path" \
+                '$path | split("/") | map(@uri) | join("/")'
+            )"
+            curl --fail --silent --show-error --location \
+              -H "Accept: application/vnd.github.raw+json" \
+              -H "Authorization: Bearer $GITHUB_TOKEN" \
+              -H "X-GitHub-Api-Version: 2022-11-28" \
+              --get \
+              --data-urlencode "ref=$PUSH_BRANCH" \
+              "$GITHUB_API_URL/repos/$GITHUB_REPOSITORY/contents/$encoded_path" \
+              --output "$output_path"
+          }
+
+          download_repository_file \
+            "$FACTS_PATH" "$RUNNER_TEMP/current-facts.tsv"
+          download_repository_file \
+            ".github/scripts/check_steam_update.py" \
+            "$RUNNER_TEMP/check_steam_update.py"
+
+      - name: Check for a Steam update
+        id: check
+        env:
+          STEAM_USERNAME: ${{ secrets.STEAM_USERNAME }}
+        shell: bash
+        run: |
+          set -euo pipefail
+          app_info="$RUNNER_TEMP/app-info.txt"
+          docker run --rm \
+            -e APP_ID \
+            -e HOME=/github/home \
+            -e STEAM_USERNAME \
+            -v "$RUNNER_TEMP/steam-home:/github/home" \
+            --entrypoint bash \
+            "$STEAMCMD_IMAGE" \
+            -ceu 'steamcmd +login "$STEAM_USERNAME" +app_info_print "$APP_ID" +quit' \
+            2>&1 | tee "$app_info"
+          python3 "$RUNNER_TEMP/check_steam_update.py" \
+            "$app_info" \
+            "$RUNNER_TEMP/current-facts.tsv" \
+            --app-id "$APP_ID" \
+            --github-output "$GITHUB_OUTPUT"
+
+      - name: Report no update
+        if: steps.check.outputs.update_required == 'false'
+        run: |
+          echo "::notice::No Steam update detected. Facts remain at ${{ steps.check.outputs.current_version }}."
+
+      - name: Check out files needed to update facts
+        if: steps.check.outputs.update_required == 'true'
+        uses: actions/checkout@v4
+        with:
+          ref: ${{ env.PUSH_BRANCH }}
+          fetch-depth: 1
+          ssh-key: ${{ secrets.DEPLOY_KEY }}
+          sparse-checkout: |
+            ${{ env.FACTS_PATH }}
+            .github/scripts/hoi4_checksum.py
+            .github/scripts/hoi4_vanilla_checksum.py
+            .github/scripts/generate_vanilla_facts.py
+          sparse-checkout-cone-mode: false
+
+      - name: Download current Linux game files
+        if: steps.check.outputs.update_required == 'true'
+        env:
+          STEAM_USERNAME: ${{ secrets.STEAM_USERNAME }}
+        shell: bash
+        run: |
+          set -euo pipefail
+          game_directory="$RUNNER_TEMP/hoi4-linux"
+          mkdir -p "$game_directory"
+          docker run --rm \
+            -e APP_ID \
+            -e HOME=/github/home \
+            -e STEAM_USERNAME \
+            -v "$RUNNER_TEMP/steam-home:/github/home" \
+            -v "$game_directory:/game" \
+            --entrypoint bash \
+            "$STEAMCMD_IMAGE" \
+            -ceu 'steamcmd +force_install_dir /game +login "$STEAM_USERNAME" +app_update "$APP_ID" validate +quit'
+
+      - name: Generate updated vanilla facts
+        id: generate
+        if: steps.check.outputs.update_required == 'true'
+        shell: bash
+        run: |
+          set -euo pipefail
+          checksum="$(
+            python3 .github/scripts/hoi4_vanilla_checksum.py \
+              "$RUNNER_TEMP/hoi4-linux" \
+              --facts-output "$FACTS_PATH" \
+              --steam-previous-version \
+                "${{ steps.check.outputs.detected_steam_previous_version }}" \
+              --force
+          )"
+          [[ "$checksum" =~ ^[0-9a-f]{32}$ ]] || {
+            echo "::error::Invalid generated checksum: $checksum"
+            exit 1
+          }
+
+          current_version="$(
+            awk -F '\t' '$1 == "version" { print $2 }' "$FACTS_PATH"
+          )"
+          [[ -n "$current_version" ]] || {
+            echo "::error::Generated facts do not contain a current version."
+            exit 1
+          }
+          [[ "$current_version" != "${{ steps.check.outputs.current_version }}" ]] || {
+            echo "::error::Steam update was detected, but the public game version did not change."
+            exit 1
+          }
+
+          echo "checksum=$checksum" >> "$GITHUB_OUTPUT"
+          echo "current_version=$current_version" >> "$GITHUB_OUTPUT"
+          echo "Generated vanilla version: $current_version"
+          echo "Generated vanilla checksum: $checksum"
+
+      - name: Commit and push updated facts
+        if: steps.check.outputs.update_required == 'true'
+        shell: bash
+        run: |
+          set -euo pipefail
+          git add -- "$FACTS_PATH"
+          if git diff --cached --quiet; then
+            echo "::error::Update was detected, but the facts file did not change."
+            exit 1
+          fi
+
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git commit -m "Update HOI4 vanilla facts to ${{ steps.generate.outputs.current_version }}"
+          git push origin "HEAD:$PUSH_BRANCH"
