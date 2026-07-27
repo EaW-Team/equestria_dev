@@ -2147,12 +2147,19 @@ GRF_recalc_mercs = {
 						tag = GRF
 						count > 0
 					}
+					ROOT = {
+						NOT = { has_country_flag = agreed_to_mercs_@PREV }
+					}
 				}
 				ROOT = { recall_volunteers_from = PREV }
 			}
 		}
-		set_temp_variable = { offsite_IC_delta = offsite_IC_new }
-		subtract_from_temp_variable = { offsite_IC_delta = offsite_IC }
+		set_temp_variable = {
+			offsite_IC_delta = {
+				value = offsite_IC_new
+				subtract = offsite_IC
+			}
+		}
 		if = {
 			limit = {
 				NOT = {
@@ -2309,7 +2316,13 @@ GRF_recalc_mercs = {
 					}
 					add_to_variable = { ROOT.divs_as_mercs = 2 }
 				}
-				else = {
+				else_if = {
+					limit = {
+						has_volunteers_amount_from = {
+							tag = TRD
+							count > 0
+						}
+					}
 					add_to_variable = { ROOT.divs_as_mercs = 1 }
 				}
 			}
@@ -2319,13 +2332,26 @@ GRF_recalc_mercs = {
 						tag = TRD
 						count > 0
 					}
+					ROOT = {
+						NOT = { has_country_flag = agreed_to_mercs_@PREV }
+					}
 				}
 				ROOT = { recall_volunteers_from = PREV }
 			}
 		}
 	}
-	set_variable = { volunteers_factor = divs_as_mercs }
-	divide_variable = { volunteers_factor = num_divisions }
+	if = {
+		limit = { num_divisions > 0 }
+		set_variable = {
+			volunteers_factor = {
+				value = divs_as_mercs
+				divide = num_divisions
+			}
+		}
+	}
+	else = {
+		set_variable = { volunteers_factor = 0 }
+	}
 }
 lushi_remove_unemployment = {
 	if = {
@@ -3285,10 +3311,10 @@ disband_units_fraction = {
 			}
 		}
 		set_temp_variable = {
-			manpower_diff = manpower_k
-		}
-		subtract_from_temp_variable = {
-			manpower_diff = old_manpower
+			manpower_diff = {
+				value = manpower_k
+				subtract = old_manpower
+			}
 		}
 		while_loop_effect = { #avoid overflows
 			limit = { check_variable = { manpower_diff > 1 } }
@@ -3567,6 +3593,11 @@ set_AI_strategies_on_every_possible_country_delayed = {
 #                       2: KIR_theocracy_bop
 #                       3: KIR_theocracy_UNITED_bop
 #                       4: YAK_starting_bop
+#                       5: ZOO_influence_BoP
+#                       6: ABY_neutral_harmony
+#                       7: BRZ_loudbark_bop
+#                       8: EYE_curad_bop
+#                       9: SLC_dual_monarchy_bop
 #                       Else: JAK_starting_bop
 # Outputs : bop_value - The value of the BoP
 f_get_bop_value = {
@@ -3872,9 +3903,13 @@ build_air_base = {
 					always = yes
 				}
 			}
-			set_temp_variable = { local_air_capacity = building_level@air_base }
-			multiply_temp_variable = { local_air_capacity = 200 }
-			add_to_temp_variable = { air_capacity = local_air_capacity }
+			add_to_temp_variable = {
+				air_capacity = {
+					# local_air_capacity
+					value = building_level@air_base
+					multiply = 200
+				}
+			}
 		}
 		log = "build_air_base: [?Root.GetTag] has air_capacity at [?air_capacity|0]"
 		subtract_from_temp_variable = { air_capacity = 200 }
