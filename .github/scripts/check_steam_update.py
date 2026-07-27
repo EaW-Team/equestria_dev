@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Compare archived Steam manifest versions with stored facts metadata."""
+"""Compare Steam's public BuildID with stored facts metadata."""
 
 from __future__ import annotations
 
@@ -11,6 +11,7 @@ from pathlib import Path
 
 TOKEN_RE = re.compile(r'"((?:\\.|[^"\\])*)"|([{}])')
 VERSION_RE = re.compile(r"^[0-9]+(?:\.[0-9]+)+$")
+BUILD_ID_RE = re.compile(r"^[1-9][0-9]*$")
 
 
 def tokenize(text: str) -> list[tuple[str, str]]:
@@ -71,30 +72,20 @@ def parse_app_info(path: Path, app_id: str) -> dict[str, object]:
     raise ValueError(f"{path}: VDF object for App ID {app_id} was not found")
 
 
-def latest_archived_version(app: dict[str, object]) -> str:
+def public_build_id(app: dict[str, object]) -> str:
     depots = app.get("depots")
     if not isinstance(depots, dict):
         raise ValueError("app info does not contain a depots object")
-
-    versions: set[str] = set()
-    for depot in depots.values():
-        if not isinstance(depot, dict):
-            continue
-        manifests = depot.get("manifests")
-        if not isinstance(manifests, dict):
-            continue
-        versions.update(
-            name
-            for name in manifests
-            if (
-                name.lower() not in {"public", "open_beta"}
-                and VERSION_RE.fullmatch(name)
-            )
-        )
-
-    if not versions:
-        raise ValueError("no archived numeric manifest versions were found")
-    return max(versions, key=lambda value: tuple(map(int, value.split("."))))
+    branches = depots.get("branches")
+    if not isinstance(branches, dict):
+        raise ValueError("app info does not contain depot branches")
+    public = branches.get("public")
+    if not isinstance(public, dict):
+        raise ValueError("app info does not contain the public branch")
+    build_id = public.get("buildid")
+    if not isinstance(build_id, str) or not BUILD_ID_RE.fullmatch(build_id):
+        raise ValueError("public branch does not contain a valid BuildID")
+    return build_id
 
 
 def read_facts_metadata(path: Path) -> tuple[str, str]:
@@ -105,22 +96,26 @@ def read_facts_metadata(path: Path) -> tuple[str, str]:
         if not raw_line or raw_line.startswith("#"):
             continue
         fields = raw_line.split("\t")
-        if fields[0] in {"version", "steam_previous_version"}:
+        if fields[0] in {"version", "steam_public_build_id"}:
             if len(fields) != 2 or fields[0] in records:
                 raise ValueError(
                     f"{path}:{line_number}: invalid {fields[0]} record"
                 )
             records[fields[0]] = fields[1]
 
-    missing = {"version", "steam_previous_version"} - records.keys()
+    missing = {"version", "steam_public_build_id"} - records.keys()
     if missing:
         raise ValueError(
             f"{path}: missing metadata: {', '.join(sorted(missing))}"
         )
-    for name, value in records.items():
-        if not VERSION_RE.fullmatch(value):
-            raise ValueError(f"{path}: invalid {name}: {value}")
-    return records["version"], records["steam_previous_version"]
+    if not VERSION_RE.fullmatch(records["version"]):
+        raise ValueError(f"{path}: invalid version: {records['version']}")
+    if not BUILD_ID_RE.fullmatch(records["steam_public_build_id"]):
+        raise ValueError(
+            f"{path}: invalid steam_public_build_id: "
+            f"{records['steam_public_build_id']}"
+        )
+    return records["version"], records["steam_public_build_id"]
 
 
 def write_github_outputs(path: Path, values: dict[str, str]) -> None:
@@ -133,12 +128,12 @@ def check_update(
     app_info_path: Path, facts_path: Path, app_id: str
 ) -> dict[str, str]:
     app = parse_app_info(app_info_path, app_id)
-    detected = latest_archived_version(app)
+    detected = public_build_id(app)
     current, stored = read_facts_metadata(facts_path)
     return {
         "current_version": current,
-        "stored_steam_previous_version": stored,
-        "detected_steam_previous_version": detected,
+        "stored_steam_public_build_id": stored,
+        "detected_steam_public_build_id": detected,
         "update_required": str(detected != stored).lower(),
     }
 
@@ -158,12 +153,12 @@ def main() -> int:
         values = check_update(args.app_info, args.facts, args.app_id)
         print(f"Current facts version: {values['current_version']}")
         print(
-            "Stored previous Steam version: "
-            f"{values['stored_steam_previous_version']}"
+            "Stored Steam public BuildID: "
+            f"{values['stored_steam_public_build_id']}"
         )
         print(
-            "Detected previous Steam version: "
-            f"{values['detected_steam_previous_version']}"
+            "Detected Steam public BuildID: "
+            f"{values['detected_steam_public_build_id']}"
         )
         print(f"Update required: {values['update_required']}")
         if args.github_output:

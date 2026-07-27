@@ -166,6 +166,7 @@ def read_facts(path: Path) -> tuple[str, list[Rule], dict[str, Entry]]:
                 kind in {
                     "version",
                     "steam_previous_version",
+                    "steam_public_build_id",
                     "checksum",
                 }
                 and len(fields) == 2

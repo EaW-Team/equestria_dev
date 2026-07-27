@@ -24,7 +24,7 @@ SALT_VERSION_RE = re.compile(
     r" v(?P<version>[0-9]+\.[0-9]+\.[0-9]+\.[0-9]+)"
     r"\.[a-z0-9]{4}$"
 )
-STEAM_VERSION_RE = re.compile(r"^[0-9]+(?:\.[0-9]+)+$")
+STEAM_BUILD_ID_RE = re.compile(r"^[1-9][0-9]*$")
 
 
 def extract_salt(executable: Path) -> str:
@@ -132,17 +132,17 @@ def generate_facts(
 def write_facts(
     output_path: Path,
     current_version: str,
-    steam_previous_version: str,
+    steam_public_build_id: str,
     salt: str,
     checksum: str,
     rules: list[h.Rule],
     entries: list[tuple[str, h.Entry]],
     force: bool,
 ) -> None:
-    if not STEAM_VERSION_RE.fullmatch(steam_previous_version):
+    if not STEAM_BUILD_ID_RE.fullmatch(steam_public_build_id):
         raise ValueError(
-            "invalid previous Steam version: "
-            f"{steam_previous_version}"
+            "invalid Steam public BuildID: "
+            f"{steam_public_build_id}"
         )
     if output_path.exists() and not force:
         raise FileExistsError(
@@ -153,7 +153,7 @@ def write_facts(
         f"# {h.FACTS_HEADER}",
         f"salt\t{salt}",
         f"version\t{current_version}",
-        f"steam_previous_version\t{steam_previous_version}",
+        f"steam_public_build_id\t{steam_public_build_id}",
         f"checksum\t{checksum}",
     ]
     lines.extend(
@@ -189,8 +189,8 @@ def parse_args() -> argparse.Namespace:
         help="also write a complete vanilla facts TSV",
     )
     parser.add_argument(
-        "--steam-previous-version",
-        help="highest archived Steam version to store in the facts TSV",
+        "--steam-public-build-id",
+        help="Steam public branch BuildID to store in the facts TSV",
     )
     parser.add_argument(
         "--force",
@@ -198,9 +198,9 @@ def parse_args() -> argparse.Namespace:
         help="replace the facts output if it already exists",
     )
     args = parser.parse_args()
-    if bool(args.facts_output) != bool(args.steam_previous_version):
+    if bool(args.facts_output) != bool(args.steam_public_build_id):
         parser.error(
-            "--facts-output and --steam-previous-version must be used together"
+            "--facts-output and --steam-public-build-id must be used together"
         )
     if args.force and not args.facts_output:
         parser.error("--force requires --facts-output")
@@ -221,7 +221,7 @@ def main() -> int:
             write_facts(
                 output_path,
                 version,
-                args.steam_previous_version,
+                args.steam_public_build_id,
                 salt,
                 checksum,
                 rules,
