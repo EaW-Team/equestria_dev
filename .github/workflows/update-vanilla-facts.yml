@@ -10,6 +10,11 @@ on:
         required: false
         default: ""
         type: string
+      force:
+        description: Regenerate facts even when no Steam update is detected
+        required: false
+        default: false
+        type: boolean
   workflow_call:
     inputs:
       push_branch:
@@ -17,6 +22,11 @@ on:
         required: false
         default: ""
         type: string
+      force:
+        description: Regenerate facts even when no Steam update is detected
+        required: false
+        default: false
+        type: boolean
     secrets:
       STEAM_USERNAME:
         description: Steam account username
@@ -38,6 +48,7 @@ concurrency:
 env:
   APP_ID: ${{ vars.HOI4_APP_ID }}
   FACTS_PATH: ${{ vars.HOI4_VANILLA_FACTS_PATH }}
+  FORCE: ${{ inputs.force || false }}
   PUSH_BRANCH: ${{ inputs.push_branch || github.event.repository.default_branch }}
   STEAMCMD_IMAGE: steamcmd/steamcmd:ubuntu-22
 
@@ -133,13 +144,17 @@ jobs:
             --app-id "$APP_ID" \
             --github-output "$GITHUB_OUTPUT"
 
-      - name: Report no update
+      - name: Report update decision
         if: steps.check.outputs.update_required == 'false'
         run: |
-          echo "::notice::No Steam update detected. Facts remain at ${{ steps.check.outputs.current_version }}."
+          if [[ "$FORCE" == "true" ]]; then
+            echo "::notice::No Steam update detected; force mode will regenerate the facts."
+          else
+            echo "::notice::No Steam update detected. Facts remain at ${{ steps.check.outputs.current_version }}."
+          fi
 
       - name: Check out files needed to update facts
-        if: steps.check.outputs.update_required == 'true'
+        if: steps.check.outputs.update_required == 'true' || env.FORCE == 'true'
         uses: actions/checkout@v4
         with:
           ref: ${{ env.PUSH_BRANCH }}
@@ -153,7 +168,7 @@ jobs:
           sparse-checkout-cone-mode: false
 
       - name: Download current Linux game files
-        if: steps.check.outputs.update_required == 'true'
+        if: steps.check.outputs.update_required == 'true' || env.FORCE == 'true'
         env:
           STEAM_USERNAME: ${{ secrets.STEAM_USERNAME }}
         shell: bash
@@ -173,7 +188,7 @@ jobs:
 
       - name: Generate updated vanilla facts
         id: generate
-        if: steps.check.outputs.update_required == 'true'
+        if: steps.check.outputs.update_required == 'true' || env.FORCE == 'true'
         shell: bash
         run: |
           set -euo pipefail
@@ -197,7 +212,8 @@ jobs:
             echo "::error::Generated facts do not contain a current version."
             exit 1
           }
-          [[ "$current_version" != "${{ steps.check.outputs.current_version }}" ]] || {
+          [[ "$FORCE" == "true" ||
+            "$current_version" != "${{ steps.check.outputs.current_version }}" ]] || {
             echo "::error::Steam update was detected, but the public game version did not change."
             exit 1
           }
@@ -208,12 +224,16 @@ jobs:
           echo "Generated vanilla checksum: $checksum"
 
       - name: Commit and push updated facts
-        if: steps.check.outputs.update_required == 'true'
+        if: steps.check.outputs.update_required == 'true' || env.FORCE == 'true'
         shell: bash
         run: |
           set -euo pipefail
           git add -- "$FACTS_PATH"
           if git diff --cached --quiet; then
+            if [[ "$FORCE" == "true" ]]; then
+              echo "::notice::Forced regeneration produced unchanged facts; nothing to commit."
+              exit 0
+            fi
             echo "::error::Update was detected, but the facts file did not change."
             exit 1
           fi
