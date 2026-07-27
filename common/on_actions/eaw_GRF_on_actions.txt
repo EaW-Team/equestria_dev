@@ -1,0 +1,246 @@
+on_actions = {
+	on_startup = {
+		effect = {
+			GRF = {
+				country_event = { id = griffons.1 days = 825 }
+				country_event = { id = griffons.88 days = 5 }
+			}
+		}
+	}
+
+	on_declare_war = {
+		effect = {
+			clear_variable = delayed_merc_payment_@FROM
+			FROM = { clear_variable = delayed_merc_payment_@ROOT }
+		}
+	}
+
+	on_puppet = {
+		effect = {
+			GRF_remove_has_equipment_market_trade_desire_ai_strategy = yes
+		}
+	}
+
+	on_release_as_puppet = {
+		effect = {
+			GRF_remove_has_equipment_market_trade_desire_ai_strategy = yes
+		}
+	}
+
+	on_release_as_free = {
+		effect = {
+			GRF_remove_has_equipment_market_trade_desire_ai_strategy = yes
+		}
+	}
+
+	on_government_change = {
+		effect = {
+			GRF_remove_has_equipment_market_trade_desire_ai_strategy = yes
+		}
+	}
+
+	on_ruling_party_change = {
+		effect = {
+			GRF_remove_has_equipment_market_trade_desire_ai_strategy = yes
+		}
+	}
+
+	on_capitulation = {
+		effect = {
+			if = {
+				limit = {
+					tag = GRA
+					country_exists = GRB
+					FROM = {
+						OR = {
+							tag = STG
+							tag = YAK
+						}
+					}
+				}
+				GRB = {
+					country_event = { id = griffons.142 days = 5 }
+				}
+			}
+			if = {
+				limit = {
+					tag = GRA
+					is_subject_of = STG
+					FROM = {
+						OR = {
+							tag = GRB
+							original_tag = PLB
+							original_tag = PNG
+							original_tag = YAK
+							original_tag = JAK
+							original_tag = GFF
+						}
+					}
+					STG = {
+						has_war_with = FROM
+					}
+				}
+				FROM = {
+					activate_mission = GRF_post_civil_war_truce
+				}
+			}
+		}
+	}
+
+	on_annex = {
+		effect = {
+			if = {
+				limit = {
+					GRF = { has_country_flag = mercs_considered_@FROM }
+				}
+				GRF = {
+					clr_country_flag = mercs_considered
+					clr_country_flag = mercs_considered_@FROM
+				}
+			}
+			if = {
+				limit = {
+					TRD = { has_country_flag = mercs_considered_@FROM }
+				}
+				TRD = {
+					clr_country_flag = mercs_considered
+					clr_country_flag = mercs_considered_@FROM
+				}
+			}
+			if = {
+				limit = {
+					FROM = {
+						OR = {
+							tag = GRF
+							tag = TRD
+						}
+					}
+				}
+				FROM = {
+					clr_country_flag = mercs_considered
+					clr_country_flag = mercs_in_progress
+					every_other_country = {
+						if = {
+							limit = {
+								FROM = { has_country_flag = agreed_to_mercs_@PREV }
+							}
+							add_ai_strategy = {
+								type = befriend
+								id = FROM
+								value = -500
+							}
+							FROM = {
+								add_ai_strategy = {
+									type = support
+									id = PREV
+									value = -20
+								}
+								add_ai_strategy = {
+									type = send_volunteers_desire
+									id = PREV
+									value = -999
+								}
+							}
+						}
+						clr_country_flag = mercs_delayed_payment_@FROM
+						clr_country_flag = considering_delaying_payment_@FROM
+						clear_variable = delayed_merc_payment_@FROM
+						FROM = {
+							clr_country_flag = mercs_considered_@PREV
+							clr_country_flag = agreed_to_mercs_@PREV
+							if = {
+								limit = { tag = GRF }
+								clear_variable = GRF_send_mercs_reward_delayed_duration_@PREV
+							}
+							else = {
+								clear_variable = TRD_send_mercs_reward_delayed_duration_@PREV
+							}
+						}
+					}
+				}
+			}
+			if = {
+				limit = {
+					tag = GRF
+					FROM = { tag = GFF }
+					NOT = { has_global_flag = GRF_civil_war_begun }
+				}
+				GRF = {
+					country_event = {
+						id = griffons.168
+						days = 14
+					}
+				}
+			}
+		}
+	}
+
+	on_civil_war_end = {
+		effect = {
+			if = {
+				limit = {
+					original_tag = GRF
+					NOT = {
+						has_country_flag = GRF_civil_war_over
+					}
+				}
+				#should probably set the flag for civil war being over when it is, you know, over, instead of in an event 5 days later
+				set_country_flag = GRF_civil_war_over
+			}
+			if = {		#GRF disband the militia after the civil war
+				limit = {
+					original_tag = GRF
+					has_country_flag = GRF_civil_war_flag
+				}
+				country_event = { id = griffons.142 days = 5 }
+			}
+		}
+	}
+
+	on_peace = {
+		effect = {
+			if = {		#GRF disband the militia after the civil war
+				limit = {
+					original_tag = GRF
+					has_country_flag = GRF_civil_war_flag
+				}
+				country_event = { id = griffons.142 days = 5 }
+			}
+		}
+	}
+
+	on_monthly_GRF = {
+		effect = {
+			if = {
+				limit = {
+					has_idea = GRF_send_mercs
+				}
+				GRF_recalc_mercs = yes
+			}
+		}
+	}
+
+	on_peaceconference_ended = {
+		effect = {
+			# PUT EVERYTHING IN THE IF BELOW
+			# THE bypass_on_peaceconference_ended FLAG **HAS** TO BE SET BEFORE CALLING THE white_peace COMMAND AND CLEARED AFTERWARDS
+			if = {
+				limit = {
+					NOT = {
+						has_country_flag = bypass_on_peaceconference_ended
+						FROM = { has_country_flag = bypass_on_peaceconference_ended }
+					}
+				}
+				log = "[GetDateText]: ROOT: [Root.GetName] FROM: [From.GetName] on_peaceconference_ended"
+				if = {		#GRF STG peacedeal
+					limit = {
+						original_tag = GRF
+						is_subject = no
+						FROM = { original_tag = STG }
+					}
+					country_event = { id = griffons.143 days = 5 }
+				}
+			}
+		}
+	}
+}

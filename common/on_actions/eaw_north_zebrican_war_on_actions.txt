@@ -1,0 +1,400 @@
+on_actions = {
+	on_war_relation_added = {
+		effect = {
+			if = {
+				limit = {
+					NOT = { has_global_flag = NZW_ended }
+					if = {
+						limit = {
+							OR = {
+								tag = BAT
+								FROM = {
+									tag = BAT
+								}
+							}
+						}
+						NOT = { has_global_flag = BAT_won_civil_war } # NMM Victory (for now not a NZW)
+					}
+
+					NZW_is_north_zebrican_tag = yes
+					FROM = { NZW_is_north_zebrican_tag = yes }
+					
+					OR = { # WNG gets it flag set otherwise, and its subjects/allies don't get the flag
+						AND = {
+							NZW_is_aligned_with_HIP = yes
+							FROM = {
+								OR = {
+									NZW_is_aligned_with_NZ1 = yes
+									NZW_is_aligned_with_NZ2 = yes
+								}
+							}
+						}
+						AND = {
+							OR = {
+								NZW_is_aligned_with_NZ1 = yes
+								NZW_is_aligned_with_NZ2 = yes
+							}
+							FROM = {
+								NZW_is_aligned_with_HIP = yes
+							}
+						}
+					}
+				}
+
+				# This is so that the NZ1 and NZ2 tag aliases still work during/after the war
+				# Because the states that define them can be owned by somebody else
+				# The NZW_is_NZ[1/2]_tag flag is here to still able to identify them
+				# The flag OVERRIDES the normal condition
+				# As its important that it doesn't change anymore
+				if = {
+					limit = {
+						tag = NZ1
+					}
+					set_country_flag = NZW_is_NZ1_tag
+					set_global_flag =  NZW_NZ1_tag_fixed
+				}
+				FROM = {
+					if = {
+						limit = {
+							tag = NZ1
+						}
+						set_country_flag = NZW_is_NZ1_tag
+						set_global_flag =  NZW_NZ1_tag_fixed
+					}
+				}
+				if = {
+					limit = {
+						tag = NZ2
+					}
+					set_country_flag = NZW_is_NZ2_tag
+					set_global_flag =  NZW_NZ2_tag_fixed
+				}
+				FROM = {
+					if = {
+						limit = {
+							tag = NZ2
+						}
+						set_country_flag = NZW_is_NZ2_tag
+						set_global_flag =  NZW_NZ2_tag_fixed
+					}
+				}
+
+				if = {
+					limit = {
+						OR = {
+							original_tag = HIP
+							original_tag = MCW
+						}
+					}
+					set_country_flag = NZW_is_island_nation
+				}
+				FROM = {
+					if = {
+						limit = {
+							OR = {
+								original_tag = HIP
+								original_tag = MCW
+							}
+						}
+						set_country_flag = NZW_is_island_nation
+					}
+				}
+				
+				# Participation trophy
+				set_country_flag = NZW_war_participant
+				FROM = {
+					set_country_flag = NZW_war_participant
+				}
+				
+				# Special HIP-HIE interaction
+				if = { 
+					limit = {
+						OR = {
+							AND = {
+								original_tag = HIP
+								NOT = {
+									has_country_flag = HIP_siren_takeover
+								}
+								FROM = {
+									original_tag = HIE
+									is_subject = no
+								}
+							}
+							AND = {
+								original_tag = HIE
+								is_subject = no
+								FROM = {
+									original_tag = HIP
+									NOT = {
+										has_country_flag = HIP_siren_takeover
+									}
+								}
+							}
+						}
+					}
+					HIP = {
+						country_event = {
+							id = hippogriff.63 # War of Survival
+							days = 30
+						}
+					}
+				}
+			}
+		}
+	}
+
+	on_peaceconference_ended = {
+		effect = {
+			if = {
+				limit = {
+					NOT = {
+						has_country_flag = bypass_on_peaceconference_ended
+						FROM = { has_country_flag = bypass_on_peaceconference_ended }
+					}
+				}
+				
+				if = { # Hippogriff loss
+					limit = {
+						ROOT = {
+							OR = {
+								has_country_flag = NZW_war_participant
+								AND = {
+									has_country_flag = NZW_former_war_participant
+									has_global_flag = NZW_recently_ended
+								}
+								AND = {
+									original_tag = BAT
+									has_global_flag = BAT_won_civil_war # Lunar Civil War
+								}
+							}
+						}
+						FROM = {
+							original_tag = HIP
+							NOT = {
+								has_country_flag = BAT_HIP_defeated
+							}
+						}
+					}
+					set_country_flag = BAT_HIP_defeated
+					if = {
+						limit = {
+							NOT = { has_global_flag = NZW_ended }
+						}
+						NZW_on_end_effect = yes
+					}
+					if = {
+						limit = { # Major alliance partner
+							OR = {
+								tag = NZ1
+								tag = NZ2
+							}
+							has_global_flag = NZW_alliance_signed
+						}
+						NZ1 = {
+							country_event = north_war_alliance.5 # Option to dissolve alliance
+						}
+						NZ2 = {
+							country_event = north_war_alliance.5 # Option to dissolve alliance
+						}
+					}
+				}
+				if = { # Hippogriff victory
+					limit = {
+						ROOT = {
+							original_tag = HIP
+							NOT = {
+								has_country_flag = BAT_HIP_defeated
+							}
+						}
+						FROM = {
+							OR = {
+								AND = {
+									OR = {
+										tag = NZ1
+										tag = NZ2
+										tag = WNG
+									}
+									has_country_flag = NZW_war_participant
+								}
+								tag = HIE
+							}
+						}
+						NOT = { # No one remaining
+							ROOT = {
+								any_enemy_country = {
+									is_subject = no
+									has_country_flag = NZW_war_participant
+									has_capitulated = no
+								}
+							}
+						}
+					}
+					set_country_flag = HIP_won_north_zebrican_war
+					NZW_on_end_effect = yes
+					if = {
+						limit = {
+							has_global_flag = NZW_alliance_signed
+						}
+						NZ1 = { set_major = no }
+						NZ2 = { set_major = no }
+					}
+					mark_focus_tree_layout_dirty = yes
+				}
+				else_if = { # Hippogriffs started the war (south)
+					limit = {
+						ROOT = {
+							original_tag = HIP
+							has_completed_focus = HIP_strike_first
+						}
+						FROM = {
+							OR = { # Southern tag
+								original_tag = TBK
+								original_tag = ZAR
+								original_tag = BAT
+								original_tag = WAR
+							}
+						}
+						OR = {
+							FROM = {
+								owns_state = 712
+							}
+							ROOT = {
+								owns_state = 712
+							}
+						}
+					}
+					set_country_flag = HIP_won_north_zebrican_war
+					mark_focus_tree_layout_dirty = yes
+				}
+				if = { # Chiropterra defeated, remove cored regions
+					limit = {
+						FROM = {
+							original_tag = BAT
+						}
+						NOT = {
+							has_country_flag = BAT_commonwealth_established
+							has_country_flag = BAT_national_catastrophe
+						}
+					}
+					BAT = {
+						every_core_state = {
+							limit = {
+								NOT = {
+									state = 689
+									state = 690
+									state = 691
+									state = 712
+									state = 713
+									state = 815
+								}
+							}
+							remove_core_of = BAT
+						}
+					}
+				}
+				if = { # Chiropterra as victor in the NZW (not Lunar victory)
+					limit = {
+						original_tag = BAT
+						NOT = {
+							has_country_flag = BAT_commonwealth_established
+							has_country_flag = BAT_national_catastrophe
+						}
+						NOT = {
+						    has_global_flag = BAT_won_civil_war
+						}
+						OR = { # Was in North Zebrican War
+							has_global_flag = NZW_in_progress
+							has_global_flag = NZW_ended
+						}
+						NOT = { has_country_flag = NZW_BAT_victory_handled }
+						FROM = {
+							original_tag = HIP
+						}
+					}
+					set_country_flag = NZW_BAT_victory_handled # fire only once
+					
+					if = {
+						limit = { # Controls the home region
+							NOT = { has_focus_tree = tzintacalia_tree_7 } # Has commonwealth focus tree already
+							NOT = {
+								WAR = {
+									exists = yes
+									is_subject = no
+								}
+							}
+							NOT = {
+								ZAR = {
+									exists = yes
+									is_subject = no
+								}
+							}
+							NOT = {
+								TBK = {
+									exists = yes
+									is_subject = no
+								}
+							}
+						}
+						country_event = bat.81 # Chiropterran commonwealth proclaimed
+					}
+					else = {
+						country_event = bat.79 # Declare war on rest of your home region (should never happen)
+					}
+				}
+				if = { # Chiropterra triumphed over HIP (with Lunar victory)
+					limit = {
+						original_tag = BAT
+						NOT = {
+							has_country_flag = BAT_commonwealth_established
+							has_country_flag = BAT_national_catastrophe
+						}
+						has_global_flag = BAT_won_civil_war
+						FROM = {
+						    original_tag = HIP
+						}
+
+					}
+					if = {
+						limit = {
+							NOT = {
+								WAR = {
+									exists = yes
+									is_subject = no
+								}
+								ZAR = {
+									exists = yes
+									is_subject = no
+								}
+								TBK = {
+									exists = yes
+									is_subject = no
+								}
+							}
+						}
+						country_event = {
+							id = bat.130
+						}
+					}
+					else = {
+						country_event = {
+							id = bat.79
+						}
+					}
+				}
+				if = { # Anti-Aris Axis (now Azghat Pact) defeated by outside power after NZW
+					limit = {
+						has_global_flag = NZW_alliance_kept_post_war # This flag is only set after the end of the NZW
+						NOT = { has_global_flag = NZW_azghat_pact_defeated }
+						OR = {
+							FROM = { tag = NZ1 }
+							FROM = { tag = NZ2 }
+						}
+					}
+					NZ1 = { set_major = no }
+					NZ2 = { set_major = no }
+					set_global_flag = NZW_azghat_pact_defeated
+				}
+			}
+		}
+	}
+}

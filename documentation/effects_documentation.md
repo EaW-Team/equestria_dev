@@ -36,7 +36,6 @@
 * [add_scientist_trait](#add_scientist_trait)
 * [add_scientist_xp](#add_scientist_xp)
 * [add_skill_level](#add_skill_level)
-* [add_temporary_buff_to_units](#add_temporary_buff_to_units)
 * [add_timed_unit_leader_trait](#add_timed_unit_leader_trait)
 * [add_trait](#add_trait)
 * [add_unit_leader_trait](#add_unit_leader_trait)
@@ -58,6 +57,7 @@
 * [print_variables](#print_variables)
 * [promote_character](#promote_character)
 * [promote_leader](#promote_leader)
+* [release_from_captivity](#release_from_captivity)
 * [remove_advisor_role](#remove_advisor_role)
 * [remove_country_leader_role](#remove_country_leader_role)
 * [remove_country_leader_trait](#remove_country_leader_trait)
@@ -285,6 +285,7 @@
 * [reduce_focus_completion_cost](#reduce_focus_completion_cost)
 * [release](#release)
 * [release_autonomy](#release_autonomy)
+* [release_captured_generals_from](#release_captured_generals_from)
 * [release_on_controlled](#release_on_controlled)
 * [release_puppet](#release_puppet)
 * [release_puppet_on_controlled](#release_puppet_on_controlled)
@@ -404,6 +405,7 @@
 * [unlock_decision_tooltip](#unlock_decision_tooltip)
 * [unlock_military_industrial_organization_tooltip](#unlock_military_industrial_organization_tooltip)
 * [unlock_national_focus](#unlock_national_focus)
+* [unlock_subunit](#unlock_subunit)
 * [unlock_tactic](#unlock_tactic)
 * [upgrade_intelligence_agency](#upgrade_intelligence_agency)
 * [white_peace](#white_peace)
@@ -539,6 +541,7 @@
 * [add_victory_points](#add_victory_points)
 * [build_railway](#build_railway)
 * [cancel_border_war](#cancel_border_war)
+* [capture_by](#capture_by)
 * [change_tag_from](#change_tag_from)
 * [clamp_temp_variable](#clamp_temp_variable)
 * [clamp_variable](#clamp_variable)
@@ -788,7 +791,7 @@ localization="LOC_KEY"
 * Supported Targets: none
 
 ```
-"Add breakthrough points to one specialization or all for a country scope.
+Add breakthrough points to one specialization or all for a country scope.
 	ex:
     add_breakthrough_points = {
 	  specialization = <sp_specialization_id>
@@ -798,7 +801,7 @@ localization="LOC_KEY"
 	  specialization = all
       value = -1
 	}
-"
+
 ```
 
 ## add_breakthrough_progress
@@ -806,8 +809,6 @@ localization="LOC_KEY"
 * Supported Scopes: COUNTRY
 * Supported Targets: none
 
-```
-"![MD]
 Add breakthrough progress to one specialization or all for a country scope.
 The value can either be an absolute value or a script constant.
 
@@ -833,8 +834,7 @@ add_breakthrough_progress = {
 	value = sp_breakthrough_progress.medium
 }
 ```
-"
-```
+
 
 ## add_building_construction
 
@@ -851,14 +851,14 @@ Starts building construction for amount of levels in specified state or province
 * Supported Targets: THIS, ROOT, PREV, FROM, OWNER, CONTROLLER, OCCUPIED, CAPITAL
 
 ```
-"Add founds to the CIC bank of the country in scope.
+Add founds to the CIC bank of the country in scope.
 Value can be negative to substract funds.
 If the new total funds is negative, it will be set to 0.
 ex:
 var:my_country_var = {
   add_cic = 200
   add_cic = -100
-}"
+}
 ```
 
 ## add_civil_war_target
@@ -1107,8 +1107,6 @@ Example: add_defense = 1
 * Supported Scopes: COUNTRY
 * Supported Targets: none
 
-```
-"![MD]
 Add free bonus design discount to given types with a set of uses.
 The value for uses and cost_factor can either be an absolute value or a script constant.
 Can use several equipment types, where 1 is mandatory
@@ -1132,8 +1130,7 @@ add_design_template_bonus = {
 	equipment = light_tank_chassis
 }
 ```
-"
-```
+
 
 ## add_divisional_commander_xp
 
@@ -1159,7 +1156,7 @@ adds a limited use cost reduction for doctrines
 * Supported Targets: THIS, ROOT, PREV, FROM, OWNER, CONTROLLER, OCCUPIED, CAPITAL
 
 ```
-"adds a dynamic modifier to the containing scope (country / state / unit-leader / special-project).
+adds a dynamic modifier to the containing scope (country / state / unit-leader / special-project).
 Updates the cooldown if exists.
 Optionaly you can give a scope that will restrict the dynamic modifier to it.
 example :
@@ -1171,7 +1168,7 @@ example :
 				# if specified the dynamic variable will target that scope
 				# in this example : adds the modifier to state 12 but only applies for country GER
   }
-}"
+}
 ```
 
 ## add_equipment_bonus
@@ -1198,6 +1195,7 @@ add_equipment_bonus = {
 
 add_equipment_bonus = {
 	name = SUPER_BONUS_NAME # Optional loc key to use as name.
+	prefix = SUPER_BONUS_PREFIX # Optional loc key prefix to use (will be added before the name).
 	bonus = {
 		small_plane_naval_bomber_airframe = {
 					air_range = 0.1 naval_strike_attack = 0.1
@@ -1212,7 +1210,7 @@ add_equipment_bonus = {
 * Supported Targets: none
 
 ```
-"Creates a new production line for the input equipment.
+Creates a new production line for the input equipment.
 ex:
 GER = {
 	add_equipment_production = {
@@ -1229,7 +1227,7 @@ GER = {
 			industrial_manufacturer = mio:generic_mio_organization_ship_submarine # Optional, accepts mio:token, variable or keyword
 	}
 }
-}"
+}
 ```
 
 ## add_equipment_subsidy
@@ -1238,7 +1236,7 @@ GER = {
 * Supported Targets: none
 
 ```
-"Adds an equipment subsidy to the country in scope.
+Adds an equipment subsidy to the country in scope.
 Example:
 GER = {
 	add_equipment_subsidy = 
@@ -1248,7 +1246,7 @@ GER = {
 		seller_tags = {RAJ AST} # The possible sellers that this subsidy can apply to. [Mutually exclusive with seller_trigger]
 		seller_trigger = scripted_trigger_name # The name of a scripted trigger to check whether to apply the subsidy or not. [Mutually exclusive with seller_tags]
 	}
-}"
+}
 ```
 
 ## add_equipment_to_stockpile
@@ -1560,7 +1558,7 @@ Add mines to a strategic region for scoped country.
 * Supported Targets: THIS, ROOT, PREV, FROM, OWNER, CONTROLLER, OCCUPIED, CAPITAL
 
 ```
-"Add percentage to the daily PP cost to assign to research in the military industrial organization in scope.
+Add percentage to the daily PP cost to assign to research in the military industrial organization in scope.
 This changes the base value. Modifiers will still apply over it.
 Value can be negative to reduce assign cost but final value cannot be negative (capped at 0, no error raised)
 ex:
@@ -1568,7 +1566,7 @@ mio:my_mio = {
   add_mio_design_team_assign_cost = 0.2 # increase by 20%
   add_mio_design_team_assign_cost = -0.1 # reduce by 10%
   add_mio_design_team_assign_cost = var:my_number_var
-}"
+}
 ```
 
 ## add_mio_design_team_change_cost
@@ -1577,7 +1575,7 @@ mio:my_mio = {
 * Supported Targets: THIS, ROOT, PREV, FROM, OWNER, CONTROLLER, OCCUPIED, CAPITAL
 
 ```
-"Add percentage to the XP cost to change MIO in equipment designer for the military industrial organization in scope.
+Add percentage to the XP cost to change MIO in equipment designer for the military industrial organization in scope.
 This changes the base value. Modifiers will still apply over it.
 Value can be negative to reduce assign cost but final value cannot be negative (capped at 0, no error raised).
 !!! NOTE that the result is rounded down so that i.e. 5 + 10% is still 5 = 5.5 rounded down !!!
@@ -1586,7 +1584,7 @@ mio:my_mio = {
   add_mio_design_team_change_cost = 0.2 # increase by 20%
   add_mio_design_team_change_cost = -0.1 # reduce by 10%
   add_mio_design_team_change_cost = var:my_number_var
-}"
+}
 ```
 
 ## add_mio_funds
@@ -1595,7 +1593,7 @@ mio:my_mio = {
 * Supported Targets: THIS, ROOT, PREV, FROM, OWNER, CONTROLLER, OCCUPIED, CAPITAL
 
 ```
-"Add funds to the military industrial organization in scope.
+Add funds to the military industrial organization in scope.
 Value can be negative to substract funds.
 If the new total funds go over the Size Up limit, the MIO will gain size(s).
 If the new total funds is negative, it will be capped at 0 without retracting size.
@@ -1603,7 +1601,7 @@ ex:
 var:my_mio_var = {
   add_mio_funds = 200
   add_mio_funds = -100
-}"
+}
 ```
 
 ## add_mio_funds_gain_factor
@@ -1612,7 +1610,7 @@ var:my_mio_var = {
 * Supported Targets: THIS, ROOT, PREV, FROM, OWNER, CONTROLLER, OCCUPIED, CAPITAL
 
 ```
-"Add to the factor applied when gaining funds in the military industrial organization in scope.
+Add to the factor applied when gaining funds in the military industrial organization in scope.
 This changes the base value. Modifiers will still apply over it.
 Value can be negative to reduce assign cost but final value cannot be negative (capped at 0, no error raised)
 ex:
@@ -1620,7 +1618,7 @@ mio:my_mio = {
   add_mio_funds_gain_factor = 0.2
   add_mio_funds_gain_factor = -0.1
   add_mio_funds_gain_factor = var:my_number_var
-}"
+}
 ```
 
 ## add_mio_industrial_manufacturer_assign_cost
@@ -1629,7 +1627,7 @@ mio:my_mio = {
 * Supported Targets: THIS, ROOT, PREV, FROM, OWNER, CONTROLLER, OCCUPIED, CAPITAL
 
 ```
-"Add percentage to the daily PP cost to assign to production line in the military industrial organization in scope.
+Add percentage to the daily PP cost to assign to production line in the military industrial organization in scope.
 This changes the base value. Modifiers will still apply over it.
 Value can be negative to reduce assign cost but final value cannot be negative (capped at 0, no error raised)
 ex:
@@ -1637,7 +1635,7 @@ mio:my_mio = {
   add_mio_industrial_manufacturer_assign_cost = 0.2 # increase by 20%
   add_mio_industrial_manufacturer_assign_cost = -0.1 # reduce by 10%
   add_mio_industrial_manufacturer_assign_cost = var:my_number_var
-}"
+}
 ```
 
 ## add_mio_policy_cooldown
@@ -1646,7 +1644,7 @@ mio:my_mio = {
 * Supported Targets: none
 
 ```
-"Add to the base cooldown (in days) after attaching a policy in the MIO policy, found in country in scope with input policy token.
+Add to the base cooldown (in days) after attaching a policy in the MIO policy, found in country in scope with input policy token.
 This changes the base value. Modifiers will still apply over it.
 Value can be negative to reduce cost, but final cooldown cannot be negative (capped at 0, no error raised)
 ex:
@@ -1663,7 +1661,7 @@ SOV = {
 	policy = my_policy_token
 	value = var:my_number_var
   }
-}"
+}
 ```
 
 ## add_mio_policy_cost
@@ -1672,7 +1670,7 @@ SOV = {
 * Supported Targets: none
 
 ```
-"Add to the base cost (in PP) for attaching a policy in the MIO policy, found in country in scope with input policy token.
+Add to the base cost (in PP) for attaching a policy in the MIO policy, found in country in scope with input policy token.
 This changes the base value. Modifiers will still apply over it.
 Value can be negative to reduce cost, but final cost cannot be negative (capped at 0, no error raised)
 ex:
@@ -1689,7 +1687,7 @@ SOV = {
 	policy = my_policy_token
 	value = var:my_number_var
   }
-}"
+}
 ```
 
 ## add_mio_research_bonus
@@ -1698,7 +1696,7 @@ SOV = {
 * Supported Targets: THIS, ROOT, PREV, FROM, OWNER, CONTROLLER, OCCUPIED, CAPITAL
 
 ```
-"Add to the research bonus in the military industrial organization in scope.
+Add to the research bonus in the military industrial organization in scope.
 This changes the base value. Modifiers will still apply over it.
 Value can be negative to reduce research bonus but final research bonus cannot be negative (capped at 0, no error raised)
 ex:
@@ -1706,7 +1704,7 @@ mio:my_mio = {
   add_mio_research_bonus = 0.2
   add_mio_research_bonus = -0.1
   add_mio_research_bonus = var:my_number_var
-}"
+}
 ```
 
 ## add_mio_size
@@ -1715,14 +1713,14 @@ mio:my_mio = {
 * Supported Targets: THIS, ROOT, PREV, FROM, OWNER, CONTROLLER, OCCUPIED, CAPITAL
 
 ```
-"Add size levels to the military industrial organization in scope.
+Add size levels to the military industrial organization in scope.
 Input value cannot be negative.
 The MIO will keep the same amount of funds it had before the effect.
 ex:
 var:my_mio_var = {
   add_mio_size = 2
   add_mio_size = var:my_number_var
-}"
+}
 ```
 
 ## add_mio_size_up_requirement_factor
@@ -1731,7 +1729,7 @@ var:my_mio_var = {
 * Supported Targets: THIS, ROOT, PREV, FROM, OWNER, CONTROLLER, OCCUPIED, CAPITAL
 
 ```
-"Add to the factor applied to funds required to size up in the military industrial organization in scope.
+Add to the factor applied to funds required to size up in the military industrial organization in scope.
 This changes the base value. Modifiers will still apply over it.
 Value can be negative to reduce assign cost but final value cannot be negative (capped at 0, no error raised)
 ex:
@@ -1739,7 +1737,7 @@ mio:my_mio = {
   add_mio_size_up_requirement_factor = 0.2
   add_mio_size_up_requirement_factor = -0.1
   add_mio_size_up_requirement_factor = var:my_number_var
-}"
+}
 ```
 
 ## add_mio_task_capacity
@@ -1748,7 +1746,7 @@ mio:my_mio = {
 * Supported Targets: THIS, ROOT, PREV, FROM, OWNER, CONTROLLER, OCCUPIED, CAPITAL
 
 ```
-"Add to the maximum task capacity in the military industrial organization in scope.
+Add to the maximum task capacity in the military industrial organization in scope.
 This changes the base value. Modifiers will still apply over it.
 Value can be negative to reduce capacity, but final capacity cannot be negative (capped at 0, no error raised)
 If the capacity is reduced and the MIO becomes over-assigned, the current tasks will be allowed.
@@ -1758,7 +1756,7 @@ mio:my_mio = {
   add_mio_task_capacity = 1
   add_mio_task_capacity = -1
   add_mio_task_capacity = var:my_number_var
-}"
+}
 ```
 
 ## add_named_threat
@@ -1914,13 +1912,13 @@ add_power_balance_value = {
 * Supported Targets: THIS, ROOT, PREV, FROM, OWNER, CONTROLLER, OCCUPIED, CAPITAL
 
 ```
-"Add progress to the project's prototype phase.
+Add progress to the project's prototype phase.
 The input value is a ratio of the total needed progress to complete the special project, i.e. a decimal number between -1 and 1.
 ex:
 sp:my_project = {
   add_project_progress_ratio = 0.1
   add_project_progress_ratio = var:my_var
-}"
+}
 ```
 
 ## add_province_modifier
@@ -2087,8 +2085,6 @@ add political power to country scaled by the difference in IC between the receiv
 * Supported Scopes: CHARACTER
 * Supported Targets: none
 
-```
-"![MD]
 Add levels to a special project specialization for a scientist character in scope.
 The `level` parameter is a scoped variable
 
@@ -2100,7 +2096,6 @@ my_character = {
 		specialization = specialization_nuclear
 	}
 }
-```"
 ```
 
 ## add_scientist_role
@@ -2109,7 +2104,7 @@ my_character = {
 * Supported Targets: none
 
 ```
-"Add scientist role to a character. The character can come from the scope or from an input parameter.
+Add scientist role to a character. The character can come from the scope or from an input parameter.
 The scientist role format is the same as in the character DB.
 Except the visible trigger - a scientist role created via effect cannot have triggers.
 Examples:
@@ -2132,7 +2127,7 @@ SOV = {
 		scientist = { ... }
 	}
 }
-"
+
 ```
 
 ## add_scientist_trait
@@ -2141,10 +2136,10 @@ SOV = {
 * Supported Targets: none
 
 ```
-"Add a trait to a scientist character in scope.
+Add a trait to a scientist character in scope.
 	ex: my_character = {
 	  add_scientist_trait = my_trait_token
-	}"
+	}
 ```
 
 ## add_scientist_xp
@@ -2152,8 +2147,6 @@ SOV = {
 * Supported Scopes: CHARACTER
 * Supported Targets: none
 
-```
-"![MD]
 Add experience to a special project specialization for a scientist character in scope.
 The `experience` parameter is a scoped variable.
 
@@ -2165,7 +2158,6 @@ ex: my_character = {
 		specialization = specialization_nuclear
 	}
 }
-```"
 ```
 
 ## add_skill_level
@@ -2220,8 +2212,6 @@ Example: add_state_modifier = { modifier = { local_non_core_manpower = 0.2 } }
 * Supported Scopes: any
 * Supported Targets: none
 
-```
-"![MD]
 Adds either a resistance or compliance modifier to a state.
 Can only use modifiers from the resistance_modifiers.txt/compliance_modifiers.txt that are marked as is_dynamic = yes
 
@@ -2231,7 +2221,6 @@ add_state_resistance_compliance_modifier  = {
        modifier = dynamic_modifier_name
 	   state = 738
 }
-```"
 ```
 
 ## add_tech_bonus
@@ -2241,15 +2230,6 @@ add_state_resistance_compliance_modifier  = {
 
 ```
 adds a limited use tech bonus
-```
-
-## add_temporary_buff_to_units
-
-* Supported Scopes: CHARACTER
-* Supported Targets: none
-
-```
-Add buffs to units that are belongs to the army group/navy of this unit leader
 ```
 
 ## add_threat
@@ -2267,7 +2247,7 @@ Adds country threat
 * Supported Targets: none
 
 ```
-"Add a time-limited idea to country in scope
+Add a time-limited idea to country in scope
 ex:
 SOV = {
 	add_timed_idea = {
@@ -2283,7 +2263,7 @@ SOV = {
 		# NB: accept positive integer or variables
 		# NB: tooltip will use the same year/month/day format as input
 	}
-}"
+}
 ```
 
 ## add_timed_unit_leader_trait
@@ -2349,28 +2329,32 @@ Example: add_to_temp_array = {
 * Supported Scopes: any
 * Supported Targets: none
 
+Adds a value, a variable, or a [math expression](script_math_expression.md) to a temp variable.
+
+### Examples
 ```
-Adds a value or a variable to a temp variable
-Example: add_to_temp_variable = {
-var = num_dogs
-	value = 42
-	tooltip = loc_str_id_with_LEFT_and_RIGHT  #localized text with LEFT and RIGHT tokens in it, tokens will replaced by values
+add_to_temp_variable = { num_dogs = 42 }
+add_to_temp_variable = {
+	num_dogs = { value = num_cats  multiply = 2 }
 }
 ```
+
 
 ## add_to_variable
 
 * Supported Scopes: any
 * Supported Targets: none
 
+Adds a value, a variable, or a [math expression](script_math_expression.md) to a variable.
+
+### Examples
 ```
-Adds a value or a variable to another one
-Example: add_to_variable = {
-var = num_dogs
-	value = 42
-	tooltip = loc_str_id_with_LEFT_and_RIGHT  #localized text with LEFT and RIGHT tokens in it, tokens will replaced by values
+add_to_variable = { num_dogs = 42 }
+add_to_variable = {
+	num_dogs = { value = num_cats  multiply = 2 }
 }
 ```
+
 
 ## add_to_war
 
@@ -2410,7 +2394,7 @@ add_trait = {
 * Supported Targets: THIS, ROOT, PREV, FROM, OWNER, CONTROLLER, OCCUPIED, CAPITAL
 
 ```
-"Adds permanent subunit and subunit category bonuses for country.
+Adds permanent subunit and subunit category bonuses for country.
 
 Example:
 add_unit_bonus = {
@@ -2424,7 +2408,7 @@ add_unit_bonus = {
        hard_attack = 0.05
 	   name = [LOC_KEY] # Optional localization key for the bonus name
 	}
-}"
+}
 ```
 
 ## add_unit_leader_trait
@@ -2461,6 +2445,9 @@ add_units_to_division_template = {
   }
   support = {
      military_police = 0 # (Adds military_police to first available slot on first (and likely only) column of supports (x=0))
+  }
+  regimental_support = {
+     military_police = 0 # (Adds military_police to first available slot on first regiment 
   }
 }
 ```
@@ -2597,9 +2584,9 @@ cancel border war between two states
 * Supported Targets: none
 
 ```
-"Cancels the scoped purchase contract.
+Cancels the scoped purchase contract.
 Example:
-contract =  {cancel_purchase_contract = yes}"
+contract =  {cancel_purchase_contract = yes}
 ```
 
 ## cancel_resistance
@@ -2612,6 +2599,27 @@ cancels resistance activity for a core country.
 use along with force_disable_resistance to disable resistance forever
 Example : cancel_resistance = yes
 ```
+
+## capture_by
+
+* Supported Scopes: any
+* Supported Targets: ROOT
+
+Make the Unit Leader in scope be captured by the specified country (needs to be a general).
+Optionally specify the province where the leader is held captive.
+
+### Example
+```
+capture_by = GER
+
+capture_by = FROM
+
+capture_by = {
+  country = GER
+  province = 1234
+}
+```
+
 
 ## capture_operative
 
@@ -2805,11 +2813,11 @@ clear global flag
 * Supported Targets: none
 
 ```
-"Clear the matching flag in the military industrial organization in scope.
+Clear the matching flag in the military industrial organization in scope.
 ex:
 var:my_mio_var = {
   clr_mio_flag = my_flag
-}"
+}
 ```
 
 ## clr_project_flag
@@ -2846,7 +2854,7 @@ This effect is deprecated in favor of clr_character_flag.
 * Supported Targets: none
 
 ```
-"Complete a trait in the military industrial organization in scope.
+Complete a trait in the military industrial organization in scope.
 This effect will not take into account the current state of the trait tree and will allow you to unlock a trait even if the one before is not unlocked.
 Will also add 1 size to the MIO so that size and numbers of unlocked traits are always aligned.
 ex:
@@ -2856,7 +2864,7 @@ var:my_mio_var = {
 	trait = my_trait_token
 	show_modifiers = no # Optional, default = yes
   }
-}"
+}
 ```
 
 ## complete_national_focus
@@ -2891,7 +2899,7 @@ complete_prototype_reward_option =
 * Supported Targets: none
 
 ```
-"Complete a special project for the country in scope.
+Complete a special project for the country in scope.
 This effect will not take into account the current state of the project tree and will allow you to unlock a project even if the one before is not unlocked.
 Since the project is not completed within a facility, the facility state and scientist effects are NOT applied.
 ex:
@@ -2911,7 +2919,7 @@ SOV = {
 		} # Optional amount of iteration rewards
 		show_modifiers = no # Optional, default = yes
 	}
-}"
+}
 ```
 
 ## construct_building_in_random_province
@@ -2920,7 +2928,7 @@ SOV = {
 * Supported Targets: none
 
 ```
-"Set facility level in a random province of state and country scope.
+Set facility level in a random province of state and country scope.
 	ex:
     GER = {
         65 = {
@@ -2929,7 +2937,7 @@ SOV = {
 			}
 		}
 	}
-"
+
 ```
 
 ## country_event
@@ -3214,7 +3222,7 @@ create_production_license = {
 * Supported Targets: none
 
 ```
-"Creates a purchase contract between the countries.
+Creates a purchase contract between the countries.
 Example:
 create_purchase_contract = 
 {
@@ -3229,7 +3237,7 @@ create_purchase_contract =
 		type = armored_car1
 		amount = 100
 	}
-}"
+}
 ```
 
 ## create_railway_gun
@@ -3369,7 +3377,7 @@ custom_override_tooltip = {
 * Supported Targets: THIS, ROOT, PREV, FROM, OWNER, CONTROLLER, OCCUPIED, CAPITAL
 
 ```
-"Damages a building in a targeted state or province.
+Damages a building in a targeted state or province.
 Example:
 damage_building = {
 	type = industrial_complex
@@ -3403,7 +3411,7 @@ damage_building = {
 
 If the building is a province building but only a state has been specicied, all provinces in that state will be
 searched to find the first matching province building.
-"
+
 ```
 
 ## damage_units
@@ -3581,29 +3589,38 @@ dismantle faction led by the current country
 * Supported Scopes: any
 * Supported Targets: none
 
+Divides a temp variable by a value, another variable, or a [math expression](script_math_expression.md).
+`if_zero` specifies the value to assign if the divisor is zero (default is zero).
+
+### Examples
 ```
-Divies a temp variable to a value or another variable
-Example: divide_temp_variable = {
-var = num_dogs
-	value = 42
-	tooltip = loc_str_id_with_LEFT_and_RIGHT  #localized text with LEFT and RIGHT tokens in it, tokens will replaced by values
-	if_zero = 0 # the value to assign if the divisor is zero (default is zero)
+divide_temp_variable = { num_dogs = 2 }
+divide_temp_variable = {
+	var = num_dogs
+	value = 2
+	if_zero = 0
+}
+divide_temp_variable = {
+	num_dogs = { value = num_cats  add = 1 }
 }
 ```
+
 
 ## divide_variable
 
 * Supported Scopes: any
 * Supported Targets: none
 
+Divides a variable by a value, another variable, or a [math expression](script_math_expression.md).
+
+### Examples
 ```
-Divies a variable to a value or another variable
-Example: divide_variable = {
-var = num_dogs
-	value = 42
-	tooltip = loc_str_id_with_LEFT_and_RIGHT  #localized text with LEFT and RIGHT tokens in it, tokens will replaced by values
+divide_variable = { num_dogs = 2 }
+divide_variable = {
+	num_dogs = { value = num_cats  add = 1 }
 }
 ```
+
 
 ## division_template
 
@@ -3668,7 +3685,7 @@ event_option_tooltip = mtg_usa_civil_war_fascists.1.a
 * Supported Targets: none
 
 ```
-"Executes children effects on every active scientist (or \"random_select_amount\" of random character if specified) of the country in scope, that fulfills the \"limit\" trigger.
+Executes children effects on every active scientist (or \"random_select_amount\" of random character if specified) of the country in scope, that fulfills the \"limit\" trigger.
 	tooltip=key can be added to override tooltip title.
 	By default the effects are only displayed once, you may display them for each matching character with display_individual_scopes.
 	ex: GER = {
@@ -3679,7 +3696,7 @@ event_option_tooltip = mtg_usa_civil_war_fascists.1.a
 		display_individual_scopes = yes # Optional - default = no
 		... character scope effects ...
 	  }
-	}"
+	}
 ```
 
 ## every_allied_country
@@ -3711,7 +3728,7 @@ ENG = {
 * Supported Targets: none
 
 ```
-"Executes children effects on every Army Leader (or \"random_select_amount\" of random leader if specified) of the country in scope, that fulfills the \"limit\" trigger.
+Executes children effects on every Army Leader (or \"random_select_amount\" of random leader if specified) of the country in scope, that fulfills the \"limit\" trigger.
 tooltip=key can be added to override tooltip title.
 ex: GER = {
   every_army_leader = {
@@ -3720,7 +3737,7 @@ ex: GER = {
 	include_invisible = yes # Optional - default = no
     ... character scope effects ...
   }
-}"
+}
 ```
 
 ## every_character
@@ -3729,7 +3746,7 @@ ex: GER = {
 * Supported Targets: none
 
 ```
-"Executes children effects on every Character (or \"random_select_amount\" of random character if specified) of the country in scope, that fulfills the \"limit\" trigger.
+Executes children effects on every Character (or \"random_select_amount\" of random character if specified) of the country in scope, that fulfills the \"limit\" trigger.
 tooltip=key can be added to override tooltip title.
 By default the effects are only displayed once, you may display them for each matching character with display_individual_scopes.
 ex: GER = {
@@ -3740,7 +3757,7 @@ ex: GER = {
     display_individual_scopes = yes # Optional - default = no
     ... character scope effects ...
   }
-}"
+}
 ```
 
 ## every_collection_element
@@ -3786,7 +3803,7 @@ TAG = { # Some collections require a scope
 * Supported Targets: none
 
 ```
-"Executes children effects on every State controlled by the country in scope (or \"random_select_amount\" of random state if specified) that fulfills the \"limit\" trigger.
+Executes children effects on every State controlled by the country in scope (or \"random_select_amount\" of random state if specified) that fulfills the \"limit\" trigger.
 tooltip=key can be added to override tooltip title.
 By default the effects are only displayed once, you may display them for each matching state with display_individual_scopes.
 ex:
@@ -3797,7 +3814,7 @@ SOV = {
 		display_individual_scopes = yes # Optional - default = no
 		... state scope effects ...
 	}
-}"
+}
 ```
 
 ## every_core_state
@@ -3806,7 +3823,7 @@ SOV = {
 * Supported Targets: none
 
 ```
-"Executes children effects on every core State of the country in scope (or \"random_select_amount\" of random state if specified) that fulfills the \"limit\" trigger.
+Executes children effects on every core State of the country in scope (or \"random_select_amount\" of random state if specified) that fulfills the \"limit\" trigger.
 tooltip=key can be added to override tooltip title.
 By default the effects are only displayed once, you may display them for each matching state with display_individual_scopes.
 ex:
@@ -3817,7 +3834,7 @@ SOV = {
 		display_individual_scopes = yes # Optional - default = no
 		... state scope effects ...
 	}
-}"
+}
 ```
 
 ## every_country
@@ -3826,7 +3843,7 @@ SOV = {
 * Supported Targets: none
 
 ```
-"Executes children effects on every Country (or \"random_select_amount\" of random country if specified) that fulfills the \"limit\" trigger.
+Executes children effects on every Country (or \"random_select_amount\" of random country if specified) that fulfills the \"limit\" trigger.
 tooltip=key can be added to override tooltip title.
 By default the effects are only displayed once, you may display them for each matching country with display_individual_scopes.
 ex:
@@ -3835,7 +3852,7 @@ every_country = {
 	random_select_amount = 3 # Optional
 	display_individual_scopes = yes # Optional - default = no
 	... country scope effects ...
-}"
+}
 ```
 
 ## every_country_division
@@ -3844,7 +3861,7 @@ every_country = {
 * Supported Targets: none
 
 ```
-"Executes children effects on every Division of the country in scope (or \"random_select_amount\" of random divisions if specified) that fulfills the \"limit\" trigger.
+Executes children effects on every Division of the country in scope (or \"random_select_amount\" of random divisions if specified) that fulfills the \"limit\" trigger.
 tooltip=key can be added to override tooltip title.
 By default the effects are only displayed once, you may display them for each matching division with display_individual_scopes.
 ex:
@@ -3855,7 +3872,7 @@ SOV = {
 		display_individual_scopes = yes # Optional - default = no
 		... division scope effects ...
 	}
-}"
+}
 ```
 
 ## every_country_with_original_tag
@@ -3864,7 +3881,7 @@ SOV = {
 * Supported Targets: none
 
 ```
-"Executes children effects on a all countries with original tag (or \"random_select_amount\" of random country if specified) that fulfills the \"limit\" trigger.
+Executes children effects on a all countries with original tag (or \"random_select_amount\" of random country if specified) that fulfills the \"limit\" trigger.
 tooltip=key can be added to override tooltip title.
 By default the effects are only displayed once, you may display them for each matching country with display_individual_scopes.
 ex:
@@ -3874,7 +3891,7 @@ every_country_with_original_tag = {
 	random_select_amount = 3 # Optional
 	display_individual_scopes = yes # Optional - default = no
 	... country scope effects ...
-}"
+}
 ```
 
 ## every_enemy_country
@@ -3883,7 +3900,7 @@ every_country_with_original_tag = {
 * Supported Targets: none
 
 ```
-"Executes children effects on every enemy Country of the country in scope (or \"random_select_amount\" of random country if specified) that fulfills the \"limit\" trigger.
+Executes children effects on every enemy Country of the country in scope (or \"random_select_amount\" of random country if specified) that fulfills the \"limit\" trigger.
 tooltip=key can be added to override tooltip title.
 By default the effects are only displayed once, you may display them for each matching country with display_individual_scopes.
 ex:
@@ -3894,7 +3911,7 @@ SOV = {
 		display_individual_scopes = yes # Optional - default = no
 		... country scope effects ...
 	}
-}"
+}
 ```
 
 ## every_faction_member
@@ -3903,7 +3920,7 @@ SOV = {
 * Supported Targets: none
 
 ```
-"Executes children effects on every faction member of the country's faction in scope (if country does not have a faction it will only work on itself) (or \"random_select_amount\" of random country if specified) that fulfills the \"limit\" trigger.
+Executes children effects on every faction member of the country's faction in scope (if country does not have a faction it will only work on itself) (or \"random_select_amount\" of random country if specified) that fulfills the \"limit\" trigger.
 tooltip=key can be added to override tooltip title.
 By default the effects are only displayed once, you may display them for each matching country with display_individual_scopes.
 ex:
@@ -3914,7 +3931,7 @@ SOV = {
 		display_individual_scopes = yes # Optional - default = no
 		... country scope effects ...
 	}
-}"
+}
 ```
 
 ## every_military_industrial_organization
@@ -3923,7 +3940,7 @@ SOV = {
 * Supported Targets: none
 
 ```
-"Executes children effects on every Military Industrial Organisation (or \"random_select_amount\" of random MIOs if specified) of the country in scope, that fulfills the \"limit\" trigger.
+Executes children effects on every Military Industrial Organisation (or \"random_select_amount\" of random MIOs if specified) of the country in scope, that fulfills the \"limit\" trigger.
 tooltip=key can be added to override tooltip title.
 By default the effects are only displayed once, you may display them for each matching MIO with display_individual_scopes.
 ex: GER = {
@@ -3934,7 +3951,7 @@ ex: GER = {
 	display_individual_scopes = yes # Optional - default = no
     ... MIO scope effects ...
   }
-}"
+}
 ```
 
 ## every_navy_leader
@@ -3943,7 +3960,7 @@ ex: GER = {
 * Supported Targets: none
 
 ```
-"Executes children effects on every Navy Leader (or \"random_select_amount\" of random leader if specified) of the country in scope, that fulfills the \"limit\" trigger.
+Executes children effects on every Navy Leader (or \"random_select_amount\" of random leader if specified) of the country in scope, that fulfills the \"limit\" trigger.
 tooltip=key can be added to override tooltip title.
 By default the effects are only displayed once, you may display them for each matching unit leader with display_individual_scopes.
 ex: GER = {
@@ -3954,7 +3971,7 @@ ex: GER = {
 	display_individual_scopes = yes # Optional - default = no
     ... character scope effects ...
   }
-}"
+}
 ```
 
 ## every_neighbor_country
@@ -3963,7 +3980,7 @@ ex: GER = {
 * Supported Targets: none
 
 ```
-"Executes children effects on every neighbor Country of the country in scope (or \"random_select_amount\" of random country if specified) that fulfills the \"limit\" trigger.
+Executes children effects on every neighbor Country of the country in scope (or \"random_select_amount\" of random country if specified) that fulfills the \"limit\" trigger.
 tooltip=key can be added to override tooltip title.
 By default the effects are only displayed once, you may display them for each matching country with display_individual_scopes.
 ex:
@@ -3974,7 +3991,7 @@ SOV = {
 		display_individual_scopes = yes # Optional - default = no
 		... country scope effects ...
 	}
-}"
+}
 ```
 
 ## every_neighbor_state
@@ -3983,7 +4000,7 @@ SOV = {
 * Supported Targets: none
 
 ```
-"Executes children effects on every State neighboring the state in scope (or \"random_select_amount\" of random state if specified) that fulfills the \"limit\" trigger.
+Executes children effects on every State neighboring the state in scope (or \"random_select_amount\" of random state if specified) that fulfills the \"limit\" trigger.
 tooltip=key can be added to override tooltip title.
 By default the effects are only displayed once, you may display them for each matching state with display_individual_scopes.
 ex:
@@ -3994,7 +4011,7 @@ ex:
 		display_individual_scopes = yes # Optional - default = no
 		... state scope effects ...
 	}
-}"
+}
 ```
 
 ## every_occupied_country
@@ -4003,7 +4020,7 @@ ex:
 * Supported Targets: none
 
 ```
-"Executes children effects on every occupied Country by the country in scope (or \"random_select_amount\" of random country if specified) that fulfills the \"limit\" trigger.
+Executes children effects on every occupied Country by the country in scope (or \"random_select_amount\" of random country if specified) that fulfills the \"limit\" trigger.
 tooltip=key can be added to override tooltip title.
 By default the effects are only displayed once, you may display them for each matching country with display_individual_scopes.
 ex:
@@ -4014,7 +4031,7 @@ SOV = {
 		display_individual_scopes = yes # Optional - default = no
 		... country scope effects ...
 	}
-}"
+}
 ```
 
 ## every_operative
@@ -4023,7 +4040,7 @@ SOV = {
 * Supported Targets: none
 
 ```
-"Executes children effects on every operative (or \"random_select_amount\" of random operatives if specified) that fulfills the \"limit\" trigger.
+Executes children effects on every operative (or \"random_select_amount\" of random operatives if specified) that fulfills the \"limit\" trigger.
 tooltip=key can be added to override tooltip title.
 By default the effects are only displayed once, you may display them for each matching operative with display_individual_scopes.
 ex: GER = {
@@ -4033,7 +4050,7 @@ ex: GER = {
     display_individual_scopes = yes # Optional - default = no
     ... character scope effects ...
   }
-}"
+}
 ```
 
 ## every_other_country
@@ -4042,7 +4059,7 @@ ex: GER = {
 * Supported Targets: none
 
 ```
-"Executes children effects on every Country different from the one in scope (or \"random_select_amount\" of random country if specified) that fulfills the \"limit\" trigger.
+Executes children effects on every Country different from the one in scope (or \"random_select_amount\" of random country if specified) that fulfills the \"limit\" trigger.
 tooltip=key can be added to override tooltip title.
 By default the effects are only displayed once, you may display them for each matching country with display_individual_scopes.
 ex:
@@ -4053,7 +4070,7 @@ SOV = {
 		display_individual_scopes = yes # Optional - default = no
 		... country scope effects ...
 	}
-}"
+}
 ```
 
 ## every_owned_state
@@ -4062,7 +4079,7 @@ SOV = {
 * Supported Targets: none
 
 ```
-"Executes children effects on every State owned by the country in scope (or \"random_select_amount\" of random state if specified) that fulfills the \"limit\" trigger.
+Executes children effects on every State owned by the country in scope (or \"random_select_amount\" of random state if specified) that fulfills the \"limit\" trigger.
 tooltip=key can be added to override tooltip title.
 By default the effects are only displayed once, you may display them for each matching state with display_individual_scopes.
 ex:
@@ -4073,7 +4090,7 @@ SOV = {
 		display_individual_scopes = yes # Optional - default = no
 		... state scope effects ...
 	}
-}"
+}
 ```
 
 ## every_possible_country
@@ -4082,7 +4099,7 @@ SOV = {
 * Supported Targets: none
 
 ```
-"Executes children effects on every Country (or \"random_select_amount\" of random country if specified) that fulfills the \"limit\" trigger.
+Executes children effects on every Country (or \"random_select_amount\" of random country if specified) that fulfills the \"limit\" trigger.
 Difference with every_country is that it includes countries not yet present on the map.
 tooltip=key can be added to override tooltip title.
 By default the effects are only displayed once, you may display them for each matching country with display_individual_scopes.
@@ -4092,7 +4109,7 @@ every_possible_country = {
 	random_select_amount = 3 # Optional
 	display_individual_scopes = yes # Optional - default = no
 	... country scope effects ...
-}"
+}
 ```
 
 ## every_purchase_contract
@@ -4101,7 +4118,7 @@ every_possible_country = {
 * Supported Targets: none
 
 ```
-"Executes children effects on every purchase contract (or \"random_select_amount\" of random purchase contracts if specified) of the country in scope, that fulfills the \"limit\" trigger.
+Executes children effects on every purchase contract (or \"random_select_amount\" of random purchase contracts if specified) of the country in scope, that fulfills the \"limit\" trigger.
 tooltip = key need to be added to override the tooltip title.
 By default the effects are only displayed once, you may display them for each matching purchase contract with display_individual_scopes.
 ex: GER = {
@@ -4112,7 +4129,7 @@ ex: GER = {
 	display_individual_scopes = yes # Optional - default = no
     ... Purchase Contract scope effects ...
   }
-}"
+}
 ```
 
 ## every_scientist
@@ -4121,7 +4138,7 @@ ex: GER = {
 * Supported Targets: none
 
 ```
-"Executes children effects on every scientist (or \"random_select_amount\" of random character if specified) of the country in scope, that fulfills the \"limit\" trigger.
+Executes children effects on every scientist (or \"random_select_amount\" of random character if specified) of the country in scope, that fulfills the \"limit\" trigger.
 	tooltip=key can be added to override tooltip title.
 	By default the effects are only displayed once, you may display them for each matching character with display_individual_scopes.
 	ex: GER = {
@@ -4132,7 +4149,7 @@ ex: GER = {
 		display_individual_scopes = yes # Optional - default = no
 		... character scope effects ...
 	  }
-	}"
+	}
 ```
 
 ## every_state
@@ -4141,7 +4158,7 @@ ex: GER = {
 * Supported Targets: none
 
 ```
-"Executes children effects on every State (or \"random_select_amount\" of random state if specified) that fulfills the \"limit\" trigger.
+Executes children effects on every State (or \"random_select_amount\" of random state if specified) that fulfills the \"limit\" trigger.
 tooltip=key can be added to override tooltip title.
 By default the effects are only displayed once, you may display them for each matching state with display_individual_scopes.
 ex:
@@ -4150,7 +4167,7 @@ every_state = {
 	random_select_amount = 3 # Optional
 	display_individual_scopes = yes # Optional - default = no
 	... state scope effects ...
-}"
+}
 ```
 
 ## every_state_division
@@ -4159,7 +4176,7 @@ every_state = {
 * Supported Targets: CAPITAL
 
 ```
-"Executes children effects on every Division currently in the state in scope (or \"random_select_amount\" of random divisions if specified) that fulfills the \"limit\" trigger.
+Executes children effects on every Division currently in the state in scope (or \"random_select_amount\" of random divisions if specified) that fulfills the \"limit\" trigger.
 tooltip=key can be added to override tooltip title.
 By default the effects are only displayed once, you may display them for each matching division with display_individual_scopes.
 ex:
@@ -4170,7 +4187,7 @@ SOV = {
 		display_individual_scopes = yes # Optional - default = no
 		... division scope effects ...
 	}
-}"
+}
 ```
 
 ## every_subject_country
@@ -4179,7 +4196,7 @@ SOV = {
 * Supported Targets: none
 
 ```
-"Executes children effects on every subject Country of the country in scope (or \"random_select_amount\" of random country if specified) that fulfills the \"limit\" trigger.
+Executes children effects on every subject Country of the country in scope (or \"random_select_amount\" of random country if specified) that fulfills the \"limit\" trigger.
 tooltip=key can be added to override tooltip title.
 By default the effects are only displayed once, you may display them for each matching country with display_individual_scopes.
 ex:
@@ -4190,7 +4207,7 @@ SOV = {
 		display_individual_scopes = yes # Optional - default = no
 		... country scope effects ...
 	}
-}"
+}
 ```
 
 ## every_unit_leader
@@ -4199,7 +4216,7 @@ SOV = {
 * Supported Targets: none
 
 ```
-"Executes children effects on every Unit Leader (or \"random_select_amount\" of random leader if specified) of the country in scope, that fulfills the \"limit\" trigger.
+Executes children effects on every Unit Leader (or \"random_select_amount\" of random leader if specified) of the country in scope, that fulfills the \"limit\" trigger.
 tooltip=key can be added to override tooltip title.
 By default the effects are only displayed once, you may display them for each matching unit leader with display_individual_scopes.
 ex: GER = {
@@ -4210,7 +4227,7 @@ ex: GER = {
 	display_individual_scopes = yes # Optional - default = no
     ... character scope effects ...
   }
-}"
+}
 ```
 
 ## execute_operation_coordinated_strike
@@ -4444,7 +4461,7 @@ every_country = {
 * Supported Targets: none
 
 ```
-"Generate a new character with a scientist role and recruit it in the country in scope.
+Generate a new character with a scientist role and recruit it in the country in scope.
 Examples:
 SOV = {
 	generate_scientist_character = {
@@ -4460,7 +4477,7 @@ SOV = {
 		traits = { trait_token } # optional array
 	}
 }
-"
+
 ```
 
 ## get_highest_scored_country
@@ -4560,11 +4577,11 @@ guarantees specified country
 * Supported Targets: THIS, ROOT, PREV, FROM, OWNER, CONTROLLER, OCCUPIED, CAPITAL
 
 ```
-"Gives market access to the specified country.
+Gives market access to the specified country.
 Example:
 FRA =  {
   give_market_access = BRA  # France and Brazil will now have market access to each other
-}"
+}
 ```
 
 ## give_military_access
@@ -4582,13 +4599,13 @@ gives military access to the specified country
 * Supported Targets: THIS, ROOT, PREV, FROM, OWNER, CONTROLLER, OCCUPIED, CAPITAL
 
 ```
-"Gives rights to take resources from specified state.
+Gives rights to take resources from specified state.
 	give_resource_rights = {
 		receiver = <TAG> # accepts keyword or variable
 		state = <id> # accepts keyword or variable
 		resources = {<Resource Name>} # [optional] If provided, only gives rights to the prodived resources.
 													If not provided gives rights to all resources in the states.
-	}"
+	}
 ```
 
 ## global_every_army_leader
@@ -4597,7 +4614,7 @@ gives military access to the specified country
 * Supported Targets: none
 
 ```
-"Executes children effects on every Army Leader (or \"random_select_amount\" of random leader if specified) for EVERY COUNTRY, that fulfills the \"limit\" trigger.
+Executes children effects on every Army Leader (or \"random_select_amount\" of random leader if specified) for EVERY COUNTRY, that fulfills the \"limit\" trigger.
 Better to use every_army_leader if you know the country to search in.
 tooltip=key can be added to override tooltip title.
 By default the effects are only displayed once, you may display them for each matching unit leader with display_individual_scopes.
@@ -4607,7 +4624,7 @@ global_every_army_leader = {
 	include_invisible = yes # Optional - default = no
 	display_individual_scopes = yes # Optional - default = no
 	... character scope effects ...
-}"
+}
 ```
 
 ## goto_province
@@ -4681,10 +4698,10 @@ Copies over technology state from target
 * Supported Targets: none
 
 ```
-"Injure a scientist for x amount of days to a scientist character in scope.
+Injure a scientist for x amount of days to a scientist character in scope.
 	ex: my_character = {
 	  injure_scientist_for_days = 12
-	}"
+	}
 ```
 
 ## kill_country_leader
@@ -4756,8 +4773,6 @@ Country leaves the faction
 * Supported Scopes: COUNTRY
 * Supported Targets: none
 
-```
-"![MD]
 Sets what focus tree a country uses, retains finished shared focuses. Parameters:
  * `keep_completed`: if set to yes (default no), then all completed focuses in the previous focus tree that exists in
  the new focus tree will be kept as completed.
@@ -4770,8 +4785,7 @@ Sets what focus tree a country uses, retains finished shared focuses. Parameters
 	 copy_completed_from = PER
  }
  ```
- "
-```
+ 
 
 ## load_oob
 
@@ -4886,7 +4900,7 @@ Example: modify_global_flag = { flag = <name> value = <number> }
 * Supported Targets: none
 
 ```
-"Modify the matching flag in the military industrial organization in scope. Happens only if the flag already exists.
+Modify the matching flag in the military industrial organization in scope. Happens only if the flag already exists.
 ex:
 var:my_mio_var = {
   modify_mio_flag = {
@@ -4894,7 +4908,7 @@ var:my_mio_var = {
     value = 5 (optional, default = 0. Will be added to the current value)
     days = 13 (optional, default = 0. if > 0, the flag will be deleted after this number of days)
   }
-}"
+}
 ```
 
 ## modify_project_flag
@@ -4933,7 +4947,7 @@ Example: modify_tech_sharing_bonus  = { id = commonwealth_research bonus = 0.2 }
 * Supported Targets: none
 
 ```
-"Modify amount of days of a timed idea for the country in scope
+Modify amount of days of a timed idea for the country in scope
 ex:
 SOV = {
 	modify_timed_idea = {
@@ -4955,7 +4969,7 @@ SOV = {
 		# NB: accept integer or variables
 		# NB: tooltip will use the same year/month/day format as input
 	}
-}"
+}
 ```
 
 ## modify_unit_leader_flag
@@ -5000,28 +5014,32 @@ modulo_variable = {
 * Supported Scopes: any
 * Supported Targets: none
 
+Multiplies a temp variable by a value, another variable, or a [math expression](script_math_expression.md).
+
+### Examples
 ```
-Multiplies a temp variable to a value or another variable
-Example: set_temp_variable = {
-var = num_dogs
-	value = 42
-	tooltip = loc_str_id_with_LEFT_and_RIGHT  #localized text with LEFT and RIGHT tokens in it, tokens will replaced by values
+multiply_temp_variable = { num_dogs = 2 }
+multiply_temp_variable = {
+	num_dogs = { value = num_cats  add = 1 }
 }
 ```
+
 
 ## multiply_variable
 
 * Supported Scopes: any
 * Supported Targets: none
 
+Multiplies a variable by a value, another variable, or a [math expression](script_math_expression.md).
+
+### Examples
 ```
-Multiplies a variable to a value or another variable
-Example: set_variable = {
-var = num_dogs
-	value = 42
-	tooltip = loc_str_id_with_LEFT_and_RIGHT  #localized text with LEFT and RIGHT tokens in it, tokens will replaced by values
+multiply_variable = { num_dogs = 2 }
+multiply_variable = {
+	num_dogs = { value = num_cats  add = 1 }
 }
 ```
+
 
 ## navy_experience
 
@@ -5066,7 +5084,7 @@ news_event = {
 Fires a operative leader event for owner country.
 Example:
 operative_leader_event = {
-	id = generic.17 # The event to fire.
+	id = mtg_exile_leader_added.1 # The event to fire.
 	# Optional Fields:
 	originator = TAG # The originator of the event (default to the owner of the operative)
 	recipient = TAG # The recipient of the event (default to the owner of the operative)
@@ -5079,7 +5097,7 @@ operative_leader_event = {
 		# Note:  random_hours and random_days can both be used and will simply be added together.
 	random = 6 # Equivalent to random_hours; preserverd for backwards compatibility.
 	random = { chance = 50 ... } # Specify a set of child effects to execute as part of this effect, with a percentage chance of randomly happening or not (as a group, not individually).
-	tooltip = generic.17.t # Manually specify which tooltip to use for this effect.
+	tooltip = mtg_exile_leader_added.1.t # Manually specify which tooltip to use for this effect.
 	set_from = TAG # Set the scope of the From in the scripted localization
 	set_from_from = TAG # Set the scope of the From.From in the scripted localization
 	set_root = TAG # Set the scope of the Root in the scripted localization
@@ -5167,10 +5185,10 @@ promotes general to field marshal
 * Supported Targets: none
 
 ```
-"Promote the officer of the division to a general.
+Promote the officer of the division to a general.
 Example:
 promote_officer_to_general = yes # yes/no is ignored
-"
+
 ```
 
 ## puppet
@@ -5201,7 +5219,7 @@ ENG = {
 * Supported Targets: THIS, ROOT, PREV, FROM, OWNER, CONTROLLER, OCCUPIED, CAPITAL
 
 ```
-"Give experience to the units performing the raid (raid instance scope).
+Give experience to the units performing the raid (raid instance scope).
 
 Will give experience to any type of unit assigned to the raid, e.g. divisions or air wings.
 The value defines the progress towards the max level, e.g. 0.2 = gain 20% of the experience needed to reach max level.
@@ -5209,7 +5227,7 @@ The value defines the progress towards the max level, e.g. 0.2 = gain 20% of the
 Can use either an explicit value or a variable
 
 ex.
-raid_add_unit_experience = 0.2"
+raid_add_unit_experience = 0.2
 ```
 
 ## raid_damage_units
@@ -5218,7 +5236,7 @@ raid_add_unit_experience = 0.2"
 * Supported Targets: none
 
 ```
-"Damage the units performing the raid in scope (the attackers inflict losses).
+Damage the units performing the raid in scope (the attackers inflict losses).
 
 Damage is applied to ground units while damage to plane is defined as the amount of planes lost.
 If 'ratio = yes', then all damage / losses are applied as a fraction of the current amount.
@@ -5249,7 +5267,7 @@ raid_damage_units = {
 	plane_loss = 5
 }
 
-"
+
 ```
 
 ## raid_reduce_project_progress_ratio
@@ -5258,13 +5276,13 @@ raid_damage_units = {
 * Supported Targets: THIS, ROOT, PREV, FROM, OWNER, CONTROLLER, OCCUPIED, CAPITAL
 
 ```
-"Reduce progress to the special project in state. Root scope is raid instance scope.
+Reduce progress to the special project in state. Root scope is raid instance scope.
 The input value is a ratio of the total needed progress to complete the special project, i.e. a decimal number between 0 and 1.
 ex:
 # Root scope is raid
 state = {
   raid_reduce_project_progress_ratio = 0.1 # Reduces the project progress by 10%
-}"
+}
 ```
 
 ## random
@@ -5311,7 +5329,7 @@ ENG = {
 * Supported Targets: none
 
 ```
-"Executes children effects on a random Army Leader of the country in scope, that fulfills the \"limit\" trigger.
+Executes children effects on a random Army Leader of the country in scope, that fulfills the \"limit\" trigger.
 tooltip=key can be added to override tooltip title.
 ex: GER = {
   random_army_leader = {
@@ -5319,7 +5337,7 @@ ex: GER = {
 	include_invisible = yes # Optional - default = no
     ... character scope effects ...
   }
-}"
+}
 ```
 
 ## random_character
@@ -5418,7 +5436,7 @@ random_list = {
 * Supported Targets: none
 
 ```
-"Executes children effects on a random Military Industrial Organisation of the country in scope, that fulfills the \"limit\" trigger.
+Executes children effects on a random Military Industrial Organisation of the country in scope, that fulfills the \"limit\" trigger.
 tooltip=key can be added to override tooltip title.
 ex: GER = {
   random_military_industrial_organization = {
@@ -5426,7 +5444,7 @@ ex: GER = {
 	include_invisible = yes # Optional - default = no
     ... MIO scope effects ...
   }
-}"
+}
 ```
 
 ## random_navy_leader
@@ -5435,7 +5453,7 @@ ex: GER = {
 * Supported Targets: none
 
 ```
-"Executes children effects on a random Navy Leader of the country in scope, that fulfills the \"limit\" trigger.
+Executes children effects on a random Navy Leader of the country in scope, that fulfills the \"limit\" trigger.
 tooltip=key can be added to override tooltip title.
 ex: GER = {
   random_navy_leader = {
@@ -5443,7 +5461,7 @@ ex: GER = {
 	include_invisible = yes # Optional - default = no
     ... character scope effects ...
   }
-}"
+}
 ```
 
 ## random_neighbor_country
@@ -5517,7 +5535,7 @@ prioritize = { <stateID> <stateID> } to pick those states first if they fulfull 
 * Supported Targets: none
 
 ```
-"Executes children effects on a random purchase contract of the country in scope, that fulfills the \"limit\" trigger.
+Executes children effects on a random purchase contract of the country in scope, that fulfills the \"limit\" trigger.
 tooltip = key need to be added to override the tooltip title.
 ex: GER = {
   random_purchase_contract = {
@@ -5525,7 +5543,7 @@ ex: GER = {
 	tooltip = my_loc_key # Optional
     ... Purchase Contract scope effects ...
   }
-}"
+}
 ```
 
 ## random_scientist
@@ -5589,7 +5607,7 @@ Executes child effects on random subject country that fulfills the limit.
 * Supported Targets: none
 
 ```
-"Executes children effects on a random Unit Leader of the country in scope, that fulfills the \"limit\" trigger.
+Executes children effects on a random Unit Leader of the country in scope, that fulfills the \"limit\" trigger.
 tooltip=key can be added to override tooltip title.
 ex: GER = {
   random_unit_leader = {
@@ -5597,7 +5615,7 @@ ex: GER = {
 	include_invisible = yes # Optional - default = no
     ... character scope effects ...
   }
-}"
+}
 ```
 
 ## randomize_temp_variable
@@ -5694,13 +5712,13 @@ GER = { recruit_character = GER_Character_token }
 * Supported Targets: THIS, ROOT, PREV, FROM, OWNER, CONTROLLER, OCCUPIED, CAPITAL
 
 ```
-"Reduce the cost needed to complete a specific focus. The cost accepts [script constants](script_concept_documentation.md#script-constants). The focus can be a uniform list or a single token.
+Reduce the cost needed to complete a specific focus. The cost accepts [script constants](script_concept_documentation.md#script-constants). The focus can be a uniform list or a single token.
 
 Example:
 reduce_focus_completion_cost = {
   focus = focus_to_be_reduced
   cost = 15
-}"
+}
 ```
 
 ## release
@@ -5728,6 +5746,38 @@ ENG = {
   release_non_owned_controlled = yes # default no. if yes you will release states you only control as well  force_change_controller_for_non_ally_controlled = yes # default = no. if yes it will change the controller of the states you or your allies don't control (ie if an enemy occupying it, the ownership will change but not controller) }
 }
 ```
+
+## release_captured_generals_from
+
+* Supported Scopes: COUNTRY
+* Supported Targets: none
+
+Makes the scoped country release all captured generals from the specified country kept in the specified province.
+If no province is specified, all generals are released.
+
+### Example
+```
+release_captured_generals_from = {
+  target = GER
+  province = <province> (optional)
+}
+
+release_captured_generals_from = FROM
+```
+
+
+## release_from_captivity
+
+* Supported Scopes: CHARACTER
+* Supported Targets: none
+
+Releases the scoped army leader from captivity. Has no effect if the leader is not captured.
+
+### Example
+```
+var:target_leader = { release_from_captivity = yes }
+```
+
 
 ## release_on_controlled
 
@@ -5791,7 +5841,7 @@ remove_all_power_balance_modifiers = {
 * Supported Targets: THIS, ROOT, PREV, FROM, OWNER, CONTROLLER, OCCUPIED, CAPITAL
 
 ```
-"Removes a building in a targeted state or province.
+Removes a building in a targeted state or province.
 Example:
 
 remove_building = {
@@ -5819,7 +5869,7 @@ remove_building = {
 In this case, the building type must be a state building.
 
 Note that this effect will NOT recursively find province buildings from a state when no province has been specified.
-"
+
 ```
 
 ## remove_civil_war_target
@@ -5931,12 +5981,12 @@ Example: remove_decision_on_cooldown = some_decision_here
 * Supported Targets: THIS, ROOT, PREV, FROM, OWNER, CONTROLLER, OCCUPIED, CAPITAL
 
 ```
-"removes a dynamic modifier from the containing scope (country / state / unit-leader / special-project).
+removes a dynamic modifier from the containing scope (country / state / unit-leader / special-project).
 example :
 remove_dynamic_modifier = {
   modifier = dynamic_modifier_name
   scope = GER # optional, must match the scope input used in add_dynamic_modifier (if any)
-}"
+}
 ```
 
 ## remove_exile_tag
@@ -6172,7 +6222,7 @@ Remove resource right to state for scope country. remove_resource_rights = ID
 * Supported Targets: none
 
 ```
-"Remove the scientist role from a character.The character can come from the scope or from an input parameter.
+Remove the scientist role from a character.The character can come from the scope or from an input parameter.
 The scientist role format is the same as in the character DB.
 Except the visible trigger - a scientist role created via effect cannot have triggers.
 Examples:
@@ -6186,7 +6236,7 @@ SOV = {
 	remove_scientist_role = {
 		character = my_character / var:my_char_var / PREV # accepts variables and keywords
 	}
-}"
+}
 ```
 
 ## remove_state_claim
@@ -6212,8 +6262,6 @@ remove core on state
 * Supported Scopes: any
 * Supported Targets: none
 
-```
-"![MD]
 removes either a resistance or compliance modifier from a state.
 Can only use modifiers from the resistance_modifiers.txt/compliance_modifiers.txt that are marked as is_dynamic = yes
 
@@ -6223,7 +6271,6 @@ remove_state_resistance_compliance_modifier  = {
        modifier = dynamic_modifier_name
 	   state = 738
 }
-```"
 ```
 
 ## remove_targeted_decision
@@ -6586,7 +6633,7 @@ Sets specific level of a building construction for amount of levels in specified
 * Supported Targets: none
 
 ```
-"Set the value (yes/no) to the "can be fired" flag in Advisor Role. When set to No, the advisor cannot be fired once hired.
+Set the value (yes/no) to the "can be fired" flag in Advisor Role. When set to No, the advisor cannot be fired once hired.
 
 Example:
 some_country_scope = {
@@ -6602,7 +6649,7 @@ some_character_scope = {
     slot = political_advisor # mandatory if the character has several advisor role
     value = no
   }
-}"
+}
 ```
 
 ## set_capital
@@ -6877,8 +6924,6 @@ Modify all equipments by factor
 * Supported Scopes: COUNTRY
 * Supported Targets: none
 
-```
-"![MD]
 Changes current version number for a given equipment type to N.
 The next equipment variant created from that type will have version number N+1.
 
@@ -6889,8 +6934,7 @@ set_equipment_version_number = {
 	version = 4
 }
 ```
-"
-```
+
 
 ## set_faction_leader
 
@@ -7137,14 +7181,14 @@ DEN = { set_major = yes }
 * Supported Targets: THIS, ROOT, PREV, FROM, OWNER, CONTROLLER, OCCUPIED, CAPITAL
 
 ```
-"Set the daily PP cost to assign to research in the military industrial organization in scope.
+Set the daily PP cost to assign to research in the military industrial organization in scope.
 This changes the base value. Modifiers will still apply over it.
 Input value cannot be negative.
 ex:
 mio:my_mio = {
   set_mio_design_team_assign_cost = 0.3
   set_mio_design_team_assign_cost = var:my_number_var
-}"
+}
 ```
 
 ## set_mio_design_team_change_cost
@@ -7153,14 +7197,14 @@ mio:my_mio = {
 * Supported Targets: THIS, ROOT, PREV, FROM, OWNER, CONTROLLER, OCCUPIED, CAPITAL
 
 ```
-"Set the XP cost to change MIO in equipment designer for the military industrial organization in scope.
+Set the XP cost to change MIO in equipment designer for the military industrial organization in scope.
 This changes the base value. Modifiers will still apply over it.
 Input value cannot be negative.
 ex:
 mio:my_mio = {
   set_mio_design_team_change_cost = 3
   set_mio_design_team_change_cost = var:my_number_var
-}"
+}
 ```
 
 ## set_mio_flag
@@ -7169,7 +7213,7 @@ mio:my_mio = {
 * Supported Targets: none
 
 ```
-"Set flag in the military industrial organization in scope.
+Set flag in the military industrial organization in scope.
 ex:
 var:my_mio_var = {
   set_mio_flag = my_flag
@@ -7178,7 +7222,7 @@ var:my_mio_var = {
 	value = 3 (optional, default = 1)
     days = 12 (optional, default = 0. if > 0, the flag will be deleted after this number of days)
   }
-}"
+}
 ```
 
 ## set_mio_funds
@@ -7187,14 +7231,14 @@ var:my_mio_var = {
 * Supported Targets: THIS, ROOT, PREV, FROM, OWNER, CONTROLLER, OCCUPIED, CAPITAL
 
 ```
-"Set the amount of funds for the military industrial organization in scope.
+Set the amount of funds for the military industrial organization in scope.
 Input value cannot be negative.
 If the new total funds go over the Size Up limit, the MIO will gain size(s).
 ex:
 var:my_mio_var = {
   set_mio_funds = 100
   set_mio_funds = var:my_number_var
-}"
+}
 ```
 
 ## set_mio_funds_gain_factor
@@ -7203,14 +7247,14 @@ var:my_mio_var = {
 * Supported Targets: THIS, ROOT, PREV, FROM, OWNER, CONTROLLER, OCCUPIED, CAPITAL
 
 ```
-"Set the factor applied when gaining funds in the military industrial organization in scope.
+Set the factor applied when gaining funds in the military industrial organization in scope.
 This changes the base value. Modifiers will still apply over it.
 Input value cannot be negative.
 ex:
 mio:my_mio = {
   set_mio_funds_gain_factor = 0.9
   set_mio_funds_gain_factor = var:my_number_var
-}"
+}
 ```
 
 ## set_mio_icon
@@ -7219,11 +7263,11 @@ mio:my_mio = {
 * Supported Targets: THIS, ROOT, PREV, FROM, OWNER, CONTROLLER, OCCUPIED, CAPITAL
 
 ```
-"Set the icon GFX for the military industrial organization in scope.
+Set the icon GFX for the military industrial organization in scope.
 ex:
 mio:my_mio = {
   set_mio_icon = MY_NEW_MIO_ICON_GFX
-}"
+}
 ```
 
 ## set_mio_industrial_manufacturer_assign_cost
@@ -7232,14 +7276,14 @@ mio:my_mio = {
 * Supported Targets: THIS, ROOT, PREV, FROM, OWNER, CONTROLLER, OCCUPIED, CAPITAL
 
 ```
-"Set the daily PP cost to assign to production line in the military industrial organization in scope.
+Set the daily PP cost to assign to production line in the military industrial organization in scope.
 This changes the base value. Modifiers will still apply over it.
 Input value cannot be negative.
 ex:
 mio:my_mio = {
   set_mio_industrial_manufacturer_assign_cost = 0.3
   set_mio_industrial_manufacturer_assign_cost = var:my_number_var
-}"
+}
 ```
 
 ## set_mio_name_key
@@ -7248,12 +7292,12 @@ mio:my_mio = {
 * Supported Targets: THIS, ROOT, PREV, FROM, OWNER, CONTROLLER, OCCUPIED, CAPITAL
 
 ```
-"Set the localisation key used to generate the name of the military industrial organization in scope.
+Set the localisation key used to generate the name of the military industrial organization in scope.
 The localisation key may be a scripted localisation (triggers evaluated in MIO scope).
 ex:
 mio:my_mio = {
   set_mio_name_key = MY_NEW_MIO_NAME_KEY
-}"
+}
 ```
 
 ## set_mio_policy_cooldown
@@ -7262,7 +7306,7 @@ mio:my_mio = {
 * Supported Targets: none
 
 ```
-"Set the base cooldown (in days) after attaching a policy in the MIO policy, found in country in scope with input policy
+Set the base cooldown (in days) after attaching a policy in the MIO policy, found in country in scope with input policy
 token. This changes the base value. Modifiers will still apply over it. 
 Input value cannot be negative.
 ex:
@@ -7275,7 +7319,7 @@ SOV = {
 	policy = my_policy_token
 	value = var:my_number_var
   }
-}"
+}
 ```
 
 ## set_mio_policy_cost
@@ -7284,7 +7328,7 @@ SOV = {
 * Supported Targets: none
 
 ```
-"Set the base cost (in PP) for attaching a policy in the MIO policy, found in country in scope with input policy
+Set the base cost (in PP) for attaching a policy in the MIO policy, found in country in scope with input policy
 token. This changes the base value. Modifiers will still apply over it. 
 Input value cannot be negative.
 ex: 
@@ -7297,7 +7341,7 @@ SOV = {
 	policy = my_policy_token
 	value = var:my_number_var
   }
-}"
+}
 ```
 
 ## set_mio_research_bonus
@@ -7306,14 +7350,14 @@ SOV = {
 * Supported Targets: THIS, ROOT, PREV, FROM, OWNER, CONTROLLER, OCCUPIED, CAPITAL
 
 ```
-"Set the research bonus in the military industrial organization in scope.
+Set the research bonus in the military industrial organization in scope.
 This changes the base value. Modifiers will still apply over it.
 Input value cannot be negative.
 ex:
 mio:my_mio = {
   set_mio_research_bonus = 0.3
   set_research_bonus = var:my_number_var
-}"
+}
 ```
 
 ## set_mio_size_up_requirement_factor
@@ -7322,14 +7366,14 @@ mio:my_mio = {
 * Supported Targets: THIS, ROOT, PREV, FROM, OWNER, CONTROLLER, OCCUPIED, CAPITAL
 
 ```
-"Set to the factor applied to funds required to size up in the military industrial organization in scope.
+Set to the factor applied to funds required to size up in the military industrial organization in scope.
 This changes the base value. Modifiers will still apply over it.
 Input value cannot be negative.
 ex:
 mio:my_mio = {
   set_mio_size_up_requirement_factor = 0.9
   set_mio_size_up_requirement_factor = var:my_number_var
-}"
+}
 ```
 
 ## set_mio_task_capacity
@@ -7338,7 +7382,7 @@ mio:my_mio = {
 * Supported Targets: THIS, ROOT, PREV, FROM, OWNER, CONTROLLER, OCCUPIED, CAPITAL
 
 ```
-"Set the maximum task capacity in the military industrial organization in scope.
+Set the maximum task capacity in the military industrial organization in scope.
 This changes the base value. Modifiers will still apply over it.
 Input value cannot be negative.
 If the capacity is reduced and the MIO becomes over-assigned, the current tasks will be allowed.
@@ -7347,7 +7391,7 @@ ex:
 mio:my_mio = {
   set_mio_task_capacity = 3
   set_mio_task_capacity = var:my_number_var
-}"
+}
 ```
 
 ## set_nationality
@@ -7393,7 +7437,7 @@ set_naval_oob = "ENG_1936_Naval"
 * Supported Targets: THIS, ROOT, PREV, FROM, OWNER, CONTROLLER, OCCUPIED, CAPITAL
 
 ```
-"Sets the occupation law for an occupied country, occupied state, or the default occupation law of an occupying country.
+Sets the occupation law for an occupied country, occupied state, or the default occupation law of an occupying country.
 
 - If THIS is a country and it's the same as the PREV country, then THIS's default law is set.
 - If THIS is a country and it's different from the PREV country, then PREV's country law override for THIS is set.
@@ -7404,7 +7448,7 @@ The token default_law is used to remove a country or state override, or to set a
 Example:
 GER = { set_occupation_law = foreign_civilian_oversight }
 GER = { POL = { set_occupation_law = default_law } }
-GER = { 123 = { set_occupation_law = military_governor_occupation } }"
+GER = { 123 = { set_occupation_law = military_governor_occupation } }
 ```
 
 ## set_occupation_law_where_available
@@ -7413,11 +7457,11 @@ GER = { 123 = { set_occupation_law = military_governor_occupation } }"
 * Supported Targets: THIS, ROOT, PREV, FROM, OWNER, CONTROLLER, OCCUPIED, CAPITAL
 
 ```
-"See set_occupation_law for basic functionality. What differentiates this effect is that if the law is not available on the given level it will attempt to set it on a level below. I.e. if the law can't be set as the default law it will try to set it on each country, and if that fails it will try to set it on each state. Any existing law overrides below a level at which a law is successfully set will be cleared.
+See set_occupation_law for basic functionality. What differentiates this effect is that if the law is not available on the given level it will attempt to set it on a level below. I.e. if the law can't be set as the default law it will try to set it on each country, and if that fails it will try to set it on each state. Any existing law overrides below a level at which a law is successfully set will be cleared.
 
 Example:
 ITA = { set_occupation_law_where_available = colonial_police } # Set law in all countries/states where it's available.
-ITA = { every_occupied_country = { set_occupation_law_where_available = default_law } } # Remove all country and state overrides."
+ITA = { every_occupied_country = { set_occupation_law_where_available = default_law } } # Remove all country and state overrides.
 ```
 
 ## set_oob
@@ -7778,14 +7822,22 @@ sets technology level(s) on country. example : set_technology = {
 * Supported Scopes: any
 * Supported Targets: none
 
+Sets a temp variable to a value, another variable, or a [math expression](script_math_expression.md).
+`tooltip` can be used to override tooltip title with LEFT and RIGHT tokens.
+
+### Examples
 ```
-Sets a temp variable to a value or another variable
-Example: set_temp_variable = {
-var = num_dogs
+set_temp_variable = { num_dogs = 42 }
+set_temp_variable = {
+	var = num_dogs
 	value = 42
-	tooltip = loc_str_id_with_LEFT_and_RIGHT  #localized text with LEFT and RIGHT tokens in it, tokens will replaced by values
+	tooltip = loc_str_id_with_LEFT_and_RIGHT
+}
+set_temp_variable = {
+	num_dogs = { value = num_cats  multiply = 2  add = 1 }
 }
 ```
+
 
 ## set_temp_variable_to_random
 
@@ -7838,14 +7890,22 @@ set unit organization to current * value: set_unit_organization = 0.5, values be
 * Supported Scopes: any
 * Supported Targets: none
 
+Sets a variable to a value, another variable, or a [math expression](script_math_expression.md).
+`tooltip` can be used to override tooltip title with LEFT and RIGHT tokens.
+
+### Examples
 ```
-Sets a variable to a value or another variable
-Example: set_variable = {
-var = num_dogs
+set_variable = { num_dogs = 42 }
+set_variable = {
+	var = num_dogs
 	value = 42
-	tooltip = loc_str_id_with_LEFT_and_RIGHT  #localized text with LEFT and RIGHT tokens in it, tokens will replaced by values
+	tooltip = loc_str_id_with_LEFT_and_RIGHT
+}
+set_variable = {
+	num_dogs = { value = num_cats  multiply = 2  add = 1 }
 }
 ```
+
 
 ## set_variable_to_random
 
@@ -7901,12 +7961,12 @@ show what idea does
 * Supported Targets: none
 
 ```
-"Show the name of the input MIO with the name of the initial trait (if any)
+Show the name of the input MIO with the name of the initial trait (if any)
 ex:
 SOV = {
 	show_mio_tooltip = my_mio_token
 	show_mio_tooltip = var:my_mio_var
-}"
+}
 ```
 
 ## show_unit_leaders_tooltip
@@ -8096,7 +8156,7 @@ Example: steal_random_tech_bonus = {
 * Supported Targets: none
 
 ```
-"Add a strategic location to a province using state scope
+Add a strategic location to a province using state scope
 The available strategic locations is defined in strategic_locations and is specified with a province id.
 Can contain multiple strategic locations
 Ex:
@@ -8104,7 +8164,7 @@ strategic_location = {
   my_strategic_area = 3258 # Province ID
   my_other_area = 1234
 }
-}"
+}
 ```
 
 ## strategic_state_location
@@ -8113,7 +8173,7 @@ strategic_location = {
 * Supported Targets: none
 
 ```
-"Add strategic locations to a state in scope
+Add strategic locations to a state in scope
 The available strategic locations is defined in strategic_locations.
 Ex:
 10 = {
@@ -8121,7 +8181,7 @@ Ex:
     my_strategic_area = [province_id]
     my_other_area = [province_id]
   }
-}"
+}
 ```
 
 ## subtract_from_temp_variable
@@ -8129,28 +8189,32 @@ Ex:
 * Supported Scopes: any
 * Supported Targets: none
 
+Subtracts a value, a variable, or a [math expression](script_math_expression.md) from a temp variable.
+
+### Examples
 ```
-Subtracts a value or a variable to a temp variable
-Example: subtract_from_temp_variable = {
-var = num_dogs
-	value = 42
-	tooltip = loc_str_id_with_LEFT_and_RIGHT  #localized text with LEFT and RIGHT tokens in it, tokens will replaced by values
+subtract_from_temp_variable = { num_dogs = 5 }
+subtract_from_temp_variable = {
+	num_dogs = { value = num_cats  multiply = 2 }
 }
 ```
+
 
 ## subtract_from_variable
 
 * Supported Scopes: any
 * Supported Targets: none
 
+Subtracts a value, a variable, or a [math expression](script_math_expression.md) from a variable.
+
+### Examples
 ```
-Subtracts a value or a variable to another one
-Example: subtract_from_variable = {
-var = num_dogs
-	value = 42
-	tooltip = loc_str_id_with_LEFT_and_RIGHT  #localized text with LEFT and RIGHT tokens in it, tokens will replaced by values
+subtract_from_variable = { num_dogs = 5 }
+subtract_from_variable = {
+	num_dogs = { value = num_cats  multiply = 2 }
 }
 ```
+
 
 ## supply_units
 
@@ -8366,7 +8430,7 @@ Example: uncomplete_national_focus = {
 Fires a unit leader event for owner country.
 Example:
 unit_leader_event = {
-	id = generic.17 # The event to fire.
+	id = mtg_exile_leader_added.1 # The event to fire.
 	# Optional Fields:
 	hours = 12 # The number of hours to wait before firing the event.
 	days = 5 # The number of days to wait before firing the event.
@@ -8377,7 +8441,7 @@ unit_leader_event = {
 		# Note:  random_hours and random_days can both be used and will simply be added together.
 	random = 6 # Equivalent to random_hours; preserverd for backwards compatibility.
 	random = { chance = 50 ... } # Specify a set of child effects to execute as part of this effect, with a percentage chance of randomly happening or not (as a group, not individually).
-	tooltip = generic.17.t # Manually specify which tooltip to use for this effect.
+	tooltip = mtg_exile_leader_added.1.t # Manually specify which tooltip to use for this effect.
 }
 
 ```
@@ -8414,14 +8478,14 @@ unlock_decision_tooltip = {
 * Supported Targets: none
 
 ```
-"Display a tooltip saying the MIO is made available (aka unlocked).
+Display a tooltip saying the MIO is made available (aka unlocked).
 Accepts MIO token, variables or keywords
 ex:
 FIN = {
 	unlock_military_industrial_organization_tooltip = mio:my_mio_token
 	unlock_military_industrial_organization_tooltip = var:my_mio_var
 }
-"
+
 ```
 
 ## unlock_mio_policy_tooltip
@@ -8430,14 +8494,14 @@ FIN = {
 * Supported Targets: none
 
 ```
-"Display a tooltip saying the MIO policy is made available (aka unlocked).
+Display a tooltip saying the MIO policy is made available (aka unlocked).
 ex:
 unlock_mio_policy_tooltip = my_policy_token
 unlock_mio_policy_tooltip = {
 	policy = my_policy_token
 	show_modifiers = no # show bonuses in tooltip - optional, default = yes
 }
-"
+
 ```
 
 ## unlock_mio_trait_tooltip
@@ -8446,7 +8510,7 @@ unlock_mio_policy_tooltip = {
 * Supported Targets: none
 
 ```
-"Display a tooltip saying the trait is made available (aka unlocked).
+Display a tooltip saying the trait is made available (aka unlocked).
 ex:
 mio:my_mio = {
   unlock_mio_trait_tooltip = trait
@@ -8454,7 +8518,7 @@ mio:my_mio = {
 	trait = my_trait_token
 	show_modifiers = no # Optional, default = yes
   }
-}"
+}
 ```
 
 ## unlock_national_focus
@@ -8465,6 +8529,21 @@ mio:my_mio = {
 ```
 unlocks a focus for a country
 ```
+
+## unlock_subunit
+
+* Supported Scopes: COUNTRY
+* Supported Targets: none
+
+Unlocks the specified subunit for the country.
+
+	### Examples
+	```
+	GER = {
+		unlock_subunit = rangers_support
+	}
+	```
+	
 
 ## unlock_tactic
 

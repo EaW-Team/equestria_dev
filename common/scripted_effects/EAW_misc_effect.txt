@@ -760,6 +760,25 @@ decrease_illiteracy_by_two_levels = {
 	}
 }
 
+
+increase_illiteracy = {
+	if = {
+		limit = { has_idea = lack_of_scientists1 }
+		swap_ideas = { add_idea = lack_of_scientists remove_idea = lack_of_scientists1 }
+	}
+	else_if = {
+		limit = { has_idea = lack_of_scientists2 }
+		swap_ideas = { add_idea = lack_of_scientists1 remove_idea = lack_of_scientists2 }
+	}
+	else_if = {
+		limit = { has_idea = lack_of_scientists3 }
+		swap_ideas = { add_idea = lack_of_scientists2 remove_idea = lack_of_scientists3 }
+	}
+	else_if = {
+		limit = { has_idea = no_lack_of_scientists }
+		swap_ideas = { add_idea = lack_of_scientists3 remove_idea = no_lack_of_scientists }
+	}
+}
 remove_illiteracy = {
 	remove_ideas = lack_of_scientists
 	remove_ideas = lack_of_scientists1
@@ -1160,6 +1179,12 @@ reduce_state_category = {
 			has_state_category = rural
 		}
 		set_state_category = pastoral
+	}
+	else_if = {
+		limit = {
+			has_state_category = large_island
+		}
+		set_state_category = small_island
 	}
 	else_if = {
 		limit = {
@@ -1583,15 +1608,6 @@ get_current_autonomy_level = {
 			limit = { has_autonomy_state = autonomy_supervised_state }
 			set_country_flag = former_supervised_state
 		}
-	}
-}
-
-set_sand_mechanics = {
-	if = {
-		limit = {
-			is_ai = no
-		}
-		country_event = { id = brodfeld_rework.173 days = 649 }
 	}
 }
 
@@ -2149,12 +2165,19 @@ GRF_recalc_mercs = {
 						tag = GRF
 						count > 0
 					}
+					ROOT = {
+						NOT = { has_country_flag = agreed_to_mercs_@PREV }
+					}
 				}
 				ROOT = { recall_volunteers_from = PREV }
 			}
 		}
-		set_temp_variable = { offsite_IC_delta = offsite_IC_new }
-		subtract_from_temp_variable = { offsite_IC_delta = offsite_IC }
+		set_temp_variable = {
+			offsite_IC_delta = {
+				value = offsite_IC_new
+				subtract = offsite_IC
+			}
+		}
 		if = {
 			limit = {
 				NOT = {
@@ -2311,7 +2334,13 @@ GRF_recalc_mercs = {
 					}
 					add_to_variable = { ROOT.divs_as_mercs = 2 }
 				}
-				else = {
+				else_if = {
+					limit = {
+						has_volunteers_amount_from = {
+							tag = TRD
+							count > 0
+						}
+					}
 					add_to_variable = { ROOT.divs_as_mercs = 1 }
 				}
 			}
@@ -2321,13 +2350,26 @@ GRF_recalc_mercs = {
 						tag = TRD
 						count > 0
 					}
+					ROOT = {
+						NOT = { has_country_flag = agreed_to_mercs_@PREV }
+					}
 				}
 				ROOT = { recall_volunteers_from = PREV }
 			}
 		}
 	}
-	set_variable = { volunteers_factor = divs_as_mercs }
-	divide_variable = { volunteers_factor = num_divisions }
+	if = {
+		limit = { num_divisions > 0 }
+		set_variable = {
+			volunteers_factor = {
+				value = divs_as_mercs
+				divide = num_divisions
+			}
+		}
+	}
+	else = {
+		set_variable = { volunteers_factor = 0 }
+	}
 }
 lushi_remove_unemployment = {
 	if = {
@@ -2570,11 +2612,6 @@ remove_enclave_with_tp  = {
 		}
 	}
 }
-reset_sand_mechanics = {
-	hidden_effect = {
-		country_event = { id = yale.137 days = 40 }
-	}
-}
 
 #call save_current_manpower = yes before removing manpower from states, call restore_previous_manpower = yes immediately after
 
@@ -2671,6 +2708,8 @@ actually_fix_weapon_techs = {
 			magical_weapons_dervishes = 0
 			magical_weapons_amphibious_mechanized = 0
 			infantry_weapons_amphibious_mechanized = 0
+			infantry_weapons_air_assault = 0
+			magical_weapons_air_assault = 0
 			infantry_weapons_spirit_warriors = 0
 			magical_weapons_spirit_warriors = 0
 			infantry_weapons_storm_creatures = 0
@@ -2853,6 +2892,15 @@ actually_fix_weapon_techs = {
 			if = {
 				limit = {
 					OR = {
+						is_special_project_completed = sp:sp_air_advanced_helicopter
+						has_template_containing_unit = air_assault
+					}
+				}
+				set_technology = { popup = no magical_weapons_air_assault = 1 }
+			}
+			if = {
+				limit = {
+					OR = {
 						has_tech = tech_spirit_warriors
 						has_template_containing_unit = spirit_warriors
 					}
@@ -2960,6 +3008,15 @@ actually_fix_weapon_techs = {
 					}
 				}
 				set_technology = { popup = no infantry_weapons_amphibious_mechanized = 1 }
+			}
+			if = {
+				limit = {
+					OR = {
+						is_special_project_completed = sp:sp_air_advanced_helicopter
+						has_template_containing_unit = air_assault
+					}
+				}
+				set_technology = { popup = no infantry_weapons_air_assault = 1 }
 			}
 			if = {
 				limit = {
@@ -3272,10 +3329,10 @@ disband_units_fraction = {
 			}
 		}
 		set_temp_variable = {
-			manpower_diff = manpower_k
-		}
-		subtract_from_temp_variable = {
-			manpower_diff = old_manpower
+			manpower_diff = {
+				value = manpower_k
+				subtract = old_manpower
+			}
 		}
 		while_loop_effect = { #avoid overflows
 			limit = { check_variable = { manpower_diff > 1 } }
@@ -3396,23 +3453,6 @@ clear_current_inflicted_casualties = {
 			}
 			clear_variable = PREV.current_inflicted_casualties_on_@THIS
 			clear_variable = current_inflicted_casualties_on_@PREV
-		}
-	}
-}
-
-delete_communism = {
-	hidden_effect = {
-		if = {
-			limit = {
-				date > 1008.10.1
-				EQS = {
-					exists = yes
-					has_government = democratic
-					owns_state = 3
-				}
-			}
-			country_event = { id = flowena.129 days = 60 }
-			set_country_flag = eorgodkf
 		}
 	}
 }
@@ -3571,6 +3611,11 @@ set_AI_strategies_on_every_possible_country_delayed = {
 #                       2: KIR_theocracy_bop
 #                       3: KIR_theocracy_UNITED_bop
 #                       4: YAK_starting_bop
+#                       5: ZOO_influence_BoP
+#                       6: ABY_neutral_harmony
+#                       7: BRZ_loudbark_bop
+#                       8: EYE_curad_bop
+#                       9: SLC_dual_monarchy_bop
 #                       Else: JAK_starting_bop
 # Outputs : bop_value - The value of the BoP
 f_get_bop_value = {
@@ -3876,9 +3921,13 @@ build_air_base = {
 					always = yes
 				}
 			}
-			set_temp_variable = { local_air_capacity = building_level@air_base }
-			multiply_temp_variable = { local_air_capacity = 200 }
-			add_to_temp_variable = { air_capacity = local_air_capacity }
+			add_to_temp_variable = {
+				air_capacity = {
+					# local_air_capacity
+					value = building_level@air_base
+					multiply = 200
+				}
+			}
 		}
 		log = "build_air_base: [?Root.GetTag] has air_capacity at [?air_capacity|0]"
 		subtract_from_temp_variable = { air_capacity = 200 }
@@ -4283,3 +4332,112 @@ rename_stalliongrad_states = {
 	set_global_flag = stg_renamed
 }
 
+#A convoluted scripted effect for dynamically getting the capital province of the current state.
+#Returns the capital province through the capital_province temp variable.
+#Avoid using in performance intensive code.
+get_state_capital_province = {
+	hidden_effect = {
+		add_building_construction = {
+			type = province_test_building
+			level = 1
+			instant_build = yes
+			province = {
+				all_provinces = yes
+			}
+		}
+		SOL = {
+			meta_effect = {
+				text = {
+					division_template = {
+						name = "[CAPITAL_NAME]"
+						is_locked = yes
+						regiments = {
+							infantry = { x = 0 y = 0 }
+						}
+					}
+					create_faction = "[STATE_NAME]"
+				}
+				CAPITAL_NAME = "[PREV.GetCapitalVictoryPointName]"
+				STATE_NAME = "[PREV.GetName]"
+			}
+		}
+		set_state_name = "ABABABABABABABABA"
+		for_each_loop = {
+			array = global.province_controllers
+			value = v
+			index = i
+			break = break
+
+			if = {
+				limit = {
+					meta_trigger = {
+						text = {
+							any_province_building_level = {
+								province = {
+									id = [PROVINCE]
+								}
+								building = province_test_building
+								level > 0
+							}
+						}
+						PROVINCE = "[?i]"
+					}
+				}
+				meta_effect = {
+					text = {
+						add_victory_points = {
+							province = [PROVINCE]
+							value = 100
+						}
+					}
+					PROVINCE = "[?i]"
+				}
+				if = {
+					limit = {
+						SOL = {
+							meta_trigger = {
+								text = {
+									has_template = "[CAPITAL_NAME]"
+								}
+								CAPITAL_NAME = "[PREV.GetCapitalVictoryPointName]"
+							}
+						}
+					}
+					set_temp_variable = { capital_province = i }
+					set_temp_variable = { break = 1 }
+				}
+				meta_effect = {
+					text = {
+						add_victory_points = {
+							province = [PROVINCE]
+							value = -100
+						}
+					}
+					PROVINCE = "[?i]"
+				}
+			}
+		}
+		meta_effect = {
+			text = {
+				set_state_name = "[FACTION]"
+				SOL = {
+					delete_unit_template_and_units = {
+						division_template = "[CAPITAL_NAME]"
+					}
+				}
+			}
+			FACTION = "[SOL.GetFactionName]"
+			CAPITAL_NAME = "[THIS.GetCapitalVictoryPointName]"
+		}
+		SOL = {
+			dismantle_faction = yes
+		}
+		set_building_level = {
+			type = province_test_building
+			level = 0
+			province = {
+				all_provinces = yes
+			}
+		}
+	}
+}

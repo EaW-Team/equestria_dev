@@ -11,6 +11,40 @@
 * [idea_name](#idea_name)
 * [tech_effect](#tech_effect)
 
+## advisor_desc
+The advisor_desc formatter gets the description for the advisor.
+
+### Localization Scope Object
+The formatter requires the following Localization Scope Objects to be defined:
+* `Country` - The country that the idea is associated with.
+
+### Example
+```
+custom_effect_tooltip = advisor_desc|hjalmar_schacht
+```
+
+
+## building_state_modifier
+The building_state_modifier gets the state modifiers for the provided building template and the provided scope.
+
+The formatter takes special care of the following parameters:
+- INDENT: The indent to be added to all lines of the state modifier description (including header line).
+
+### Example:
+```
+custom_effect_tooltip = building_state_modifier|dam
+```
+
+
+## character_name
+The character_name formatter gets the name of the character.
+
+### Example:
+```
+custom_effect_tooltip = character_name|hjalmar_schacht
+```
+
+
 ## country_culture
 The country_culture formatter formats the string using the country's cultural override (`TAG_token`) if it exists,
 otherwise the generic version (`token`).
@@ -47,44 +81,6 @@ custom_effect_tooltip = {
 ```
 
 
-## building_state_modifier
-The building_state_modifier gets the state modifiers for the provided building template and the provided scope.
-
-The formatter takes special care of the following parameters:
-- INDENT: The indent to be added to all lines of the state modifier description (including header line).
-
-### Example:
-```
-custom_effect_tooltip = building_state_modifier|dam
-```
-
-
-## advisor_desc
-The advisor_desc formatter gets the description for the advisor.
-
-### Localization Scope Object
-The formatter requires the following Localization Scope Objects to be defined:
-* `Country` - The country that the idea is associated with.
-
-### Example
-```
-custom_effect_tooltip = advisor_desc|hjalmar_schacht
-```
-
-
-## tech_effect
-The tech_effect formatter gets the effect of finishing a technology.
-
-### Localization Scope Object
-The formatter requires the following Localization Scope Objects to be defined:
-* `Country` - The country that the tech is associated with.
-
-### Example
-```
-custom_effect_tooltip = tech_effect|early_transport_plane
-```
-
-
 ## idea_desc
 The idea_desc formatter gets the description for the idea.
 
@@ -111,12 +107,16 @@ custom_effect_tooltip = idea_name|canadian_pacific_railway
 ```
 
 
-## character_name
-The character_name formatter gets the name of the character.
+## tech_effect
+The tech_effect formatter gets the effect of finishing a technology.
 
-### Example:
+### Localization Scope Object
+The formatter requires the following Localization Scope Objects to be defined:
+* `Country` - The country that the tech is associated with.
+
+### Example
 ```
-custom_effect_tooltip = character_name|hjalmar_schacht
+custom_effect_tooltip = tech_effect|early_transport_plane
 ```
 
 

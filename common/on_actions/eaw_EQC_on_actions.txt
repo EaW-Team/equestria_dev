@@ -1,0 +1,223 @@
+on_actions = {
+	on_startup = {
+		effect = {
+			EQC = {
+				if = {
+					limit = {
+						has_game_rule = {
+							rule = eqc_april_fool option = DEFAULT
+						}
+					}
+					if = {
+						limit = {
+							has_character = EQC_ED_theevilsisters
+						}
+						retire_character = EQC_ED_theevilsisters
+					}
+					if = {
+						limit = {
+							has_character = EQC_ED_emergency_council
+						}
+						retire_character = EQC_ED_emergency_council
+					}
+					country_event = { id = mareland.19 days = 20 random_hours = 5760 }#days to hours applied
+					country_event = { id = mareland.33 days = 1825 random_hours = 43800 }#days to hours applied
+				}
+			}
+		}
+	}
+
+	on_declare_war = {
+		effect = {
+			#Remove BNPL bills if New Mareland goes to war
+			if = {
+				limit = {
+					ROOT = { original_tag = EQC }
+					ROOT = { EQC_has_bnpl_bills = yes }
+					NOT = { FROM = { original_tag = EQC } } # Don't remove in a civil war
+				}
+				ROOT = {
+					EQC_remove_bnpl_bills = yes
+					set_country_flag = bnpl_bills_removed_through_war
+				}
+			}
+
+			#Remove BNPL bills if New Mareland is declared war on
+			else_if = {
+				limit = {
+					FROM = { original_tag = EQC }
+					FROM = { EQC_has_bnpl_bills = yes }
+				}
+				FROM = {
+					EQC_remove_bnpl_bills = yes
+					set_country_flag = bnpl_bills_removed_through_war
+				}
+			}
+		}
+	}
+
+	on_capitulation = {
+		effect = {
+			if = {
+				limit = {
+					has_idea = EQC_funding_the_resistiance
+				}
+				remove_ideas = EQC_funding_the_resistiance
+				EQS = { remove_ideas = EQC_resistance }
+				ELF = { remove_ideas = EQC_resistance }
+			}
+
+			if = {
+				limit = {
+					original_tag = EQS
+					has_government = democratic
+					is_in_faction_with = EQC
+					EQC = {
+						exists = yes
+						has_capitulated = no
+						NOT = {
+							any_owned_state = {
+								is_controlled_by = FROM
+							}
+						}
+					}
+				}
+				EQC = {
+					if = {
+						limit = { FROM = { tag = CHN } }
+						ROOT = {
+							transfer_navy = { target = EQC }
+							every_character = {
+								limit = {
+									is_navy_leader = yes
+								}
+								set_unit_leader_flag = used_to_be_EQS
+								set_nationality = EQC
+							}
+						}
+					}
+
+					if = {
+						limit = { is_subject = yes }
+						end_puppet_this = yes
+					}
+					if = {
+						limit = { is_in_faction = yes }
+						leave_faction = yes
+					}
+					if = {
+						limit = { has_war_with = FROM }
+						set_country_flag = { flag = bypass_on_peaceconference_ended days = 1 value = 1 }
+						white_peace = FROM
+					}
+					if = {
+						limit = { FROM = { tag = CHN } }
+						set_country_flag = EQC_govt_in_exile
+						set_cosmetic_tag = EQC_EQS
+					}
+					else_if = {
+						limit = { FROM = { is_ai = no } }
+						FROM = {
+							create_wargoal = { target = ROOT type = puppet_wargoal_focus }
+						}
+					}
+				}
+			}
+		}
+	}
+
+	on_government_change = {
+		effect = {
+			if = {
+				limit = {
+					original_tag = EQC
+					has_country_flag = has_supported_equalists
+					has_government = communism
+				}
+				country_event = { id = mareland.30 hours = 1 }
+			}
+		}
+	}
+
+	on_civil_war_end = {
+		effect = {
+			#End of EQC MARESOC Civil War
+			if = {
+				limit = {
+					FROM = {
+						original_tag = EQC
+						has_country_flag = is_maresoc
+					}
+					original_tag = EQC
+				}
+				country_event = { id = mareland.26 days = 1 }
+			}
+			else_if = {
+				limit = {
+					FROM = { original_tag = EQC }
+					original_tag = EQC
+					has_country_flag = is_maresoc
+				}
+				country_event = { id = mareland.27 days = 1 }
+			}
+		}
+	}
+
+	on_annex = {
+		effect = {
+			if = {
+				limit = {
+					FROM = { has_idea = EQC_funding_the_resistiance }
+				}
+				FROM = { remove_ideas = EQC_funding_the_resistiance }
+				EQS = { remove_ideas = EQC_resistance }
+				ELF = { remove_ideas = EQC_resistance }
+			}
+
+			if = {
+				limit = {
+					FROM = { original_tag = EQC }
+				}
+				356 = { reset_state_name = yes }
+				reset_province_name = 10005
+			}
+		}
+	}
+
+	on_weekly_EQC = {
+		effect = {
+			if = { # AF26
+				limit = {
+					has_dynamic_modifier = {
+						modifier = ED_magic_balance_effect
+					}
+				}
+				ED_decay_magical_balance_effect = yes 
+			}
+		}
+	}
+
+	on_peaceconference_ended = {
+		effect = {
+			# PUT EVERYTHING IN THE IF BELOW
+			# THE bypass_on_peaceconference_ended FLAG **HAS** TO BE SET BEFORE CALLING THE white_peace COMMAND AND CLEARED AFTERWARDS
+			if = {
+				limit = {
+					NOT = {
+						has_country_flag = bypass_on_peaceconference_ended
+						FROM = { has_country_flag = bypass_on_peaceconference_ended }
+					}
+				}
+				log = "[GetDateText]: ROOT: [Root.GetName] FROM: [From.GetName] on_peaceconference_ended"
+				if = {
+					limit = {
+						FROM = { has_idea = EQC_funding_the_resistiance }
+					}
+					FROM = { remove_ideas = EQC_funding_the_resistiance }
+					EQS = { remove_ideas = EQC_resistance }
+					ELF = { remove_ideas = EQC_resistance }
+				}
+			}
+		}
+	}
+}
