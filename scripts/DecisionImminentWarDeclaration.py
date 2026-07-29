@@ -176,7 +176,7 @@ def decision_improved(cpath):
 
 
 def main():
-    cpath = os.path.dirname(os.path.realpath(__file__))
+    cpath = os.path.dirname(os.path.dirname(os.path.realpath(__file__)))
 
     ttime = 0
     ttime += decision_improved(cpath)
