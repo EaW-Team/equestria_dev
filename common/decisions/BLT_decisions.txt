@@ -135,9 +135,130 @@ BLT_king_boltrus_tab = {
 	}
 }
 
+economy_decisions = {
+	# In case of mainenance/debugging: refer to BLT_city_lord_of_camelkand_tt
+	# for what this decision has to do. Assure consistency - Stratophobia
+	BLT_reorganize_boltrian_economy = {
+		icon = scroll#REPLACE
+		cost = 0
+		allowed = { original_tag = BLT }
+		available = {
+			has_war = no
+			NOT = { has_idea = civilian_economy }
+		}
+		visible = {
+			has_idea_with_trait = BLT_city_lord_of_camelkand
+			has_war = no
+			NOT = { has_idea = civilian_economy }
+		}
+		complete_effect = {
+			log = "[GetDateText]: [Root.GetName]: Decision BLT_reorganize_boltrian_economy"
+			if = {
+				limit = { has_idea = low_economic_mobilisation }
+				set_temp_variable = { mobilization_increment_value = 1 }
+			}
+			else_if = {
+				limit = { has_idea = partial_economic_mobilisation }
+				set_temp_variable = { mobilization_increment_value = 2 }
+			}
+			else_if = {
+				limit = { has_idea = war_economy }
+				set_temp_variable = { mobilization_increment_value = 3 }
+			}
+			else_if = {
+				limit = { has_idea = tot_economic_mobilisation }
+				set_temp_variable = { mobilization_increment_value = 4 }
+			}
+
+			BLT_boltrus_gain_motivation_1 = yes
+
+			set_temp_variable = {
+				refunded_political_power = {
+					value = 150
+					multiply = var:mobilization_increment_value
+				}
+			}
+
+			if = {
+				limit = {
+					OR = {
+						BLT_boltrus_is_austere = yes
+						BLT_boltrus_is_tactical = yes
+					}
+				}
+				random_military_industrial_organization = { add_mio_funds = var:refunded_political_power }
+				if = {
+					limit = {
+						BLT_boltrus_is_austere = yes
+						BLT_boltrus_is_tactical = yes
+					}
+					random_military_industrial_organization = { add_mio_funds = var:refunded_political_power }
+				}
+			}
+
+			#TODO: find a solution to this; subject states need to be accounted
+			if = {
+				limit = { BLT_boltrus_is_hardened = yes }
+				if = {
+					limit = {
+						OR = {
+							BLT_boltrus_is_brave = yes
+							BLT_boltrus_is_gallant = yes
+						}
+					}
+					set_temp_variable = { include_subject_states = 1 }
+				}
+				set_temp_variable = {
+					per_state_manpower_value = {
+						value = 150
+						multiply = {
+							value = num_owned_states
+							add = {
+								value = subjects.num_owned_states
+								multiply = var:include_subject_states
+							}
+						}
+					}
+				}
+				add_manpower = var:per_state_manpower_value
+			}
+
+			if = {
+				limit = { BLT_boltrus_is_erudite = yes }
+				set_temp_variable = {
+					research_bonus_value = {
+						value = 0.0025
+						multiply = var:mobilization_increment_value
+					}
+				}
+				custom_effect_tooltip = { IDEA = BLT_economy_dynamic_modifier localization_key = modify_idea_tt }
+				add_to_variable = {
+					BLT_research_speed_factor = var:research_bonus_value
+					tooltip = research_speed_factor_tt
+				}
+			}
+
+			if = {
+				limit = {
+					BLT_boltrus_is_diligent = yes
+					BLT_boltrus_is_conniving = yes
+				}
+				divide_temp_variable = { refunded_political_power = 2 }
+			}
+			else = {
+				divide_temp_variable = { refunded_political_power = 3 }
+			}
+			add_political_power = var:refunded_political_power
+
+			hidden_effect = { add_ideas = civilian_economy }
+		}
+	}
+}
+
 military_training_category = {
 	BLT_engine_overclocking = {
 		icon = scroll#REPLACE
+		cost = 5
 		allowed = { original_tag = BLT }
 		available = {
 			has_idea_with_trait = BLT_mechanical_engineer
