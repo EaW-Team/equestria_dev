@@ -2266,51 +2266,80 @@ STG_improve_plan_effect = {
 }
 STG_masha_overmob_recalculate = {
 	# Exhaustion
-	set_temp_variable = { temp_0 = ROOT.STG_masha_exhaustion_var }
-	multiply_temp_variable = { temp_0 = 0.01 }
-	set_temp_variable = { temp = STG_overmob_economy_dm_consumer_goods_factor_base }
-	add_to_temp_variable = { temp = temp_0 }
-	set_variable = { STG_overmob_economy_dm_consumer_goods_factor = temp }
-	clamp_variable = { var = STG_overmob_economy_dm_consumer_goods_factor max = 0.5 }
+	set_variable = {
+		STG_overmob_economy_dm_consumer_goods_factor = {
+			value = STG_masha_exhaustion_var
+			divide = 100
+			add = STG_overmob_economy_dm_consumer_goods_factor_base
+			clamp = { max = 0.5 }
+		}
+	}
+	set_temp_variable = { temp = STG_overmob_economy_dm_industrial_capacity_factory }
+	set_variable = {
+		STG_overmob_economy_dm_industrial_capacity_factory = {
+			value = STG_overmob_economy_dm_industrial_capacity_factory_base
+			subtract = {
+				value = STG_masha_exhaustion_var
+				divide = 100
+			}
+		}
+	}
 	if = {
 		limit = {
-			set_temp_variable = { temp = modifier@industrial_capacity_factory }
-			check_variable = { temp > 0.02 }
+			check_variable = { modifier@industrial_capacity_factory < 0.01 }
 		}
-		clear_variable = temp
-		set_temp_variable = { temp = STG_overmob_economy_dm_industrial_capacity_factory_base }
-		subtract_from_temp_variable = { temp = temp_0 }
 		set_variable = { STG_overmob_economy_dm_industrial_capacity_factory = temp }
 	}
+	set_temp_variable = { temp = STG_overmob_economy_dm_industrial_capacity_dockyard }
+	set_variable = {
+		STG_overmob_economy_dm_industrial_capacity_dockyard = {
+			value = STG_overmob_economy_dm_industrial_capacity_dockyard_base
+			subtract = {
+				value = STG_masha_exhaustion_var
+				divide = 100
+			}
+		}
+	}
 	if = {
 		limit = {
-			set_temp_variable = { temp = modifier@industrial_capacity_dockyard }
-			check_variable = { temp > 0.02 }
+			check_variable = { modifier@industrial_capacity_dockyard < 0.01 }
 		}
-		clear_variable = temp
-		set_temp_variable = { temp = STG_overmob_economy_dm_industrial_capacity_dockyard_base }
-		subtract_from_temp_variable = { temp = temp_0 }
 		set_variable = { STG_overmob_economy_dm_industrial_capacity_dockyard = temp }
 	}
-	if = {
-		limit = {
-			add_to_temp_variable = { temp = modifier@production_speed_buildings_factor }
-			check_variable = { temp > 0.02 }
+	set_temp_variable = { temp = STG_overmob_economy_dm_production_speed_buildings_factor }
+	set_variable = {
+		STG_overmob_economy_dm_production_speed_buildings_factor = {
+			value = STG_overmob_economy_dm_production_speed_buildings_factor_base
+			subtract = {
+				value = STG_masha_exhaustion_var
+				divide = 100
+			}
 		}
-		clear_variable = temp
-		set_temp_variable = { temp = STG_overmob_economy_dm_production_speed_buildings_factor_base }
-		subtract_from_temp_variable = { temp = temp_0 }
-		set_variable = { STG_overmob_economy_dm_production_speed_buildings_factor = temp }
 	}
 	if = {
 		limit = {
-			set_temp_variable = { temp = 0.5 }
-			add_to_temp_variable = { temp = modifier@production_factory_max_efficiency_factor }
-			check_variable = { temp > 0.02 }
+			check_variable = { modifier@production_speed_buildings_factor < 0.01 }
 		}
-		clear_variable = temp
-		set_temp_variable = { temp = STG_overmob_economy_dm_production_factory_max_efficiency_factor_base }
-		subtract_from_temp_variable = { temp = temp_0 }
+		set_variable = { STG_overmob_economy_dm_production_speed_buildings_factor = temp }
+	}
+	set_temp_variable = { temp = STG_overmob_economy_dm_production_factory_max_efficiency_factor }
+	set_variable = {
+		STG_overmob_economy_dm_production_factory_max_efficiency_factor = {
+			value = STG_overmob_economy_dm_production_factory_max_efficiency_factor_base
+			subtract = {
+				value = STG_masha_exhaustion_var
+				divide = 100
+			}
+		}
+	}
+	if = {
+		limit = {
+			check_expr = {
+				value = 0.5
+				add = modifier@production_factory_max_efficiency_factor
+				less_than = 0.01
+			}
+		}
 		set_variable = { STG_overmob_economy_dm_production_factory_max_efficiency_factor = temp }
 	}
 	if = {
@@ -2377,8 +2406,12 @@ STG_masha_overmob_recalculate = {
 }
 STG_masha_zeal_recalculate = {
 	# Zeal
-	set_temp_variable = { temp = ROOT.STG_masha_zeal_var }
-	multiply_temp_variable = { temp = 0.0025 }
+	set_temp_variable = {
+		temp = {
+			value = STG_masha_zeal_var
+			divide = 400
+		}
+	}
 	set_variable = { STG_overmob_economy_dm_army_attack_factor = temp }
 	set_variable = { STG_overmob_economy_dm_army_defence_factor = temp }
 	set_variable = { STG_overmob_economy_dm_mobilization_speed = temp }
@@ -2398,6 +2431,45 @@ STG_masha_war_tooltip = {
         add_to_temp_variable = { current_index = 1 }
         STG_masha_war_tooltip = yes
     }
+}
+
+STG_masha_war_plan_effect = {
+	if = {
+		limit = {
+			has_country_flag = STG_changelandia_plan_CHN_flag
+			any_neighbor_country = { is_ally_with = CHN }
+		}
+		add_timed_idea = {
+			idea = STG_changelandia_plan_CHN
+			days = 90
+		}
+		clr_country_flag = STG_changelandia_plan_CHN_flag
+	}
+	else_if = {
+		limit = {
+			has_country_flag = STG_changelandia_plan_EQS_flag
+			any_neighbor_country = { is_ally_with = EQS }
+		}
+		add_timed_idea = {
+			idea = STG_changelandia_plan_EQS
+			days = 90
+		}
+		clr_country_flag = STG_changelandia_plan_EQS_flag
+	}
+	else_if = {
+		limit = {
+			has_country_flag = STG_changelandia_plan_SOL_NLR_flag
+			OR = {
+				any_neighbor_country = { is_ally_with = EQS }
+				any_neighbor_country = { is_ally_with = NLR }
+			}
+		}
+		add_timed_idea = {
+			idea = STG_changelandia_plan_SOL_NLR
+			days = 90
+		}
+		clr_country_flag = STG_changelandia_plan_SOL_NLR_flag
+	}
 }
 
 STG_puppet_ideology_effect = {
