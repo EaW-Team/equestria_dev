@@ -73,8 +73,11 @@ on_actions = {
 				every_character = {
 					limit = {
 						is_unit_leader = yes
-						has_trait = camel_race_trait
 						NOT = { has_trait = chosen_of_arakash }
+						OR = {
+							has_trait = camel_race_trait
+							has_trait = cama_race_trait
+						}
 					}
 					add_timed_unit_leader_trait = {
 						trait = chosen_of_arakash
@@ -387,9 +390,97 @@ on_actions = {
 		}
 	}
 
-	on_yearly_BLT = {
-		#Ashura's advisor ability
+	on_state_control_changed = {
 		effect = {
+			# Otabek's advisor ability
+			if = {
+				limit = {
+					FROM = {
+						original_tag = BLT
+						has_idea_with_trait = BLT_temple_guard_banneret
+					}
+					ROOT = {
+						NOT = { has_idea = BLT_heat_delirium }
+					}
+					if = {
+						limit = {
+							OR = {
+								BLT_boltrus_is_brave = no
+								BLT_boltrus_is_tactical = no
+								BLT_boltrus_is_hardened = no
+								BLT_boltrus_is_conniving = no
+							}
+						}
+						FROM.FROM = { is_core_of = BLT }
+					}
+				}
+				ROOT = { country_event = boltria.27 }
+			}
+		}
+	}
+
+	on_yearly_BLT = {
+		effect = {
+			#Boltrian Royal Development Charter concern ability
+			if = {
+				limit = {
+					has_idea_with_trait = BLT_infrastructure_development
+					any_owned_state = { infrastructure < 5 }
+				}
+				if = {
+					limit = {
+						BLT_boltrus_is_diligent = yes
+						BLT_boltrus_is_persuasive = yes
+					}
+					set_temp_variable = { num_of_states_to_develop = 4 }
+				}
+				else = {
+					set_temp_variable = { num_of_states_to_develop = 3}
+				}
+				set_temp_variable = { lvl_of_infrastructure_to_check = 0 }
+				while_loop_effect = {
+					limit = {
+						check_variable = { num_of_states_to_develop > 0 }
+						check_variable = {
+							var = lvl_of_infrastructure_to_check
+							value = 5
+							compare = less_than_or_equals
+						}
+					}
+					for_each_loop = {
+						array = owned_states
+						value = v
+						break = break
+						if = {
+							limit = {
+								check_variable = { num_of_states_to_develop = 0 }
+							}
+							set_temp_variable = { break = 1 }
+						}
+						if = {
+							limit = {
+								check_variable = { break = 0 }
+								var:v = {
+									is_controlled_by = BLT
+									#infrastructure = var:lvl_of_infrastructure_to_check
+									check_variable = { building_level@infrastructure = PREV.var:lvl_of_infrastructure_to_check }
+								}
+							}
+							add_to_temp_variable = { num_of_states_to_develop = -1 }
+							var:v = {
+								add_building_construction = {
+									level = 1
+									type = infrastructure
+									instant_build = yes
+								}
+							}
+						}
+					}
+					add_to_temp_variable = { lvl_of_infrastructure_to_check = 1 }
+				}
+			}
+
+			#Ashura's advisor ability
 			if = {
 				limit = { has_idea_with_trait = BLT_head_of_mathematics }
 				if = {
@@ -433,35 +524,6 @@ on_actions = {
 						}
 					}
 				}
-			}
-		}
-	}
-
-	on_state_control_changed = {
-		effect = {
-			# Otabek's advisor ability
-			if = {
-				limit = {
-					FROM = {
-						original_tag = BLT
-						has_idea_with_trait = BLT_temple_guard_banneret
-					}
-					ROOT = {
-						NOT = { has_idea = BLT_heat_delirium }
-					}
-					if = {
-						limit = {
-							OR = {
-								BLT_boltrus_is_brave = no
-								BLT_boltrus_is_tactical = no
-								BLT_boltrus_is_hardened = no
-								BLT_boltrus_is_conniving = no
-							}
-						}
-						FROM.FROM = { is_core_of = BLT }
-					}
-				}
-				ROOT = { country_event = boltria.27 }
 			}
 		}
 	}
