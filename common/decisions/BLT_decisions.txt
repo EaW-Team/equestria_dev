@@ -282,6 +282,85 @@ economy_decisions = {
 		}
 	}
 
+	BLT_outback_prospecting = {
+		icon = scroll#REPLACE
+		state_target = yes
+		target_array = owned_states
+		cost = 10
+		visible = {
+			has_idea_with_trait = BLT_wasteland_prospecting
+			FROM = {
+				has_state_category = wasteland
+				OR = {
+					is_core_of = BLT
+					AND = {
+						check_variable = { THIS.compliance > 30 }
+						check_variable = { THIS.resistance < 1 }
+					}
+				}
+				NOT = { has_state_flag = BLT_has_exhausted_oil_prospecting }
+			}
+		}
+		available = { has_idea_with_trait = BLT_wasteland_prospecting }
+		on_map_mode = map_only
+		ai_will_do = {
+			base = @BLT_DECISION_AI_WEIGHT_BASE
+			modifier = {
+				add = @BLT_DECISION_AI_WEIGHT_DO_IMMEDIATELY
+				has_political_power > 250
+			}
+		}
+		complete_effect = {
+			log = "[GetDateText]: [Root.GetName]: Decision BLT_outback_prospecting"
+			set_temp_variable = {
+				prospecting_success_chance = {
+					value = 95
+					subtract = {
+						value = FROM.infrastructure_level
+						add = FROM.resource@oil
+						multiply = 3
+					}
+					subtract = {
+						value = FROM.resource@rubber
+						multiply = 2
+					}
+					subtract = {
+						value = FROM.resource@chromium
+						add = FROM.resource@steel
+						add = FROM.resource@aluminium
+						add = FROM.resource@tungsten
+						add = FROM.resource@crystals
+						add = FROM.resource@coal
+					}
+					clamp = {
+						min = 0
+						max = 100
+					}
+				}
+			}
+			set_temp_variable = {
+				prospecting_fail_chance = {
+					value = 100
+					subtract = var:prospecting_success_chance
+				}
+			}
+			random_list = {
+				var:prospecting_success_chance = {
+					FROM = {
+						add_resource = {
+							type = oil
+							amount = 1
+						}
+					}
+				}
+				var:prospecting_fail_chance = {
+					custom_effect_tooltip = BLT_has_exhausted_oil_prospecting
+					FROM = { set_state_flag = BLT_has_exhausted_oil_prospecting }
+				}
+			}
+		}
+	}
+
 	BLT_build_energy_infrastructure = {
 		icon = scroll#REPLACE
 		state_target = yes
@@ -331,6 +410,7 @@ economy_decisions = {
 		complete_effect = {
 			FROM = { set_state_flag = BLT_building_energy_inf }
 		}
+		ai_will_do = { base = @BLT_DECISION_AI_WEIGHT_BASE }
 		remove_effect = {
 			log = "[GetDateText]: [Root.GetName]: Decision BLT_build_energy_infrastructure"
 			FROM = {
@@ -400,6 +480,7 @@ economy_decisions = {
 		complete_effect = {
 			FROM = { set_state_flag = BLT_building_energy_inf }
 		}
+		ai_will_do = { base = @BLT_DECISION_AI_WEIGHT_BASE }
 		remove_effect = {
 			log = "[GetDateText]: [Root.GetName]: Decision BLT_build_industrial_infrastructure"
 			FROM = {
