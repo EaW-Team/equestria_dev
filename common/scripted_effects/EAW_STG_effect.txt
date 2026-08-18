@@ -724,24 +724,63 @@ STG_get_total_comecon_strength = {
 # Inputs      : None
 # Outputs     : None
 STG_update_comecon_modifier_values = {
-	# Compute the current contribution factor
-	set_temp_variable = { temp_factor = STG.STG_comecon_strength }
-	clamp_temp_variable = {
-		var = temp_factor
-		min = 1
-		max = @COMECON_CONTRIBUTION_FOR_MAX_BONUS
+	every_state = {
+		add_to_temp_variable = {
+			world_industry = {
+				value = building_level@industrial_complex
+				add = building_level@arms_factory
+				add = building_level@dockyard
+			}
+		}
+		if = {
+			limit = {
+				CONTROLLER = {
+					OR = {
+						tag = STG
+						is_in_array = { STG.STG_COMECON_majors_array = THIS }
+						is_in_array = { STG.STG_COMECON_minors_array = THIS }
+					}
+				}
+			}
+			add_to_temp_variable = {
+				comecon_industry = {
+					value = building_level@industrial_complex
+					add = building_level@arms_factory
+					add = building_level@dockyard
+				}
+			}
+		}
 	}
-	divide_temp_variable = { temp_factor = @COMECON_CONTRIBUTION_FOR_MAX_BONUS }
-
-	# Factory output
-	set_variable = { STG.STG_comecon_factory_output = @COMECON_FACTORY_OUTPUT_BONUS }
-	multiply_variable = { STG.STG_comecon_factory_output = temp_factor }
-	add_to_variable = { STG.STG_comecon_factory_output = @COMECON_FACTORY_OUTPUT_MIN }
-	
-	set_temp_variable = { STG_cc_manpower_tmp = STG.STG_comecon_factory_output }
-	multiply_temp_variable = { STG_cc_manpower_tmp = 10000 }
-	set_variable = { STG.STG_comecon_manpower_bonus = STG_cc_manpower_tmp }
-
+	set_variable = {
+		STG.STG_comecon_factory_output = {
+			value = 1
+			multiply = {
+				value = comecon_industry
+				divide = world_industry
+			}
+		}
+	}
+	set_variable = {
+		STG.STG_comecon_manpower_bonus = {
+			value = STG.STG_comecon_factory_output
+			multiply = 1000
+		}
+	}
+	if = {
+		limit = {
+			has_country_leader = {
+				character = STG_masha_norushkina
+				ruling_only = yes
+			}
+		}
+		set_variable = { STG.STG_comecon_masha_mod_1 = STG.STG_comecon_factory_output }
+		set_variable = {
+			STG.STG_comecon_masha_mod_2 = {
+				value = STG.STG_comecon_factory_output
+				multiply = -1
+			}
+		}
+	}
 	for_each_scope_loop = {
 		array = STG.subjects
 		set_variable = { STG_comecon_member_extra_trade_to_overlord_factor = STG.STG_comecon_member_extra_trade_to_overlord_factor }
