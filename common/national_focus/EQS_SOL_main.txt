@@ -1,4 +1,7 @@
 ###SOL Rework but real this time. Focus tree by Test4Echo & StarTrix###
+#Constant for the inner circle
+@SOL_inner_circle_cost = 10
+
 focus_tree = {
 	id = EQS_solar_empire_main
 
@@ -952,6 +955,253 @@ focus_tree = {
 
 		ai_will_do = {
 			factor = 80
+		}
+	}
+
+	# INNER CIRCLE
+	focus = {
+		id = SOL_the_empresss_gravitas
+		#Temp position in lieu of final focus location
+		x = 20
+		y = 0
+		icon = GFX_goal_solar_phoenix
+
+		#allow_branch = {
+		#	has_country_flag = SOL_reveal_remaining_focuses
+		#}
+
+		cost = 1
+
+		completion_reward = {
+			log = "[GetDateText]: [Root.GetName]: Focus SOL_the_empresss_gravitas"
+			#TODO: Event: Raven has a tense meeting with Daybreaker as she floats the idea that Daybreaker cannot do literally everything herself, as much as she would like to. Daybreaker would be resistant to the idea at first, with Raven having to carefully navigate the situation. Raven presents a list with possible candidates for a panel of experts, and Daybreaker leaves her to whittle it down which leaves Raven a bundle of nerves once she's dismissed
+		}
+
+		ai_will_do = {
+			factor = 40
+		}
+	}
+
+	focus = {
+		id = SOL_the_inner_planets
+		x = -1
+		y = 1
+		relative_position_id = SOL_the_empresss_gravitas
+		icon = GFX_goal_solar_phoenix
+
+		cost = 1
+		prerequisite = { focus = SOL_the_empresss_gravitas }
+
+		completion_reward = {
+			log = "[GetDateText]: [Root.GetName]: Focus SOL_the_inner_planets"
+			#TODO: Event: Rundown of four of the final candidates for each section of the inner circle tree. Options unlocked are Raven, Blueblood, Filthy Rich, and Chancellor Neighsay. Raven will soften some of Daybreaker's policies through welfare state reform and integration campaigns, Blueblood will focus on sharpening the military further, Neighsay will reform the EEA to teach "proper Imperial (pony) values," Filthy Rich can look at market regulations and economic growth opportunities
+		}
+
+		ai_will_do = {
+			factor = 40
+		}
+	}
+
+	focus = {
+		id = SOL_the_outer_planets
+		x = 1
+		y = 1
+		relative_position_id = SOL_the_empresss_gravitas
+		icon = GFX_goal_solar_phoenix
+
+		cost = 1
+		prerequisite = { focus = SOL_the_empresss_gravitas }
+
+		completion_reward = {
+			log = "[GetDateText]: [Root.GetName]: Focus SOL_the_outer_planets"
+			#TODO: Event: Rundown of the other four final candidates for the inner circle. Options unlocked are Fizzlepop Berrytwist, Abacus Cinch, Aunt Orange, and Fancy Pants. Most of these characters are unaware of Daybreaker's interest in them. Only Fancy Pants would have any available policy, since he's in the castle and will have already been asked. He will work on keeping the elites of Canterlot agreeable and on presenting a friendly exterior to the world, Cinch would focus on higher education reforms and magical technologies, Aunt Orange (Working name, Orange Rind) has a business mind and would ensure smoother regulations for Imperial businesses, Fizzlepop would focus on special forces and paratroopers. Fizzlepop is not listed as an example, but rather the spot she fills as an alternative to Blueblood is left ambiguous and undetermined. Fizzlepop comes to Daybreaker in a later event.
+			set_country_flag = SOL_unlocked_outer_planets
+		}
+
+		ai_will_do = {
+			factor = 40
+		}
+	}
+
+	focus = {
+		id = SOL_the_discount_apple
+		x = 17
+		y = 1
+		relative_position_id = SOL_the_outer_planets
+		icon = GFX_goal_solar_phoenix
+
+		cost = 2
+		prerequisite = {
+			focus = SOL_the_inner_planets
+			focus = SOL_the_outer_planets
+		}
+		available = {
+			has_country_flag = SOL_unlocked_outer_planets
+		}
+		mutually_exclusive = {
+			focus = SOL_the_bargain_choice
+		}
+
+		completion_reward = {
+			log = "[GetDateText]: [Root.GetName]: Focus SOL_the_discount_apple"
+			#TODO: Event: Daybreaker personally visits Aunt Orange to "encourage" her to join the inner circle and be Daybreaker's economic expert. Aunt Orange is, understandably, nervous and fusses while trying to come up with a way to deny Daybreaker and keep her freedom. She doesn't find a way and is left with no other choice but to agree.
+			country_event = solarempire_inner_circle_orange.10
+		}
+
+		ai_will_do = {
+			factor = 160
+		}
+	}
+
+	focus = {
+		id = SOL_laying_seed
+		x = 0
+		y = 1
+		relative_position_id = SOL_the_discount_apple
+		icon = GFX_goal_solar_phoenix
+
+		cost = @SOL_inner_circle_cost
+		prerequisite = { focus = SOL_the_discount_apple }
+		#available = {
+		#	#TODO: Change to custom trigger cooltip
+		#	NOT = { has_country_flag = SOL_aunt_orange_cooldown }
+		#}
+		#Yoinked from GER's focus tree because why reinvent the wheel?
+		available = {
+			if = { #ADVISOR WORKING ON THE FOCUS (Show progress)
+				limit = {
+					has_country_flag = SOL_laying_seed_in_progress_flag
+				}
+				set_temp_variable = { temp_focus_days = @SOL_inner_circle_cost } #For tooltip purposes
+				multiply_temp_variable = { temp_focus_days = 7 } #The constant uses focus cost which is in weeks, so convert to days
+				custom_override_tooltip = {
+					tooltip = {
+						localization_key = GER_inner_circle_focus_in_progress_tt
+						CHARACTER = EQS_SOL_aunt_orange
+						FLAG_DAYS = [?SOL_laying_seed_in_progress_flag:days]
+					}
+					always = no
+				}
+			}
+			else = { #NOT BEEN WORKED ON (Just Explain)
+				custom_override_tooltip = {
+					tooltip = {
+						localization_key = GER_focus_can_only_be_completed_by_advisor_tt
+						CHARACTER = EQS_SOL_aunt_orange
+						FOCUS = SOL_the_discount_apple
+					}
+					always = no
+				}
+			}
+		}
+
+		completion_reward = {
+			log = "[GetDateText]: [Root.GetName]: Focus SOL_laying_seed"
+			random_controlled_state = {
+				limit = {
+					OR = {
+						has_state_category = pastoral
+						has_state_category = rural
+					}
+				}
+				add_extra_state_shared_building_slots = 1
+				if = {
+					limit = {
+						infrastructure < 5
+					}
+					add_building_construction = {
+						type = infrastructure
+						level = 1
+						instant_build = yes
+					}
+				}
+			}
+			random_controlled_state = {
+				limit = {
+					OR = {
+						has_state_category = pastoral
+						has_state_category = rural
+					}
+				}
+				add_extra_state_shared_building_slots = 1
+				if = {
+					limit = {
+						infrastructure < 5
+					}
+					add_building_construction = {
+						type = infrastructure
+						level = 1
+						instant_build = yes
+					}
+				}
+			}
+			random_controlled_state = {
+				limit = {
+					OR = {
+						has_state_category = pastoral
+						has_state_category = rural
+					}
+				}
+				add_extra_state_shared_building_slots = 1
+				if = {
+					limit = {
+						infrastructure < 5
+					}
+					add_building_construction = {
+						type = infrastructure
+						level = 1
+						instant_build = yes
+					}
+				}
+			}
+			random_controlled_state = {
+				limit = {
+					OR = {
+						has_state_category = pastoral
+						has_state_category = rural
+					}
+				}
+				add_extra_state_shared_building_slots = 1
+				if = {
+					limit = {
+						infrastructure < 5
+					}
+					add_building_construction = {
+						type = infrastructure
+						level = 1
+						instant_build = yes
+					}
+				}
+			}
+		}
+	}
+
+	focus = {
+		id = SOL_the_bargain_choice
+		x = 19
+		y = 1
+		relative_position_id = SOL_the_outer_planets
+		icon = GFX_goal_solar_phoenix
+
+		cost = 2
+		prerequisite = {
+			focus = SOL_the_inner_planets
+			focus = SOL_the_outer_planets
+		}
+		available = {
+			has_country_flag = SOL_unlocked_inner_planets
+		}
+		mutually_exclusive = {
+			focus = SOL_the_discount_apple
+		}
+
+		completion_reward = {
+			log = "[GetDateText]: [Root.GetName]: Focus SOL_the_bargain_choice"
+			#TODO: Event: Filthy Rich gets a surprise visit from Daybreaker at Barnyard Bargains while he's teaching Diamond Tiara how to run the store. Daybreaker sarcastically finds it adorable that he's teaching his daughter the family business, and uses that to segue to demanding he join her inner circle of experts as her economic expert. Fancy is resistant at first, but the promise of easier times for his family and others convinces him, especially as Daybreaker makes a couple of veiled insinuations about Diamond Tiara's safety if he denies her.
+		}
+
+		ai_will_do = {
+			factor = 160
 		}
 	}
 }
