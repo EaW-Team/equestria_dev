@@ -10753,7 +10753,12 @@ country_event = { # Masha purges a ton of Serovite advisors & bureaucrats
 		}
 		add_stability = temp_stability
 		custom_effect_tooltip = generic_skip_one_line_tt
-		STG_alexandra_mistina = { retire = yes }
+		effect_tooltip = {
+			STG_alexandra_mistina = { retire = yes }
+		}
+		hidden_effect = {
+			STG_alexandra_mistina = { remove_advisor_role = { slot = political_advisor } }
+		}
 		STG_Flasha_Kashtanka = { retire = yes }
 		STG_nestori_ketola = { retire = yes }
 		if = {
@@ -11931,6 +11936,7 @@ country_event = { # STG asks us about joining their faction (event for Posada)
 		ai_chance = {
 			factor = 100
 		}
+		custom_effect_tooltip = STG_we_will_give_BAT_tt
 		FROM = { country_event = { id = stalliongrad_masha_postwar.6 days = 2 } }
     }
 	option = { # No
@@ -11938,6 +11944,7 @@ country_event = { # STG asks us about joining their faction (event for Posada)
 		ai_chance = {
 			factor = 0
 		}
+		custom_effect_tooltip = BRZ_Lead_To_War_tt
 		FROM = { country_event = { id = stalliongrad_masha_postwar.7 days = 2 } }
     }
 }
@@ -11954,8 +11961,38 @@ country_event = { # Posada agrees
 
 	option = {
 		name = stalliongrad_masha_postwar.6.a
-		FROM = { dismantle_faction = yes }
-		add_to_faction = FROM
+		if = {
+			limit = {
+				all_of_scopes = {
+					array = BAT.original_cores
+					CONTROLLER = {
+						OR = {
+							tag = FROM
+							is_ally_with = FROM
+						}
+					}
+				}
+			}
+			custom_effect_tooltip = STG_posada_will_give_BAT_tt
+			for_each_scope_loop = {
+				array = BAT.original_cores
+				transfer_state_to = ROOT
+			}
+		}
+		effect_tooltip = { add_to_faction = FROM }
+		hidden_effect = {
+			FROM = {
+				for_each_loop = {
+					array = faction_members
+					add_to_array = { old_faction_members = v }
+				}
+				dismantle_faction = yes
+				for_each_scope_loop = {
+					array = old_faction_members
+					ROOT = { add_to_faction = PREV }
+				}
+			}
+		}
     }
 }
 
@@ -12284,6 +12321,7 @@ country_event = { #
 
 	option = {
 		name = stalliongrad_masha_postwar.11.a
+		custom_effect_tooltip = available_political_advisor
 		add_advisor_role = {
 			character = STG_vasiliy_wheatin
 			advisor = {
@@ -12291,6 +12329,17 @@ country_event = { #
 				idea_token = vasya
 				cost = 150
 				traits = { head_directorate_of_new_buildings }
+			}
+		}
+		custom_effect_tooltip = generic_skip_one_line_tt
+		custom_effect_tooltip = available_political_advisor
+		add_advisor_role = {
+			character = STG_alexandra_mistina
+			advisor = {
+				slot = political_advisor
+				idea_token = alexandra_mistina
+				cost = 150
+				traits = { STG_alexandra_mistina_trait }
 			}
 		}
     }
@@ -12304,6 +12353,17 @@ country_event = { #
 				idea_token = STG_rassvet_znaikin
 				cost = 150
 				traits = { right_trade_unionist }
+			}
+		}
+		custom_effect_tooltip = generic_skip_one_line_tt
+		custom_effect_tooltip = available_political_advisor
+		add_advisor_role = {
+			character = STG_amber_flyagin
+			advisor = {
+				slot = political_advisor
+				idea_token = amber_flyagin
+				cost = 150
+				traits = { STG_amber_flyagin_trait }
 			}
 		}
     }
@@ -12569,9 +12629,14 @@ country_event = { # Zebrican Labor Commisariat
 				save_global_event_target_as = STG_masha_zebrican_commisariat
 				set_cosmetic_tag = STG_masha_zebrican_commisariat
 			}
+			for_each_scope_loop = {
+				array = BAT.original_cores
+				transfer_state_to = event_target:STG_masha_zebrican_commisariat
+				add_core_of = event_target:STG_masha_zebrican_commisariat
+			}
 			every_owned_state = {
 				limit = {
-					is_fully_controlled_by = ROOT
+					is_owned_and_controlled_by = ROOT
 					is_on_continent = africa
 				}
 				transfer_state_to = event_target:STG_masha_zebrican_commisariat
@@ -12754,8 +12819,8 @@ country_event = { # Griffonian Labor Commisariat
 			}
 			every_owned_state = {
 				limit = {
-					is_fully_controlled_by = ROOT
 					is_on_continent = asia
+					is_owned_and_controlled_by = ROOT
 					NOT = { is_in_array = { state_original_cores = EQC } }
 				}
 				transfer_state_to = event_target:STG_masha_griffonian_commisariat
