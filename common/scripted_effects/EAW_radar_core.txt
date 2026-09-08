@@ -1,0 +1,61 @@
+#=====================================#
+## Core
+#=====================================#
+## Calculates frame data as inpu
+# input args (temp array):   axis_init^0, axis_init^1, axis_init^2, axis_init^3, axis_init^4
+#     values: (0-1)          axis_final^0, axis_final^1, axis_final^2, axis_final^3, axis_final^4
+# output args (temp array):  sector_frame^0, sector_frame^1, sector_frame^2, sector_frame^3, sector_frame^4
+calculate_radar_graph_5axis_anim_frame = {
+	for_each_loop = {
+		array = axis_init
+		multiply_temp_variable = { axis_init^i = 25 }
+		round_temp_variable = axis_init^i
+	}
+	for_each_loop = {
+		array = axis_final
+		multiply_temp_variable = { axis_final^i = 25 }
+		round_temp_variable = axis_final^i
+	}
+	
+	for_loop_effect = {
+		# 1-5
+		start = 1 end = 6 value = v
+
+		add_to_temp_array = { sector_frame = v }
+
+		set_temp_variable = { temp_second_axis = v }
+		modulo_temp_variable = { temp_second_axis = 5 }
+		set_temp_variable = { temp_first_axis = v }
+		subtract_from_temp_variable = { temp_first_axis = 1 }
+
+		# Initial position
+		set_temp_variable = { sector_scale_0 = axis_init^temp_first_axis }
+		multiply_temp_variable = { sector_scale_0 = 8 } # 2^3
+		set_temp_variable = { sector_scale_1 = axis_init^temp_second_axis }
+		multiply_temp_variable = { sector_scale_1 = 256 } # 2^8
+
+		# Final position
+		set_temp_variable = { sector_scale_2 = axis_final^temp_first_axis }
+		multiply_temp_variable = { sector_scale_2 = 8192 } # 2^13
+		set_temp_variable = { sector_scale_3 = axis_final^temp_second_axis }
+		multiply_temp_variable = { sector_scale_3 = 262144 } # 2^18
+
+		set_temp_variable = { current_index = v }
+		subtract_from_temp_variable = { current_index = 1 }
+
+		add_to_temp_variable = { sector_frame^current_index = sector_scale_0 }
+		add_to_temp_variable = { sector_frame^current_index = sector_scale_1 }
+		add_to_temp_variable = { sector_frame^current_index = sector_scale_2 }
+		add_to_temp_variable = { sector_frame^current_index = sector_scale_3 }
+	}
+
+	if = {
+		limit = {
+			has_country_flag = radar_graph_5axis_anim_toggle
+		}
+		clr_country_flag = radar_graph_5axis_anim_toggle
+	}
+	else = {
+		set_country_flag = radar_graph_5axis_anim_toggle
+	}
+}
