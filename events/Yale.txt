@@ -358,22 +358,7 @@ country_event = {
 
 		uncomplete_national_focus = {
 			focus = YAL_cyrusval_university
-		}
-		if = {
-			limit = {
-				has_completed_focus = YAL_the_student_vanguard
-			}
-			uncomplete_national_focus = {
-				focus = YAL_the_student_vanguard
-			}
-		}
-		if = {
-			limit = {
-				has_completed_focus = YAL_the_faculty
-			}
-			uncomplete_national_focus = {
-				focus = YAL_the_faculty
-			}
+			uncomplete_children = yes
 		}
 		clr_country_flag = YAL_cyrusval
 		set_country_flag = YAL_fascist_universities
@@ -754,6 +739,7 @@ country_event = {
 	}
 }
 
+# One More Day (start of revolution)
 country_event = {
 	id = yale_communist.8
 	immediate = {log = "[GetDateText]: [Root.GetName]: event yale_communist.8"}
@@ -762,42 +748,86 @@ country_event = {
 	picture = GFX_event_speech
 
 	is_triggered_only = yes
+
+	immediate = {
+		hidden_effect = {
+			country_event = {
+				id = yale_communist.9
+				days = 3
+			}
+			if = {
+				limit = {
+					NOT = {
+						has_country_flag = YAL_nierenstein_ousted
+					}
+				}
+				country_event = {
+					id = yale_communist.10
+					days = 10
+				}
+			}
+			remove_mission = YAL_rise_of_the_reaction
+		}
+	}
 	
 	option = {
 		name = yale_communist.8.a
 		trigger = {
-			check_variable = {
-				YAL_intellectual_support > 1
-			}
-			check_variable = {
-				YAL_worker_support > 1
-			}
-			check_variable = {
-				YAL_military_support > 1
+			OR = {
+				check_variable = {
+					YAL_intellectual_support > 2
+				}
+				check_variable = {
+					YAL_worker_support > 2
+				}
+				check_variable = {
+					YAL_military_support > 2
+				}
 			}
 		}
-		country_event = { id = yale_communist.9 days = 10 }
+		custom_effect_tooltip = yale_communist.8.a_tt
+		add_to_variable = {
+			YAL_revolution_strength = 1
+			tooltip = YAL_revolution_strength_add
+		}
+		add_popularity = {
+			ideology = communism
+			popularity = 0.05
+		}
+		effect_tooltip = {
+			remove_mission = YAL_rise_of_the_reaction
+		}
+		swap_ideas = {
+			remove_idea = YAL_brewing_revolution
+			add_idea = YAL_civil_war
+		}
 	}
 	option = {
 		name = yale_communist.8.b
 		trigger = {
-			OR = {
-				check_variable = {
-					YAL_intellectual_support < 2
-				}
-				check_variable = {
-					YAL_worker_support < 2
-				}
-				check_variable = {
-					YAL_military_support < 2
-				}
+			check_variable = {
+				YAL_intellectual_support < 3
+			}
+			check_variable = {
+				YAL_worker_support < 3
+			}
+			check_variable = {
+				YAL_military_support < 3
 			}
 		}
-		set_country_flag = ring_leaders_arrested
-		country_event = { id = yale.36 days = 10 }
+		custom_effect_tooltip = yale_communist.8.b_tt
+		add_political_power = -25
+		effect_tooltip = {
+			remove_mission = YAL_rise_of_the_reaction
+		}
+		swap_ideas = {
+			remove_idea = YAL_brewing_revolution
+			add_idea = YAL_civil_war
+		}
 	}
 }
 
+# General Strike
 country_event = {
 	id = yale_communist.9
 	immediate = {log = "[GetDateText]: [Root.GetName]: event yale_communist.9"}
@@ -806,190 +836,96 @@ country_event = {
 	picture = GFX_event_bronzhill_communist_party
 
 	is_triggered_only = yes
+
+	immediate = {
+		activate_mission = YAL_the_battle_for_greenback
+	}
 	
 	option = {
 		name = yale_communist.9.a
-		add_stability = -0.03
-		add_popularity = {
-			ideology = communism
-			popularity = -0.02
-		}
-		custom_effect_tooltip = YAL_worker_support_decr_tooltip
-		subtract_from_variable = {
-			var = YAL_worker_support
-			value = 1
-		}
-		country_event = { id = yale.36 days = 10 }
-	}
-	option = {
-		name = yale_communist.9.b
-		trigger = {
-			check_variable = {
-				YAL_worker_support > 3
+		add_ideas = YAL_general_strike
+
+		if = {
+			limit = {
+				check_variable = {
+					YAL_worker_support > 4
+				}
+			}
+			custom_effect_tooltip = yale_communist.9.a_tt
+
+			subtract_from_variable = {
+				YAL_reaction_support = 1
+			}
+			add_popularity = {
+				ideology = communism
+				popularity = 0.05
 			}
 		}
-		custom_effect_tooltip = YAL_worker_support_available_tooltip
-		add_political_power = 15
-		country_event = { id = yale.36 days = 10 }
+		else = {
+			add_popularity = {
+				ideology = communism
+				popularity = 0.02
+			}
+		}
 	}
 }
 
+# Nierenstein Rallies the Reactionaries
 country_event = {
-	id = yale.36 #General strike
-	immediate = {log = "[GetDateText]: [Root.GetName]: event yale.36"}
-	title = yale.36.t
-	desc = yale.36.d
-	picture = GFX_event_bronzhill_communist_party
-	
+	id = yale_communist.10
+	immediate = {log = "[GetDateText]: [Root.GetName]: event yale_communist.10"}
+	title = yale_communist.10.t
+	desc = yale_communist.10.d
+	picture = GFX_event_griffon_soldier
+
 	is_triggered_only = yes
-	
+
 	option = {
-		name = yale.36.a
-		trigger = { NOT = { has_country_flag = ring_leaders_arrested } }
-		add_political_power = -100
-		add_popularity = {
-			ideology = communism
-			popularity = 0.04
-		}
-		set_country_flag = revolution_spreads
-		hidden_effect = {
-			set_country_flag = normal_pick
-			country_event = { id = yale.361 }
-			country_event = { id = yale.37 days = 12 }
-		}
-	}
-	option = {
-		name = yale.36.b
-		trigger = {
-			NOT = { has_country_flag = ring_leaders_arrested }
-			check_variable = {
-				YAL_worker_support > 3
-			}
-		}
-		custom_effect_tooltip = YAL_worker_support_available_tooltip
-		add_political_power = -50
-		add_popularity = {
-			ideology = communism
-			popularity = 0.07
-		}
-		set_country_flag = strike_spreads
-		hidden_effect = {
-			set_country_flag = worker_pick
-			country_event = { id = yale.361 }
-			country_event = { id = yale.37 days = 12 }
-		}
-	}
-	option = {
-		name = yale.36.c
-		trigger = {
-			NOT = { has_country_flag = ring_leaders_arrested }
-			check_variable = {
-				YAL_military_support > 3
-			}
-		}
-		custom_effect_tooltip = YAL_military_support_available_tooltip
-		add_popularity = {
-			ideology = communism
-			popularity = 0.03
-		}
-		add_war_support = -0.05
-		set_country_flag = soldiers_spread_the_word
-		hidden_effect = {
-			set_country_flag = military_pick
-			country_event = { id = yale.361 }
-			country_event = { id = yale.37 days = 12 }
-		}
-	}
-	option = {
-		name = yale.36.e
-		trigger = { has_country_flag = ring_leaders_arrested }
-		hidden_effect = {
-			country_event = { id = yale_communist.12 days = 10 }
+		name = yale_communist.10.a
+
+		add_to_variable = {
+			YAL_reaction_support = 1
+			tooltip = YAL_reaction_strength_add
 		}
 	}
 }
 
+# Battle for Greenback
 country_event = {
-	id = yale.361
-	immediate = {log = "[GetDateText]: [Root.GetName]: event yale.361"}
-	title = yale.361.t
-	desc = yale.361.d
-	picture = GFX_event_bronzhill_communist_party
-	
+	id = yale_communist.11
+	immediate = {log = "[GetDateText]: [Root.GetName]: event yale_communist.11"}
+	title = yale_communist.11.t
+	desc = yale_communist.11.d
+	picture = GFX_event_griffon_soldier
+
 	is_triggered_only = yes
-	
-	option = {
-		name = yale.361.a
-		trigger = { 
-			has_country_flag = normal_pick
+
+	immediate = {
+		hidden_effect = {
+			country_event = {
+				id = yale_communist.12
+				days = 3
+			}
+			subtract_from_variable = {
+				YAL_revolution_strength = YAL_reaction_support
+			}
 		}
-		clr_country_flag = normal_pick
 	}
+
 	option = {
-		name = yale.361.b
-		trigger = {
-			has_country_flag = worker_pick
+		name = yale_communist.11.a
+		custom_effect_tooltip = YAL_revolution_battle_effect
+		effect_tooltip = {
+			subtract_from_variable = {
+				YAL_revolution_strength = YAL_reaction_support
+				tooltip = YAL_revolution_strength_sub
+			}
 		}
-		clr_country_flag = worker_pick
-	}
-	option = {
-		name = yale.361.c
-		trigger = {
-			has_country_flag = military_pick
-		}
-		clr_country_flag = military_pick
+		custom_effect_tooltip = YAL_revolution_battle_length
 	}
 }
 
-country_event = {
-	id = yale.37
-	immediate = {log = "[GetDateText]: [Root.GetName]: event yale.37"}
-	title = yale.37.t
-	desc = yale.37.d
-	picture = GFX_event_bronzhill_communist_party
-	
-	is_triggered_only = yes
-	
-	option = {
-		name = yale.37.a
-		add_manpower = -5000
-		custom_effect_tooltip = YAL_worker_support_decr_tooltip
-		subtract_from_variable = {
-			var = YAL_worker_support
-			value = 1
-		}
-		hidden_effect = {
-			country_event = { id = yale_communist.12 days = 11 }
-		}
-	}
-	option = {
-		name = yale.37.b
-		trigger = {
-			check_variable = {
-				YAL_intellectual_support > 3
-			}
-		}
-		custom_effect_tooltip = YAL_intellectual_support_available_tooltip
-		add_manpower = -2000
-		hidden_effect = {
-			country_event = { id = yale_communist.12 days = 11 }
-		}
-	}
-	option = {
-		name = yale.37.c
-		trigger = {
-			check_variable = {
-				YAL_military_support > 3
-			}
-		}
-		custom_effect_tooltip = YAL_military_support_available_tooltip
-		add_political_power = -35
-		hidden_effect = {
-			country_event = { id = yale_communist.12 days = 11 }
-		}
-	}
-}
-
+# Battle for Greenback II
 country_event = {
 	id = yale_communist.12
 	immediate = {log = "[GetDateText]: [Root.GetName]: event yale_communist.12"}
@@ -998,483 +934,578 @@ country_event = {
 	picture = GFX_event_griffon_soldier
 
 	is_triggered_only = yes
+
+	immediate = {
+		hidden_effect = {
+			if = {
+				limit = {
+					check_variable {
+						YAL_revolution_strength > 0
+					}
+				}
+				activate_mission = YAL_the_battle_for_gamia
+				country_event = {
+					id = yale_communist.13
+					days = 10
+				}
+			}
+		}
+	}
 	
 	option = {
 		name = yale_communist.12.a
 		trigger = {
-			NOT = { has_country_flag = ring_leaders_arrested }
-			has_country_flag = revolution_spreads
+			check_variable {
+				YAL_revolution_strength > 0
+			}
 		}
-		clr_country_flag = revolution_spreads
-		hidden_effect = {
-			country_event = { id = yale.41 days = 15 }
+
+		if = {
+			limit = {
+				check_variable = {
+					YAL_military_support > 4
+				}
+			}
+			custom_effect_tooltip = yale_communist.12.a_tt
+			subtract_from_variable = {
+				YAL_reaction_support = 1
+			}
+			add_manpower = -703
+			398 = {
+				add_manpower = -5076
+			}
+		}
+		else = {
+			add_manpower = -1205
+			398 = {
+				add_manpower = -8654
+			}
+		}
+
+		add_popularity = {
+			ideology = communism
+			popularity = 0.1
 		}
 	}
 	option = {
 		name = yale_communist.12.b
 		trigger = {
-			NOT = { has_country_flag = ring_leaders_arrested }
-			has_country_flag = strike_spreads
-		}
-		clr_country_flag = strike_spreads
-		hidden_effect = {
-			country_event = { id = yale.41 days = 15 }
-		}
-	}
-	option = {
-		name = yale_communist.12.c
-		trigger = {
-			NOT = { has_country_flag = ring_leaders_arrested }
-			has_country_flag = soldiers_spread_the_word
-		}
-		clr_country_flag = soldiers_spread_the_word
-		hidden_effect = {
-			country_event = { id = yale.41 days = 15 }
-		}
-	}
-	option = {
-		name = yale_communist.12.e
-		trigger = {
-			has_country_flag = ring_leaders_arrested
-		}
-		hidden_effect = {
-			country_event = { id = yale.39 days = 10 }
-		}
-	}
-}
-
-country_event = {
-	id = yale.39
-	immediate = {log = "[GetDateText]: [Root.GetName]: event yale.39"}
-	title = yale.39.t
-	desc = yale.39.d
-	picture = GFX_event_griffon_back
-
-	is_triggered_only = yes
-	
-	option = {
-		name = yale.39.a
-		country_event = { id = yale.40 days = 3 }
-	}
-}
-
-country_event = {
-	id = yale.40
-	immediate = {log = "[GetDateText]: [Root.GetName]: event yale.40"}
-	title = yale.40.t
-	desc = yale.40.d
-	picture = GFX_event_speech
-	
-	is_triggered_only = yes
-	
-	option = {
-		name = yale.40.a
-		custom_effect_tooltip = GAME_OVER_TT
-		GRD = {
-			annex_country = {
-				target = YAL
-				transfer_troops = yes
+			check_variable {
+				YAL_revolution_strength < 1
 			}
 		}
-	}
-}
 
-country_event = {
-	id = yale.41 #Church speaks out
-	immediate = {log = "[GetDateText]: [Root.GetName]: event yale.41"}
-	title = yale.41.t
-	desc = yale.41.d
-	picture = GFX_event_speech
-	
-	is_triggered_only = yes
-	
-	option = {
-		name = yale.41.a
-		custom_effect_tooltip = YAL_worker_support_decr_tooltip
-		subtract_from_variable = {
-			var = YAL_worker_support
-			value = 1
-		}
-		custom_effect_tooltip = YAL_intellectual_support_decr_tooltip
-		subtract_from_variable = {
-			var = YAL_intellectual_support
-			value = 1
-		}
-		custom_effect_tooltip = YAL_military_support_decr_tooltip
-		subtract_from_variable = {
-			var = YAL_military_support
-			value = 1
-		}
-		add_stability = -0.05
-		hidden_effect = {
-			set_country_flag = normal_pick
-			country_event = { id = yale_communist.15 }
-			country_event = { id = yale.42 days = 15 }
-		}
-	}
-	option = {
-		name = yale.41.b
-		trigger = {
-			check_variable = {
-				YAL_intellectual_support > 3
-			}
-		}
-		custom_effect_tooltip = YAL_intellectual_support_available_tooltip
-		add_political_power = -25
-		custom_effect_tooltip = YAL_intellectual_support_decr_tooltip
-		subtract_from_variable = {
-			var = YAL_intellectual_support
-			value = 1
-		}
-		hidden_effect = {
-			set_country_flag = intellectual_pick
-			country_event = { id = yale_communist.15 }
-			country_event = { id = yale.42 days = 15 }
-		}
-	}
-	option = {
-		name = yale.41.c
-		trigger = {
-			check_variable = {
-				YAL_military_support > 3
-			}
-		}
-		custom_effect_tooltip = YAL_military_support_available_tooltip
-		add_political_power = -50
 		add_popularity = {
-			ideology = fascism
-			popularity = -0.05
+			ideology = communism
+			popularity = -0.1
 		}
-		hidden_effect = {
-			set_country_flag = military_pick
-			country_event = { id = yale_communist.15 }
-			country_event = { id = yale.42 days = 15 }
+		add_manpower = -1053
+		398 = {
+			add_manpower = -6831
+		}
+		
+		country_event = {
+			id = yale_communist.19 # Failure of the revolution
+			days = 10
 		}
 	}
 }
 
+# The Burning Capital
+country_event = {
+	id = yale_communist.13
+	immediate = {log = "[GetDateText]: [Root.GetName]: event yale_communist.13"}
+	title = yale_communist.13.t
+	desc = yale_communist.13.d
+	picture = GFX_event_bronzhill_communist_party
+
+	is_triggered_only = yes
+	
+	option = {
+		name = yale_communist.13.a
+
+		398 = {
+			add_manpower = -13598
+		}
+	}
+	option = {
+		name = yale_communist.13.b
+
+		add_to_variable = {
+			YAL_revolution_strength = 2
+			tooltip = YAL_revolution_strength_add
+		}
+		add_stability = -0.1
+		add_war_support = -0.05
+		398 = {
+			add_manpower = -53401
+		}
+	}
+}
+
+# The Battle for Gamia I
+country_event = {
+	id = yale_communist.14
+	immediate = {log = "[GetDateText]: [Root.GetName]: event yale_communist.14"}
+	title = yale_communist.14.t
+	desc = yale_communist.14.d
+	picture = GFX_event_bronzhill_communist_party
+
+	is_triggered_only = yes
+
+	immediate = {
+		hidden_effect = {
+			country_event = {
+				id = yale_communist.15
+				days = 3
+			}
+			subtract_from_variable = {
+				YAL_revolution_strength = YAL_reaction_support
+			}
+		}
+	}
+	
+	option = {
+		name = yale_communist.14.a
+		custom_effect_tooltip = YAL_revolution_battle_effect
+		effect_tooltip = {
+			subtract_from_variable = {
+				YAL_revolution_strength = YAL_reaction_support
+				tooltip = YAL_revolution_strength_sub
+			}
+		}
+		custom_effect_tooltip = YAL_revolution_battle_length
+	}
+}
+
+# The Battle for Gamia II
 country_event = {
 	id = yale_communist.15
 	immediate = {log = "[GetDateText]: [Root.GetName]: event yale_communist.15"}
 	title = yale_communist.15.t
 	desc = yale_communist.15.d
 	picture = GFX_event_bronzhill_communist_party
-	
+
 	is_triggered_only = yes
+
+	immediate = {
+		hidden_effect = {
+			if = {
+				limit = {
+					limit = {
+						check_variable {
+							YAL_revolution_strength > 0
+						}
+					}
+				}
+				activate_mission = YAL_the_battle_for_yale
+				country_event = {
+					id = yale_communist.16
+					days = 10
+				}
+			}
+		}
+	}
 	
 	option = {
 		name = yale_communist.15.a
 		trigger = {
-			has_country_flag = normal_pick
+			check_variable {
+				YAL_revolution_strength > 0
+			}
 		}
-		clr_country_flag = normal_pick
+
+		if = {
+			limit = {
+				check_variable = {
+					YAL_intellectual_support > 4
+				}
+			}
+			custom_effect_tooltip = yale_communist.15.a_tt
+			subtract_from_variable = {
+				YAL_reaction_support = 1
+			}
+			add_manpower = -846
+			665 = { # Falconia (Gamia)
+				add_manpower = -3956
+			}
+			439 = { # Yale (Bruma)
+				add_manpower = -1504
+			}
+		}
+		else = {
+			add_manpower = -1132
+			665 = { # Falconia (Gamia)
+				add_manpower = -6919
+			}
+			439 = { # Yale (Bruma)
+				add_manpower = -5391
+			}
+		}
+
+		add_popularity = {
+			ideology = communism
+			popularity = 0.1
+		}
+		
+
 	}
 	option = {
 		name = yale_communist.15.b
 		trigger = {
-			has_country_flag = intellectual_pick
+			check_variable {
+				YAL_revolution_strength < 1
+			}
 		}
-		clr_country_flag = intellectual_pick
-	}
-	option = {
-		name = yale_communist.15.c
-		trigger = {
-			has_country_flag = military_pick
+
+		add_popularity = {
+			ideology = communism
+			popularity = -0.1
 		}
-		clr_country_flag = military_pick
+		add_manpower = -1153
+		665 = { # Falconia (Gamia)
+			add_manpower = -6941
+		}
+		439 = { # Yale (Bruma)
+			add_manpower = -4956
+		}
+		
+		country_event = {
+			id = yale_communist.20 # Failure of the revolution
+			days = 10
+		}
 	}
 }
 
+# The Sacking Of Bruma
 country_event = {
-	id = yale.42 #Gamia students clash
-	immediate = {log = "[GetDateText]: [Root.GetName]: event yale.42"}
-	title = yale.42.t
-	desc = yale.42.d
-	picture = GFX_event_griffon_with_gun
-	
+	id = yale_communist.16
+	immediate = {log = "[GetDateText]: [Root.GetName]: event yale_communist.16"}
+	title = yale_communist.16.t
+	desc = yale_communist.16.d
+	picture = GFX_event_bronzhill_communist_party
+
 	is_triggered_only = yes
 	
 	option = {
-		name = yale.42.a
-		trigger = {
-			check_variable = {
-				YAL_intellectual_support < 3
-			}
+		name = yale_communist.16.a
+
+		439 = {
+			add_manpower = -21059
 		}
-		add_popularity = {
-			ideology = fascism
-			popularity = 0.07
-		}
-		country_event = { id = yale.43 days = 9 }
 	}
 	option = {
-		name = yale.42.b
+		name = yale_communist.16.b
+
+		add_to_variable = {
+			YAL_revolution_strength = 2
+			tooltip = YAL_revolution_strength_add
+		}
+		add_stability = -0.1
+		add_political_power = -25
+		439 = {
+			add_manpower = -56811
+		}
+	}
+}
+
+# The Battle for Yale I
+country_event = {
+	id = yale_communist.17
+	immediate = {log = "[GetDateText]: [Root.GetName]: event yale_communist.17"}
+	title = yale_communist.17.t
+	desc = {
+		text = yale_communist.17.d_insufficient
 		trigger = {
 			check_variable = {
-				YAL_intellectual_support = 3
+				YAL_revolution_strength < 1
 			}
 		}
-		country_event = { id = yale.43 days = 9 }
 	}
-	option = {
-		name = yale.42.c
+	desc = {
+		text = yale_communist.17.d_sufficient
 		trigger = {
 			check_variable = {
-				YAL_intellectual_support > 3
+				YAL_revolution_strength > 0
+			}
+		}
+	}
+	picture = GFX_event_bronzhill_communist_party
+
+	is_triggered_only = yes
+
+	immediate = {
+		hidden_effect = {
+			subtract_from_variable = {
+				YAL_revolution_strength = YAL_reaction_support
+			}
+			if = {
+				limit = {
+					check_variable = {
+						YAL_revolution_strength > 0
+					}
+				}
+				country_event = {
+					id = yale_communist.18 # Revolution Triumphant
+					days = 3
+				}
+			}
+			else = {
+				country_event = {
+					id = yale_communist.19 # Revolution Defeated
+					days = 3
+				}
+			}
+		}
+	}
+	
+	option = {
+		name = yale_communist.17.a
+		custom_effect_tooltip = YAL_revolution_battle_effect
+		effect_tooltip = {
+			subtract_from_variable = {
+				YAL_revolution_strength = YAL_reaction_support
+				tooltip = YAL_revolution_strength_sub
+			}
+		}
+		custom_effect_tooltip = YAL_revolution_battle_length
+	}
+}
+
+# The Battle For Yale II - Success
+country_event = {
+	id = yale_communist.18
+	immediate = {log = "[GetDateText]: [Root.GetName]: event yale_communist.18"}
+	title = yale_communist.18.t
+	desc = yale_communist.18.d
+	picture = GFX_event_bronzhill_communist_party
+
+	is_triggered_only = yes
+	
+	option = {
+		name = yale_communist.18.a
+
+		set_politics = {
+			ruling_party = communism
+			elections_allowed = no
+		}
+
+		custom_effect_tooltip = yale_communist.18.a_tt
+		set_temp_variable = {
+			popularity_gain_var = {
+				value = YAL_revolution_strength
+				multiply = 0.02
+			}
+		}
+		set_temp_variable = {
+			stability_gain_var = {
+				value = YAL_revolution_strength
+				multiply = 0.025
 			}
 		}
 		add_popularity = {
 			ideology = communism
-			popularity = 0.07
+			popularity = popularity_gain_var
 		}
-		country_event = { id = yale.43 days = 9 }
-	}
-}
+		add_stability = stability_gain_var
+		
+		set_country_flag = YAL_revolution_success
+		clr_country_flag = herzland_diplomacy_blocked
+		custom_effect_tooltip = YAL_DEAD_of_the_heroes
+		YAL_gerhard_silverbeak = {
+			retire = yes
+		}
+		YAL_peter_zuckergreif = {
+			retire = yes
+		}
+		YAL_gebhard_bucher = {
+			retire = yes
+		}
+		YAL_apfel_von_kuchen = {
+			retire = yes
+		}
+		YAL_yvette_frischtalon = {
+			retire = yes
+		}
 
-country_event = {
-	id = yale.43 #Breakdown of Order
-	immediate = {log = "[GetDateText]: [Root.GetName]: event yale.43"}
-	title = yale.43.t
-	desc = yale.43.d
-	picture = GFX_event_griffon_mountain
-	
-	is_triggered_only = yes
-	
-	immediate = {
-
-		set_variable = {
-			support_check = {
-				value = 0
-				add = YAL_worker_support
-				add = YAL_intellectual_support
-				add = YAL_military_support
+		if = {
+			limit = {
+				has_character = YAL_karl_legreif
 			}
-		}
-	}
-	option = {
-		name = yale.43.a
-		trigger = {
-			check_variable = {
-				support_check > 10
-			}
-		}
-		add_timed_idea = {
-			idea = YAL_destructive_anarchy
-			days = 90
-		}
-		country_event = { id = yale.44 days = 10 }
-	}
-	option = {
-		name = yale.43.b
-		trigger = {
-			check_variable = {
-				support_check < 11
-			}
-			check_variable = {
-				support_check > 7
-			}
-		}
-		add_timed_idea = {
-			idea = YAL_destructive_anarchy
-			days = 180
-		}
-		country_event = { id = yale.44 days = 10 }
-	}
-	option = {
-		name = yale.43.c
-		trigger = {
-			check_variable = {
-				support_check < 8
-			}
-			check_variable = {
-				support_check > 4
-			}
-		}
-		add_timed_idea = {
-			idea = YAL_destructive_anarchy
-			days = 270
-		}
-		country_event = { id = yale.44 days = 10 }
-	}
-}
-
-country_event = {
-	id = yale.44 #New Communes
-	immediate = {log = "[GetDateText]: [Root.GetName]: event yale.44"}
-	title = yale.44.t
-	desc = yale.44.d
-	picture = GFX_event_green_mountain
-	
-	is_triggered_only = yes
-	option = {
-		name = yale.44.a
-		trigger = {
-			check_variable = {
-				support_check > 10
-			}
-		}
-		country_event = { id = yale.45 days = 10 }
-	}
-	option = {
-		name = yale.44.b
-		trigger = {
-			check_variable = {
-				support_check < 11
-			}
-			check_variable = {
-				support_check > 7
-			}
-		}
-		country_event = { id = yale.45 days = 10 }
-	}
-	option = {
-		name = yale.44.c
-		trigger = {
-			check_variable = {
-				support_check < 8
-			}
-			check_variable = {
-				support_check > 4
-			}
-		}
-		country_event = { id = yale.45 days = 10 }
-	}
-	option = {
-		name = yale.44.e
-		trigger = {
-			check_variable = {
-				support_check < 4
-			}
-		}
-		custom_effect_tooltip = YAL_critically_low_support
-		country_event = { id = yale.45 days = 10 }
-	}
-}
-
-country_event = {
-	id = yale.45
-	immediate = {log = "[GetDateText]: [Root.GetName]: event yale.45"}
-	title = yale.45.t
-	desc = yale.45.d
-	picture = GFX_event_griffon_para
-
-
-	is_triggered_only = yes
-	
-	option = {
-		name = yale.45.a
-		trigger = {
-			OR = {
-				check_variable = {
-					YAL_military_support < 1
-				}
-				check_variable = {
-					YAL_intellectual_support < 1
-				}
-				check_variable = {
-					YAL_worker_support < 1
+			YAL_karl_legreif = {
+				add_advisor_role = {
+					activate = yes
+					advisor = {
+						slot = political_advisor
+						idea_token = YAL_karl_legreif
+						cost = 150
+						can_be_fired = no
+						traits = { YAL_trade_union_ally }
+					}
 				}
 			}
 		}
-		hidden_effect = {
-			country_event = { id = yale.46 days = 7 }
-		}
-	}
-	option = {
-		name = yale.45.b
-		trigger = {
-			check_variable = {
-				YAL_military_support > 0
-			}
-			check_variable = {
-				YAL_intellectual_support > 0
-			}
-			check_variable = {
-				YAL_worker_support > 0
-			}
-		}
-		hidden_effect = {
-			country_event = { id = yale.47 days = 7 }
-		}
+
+		complete_national_focus = YAL_to_the_barricades
 	}
 }
 
+# The Battle For Yale II - Failure
 country_event = {
-	id = yale.46 #Counter-revolution!
-	immediate = {log = "[GetDateText]: [Root.GetName]: event yale.46"}
-	title = yale.46.t
-	desc = yale.46.d
-	picture = GFX_event_griffon_back
+	id = yale_communist.19
+	immediate = {log = "[GetDateText]: [Root.GetName]: event yale_communist.19"}
+	title = yale_communist.19.t
+	desc = yale_communist.19.d
+	picture = GFX_event_griffon_shoot
 
 	is_triggered_only = yes
 	
 	option = {
-		name = yale.46.a
-		country_event = { id = yale.40 days = 7 }
+		name = yale_communist.19.a
+		custom_effect_tooltip = YAL_communist_revolution_failed
+		add_popularity = {
+			ideology = communism
+			popularity = -1
+		}		
+		uncomplete_national_focus = {
+			focus = YAL_cyrusval_university
+			uncomplete_children = yes
+		}
+		clr_country_flag = YAL_cyrusval
+		set_country_flag = YAL_central_unis
+		complete_national_focus = YAL_central_universities
+		mark_focus_tree_layout_dirty = yes
+		if = {
+			limit = {
+				has_character = YAL_erich_krallst
+			}
+			retire_character = YAL_erich_krallst
+		}
+		if = {
+			limit = {
+				has_character = YAL_karl_legreif
+			}
+			add_country_leader_role = {
+				character = YAL_karl_legreif
+				country_leader = {
+					expire = "1965.1.1"
+					desc = "YAL_karl_legreif_desc"
+					ideology = syndicalism
+					traits = { }
+				}
+				promote_leader = yes
+			}
+		}
 	}
 }
 
+# The Siege of Cyrusval (Greenback/NA variant)
 country_event = {
-	id = yale.47
-	immediate = {log = "[GetDateText]: [Root.GetName]: event yale.47"}
-	title = yale.47.t
-	desc = yale.47.d
-	picture = GFX_event_camelot
-	
+	id = yale_communist.20
+	immediate = {log = "[GetDateText]: [Root.GetName]: event yale_communist.20"}
+	title = yale_communist.20.t
+	desc = yale_communist.20.d
+	picture = GFX_event_griffon_shoot
+
 	is_triggered_only = yes
 	
 	option = {
-		name = yale.47.a
-		trigger = {
-			check_variable = {
-				YAL_military_support > 3
+		name = yale_communist.20.a
+		custom_effect_tooltip = YAL_communist_revolution_failed
+		add_popularity = {
+			ideology = communism
+			popularity = -1
+		}
+		add_manpower = -1064
+		398 = { # Greenback (Cyrusval)
+			add_manpower = -2945
+		}
+		uncomplete_national_focus = {
+			focus = YAL_cyrusval_university
+			uncomplete_children = yes
+		}
+		clr_country_flag = YAL_cyrusval
+		set_country_flag = YAL_central_unis
+		complete_national_focus = YAL_central_universities
+		mark_focus_tree_layout_dirty = yes
+		if = {
+			limit = {
+				has_character = YAL_erich_krallst
 			}
+			retire_character = YAL_erich_krallst
 		}
-		custom_effect_tooltip = YAL_military_support_available_tooltip
-		custom_effect_tooltip = YAL_military_win
-		hidden_effect = {
-			set_country_flag = military_win
-			country_event = { id = yale.48 days = 2}
-		}
-	}
-	option = {
-		name = yale.47.b
-		trigger = {
-			check_variable = {
-				YAL_intellectual_support > 3
+		if = {
+			limit = {
+				has_character = YAL_karl_legreif
 			}
-		}
-		custom_effect_tooltip = YAL_intellectual_support_available_tooltip
-		custom_effect_tooltip = YAL_intellectuals_win
-		hidden_effect = {
-			set_country_flag = intellectuals_win
-			country_event = { id = yale.48 days = 2}
-		}
-	}
-	option = {
-		name = yale.47.c
-		trigger = {
-			check_variable = {
-				YAL_worker_support > 3
+			add_country_leader_role = {
+				character = YAL_karl_legreif
+				country_leader = {
+					expire = "1965.1.1"
+					desc = "YAL_karl_legreif_desc"
+					ideology = syndicalism
+					traits = { }
+				}
+				promote_leader = yes
 			}
-		}
-		custom_effect_tooltip = YAL_worker_support_available_tooltip
-		custom_effect_tooltip = YAL_workers_win
-		hidden_effect = {
-			set_country_flag = workers_win
-			country_event = { id = yale.48 days = 2}
-		}
-	}
-	option = {
-		name = yale.47.e
-		custom_effect_tooltip = YAL_normal_win
-		hidden_effect = {
-			set_country_flag = normal_win
-			country_event = { id = yale.48 days = 2}
 		}
 	}
 }
 
+# The Siege of Cyrusval (Gamia/sup variant)
+country_event = {
+	id = yale_communist.21
+	immediate = {log = "[GetDateText]: [Root.GetName]: event yale_communist.21"}
+	title = yale_communist.21.t
+	desc = yale_communist.21.d
+	picture = GFX_event_griffon_shoot
+
+	is_triggered_only = yes
+	
+	option = {
+		name = yale_communist.21.a
+		custom_effect_tooltip = YAL_communist_revolution_failed
+		add_popularity = {
+			ideology = communism
+			popularity = -1
+		}
+		add_manpower = -1419
+		398 = { # Greenback (Cyrusval)
+			add_manpower = -5104
+		}
+		uncomplete_national_focus = {
+			focus = YAL_cyrusval_university
+			uncomplete_children = yes
+		}
+		clr_country_flag = YAL_cyrusval
+		set_country_flag = YAL_fascist_universities
+		complete_national_focus = YAL_bruma_and_gamia
+		mark_focus_tree_layout_dirty = yes
+		if = {
+			limit = {
+				has_character = YAL_erich_krallst
+			}
+			retire_character = YAL_erich_krallst
+		}
+		if = {
+			limit = {
+				has_character = YAL_karl_legreif
+			}
+			add_country_leader_role = {
+				character = YAL_karl_legreif
+				country_leader = {
+					expire = "1965.1.1"
+					desc = "YAL_karl_legreif_desc"
+					ideology = syndicalism
+					traits = { }
+				}
+				promote_leader = yes
+			}
+		}
+	}
+}
+
+# rework
 country_event = {
 	id = yale.48
 	immediate = {log = "[GetDateText]: [Root.GetName]: event yale.48"}
