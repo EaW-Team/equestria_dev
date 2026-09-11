@@ -244,7 +244,6 @@ NDefines.NFactions.FACTION_INTELLIGENCE_ALLOWED_ADVISOR_TRAIT = {
 	"HYE_little_shadow",
 	"TBK_AF_lightbringer_advisor",
 	"TBK_AF_lightbringer_advisor_expanded",
-	"bother_builder",
 	"bother_builder_lar"
 }
 NDefines.NDoctrines.TRAINING_MASTERY_GAIN_FACTOR = 0.05 -- vanilla is 0.1
