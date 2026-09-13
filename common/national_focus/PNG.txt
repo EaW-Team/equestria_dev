@@ -1018,6 +1018,8 @@ focus_tree = {
 			event_target:equestria = {
 				country_event = penguin.87
 			}
+			set_country_flag = PNG_can_help_EQS
+			unlock_decision_tooltip = PNG_join_great_war
 		}
 	}
 
@@ -1034,24 +1036,36 @@ focus_tree = {
 		}
 		available = {
 			has_war = no
-			YAK = {
-				exists = yes
-				is_subject = no
-				OR = {
-					is_in_faction = no
-					is_faction_leader = yes
+			OR = {
+				YAK = {
+					exists = yes
+					is_subject = no
+					OR = {
+						is_in_faction = no
+						is_faction_leader = yes
+					}
+					OR = {
+						has_government = democratic
+						has_government = communism
+					}
+					has_country_flag = YAK_JAK_unified
+					OR = {
+						has_war = no
+						has_war_with = JAK
+					}
 				}
-				OR = {
-					has_government = neutrality
-					has_government = democratic
-				}
-				has_country_flag = YAK_JAK_unified
-				NOT = {
-					has_war_with = ROOT
-				}
-				OR = {
-					has_war = no
-					has_war_with = JAK
+				JAK = {
+					exists = yes
+					is_subject = no
+					OR = {
+						has_government = fascism
+						has_government = neutrality
+					}
+					has_country_flag = YAK_JAK_unified
+					OR = {
+						has_war = no
+						has_war_with = YAK
+					}
 				}
 			}
 		}
@@ -1067,11 +1081,28 @@ focus_tree = {
 					}
 				}
 			}
+			JAK = {
+				OR = {
+					exists = no
+					AND = {
+						has_country_flag = YAK_JAK_unified
+						has_government = neutrality
+					}
+					is_subject_of = ROOT
+					has_war_with = ROOT
+				}
+			}
 		}
+		will_lead_to_war_with = YAK
+		will_lead_to_war_with = JAK
 		completion_reward = {
 			log = "[GetDateText]: [Root.GetName]: Focus PNG_yakplomacy"
+			set_country_flag = PNG_YAK_unlock
 			if = {
 				limit = {
+					YAK = {
+						exists = yes
+					}
 					JAK = {
 						exists = yes
 					}
@@ -1094,9 +1125,71 @@ focus_tree = {
 				}
 				unlock_decision_tooltip = PNG_ally_yaks
 			}
-			else = {
+			else_if = {
+				limit = {
+					YAK = {
+						exists = yes
+						has_government = democratic
+						NOT = {
+							has_war_with = ROOT
+						}
+					}
+					JAK = {
+						exists = no
+					}
+				}
 				YAK = {
 					country_event = penguin.91
+				}
+			}
+			else_if = {
+				limit = {
+					YAK = {
+						exists = yes
+						is_subject = no
+						has_government = communism
+						NOT = {
+							has_war_with = ROOT
+						}
+					}
+					JAK = {
+						exists = no
+					}
+				}
+				hidden_effect = {
+					create_wargoal = { 
+						type = puppet_wargoal_focus 
+						target = YAK
+					}
+				}
+				declare_war_on = { 
+					type = puppet_wargoal_focus 
+					target = YAK 
+				}
+			}
+			else_if = {
+				limit = {
+					JAK = {
+						exists = yes
+						is_subject = no
+						has_government = fascism
+						NOT = {
+							has_war_with = ROOT
+						}
+					}
+					YAK = {
+						exists = no
+					}
+				}
+				hidden_effect = {
+					create_wargoal = { 
+						type = puppet_wargoal_focus 
+						target = JAK
+					}
+				}
+				declare_war_on = { 
+					type = puppet_wargoal_focus 
+					target = JAK 
 				}
 			}
 		}
@@ -1160,6 +1253,23 @@ focus_tree = {
 	}
 
 	focus = {
+		id = PNG_griffon_naturalization
+		icon = GFX_goal_griffon_harmony_char
+		x = 1
+		y = 1
+		relative_position_id = PNG_reassure_military
+		cost = 6
+		prerequisite = { focus = PNG_reassure_military }
+		ai_will_do = {
+			factor = 40
+		}
+		completion_reward = {
+			log = "[GetDateText]: [Root.GetName]: Focus PNG_griffon_naturalization"
+			add_ideas = PNG_naturalization_act
+		}
+	}
+
+	focus = {
 		id = PNG_expand_grand_archive
 		icon = GFX_goal_bookstack
 		x = 1
@@ -1181,6 +1291,28 @@ focus_tree = {
 					amount_research_slots < 5
 				}
 				add_research_slot = 1
+			}
+		}
+	}
+
+	focus = {
+		id = PNG_curtail_fishing_barons
+		icon = GFX_goal_BEL_Battleship_Investements
+		x = 1
+		y = 1
+		relative_position_id = PNG_investigate_commies
+		cost = 6
+		prerequisite = { focus = PNG_investigate_commies }
+		ai_will_do = {
+			factor = 40
+		}
+		completion_reward = {
+			log = "[GetDateText]: [Root.GetName]: Focus PNG_curtail_fishing_barons"
+			add_political_power = 75
+			add_popularity = { ideology = communism popularity = -0.05 }
+			swap_ideas = {
+				remove_idea = PNG_fishing_barons
+				add_idea = PNG_fishing_barons_curtailed
 			}
 		}
 	}
@@ -1355,6 +1487,62 @@ focus_tree = {
 					instant_build = yes
 					province = {
 						limit_to_coastal = yes
+					}
+				}
+			}
+		}
+	}
+
+	focus = {
+		id = PNG_pengaian_resources
+		icon = GFX_goal_mountain_mine
+		x = -1
+		y = 1
+		relative_position_id = PNG_reach_out_to_zebrica
+		cost = 6
+		prerequisite = { focus = PNG_reach_out_to_zebrica focus = PNG_splendid_isolation }
+		ai_will_do = {
+			factor = 40
+		}
+		available = {
+			has_global_flag = PNG_polar_gate_opened
+			OR = {
+				owns_state = 1012
+				1012 = {
+					owner = {
+						NOT = {
+							has_war_with = ROOT
+						}
+					}
+				}
+			}
+		}
+		completion_reward = {
+			log = "[GetDateText]: [Root.GetName]: Focus PNG_pengaian_resources"
+			if = {
+				limit = {
+					owns_state = 1012
+				}
+				add_resource = {
+					type = steel
+					amount = 12
+					state = 1012
+				}
+				add_resource = {
+					type = crystals
+					amount = 8
+					state = 1012
+				}
+				add_resource = {
+					type = tungsten
+					amount = 16
+					state = 1012
+				}
+			}
+			else = {
+				1012 = {
+					owner = {
+						country_event = penguin.94
 					}
 				}
 			}
