@@ -160,15 +160,7 @@ LAK_calculate_BRD_modifiers = {
 	clear_variable = hostile_army
 	every_other_country = {
 		limit = {
-			is_on_same_continent_as = ROOT
-			OR = {
-				NOT = { has_government = ROOT }
-				has_offensive_war = yes
-				has_war_with = ROOT
-				has_wargoal_against = ROOT
-				any_controlled_state = { is_claimed_by = ROOT }
-				ROOT = { any_controlled_state = { is_claimed_by = PREV.PREV } }
-			}
+			LAK_BRD_current_and_potential_enemies = yes
 		}
 		add_to_variable = { ROOT.hostile_industry = num_of_military_factories }
 		add_to_variable = { ROOT.hostile_army = deployed_army_manpower_k }
@@ -209,3 +201,181 @@ LAK_calculate_BRD_modifiers = {
 	}
 	set_variable = { LAK_BRD_conscription_law_dm_army_defence_factor = LAK_BRD_conscription_law_dm_army_attack_factor }
 }
+
+LAK_BRD_doctrine_effect = {
+	LAK_check_doctrine = yes
+	clear_array = temp_tag
+	every_other_country = {
+		limit = {
+			LAK_BRD_current_and_potential_enemies = yes
+		}
+		add_to_array = { ROOT.temp_tag = THIS }
+		LAK_BRD_check_doctrine = yes
+		if = {
+			limit = {
+				OR = {
+					check_variable = { doctrine_mastery_array^0 > ROOT.doctrine_mastery_array^0 }
+					check_variable = { doctrine_mastery_array^1 > ROOT.doctrine_mastery_array^1 }
+					check_variable = { doctrine_mastery_array^2 > ROOT.doctrine_mastery_array^2 }
+					check_variable = { doctrine_mastery_array^3 > ROOT.doctrine_mastery_array^3 }
+				}
+			}
+			for_loop_effect = {
+				end = 4
+				if = {
+					limit = {
+						check_variable = { doctrine_mastery_array^v > ROOT.doctrine_mastery_array^v }
+					}
+					log = "[THIS.GetName] has track [?v|Y0] better: [?doctrine_mastery_array^v] > [?ROOT.doctrine_mastery_array^v]"
+				}
+				clear_variable = doctrine_mastery_array^v
+			}
+		}
+	}
+}
+
+LAK_BRD_check_doctrine = {
+	clear_variable = doctrine_mastery_array^0
+	clear_variable = doctrine_mastery_array^1
+	clear_variable = doctrine_mastery_array^2
+	clear_variable = doctrine_mastery_array^3
+	set_temp_variable = { temp_mastery = 500 }
+	while_loop_effect = {
+		limit = {
+			check_variable = { temp_mastery > 0 }
+		}
+		if = {
+			limit = {
+				NOT = { has_variable = doctrine_mastery_array^0 }
+				meta_trigger = {
+					text = {
+						has_mastery = {
+							amount = [THISMASTERY]
+							track = infantry
+						}
+					}
+					THISMASTERY = "[?temp_mastery]"
+				}
+			}
+			set_variable = { doctrine_mastery_array^0 = temp_mastery }
+		}
+		if = {
+			limit = {
+				NOT = { has_variable = doctrine_mastery_array^1 }
+				meta_trigger = {
+					text = {
+						has_mastery = {
+							amount = [THISMASTERY]
+							track = combat_support
+						}
+					}
+					THISMASTERY = "[?temp_mastery]"
+				}
+			}
+			set_variable = { doctrine_mastery_array^1 = temp_mastery }
+		}
+		if = {
+			limit = {
+				NOT = { has_variable = doctrine_mastery_array^2 }
+				meta_trigger = {
+					text = {
+						has_mastery = {
+							amount = [THISMASTERY]
+							track = armor
+						}
+					}
+					THISMASTERY = "[?temp_mastery]"
+				}
+			}
+			set_variable = { doctrine_mastery_array^2 = temp_mastery }
+		}
+		if = {
+			limit = {
+				NOT = { has_variable = doctrine_mastery_array^3 }
+				meta_trigger = {
+					text = {
+						has_mastery = {
+							amount = [THISMASTERY]
+							track = operations
+						}
+					}
+					THISMASTERY = "[?temp_mastery]"
+				}
+			}
+			set_variable = { doctrine_mastery_array^3 = temp_mastery }
+		}
+		subtract_from_temp_variable = { temp_mastery = 1 }
+	}
+}
+#################
+# Testing Stuff #
+#################
+#test_mastery = {
+#	set_grand_doctrine = new_mobile_warfare
+#	set_sub_doctrine = mobile_infantry
+#	set_sub_doctrine = fire_concentration
+#	set_sub_doctrine = armored_spearhead
+#	set_sub_doctrine = mission_type_tactics
+#	add_mastery = {
+#		amount = 25
+#		track = infantry
+#	}
+#	add_mastery = {
+#		amount = 100
+#		track = combat_support
+#	}
+#	add_mastery = {
+#		amount = 50
+#		track = armor
+#	}
+#	add_mastery = {
+#		amount = 150
+#		track = operations
+#	}
+#	WNG = {
+#		set_grand_doctrine = new_mobile_warfare
+#		set_sub_doctrine = mobile_infantry
+#		set_sub_doctrine = fire_concentration
+#		set_sub_doctrine = armored_spearhead
+#		set_sub_doctrine = mission_type_tactics
+#		add_mastery = {
+#			amount = 100
+#			track = infantry
+#		}
+#		add_mastery = {
+#			amount = 100
+#			track = combat_support
+#		}
+#		add_mastery = {
+#			amount = 80
+#			track = armor
+#		}
+#		add_mastery = {
+#			amount = 100
+#			track = operations
+#		}
+#	}
+#	GRI = {
+#		set_grand_doctrine = new_mobile_warfare
+#		set_sub_doctrine = mobile_infantry
+#		set_sub_doctrine = fire_concentration
+#		set_sub_doctrine = armored_spearhead
+#		set_sub_doctrine = mission_type_tactics
+#		add_mastery = {
+#			amount = 200
+#			track = infantry
+#		}
+#		add_mastery = {
+#			amount = 200
+#			track = combat_support
+#		}
+#		add_mastery = {
+#			amount = 50
+#			track = armor
+#		}
+#		add_mastery = {
+#			amount = 300
+#			track = operations
+#		}
+#	}
+#}
