@@ -117,6 +117,7 @@ jobs:
         with:
           name: equestria
           path: equestria.zip
+          retention-days: 1
 
       - name: Upload files to GitHub release
         uses: svenstaro/upload-release-action@2.11.5
@@ -146,6 +147,7 @@ jobs:
           changeNote: ${{ steps.steam_metadata.outputs.change_note }}
 
       - name: Encrypt Steam diagnostics
+        continue-on-error: true
         id: steam_diagnostics
         if: ${{ always() && (steps.steam_upload.outcome == 'success' || steps.steam_upload.outcome == 'failure') }}
         shell: bash
@@ -183,14 +185,19 @@ jobs:
             exit 0
           fi
 
-          if ! command -v 7zz > /dev/null; then
+          # Ubuntu's 7zip package provides 7z; standalone releases use 7zz.
+          if ! seven_zip=$(command -v 7z || command -v 7zz); then
             sudo apt-get update
             sudo apt-get install --yes 7zip
+            seven_zip=$(command -v 7z || command -v 7zz) || {
+              echo "::error::7-Zip is unavailable after installing the 7zip package."
+              exit 1
+            }
           fi
 
           mapfile -d '' -t log_files < "$log_temp/files"
           # Read the password from stdin so it is not exposed in process arguments.
-          7zz a -tzip -spf -mem=AES256 -p -bso0 -bsp0 \
+          "$seven_zip" a -tzip -spf -mem=AES256 -p -bso0 -bsp0 \
             "$log_temp/steam-diagnostics.zip" "${log_files[@]#./}" \
             <<< "$STEAM_LOGS_PASSWORD"
           encrypted_log="$RUNNER_TEMP/steam-diagnostics-${GITHUB_RUN_ID}-${GITHUB_RUN_ATTEMPT}.zip"
@@ -198,6 +205,7 @@ jobs:
           echo "path=$encrypted_log" >> "$GITHUB_OUTPUT"
 
       - name: Upload encrypted Steam diagnostics
+        continue-on-error: true
         if: ${{ always() && steps.steam_diagnostics.outputs.path != '' }}
         uses: actions/upload-artifact@v7
         with:
