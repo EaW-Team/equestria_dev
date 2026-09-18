@@ -154,47 +154,58 @@ LAK_reclamation_war_select_effect = {
 ### BRD stuff ###
 #################
 LAK_calculate_BRD_modifiers = {
-	clear_variable = temp_industry
-	clear_variable = temp_army
-	every_enemy_country = {
-		add_to_variable = { ROOT.temp_industry = num_of_military_factories }
-		add_to_variable = { ROOT.temp_army = deployed_army_manpower_k }
+	clear_variable = total_industry
+	clear_variable = total_army
+	clear_variable = hostile_industry
+	clear_variable = hostile_army
+	every_other_country = {
+		limit = {
+			is_on_same_continent_as = ROOT
+			OR = {
+				NOT = { has_government = ROOT }
+				has_offensive_war = yes
+				has_war_with = ROOT
+				has_wargoal_against = ROOT
+				any_controlled_state = { is_claimed_by = ROOT }
+				ROOT = { any_controlled_state = { is_claimed_by = PREV.PREV } }
+			}
+		}
+		add_to_variable = { ROOT.hostile_industry = num_of_military_factories }
+		add_to_variable = { ROOT.hostile_army = deployed_army_manpower_k }
 	}
-	log = "Industry: [?temp_industry]"
-	log = "Army: [?temp_army]k"
 	set_variable = {
 		industry_ratio = {
-			value = temp_industry
+			value = hostile_industry
 			divide = num_of_military_factories
-		}
-	}
-	set_variable = {
-		LAK_BRD_economy_law_dm_production_factory_max_efficiency_factor = {
-			value = industry_ratio
-			divide = 50
-			clamp = {
-				min = 0
-				max = 1
-			}
+			subtract = 1
+			divide = 100
 		}
 	}
 	set_variable = {
 		army_ratio = {
-			value = temp_army
+			value = hostile_army
 			divide = deployed_army_manpower_k
+			subtract = 1
+			divide = 100
+		}
+	}
+	set_variable = {
+		LAK_BRD_economy_law_dm_industrial_capacity_factory = {
+			value = industry_ratio
+			clamp = {
+				min = 0
+				max = 1
+			}
 		}
 	}
 	set_variable = {
 		LAK_BRD_conscription_law_dm_army_attack_factor = {
 			value = army_ratio
-			divide = 100
 			clamp = {
 				min = 0
-				max = 1
+				max = 0.5
 			}
 		}
 	}
-	set_variable = { LAK_BRD_conscription_law_dm_army_org_factor = LAK_BRD_conscription_law_dm_army_attack_factor }
-	log = "Industry: [?industry_ratio] times more"
-	log = "Army: [?army_ratio] times"
+	set_variable = { LAK_BRD_conscription_law_dm_army_defence_factor = LAK_BRD_conscription_law_dm_army_attack_factor }
 }
