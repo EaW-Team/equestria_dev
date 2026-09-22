@@ -1848,6 +1848,33 @@ immediate_war_declare_on_wargoal_target = {
 	}
 }
 
+# set 'set_temp_variable = { call_subject_var = 1 }' before effect, so all your subject will immediatelly join the war
+ROOT_immediate_war_declare_on_THIS = {
+	if = {
+		limit = {
+			exists_outside_sphere_of_influence = yes
+		}
+		ROOT = {
+			declare_war_on = {
+				type = annex_everything
+				target = PREV
+			}
+			if = {
+				limit = {
+					check_variable = { call_subject_var = 1 }
+				}
+				every_subject_country = {
+					add_to_war = {
+						targeted_alliance = ROOT
+						enemy = PREV.PREV
+						hostility_reason = asked_to_join
+					}
+				}
+			}
+		}
+	}
+}
+
 
 add_random_stat_to_general = {
 	custom_effect_tooltip = add_random_stat_to_general_tt
@@ -2109,4 +2136,47 @@ check_army_mastery_level = {
 		}
 		subtract_from_temp_variable = { temp_mastery = 1 }
 	}
+}
+
+# Show countries as column of names with flags:
+#    <EFFECT = {
+#		hidden_effect = {
+#            every_other_country = {
+#                limit = {
+#                    <TRIGGER>
+#                }
+#                display_individual_scopes = yes -- this is important
+#                add_THIS_to_target_array = yes
+#            }
+#        }
+#        set_temp_variable = { current_index = 0 }
+#        display_target_array_tt = yes
+#	}
+# Will display list of countries in style of:
+#	"   [FLAG1] [NAME1]
+#	   [FLAG2] [NAME2]
+#	 ..."
+#
+#	Does not produce any actual effect, only shows tooltip for countries who meet the trigger and exist
+
+add_THIS_to_target_array = {
+	set_temp_variable = { target_countries^country_index = THIS }
+    add_to_temp_variable = { country_index = 1 }
+}
+
+display_target_array_tt = {
+    if = {
+        limit = {
+            check_variable = { current_index < country_index }
+        }
+        set_temp_variable = { current_target = target_countries^current_index }
+        if = {
+            limit = {
+                var:current_target = { exists = yes }
+            }
+            custom_effect_tooltip = target_country_loc_tt
+        }
+        add_to_temp_variable = { current_index = 1 }
+        display_target_array_tt = yes
+    }
 }
