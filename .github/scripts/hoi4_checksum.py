@@ -16,6 +16,8 @@ The aggregate does not use those eight-digit values. HOI4 first enumerates
 files using case-sensitive path names, but reopens each result through its
 case-insensitive virtual filesystem. A differently-cased mod file can
 therefore supply the contents for two separately enumerated paths.
+To prevent platform-dependent releases, this command rejects case-conflicting
+mod files and directories and lists every path that must be renamed.
 
 For each path that can be reopened, HOI4 calculates:
 
@@ -242,6 +244,71 @@ def read_mod_entry(
     )
 
 
+def validate_mod_path_case(
+    mod_paths: list[str], vanilla_paths: list[str]
+) -> None:
+    vanilla_by_casefold: dict[str, list[str]] = {}
+    for path in vanilla_paths:
+        vanilla_by_casefold.setdefault(path.casefold(), []).append(path)
+
+    vanilla_mismatches: list[tuple[str, str]] = []
+    for mod_path in mod_paths:
+        vanilla_matches = vanilla_by_casefold.get(mod_path.casefold(), [])
+        if vanilla_matches and mod_path not in vanilla_matches:
+            vanilla_mismatches.extend(
+                (mod_path, vanilla_path)
+                for vanilla_path in vanilla_matches
+            )
+
+    mod_files_by_casefold: dict[str, set[str]] = {}
+    mod_directories_by_casefold: dict[str, set[str]] = {}
+    for path in mod_paths:
+        mod_files_by_casefold.setdefault(path.casefold(), set()).add(path)
+        parts = path.split("/")
+        for end in range(1, len(parts)):
+            directory = "/".join(parts[:end])
+            mod_directories_by_casefold.setdefault(
+                directory.casefold(), set()
+            ).add(directory)
+
+    file_collisions = sorted(
+        sorted(paths)
+        for paths in mod_files_by_casefold.values()
+        if len(paths) > 1
+    )
+    directory_collisions = sorted(
+        sorted(paths)
+        for paths in mod_directories_by_casefold.values()
+        if len(paths) > 1
+    )
+
+    if not (vanilla_mismatches or file_collisions or directory_collisions):
+        return
+
+    lines = [
+        "case-based path mismatches would make Linux and Windows "
+        "checksums diverge:"
+    ]
+    if vanilla_mismatches:
+        lines.append("mod files that differ from vanilla only by case:")
+        for mod_path, vanilla_path in sorted(vanilla_mismatches):
+            lines.append(f"  mod:     {mod_path}")
+            lines.append(f"  vanilla: {vanilla_path}")
+    if file_collisions:
+        lines.append("mod files that differ from each other only by case:")
+        for paths in file_collisions:
+            lines.extend(f"  {path}" for path in paths)
+    if directory_collisions:
+        lines.append("mod directories that differ only by case:")
+        for paths in directory_collisions:
+            lines.extend(f"  {path}/" for path in paths)
+    lines.append(
+        "rename the listed mod paths to use one exact spelling before "
+        "generating a checksum"
+    )
+    raise ValueError("\n".join(lines))
+
+
 def apply_mod(
     entries: dict[str, Entry],
     rules: list[Rule],
@@ -268,6 +335,11 @@ def apply_mod(
             mod_files.append(
                 (physical_path, virtual_path, include_file_checksums)
             )
+
+    validate_mod_path_case(
+        [virtual_path for _, virtual_path, _ in mod_files],
+        list(entries),
+    )
 
     with ThreadPoolExecutor() as executor:
         for virtual_path, entry in executor.map(read_mod_entry, mod_files):
