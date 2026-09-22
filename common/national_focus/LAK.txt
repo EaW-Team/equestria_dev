@@ -475,6 +475,7 @@ shared_focus = {
 	}
 	completion_reward = {
 		log = "[GetDateText]: [Root.GetName]: Focus LAK_underwater_riches"
+		set_country_flag = LAK_underwater_excavation_unlocked
 		unlock_decision_tooltip = LAK_lake_excavation_1_dec
 	}
 	search_filters = { FOCUS_FILTER_INDUSTRY }
@@ -2087,14 +2088,13 @@ shared_focus = {
         log = "[GetDateText]: [Root.GetName]: Selected Focus LAK_BRD_attack_south_focus"
         every_other_country = {
             limit = {
-                NOT = { is_ally_with = ROOT }
+                exists_outside_sphere_of_influence = yes
                 OR = {
                     is_country_main_culture_southerner = yes
                     any_controlled_state = { is_claimed_by = ROOT }
                 }
             }
-            set_temp_variable = { temp_target = THIS }
-            ROOT = { eaw_alert_send_imminent_declaration_of_war = yes }
+            eaw_alert_send_imminent_declaration_of_war_THIS = yes
         }
     }
     completion_reward = {
@@ -2102,31 +2102,19 @@ shared_focus = {
         hidden_effect = {
             every_other_country = {
                 limit = {
-                    NOT = { is_ally_with = ROOT }
+                    exists_outside_sphere_of_influence = yes
                     OR = {
                         is_country_main_culture_southerner = yes
                         any_controlled_state = { is_claimed_by = ROOT }
                     }
                 }
                 display_individual_scopes = yes
-                set_temp_variable = { temp_target = THIS }
-                ROOT = {
-                    create_wargoal = {
-                        target = PREV
-                        type = annex_everything
-                    }
-                    declare_war_on = {
-                        target = PREV
-                        type = annex_everything
-                    }
-                    eaw_clear_alert_imminent_declaration_of_war = yes
-                }
-                set_temp_variable = { target_countries^country_index = THIS }
-                add_to_temp_variable = { country_index = 1 }
+                eaw_clear_alert_imminent_declaration_of_war_THIS = yes
+                ROOT_immediate_war_declare_on_THIS = yes
+                add_THIS_to_target_array = yes
             }
         }
-        set_temp_variable = { current_index = 0 }
-        LAK_BRD_war_tooltip = yes
+        display_target_array_tt = yes
     }
 }
 
@@ -2152,6 +2140,9 @@ shared_focus = {
 				always = no
 			}
 		}
+	}
+	bypass = {
+		has_completed_focus = LAK_BRD_attack_south_focus
 	}
 	prerequisite = { focus = LAK_BRD_proclaim_our_intentions }
 	relative_position_id = LAK_BRD_proclaim_our_intentions
@@ -2224,7 +2215,7 @@ shared_focus = {
 }
 
 shared_focus = {
-	id = LAK_BRD_end_of_our_mission_focus
+	id = LAK_BRD_end_of_our_mission
 	icon = GFX_goal_national_populism 
 	x = 0
 	y = 2
@@ -2233,8 +2224,40 @@ shared_focus = {
 	prerequisite = { focus = LAK_BRD_free_south_focus }
 	relative_position_id = LAK_BRD_free_south_focus
 	completion_reward = {
-		log = "[GetDateText]: [Root.GetName]: Focus LAK_BRD_end_of_our_mission_focus"
+		log = "[GetDateText]: [Root.GetName]: Focus LAK_BRD_end_of_our_mission"
 		custom_effect_tooltip = "#TODO: Arwyn chooses that either her mission is over and people should rest, or that ALL Griffonia must be liberated from tyrany."
+	}
+}
+
+shared_focus = {
+	id = LAK_BRD_peace_achieved
+	icon = GFX_goal_national_populism 
+	x = -2
+	y = 1
+	cost = 4.3
+	ai_will_do = { factor = 100 }
+	mutually_exclusive = { focus = LAK_BRD_no_compromise }
+	prerequisite = { focus = LAK_BRD_end_of_our_mission }
+	relative_position_id = LAK_BRD_end_of_our_mission
+	completion_reward = {
+		log = "[GetDateText]: [Root.GetName]: Focus LAK_BRD_peace_achieved"
+		
+	}
+}
+
+shared_focus = {
+	id = LAK_BRD_no_compromise
+	icon = GFX_goal_national_populism 
+	x = 2
+	y = 1
+	cost = 4.3
+	ai_will_do = { factor = 100 }
+	mutually_exclusive = { focus = LAK_BRD_peace_achieved }
+	prerequisite = { focus = LAK_BRD_end_of_our_mission }
+	relative_position_id = LAK_BRD_end_of_our_mission
+	completion_reward = {
+		log = "[GetDateText]: [Root.GetName]: Focus LAK_BRD_no_compromise"
+		
 	}
 }
 
@@ -2247,9 +2270,6 @@ shared_focus = {
 	y = 1
 	cost = 4.3
 	ai_will_do = { factor = 100 }
-	available = {
-		has_completed_focus = LAK_BRD_proclaim_our_intentions
-	}
 	prerequisite = { focus = LAK_BRD_starting_focus }
 	relative_position_id = LAK_BRD_starting_focus
 	completion_reward = {
@@ -2286,9 +2306,24 @@ shared_focus = {
 }
 
 shared_focus = {
+	id = LAK_BRD_doctrine_focus
+	icon = GFX_goal_generic_investigation
+	x = -2
+	y = 1
+	cost = 2.9
+	ai_will_do = { factor = 100 }
+	prerequisite = { focus = LAK_BRD_army_focus }
+	relative_position_id = LAK_BRD_army_focus
+	completion_reward = {
+		log = "[GetDateText]: [Root.GetName]: Focus LAK_BRD_doctrine_focus"
+		custom_effect_tooltip = LAK_BRD_doctrine_focus_tt
+	}
+}
+
+shared_focus = {
 	id = LAK_BRD_guerilla_focus
 	icon = GFX_goal_generic_investigation
-	x = -3
+	x = -1
 	y = 1
 	cost = 2.9
 	ai_will_do = { factor = 100 }
@@ -2298,8 +2333,8 @@ shared_focus = {
 	bypass = {
 		has_doctrine = last_stand
 	}
-	prerequisite = { focus = LAK_BRD_army_focus }
-	relative_position_id = LAK_BRD_army_focus
+	prerequisite = { focus = LAK_BRD_doctrine_focus }
+	relative_position_id = LAK_BRD_doctrine_focus
 	completion_reward = {
 		log = "[GetDateText]: [Root.GetName]: Focus LAK_BRD_guerilla_focus"
 		check_army_mastery_level = yes
@@ -2326,17 +2361,52 @@ shared_focus = {
 }
 
 shared_focus = {
-	id = LAK_BRD_doctrine_focus
+	id = LAK_BRD_invisible_and_inevitable
 	icon = GFX_goal_generic_investigation
-	x = -1
+	x = 0
 	y = 1
 	cost = 2.9
 	ai_will_do = { factor = 100 }
-	prerequisite = { focus = LAK_BRD_army_focus }
-	relative_position_id = LAK_BRD_army_focus
+	prerequisite = { focus = LAK_BRD_guerilla_focus }
+	relative_position_id = LAK_BRD_guerilla_focus
 	completion_reward = {
-		log = "[GetDateText]: [Root.GetName]: Focus LAK_BRD_doctrine_focus"
-		custom_effect_tooltip = LAK_BRD_doctrine_focus_tt
+		log = "[GetDateText]: [Root.GetName]: Focus LAK_BRD_invisible_and_inevitable"
+		set_technology = { LSC_forest_warfare = 1 popup = no }
+		custom_effect_tooltip = LSC_forest_warfare_effect
+		custom_effect_tooltip = generic_skip_one_line_tt
+		custom_effect_tooltip = { IDEA = LAK_BRD_army_dm localization_key = modify_idea_tt }
+		add_to_variable = { LAK_army_dm_cas_damage_reduction = 0.1 tooltip = cas_damage_reduction_tt }
+	}
+}
+
+shared_focus = {
+	id = LAK_BRD_the_god_of_modern_war
+	icon = GFX_goal_generic_investigation
+	x = 1
+	y = 1
+	cost = 2.9
+	ai_will_do = { factor = 100 }
+	prerequisite = { focus = LAK_BRD_doctrine_focus }
+	relative_position_id = LAK_BRD_doctrine_focus
+	completion_reward = {
+		log = "[GetDateText]: [Root.GetName]: Focus LAK_BRD_the_god_of_modern_war"
+		
+	}
+}
+
+shared_focus = {
+	id = LAK_BRD_placeholder
+	icon = GFX_goal_generic_investigation
+	x = 1
+	y = 1
+	cost = 2.9
+	ai_will_do = { factor = 100 }
+	prerequisite = { focus = LAK_BRD_invisible_and_inevitable }
+	prerequisite = { focus = LAK_BRD_the_god_of_modern_war }
+	relative_position_id = LAK_BRD_invisible_and_inevitable
+	completion_reward = {
+		log = "[GetDateText]: [Root.GetName]: Focus LAK_BRD_placeholder"
+		
 	}
 }
 
@@ -2344,15 +2414,20 @@ shared_focus = {
 	id = LAK_BRD_for_the_good_of_griffonkind
 	icon = GFX_goal_generic_investigation
 	x = 0
-	y = 2
+	y = 3
 	cost = 2.9
 	ai_will_do = { factor = 100 }
+	available = {
+		has_completed_focus = LAK_BRD_proclaim_our_intentions
+	}
 	prerequisite = { focus = LAK_BRD_army_focus }
 	relative_position_id = LAK_BRD_army_focus
 	completion_reward = {
 		log = "[GetDateText]: [Root.GetName]: Focus LAK_BRD_for_the_good_of_griffonkind"
 		custom_effect_tooltip = { IDEA = LAK_BRD_conscription_law_dm localization_key = modify_idea_tt }
 		add_to_variable = { LAK_BRD_conscription_law_dm_conscription_factor = 0.1 tooltip = conscription_factor_tt }
+		custom_effect_tooltip = generic_skip_one_line_tt
+		add_war_support = 0.1
 	}
 }
 
@@ -2364,7 +2439,7 @@ shared_focus = {
 	cost = 2.9
 	ai_will_do = { factor = 100 }
 	available = {
-		has_intelligence_agency = no
+		NOT = { has_dynamic_modifier = { modifier = LAK_intelligence_dm } }
 	}
 	mutually_exclusive = { focus = LAK_BRD_restructure_intelligence_agency }
 	prerequisite = { focus = LAK_BRD_army_focus }
@@ -2396,7 +2471,7 @@ shared_focus = {
 	cost = 2.9
 	ai_will_do = { factor = 100 }
 	available = {
-		has_intelligence_agency = yes
+		has_dynamic_modifier = { modifier = LAK_intelligence_dm }
 	}
 	mutually_exclusive = { focus = LAK_BRD_create_intelligence_agency }
 	prerequisite = { focus = LAK_BRD_army_focus }
@@ -2429,16 +2504,38 @@ shared_focus = {
 }
 
 shared_focus = {
-	id = LAK_BRD_magic_rifles
+	id = LAK_BRD_regular_rifles
 	icon = GFX_goal_generic_investigation
 	x = 1
 	y = 1
 	cost = 2.9
 	ai_will_do = { factor = 100 }
-	prerequisite = {
-		focus = LAK_BRD_for_the_good_of_griffonkind
-		focus = LAK_BRD_special_operation_forces
+	mutually_exclusive = { focus = LAK_BRD_magic_rifles }
+	prerequisite = { focus = LAK_BRD_for_the_good_of_griffonkind }
+	prerequisite = { focus = LAK_BRD_special_operation_forces }
+	relative_position_id = LAK_BRD_for_the_good_of_griffonkind
+	completion_reward = {
+		log = "[GetDateText]: [Root.GetName]: Focus LAK_BRD_regular_rifles"
+		add_tech_bonus = {
+			name = infantry_weapons_bonus
+			bonus = 1.0
+			uses = 2
+			technology = improved_infantry_weapons
+			technology = improved_infantry_weapons_2
+			technology = advanced_infantry_weapons
+		}
 	}
+}
+
+shared_focus = {
+	id = LAK_BRD_magic_rifles
+	icon = GFX_goal_generic_investigation
+	x = 3
+	y = 1
+	cost = 2.9
+	ai_will_do = { factor = 100 }
+	mutually_exclusive = { focus = LAK_BRD_regular_rifles }
+	prerequisite = { focus = LAK_BRD_special_operation_forces }
 	relative_position_id = LAK_BRD_for_the_good_of_griffonkind
 	completion_reward = {
 		log = "[GetDateText]: [Root.GetName]: Focus LAK_BRD_magic_rifles"
@@ -2449,8 +2546,6 @@ shared_focus = {
 			uses = 1
 			technology = magical_weapons
 			technology = magical_weapons1
-			technology = magical_weapons2
-			technology = magical_weapons3
 		}
 	}
 }
@@ -2503,7 +2598,95 @@ shared_focus = {
 			}
 			custom_effect_tooltip = generic_skip_one_line_tt
 		}
+		build_railway = {
+			level = 2
+			start_province = 9604
+			target_province = 5203
+			build_only_on_allied = yes
+		}
+		custom_effect_tooltip = generic_skip_one_line_tt
 		add_stability = 0.05
 		add_political_power = 50
+	}
+}
+
+shared_focus = {
+	id = LAK_BRD_build_up_industry
+	icon = GFX_goal_national_populism 
+	x = 1
+	y = 1
+	cost = 4.3
+	ai_will_do = { factor = 100 }
+	prerequisite = { focus = LAK_BRD_political_focus }
+	relative_position_id = LAK_BRD_political_focus
+	completion_reward = {
+		log = "[GetDateText]: [Root.GetName]: Focus LAK_BRD_build_up_industry"
+		one_random_industrial_complex = yes
+		one_random_arms_factory = yes
+		every_controlled_state = {
+			limit = {
+				can_construct_building = infrastructure
+			}
+			add_building_construction = {
+				type = infrastructure
+				level = 1
+				instant_build = yes
+			}
+		}
+	}
+}
+
+shared_focus = {
+	id = LAK_BRD_take_from_nature
+	icon = GFX_goal_national_populism 
+	x = 1
+	y = 1
+	cost = 4.3
+	ai_will_do = { factor = 100 }
+	prerequisite = {
+		focus = LAK_BRD_work_in_BOI
+		focus = LAK_BRD_build_up_industry
+	}
+	relative_position_id = LAK_BRD_work_in_BOI
+	completion_reward = {
+		log = "[GetDateText]: [Root.GetName]: Focus LAK_BRD_take_from_nature"
+		if = {
+			limit = {
+				NOT = { has_country_flag = LAK_underwater_excavation_unlocked }
+			}
+			set_country_flag = LAK_underwater_excavation_unlocked
+			unlock_decision_tooltip = LAK_lake_excavation_1_dec
+			custom_effect_tooltip = generic_skip_one_line_tt
+		}
+		add_resource = {
+			type = tungsten
+			amount = 8
+			state = 488
+		}
+		add_resource = {
+			type = steel
+			amount = 6
+			state = 389
+		}
+	}
+}
+
+shared_focus = {
+	id = LAK_BRD_develop_new_tools
+	icon = GFX_goal_national_populism 
+	x = 1
+	y = 2
+	cost = 4.3
+	ai_will_do = { factor = 100 }
+	prerequisite = { focus = LAK_BRD_build_up_industry }
+	relative_position_id = LAK_BRD_build_up_industry
+	completion_reward = {
+		log = "[GetDateText]: [Root.GetName]: Focus LAK_BRD_develop_new_tools"
+		add_tech_bonus = {
+			name = LAK_BRD_develop_new_tools
+			bonus = 1.0
+			uses = 2
+			category = industry
+		}
 	}
 }
