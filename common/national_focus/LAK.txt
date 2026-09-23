@@ -2111,10 +2111,12 @@ shared_focus = {
                 }
                 display_individual_scopes = yes
                 eaw_clear_alert_imminent_declaration_of_war_THIS = yes
+				set_temp_variable = { call_subject_var = 1 }
                 ROOT_immediate_war_declare_on_THIS = yes
                 add_THIS_to_target_array = yes
             }
         }
+		custom_effect_tooltip = LAK_BRD_declare_war_on_tt
         display_target_array_tt = yes
     }
 }
@@ -2252,6 +2254,24 @@ shared_focus = {
 }
 
 shared_focus = {
+	id = LAK_BRD_liberation_is_yet_to_come
+	icon = GFX_goal_national_populism 
+	x = 1
+	y = 1
+	cost = 4.3
+	ai_will_do = { factor = 100 }
+	prerequisite = { focus = LAK_BRD_attack_south_focus }
+	relative_position_id = LAK_BRD_attack_south_focus
+	completion_reward = {
+		log = "[GetDateText]: [Root.GetName]: Focus LAK_BRD_liberation_is_yet_to_come"
+		custom_effect_tooltip = { IDEA = LAK_BRD_conscription_law_dm localization_key = modify_idea_tt }
+		add_to_variable = { LAK_BRD_conscription_law_dm_conscription = 0.05 tooltip = conscription_tt }
+		custom_effect_tooltip = generic_skip_one_line_tt
+		add_war_support = 0.1
+	}
+}
+
+shared_focus = {
 	id = LAK_BRD_free_south_focus
 	icon = GFX_goal_national_populism 
 	x = 0
@@ -2273,6 +2293,20 @@ shared_focus = {
 				is_country_main_culture_southerner = yes
 			}
 			add_to_ROOT_potential_original_cores = yes
+			if = {
+				limit = {
+					is_subject_of = ROOT
+				}
+				ROOT = {
+					annex_country = {
+						target = PREV
+						transfer_troops = yes
+					}
+				}
+			}
+		}
+		hidden_effect = {
+			every_controlled_state = { remove_claim_by = ROOT }
 		}
 	}
 }
@@ -2320,8 +2354,73 @@ shared_focus = {
 	relative_position_id = LAK_BRD_end_of_our_mission
 	completion_reward = {
 		log = "[GetDateText]: [Root.GetName]: Focus LAK_BRD_no_compromise"
-		
+		every_state = {
+			limit = {
+				is_controlled_by_ROOT_or_ally = no
+				OR = {
+					is_state_main_culture_herzlander = yes
+					is_state_main_culture_aquileian = yes
+				}
+			}
+			add_claim_by = ROOT
+		}
 	}
+}
+
+shared_focus = {
+	id = LAK_BRD_ending_the_civil_war
+	icon = GFX_goal_national_populism 
+	x = 0
+	y = 2
+	cost = 4.3
+	ai_will_do = { factor = 100 }
+	available = {
+		has_army_manpower = { size > 500000 }
+	}
+	prerequisite = { focus = LAK_BRD_no_compromise }
+	relative_position_id = LAK_BRD_no_compromise
+	select_effect = {
+        log = "[GetDateText]: [Root.GetName]: Selected Focus LAK_BRD_ending_the_civil_war"
+        every_other_country = {
+            limit = {
+                exists_outside_sphere_of_influence = yes
+				LAK_BRD_current_and_potential_enemies = yes
+            }
+            eaw_alert_send_imminent_declaration_of_war_THIS = yes
+        }
+    }
+    completion_reward = {
+        log = "[GetDateText]: [Root.GetName]: Focus LAK_BRD_ending_the_civil_war"
+        hidden_effect = {
+            every_other_country = {
+                limit = {
+                    exists_outside_sphere_of_influence = yes
+					OR = {
+						LAK_BRD_current_and_potential_enemies = yes
+						AND = { # Remove triggers below later - rn they're just for displaying tooltip
+							is_on_same_continent_as = ROOT
+							OR = {
+								is_country_main_culture_herzlander = yes
+								is_country_main_culture_aquileian = yes
+								has_same_ideology = no
+								has_offensive_war = yes
+								any_controlled_state = { is_claimed_by = ROOT }
+							}
+							NOT = { tag = DED }
+						}
+					}
+					
+                }
+                display_individual_scopes = yes
+                eaw_clear_alert_imminent_declaration_of_war_THIS = yes
+				set_temp_variable = { call_subject_var = 1 }
+                ROOT_immediate_war_declare_on_THIS = yes
+                add_THIS_to_target_array = yes
+            }
+        }
+		custom_effect_tooltip = LAK_BRD_declare_war_on_tt
+        display_target_array_tt = yes
+    }
 }
 
 	# Army Sub-Branch
@@ -2342,7 +2441,7 @@ shared_focus = {
 			REMOVE = LAK_army_dm
 			ADD = LAK_BRD_army_dm
 		}
-		add_to_variable = { LAK_army_dm_army_strength_factor = 0.05 tooltip = army_strength_factor_tt }
+		add_to_variable = { LAK_army_dm_army_strength_factor = 0.1 tooltip = army_strength_factor_tt }
 		clear_variable = LAK_army_dm_conscription
 		clear_variable = LAK_army_dm_mobilization_laws_cost_factor
 		hidden_effect = {
