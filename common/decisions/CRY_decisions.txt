@@ -651,19 +651,112 @@ CRY_not_enough_food_cat = {
 					exists = no
 				}
 			}
+			focus_progress = {
+				focus = CRY_but_the_hunger_grows
+				progress > 0
+			}
         }
         activation = {
 			always = no
         }
 
         is_good = no
-        days_mission_timeout = 3650 # 10 years
+        days_mission_timeout = 365 # 1 year baseline, 2 added by war focus
+		# additionally you get 45 days per enshrouded pony state - 15 per non pony
         timeout_effect = {
 			# "bad" end
 			# where you have starved your people before flurry is an adult
         }
         complete_effect = {
+			# "good" end
+			# where you get utterly btfo by mcflurry
         }
+	}
+	CRY_enshroud_state_decision_automatic = {
+		icon = GFX_decision_enshrouded_area
+
+		on_map_mode = map_only
+
+		state_target = yes
+
+		target_array = controlled_states
+		fire_only_once = yes
+
+		target_trigger = {
+			FROM = {
+				is_fully_controlled_by = ROOT
+				any_neighbor_state = {
+					has_state_flag = CRY_enshrouded_state_flag
+				}
+				NOT = {
+					has_state_flag = CRY_enshrouded_state_flag
+				}
+			}
+		}
+
+		target_root_trigger = {
+			ROOT = {
+				has_completed_focus = CRY_rabia_rises
+			}
+		}
+
+		allowed = {
+			original_tag = CRY
+		}
+
+		days_mission_timeout = 90
+
+		available = {
+			hidden_trigger = {
+				always = no
+			}
+		}
+		cancel_trigger = {
+			FROM = {
+				has_state_flag = CRY_enshrouded_state_flag
+			}
+		}
+
+		timeout_effect = {
+			log = "[GetDateText]: [Root.GetName]: Decision timeout CRY_enshroud_state_decision_automatic target: [From.GetName]"
+			FROM = {
+				if = {
+					limit = { NOT = { is_owned_by = ROOT } }
+					add_contested_owner = ROOT
+				}
+				add_dynamic_modifier = {
+					modifier = CRY_enshrouded_area_modifier
+				}
+				set_temp_variable = { population_percentage_change = -0.5 }
+				population_change_custom = yes
+				set_state_flag = CRY_enshrouded_state_flag
+				if = {
+					limit = {
+						is_state_main_culture_any_pony = yes
+					}
+					ROOT = {
+						add_days_mission_timeout = {
+							mission = CRY_not_enough_food
+							days = 45
+						}
+					}
+				}
+				else = {
+					ROOT = {
+						add_days_mission_timeout = {
+							mission = CRY_not_enough_food
+							days = 15
+						}
+					}
+				}
+			}
+			ROOT = {
+				add_manpower = 1000
+			}
+		}
+		ai_will_do = {
+			factor = 100
+		}
 	}
 }
 CRY_the_realm_of_crystals = {
