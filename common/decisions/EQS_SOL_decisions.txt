@@ -9,13 +9,19 @@ SOL_debug_category = {
 			load_focus_tree = EQS_solar_empire_main
 			EQS_princess_celestia = {
 				set_character_flag = EQS_celestia_is_db
+				set_character_name = EQS_SOL_daybreaker
+				set_portraits = {
+					army = {
+						large = "GFX_DaybreakerPortrait"
+					}
+				}
 				add_country_leader_role = {
 					promote_leader = yes
 					country_leader = {
 						ideology = falangism
 						desc = "POLITICS_DAYBREAKER_DESC"
 						expire = "1965.1.1"
-						traits = { }
+						traits = { daybreaker_god }
 					}
 				}
 			}
@@ -31,8 +37,67 @@ SOL_twiggles_corruption_category = {
 	SOL_begin_corruption = { #Actually starts the combined chain and decisions; is a timer, in effect
 		fire_only_once = yes
 		complete_effect = {
-			custom_effect_tooltip = SOL_begin_corruption_tt
-			set_country_flag = SOL_twiggles_corruption_started
+			log = "[GetDateText]: [Root.GetName]: Decision SOL_begin_corruption"
+			country_event = solarempiresparkles.1
+		}
+		ai_will_do = {
+			factor = 10
+		}
+	}
+	SOL_corruption_timer = {
+		activation = {
+			has_country_flag = SOL_twiggles_corruption_started
+		}
+		available = {
+			custom_trigger_tooltip = {
+				tooltip = SOL_twilight_resistance_broken_tt
+				check_variable = { SOL_twiggles_corruption = 100 } #Variable is clamped to 100
+			}
+		}
+		selectable_mission = yes
+		days_mission_timeout = 300 #Can be adjusted
+		complete_effect = {
+			log = "[GetDateText]: [Root.GetName]: Decision SOL_corruption_timer"
+			custom_effect_tooltip = SOL_twiggles_corrupted_as_wanted_tt
+			hidden_effect = {
+				country_event = solarempiresparkles.20
+			}
+		}
+		timeout_effect = {
+			log = "[GetDateText]: [Root.GetName]: Decision timeout SOL_corruption_timer"
+			custom_effect_tooltip = SOL_twiggles_corrupted_as_is_tt
+			hidden_effect = {
+				country_event = solarempiresparkles.20
+			}
+		}
+		ai_will_do = {
+			factor = 10
+		}
+	}
+	#Add in decision to eventually give the weaker Sunrise general her unique trait after she hits level 5 or after 3 years
+	SOL_finish_sunrises_training = {
+		visible = {
+			has_country_flag = SOL_twiggles_corrupted
+			OR = {
+				NOT = { has_country_flag = SOL_twiggles_training_cooldown }
+				EQS_twilight_sparkle = {
+					skill > 4
+					NOT = { has_trait = sunrise_sparkle_t }
+				}
+			}
+		}
+		fire_only_once = yes
+		cost = 30 #Temp; probably command power later
+		days_remove = 90
+		remove_effect = {
+			log = "[GetDateText]: [Root.GetName]: Decision remove SOL_finish_sunrises_training"
+			EQS_twilight_sparkle = {
+				add_trait = { trait = sunrise_sparkle_t }
+			}
+			#TODO: Event: Daybreaker pushes Sunrise to her limits to prepare her for what is absolutely needed for defending the Empire; she is a harsh teacher, usually deriding any failures, but it drives Sunrise to push harder, and she gets a proper hit in on Daybreaker, which scorches Daybreaker, although she quickly heals from it; Daybreaker believes training concluded after that
+		}
+		ai_will_do = {
+			factor = 10
 		}
 	}
 	#EP only
@@ -45,9 +110,13 @@ SOL_twiggles_corruption_category = {
 		cost = 50
 		fire_only_once = yes
 		complete_effect = {
+			log = "[GetDateText]: [Root.GetName]: Decision SOL_experience_new_day_court"
 			custom_effect_tooltip = SOL_twiggles_learns_tt
 			add_to_variable = { SOL_twiggles_corruption = 20 }
-			add_to_variable = { SOL_twiggles_advisor_var = 25 }
+			add_to_variable = { SOL_twiggles_advisor_var = 5 }
+		}
+		ai_will_do = {
+			factor = 10
 		}
 	}
 	SOL_old_activities = { #Daybreaker breaks some of Twilight's resistance by literally doing things she and Celestia would do, and acting hurt when Twilight resists it
@@ -58,9 +127,83 @@ SOL_twiggles_corruption_category = {
 		cost = 50
 		fire_only_once = yes
 		complete_effect = {
+			log = "[GetDateText]: [Root.GetName]: Decision SOL_old_activities"
 			custom_effect_tooltip = SOL_twiggles_learns_tt
 			add_to_variable = { SOL_twiggles_corruption = 20 }
-			add_to_variable = { SOL_twiggles_advisor_var = 25 }
+			add_to_variable = { SOL_twiggles_advisor = 5 }
+		}
+		ai_will_do = {
+			factor = 10
+		}
+	}
+	#EM Only
+	SOL_meet_with_the_devoted = { #Daybreaker has Twilight meet with multiple ponies from the castle and from the common pony, all which speak of how much Daybreaker has done and helped to wear her down
+		visible = {
+			#Is EM
+			has_country_flag = SOL_twiggles_corruption_started
+		}
+		cost = 50
+		fire_only_once = yes
+		complete_effect = {
+			log = "[GetDateText]: [Root.GetName]: Decision SOL_meet_with_the_devoted"
+			custom_effect_tooltip = SOL_twiggles_learns_tt
+			add_to_variable = { SOL_twiggles_corruption = 20 }
+			add_to_variable = { SOL_twiggles_generalist = 5 }
+		}
+		ai_will_do = {
+			factor = 10
+		}
+	}
+	SOL_twist_the_knife = { #Daybreaker has Twilight sit in on a difficult case that she knows can be solved with her own tactics and turns Twilight's own thoughts against her and how it will make a situation worse
+		visible = {
+			#Is EM
+			has_country_flag = SOL_twiggles_corruption_started
+		}
+		cost = 50
+		fire_only_once = yes
+		complete_effect = {
+			log = "[GetDateText]: [Root.GetName]: Decision SOL_twist_the_knife"
+			custom_effect_tooltip = SOL_twiggles_learns_tt
+			add_to_variable = { SOL_twiggles_corruption = 20 }
+			add_to_variable = { SOL_twiggles_generalist = 5 }
+		}
+		ai_will_do = {
+			factor = 10
+		}
+	}
+	#GE Only
+	SOL_correct_twilights_folly = { #Daybreaker grills Twilight on what can solve the problems of the modern world that is so hostile to Equestria and friendship, and with each wrong answer (all of them), Daybreaker punishes Twilight to break her with pain and anguish
+		visible = {
+			#Is GE
+			has_country_flag = SOL_twiggles_corruption_started
+		}
+		cost = 50
+		fire_only_once = yes
+		complete_effect = {
+			log = "[GetDateText]: [Root.GetName]: Decision SOL_correct_twilights_folly"
+			custom_effect_tooltip = SOL_twiggles_learns_tt
+			add_to_variable = { SOL_twiggles_corruption = 20 }
+			add_to_variable = { SOL_twiggles_general = 5 }
+		}
+		ai_will_do = {
+			factor = 10
+		}
+	}
+	SOL_hit_with_reality = { #Daybreaker takes Twilight to a trial of a truly guilty pony (a rebel) and Daybreaker forces Twilight to see and admit that reformation will not work and that she must adapt and change to the new world to protect others
+		visible = {
+			#Is GE
+			has_country_flag = SOL_twiggles_corruption_started
+		}
+		cost = 50
+		fire_only_once = yes
+		complete_effect = {
+			log = "[GetDateText]: [Root.GetName]: Decision SOL_hit_with_reality"
+			custom_effect_tooltip = SOL_twiggles_learns_tt
+			add_to_variable = { SOL_twiggles_corruption = 20 }
+			add_to_variable = { SOL_twiggles_general = 5 }
+		}
+		ai_will_do = {
+			factor = 10
 		}
 	}
 }
