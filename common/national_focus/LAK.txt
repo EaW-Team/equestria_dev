@@ -1976,7 +1976,7 @@ shared_focus = {
 				has_country_flag = LAK_ignored_BRD
 			}
 			country_event = {
-				id = rumare_arwyn.1
+				id = rumare_BRD.1
 				days = 14
 			}
 		}
@@ -2174,6 +2174,7 @@ shared_focus = {
 		any_other_country = {
 			if = {
 				limit = {
+					NOT = { has_war_with = ROOT }
 					is_country_main_culture_southerner = yes
 					is_subject = no
 					is_in_faction = no
@@ -2192,7 +2193,17 @@ shared_focus = {
 	relative_position_id = LAK_BRD_proclaim_our_intentions
 	completion_reward = {
 		log = "[GetDateText]: [Root.GetName]: Focus LAK_BRD_contact_harmonists_focus"
-		custom_effect_tooltip = "TODO: Contact harmonist South Griffonia countries and try to negotiate with them to join you (being puppeted)"
+		every_other_country = {
+			limit = {
+				NOT = { has_war_with = ROOT }
+				is_country_main_culture_southerner = yes
+				is_subject = no
+				is_in_faction = no
+				has_government = democratic
+			}
+			display_individual_scopes = yes
+			country_event = { id = rumare_BRD.2 days = 1 }
+		}
 	}
 }
 
@@ -2221,7 +2232,7 @@ shared_focus = {
 	relative_position_id = LAK_BRD_proclaim_our_intentions
 	completion_reward = {
 		log = "[GetDateText]: [Root.GetName]: Focus LAK_BRD_negotiations_with_RIV"
-		custom_effect_tooltip = "#TODO: ask RIV to support our cause if they're harmonic"
+		RIV = { country_event = { id = rumare_BRD.5 days = 1 } }
 	}
 }
 
@@ -2251,24 +2262,56 @@ shared_focus = {
 	cost = 4.3
 	ai_will_do = { factor = 100 }
 	bypass = {
-		EQC = {
-			all_original_cores_owned_and_controlled_by_ROOT_or_ally = yes
-			exists = no
-		}
+		EQC = { all_original_cores_owned_and_controlled_by_ROOT_or_ally = yes }
 	}
 	available = {
 		has_war = no
+		EQC = {
+			exists = yes
+			is_subject = yes
+			OVERLORD = { has_government = democratic }
+		}
+		NOT = { has_country_flag = LAK_EQS_refused_to_give_EQC }
 	}
+	mutually_exclusive = { focus = LAK_BRD_root_out_imperialism }
+	prerequisite = { focus = LAK_BRD_attack_south_focus }
+	relative_position_id = LAK_BRD_attack_south_focus
+	completion_reward = {
+		log = "[GetDateText]: [Root.GetName]: Focus LAK_BRD_deal_with_EQC_focus"
+		var:EQC.OVERLORD = { country_event = { id = rumare_BRD.8 days = 1 } }
+	}
+}
+
+shared_focus = {
+	id = LAK_BRD_root_out_imperialism
+	icon = GFX_goal_national_populism 
+	x = -3
+	y = 1
+	cost = 4.3
+	ai_will_do = { factor = 100 }
+	bypass = {
+		EQC = { all_original_cores_owned_and_controlled_by_ROOT_or_ally = yes }
+	}
+	available = {
+		has_war = no
+		OR = {
+			EQC = {
+				is_subject = no
+				OVERLORD = { has_same_ideology = no }
+			}
+			has_country_flag = LAK_EQS_refused_to_give_EQC
+		}
+	}
+	mutually_exclusive = { focus = LAK_BRD_deal_with_EQC_focus }
 	prerequisite = { focus = LAK_BRD_attack_south_focus }
 	relative_position_id = LAK_BRD_attack_south_focus
 	will_lead_to_war_with = EQC
 	completion_reward = {
-		log = "[GetDateText]: [Root.GetName]: Focus LAK_BRD_deal_with_EQC_focus"
+		log = "[GetDateText]: [Root.GetName]: Focus LAK_BRD_root_out_imperialism"
 		declare_war_on = {
 			target = EQC
 			type = annex_everything
 		}
-		custom_effect_tooltip = "#TODO: Some negotiations with EQS if EQC is their puppet, or with EQC if they're independant and harmonic. Can either live in peace or try to buy them. In case they declined, or EQC is independant and not harmonic - kill"
 	}
 }
 
@@ -2282,7 +2325,10 @@ shared_focus = {
 	available = {
 		EQC = { all_original_cores_owned_and_controlled_by_ROOT_or_ally = yes }
 	}
-	prerequisite = { focus = LAK_BRD_deal_with_EQC_focus }
+	prerequisite = {
+		focus = LAK_BRD_deal_with_EQC_focus
+		focus = LAK_BRD_root_out_imperialism
+	}
 	relative_position_id = LAK_BRD_deal_with_EQC_focus
 	completion_reward = {
 		log = "[GetDateText]: [Root.GetName]: Focus LAK_BRD_deal_with_EQC_focus"
@@ -2374,7 +2420,7 @@ shared_focus = {
 	relative_position_id = LAK_BRD_free_south_focus
 	completion_reward = {
 		log = "[GetDateText]: [Root.GetName]: Focus LAK_BRD_end_of_our_mission"
-		custom_effect_tooltip = "#TODO: Arwyn chooses that either her mission is over and people should rest, or that ALL Griffonia must be liberated from tyrany."
+		country_event = rumare_BRD.11
 	}
 }
 
@@ -2385,6 +2431,9 @@ shared_focus = {
 	y = 1
 	cost = 4.3
 	ai_will_do = { factor = 100 }
+	allow_branch = {
+		has_country_flag = LAK_BRD_all_out_war_flag
+	}
 	prerequisite = { focus = LAK_BRD_end_of_our_mission }
 	relative_position_id = LAK_BRD_end_of_our_mission
 	completion_reward = {
@@ -2521,7 +2570,7 @@ shared_focus = {
                 limit = {
 					OR = {
 						LAK_BRD_current_and_potential_enemies = yes
-						AND = { # Remove triggers below later - rn they're just for displaying tooltip
+						AND = {
 							is_on_same_continent_as = ROOT
 							OR = {
 								is_country_main_culture_herzlander = yes
@@ -2926,6 +2975,9 @@ shared_focus = {
 	ai_will_do = { factor = 100 }
 	available = {
 		has_completed_focus = LAK_BRD_no_compromise
+	}
+	allow_branch = {
+		has_country_flag = LAK_BRD_all_out_war_flag
 	}
 	prerequisite = {
 		focus = LAK_BRD_central_military_planning
@@ -3381,7 +3433,9 @@ shared_focus = {
 	y = 2
 	cost = 4.3
 	ai_will_do = { factor = 100 }
-	prerequisite = { focus = LAK_BRD_no_compromise }
+	allow_branch = {
+		has_country_flag = LAK_BRD_peace_achieved_flag
+	}
 	prerequisite = { focus = LAK_BRD_our_brightest_dream }
 	relative_position_id = LAK_BRD_our_brightest_dream
 	completion_reward = {
@@ -3414,6 +3468,9 @@ shared_focus = {
 	y = 1
 	cost = 4.3
 	ai_will_do = { factor = 100 }
+	allow_branch = {
+		has_country_flag = LAK_BRD_peace_achieved_flag
+	}
 	prerequisite = { focus = LAK_BRD_our_brightest_dream }
 	relative_position_id = LAK_BRD_our_brightest_dream
 	completion_reward = {
