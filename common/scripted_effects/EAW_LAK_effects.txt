@@ -168,39 +168,38 @@ LAK_remove_factions_system = {
 ### BRD stuff ###
 #################
 LAK_calculate_BRD_modifiers = {
-	if = {
-		limit = {
-			check_variable = { LAK_BRD_enemies_array^num > 0 }
-		}
-		clear_variable = total_industry
-		clear_variable = total_army
-		clear_variable = hostile_industry
-		clear_variable = hostile_army
-		for_each_scope_loop = {
-			array = LAK_BRD_enemies_array
-			add_to_variable = { ROOT.hostile_industry = num_of_military_factories }
-			add_to_variable = { ROOT.hostile_army = deployed_army_manpower_k }
-		}
-		set_variable = {
-			industry_ratio = {
-				value = hostile_industry
-				subtract = num_of_military_factories
-				divide = num_of_military_factories
-			}
-		}
-		set_variable = {
-			army_ratio = {
-				value = hostile_army
-				subtract = deployed_army_manpower_k
-				divide = deployed_army_manpower_k
-			}
-		}
-		divide_variable = { hostile_army = 1000 }
+	clear_variable = total_industry
+	clear_variable = total_army
+	clear_variable = hostile_industry
+	clear_variable = hostile_army
+	for_each_scope_loop = {
+		array = LAK_BRD_enemies_array
+		add_to_variable = { ROOT.hostile_industry = num_of_military_factories }
+		add_to_variable = { ROOT.hostile_army = deployed_army_manpower_k }
 	}
+	set_variable = {
+		industry_ratio = {
+			value = hostile_industry
+			subtract = num_of_military_factories
+			divide = num_of_military_factories
+		}
+	}
+	set_variable = {
+		army_ratio = {
+			value = hostile_army
+			subtract = deployed_army_manpower_k
+			divide = deployed_army_manpower_k
+		}
+	}
+	divide_variable = { hostile_army = 1000 }
 	LAK_BRD_recalculate_modifiers = yes
-	add_to_variable = { LAK_GUI_dirty = 1 }
 }
 LAK_BRD_recalculate_modifiers = {
+	clamp_variable = {
+		var = LAK_BRD_modifiers_array^temp_index
+		min = 0
+		max = 0.5
+	}
 	clear_variable = LAK_BRD_current_mods
 	for_each_loop = {
 		array = LAK_BRD_modifiers_array
@@ -213,26 +212,35 @@ LAK_BRD_recalculate_modifiers = {
 	}
 	set_variable = {
 		LAK_BRD_max_cap = {
-			value = 210
-			multiply = army_ratio
-			multiply = industry_ratio
+			value = 350
 			multiply = {
-				value = deployed_army_manpower_k
-				multiply = num_of_military_factories
-				divide = {
-					value = deployed_army_manpower_k
-					add = 500
+				value = 1
+				subtract = {
+					value = 2
+					pow = {
+						value = army_ratio
+						multiply = industry_ratio
+						multiply = {
+							value = deployed_army_manpower_k
+							multiply = num_of_military_factories
+							divide = {
+								value = deployed_army_manpower_k
+								add = 500
+							}
+							divide = {
+								value = num_of_military_factories
+								add = 100
+							}
+							root = 4
+						}
+						multiply = -1
+					}
 				}
-				divide = {
-					value = num_of_military_factories
-					add = 100
-				}
-				root = 4
 			}
 			round = yes
 			clamp = {
 				min = 35
-				max = 420
+				max = 350
 			}
 		}
 	}
@@ -241,6 +249,25 @@ LAK_BRD_recalculate_modifiers = {
 			value = LAK_BRD_current_mods
 			subtract = LAK_BRD_max_cap
 		}
+	}
+	if = {
+		limit = {
+			check_variable = { LAK_BRD_overcap > 0 }
+		}
+		if = {
+			limit = {
+				set_temp_variable = { alert_id = token:eaw_alert_LAK_BRD_overcap }
+				has_eaw_alert = no
+			}
+			set_temp_variable = { alert_id = token:eaw_alert_LAK_BRD_overcap }
+			set_temp_variable = { alert_color = 2 }	
+			add_eaw_alert = yes
+		}
+	}
+	else = {
+		clear_variable = LAK_BRD_overcap
+		set_temp_variable = { alert_id = token:eaw_alert_LAK_BRD_overcap }
+		remove_eaw_alert = yes
 	}
 	add_to_variable = { LAK_GUI_dirty = 1 }
 }
