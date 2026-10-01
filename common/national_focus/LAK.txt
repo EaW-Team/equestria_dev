@@ -2171,18 +2171,17 @@ shared_focus = {
 	cost = 4.3
 	ai_will_do = { factor = 100 }
 	available = {
-		any_other_country = {
-			if = {
-				limit = {
-					NOT = { has_war_with = ROOT }
-					is_country_main_culture_southerner = yes
-					is_subject = no
-					is_in_faction = no
-				}
-				has_government = democratic
+		custom_trigger_tooltip = {
+			tooltip = {
+				localization_key = LAK_BRD_any_friends_in_region_tt
+				CULTURE = eaw_culture_southerner
 			}
-			else = {
-				always = no
+			any_other_country = {
+				is_country_main_culture_southerner = yes
+				NOT = { has_war_with = ROOT }
+				is_subject = no
+				is_in_faction = no
+				has_same_ideology = yes
 			}
 		}
 	}
@@ -2195,11 +2194,11 @@ shared_focus = {
 		log = "[GetDateText]: [Root.GetName]: Focus LAK_BRD_contact_harmonists_focus"
 		every_other_country = {
 			limit = {
-				NOT = { has_war_with = ROOT }
 				is_country_main_culture_southerner = yes
+				NOT = { has_war_with = ROOT }
 				is_subject = no
 				is_in_faction = no
-				has_government = democratic
+				has_same_ideology = yes
 			}
 			display_individual_scopes = yes
 			country_event = { id = rumare_BRD.2 days = 1 }
@@ -2237,7 +2236,7 @@ shared_focus = {
 }
 
 shared_focus = {
-	id = LAK_BRD_look_inth_the_valley
+	id = LAK_BRD_look_into_the_valley
 	icon = GFX_goal_national_populism 
 	x = 1
 	y = 1
@@ -2249,7 +2248,7 @@ shared_focus = {
 	prerequisite = { focus = LAK_BRD_proclaim_our_intentions }
 	relative_position_id = LAK_BRD_proclaim_our_intentions
 	completion_reward = {
-		log = "[GetDateText]: [Root.GetName]: Focus LAK_BRD_look_inth_the_valley"
+		log = "[GetDateText]: [Root.GetName]: Focus LAK_BRD_look_into_the_valley"
 		custom_effect_tooltip = "#TODO: We look what happens in Evi Valley. If there're civil wars - support whoever fits our view, if there're harmonists - try making relationships, if there're non-harmonists - build up forts and logistics on the border, but don't attack."
 	}
 }
@@ -2265,11 +2264,36 @@ shared_focus = {
 		
 	}
 	mutually_exclusive = { focus = LAK_BRD_our_fellow_friends }
-	prerequisite = { focus = LAK_BRD_look_inth_the_valley }
-	relative_position_id = LAK_BRD_look_inth_the_valley
-	completion_reward = {
-		log = "[GetDateText]: [Root.GetName]: Focus LAK_BRD_preemtive_strike"
-	}
+	prerequisite = { focus = LAK_BRD_look_into_the_valley }
+	relative_position_id = LAK_BRD_look_into_the_valley
+	select_effect = {
+        log = "[GetDateText]: [Root.GetName]: Selected Focus LAK_BRD_preemtive_strike"
+        every_other_country = {
+            limit = {
+                exists_outside_sphere_of_influence = yes
+                is_country_main_culture_evi_valley = yes
+            }
+            eaw_alert_send_imminent_declaration_of_war_THIS = yes
+        }
+    }
+    completion_reward = {
+        log = "[GetDateText]: [Root.GetName]: Focus LAK_BRD_preemtive_strike"
+        hidden_effect = {
+            every_other_country = {
+                limit = {
+                    exists_outside_sphere_of_influence = yes
+                    is_country_main_culture_evi_valley = yes
+                }
+                display_individual_scopes = yes
+                eaw_clear_alert_imminent_declaration_of_war_THIS = yes
+				set_temp_variable = { call_subject_var = 1 }
+                ROOT_immediate_war_declare_on_THIS = yes
+                add_THIS_to_target_array = yes
+            }
+        }
+		custom_effect_tooltip = LAK_BRD_declare_war_on_tt
+        display_target_array_tt = yes
+    }
 }
 
 shared_focus = {
@@ -2280,13 +2304,36 @@ shared_focus = {
 	cost = 4.3
 	ai_will_do = { factor = 100 }
 	available = {
-		
+		custom_trigger_tooltip = {
+			tooltip = {
+				localization_key = LAK_BRD_any_friends_in_region_tt
+				CULTURE = eaw_culture_evi_valley
+			}
+			any_other_country = {
+				is_country_main_culture_evi_valley = yes
+				NOT = { has_war_with = ROOT }
+				is_subject = no
+				is_in_faction = no
+				has_same_ideology = yes
+			}
+		}
 	}
 	mutually_exclusive = { focus = LAK_BRD_preemtive_strike }
-	prerequisite = { focus = LAK_BRD_look_inth_the_valley }
-	relative_position_id = LAK_BRD_look_inth_the_valley
+	prerequisite = { focus = LAK_BRD_look_into_the_valley }
+	relative_position_id = LAK_BRD_look_into_the_valley
 	completion_reward = {
 		log = "[GetDateText]: [Root.GetName]: Focus LAK_BRD_our_fellow_friends"
+		every_other_country = {
+			limit = {
+				is_country_main_culture_evi_valley = yes
+				NOT = { has_war_with = ROOT }
+				is_subject = no
+				is_in_faction = no
+				has_same_ideology = yes
+			}
+			display_individual_scopes = yes
+			country_event = { id = rumare_BRD.2 days = 1 }
+		}
 	}
 }
 
@@ -3225,7 +3272,13 @@ shared_focus = {
 	relative_position_id = LAK_BRD_starting_focus
 	completion_reward = {
 		log = "[GetDateText]: [Root.GetName]: Focus LAK_BRD_reform_police"
-		custom_effect_tooltip = "#TODO: give upgraded version of 'Local Autonomy' occupation law"
+		custom_effect_tooltip = {
+			localization_key = EFFECT_SWAP_IDEAS_MODIFY
+			REMOVE = autonomous_occupation
+		}
+		set_temp_variable = { temp = -0.2 tooltip = resistance_target_tt }
+		set_occupation_law = autonomous_occupation_improved
+		set_occupation_law_where_available = integration_occupation
 		custom_effect_tooltip = generic_skip_one_line_tt
 		add_popularity = {
 			ideology = fascism
