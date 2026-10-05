@@ -134,7 +134,8 @@ jobs:
         run: python3 .github/scripts/prepare_steam_workshop_metadata.py
 
       - name: Upload to Steam Workshop
-        uses: Yard1/steam-mod-deploy@9a0b428545cae02fc498299b38a1d1ca4deea733
+        id: steam_upload
+        uses: Yard1/steam-mod-deploy@d945af85372652b337695606e43502cd4c3ad794
         with:
           username: ${{ secrets.STEAM_USERNAME }}
           configVdf: ${{ secrets.STEAM_CONFIG_VDF }}
@@ -143,3 +144,72 @@ jobs:
           contentPath: build/equestria
           description: ${{ steps.steam_metadata.outputs.description }}
           changeNote: ${{ steps.steam_metadata.outputs.change_note }}
+
+      - name: Encrypt Steam diagnostics
+        continue-on-error: true
+        id: steam_diagnostics
+        if: ${{ failure() && steps.steam_upload.outcome == 'failure' }}
+        shell: bash
+        env:
+          STEAM_LOGS_PASSWORD: ${{ secrets.STEAM_LOGS_PASSWORD }}
+        run: |
+          set -euo pipefail
+          if [[ -z "$STEAM_LOGS_PASSWORD" ]]; then
+            echo "::error::Set the STEAM_LOGS_PASSWORD repository secret to encrypt Steam diagnostics."
+            exit 1
+          fi
+
+          # Docker actions mount this runner directory at /github/home.
+          steam_home="$RUNNER_TEMP/_github_home"
+          if [[ ! -d "$steam_home" ]]; then
+            echo "::warning::Steam home directory was not found."
+            exit 0
+          fi
+
+          log_temp=$(mktemp -d "$RUNNER_TEMP/steam-diagnostics.XXXXXX")
+          trap 'rm -rf "$log_temp"' EXIT
+          cd "$steam_home"
+          # Select only diagnostic logs, never config.vdf or other login files.
+          find . -type f \
+            \( -path '*/logs/connection_log.txt' \
+            -o -path '*/logs/content_log.txt' \
+            -o -path '*/logs/Workshop_log.txt' \
+            -o -path '*/logs/workshop_log.txt' \
+            -o -path '*/logs/stderr.txt' \
+            -o -path '*/logs/bootstrap_log.txt' \
+            -o -path "*/workshopbuilds/depot_build_${STEAM_APP_ID}.log" \) \
+            -print0 > "$log_temp/files"
+          if [[ ! -s "$log_temp/files" ]]; then
+            echo "::warning::No Steam diagnostic logs were found."
+            exit 0
+          fi
+
+          # Ubuntu's 7zip package provides 7z; standalone releases use 7zz.
+          if ! seven_zip=$(command -v 7z || command -v 7zz); then
+            sudo apt-get update
+            sudo apt-get install --yes 7zip
+            seven_zip=$(command -v 7z || command -v 7zz) || {
+              echo "::error::7-Zip is unavailable after installing the 7zip package."
+              exit 1
+            }
+          fi
+
+          mapfile -d '' -t log_files < "$log_temp/files"
+          # Read the password from stdin so it is not exposed in process arguments.
+          "$seven_zip" a -tzip -spf -mem=AES256 -p -bso0 -bsp0 \
+            "$log_temp/steam-diagnostics.zip" "${log_files[@]#./}" \
+            <<< "$STEAM_LOGS_PASSWORD"
+          encrypted_log="$RUNNER_TEMP/steam-diagnostics-${GITHUB_RUN_ID}-${GITHUB_RUN_ATTEMPT}.zip"
+          mv "$log_temp/steam-diagnostics.zip" "$encrypted_log"
+          echo "path=$encrypted_log" >> "$GITHUB_OUTPUT"
+
+      - name: Upload encrypted Steam diagnostics
+        continue-on-error: true
+        if: ${{ always() && steps.steam_diagnostics.outputs.path != '' }}
+        uses: actions/upload-artifact@v7
+        with:
+          name: steam-diagnostics-${{ github.run_id }}-${{ github.run_attempt }}
+          path: ${{ steps.steam_diagnostics.outputs.path }}
+          archive: false
+          if-no-files-found: error
+          retention-days: 7
