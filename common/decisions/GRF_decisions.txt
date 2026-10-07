@@ -1498,7 +1498,7 @@ GRF_civil_war_bop_category = {
 			is_subject = no
 			power_balance_value = {
 				id = GRF_civil_war_bop
-				value < 0
+				value < 0.75
 			}
 		}
 		cost = 10
@@ -3104,12 +3104,14 @@ GRF_sending_mercs_cat = {
 				all_enemy_country = {
 					if = {
 						limit = { ROOT = { tag = GRF } }
+						NOT = { has_idea = GRF_got_mercs_delayed_payment }
 						has_volunteers_amount_from = {
 							tag = GRF
 							count < 1
 						}
 					}
 					else = {
+						NOT = { has_idea = TRD_got_mercs_delayed_payment }
 						has_volunteers_amount_from = {
 							tag = TRD
 							count < 1
@@ -3133,9 +3135,7 @@ GRF_sending_mercs_cat = {
 				has_idea = GRF_send_mercs
 			}
 			else = {
-				has_completed_focus = TRD_robber_baron
-				has_government = neutrality
-				is_subject = no
+				has_idea = TRD_mercs_idea
 			}
 			has_war = no
 		}
@@ -3252,9 +3252,19 @@ GRF_sending_mercs_cat = {
 			modifier = {
 				factor = 0
 				OR = {
+					has_manpower < 10000
 					check_variable = { volunteers_factor > 0.24 }  # defines MAX_VOLUNTEER_ARMY_FRACTION
 					has_country_flag = mercs_in_progress
 					is_in_array = { potential_and_current_enemies = FROM }
+					any_of_scopes = {
+						array = potential_and_current_enemies
+						OR = {
+							is_justifying_wargoal_against = ROOT
+							has_wargoal_against = ROOT
+							ROOT = { has_wargoal_against = PREV }
+							ROOT = { is_justifying_wargoal_against = PREV }
+						}
+					}
 				}
 			}
 			modifier = {
@@ -3430,11 +3440,7 @@ GRF_sending_mercs_cat = {
 				}
 				else = {
 					NOT = {
-						AND = {
-							has_completed_focus = TRD_robber_baron
-							has_government = neutrality
-							is_subject = no
-						}
+						has_idea = TRD_mercs_idea
 					}
 				}
 				FROM = {
@@ -3473,7 +3479,7 @@ GRF_sending_mercs_cat = {
 			}
 			clr_country_flag = agreed_to_mercs_@FROM
 			clr_country_flag = mercs_in_progress
-			GRF_recalc_mercs = yes
+			hidden_effect = { GRF_recalc_mercs = yes }
 		}
 
 		is_good = no
@@ -3506,7 +3512,7 @@ GRF_sending_mercs_cat = {
 			}
 			clr_country_flag = agreed_to_mercs_@FROM
 			clr_country_flag = mercs_in_progress
-			GRF_recalc_mercs = yes
+			hidden_effect = { GRF_recalc_mercs = yes }
 		}
 
 		complete_effect = {
@@ -3565,7 +3571,8 @@ GRF_sending_mercs_cat = {
 			}
 			clr_country_flag = agreed_to_mercs_@FROM
 			clr_country_flag = mercs_in_progress
-			GRF_recalc_mercs = yes
+			set_country_flag = { flag = mercs_one_year_@FROM value = 1 days = 365 }
+			hidden_effect = { GRF_recalc_mercs = yes }
 		}
 
 	}
@@ -3617,9 +3624,14 @@ GRF_sending_mercs_cat = {
 				var = bank
 				value = 0.5
 			}
+			add_political_power = 10
 			hidden_effect = {
 				FROM = { save_event_target_as = merc_client }
-				country_event = { id = tradefed.1000 hours = 1 }
+				# Need to repeat it a few times because sometimes it doesn't process correctly
+				# I think it's related to the game not really clearing the mission quickly enough
+				country_event = { id = tradefed.1000 days = 1 }
+				country_event = { id = tradefed.1000 days = 2 }
+				country_event = { id = tradefed.1000 days = 3 }
 			}
 		}
 	}
@@ -3636,7 +3648,11 @@ GRF_sending_mercs_cat = {
 		}
 		visible = {
 			FROM = {
-				has_war = no
+				has_volunteers_amount_from = {
+					tag = ROOT
+					count < 1
+				}
+				NOT = { has_war_with = ROOT }
 				has_variable = delayed_merc_payment_@ROOT
 				NOT = { has_country_flag = considering_delaying_payment_@ROOT }
 			}
@@ -3644,7 +3660,11 @@ GRF_sending_mercs_cat = {
 		target_trigger = {
 			FROM = {
 				exists = yes
-				has_war = no
+				has_volunteers_amount_from = {
+					tag = ROOT
+					count < 1
+				}
+				NOT = { has_war_with = ROOT }
 				has_variable = delayed_merc_payment_@ROOT
 			}
 		}
@@ -3656,6 +3676,9 @@ GRF_sending_mercs_cat = {
 			}
 		}
 		days_re_enable = 7
+		ai_will_do = {
+			factor = 1
+		}
 	}
 	GRF_send_mercs_reward_delayed = {
 		icon = rifles
@@ -3705,6 +3728,7 @@ GRF_sending_mercs_cat = {
 				var = bank
 				value = 0.5
 			}
+			add_political_power = 10
 			subtract_from_variable = {
 				TRD_send_mercs_reward_delayed_duration_@FROM = 30
 			}
@@ -3712,7 +3736,11 @@ GRF_sending_mercs_cat = {
 				limit = { check_variable = { TRD_send_mercs_reward_delayed_duration_@FROM > -15 } }
 				hidden_effect = {
 					FROM = { save_event_target_as = merc_client }
-					country_event = { id = tradefed.1001 hours = 1 }
+					# Need to repeat it a few times because sometimes it doesn't process correctly
+					# I think it's related to the game not really clearing the mission quickly enough
+					country_event = { id = tradefed.1001 days = 1 }
+					country_event = { id = tradefed.1001 days = 2 }
+					country_event = { id = tradefed.1001 days = 3 }
 				}
 			}
 		}
