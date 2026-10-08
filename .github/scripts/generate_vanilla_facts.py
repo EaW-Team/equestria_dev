@@ -226,6 +226,7 @@ def generate(
 def write_facts(
     output_path: Path,
     salt: str,
+    checksum: str,
     rules: list[h.Rule],
     entries: list[tuple[str, h.Entry]],
     force: bool,
@@ -235,7 +236,11 @@ def write_facts(
             f"{output_path} already exists; pass --force to replace it"
         )
 
-    lines = [f"# {h.FACTS_HEADER}", f"salt\t{salt}"]
+    lines = [
+        f"# {h.FACTS_HEADER}",
+        f"salt\t{salt}",
+        f"checksum\t{checksum}",
+    ]
     lines.extend(
         f"rule\t{rule.directory}\t{rule.extension}" for rule in rules
     )
@@ -279,8 +284,15 @@ def main() -> int:
         output_path = args.output.resolve()
 
         salt, rules, entries = generate(log_path, game_directory)
-        write_facts(output_path, salt, rules, entries, args.force)
         checksum, _ = h.calculate_checksum(salt, rules, dict(entries))
+        write_facts(
+            output_path,
+            salt,
+            checksum,
+            rules,
+            entries,
+            args.force,
+        )
         print(
             f"Wrote {len(entries)} verified entries to {output_path}\n"
             f"Checksum: {checksum}"
