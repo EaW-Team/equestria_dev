@@ -1863,3 +1863,167 @@ add_random_stat_to_general = {
 		}
 	}
 }
+# 1. How to use
+# Write the effect either inside the scope of the unit leader you want to show or the country they are active in.
+# If you use the country scope, you have to specify the character via 'set_temp_variable = { character_var = [character] }'.
+# This effect here will automatically assign their traits, rank and levels. It only works for generals, field marshals and admirals.
+# By default, the effect displays the name of the character if and only if the 'character_var' temp variable was used. 
+# The name showing can be forced/suppressed by setting the temp variable 'show_name' to a positive/negative value.
+# The 'Becomes a [role].' part of the tooltip can be suppressed by setting 'only_show_stats' to 1.
+# 	Example 1:
+#	BRZ_hochmeister_lucky = { unit_leader_stats_tt = yes }
+#
+#   Example 2:
+#   set_temp_variable = { character = BRZ_hochmeister_lucky }
+#	set_temp_variable = { only_show_stats = 1 }
+#	unit_leader_stats_tt = yes   
+#
+# 2. How to maintain code working
+# In order for script to work, you need to list all traits into global.traits_array. This can be done with unit_leader_traits_script.py script
+# Define path to the common\unit_leader folder and run the script. Two files will be generated:
+#	2.1. traits_array.txt must go into 'history\countries\ZZZ - Dummy'
+#	2.2. traits_tokens.txt must go into 'common\synchronized_dynamic_tokens\eaw_traits_tokens.txt'
+# Note: the python script scans the whole traits folder and writes it down in those two files, so this procedure can be done at major releases or whenever anyone adds new traits.
+unit_leader_stats_tt = {
+	# Double-check to clear all temp variables if effect was executed before
+	if = {
+		limit = {
+			check_variable = { character_var = 0 }
+		}
+		set_temp_variable = { character_var = THIS }
+	}
+	else = {
+		if = {
+			limit = {
+				NOT = {
+					check_variable = { show_name < 0 }
+				}
+			}
+			set_temp_variable = { show_name = 1 }
+		}
+	}
+	set_temp_variable = { current_step = 0 }
+	set_temp_variable = { temp_index = 0 }
+	set_temp_variable = { temp_trait^0 = 0 }
+	set_temp_variable = { temp_trait^1 = 0 }
+	set_temp_variable = { temp_trait^2 = 0 }
+	set_temp_variable = { temp_trait^3 = 0 }
+	set_temp_variable = { temp_trait^4 = 0 }
+	set_temp_variable = { temp_trait^5 = 0 }
+	set_temp_variable = { temp_trait_index = 0 }
+	var:character_var = {	
+		set_temp_variable = { char_num_traits = num_traits }
+		unit_leader_traits_tt = yes # Looks though the character and assigns tokens of their traits to loc tokens
+		set_temp_variable = { char_skill = skill }
+		set_temp_variable = { char_attack = attack_level }
+		set_temp_variable = { char_army_defence = army_defense_level }
+		set_temp_variable = { char_planning = planning_level }
+		set_temp_variable = { char_logistics = logistics_level }
+		set_temp_variable = { char_maneuvering = maneuvering_level }
+		set_temp_variable = { char_coordination = coordination_level }
+	}
+	if = {
+		limit = {
+			var:character_var = {	
+				is_army_leader = yes
+			}
+		}
+		if = {
+			limit = {
+				check_variable = { only_show_stats = 1 }
+			}
+			custom_effect_tooltip = {
+				localization_key = army_leader_stats_numbers
+				TRAIT_0 = [unit_leader_stat_0_loc]
+				TRAIT_1 = [unit_leader_stat_1_loc]
+				TRAIT_2 = [unit_leader_stat_2_loc]
+				TRAIT_3 = [unit_leader_stat_3_loc]
+				TRAIT_4 = [unit_leader_stat_4_loc]
+				TRAIT_5 = [unit_leader_stat_5_loc]
+			}
+		}
+		else = {
+			custom_effect_tooltip = {
+				localization_key = army_leader_stats_tt
+				TRAIT_0 = [unit_leader_stat_0_loc]
+				TRAIT_1 = [unit_leader_stat_1_loc]
+				TRAIT_2 = [unit_leader_stat_2_loc]
+				TRAIT_3 = [unit_leader_stat_3_loc]
+				TRAIT_4 = [unit_leader_stat_4_loc]
+				TRAIT_5 = [unit_leader_stat_5_loc]
+			}
+		}
+	}
+	else_if = {
+		limit = {
+			var:character_var = {	
+				is_navy_leader = yes
+			}
+		}
+		if = {
+			limit = {
+				check_variable = { only_show_stats = 1 }
+			}
+			custom_effect_tooltip = {
+				localization_key = navy_leader_stats_numbers
+				TRAIT_0 = [unit_leader_stat_0_loc]
+				TRAIT_1 = [unit_leader_stat_1_loc]
+				TRAIT_2 = [unit_leader_stat_2_loc]
+				TRAIT_3 = [unit_leader_stat_3_loc]
+				TRAIT_4 = [unit_leader_stat_4_loc]
+				TRAIT_5 = [unit_leader_stat_5_loc]
+			}
+		}
+		else = {
+			custom_effect_tooltip = {
+				localization_key = navy_leader_stats_tt
+				TRAIT_0 = [unit_leader_stat_0_loc]
+				TRAIT_1 = [unit_leader_stat_1_loc]
+				TRAIT_2 = [unit_leader_stat_2_loc]
+				TRAIT_3 = [unit_leader_stat_3_loc]
+				TRAIT_4 = [unit_leader_stat_4_loc]
+				TRAIT_5 = [unit_leader_stat_5_loc]
+			}
+		}
+	}
+	else = {
+		custom_effect_tooltip = "THIS SCOPE ISN'T UNIT LEADER, PLEASE CHECK UP WITH THE NEAREST SCRIPTER"
+	}
+	set_temp_variable = { character_var = 0 }
+}
+# Repeats 'meta_madness' effect until all traits are listed (or at least 6 of them)
+unit_leader_traits_tt = {
+	if = {
+		limit = { # double-checks so it doesn't run too many times
+			check_variable = { current_step < num_traits }
+			check_variable = { current_step < 7 }
+		}
+		meta_madness = yes
+		add_to_temp_variable = { current_step = 1 }
+		unit_leader_traits_tt = yes
+	}
+}
+# Effect runs a loop at which it goes though 'global.traits_array' array, which lists all in-game traits,
+# and then see if current unit leader has that trait. If character has that trait, effect assigns that trait's token
+# to temp_trait^temp_trait_index and then increases index, moving to next trait.
+meta_madness = {
+	if = {
+		limit = {
+			check_variable = { temp_index < global.traits_array^num } # double-checks so it doesn't run too many times
+		}
+		meta_effect = {
+			text = {
+				if = {
+					limit = {
+						has_trait = [TRAIT]
+					}
+					set_temp_variable = { temp_trait^temp_trait_index = token:[TRAIT] }
+					add_to_temp_variable = { temp_trait_index = 1 }
+				}
+			}
+			TRAIT = "[?global.traits_array^temp_index.GetTokenKey]"
+		}
+		add_to_temp_variable = { temp_index = 1 }
+		meta_madness = yes # effect runs itself until it reaches end of the array
+	}
+}
