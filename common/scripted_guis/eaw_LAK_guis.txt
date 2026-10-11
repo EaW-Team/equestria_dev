@@ -202,7 +202,7 @@ scripted_gui = {
 		window_name = "LAK_lake_fleet_GUI_window"
 		dynamic_lists = {
 			LAK_lake_fleet_GUI_gridbox_1 = {
-				array = LAK_lake_fleet_current_modules
+				array = LAK_lake_fleet_temp_modules
 				entry_container = LAK_lake_fleet_GUI_entry_1
 			}
 			LAK_lake_fleet_GUI_gridbox_2 = {
@@ -225,15 +225,42 @@ scripted_gui = {
 			}
 			LAK_lake_fleet_GUI_entry_button_2_click = {
 				set_variable = {
-					LAK_lake_fleet_current_modules^LAK_lake_fleet_module_selected = {
+					LAK_lake_fleet_temp_modules^LAK_lake_fleet_module_selected = {
 						value = i
 						add = 1
 					}
 				}
+				if = {
+					limit = {
+						check_variable = { LAK_lake_fleet_changed_module > 0 }
+						check_variable = { LAK_lake_fleet_temp_modules^LAK_lake_fleet_module_selected = LAK_lake_fleet_current_modules^LAK_lake_fleet_module_selected }
+					}
+					subtract_from_variable = { LAK_lake_fleet_changed_module = 1 }
+				}
+				else = {
+					add_to_variable = { LAK_lake_fleet_changed_module = 1 }
+				}
+				LAK_recalculate_lake_fleet = yes
+			}
+			LAK_lake_fleet_GUI_reset_button_click = {
+				set_variable = { LAK_lake_fleet_module_selected = -1 }
+				clear_array = LAK_lake_fleet_available_modules
+				clear_variable = LAK_lake_fleet_changed_module
+				for_each_loop = {
+					array = LAK_lake_fleet_current_modules
+					set_variable = { LAK_lake_fleet_temp_modules^i = v }
+				}
+				LAK_recalculate_lake_fleet = yes
 			}
 			LAK_lake_fleet_GUI_save_button_click = {
 				set_variable = { LAK_lake_fleet_module_selected = -1 }
 				clear_array = LAK_lake_fleet_available_modules
+				clear_variable = LAK_lake_fleet_changed_module
+				for_each_loop = {
+					array = LAK_lake_fleet_temp_modules
+					set_variable = { LAK_lake_fleet_current_modules^i = v }
+				}
+				LAK_recalculate_lake_fleet = yes
 			}
 		}
 		triggers = {
@@ -253,8 +280,11 @@ scripted_gui = {
 						add = 1
 					}
 				}
-				check_variable = { var = temp_frame value = LAK_lake_fleet_current_modules^LAK_lake_fleet_module_selected compare = not_equals}
+				check_variable = { var = temp_frame value = LAK_lake_fleet_temp_modules^LAK_lake_fleet_module_selected compare = not_equals}
 			}
+			LAK_lake_fleet_GUI_unsaved_hint_visible = { check_variable = { LAK_lake_fleet_changed_module > 0 } }
+			LAK_lake_fleet_GUI_reset_button_click_enabled = { check_variable = { LAK_lake_fleet_changed_module > 0 } }
+			LAK_lake_fleet_GUI_save_button_click_enabled = { check_variable = { LAK_lake_fleet_changed_module > 0 } }
 		}
 		properties = {
 			LAK_lake_fleet_GUI_entry_button_1 = {
