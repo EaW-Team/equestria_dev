@@ -30,8 +30,17 @@ if len(matches) == 1:
 else:
     print(
         f'::notice::No unique changelog section found for '
-        f'{os.environ["RELEASE_TAG"]}; the Steam change note will be omitted.'
+        f'{os.environ["RELEASE_TAG"]}; only the checksum will be included '
+        f'in the Steam change note.'
     )
+
+checksum = os.environ["CHECKSUM"]
+if not re.fullmatch(r"[0-9a-fA-F]{32}", checksum):
+    raise ValueError(f"invalid HOI4 checksum: {checksum!r}")
+checksum_line = f"Checksum: {checksum[-4:]}"
+change_note = (
+    f"{change_note}\n\n{checksum_line}" if change_note else checksum_line
+)
 
 with Path(os.environ["GITHUB_OUTPUT"]).open("a", encoding="utf-8") as output:
     for name, value in (("description", description), ("change_note", change_note)):

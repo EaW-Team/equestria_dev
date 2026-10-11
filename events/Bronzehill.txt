@@ -76,7 +76,7 @@ country_event = {
 		ai_chance = {
 			factor = 10
 			modifier = {
-				has_stability < 0.4
+				has_stability < 0.3
 				factor = 0.5
 			}
 		}
@@ -93,7 +93,7 @@ country_event = {
 		ai_chance = {
 			factor = 1
 			modifier = {
-				has_stability < 0.4
+				has_stability < 0.3
 				factor = 5
 			}
 		}
@@ -158,6 +158,7 @@ country_event = {
 				days = 1
 			}
 		}
+		custom_effect_tooltip = bronzehill.3.b_tt
 	}
 }
 
@@ -193,7 +194,7 @@ country_event = {
 	fire_only_once = yes
 	option = {
 		add_war_support = 0.05
-		add_political_power = -25
+		add_political_power = -10
 		add_opinion_modifier = { target = FROM modifier = stole_gift_opinion }
 		name = bronzehill.5.a
 		set_country_flag = BRZ_empire_stole_flowergems
@@ -327,6 +328,301 @@ country_event = {
 		}
 	}
 
+}
+
+# Concerning Developments In Bronzehill (Griffonian Empire influences Bronzehill I)
+country_event = {
+	id = bronzehill.9
+	immediate = {log = "[Root.GetName]: event bronzehill.9"}
+	title = bronzehill.9.t
+	desc = bronzehill.9.d
+	picture = GFX_event_griffenheim
+	
+	is_triggered_only = yes
+	fire_only_once = yes
+
+	trigger = { # Necessary trigger in case Dawnclaw interrupts this event chain
+		NOT = { 
+			has_global_flag = GRI_grover_vi_dead
+		}
+	}
+	
+	option = {
+		name = bronzehill.9.a
+		if = {
+			limit = {
+				BRZ = { has_country_flag = BRZ_empire_stole_flowergems }
+			}
+			custom_effect_tooltip = bronzehill.9.disloyal_tooltip
+		}
+		else = {
+			custom_effect_tooltip = bronzehill.9.loyal_tooltip
+		}
+		custom_effect_tooltip = generic_skip_one_line_tt
+		add_political_power = -25
+		BRZ = {
+			country_event = {
+				id = bronzehill.10
+				days = 3
+			}
+		}
+		ai_chance = {
+			base = 10
+		}
+	}
+	option = {
+		name = bronzehill.9.b
+		if = {
+			limit = {
+				BRZ = { has_country_flag = BRZ_empire_stole_flowergems }
+			}
+			custom_effect_tooltip = bronzehill.9.disloyal_tooltip_investment
+		}
+		else = {
+			custom_effect_tooltip = bronzehill.9.loyal_tooltip_investment
+		}
+		custom_effect_tooltip = generic_skip_one_line_tt
+		add_political_power = -25
+		custom_effect_tooltip = generic_skip_one_line_tt
+		custom_effect_tooltip = BRZ_if_they_accept
+		effect_tooltip = {
+			add_political_power = -25
+			add_timed_idea = {
+				idea = BRZ_investment_into_bronzehill
+				days = 120
+			}
+		}
+		set_country_flag = BRZ_will_invest_in_bronzehill
+		BRZ = {
+			country_event = {
+				id = bronzehill.10
+				days = 3
+			}
+		}
+		ai_chance = {
+			base = 60
+		}
+	}
+	option = {
+		name = bronzehill.9.c
+		custom_effect_tooltip = bronzehill.9.no_envoy	
+		ai_chance = {
+			base = 30
+		}
+	}
+}
+
+# Griffenheim Send An Envoy (Griffonian Empire influences Bronzehill II)
+country_event = {
+	id = bronzehill.10
+	immediate = {log = "[Root.GetName]: event bronzehill.10"}
+	title = bronzehill.10.t
+	desc = { 
+		text = bronzehill.10.d_no_investment
+		trigger = {
+			NOT = { GRI = { has_country_flag = BRZ_will_invest_in_bronzehill } }
+		}
+	}
+	desc = { 
+		text = bronzehill.10.d_investment
+		trigger = {
+			GRI = { has_country_flag = BRZ_will_invest_in_bronzehill }
+		}
+	}
+	picture = GFX_event_griffenheim
+	
+	is_triggered_only = yes
+	fire_only_once = yes
+
+	trigger = { # Necessary trigger in case Dawnclaw interrupts this event chain
+		NOT = { 
+			has_global_flag = GRI_grover_vi_dead
+		}
+	}
+	
+	option = {
+		name = bronzehill.10.a
+		custom_effect_tooltip = bronzehill.10.a_tt
+		hidden_effect = {
+			load_oob = "BRZ_loyalist_focus"
+		}
+		GRI = {
+			country_event = {
+				id = bronzehill.11
+				hours = 3
+			}
+		}
+		add_popularity = {
+			ideology = neutrality
+			popularity = 0.05
+		}
+		if = {
+			limit = {
+				GRI = {
+					has_country_flag = BRZ_will_invest_in_bronzehill
+				}
+			}
+			add_political_power = 25
+			492 = { # Bronzekreuz
+				add_extra_state_shared_building_slots = 1
+				add_building_construction = {
+					type = industrial_complex
+					level = 1
+					instant_build = yes
+				}
+			}
+			add_tech_bonus = {
+				name = BRZ_investment_into_bronzehill
+				uses = 1
+				bonus = 1
+				category = industry
+			}
+		}
+
+		ai_chance = {
+			base = 33
+			modifier = {
+				add = 67
+				GRI = { has_country_flag = BRZ_will_invest_in_bronzehill }
+			}
+			modifier = {
+				factor = 0
+				GRI = { NOT = { has_country_flag = BRZ_will_invest_in_bronzehill } }
+				has_country_flag = BRZ_empire_stole_flowergems
+			}
+			modifier = {
+				factor = 0
+				OR = {
+					has_country_flag = BRZ_AI_RANDOM_COMMUNIST_STEELPAW
+					has_game_rule = {
+						rule = BRZ_ai_behavior 
+						option = COMMUNIST_STEELPAW
+					}
+					has_country_flag = BRZ_AI_RANDOM_COMMUNIST_SOFTFUR
+					has_game_rule = {
+						rule = BRZ_ai_behavior 
+						option = COMMUNIST_SOFTFUR
+					}
+					has_country_flag = BRZ_AI_RANDOM_HARMONY_BARNABY
+					has_game_rule = {
+						rule = BRZ_ai_behavior 
+						option = HARMONY_BARNABY
+					}
+					has_country_flag = BRZ_AI_RANDOM_FASCIST_LOUDBARK
+					has_game_rule = {
+						rule = BRZ_ai_behavior 
+						option = FASCISM_LOUDBARK
+					}
+				}
+			}
+		}
+	}
+	option = {
+		name = bronzehill.10.b
+		GRI = {
+			country_event = {
+				id = bronzehill.12
+				hours = 3
+			}
+		}
+
+		ai_chance = {
+			base = 67
+			modifier = {
+				factor = 0
+				GRI = { has_country_flag = BRZ_will_invest_in_bronzehill }
+				NOT = { has_country_flag = BRZ_empire_stole_flowergems } 
+			}
+			modifier = {
+				add = 500
+				has_country_flag = BRZ_empire_stole_flowergems
+			}
+			modifier = {
+				add = 1
+				OR = {
+					has_country_flag = BRZ_AI_RANDOM_COMMUNIST_STEELPAW
+					has_game_rule = {
+						rule = BRZ_ai_behavior 
+						option = COMMUNIST_STEELPAW
+					}
+					has_country_flag = BRZ_AI_RANDOM_COMMUNIST_SOFTFUR
+					has_game_rule = {
+						rule = BRZ_ai_behavior 
+						option = COMMUNIST_SOFTFUR
+					}
+					has_country_flag = BRZ_AI_RANDOM_HARMONY_BARNABY
+					has_game_rule = {
+						rule = BRZ_ai_behavior 
+						option = HARMONY_BARNABY
+					}
+					has_country_flag = BRZ_AI_RANDOM_FASCIST_LOUDBARK
+					has_game_rule = {
+						rule = BRZ_ai_behavior 
+						option = FASCISM_LOUDBARK
+					}
+				}
+			}
+		}
+	}
+}
+
+# Bronzehill Accepts (Griffonian Empire influences Bronzehill III)
+country_event = {
+	id = bronzehill.11
+	immediate = {log = "[Root.GetName]: event bronzehill.11"}
+	title = bronzehill.11.t
+	desc = bronzehill.11.d
+	picture = GFX_event_griffenheim
+	
+	is_triggered_only = yes
+	fire_only_once = yes
+
+	trigger = { # Necessary trigger in case Dawnclaw interrupts this event chain
+		NOT = { 
+			has_global_flag = GRI_grover_vi_dead
+		}
+	}
+	
+	option = {
+		name = bronzehill.11.a
+		trigger = {
+			NOT = { has_country_flag = BRZ_will_invest_in_bronzehill }
+		}
+	}
+
+	option = {
+		name = bronzehill.11.b
+		trigger = {
+			has_country_flag = BRZ_will_invest_in_bronzehill
+		}
+		add_political_power = -25
+		add_timed_idea = {
+			idea = BRZ_investment_into_bronzehill
+			days = 120
+		}
+	}
+}
+
+# Bronzehill Declines (Griffonian Empire influences Bronzehill IV)
+country_event = {
+	id = bronzehill.12
+	immediate = {log = "[Root.GetName]: event bronzehill.12"}
+	title = bronzehill.12.t
+	desc = bronzehill.12.d
+	picture = GFX_event_griffenheim
+	
+	is_triggered_only = yes
+	fire_only_once = yes
+
+	trigger = { # Necessary trigger in case Dawnclaw interrupts this event chain
+		NOT = { 
+			has_global_flag = GRI_grover_vi_dead
+		}
+	}
+	
+	option = {
+		name = bronzehill.12.a
+	}
 }
 
 # Story events for the industrial tree
@@ -1270,13 +1566,18 @@ country_event = {
 		}
 		
 		hidden_effect = { # block trade
-			add_opinion_modifier = {
-				target = DMT
-				modifier = embargo
+			if = {
+				limit = {
+					has_dlc = "By Blood Alone"
+				}
+				send_embargo = DMT
+				DMT = {				
+					send_embargo = PREV
+				}
 			}
-			reverse_add_opinion_modifier = {
-				target = DMT
-				modifier = embargo
+			else = {
+				add_opinion_modifier = { target = DMT modifier = embargo }
+				reverse_add_opinion_modifier = { target = DMT modifier = embargo }
 			}
 		}
 		
@@ -2632,10 +2933,8 @@ country_event = {
 	
 	is_triggered_only = yes
 	fire_only_once = yes
-	
-	option = {
-		name = bronzehill_loyalist.20.a
-		
+
+	immediate = {
 		if = {
 			limit = {
 				has_character = BRZ_hochmeister_lucky
@@ -2655,7 +2954,19 @@ country_event = {
 					add_unit_leader_trait = renowned_marksdog
 				}
 			}
-			custom_effect_tooltip = BRZ_lucky_general
+		}
+	}
+	
+	option = {
+		name = bronzehill_loyalist.20.a
+		
+		if = {
+			limit = {
+				has_character = BRZ_hochmeister_lucky
+			}
+			BRZ_hochmeister_lucky = {
+				unit_leader_stats_tt = yes
+			}
 		}
 	}
 }
@@ -2670,13 +2981,8 @@ country_event = {
 	
 	is_triggered_only = yes
 	fire_only_once = yes
-	
-	option = {
-		name = bronzehill_loyalist.21.a
-		
-		custom_effect_tooltip = available_political_advisor
-		show_ideas_tooltip = BRZ_prelate_gunhild
-		
+
+	immediate = {
 		if = {
 			limit = {
 				has_character = BRZ_hochmeister_lucky
@@ -2696,7 +3002,22 @@ country_event = {
 					add_unit_leader_trait = renowned_marksdog
 				}
 			}
-			custom_effect_tooltip = BRZ_lucky_general
+		}
+	}
+	
+	option = {
+		name = bronzehill_loyalist.21.a
+		
+		custom_effect_tooltip = available_political_advisor
+		show_ideas_tooltip = BRZ_prelate_gunhild
+		
+		if = {
+			limit = {
+				has_character = BRZ_hochmeister_lucky
+			}
+			BRZ_hochmeister_lucky = {
+				unit_leader_stats_tt = yes
+			}
 		}
 	}
 }
@@ -2750,10 +3071,8 @@ country_event = {
 	
 	is_triggered_only = yes
 	fire_only_once = yes
-	
-	option = {
-		name = bronzehill_autonomist.3.a
-		
+
+	immediate = {
 		if = {
 			limit = {
 				has_character = BRZ_tiger_cappoodle
@@ -2771,7 +3090,6 @@ country_event = {
 					add_unit_leader_trait = politically_connected
 				}
 			}
-			custom_effect_tooltip = BRZ_cappoodle_general
 		}
 		if = {
 			limit = {
@@ -2790,7 +3108,27 @@ country_event = {
 					add_unit_leader_trait = politically_connected
 				}
 			}
-			custom_effect_tooltip = BRZ_greytail_general
+		}
+	}
+	
+	option = {
+		name = bronzehill_autonomist.3.a
+		
+		if = {
+			limit = {
+				has_character = BRZ_tiger_cappoodle
+			}
+			BRZ_tiger_cappoodle = {
+				unit_leader_stats_tt = yes
+			}
+		}
+		if = {
+			limit = {
+				has_character = BRZ_willie_greytail
+			}
+			BRZ_willie_greytail = {
+				unit_leader_stats_tt = yes
+			}
 		}
 	}
 }
@@ -3376,9 +3714,11 @@ country_event = {
 	
 	option = {
 		name = bronzehill_ignatius.7.a
+
+		# Advisor added in focus effect, here displayed again for visibility
 		
 		custom_effect_tooltip = available_political_advisor
-		show_ideas_tooltip = BRZ_diana_von_mirabelle
+		show_ideas_tooltip = GRI_diana_von_mirabelle
 	}
 }
 
@@ -8360,10 +8700,11 @@ country_event = {
 	option = {
 		name = bronzehill_loudbark.8.a
 		custom_effect_tooltip = bronzehill_loudbark.8.a_tooltip
-		
+
 		set_country_flag = BRZ_diana_recruited
+
 		custom_effect_tooltip = available_political_advisor
-		show_ideas_tooltip = BRZ_diana_von_mirabelle
+		show_ideas_tooltip = GRI_diana_von_mirabelle
 	}
 }
 
@@ -8383,8 +8724,9 @@ country_event = {
 		custom_effect_tooltip = bronzehill_loudbark.9.a_tooltip
 		
 		set_country_flag = BRZ_diana_recruited
+		
 		custom_effect_tooltip = available_political_advisor
-		show_ideas_tooltip = BRZ_diana_von_mirabelle
+		show_ideas_tooltip = GRI_diana_von_mirabelle
 	}
 }
 
@@ -8512,6 +8854,90 @@ country_event = {
 	
 	option = {
 		name = bronzehill_loudbark.15.a
+	}
+}
+
+country_event = {
+	id = bronzehill_loudbark.16
+	immediate = {log = "[Root.GetName]: event bronzehill_loudbark.16"}
+	title = bronzehill_loudbark.16.t
+	desc = bronzehill_loudbark.16.d
+	picture = GFX_event_griffon_back
+	
+	is_triggered_only = yes
+	fire_only_once = yes
+
+	immediate = {
+		hidden_effect = {	
+			every_possible_country = {
+				limit = {
+					has_character = GRI_ceron_greytalon
+				}
+				GRI_ceron_greytalon = {
+					set_nationality = ROOT
+				}
+			}
+			every_possible_country = {
+				limit = {
+					has_character = FEA_anton_moldernik
+				}
+				FEA_anton_moldernik = {
+					set_nationality = ROOT
+				}
+			}
+		}
+	}
+	
+	option = {
+		name = bronzehill_loudbark.16.a
+
+		add_timed_idea = {
+			idea = BRZ_military_industrial_cooperation
+			years = 1
+		}
+
+		add_power_balance_value = {
+			id = BRZ_loudbark_bop
+			value = -0.1
+		}
+
+		custom_effect_tooltip = available_political_advisor
+		show_ideas_tooltip = GRI_ceron_greytalon
+		set_country_flag = BRZ_ceron_recruited
+	}
+	
+	option = {
+		name = bronzehill_loudbark.16.b
+
+		add_timed_idea = {
+			idea = BRZ_nationalization_program
+			years = 1
+		}
+
+		add_power_balance_value = {
+			id = BRZ_loudbark_bop
+			value = 0.1
+		}
+
+		custom_effect_tooltip = available_political_advisor
+		show_ideas_tooltip = BRZ_anton_moldernik
+		set_country_flag = BRZ_moldernik_recruited
+	}
+}
+
+# An Evening Chat (chat between Loudbark and Benito, mentions Loudbark's husband (yes he's gay))
+country_event = {
+	id = bronzehill_loudbark.17
+	immediate = {log = "[Root.GetName]: event bronzehill_loudbark.17"}
+	title = bronzehill_loudbark.17.t
+	desc = bronzehill_loudbark.17.d
+	picture = GFX_event_griffenheim_night
+	
+	is_triggered_only = yes
+	fire_only_once = yes
+	
+	option = {
+		name = bronzehill_loudbark.17.a
 	}
 }
 
@@ -8774,18 +9200,9 @@ country_event = {
 	
 	is_triggered_only = yes
 	fire_only_once = yes
-	
-	option = {
-		name = bronzehill_loudbarkpostcoronation.7.a
-		
-		remove_power_balance = {
-			id = BRZ_loudbark_bop
-		}
-		
-		if = {
-			limit = {
-				has_character = GRI_emperor_grover_vi
-			}
+
+	immediate = {
+		hidden_effect = {
 			GRI_emperor_grover_vi = {
 				hidden_effect = {
 					add_field_marshal_role = {
@@ -8800,7 +9217,23 @@ country_event = {
 					add_unit_leader_trait = skilled_staffer
 					add_unit_leader_trait = brilliant_strategist
 				}
-				custom_effect_tooltip = BRZ_grover_field_marshal
+			}
+		}
+	}
+	
+	option = {
+		name = bronzehill_loudbarkpostcoronation.7.a
+		
+		remove_power_balance = {
+			id = BRZ_loudbark_bop
+		}
+		
+		if = {
+			limit = {
+				has_character = GRI_emperor_grover_vi
+			}
+			GRI_emperor_grover_vi = {
+				unit_leader_stats_tt = yes
 			}
 		}
 	}
@@ -9418,7 +9851,7 @@ country_event = {
 		set_country_flag = BRZ_revenge_satisfied
 		
 		remove_ideas = BRZ_death_to_the_traitors
-		remove_ideas = BRZ_country_concentrated_upgrade
+		remove_ideas = BRZ_the_goal_in_mind_upgrade
 		remove_ideas = BRZ_every_dog_counts_idea_upgrade
 
 		382 = {
