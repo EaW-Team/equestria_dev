@@ -1,0 +1,269 @@
+on_actions = {
+	on_startup = {
+		effect = {
+			DED = {
+				add_dynamic_modifier = {
+					modifier = DED_crystal_cost
+				}
+				every_owned_state = {
+					add_claim_by = HLR
+				}
+			}
+		}
+	}
+
+	on_declare_war = {
+		effect = {
+			if = {
+				limit = {
+					OR = {
+						AND = {
+							FROM = { tag = DED }
+							tag = HLR
+						}
+						AND = {
+							FROM = { tag = HLR }
+							tag = DED
+						}
+					}
+				}
+				if = {
+					limit = {
+						DED = {
+							NOT = {has_country_flag = DED_AP_disable_weird_ded_shit}
+						}
+					}
+					426 = { add_core_of = DED }
+					564 = { add_core_of = DED }
+				}
+			}
+		}
+	}
+
+	on_release_as_puppet = {
+		effect = {
+			if = {
+				limit = {
+					FROM = { tag = DED }
+				}
+				set_country_flag = { flag = bypass_annex_compliance days = 1 value = 1 }
+				annex_country = { target = FROM  }
+			}
+			if = {
+				limit = {
+					tag = DED
+					FROM = {
+						NOT = {
+							AND = {
+								original_tag = ZAI
+								OR = {
+									has_cosmetic_tag = Terathopia
+									has_cosmetic_tag = Terathopia_2
+									has_cosmetic_tag = Terathopia_3
+								}
+							}
+							AND = {
+								original_tag = EQC
+								has_cosmetic_tag = EQC_ED_cosmetic_new_mareland
+							}
+						}
+					}
+				}
+				FROM = {
+					set_country_flag = { flag = bypass_annex_compliance days = 1 value = 1 }
+					annex_country = { target = ROOT  }
+					country_event = { id = deadempire.29 days = 1 }
+				}
+			}
+		}
+	}
+
+	on_release_as_free = {
+		effect = {
+			if = {
+				limit = { tag = DED }
+				FROM = {
+					set_country_flag = { flag = bypass_annex_compliance days = 1 value = 1 }
+					annex_country = { target = ROOT  }
+					if = {
+						limit = {
+							NOT = {
+								tag = HIE
+								AND = {
+									original_tag = ZAI
+									OR = {
+										has_cosmetic_tag = Terathopia
+										has_cosmetic_tag = Terathopia_2
+										has_cosmetic_tag = Terathopia_3
+									}
+								}
+								AND = {
+									original_tag = EQC
+									has_cosmetic_tag = EQC_ED_cosmetic_new_mareland
+								}
+							}
+						}
+						country_event = { id = deadempire.29 days = 1 }
+					}
+				}
+			}
+		}
+	}
+
+	on_capitulation = {
+		effect = {
+			if = {
+				limit = {
+					FROM = {
+						OR = {
+							tag = DED
+							tag = EWI
+						}
+					}
+				}
+				transfer_navy = { target = FROM }
+			}
+
+			if = {
+				limit = {
+					FROM = {
+						tag = DED
+						NOT = { has_country_flag = DED_capitulated@ROOT }
+					}
+				}
+				FROM = { set_country_flag = DED_capitulated@ROOT }
+				if = {
+					limit = { is_major = yes }
+					FROM = { modify_country_flag = { flag = DED_killed_nations value = 5 } }
+					else = {
+						FROM = { modify_country_flag = { flag = DED_killed_nations value = 1 } }
+					}
+				}
+			}
+		}
+	}
+
+	on_weekly_DED = {
+		effect = {
+			if = {
+				limit = {
+					OR = {
+						has_completed_focus = DED_Black_Crusade
+						has_country_flag = DED_APN_even_death_may_die_flag
+					}
+				}
+				if = { # Escalation stage 1: always keep declaring on neighbors if possible
+					limit = {
+						any_neighbor_country = {
+							NOT = { has_war_with = ROOT }
+							NOT = { DED_should_not_autodeclare_on_this = yes }
+						}
+					}
+					every_neighbor_country = {
+						limit = {
+							NOT = { has_war_with = ROOT }
+							NOT = { DED_should_not_autodeclare_on_this = yes }
+						}
+						ROOT = {
+							hidden_effect = {
+								create_wargoal = { 
+									type = annex_everything 
+									target = PREV
+								}
+							}
+							declare_war_on = { target = PREV type = annex_everything }
+						}
+					}
+				}
+				if = { # Escalation stage 2: if already conquered most of mainland Griffonia, declare war on the entire rest of the continent (e.g. island-countries like Greneclyf)
+					limit = {
+						NOT = { any_neighbor_country = { has_war_with = ROOT } } #no neighbor to fight, i.e. already conquered the mainland (preferable to has_war = no because this ignores overseas wars where neither side naval-invaded)
+					}
+					every_other_country = {
+						limit = {
+							exists = yes
+							NOT = { has_war_with = ROOT }
+							NOT = { DED_should_not_autodeclare_on_this = yes }
+							capital_scope = { is_on_continent = asia } # Griffonia
+						}
+						ROOT = {
+							hidden_effect = {
+								create_wargoal = { 
+									type = annex_everything 
+									target = PREV
+								}
+							}
+							declare_war_on = { target = PREV type = annex_everything }
+						}
+					}
+				}
+				if = { # Escalation stage 3: if the entire Griffonian continent has fallen, declare war on the entire world
+					limit = {
+						NOT = {
+							any_other_country = {
+								exists = yes
+								NOT = { has_capitulated = yes }
+								NOT = { DED_should_not_autodeclare_on_this = yes }
+								capital_scope = { is_on_continent = asia } # Griffonia
+							}
+						}
+					}
+					every_other_country = {
+						limit = {
+							exists = yes
+							NOT = { has_war_with = ROOT }
+							NOT = { DED_should_not_autodeclare_on_this = yes }
+						}
+						ROOT = {
+							hidden_effect = {
+								create_wargoal = { 
+									type = annex_everything 
+									target = PREV
+								}
+							}
+							declare_war_on = { target = PREV type = annex_everything }
+						}
+					}
+				}
+			}
+		}
+	}
+
+	on_peaceconference_ended = {
+		effect = {
+			# PUT EVERYTHING IN THE IF BELOW
+			# THE bypass_on_peaceconference_ended FLAG **HAS** TO BE SET BEFORE CALLING THE white_peace COMMAND AND CLEARED AFTERWARDS
+			if = {
+				limit = {
+					NOT = {
+						has_country_flag = bypass_on_peaceconference_ended
+						FROM = { has_country_flag = bypass_on_peaceconference_ended }
+					}
+				}
+				log = "[GetDateText]: ROOT: [Root.GetName] FROM: [From.GetName] on_peaceconference_ended"
+				if = {
+					limit = {
+						FROM = { tag = DED }
+						NOT = {
+							tag = ZZZ
+							AND = {
+								original_tag = ZAI
+								OR = {
+									has_cosmetic_tag = Terathopia
+									has_cosmetic_tag = Terathopia_2
+									has_cosmetic_tag = Terathopia_3
+								}
+							}
+							AND = {
+								original_tag = EQC
+								has_cosmetic_tag = EQC_ED_cosmetic_new_mareland
+							}
+						}
+					}
+					annex_country = { target = FROM  }
+					country_event = { id = deadempire.29 days = 1 }
+				}
+			}
+		}
+	}
+}
