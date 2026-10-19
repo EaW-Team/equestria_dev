@@ -53,7 +53,8 @@ apply_cosmetic_tags_on_puppet_PREV_is_overlord = {
 			}
 			load_focus_tree = eqc_sol_focus
 			set_global_flag = SOL_chose_EQC_leader
-			set_province_name = { id = 10005 name = "Sunset" }
+			356 = { reset_state_name = yes }
+			reset_province_name = 10005
 		}
 		else_if = {
 			limit = { original_tag = PLB }
@@ -224,7 +225,7 @@ apply_cosmetic_tags_on_puppet_PREV_is_overlord = {
 
 				country_leader = {
 					expire = "1965.1.1"
-					ideology = nazism
+					ideology = supremacy_alicornrule
 					traits = { provisional }
 				}
 			}
@@ -487,25 +488,6 @@ apply_cosmetic_tags_on_puppet_PREV_is_overlord = {
 		}
 	}
 	else_if = {
-		limit = {
-			PREV = {
-				OR = {
-					original_tag = FAT
-					original_tag = FAW
-				}
-			}
-		}
-		if = {
-			limit = {
-				OR = {
-					original_tag = SRS
-					original_tag = NTR
-				}
-			}
-			country_event = griffonRepublic.100
-		}
-	}
-	else_if = {
 		limit = { original_tag = STG }
 		if = {
 			limit = {
@@ -658,49 +640,59 @@ CRY_check_for_Sombra_when_released = {
 
 CRY_process_when_puppeted_by_EQS = {
 	if = {
-		limit = { original_tag = CRY }
-		if = {
-			limit = { FROM = { has_government = democratic } }
-			CRY_restore_establishment = yes
+		limit = { FROM = { has_government = democratic } }
+		CRY_restore_establishment = yes
+	}
+	if = {
+		limit = {
+			NOT = {
+				has_idea = equestrian_overlord
+				has_idea = equestrian_overlord2
+				has_idea = equestrian_overlord3
+			}
 		}
+		if = {
+			limit = { has_completed_focus = CRY_subordination }
+			add_ideas = equestrian_overlord3
+		}
+		else_if = {
+			limit = { has_completed_focus = CRY_eqsengineers }
+			add_ideas = equestrian_overlord2
+		}
+		else = { add_ideas = equestrian_overlord }
+	}
+	event_target:equestria = {
 		if = {
 			limit = {
-				NOT = {
-					has_idea = equestrian_overlord
-					has_idea = equestrian_overlord2
-					has_idea = equestrian_overlord3
-				}
+				has_dlc = "By Blood Alone"
 			}
-			if = {
-				limit = { has_completed_focus = CRY_subordination }
-				add_ideas = equestrian_overlord3
-			}
-			else_if = {
-				limit = { has_completed_focus = CRY_eqsengineers }
-				add_ideas = equestrian_overlord2
-			}
-			else = { add_ideas = equestrian_overlord }
+			break_embargo = ROOT
 		}
-		event_target:equestria = {
+		else = {
 			remove_opinion_modifier = { target = ROOT modifier = CHN_embargo }
-			remove_opinion_modifier = { target = ROOT modifier = cry_refused_demmands }
-			remove_opinion_modifier = { target = ROOT modifier = enemies }
-			remove_opinion_modifier = { target = ROOT modifier = executed_royalty }
 		}
-		EQC = {
+		remove_opinion_modifier = { target = ROOT modifier = cry_refused_demmands }
+		remove_opinion_modifier = { target = ROOT modifier = enemies }
+		remove_opinion_modifier = { target = ROOT modifier = executed_royalty }
+	}
+	EQC = {
+		if = {
+			limit = {
+				has_dlc = "By Blood Alone"
+			}
+			break_embargo = ROOT
+		}
+		else = {
 			remove_opinion_modifier = { target = ROOT modifier = CHN_embargo }
-			remove_opinion_modifier = { target = ROOT modifier = cry_refused_demmands }
-			remove_opinion_modifier = { target = ROOT modifier = enemies }
 		}
+		remove_opinion_modifier = { target = ROOT modifier = cry_refused_demmands }
+		remove_opinion_modifier = { target = ROOT modifier = enemies }
 	}
 }
 
 CRY_restore_establishment = {
 	if = {
-		limit = {
-			original_tag = CRY
-			has_government = democratic
-		}
+		limit = { has_government = democratic }
 		country_event = { id = crysom.40 hours = 1 }
 	}
 }
@@ -708,12 +700,23 @@ CRY_restore_establishment = {
 CHN_remove_pony_opinion_maluses = {
 	if = {
 		limit = { tag = CHN }
-		remove_opinion_modifier = { target = FROM modifier = CHN_embargo }
-		FROM = { remove_opinion_modifier = { target = ROOT modifier = CHN_embargo } }
-		remove_opinion_modifier = { target = CRY modifier = CHN_embargo }
-		CRY = { remove_opinion_modifier = { target = ROOT modifier = CHN_embargo } }
-		remove_opinion_modifier = { target = EQC modifier = CHN_embargo }
-		EQC = { remove_opinion_modifier = { target = ROOT modifier = CHN_embargo } }
+		
+		if = {
+			limit = {
+				has_dlc = "By Blood Alone"
+			}
+			FROM = {
+				break_embargo = ROOT
+			}
+		}
+		else = {
+			remove_opinion_modifier = { target = FROM modifier = CHN_embargo }
+			FROM = { remove_opinion_modifier = { target = ROOT modifier = CHN_embargo } }
+			remove_opinion_modifier = { target = CRY modifier = CHN_embargo }
+			CRY = { remove_opinion_modifier = { target = ROOT modifier = CHN_embargo } }
+			remove_opinion_modifier = { target = EQC modifier = CHN_embargo }
+			EQC = { remove_opinion_modifier = { target = ROOT modifier = CHN_embargo } }
+		}
 		remove_opinion_modifier = { target = FROM modifier = mortal_enemies }
 		FROM = { remove_opinion_modifier = { target = ROOT modifier = mortal_enemies } }
 		remove_opinion_modifier = { target = CRY modifier = mortal_enemies }
@@ -779,9 +782,7 @@ EQS_force_OLE_release_when_puppeting_CHN = {
 
 GRI_remove_RIV_opinion_modifiers = {
 	if = {
-		limit = {
-			tag = GRI
-		}
+		limit = { tag = GRI }
 		RCT = { remove_opinion_modifier = { target = GRI modifier  = RIV_hates_the_empire } }
 		LCT = { remove_opinion_modifier = { target = GRI modifier  = RIV_hates_the_empire } }
 		DEP = { remove_opinion_modifier = { target = GRI modifier  = RIV_hates_the_empire } }
@@ -1352,29 +1353,6 @@ CTH_load_ideology_focus = {
 	}
 }
 
-FAT_add_puppet_ideas = {
-	if = {
-		limit = {
-			FROM = { tag = FAT }
-			is_griffon_continent_griffon_country = yes
-		}
-		if = {
-			limit = {
-				FROM = { has_idea = FAT_decentralized_republic_idea }
-			}
-			FROM = { set_autonomy = { target = ROOT autonomy_state = autonomy_integrated_puppet } }
-			add_ideas = FAT_decentralized_republic_puppet
-			add_to_tech_sharing_group = FAT_research_group
-		}
-		if = {
-			limit = {
-				FROM = { has_idea = FAT_griffonian_alliance_idea }
-			}
-			add_to_tech_sharing_group = FAT_research_group
-		}
-	}
-}
-
 #JUN_handle_puppet = {
 #	if = {
 #		limit = {
@@ -1840,30 +1818,35 @@ AI_puppet_to_annex = {
 	else_if = {
 		limit = {
 			FROM = {
-				OR = {
-					original_tag = ALO
-					original_tag = SON
-					original_tag = MSH
-					original_tag = MAZ
-					original_tag = ZWA
-					original_tag = ZUG
-					original_tag = HAY
-					original_tag = ZEL
-					original_tag = TIM
-				}
+				is_great_lakes_country = yes
+			}
+			ROOT = {
+				is_great_lakes_country = yes
+			}
+		}
+		FROM = { annex_country =  { target = ROOT } }
+	}
+	else_if = {
+		limit = {
+			FROM = {
+				original_tag = SON
 			}
 			ROOT = {
 				OR = {
-					original_tag = ALO
-					original_tag = TIM
-					original_tag = SON
-					original_tag = MSH
-					original_tag = MAZ
-					original_tag = MSS
-					original_tag = ZWA
-					original_tag = ZUG
-					original_tag = HAY
-					original_tag = ZEL
+					original_tag = SLC
+					original_tag = THU
+					original_tag = STM
+					original_tag = GYZ
+					original_tag = HYE
+					original_tag = GAR
+					original_tag = CNT
+					original_tag = YMN
+					original_tag = HMR
+					original_tag = OSQ
+					original_tag = MTA
+					original_tag = MKS
+					original_tag = REE
+					original_tag = CZR
 				}
 			}
 		}
@@ -1882,6 +1865,62 @@ AI_puppet_to_annex = {
 			}
 		}
 		FROM = { annex_country =  { target = ROOT } }
+	}
+	else_if = {
+		limit = {
+			is_storm_king_country = yes
+			FROM = {
+				is_storm_king_country = yes
+			}
+		}
+		FROM = { annex_country =  { target = ROOT } }
+	}
+	else_if = {
+		limit = {
+			FROM = {
+				original_tag = SLC
+				has_dynamic_modifier = {
+					modifier = SLC_cbc_fervour_dynmod
+				}
+			}
+		}
+		FROM = { annex_country =  { target = ROOT } }
+	}
+	if = {
+		limit = {
+			OR = {
+				original_tag = SDL
+				original_tag = SDF
+				original_tag = SDC
+				original_tag = SDS
+				original_tag = EMR
+			}
+			FROM = {
+				OR = {
+					original_tag = SDL
+					original_tag = SDF
+					original_tag = SDC
+					original_tag = SDS
+					original_tag = EMR
+				}
+			}
+		}
+		FROM = { annex_country = { target = ROOT } }
+	}
+	if = {
+		limit = {
+			FROM = {
+				original_tag = BAL
+				OR = {
+					has_country_leader = {
+						character = BAL_commune_confed
+						ruling_only = yes
+					}
+					has_country_flag = BAL_GLORY_TO_ARSTOTZKA_flag
+				}
+			}
+		}
+		FROM = { annex_country = { target = ROOT } }
 	}
 	if = {
 		limit = { FROM = { is_ai = yes } }
@@ -2039,10 +2078,6 @@ CHN_handle_fascist_communist_overlord = {
 	# }
 }
 
-immortality = {
-	#:^)
-}
-
 transfer_society_and_science_ideas_when_released = {
 	hidden_effect = {
 		if = {
@@ -2188,8 +2223,12 @@ adjust_research_modifier = {
 			modifier = research_pre_ironclad_modifier
 		}
 	}
-	set_temp_variable = { research_speed = modifier@research_speed_factor }
-	subtract_from_temp_variable = { research_speed = var_research_adjustment_pre_ironclad }
+	set_temp_variable = {
+		research_speed = {
+			value = modifier@research_speed_factor
+			subtract = var_research_adjustment_pre_ironclad
+		}
+	}
 	if = {
 		limit = {
 			check_variable = { research_speed < -0.1 }
@@ -3690,31 +3729,6 @@ YAK_nationalist_JAK_progressive = {
 			clr_global_flag = YAK_JAK_is_in_faction
 		}
 		
-		# Step 6: Set appropriate focus tree
-		var:global.YAK_JAK_target_TAG = {
-			if = {
-				limit = {
-					has_government = communism
-				}
-				load_focus_tree = YAK_communist_tree
-			}
-			else_if = {
-				limit = {
-					has_government = democratic
-				}
-				load_focus_tree = YAK_harmonist_tree
-			}
-			else_if = {
-				limit = {
-					has_government = fascism
-				}
-				load_focus_tree = JAK_koletiv_tree
-			}
-			else = {
-				load_focus_tree = JAK_bradford_tree
-			}
-		}
-		
 		clr_global_flag = YAK_JAK_target_exists
 		# Used variables can't be removed, but we can safely assume they get overwritten the next time this effect is called
 	}
@@ -3751,6 +3765,29 @@ GRF_remove_has_equipment_market_trade_desire_ai_strategy = {
 					value = -100
 				}
 			}
+		}
+	}
+}
+
+revert_puppet_to_generic_focus_tree = {
+	if = {
+		limit = { is_griffon_continent_country_tag = yes }
+		load_focus_tree = {
+			tree = generic_griffon_focus
+			keep_completed = yes
+		}
+	}
+	else_if = {
+		limit = { is_zebrican_continent_country_tag = yes }
+		load_focus_tree = {
+			tree = generic_zebra_focus
+			keep_completed = yes
+		}
+	}
+	else = {
+		load_focus_tree = {
+			tree = generic_focus
+			keep_completed = yes
 		}
 	}
 }
