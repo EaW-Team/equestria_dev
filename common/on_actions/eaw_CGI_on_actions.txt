@@ -120,20 +120,57 @@ on_actions = {
 		}
 	}
 
+	#on_capitulation_immediate = {
+	on_before_peace_conference_start = {
+		effect = {
+			if = {
+				limit = {
+					FROM = { any_owned_state = { is_coastal = yes } }
+					ROOT = {
+						NOT = {
+							any_owned_state = {
+								is_coastal = yes
+							}
+						}
+					}
+				}
+				ROOT = { set_country_flag = EAW_landlock_navy_target }
+				set_global_flag = EAW_transfer_navy_to_landlock
+				FROM = { transfer_navy = { target = ZZZ } }
+			}
+		}
+	}
+
 	on_peaceconference_ended = {
 		effect = {
 			# PUT EVERYTHING IN THE IF BELOW
 			# THE bypass_on_peaceconference_ended FLAG **HAS** TO BE SET BEFORE CALLING THE white_peace COMMAND AND CLEARED AFTERWARDS
 			if = {
 				limit = {
-					NOT = {
-						has_country_flag = bypass_on_peaceconference_ended
-						FROM = { has_country_flag = bypass_on_peaceconference_ended }
+					has_global_flag = EAW_transfer_navy_to_landlock
+					ROOT = {
+						has_country_flag = EAW_landlock_navy_target
 					}
+					NOT = { FROM = { is_subject_of = ROOT } }
 				}
+				ZZZ = { transfer_navy = { target = ROOT } }
+				clr_global_flag = EAW_transfer_navy_to_landlock
+				ROOT = { clr_country_flag = EAW_landlock_navy_target }
+			}
+			if = {
+				limit = {
+					has_global_flag = EAW_transfer_navy_to_landlock
+					ROOT = {
+						has_country_flag = EAW_landlock_navy_target
+					}
+					FROM = { is_subject_of = ROOT }
+				}
+				ZZZ = { transfer_navy = { target = FROM } }
+				clr_global_flag = EAW_transfer_navy_to_landlock
+				ROOT = { clr_country_flag = EAW_landlock_navy_target }
+			}
 				if = {
-					limit = {
-						original_tag = CGI
+					limit = {original_tag = CGI
 						NOT = { CGI = { has_country_flag = CGI_conquered_colthage } }
 						OR = {
 							FROM = { original_tag = CTH }
@@ -142,6 +179,7 @@ on_actions = {
 							FROM = { original_tag = CVA }
 						}
 					}
+					FROM = { transfer_navy = { target = ZZZ } }
 					random_country_with_original_tag = {
 						original_tag_to_check = CTH
 						limit = {
@@ -186,7 +224,7 @@ on_actions = {
 							country_event = quaggatai.100
 						}
 					}
-					FROM = { transfer_navy = { target = CGI } }
+					ZZZ = { transfer_navy = { target = CGI } }
 				}
 
 				# Camelia win/loss
