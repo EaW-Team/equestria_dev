@@ -1137,8 +1137,12 @@ BRZ_add_initial_party_support = {
 # and if it would have 100%, nothing would be added. If it has 0%, then the full effect is added
 # This is just a consequence of the normalization that's going on.
 BRZ_add_to_party = {
-	set_temp_variable = { reduction_factor = 1 }
-	subtract_from_temp_variable = { reduction_factor = BRZ_party_boost_buffer }
+	set_temp_variable = {
+		reduction_factor = {
+			value = 1
+			subtract = BRZ_party_boost_buffer
+		}
+	}
 	
 	multiply_variable = { BRZ_local_party_support^0 = reduction_factor }
 	multiply_variable = { BRZ_local_party_support^1 = reduction_factor }
@@ -1161,12 +1165,17 @@ BRZ_add_to_party = {
 # should be used.
 BRZ_add_to_party_absolute = {
 	# Formula: reduction_factor = 1 - PBB / (1 - LPS[PBS]})
-	set_temp_variable = { other_party_support = 1 }
-	subtract_from_temp_variable = { other_party_support = BRZ_local_party_support^BRZ_party_boost_selector }
-	set_temp_variable = { reduction_factor = BRZ_party_boost_buffer }
-	divide_temp_variable = { reduction_factor = other_party_support }
-	multiply_temp_variable = { reduction_factor = -1 }
-	add_to_temp_variable = { reduction_factor = 1 }
+	set_temp_variable = {
+		reduction_factor = {
+			value = BRZ_party_boost_buffer #PBB
+			divide = { # other_party_support #(1 - LPS[PBS])
+				value = 1
+				subtract = BRZ_local_party_support^BRZ_party_boost_selector
+			}
+			multiply = -1
+			add = 1 
+		}
+	}
 	
 	multiply_variable = { BRZ_local_party_support^0 = reduction_factor }
 	multiply_variable = { BRZ_local_party_support^1 = reduction_factor }
@@ -1245,9 +1254,13 @@ BRZ_get_national_party_numbers = {
 			value = national_party_support_value
 			index = loop_index
 			
-			set_temp_variable = { proportional_seats = national_party_support_value }
-			divide_temp_variable = { proportional_seats = 100 }
-			round_temp_variable = proportional_seats
+			set_temp_variable = {
+				proportional_seats = {
+					value = national_party_support_value
+					divide = 100
+					round = yes
+				}
+			}
 			add_to_variable = { BRZ_national_party_seats^loop_index = proportional_seats }
 		}
 	}
@@ -1483,9 +1496,13 @@ BRZ_calculate_governments = {
 		add_to_temp_variable = { total_seats_var = seat_number }
 	}
 	
-	set_temp_variable = { majority = total_seats_var }
-	divide_temp_variable = { majority = 2 }
-	round_temp_variable = majority
+	set_temp_variable = {
+		majority = {
+			value = total_seats_var
+			divide = 2
+			round = yes
+		}
+	}
 	
 	if = {
 		limit = {
@@ -1502,11 +1519,19 @@ BRZ_calculate_governments = {
 		set_country_flag = BRZ_socialist_agrarian_government # Agrarians can be integrated voluntarily
 	}
 	else = {
-		set_temp_variable = { conservative_agrarians = BRZ_national_party_seats^0 } # Conservatives
-		add_to_temp_variable = { conservative_agrarians = BRZ_national_party_seats^1 } # + Conservative Agrarians
+		set_temp_variable = {
+			conservative_agrarians = {
+				value = BRZ_national_party_seats^0  # Conservatives
+				add = BRZ_national_party_seats^1  # + Conservative Agrarians
+			}
+		}
 		
-		set_temp_variable = { socialist_agrarians = BRZ_national_party_seats^4 } # Socialists
-		add_to_temp_variable = { socialist_agrarians = BRZ_national_party_seats^2 } # Socialist Agrarians
+		set_temp_variable = {
+			socialist_agrarians = {
+				value = BRZ_national_party_seats^4  # Socialists
+				add = BRZ_national_party_seats^2  # Socialist Agrarians
+			}
+		}
 		
 		if = {
 			limit = {
@@ -1523,14 +1548,26 @@ BRZ_calculate_governments = {
 			set_country_flag = BRZ_socialist_agrarian_government # Agrarians bring majority
 		}
 		else = {
-			set_temp_variable = { conservative_liberals = conservative_agrarians }
-			add_to_temp_variable = { conservative_liberals = BRZ_national_party_seats^3 } # liberals
+			set_temp_variable = {
+				conservative_liberals = {
+					value = conservative_agrarians
+					add = BRZ_national_party_seats^3  # liberals
+				}
+			}
 			
-			set_temp_variable = { socialist_liberals = socialist_agrarians }
-			add_to_temp_variable = { socialist_liberals = BRZ_national_party_seats^3 } # liberals
+			set_temp_variable = {
+				socialist_liberals = {
+					value = socialist_agrarians
+					add = BBRZ_national_party_seats^3  # liberals
+				}
+			}
 			
-			set_temp_variable = { socialist_radicals = socialist_agrarians }
-			add_to_temp_variable = { socialist_radicals = BRZ_national_party_seats^5 } # radicals
+			set_temp_variable = {
+				socialist_radicals = {
+					value = socialist_agrarians
+					add = BRZ_national_party_seats^5  # radicals
+				}
+			}
 			
 			if = {
 				limit = {
@@ -1560,17 +1597,33 @@ BRZ_calculate_governments = {
 				}
 				
 				# Last measures
-				set_temp_variable = { socialist_liberal_radical = socialist_liberals }
-				add_to_temp_variable = { socialist_liberal_radical = BRZ_national_party_seats^5 } # radicals
+				set_temp_variable = {
+					socialist_liberal_radical = {
+						value = socialist_liberals
+						add = BRZ_national_party_seats^5  # radicals
+					}
+				}
 				
-				set_temp_variable = { conservative_regionalists = conservative_liberals }
-				add_to_temp_variable = { conservative_regionalists = BRZ_national_party_seats^6 } # regionalists
+				set_temp_variable = {
+					conservative_regionalists = {
+						value = conservative_liberals
+						add = BRZ_national_party_seats^6  # regionalists
+					}
+				}
 				
-				set_temp_variable = { socialist_regionalist = socialist_liberals }
-				add_to_temp_variable = { socialist_regionalist = BRZ_national_party_seats^6 } # regionalists
+				set_temp_variable = {
+					socialist_regionalist = {
+						value = socialist_liberals
+						add = BRZ_national_party_seats^6  # regionalists
+					}
+				}
 				
-				set_temp_variable = { socialist_radical_regionalist = socialist_radicals }
-				add_to_temp_variable = { socialist_radical_regionalist = BRZ_national_party_seats^6 } # regionalists
+				set_temp_variable = {
+					socialist_radical_regionalist = {
+						value = socialist_radicals
+						add = BRZ_national_party_seats^6  # regionalists
+					}
+				}
 				
 				if = {
 					limit = {
@@ -1631,27 +1684,38 @@ BRZ_clear_paranoia = {
 # To use, set temp variables BRZ_softfur_faction_influence_to_add to the value to add and 
 # BRZ_softfur_faction_selector to 0 (theorist) 1 (syndicalist) or 2 (agrarian)
 BRZ_softfur_add_faction_influence = {
-	set_temp_variable = { BRZ_faction_influence_remove = BRZ_softfur_faction_influence_to_add }
-	divide_temp_variable = { BRZ_faction_influence_remove = 2 }
-	
-	set_temp_variable = { BRZ_softfur_faction_influence_add = BRZ_softfur_faction_influence_to_add }
-	multiply_temp_variable = { BRZ_softfur_faction_influence_add = 1.5 }
-	
+	set_temp_variable = {
+		BRZ_faction_influence_remove = {
+			value = BRZ_softfur_faction_influence_to_add
+			divide = 2
+		}
+	}
+		
 	subtract_from_variable = { BRZ_softfur_faction_influence^0 = BRZ_faction_influence_remove }
 	subtract_from_variable = { BRZ_softfur_faction_influence^1 = BRZ_faction_influence_remove }
 	subtract_from_variable = { BRZ_softfur_faction_influence^2 = BRZ_faction_influence_remove }
 	
-	add_to_variable = { BRZ_softfur_faction_influence^BRZ_softfur_faction_selector = BRZ_softfur_faction_influence_add }
+	add_to_variable = {
+		BRZ_softfur_faction_influence^BRZ_softfur_faction_selector = {
+			# BRZ_softfur_faction_influence_add
+			value = BRZ_softfur_faction_influence_to_add
+			multiply = 1.5
+		}
+	}
 	
 	# Limit variables to be between 0 (0%) and 1 (100%)
 	if = {
 		limit = {
 			check_variable = { BRZ_softfur_faction_influence^0 < 0  }
 		}
-		set_temp_variable = { BRZ_overshoot_value = BRZ_softfur_faction_influence^0 }
-		multiply_temp_variable = { BRZ_overshoot_value = -1 }
+		set_temp_variable = {
+			BRZ_overshoot_value = {
+				value = BRZ_softfur_faction_influence^0
+				multiply = -1
+				divide = 2
+			}
+		}
 		set_variable = { BRZ_softfur_faction_influence^0 = 0 }
-		divide_temp_variable = { BRZ_overshoot_value = 2 }
 		if = {
 			limit = {
 				check_variable = { BRZ_softfur_faction_influence^1 < BRZ_overshoot_value }
@@ -1675,10 +1739,14 @@ BRZ_softfur_add_faction_influence = {
 		limit = {
 			check_variable = { BRZ_softfur_faction_influence^1 < 0  }
 		}
-		set_temp_variable = { BRZ_overshoot_value = BRZ_softfur_faction_influence^1 }
-		multiply_temp_variable = { BRZ_overshoot_value = -1 }
+		set_temp_variable = {
+			BRZ_overshoot_value = {
+				value = BRZ_softfur_faction_influence^1
+				multiply = -1
+				divide = 2
+			}
+		}
 		set_variable = { BRZ_softfur_faction_influence^1 = 0 }
-		divide_temp_variable = { BRZ_overshoot_value = 2 }
 		if = {
 			limit = {
 				check_variable = { BRZ_softfur_faction_influence^0 < BRZ_overshoot_value }
@@ -1702,10 +1770,14 @@ BRZ_softfur_add_faction_influence = {
 		limit = {
 			check_variable = { BRZ_softfur_faction_influence^2 < 0  }
 		}
-		set_temp_variable = { BRZ_overshoot_value = BRZ_softfur_faction_influence^2 }
-		multiply_temp_variable = { BRZ_overshoot_value = -1 }
+		set_temp_variable = {
+			BRZ_overshoot_value = {
+				value = BRZ_softfur_faction_influence^2
+				multiply = -1
+				divide = 2
+			}
+		}
 		set_variable = { BRZ_softfur_faction_influence^2 = 0 }
-		divide_temp_variable = { BRZ_overshoot_value = 2 }
 		if = {
 			limit = {
 				check_variable = { BRZ_softfur_faction_influence^0 < BRZ_overshoot_value }
@@ -1731,42 +1803,74 @@ BRZ_softfur_add_faction_influence = {
 
 BRZ_softfur_factions_recalculate_effects = {
 	# Theorist
-	set_variable = { BRZ_softfur_factions_research_speed = BRZ_softfur_faction_influence^0 }
-	multiply_variable = { BRZ_softfur_factions_research_speed = 0.15 }
+	set_variable = {
+		BRZ_softfur_factions_research_speed = {
+			value = BRZ_softfur_faction_influence^0
+			multiply = 0.15
+		}
+	}
 	if = {
 		limit = {
 			has_country_flag = BRZ_softfur_theorist_buff_active
 		}
 		multiply_variable = { BRZ_softfur_factions_research_speed = 1.5 }
 	}
-	set_variable = { BRZ_softfur_factions_max_eff = BRZ_softfur_faction_influence^0 }
-	multiply_variable = { BRZ_softfur_factions_max_eff = 0.15 }
-	set_variable = { BRZ_softfur_factions_political_power = BRZ_softfur_faction_influence^0 }
-	multiply_variable = { BRZ_softfur_factions_political_power = 0.3 }
+	set_variable = {
+		BRZ_softfur_factions_max_eff = {
+			value = BRZ_softfur_faction_influence^0
+			multiply = 0.15
+		}
+	}
+	set_variable = {
+		BRZ_softfur_factions_political_power = {
+			value = BRZ_softfur_faction_influence^0
+			multiply = 0.3
+		}
+	}
 	# Syndicalist
-	set_variable = { BRZ_softfur_factions_output = BRZ_softfur_faction_influence^1 }
-	multiply_variable = { BRZ_softfur_factions_output = 0.25 }
+	set_variable = {
+		BRZ_softfur_factions_output = {
+			value = BRZ_softfur_faction_influence^1
+			multiply = 0.25
+		}
+	}
 	if = {
 		limit = {
 			has_country_flag = BRZ_softfur_syndicalist_buff_active
 		}
 		multiply_variable = { BRZ_softfur_factions_output = 1.5 }
 	}
-	set_variable = { BRZ_softfur_factions_war_support = BRZ_softfur_faction_influence^1 }
-	multiply_variable = { BRZ_softfur_factions_war_support = 0.2 }
+	set_variable = {
+		BRZ_softfur_factions_war_support = {
+			value = BRZ_softfur_faction_influence^1
+			multiply = 0.2
+		}
+	}
 	# Agrarian
-	set_variable = { BRZ_softfur_factions_monthly_pop = BRZ_softfur_faction_influence^2 }
-	multiply_variable = { BRZ_softfur_factions_monthly_pop = 0.2 }
-	set_variable = { BRZ_softfur_factions_resources = BRZ_softfur_faction_influence^2 }
-	multiply_variable = { BRZ_softfur_factions_resources = 0.25 }
+	set_variable = {
+		BRZ_softfur_factions_monthly_pop = {
+			value = BRZ_softfur_faction_influence^2
+			multiply = 0.2
+		}
+	}
+	set_variable = {
+		BRZ_softfur_factions_resources = {
+			value = BRZ_softfur_faction_influence^2
+			multiply = 0.25
+		}
+	}
 	if = {
 		limit = {
 			has_country_flag = BRZ_softfur_agrarian_buff_active
 		}
 		multiply_variable = { BRZ_softfur_factions_resources = 1.5 }
 	}
-	set_variable = { BRZ_softfur_factions_stability = BRZ_softfur_faction_influence^2 }
-	multiply_variable = { BRZ_softfur_factions_stability = 0.2 }
+	set_variable = {
+		BRZ_softfur_factions_stability = {
+			value = BRZ_softfur_faction_influence^2
+			multiply = 0.2
+		}
+	}
 }
 
 BRZ_recalculate_baselines = {
@@ -1987,10 +2091,16 @@ BRZ_puppeted_by_grover_ii = {
 }
 
 BRZ_update_fervour = {
-	set_variable = { BRZ_revenge_fervour_manpower = BRZ_revenge_army_fervour }
-	multiply_variable = { BRZ_revenge_fervour_manpower = 75 }
-	set_variable = { BRZ_revenge_fervour_morale = BRZ_revenge_army_fervour }
-	multiply_variable = { BRZ_revenge_fervour_morale = 0.01 }
+	set_variable = {
+		BRZ_revenge_fervour_manpower = {
+			value = BRZ_revenge_army_fervour
+			multiply = 75
+		}
+	}
+	set_variable = {
+		BRZ_revenge_fervour_morale = BRZ_revenge_army_fervour
+		multiply = 0.01
+	}
 }
 
 BRZ_initialize_triumph = {
