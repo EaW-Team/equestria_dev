@@ -1,6 +1,6 @@
 NDefines.NGame.START_DATE = "1007.1.1.12"
 NDefines.NGame.END_DATE = "1030.1.1.1"
-NDefines.NGame.HANDS_OFF_START_TAG = "DRG"
+NDefines.NGame.HANDS_OFF_START_TAG = "ZZZ"
 NDefines.NGame.MAX_EFFECT_ITERATION = 50000
 
 NDefines.NDiplomacy.TENSION_TIME_SCALE_START_DATE = "1012.1.1.12" -- increased from 1007 due to Great War being the main huge wakeup call -- Starting at this date, the tension values will be scaled down (will be equal to 1 before that)
@@ -40,6 +40,7 @@ NDefines.NProduction.MINIMUM_NUMBER_OF_FACTORIES_TAKEN_BY_CONSUMER_GOODS_PERCENT
 NDefines.NProduction.MAX_EQUIPMENT_RESOURCES_NEED = 4
 
 NDefines.NBuildings.RADAR_RANGE_MAX = 416 --each level is 36, we've gone from 6 levels (40 to 220, 5 increases) to 12 levels (40 to 436, 11 increases)
+NDefines.NBuildings.MAX_SHARED_SLOTS = 30
 
 NDefines.NMilitary.PLAN_EXECUTE_CAREFUL_MAX_FORT = 4
 NDefines.NMilitary.TRAINING_MAX_LEVEL = 10
@@ -59,9 +60,8 @@ NDefines.NAir.AIR_WING_XP_LEVELS = {20,	40,	60,	80,	100,	140,	180,	220,	260,	300
 
 NDefines.NAI.RESEARCH_LAND_DOCTRINE_NEED_GAIN_FACTOR = 0.12 -- Multiplies value based on relative military industry size / country size.
 NDefines.NAI.DYNAMIC_STRATEGIES_THREAT_FACTOR = 6.0
-NDefines.NAI.BASE_DISTANCE_TO_CARE = 400.0
 NDefines.NAI.ATTACK_HEAVILY_DEFENDED_LIMIT = 1.1
-NDefines.NAI.SEND_VOLUNTEER_EVAL_BASE_DISTANCE = 100.0
+NDefines.NAI.SEND_VOLUNTEER_EVAL_BASE_DISTANCE = 10000.0
 NDefines.NAI.SEND_VOLUNTEER_EVAL_CONTAINMENT_FACTOR = 0.15
 NDefines.NAI.DIPLOMACY_FACTION_GLOBAL_TENSION_FACTOR = 0.15
 NDefines.NAI.DIPLOMACY_FACTION_NEUTRALITY_PENALTY = 0.2
@@ -218,6 +218,8 @@ NDefines.NFactions.FACTION_INTELLIGENCE_ALLOWED_ADVISOR_TRAIT = {
 	"HUN_stalinist_agent",
 	"JAP_tokko_chief",
 	"CHI_spymaster",
+	"AST_intelligence_director",
+	"AST_indomitable_scout",
 	"head_of_intelligence_kirin",
 	"HEL_general_secretary",
 	"HEL_general_secretary_lar",
