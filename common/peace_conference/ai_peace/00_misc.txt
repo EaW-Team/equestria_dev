@@ -870,6 +870,40 @@ peace_ai_desires = {
         }
         ai_desire = 30
     }
+
+    
+
+    ### A loser that keeps even one unclaimed state keeps its own tag, government, ideas and leader, and the puppet
+    ### or new government we spent the whole conference building becomes a nameless dynamic country instead.
+    ### Once we have committed to remaking a loser, mop up whatever is left of it late in the conference, even where
+    ### the influence cutoff would normally stop us. Restricted to states nobody but the loser cores, so this never
+    ### steals land that is going to be liberated or handed back to an ally.
+
+    finish_the_puppet_before_a_rump_survives = {
+        peace_action_type = { puppet }
+        enable = {
+            pc_turn > 2
+            ROOT.FROM = {
+                tag = ROOT.FROM.FROM #We are puppeting the loser itself, not carving a sub-puppet out of it
+                pc_is_puppeted_by = ROOT
+            }
+            ROOT.FROM.FROM.FROM = {
+                NOT = {
+                    any_country_with_core = {
+                        exists = yes #dead tags core most of China and would otherwise block every state here
+                        NOT = { tag = ROOT.FROM.FROM }
+                    }
+                }
+                NOT = {
+                    any_country = {
+                        NOT = { tag = ROOT.FROM.FROM }
+                        PREV = { is_claimed_by = PREV }
+                    }
+                }
+            }
+        }
+        ai_desire = 1100 #Finite offset, has to clear the influence cutoff
+    }
 	
 	leave_player_controlled_land_until_later_in_the_process = {
 		peace_action_type = { take_states puppet force_government liberate }
@@ -892,6 +926,28 @@ peace_ai_desires = {
 				is_major = no
 			}
 			ROOT.FROM.FROM.FROM = {
+                OR = {
+                    pc_is_state_claimed = yes
+                    ROOT = {
+                        any_other_country = {
+                            OR = {
+                                AND = {  #losers can be on the winning side when they capitulated during the war
+                                    NOT = {
+                                        has_war_with = ROOT
+                                    }
+                                    pc_is_loser = yes
+                                }
+                                pc_is_winner = yes
+                            }
+                            FROM.FROM.FROM = {
+                                OR = {
+                                    is_core_of = PREV
+                                    is_claimed_by = PREV
+                                }
+                            }
+                        }
+                    }
+                }
 				NOT = { 
 					OR = {
 						is_claimed_by = ROOT 
