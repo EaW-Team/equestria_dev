@@ -1,6 +1,7 @@
 on_actions = {
 	on_startup = {
 		effect = {
+			# Probably transfer these to state's files before release
 			384 = {
 				force_enable_resistance = BOI
 				add_resistance = 30
@@ -17,7 +18,7 @@ on_actions = {
 	}
 	on_state_control_changed = {
 		effect = {
-			if = {
+			if = { # gives an appropriate event upon reclaiming mainland (Historical path OR Empire path)
 				limit = {
 					ROOT = {
 						tag = LAK
@@ -47,6 +48,9 @@ on_actions = {
 					}
 				}
 			}
+			################
+			### BRD PATH ###
+			################
 			if = {
 				limit = {
 					ROOT = {
@@ -82,14 +86,81 @@ on_actions = {
 	}
 	on_weekly_LAK = {
 		effect = {
+			#######################
+			### HISTORICAL PATH ###
+			#######################
 			if = {
 				limit = {
-					has_variable = LAK_integration_progress_var
-					has_variable = LAK_integration_weekly_progress
+					has_focus_tree = LAK_main_tree
 				}
-				add_to_variable = { LAK_integration_progress_var = LAK_integration_weekly_progress }
-				LAK_update_integration = yes
+				if = { # Factions
+					limit = {
+						has_country_flag = LAK_factions_system_available
+					}
+					clamp_variable = { var = LAK_moderate_var min = 0 max = 100 }
+					clamp_variable = { var = LAK_radical_var min = 0 max = 100 }
+					set_variable = {
+						LAK_moderate_tier = {
+							value = 1
+							if = {
+								limit = {
+									value = LAK_moderate_var greater_than_or_equals = 75
+								}
+								add = 2
+							}
+							else_if = {
+								limit = {
+									value = LAK_moderate_var greater_than_or_equals = 24
+								}
+								add = 1
+							}
+						}
+						LAK_radical_tier = {
+							value = 1
+							if = {
+								limit = {
+									value = LAK_radical_var greater_than_or_equals = 75
+								}
+								add = 2
+							}
+							else_if = {
+								limit = {
+									value = LAK_radical_var greater_than_or_equals = 24
+								}
+								add = 1
+							}
+						}
+					}
+				}
+				if = { # Integration
+					limit = {
+						has_variable = LAK_integration_progress_var
+						has_variable = LAK_integration_weekly_progress
+					}
+					add_to_variable = { LAK_integration_progress_var = LAK_integration_weekly_progress }
+					clamp_variable = { var = LAK_integration_progress_var min = 0 max = 100 }
+					if = {
+						limit = {
+							check_variable = { LAK_integration_progress_var = 100 }
+						}
+						# TODO - some event
+						set_country_flag = LAK_integration_finished
+						clr_country_flag = LAK_integration_GUI_visible_flag
+						clear_variable = LAK_integration_progress_var
+					}
+				}
 			}
+			###################
+			### EMPIRE PATH ###
+			###################
+			if = {
+				limit = {
+					has_country_flag = LAK_empire_path_flag
+				}
+			}
+			################
+			### BRD PATH ###
+			################
 			if = {
 				limit = {
 					has_country_leader = {
@@ -165,31 +236,174 @@ on_actions = {
 
 	on_monthly_LAK = {
 		effect = {
-			if = {
+			#######################
+			### HISTORICAL PATH ###
+			#######################
+			if = { # if you happen to have a defensive war against anywho, they'll white-peace if suffer too many casualties
 				limit = {
-					has_completed_focus = LAK_BRD_doctrine_focus
+					has_defensive_war = yes
+					is_subject = no
+					is_in_faction = no
+					383 = { is_owned_and_controlled_by = ROOT } # island
+					384 = { is_owned_and_controlled_by = ROOT } # mainland
+					has_focus_tree = LAK_main_tree
+					NOT = { has_country_flag = LAK_empire_path_flag }
 				}
-				LAK_BRD_doctrine_effect = yes
-			}
-			if = {
-				limit = {
-					has_war = yes
-					has_completed_focus = LAK_BRD_work_outside
-				}
-				random = {
-					chance = 25
-					random_enemy_country = {
-						limit = {
-							is_neighbor_of_ROOT_or_ally = yes
+				every_enemy_country = {
+					limit = {
+						has_offensive_war_with = ROOT
+						casualties_k > 100
+						is_subject = no
+						OR = {
+							is_faction_leader = yes
+							is_in_faction = no
 						}
-						random_unit_leader = {
+						NOT = { is_in_array = ROOT.LAK_enemies_in_long_war }
+					}
+					ROOT = {
+						activate_targeted_decision = {
+							target = PREV
+							decision = LAK_the_long_war_mission
+						}
+						country_event = rumare_misc.2
+					}
+					activate_targeted_decision = {
+						target = LAK
+						decision = LAK_the_long_war_mission
+					}
+					country_event = rumare_misc.3
+					add_to_array = { ROOT.LAK_enemies_in_long_war = THIS }
+				}
+			}
+			###################
+			### EMPIRE PATH ###
+			###################
+			if = {
+				limit = {
+					has_country_flag = LAK_empire_path_flag
+				}
+			}
+			################
+			### BRD PATH ###
+			################
+			if = {
+				limit = {
+					has_country_leader = {
+						character = LAK_arwyn_alister
+						ruling_only = yes
+					}
+				}
+				if = { # bonus for doctrine mastery if any of enemies have more mastery than you
+					limit = {
+						has_completed_focus = LAK_BRD_doctrine_focus
+					}
+					check_army_mastery_level = yes
+					for_each_scope_loop = {
+						array = LAK_BRD_enemies_array
+						check_army_mastery_level = yes
+						if = {
 							limit = {
-								is_leading_army = yes
-								NOT = { has_trait = wounded }
+								any_of = {
+									array = doctrine_mastery_array
+									check_variable = { v > ROOT.doctrine_mastery_array^i }
+								}
 							}
-							add_timed_unit_leader_trait = {
-								trait = wounded
-								days = 90
+							for_loop_effect = {
+								start = 0
+								end = 4
+								if = {
+									limit = {
+										check_variable = { doctrine_mastery_array^v > ROOT.doctrine_mastery_array^v }
+									}
+									add_to_temp_variable = { temp_country_has_better_doctrine^v = 1 }
+									log = "[THIS.GetName] has track [?v|Y0] better: [?doctrine_mastery_array^v] > [?ROOT.doctrine_mastery_array^v]"
+								}
+							}
+						}
+						clear_array = doctrine_mastery_array
+					}
+					if = {
+						limit = {
+							has_subdoctrine_in_track = infantry
+							check_variable = { temp_country_has_better_doctrine^0 > 0 }
+						}
+						set_variable = {
+							LAK_army_dm_infantry_track_mastery_gain_factor = {
+								value = temp_country_has_better_doctrine^0
+								multiply = 0.05
+							}
+						}
+					}
+					else = {
+						clear_variable = LAK_army_dm_infantry_track_mastery_gain_factor
+					}
+					if = {
+						limit = {
+							has_subdoctrine_in_track = combat_support
+							check_variable = { temp_country_has_better_doctrine^1 > 0 }
+						}
+						set_variable = {
+							LAK_army_dm_combat_support_track_mastery_gain_factor = {
+								value = temp_country_has_better_doctrine^1
+								multiply = 0.05
+							}
+						}
+					}
+					else = {
+						clear_variable = LAK_army_dm_combat_support_track_mastery_gain_factor
+					}
+					if = {
+						limit = {
+							has_subdoctrine_in_track = armor
+							check_variable = { temp_country_has_better_doctrine^2 > 0 }
+						}
+						set_variable = {
+							LAK_army_dm_armor_track_mastery_gain_factor = {
+								value = temp_country_has_better_doctrine^2
+								multiply = 0.05
+							}
+						}
+					}
+					else = {
+						clear_variable = LAK_army_dm_armor_track_mastery_gain_factor
+					}
+					if = {
+						limit = {
+							has_subdoctrine_in_track = operations
+							check_variable = { temp_country_has_better_doctrine^3 > 0 }
+						}
+						set_variable = {
+							LAK_army_dm_operations_track_mastery_gain_factor = {
+								value = temp_country_has_better_doctrine^3
+								multiply = 0.05
+							}
+						}
+					}
+					else = {
+						clear_variable = LAK_army_dm_operations_track_mastery_gain_factor
+					}
+					clear_array = doctrine_mastery_array
+				}
+				if = { # 25% monthly chance to would enemy's general
+					limit = {
+						has_war = yes
+						has_completed_focus = LAK_BRD_work_outside
+					}
+					random = {
+						chance = 25
+						random_enemy_country = {
+							limit = {
+								is_neighbor_of_ROOT_or_ally = yes
+							}
+							random_unit_leader = {
+								limit = {
+									is_leading_army = yes
+									NOT = { has_trait = wounded }
+								}
+								add_timed_unit_leader_trait = {
+									trait = wounded
+									days = 90
+								}
 							}
 						}
 					}
@@ -262,7 +476,7 @@ on_actions = {
 	}
 	on_puppet = {
 		effect = {
-			if = {
+			if = { # LAK abd BOI can't puppet each other
 				limit = {
 					ROOT = {
 						OR = {
