@@ -106,6 +106,7 @@ Try to keep this reasonably up-to-date, please.
 - `research_weight_factor`
 - `role_ratio`
 - `save_equipment`
+- `stockpile_fuel`
 - `template_prio`
 - `unit_ratio`
 - `land_xp_spend_priority`
@@ -709,5 +710,61 @@ ai_strategy = {
 	type = coast_defense
 	id = 35 # Strategic region Id
 	value = 100 # Percentage between 0 and 100
+}
+```
+
+### `stockpile_fuel`
+Makes the AI pause fuel-hungry operations until its reserves have recovered, so it can build up for a
+new offensive instead of grinding to a halt on an empty tank.
+
+Takes two optional thresholds instead of a `value` — both percentages of the AI's *wanted max fuel*:
+
+- `start_below` — drop into fuel saving mode when fuel falls below this.
+- `stop_above` — stay in fuel saving mode until fuel climbs above this.
+
+While in fuel saving mode the AI's fuel budget for air and naval missions is throttled, and its land
+attack plans are stood down (plans already executing are pulled back too). Note that army fuel
+consumption itself is not throttled — standing the plans down stops the AI starting new offensives,
+but units already moving, exercising or in combat keep burning fuel.
+
+**`stop_above` must be above `start_below`.** The gap between them is deliberate: without it the AI
+resumes the moment it hits the threshold, immediately burns back below it, stands down again, and
+oscillates between attacking and retreating instead of mounting one sustained offensive. A wide gap
+means one long recovery followed by one long push. An inverted gap, a `start_below` with no
+`stop_above`, and a block with neither threshold set are all reported as errors on load.
+
+Either threshold works on its own:
+
+- `stop_above` alone adds no new trigger — the AI still decides when to start conserving fuel, but
+  recovers to your target instead of the default `FUEL_RATIO_TO_EXIST_FUEL_SAVING_MODE` (60%) before
+  resuming. This is the light-touch option: it cannot make the AI pause at a moment it otherwise
+  would not have.
+- `start_below` (with a `stop_above`) additionally forces the pause at a fuel level of your choosing.
+
+Note the thresholds are fractions of *wanted max fuel*, not of total fuel capacity. Wanted max fuel
+is derived from the country's own maximum army/navy/air consumption (see the
+`WANTED_MAX_FUEL_BUFFER_IN_DAYS_FOR_*` defines) and can itself be scaled with `fuel_buffer`, so the
+two are designed to be used together. It is capped at the country's actual fuel capacity, so for a
+country whose buffer target exceeds its storage the two measures coincide — which makes a `stop_above`
+close to 100 demand a practically full stockpile. Leave it some headroom.
+
+If several `stockpile_fuel` blocks are active at once they do not add up; the strictest value of each
+threshold wins.
+
+Overridden by `front_control` with `execute_order = yes`, and on fronts the AI considers desperate —
+a country fighting for its life will not stop to refuel. Faction attack pings do *not* override it:
+a ping raises the front's execution mode, but the stand-down still suppresses the attack.
+```
+ai_strategy = {
+	type = stockpile_fuel
+	# no id or target needed
+	start_below = 30 # Stop attacking once fuel drops under 30% of wanted max fuel
+	stop_above = 80  # ...and do not resume until it is back above 80%
+}
+
+ai_strategy = {
+	type = stockpile_fuel
+	# Light touch: never forces a pause, just makes an existing one recover further
+	stop_above = 90
 }
 ```
