@@ -38,41 +38,41 @@ on_actions = {
 		}
 	}
 
-	on_puppet = {
-		effect = {
-			if = {#If RCT has done Friendship Without Borders, this will apply it to any future vassals they make
-				limit = {
-					FROM = {
-						original_tag = RCT
-						has_completed_focus = RCT_friendship_without_borders
-					}
-					ROOT = {
-						NOT = {
-							has_idea = RCT_friendship_without_borders_idea
-						}
-					}
-				}
-				add_ideas = RCT_friendship_without_borders_idea
-			}
-		}
-	}
+	# on_puppet = {
+	# 	effect = {
+	# 		if = {#If RCT has done Friendship Without Borders, this will apply it to any future vassals they make
+	# 			limit = {
+	# 				FROM = {
+	# 					original_tag = RCT
+	# 					has_completed_focus = RCT_friendship_without_borders
+	# 				}
+	# 				ROOT = {
+	# 					NOT = {
+	# 						has_idea = RCT_friendship_without_borders_idea
+	# 					}
+	# 				}
+	# 			}
+	# 			add_ideas = RCT_friendship_without_borders_idea
+	# 		}
+	# 	}
+	# }
 
-	on_release_as_puppet = {
-		effect = {
-			if = {#If RCT has done Friendship Without Borders, this will apply it to any future vassals they make
-				limit = {
-					FROM = {
-						original_tag = RCT
-						has_completed_focus = RCT_friendship_without_borders
-					}
-					ROOT = {
-						NOT = { has_idea = RCT_friendship_without_borders_idea }
-					}
-				}
-				add_ideas = RCT_friendship_without_borders_idea
-			}
-		}
-	}
+	# on_release_as_puppet = {
+	# 	effect = {
+	# 		if = {#If RCT has done Friendship Without Borders, this will apply it to any future vassals they make
+	# 			limit = {
+	# 				FROM = {
+	# 					original_tag = RCT
+	# 					has_completed_focus = RCT_friendship_without_borders
+	# 				}
+	# 				ROOT = {
+	# 					NOT = { has_idea = RCT_friendship_without_borders_idea }
+	# 				}
+	# 			}
+	# 			add_ideas = RCT_friendship_without_borders_idea
+	# 		}
+	# 	}
+	# }
 
 	on_civil_war_end = {
 		effect = {
@@ -161,6 +161,188 @@ on_actions = {
 				var = RCT_skr_votes_var
 				min = 0
 				max = 100
+			}
+		}
+	}
+
+	on_new_term_election = {
+		effect = {
+			if = {
+				limit = {
+					original_tag = RCT
+					has_elections = yes
+				}
+				RCT = {
+					clr_country_flag = RCT_has_natunity_flag
+					remove_ideas = RCT_election_campaign_pp_cost_hidden_idea
+					set_variable = {
+                        var = RCT_campaigning_for_party
+                        value = 0
+                    }
+
+                    IF = {
+                    	limit = {
+                    		has_idea = RCT_country_party_influence_hsr
+                    	}
+                    	remove_ideas = RCT_country_party_influence_hsr
+                    }
+
+                    IF = {
+                    	limit = {
+                    		has_idea = RCT_country_party_influence_skr
+                    	}
+                    	remove_ideas = RCT_country_party_influence_skr
+                    }
+
+                    if = { #Swap advisor's decrease of votes to current ruling party
+				        limit = { #Swap from HSR to SKR
+				            check_variable = {
+								var = RCT_skr_votes_var
+								value = RCT_hsr_votes_var
+								compare = greater_than
+							}
+							check_variable = {
+								var = RCT_ruling_party
+								value = 0 #HSR
+								compare = equals
+							}
+				         }
+						add_to_variable = { #Remove old decrease
+							var = RCT_hsr_votes_daily_var
+							value = 0.01 
+						}
+						add_to_variable = { #Add new decrease
+							var = RCT_skr_votes_daily_var
+							value = -0.01 
+						}
+						RCT_votes_change_effect = yes
+					}#
+
+						else_if = {
+							limit = { #Swap from SKR to HSR
+							    check_variable = {
+									var = RCT_hsr_votes_var
+									value = RCT_skr_votes_var
+									compare = greater_than
+								}
+								check_variable = {
+									var = RCT_ruling_party
+									value = 1 #SKR
+									compare = equals
+								}
+							}
+							add_to_variable = { #Remove old decrease
+								var = RCT_skr_votes_daily_var
+								value = 0.01 
+							}
+							add_to_variable = { #Add new decrease
+								var = RCT_hsr_votes_daily_var
+								value = -0.01 
+							}
+							RCT_votes_change_effect = yes
+						#}
+				   	}
+
+					if = { #Sets SKR as ruling party
+						limit = {
+							OR = {
+								check_variable = {
+									var = RCT_skr_votes_var
+									value = RCT_hsr_votes_var
+									compare = greater_than
+								}
+								AND = {
+									check_variable = {
+										var = RCT_skr_votes_var
+										value = RCT_hsr_votes_var
+										compare = greater_than_or_equals
+									}
+									check_variable = {
+										var = RCT_ruling_party
+										value = 1
+										compare = equals
+									}
+								}
+							}
+						}
+						add_to_variable = {
+							var = RCT_skr_election_win_count
+							value = 1
+						}
+						set_variable = {
+							var = RCT_ruling_party
+							value = 1
+						}
+						if = {
+							limit = {
+								has_character = RCT_nova_whirl
+							}
+							set_politics = {
+								ruling_party = communism
+								elections_allowed = yes
+								election_frequency = 60
+							}
+						}
+					}
+					else_if = { #Sets HSR as ruling party
+						limit = {
+							OR = {
+								check_variable = {
+									var = RCT_hsr_votes_var
+									value = RCT_skr_votes_var
+									compare = greater_than
+								}
+								AND = {
+									check_variable = {
+										var = RCT_hsr_votes_var
+										value = RCT_skr_votes_var
+										compare = greater_than_or_equals
+									}
+									check_variable = {
+										var = RCT_ruling_party
+										value = 0
+										compare = equals
+									}
+								}
+							}
+						}
+						add_to_variable = {
+							var = RCT_hsr_election_win_count
+							value = 1
+						}
+						set_variable = {
+							var = RCT_ruling_party
+							value = 0
+						}
+						if = {
+							limit = {
+								has_character = RCT_nova_whirl
+							}
+							set_politics = {
+								ruling_party = democratic
+								elections_allowed = yes
+
+								election_frequency = 60
+							}
+						}
+					}
+					clamp_variable = {
+						var = RCT_hsr_votes_var
+						min = 0
+						max = 100
+					}
+					clamp_variable = {
+						var = RCT_skr_votes_var
+						min = 0
+						max = 100
+					}
+					country_event = RCT_election_events.1
+					set_country_flag = {
+						flag = RCT_election_recently_concluded
+						days = 15 #Edit RCT_election_recently_concluded /AND/ RCT_15_natunity if changed
+						value = 1
+					}
+				}
 			}
 		}
 	}
