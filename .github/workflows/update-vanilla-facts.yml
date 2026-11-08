@@ -50,12 +50,22 @@ env:
   FACTS_PATH: ${{ vars.HOI4_VANILLA_FACTS_PATH }}
   FORCE: ${{ inputs.force || false }}
   PUSH_BRANCH: ${{ inputs.push_branch || github.event.repository.default_branch }}
-  STEAMCMD_IMAGE: steamcmd/steamcmd:ubuntu-22
 
 jobs:
   update:
     runs-on: ubuntu-latest
+    container:
+      image: steamcmd/steamcmd:ubuntu-22
+    defaults:
+      run:
+        shell: bash
     steps:
+      - name: Install workflow dependencies
+        run: |
+          apt-get update
+          apt-get install --yes --no-install-recommends \
+            curl git jq openssh-client python3
+
       - name: Prepare update check
         env:
           GITHUB_TOKEN: ${{ github.token }}
@@ -129,14 +139,8 @@ jobs:
         run: |
           set -euo pipefail
           app_info="$RUNNER_TEMP/app-info.txt"
-          docker run --rm \
-            -e APP_ID \
-            -e HOME=/github/home \
-            -e STEAM_USERNAME \
-            -v "$RUNNER_TEMP/steam-home:/github/home" \
-            --entrypoint bash \
-            "$STEAMCMD_IMAGE" \
-            -ceu 'steamcmd +login "$STEAM_USERNAME" +app_info_print "$APP_ID" +quit' \
+          HOME="$RUNNER_TEMP/steam-home" steamcmd \
+            +login "$STEAM_USERNAME" +app_info_print "$APP_ID" +quit \
             2>&1 | tee "$app_info"
           python3 "$RUNNER_TEMP/check_steam_update.py" \
             "$app_info" \
@@ -177,15 +181,9 @@ jobs:
           set -euo pipefail
           game_directory="$RUNNER_TEMP/hoi4-linux"
           mkdir -p "$game_directory"
-          docker run --rm \
-            -e APP_ID \
-            -e HOME=/github/home \
-            -e STEAM_USERNAME \
-            -v "$RUNNER_TEMP/steam-home:/github/home" \
-            -v "$game_directory:/game" \
-            --entrypoint bash \
-            "$STEAMCMD_IMAGE" \
-            -ceu 'steamcmd +force_install_dir /game +login "$STEAM_USERNAME" +app_update "$APP_ID" validate +quit'
+          HOME="$RUNNER_TEMP/steam-home" steamcmd \
+            +force_install_dir "$game_directory" \
+            +login "$STEAM_USERNAME" +app_update "$APP_ID" validate +quit
 
       - name: Generate updated vanilla facts
         id: generate
