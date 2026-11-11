@@ -92,6 +92,7 @@ on_actions = {
 			if = {
 				limit = {
 					has_focus_tree = LAK_main_tree
+					NOT = { has_country_flag = LAK_empire_path_flag }
 				}
 				if = { # Factions
 					limit = {
@@ -128,6 +129,39 @@ on_actions = {
 									value = LAK_radical_var greater_than_or_equals = 24
 								}
 								add = 1
+							}
+						}
+					}
+					if = {
+						limit = {
+							has_dynamic_modifier = { modifier = LAK_faction_influence_dm }
+						}
+						clear_variable = LAK_faction_influence_dm_stability_factor
+						clear_variable = LAK_faction_influence_dm_political_advisor_cost_factor
+						clear_variable = LAK_faction_influence_dm_political_power_gain
+						for_loop_effect = { # Repeats this effect two times, too lazy to write scripted effect, lol
+							end = 2
+							if = {
+								limit = {
+									check_variable = { v = 1 }
+								}
+								set_temp_variable = { temp_tier = LAK_moderate_tier }
+							}
+							else = {
+								set_temp_variable = { temp_tier = LAK_radical_tier }
+							}
+							if = {
+								limit = {
+									check_variable = { temp_tier = 2 }
+								}
+								subtract_from_variable = { LAK_faction_influence_dm_stability_factor = 0.05 }
+								add_to_variable = { LAK_faction_influence_dm_political_advisor_cost_factor = 0.05 }
+								subtract_from_variable = { LAK_faction_influence_dm_political_power_gain = 0.06 }
+							}
+							else = {
+								subtract_from_variable = { LAK_faction_influence_dm_stability_factor = 0.1 }
+								add_to_variable = { LAK_faction_influence_dm_political_advisor_cost_factor = 0.1 }
+								subtract_from_variable = { LAK_faction_influence_dm_political_power_gain = 0.1 }
 							}
 						}
 					}
@@ -286,40 +320,91 @@ on_actions = {
 			#######################
 			### HISTORICAL PATH ###
 			#######################
-			if = { # if you happen to have a defensive war against anywho, they'll white-peace if suffer too many casualties
+			if = {
 				limit = {
-					has_defensive_war = yes
-					is_subject = no
-					is_in_faction = no
-					383 = { is_owned_and_controlled_by = ROOT } # island
-					384 = { is_owned_and_controlled_by = ROOT } # mainland
 					has_focus_tree = LAK_main_tree
 					NOT = { has_country_flag = LAK_empire_path_flag }
 				}
-				every_enemy_country = {
+				if = { # if you happen to have a defensive war against anywho, they'll white-peace if suffer too many casualties
 					limit = {
-						has_offensive_war_with = ROOT
-						casualties_k > 100
+						has_defensive_war = yes
 						is_subject = no
-						OR = {
-							is_faction_leader = yes
-							is_in_faction = no
-						}
-						NOT = { is_in_array = { ROOT.LAK_enemies_in_long_war = THIS } }
+						is_in_faction = no
+						383 = { is_owned_and_controlled_by = ROOT } # island
+						384 = { is_owned_and_controlled_by = ROOT } # mainland
 					}
-					ROOT = {
+					every_enemy_country = {
+						limit = {
+							has_offensive_war_with = ROOT
+							casualties_k > 100
+							is_subject = no
+							OR = {
+								is_faction_leader = yes
+								is_in_faction = no
+							}
+							NOT = { is_in_array = { ROOT.LAK_enemies_in_long_war = THIS } }
+						}
+						ROOT = {
+							activate_targeted_decision = {
+								target = PREV
+								decision = LAK_the_long_war_mission
+							}
+							country_event = rumare_misc.2
+						}
 						activate_targeted_decision = {
-							target = PREV
+							target = LAK
 							decision = LAK_the_long_war_mission
 						}
-						country_event = rumare_misc.2
+						country_event = rumare_misc.3
+						add_to_array = { ROOT.LAK_enemies_in_long_war = THIS }
 					}
-					activate_targeted_decision = {
-						target = LAK
-						decision = LAK_the_long_war_mission
+				}
+				if = {
+					limit = {
+						has_completed_focus = LAK_home_sweet_home
 					}
-					country_event = rumare_misc.3
-					add_to_array = { ROOT.LAK_enemies_in_long_war = THIS }
+					set_temp_variable = { temp_nothing = 15 }
+					if = {
+						limit = {
+							has_country_flag = LAK_chosen_mainland_capital
+						}
+						add_to_temp_variable = { temp_nothing = 15 }
+					}
+					set_temp_variable = {
+						temp_bad = {
+							value = 100
+							subtract = temp_nothing
+							divide = 2
+							add = {
+								value = LAK_BRD_satisfaction
+								multiply = 100
+							}
+							clamp = {
+								min = 0
+								max = 100
+							}
+						}
+					}
+					set_temp_variable = {
+						temp_good = {
+							value = 100
+							subtract = temp_nothing
+							divide = 2
+							subtract = {
+								value = LAK_BRD_satisfaction
+								multiply = 100
+							}
+							clamp = {
+								min = 0
+								max = 100
+							}
+						}
+					}
+					random_list = {
+						temp_bad = { country_event = rumare_factions.11 } # bad
+						temp_good = { country_event = rumare_factions.12 } # good
+						temp_nothing = {} # nothing
+					}
 				}
 			}
 			###################
