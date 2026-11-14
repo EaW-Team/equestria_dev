@@ -68,8 +68,8 @@ LAK_zahid_events_effect = { # unique events fired from advisor Zahid
 			10 = { country_event = rumare_zahid.5 set_variable = { rumare_zahid_meeting^5 = 1 } modifier = { factor = 0 has_variable = rumare_zahid_meeting^5 } modifier = { factor = 0 NOT = { has_character = LAK_tristan_von_bryncopr } } }
 			10 = { country_event = rumare_zahid.6 set_variable = { rumare_zahid_meeting^6 = 1 } modifier = { factor = 0 has_variable = rumare_zahid_meeting^6 } modifier = { factor = 0 NOT = { has_character = LAK_ancharita_passmore } } }
 			10 = { country_event = rumare_zahid.7 set_variable = { rumare_zahid_meeting^7 = 1 } modifier = { factor = 0 has_variable = rumare_zahid_meeting^7 } modifier = { factor = 0 NOT = { has_character = LAK_sianna_cadwgan } } }
-			10 = { country_event = rumare_zahid.8 set_variable = { rumare_zahid_meeting^8 = 1 } modifier = { factor = 0 has_variable = rumare_zahid_meeting^8 } modifier = { factor = 0 NOT = { has_character = LAK_frieda_griffin } } modifier = { factor = 0 LAK_frieda_griffin = { NOT = { has_character_flag = LAK_character_visible } } }
-			10 = { country_event = rumare_zahid.9 set_variable = { rumare_zahid_meeting^9 = 1 } modifier = { factor = 0 has_variable = rumare_zahid_meeting^9 } modifier = { factor = 0 NOT = { has_character = LAK_arwyn_alister } } modifier = { factor = 0 LAK_arwyn_alister = { NOT = { has_character_flag = LAK_character_visible } } }
+			10 = { country_event = rumare_zahid.8 set_variable = { rumare_zahid_meeting^8 = 1 } modifier = { factor = 0 has_variable = rumare_zahid_meeting^8 } modifier = { factor = 0 NOT = { has_character = LAK_frieda_griffin } } modifier = { factor = 0 LAK_frieda_griffin = { NOT = { has_character_flag = LAK_character_visible } } } }
+			10 = { country_event = rumare_zahid.9 set_variable = { rumare_zahid_meeting^9 = 1 } modifier = { factor = 0 has_variable = rumare_zahid_meeting^9 } modifier = { factor = 0 NOT = { has_character = LAK_arwyn_alister } } modifier = { factor = 0 LAK_arwyn_alister = { NOT = { has_character_flag = LAK_character_visible } } } }
 			10 = { country_event = rumare_zahid.10 }
 		}
 		country_event = {
@@ -82,6 +82,8 @@ LAK_zahid_events_effect = { # unique events fired from advisor Zahid
 LAK_recalculate_lake_fleet = { # calculates temporarily tooltip modifiers
 	clear_array = LAK_lake_fleet_modifiers_array
 	resize_array = { LAK_lake_fleet_modifiers_array = 6 }
+	clear_variable = LAK_lake_fleet_cost_civ_temp
+	clear_variable = LAK_lake_fleet_cost_mil_temp
 	if = {
 		limit = {
 			check_variable = { LAK_lake_fleet_changed_module > 0 }
@@ -99,11 +101,12 @@ LAK_recalculate_lake_fleet = { # calculates temporarily tooltip modifiers
 		set_variable = {
 			LAK_lake_fleet_attack = {
 				value = LAK_lake_fleet_modifiers_array^0
-				multiply = 0.025
+				multiply = 0.02
 			}
 		}
 		set_variable = { LAK_lake_fleet_capacitance = LAK_lake_fleet_modifiers_array^1 }
-		set_variable = { LAK_lake_fleet_cost = LAK_lake_fleet_modifiers_array^2 }
+		set_variable = { LAK_lake_fleet_cost_civ = LAK_lake_fleet_cost_civ_temp }
+		set_variable = { LAK_lake_fleet_cost_mil = LAK_lake_fleet_cost_mil_temp }
 		set_variable = { LAK_lake_fleet_raiding = LAK_lake_fleet_modifiers_array^3 }
 		set_variable = { LAK_lake_fleet_transfer = LAK_lake_fleet_modifiers_array^4 }
 		set_variable = { LAK_lake_fleet_rivers = LAK_lake_fleet_modifiers_array^5 }
@@ -117,39 +120,34 @@ LAK_recalculate_lake_fleet_values = { # calculates actual modifiers
 				check_variable = { i = 1 }
 				check_variable = { i = 2 }
 			}
-			if = {
-				limit = {
-					check_variable = { i = 2 }
-				}
-				NOT = { check_variable = { LAK_lake_fleet_temp_modules^3 = 2 } }
-			}
+			check_variable = { var = v value = 0 equals = not_equals }
 		}
 		if = {
-			limit = {
-				check_variable = { v = 1 }
-			}
-			add_to_variable = { LAK_lake_fleet_modifiers_array^0 = 1 }
-		}
-		else_if = {
-			limit = {
-				check_variable = { v = 2 }
-			}
-			add_to_variable = { LAK_lake_fleet_modifiers_array^0 = 2 }
-		}
-		else_if = {
-			limit = {
-				check_variable = { v = 3 }
-			}
-			add_to_variable = { LAK_lake_fleet_modifiers_array^0 = 3 }
-		}
-		else_if = {
 			limit = {
 				check_variable = { v = 4 }
 			}
 			add_to_variable = { LAK_lake_fleet_modifiers_array^1 = 1 }
 		}
 		else = {
-			# TODO
+			add_to_variable = { LAK_lake_fleet_modifiers_array^0 = v }
+		}
+		add_to_variable = {
+			LAK_lake_fleet_cost_civ_temp = {
+				value = v
+				multiply = 15
+			}
+		}
+		add_to_variable = {
+			LAK_lake_fleet_cost_mil_temp = {
+				value = v
+				multiply = 120
+				if = {
+					limit = {
+						value = v equals = 4
+					}
+					subtract = 240
+				}
+			}
 		}
 	}
 	else_if = { # Hull Slot
@@ -161,15 +159,20 @@ LAK_recalculate_lake_fleet_values = { # calculates actual modifiers
 				check_variable = { v = 1 }
 			}
 			set_variable = { LAK_lake_fleet_modifiers_array^5 = 0 }
+			set_variable = { LAK_lake_fleet_temp_modules^0 = 0 }
+			set_variable = { LAK_lake_fleet_temp_modules^2 = 0 }
 		}
 		else_if = {
 			limit = {
 				check_variable = { v = 2 }
 			}
 			set_variable = { LAK_lake_fleet_modifiers_array^5 = 1 }
-			#set_variable = { LAK_lake_fleet_temp_modules^2 = 0 }
+			set_variable = { LAK_lake_fleet_temp_modules^2 = 0 }
 		}
-		else = {
+		else_if = {
+			limit = {
+				check_variable = { v = 3 }
+			}
 			set_variable = { LAK_lake_fleet_modifiers_array^5 = 0 }
 		}
 	}
@@ -205,7 +208,7 @@ LAK_factions_events_effect = {
 			}
 		}
 		random_list = {
-			40 = { # Chance of Radicals doing their move
+			50 = { # Chance of Radicals doing their move
 				random_list = {
 					10 = { country_event = rumare_factions.1 modifier = { factor = 0 check_variable = { rumare_event_fired = 1 } } }
 					10 = { country_event = rumare_factions.2 modifier = { factor = 0 check_variable = { rumare_event_fired = 2 } } }
@@ -214,7 +217,7 @@ LAK_factions_events_effect = {
 					10 = { country_event = rumare_factions.5 modifier = { factor = 0 check_variable = { rumare_event_fired = 5 } } modifier = { factor = 0 check_variable = { temp_threat < 3 } } }
 				}
 			}
-			40 = { # Chance of Moderates doing their move
+			50 = { # Chance of Moderates doing their move
 				random_list = {
 					10 = { country_event = rumare_factions.6 modifier = { factor = 0 check_variable = { rumare_event_fired = 6 } } }
 					10 = { country_event = rumare_factions.7 modifier = { factor = 0 check_variable = { rumare_event_fired = 7 } } }
@@ -223,7 +226,6 @@ LAK_factions_events_effect = {
 					10 = { country_event = rumare_factions.10 modifier = { factor = 0 check_variable = { rumare_event_fired = 10 } } modifier = { factor = 0 check_variable = { temp_threat < 3 } } }
 				}
 			}
-			20 = {} # Nothing Happens
 		}
 		set_temp_variable = {
 			temp_days = {

@@ -160,7 +160,10 @@ on_actions = {
 								add_to_variable = { LAK_faction_influence_dm_political_advisor_cost_factor = 0.1 }
 								subtract_from_variable = { LAK_faction_influence_dm_political_power_gain = 0.1 }
 							}
-							else = {
+							else_if = {
+								limit = {
+									check_variable = { temp_tier = 1 }
+								}
 								subtract_from_variable = { LAK_faction_influence_dm_stability_factor = 0.05 }
 								add_to_variable = { LAK_faction_influence_dm_political_advisor_cost_factor = 0.05 }
 								subtract_from_variable = { LAK_faction_influence_dm_political_power_gain = 0.06 }
@@ -170,11 +173,27 @@ on_actions = {
 				}
 				if = { # Integration
 					limit = {
-						has_variable = LAK_integration_progress_var
 						has_variable = LAK_integration_weekly_progress
 					}
 					add_to_variable = { LAK_integration_progress_var = LAK_integration_weekly_progress }
 					LAK_check_integration = yes
+				}
+				if = {
+					limit = {
+						has_completed_focus = LAK_meet_arwyn
+					}
+					add_to_variable = { LAK_BRD_activity_var = 1 }
+					if = {
+						limit = {
+							check_variable = { var = LAK_BRD_activity_var value = 6 compare = greater_than_or_equals }
+						}
+						set_variable = { LAK_BRD_activity_var = 1 }
+						random_list = {
+							2 = { country_event = rumare_factions.11 modifier = { factor = 0.5 check_variable = { LAK_BRD_satisfaction > 1 } } } # bad
+							2 = { country_event = rumare_factions.12 modifier = { factor = 2 check_variable = { LAK_BRD_satisfaction < 0 } }  modifier = { factor = 0 check_variable = { LAK_BRD_satisfaction > 0 } } } # very bad
+							1 = { modifier = { factor = 2 has_country_flag = LAK_chosen_mainland_capital } } # nothing
+						}
+					}
 				}
 				if = { # BRD sub-tree
 					limit = {
@@ -358,62 +377,6 @@ on_actions = {
 						}
 						country_event = rumare_misc.3
 						add_to_array = { ROOT.LAK_enemies_in_long_war = THIS }
-					}
-				}
-				if = {
-					limit = {
-						has_completed_focus = LAK_home_sweet_home
-					}
-					if = {
-						limit = {
-							has_country_flag = LAK_BRD_activity_flag
-						}
-						clr_country_flag = LAK_BRD_activity_flag
-					}
-					else = {
-						set_temp_variable = { temp_nothing = 15 }
-						if = {
-							limit = {
-								has_country_flag = LAK_chosen_mainland_capital
-							}
-							add_to_temp_variable = { temp_nothing = 15 }
-						}
-						set_temp_variable = {
-							temp_bad = {
-								value = 100
-								subtract = temp_nothing
-								divide = 2
-								add = {
-									value = LAK_BRD_satisfaction
-									multiply = 100
-								}
-								clamp = {
-									min = 0
-									max = 100
-								}
-							}
-						}
-						set_temp_variable = {
-							temp_good = {
-								value = 100
-								subtract = temp_nothing
-								divide = 2
-								subtract = {
-									value = LAK_BRD_satisfaction
-									multiply = 100
-								}
-								clamp = {
-									min = 0
-									max = 100
-								}
-							}
-						}
-						random_list = {
-							temp_bad = { country_event = rumare_factions.11 } # bad
-							temp_good = { country_event = rumare_factions.12 } # good
-							temp_nothing = {} # nothing
-						}
-						set_country_flag = LAK_BRD_activity_flag
 					}
 				}
 			}

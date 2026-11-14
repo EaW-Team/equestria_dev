@@ -257,11 +257,15 @@ scripted_gui = {
 		}
 		triggers = {
 			LAK_national_law_entry_visible = { check_variable = { v < 4 } }
+			LAK_BRD_activity_progressbar_visible = { has_completed_focus = LAK_meet_arwyn }
 		}
 		effects = {
 			LAK_national_law_entry_button_click = {
 				LAK_national_laws_tooltip_dummy = yes
 			}
+		}
+		properties = {
+			LAK_BRD_activity_progressbar = { frame = LAK_BRD_activity_var }
 		}
 	}
 	LAK_national_laws_focus_GUI = {
@@ -373,14 +377,39 @@ scripted_gui = {
 			LAK_lake_fleet_GUI_entry_button_1_click = {
 				if = {
 					limit = {
-						check_variable = { i = 3 }
+						check_variable = { LAK_lake_fleet_module_selected = i }
+						has_variable = LAK_lake_fleet_module_selected
 					}
-					resize_array = { array = LAK_lake_fleet_available_modules size = 2 } # todo, maybe 3 later
+					clear_variable = LAK_lake_fleet_module_selected
+					clear_array = LAK_lake_fleet_available_modules
 				}
 				else = {
-					resize_array = { array = LAK_lake_fleet_available_modules size = 4 }
+					if = {
+						limit = {
+							check_variable = { i = 3 }
+						}
+						resize_array = { array = LAK_lake_fleet_available_modules size = 3 }
+					}
+					else = {
+						resize_array = { array = LAK_lake_fleet_available_modules size = 4 }
+					}
+					set_variable = { LAK_lake_fleet_module_selected = i }
 				}
-				set_variable = { LAK_lake_fleet_module_selected = i }
+			}
+			LAK_lake_fleet_GUI_entry_button_1_right_click = {
+				clear_variable = LAK_lake_fleet_module_selected
+				set_variable = { LAK_lake_fleet_temp_modules^i = 0 }
+				if = {
+					limit = {
+						check_variable = { LAK_lake_fleet_changed_module > 0 }
+						check_variable = { LAK_lake_fleet_temp_modules^i = LAK_lake_fleet_current_modules^i }
+					}
+					subtract_from_variable = { LAK_lake_fleet_changed_module = 1 }
+				}
+				else = {
+					add_to_variable = { LAK_lake_fleet_changed_module = 1 }
+				}
+				LAK_recalculate_lake_fleet = yes
 			}
 			LAK_lake_fleet_GUI_entry_button_2_click = {
 				set_variable = {
@@ -420,17 +449,33 @@ scripted_gui = {
 					set_variable = { LAK_lake_fleet_current_modules^i = v }
 				}
 				LAK_recalculate_lake_fleet = yes
+				set_country_flag = LAK_lake_fleet_bombardment_flag
 				activate_mission = LAK_lake_fleet_upgrade_mission
 			}
 		}
 		triggers = {
 			LAK_lake_fleet_GUI_entry_button_1_click_enabled = {
-				check_variable = { var = i value = LAK_lake_fleet_module_selected compare = not_equals }
+				if = {
+					limit = {
+						OR = {
+							check_variable = { i = 0 }
+							check_variable = { i = 2 }
+						}
+					}
+					NOT = { check_variable = { LAK_lake_fleet_temp_modules^3 = 1 } }
+				}
 				if = {
 					limit = {
 						check_variable = { i = 2 }
 					}
 					NOT = { check_variable = { LAK_lake_fleet_temp_modules^3 = 2 } }
+				}
+			}
+			LAK_lake_fleet_GUI_entry_button_1_right_click_enabled = {
+				NOT = { check_variable = { LAK_lake_fleet_temp_modules^i = 0 } }
+				OR = {
+					check_variable = { i = 1 }
+					check_variable = { i = 2 }
 				}
 			}
 			LAK_lake_fleet_GUI_entry_button_2_click_enabled = {
@@ -452,51 +497,123 @@ scripted_gui = {
 				check_variable = { LAK_lake_fleet_changed_module > 0 }
 			}
 			LAK_lake_fleet_GUI_entry_3_icon_visible = {
+				NOT = { check_variable = { v = 0 } }
+				if = {
+					limit = {
+						check_variable = { LAK_lake_fleet_temp_modules^3 = 1 }
+					}
+					if = {
+						limit = {
+							check_variable = { i = 1 }
+						}
+						set_temp_variable = { temp_x^i = 110 }
+						set_temp_variable = { temp_y^i = 37 }
+					}
+				}
+				else_if = {
+					limit = {
+						check_variable = { LAK_lake_fleet_temp_modules^3 = 2 }
+					}
+					if = {
+						limit = {
+							check_variable = { i = 0 }
+						}
+						set_temp_variable = { temp_x^i = 188 }
+						set_temp_variable = { temp_y^i = 45 }
+					}
+					else_if = {
+						limit = {
+							check_variable = { i = 1 }
+						}
+						set_temp_variable = { temp_x^i = 110 }
+						set_temp_variable = { temp_y^i = 45 }
+					}
+				}
+				else_if = {
+					limit = {
+						check_variable = { LAK_lake_fleet_temp_modules^3 = 3 }
+					}
+				}
 				if = {
 					limit = {
 						check_variable = { i = 0 }
 					}
-					set_temp_variable = { temp_x = 135 }
-					set_temp_variable = { temp_y = -1 }
+					NOT = { check_variable = { LAK_lake_fleet_temp_modules^3 = 1 } }
 					set_temp_variable = { temp_frame = 2 }
 				}
 				else_if = {
 					limit = {
 						check_variable = { i = 1 }
 					}
-					set_temp_variable = { temp_x = 4 }
-					set_temp_variable = { temp_y = -1 }
 					set_temp_variable = { temp_frame = 1 }
 				}
 				else_if = {
 					limit = {
 						check_variable = { i = 2 }
 					}
-					NOT = { check_variable = { LAK_lake_fleet_temp_modules^3 = 2 } }
+					NOT = {
+						check_variable = { LAK_lake_fleet_temp_modules^3 = 1 }
+						check_variable = { LAK_lake_fleet_temp_modules^3 = 2 }
+					}
 					set_temp_variable = { temp_frame = 1 }
 				}
+				else_if = {
+					limit = {
+						check_variable = { i = 3 }
+					}
+					set_temp_variable = { temp_frame = LAK_lake_fleet_temp_modules^i }
+				}
+			}
+			LAK_lake_fleet_GUI_entry_button_1_visible = {
+				if = {
+					limit = {
+						has_variable = LAK_lake_fleet_module_selected
+						check_variable = { var = LAK_lake_fleet_module_selected value = -1 compare = not_equals }
+					}
+					check_variable = { LAK_lake_fleet_module_selected = i }
+					set_temp_variable = {
+						temp_x = {
+							value = 367
+							subtract = {
+								value = i
+								multiply = 90
+							}
+						}
+					}
+				}
 				else = {
-					set_temp_variable = { temp_x = -45 }
-					set_temp_variable = { temp_y = 0 }
-				#	set_temp_variable = { temp_frame = LAK_lake_fleet_temp_modules^i }
-				#	set_temp_variable = { temp_frame = 1 }
+					set_temp_variable = { temp_x = 0 }
+				}
+			}
+			LAK_lake_fleet_GUI_entry_1_text_visible = {
+				if = {
+					limit = {
+						has_variable = LAK_lake_fleet_module_selected
+						check_variable = { var = LAK_lake_fleet_module_selected value = -1 compare = not_equals }
+					}
+					check_variable = { LAK_lake_fleet_module_selected = i }
+				}
+				else = {
+					set_temp_variable = { temp_x = 0 }
 				}
 			}
 		}
 		properties = {
-			LAK_lake_fleet_GUI_entry_3_icon = {
-				image = [LAK_lake_fleet_GUI_entry_model_scripted_loc]
-				frame = temp_frame
-				x = temp_x
-				y = temp_y
-			}
 			LAK_lake_fleet_GUI_entry_button_1 = {
 				image = [LAK_lake_fleet_GUI_entry_button_scripted_loc]
 				frame = v
+				x = temp_x
 			}
+			LAK_lake_fleet_GUI_entry_1_text = { x = temp_x }
 			LAK_lake_fleet_GUI_entry_button_2 = {
 				image = [LAK_lake_fleet_GUI_module_selection_scripted_loc]
 				frame = temp_frame
+			}
+			LAK_lake_fleet_GUI_entry_3_icon = {
+				image = [LAK_lake_fleet_GUI_entry_model_scripted_loc]
+				frame = temp_frame
+				x = temp_x^i
+				y = temp_y^i
 			}
 		}
 	}
