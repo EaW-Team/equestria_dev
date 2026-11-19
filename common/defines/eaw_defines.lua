@@ -221,6 +221,8 @@ NDefines.NFactions.FACTION_INTELLIGENCE_ALLOWED_ADVISOR_TRAIT = {
 	"CHI_spymaster",
 	"AST_intelligence_director",
 	"AST_indomitable_scout",
+	"opportunistic_spymaster",
+	"well_connected_spymaster",
 	"head_of_intelligence_kirin",
 	"HEL_general_secretary",
 	"HEL_general_secretary_lar",
