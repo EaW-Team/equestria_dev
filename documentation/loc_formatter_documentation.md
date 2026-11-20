@@ -7,6 +7,7 @@
 * [character_name](#character_name)
 * [country_culture](#country_culture)
 * [country_leader_desc](#country_leader_desc)
+* [equipment_directories_that_can_use_module](#equipment_directories_that_can_use_module)
 * [idea_desc](#idea_desc)
 * [idea_name](#idea_name)
 * [tech_effect](#tech_effect)
@@ -78,6 +79,18 @@ custom_effect_tooltip = {
 	localization_key = country_leader_desc|hjalmar_schacht
 	IDEOLOGY = token:fascism
 	INDENT = 2_SPACES
+```
+
+
+## equipment_directories_that_can_use_module
+The equipment_directories_that_can_use_module gets a list of the different directories (e.g. tank, ship, planes)).
+
+The formatter takes special care of the following parameters:
+- INDENT: The indent to be added to all lines of the state modifier description (including header line).
+
+### Example:
+```
+custom_effect_tooltip = equipment_directories_that_can_use_module|tank_gas_turbine_engine
 ```
 
 

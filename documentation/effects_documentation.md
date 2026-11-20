@@ -631,6 +631,7 @@
 * [set_victory_points](#set_victory_points)
 * [sound_effect](#sound_effect)
 * [start_border_war](#start_border_war)
+* [store_ref](#store_ref)
 * [subtract_from_temp_variable](#subtract_from_temp_variable)
 * [subtract_from_variable](#subtract_from_variable)
 * [unlock_mio_policy_tooltip](#unlock_mio_policy_tooltip)
@@ -6597,6 +6598,7 @@ set_autonomy = {
   freedom_level=0.5 
   end_wars  = yes # default yes. will not cancel non-civil wars if set to no
   end_civil_wars = yes # default yes. will not cancel civil wars if set to no
+  keep_subjects = no # default no. if yes, the new subject keeps its own subjects instead of releasing them
 }
 ```
 
@@ -8014,6 +8016,7 @@ start_border_war = {
 		modifier = 0.5 #combat modifier (default value: 0.0)
 		dig_in_factor = 0.5 #dig in modifier factor (default value: 1.0)
 		terrain_factor = 0.5 #terrain modifier factor(default value: 1.0)
+		overlord_fights = no #a subject controlling the state fights the war itself instead of handing it to its overlord (default value: yes)
 	}
 	
 	defender = {
@@ -8147,6 +8150,15 @@ Example: steal_random_tech_bonus = {
 	target = ???
 	uses = 1
 }
+
+```
+
+## store_ref
+
+* Supported Scopes: any
+* Supported Targets: none
+
+```
 
 ```
 
