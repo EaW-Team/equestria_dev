@@ -5,6 +5,7 @@
 * [collection NAME](#collection-name)
 * [constant NAME](#constant-name)
 * [game all_countries](#game-all_countries)
+* [game all_majors](#game-all_majors)
 * [game all_possible_countries](#game-all_possible_countries)
 * [game all_states](#game-all_states)
 * [game scope](#game-scope)
@@ -42,6 +43,18 @@ has_resources_in_collection = {
 	resource = steel
 	amount > 799
 	extracted = yes
+}
+```
+
+
+## game all_majors
+All existing major powers.
+
+### Example
+```
+collection_size = {
+	input = game:all_majors
+	value > 3
 }
 ```
 
