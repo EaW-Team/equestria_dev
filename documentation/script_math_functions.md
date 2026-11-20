@@ -63,6 +63,8 @@ Adds a value to the accumulator.
 ## and
 Returns 1 if both the accumulator and the value are non-zero, otherwise 0.
 
+Short-circuits: the value is only evaluated when the accumulator is non-zero.
+
 ### Example
 ```
 { value = 1  and = 1 }
@@ -129,6 +131,10 @@ Returns 1 if the accumulator equals the value, otherwise 0.
 
 ## every_collection
 Iterates over a named collection, applying statements to the accumulator for each element.
+
+If the body is a single `and` or `or` chain it short-circuits the whole loop: iteration stops as soon
+as the accumulator reaches 0 (for `and`) or a non-zero value (for `or`), so it stops scanning once the
+result is decided.
 
 ### Example
 ```
@@ -246,6 +252,8 @@ Returns 1 if the accumulator does not equal the value, otherwise 0.
 
 ## or
 Returns 1 if either the accumulator or the value is non-zero, otherwise 0.
+
+Short-circuits: the value is only evaluated when the accumulator is zero.
 
 ### Example
 ```
