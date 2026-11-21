@@ -57,6 +57,7 @@
 * [is_character_slot](#is_character_slot)
 * [is_corps_commander](#is_corps_commander)
 * [is_country_leader](#is_country_leader)
+* [is_deployed](#is_deployed)
 * [is_exiled_leader](#is_exiled_leader)
 * [is_exiled_leader_from](#is_exiled_leader_from)
 * [is_female](#is_female)
@@ -116,6 +117,7 @@
 * [is_border_war](#is_border_war)
 * [is_defender](#is_defender)
 * [is_fighting_air_units](#is_fighting_air_units)
+* [is_fighting_in_strategic_region](#is_fighting_in_strategic_region)
 * [is_fighting_in_terrain](#is_fighting_in_terrain)
 * [is_fighting_in_weather](#is_fighting_in_weather)
 * [is_leading_volunteer_group](#is_leading_volunteer_group)
@@ -188,6 +190,7 @@
 * [any_scientist](#any_scientist)
 * [any_subject_country](#any_subject_country)
 * [any_unit_leader](#any_unit_leader)
+* [any_war_participation](#any_war_participation)
 * [any_war_score](#any_war_score)
 * [army_manpower_in_state](#army_manpower_in_state)
 * [building_count_trigger](#building_count_trigger)
@@ -220,6 +223,7 @@
 * [enemies_naval_strength_ratio](#enemies_naval_strength_ratio)
 * [enemies_strength_ratio](#enemies_strength_ratio)
 * [energy_ratio](#energy_ratio)
+* [equipment_cost](#equipment_cost)
 * [estimated_intel_max_armor](#estimated_intel_max_armor)
 * [estimated_intel_max_piercing](#estimated_intel_max_piercing)
 * [exists](#exists)
@@ -354,6 +358,7 @@
 * [has_terrain](#has_terrain)
 * [has_truce_with](#has_truce_with)
 * [has_unit_leader](#has_unit_leader)
+* [has_volunteers](#has_volunteers)
 * [has_volunteers_amount_from](#has_volunteers_amount_from)
 * [has_war](#has_war)
 * [has_war_support](#has_war_support)
@@ -1766,14 +1771,35 @@ ex: GER = {
 }
 ```
 
+## any_war_participation
+
+* Supported Scopes: COUNTRY
+* Supported Targets: none
+
+Checks if the country's war participation in any of its wars compares to the right-hand side.
+The participation is the country's share of its side's war effort, with `1` being 100% and `0` being 0%.
+Supported operators are `>`, `<` and `=`. The right-hand side may be a script value or a scoped variable.
+
+### Example
+```
+any_war_participation > 0.5 # participates in some war with more than half of its side's war effort
+
+any_war_participation < var:my_threshold # rhs may be a scoped variable
+```
+
+
 ## any_war_score
 
 * Supported Scopes: COUNTRY
 * Supported Targets: none
 
+Compares the warscore of all wars in a country to see if any fulfills the comparison condition. Use any_war_participation for percentages.
+
+### Example
 ```
-compares the warscore of all wars in a country to see if any fullfills the comparison condition 0-100 - Example: any_war_score > 40
+any_war_score > 40
 ```
+
 
 ## area
 
@@ -1835,7 +1861,7 @@ Example: average_stats > 10
 ```
 Checks if the current scope has the specified amount of the specified building. 
 Usage: <Building> < <int>
-Supported buildings: infrastructure, arms_factory, industrial_complex, air_base, supply_node, rail_way, naval_facility, naval_base, bunker, coastal_bunker, stronghold_network, dockyard, anti_air_building, synthetic_refinery, fuel_silo, radar_station, mega_gun_emplacement, rocket_site, naval_supply_hub, naval_headquarters, nuclear_reactor, nuclear_reactor_heavy_water, commercial_nuclear_reactor, nuclear_facility, air_facility, land_facility, dam, dam_mountain, cataract_dam_mountain, canal_kiel, canal_panama, energy_infrastructure, industrial_infrastructure, landmark_big_ben, landmark_colosseum, landmark_cristo_redentor, landmark_eiffel_tower, landmark_statue_of_liberty, landmark_kremlin, landmark_hofburg_palace, landmark_berlin_reichstag, landmark_berlin_volkshalle, landmark_taj_mahal, landmark_sadabad_complex, landmark_hagia_sophia, landmark_forbidden_city, landmark_nanjing_presidential_palace, landmark_nanjing_presidential_palace_prc, landmark_nanjing_presidential_palace_gen, landmark_great_wall_section, landmark_tokyo_imperial_palace, landmark_national_diet, landmark_hakko_ichiu, landmark_prague_castle, landmark_bojnice_castle.
+Supported buildings: infrastructure, arms_factory, industrial_complex, air_base, supply_node, rail_way, naval_facility, naval_base, bunker, coastal_bunker, stronghold_network, dockyard, anti_air_building, synthetic_refinery, fuel_silo, radar_station, mega_gun_emplacement, rocket_site, naval_supply_hub, naval_headquarters, nuclear_reactor, nuclear_reactor_heavy_water, commercial_nuclear_reactor, nuclear_facility, air_facility, land_facility, dam, dam_mountain, cataract_dam_mountain, canal_kiel, canal_panama, energy_infrastructure, industrial_infrastructure, landmark_big_ben, landmark_colosseum, landmark_cristo_redentor, landmark_eiffel_tower, landmark_statue_of_liberty, landmark_kremlin, landmark_hofburg_palace, landmark_berlin_reichstag, landmark_berlin_volkshalle, landmark_taj_mahal, landmark_sadabad_complex, landmark_hagia_sophia, landmark_forbidden_city, landmark_nanjing_presidential_palace, landmark_nanjing_presidential_palace_prc, landmark_nanjing_presidential_palace_gen, landmark_great_wall_section, landmark_tokyo_imperial_palace, landmark_national_diet, landmark_hakko_ichiu, landmark_prague_castle, landmark_bojnice_castle, landmark_arcul_de_triumf.
 ```
 
 ## buyer
@@ -2687,6 +2713,15 @@ Compares the estimated army strength between the scope country and all its enemi
 energy_ratio > 0.8 - Compare current energy fulfilment to the factories, with 1 being 100% and 0 being 0%
 ```
 
+## equipment_cost
+
+* Supported Scopes: COUNTRY
+* Supported Targets: none
+
+```
+check cost of equipment production line
+```
+
 ## estimated_intel_max_armor
 
 * Supported Scopes: COUNTRY
@@ -2909,6 +2944,7 @@ free_building_slots = {
 	building = building_type 
 	size > 5 
 	include_locked = yes # Optional - only to be used for buildings using Shared Slots. 
+	include_constructions = yes # Optional - counts queued constructions as occupied slots. 
 	province = 42 #will check province buildings if specified 
 }
 ```
@@ -5012,6 +5048,19 @@ has_unit_type = amphibious_mechanized
 Checks if a variable exists in a scope
 ```
 
+## has_volunteers
+
+* Supported Scopes: COUNTRY
+* Supported Targets: THIS, ROOT, PREV, FROM, OWNER, CONTROLLER, OCCUPIED, CAPITAL
+
+Checks if scope has volunteers in target.
+
+### Example
+```
+has_volunteers = from
+```
+
+
 ## has_volunteers_amount_from
 
 * Supported Scopes: COUNTRY
@@ -5459,6 +5508,21 @@ check if defender side in combat
 checks if a state is a demilitarized zone
 ```
 
+## is_deployed
+
+* Supported Scopes: CHARACTER
+* Supported Targets: none
+
+Checks whether the scoped general's headquarters (HQ) is physically deployed on the map.
+
+### Examples
+```
+my_character = {
+	is_deployed = yes
+}
+```
+
+
 ## is_dynamic_country
 
 * Supported Scopes: COUNTRY
@@ -5557,6 +5621,20 @@ is_field_marshal = yes/no - Checks if the current unit leader is a field marshal
 ```
 check if side is fighting air units
 ```
+
+## is_fighting_in_strategic_region
+
+* Supported Scopes: COMBATANT
+* Supported Targets: none
+
+Checks whether the combat is taking place in the given strategic (naval) region, by id. Combatant scope.
+
+### Example
+```
+# true if the battle is happening in strategic region 50
+is_fighting_in_strategic_region = 50
+```
+
 
 ## is_fighting_in_terrain
 
