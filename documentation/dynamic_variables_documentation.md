@@ -159,7 +159,14 @@ agency_upgrade_number > 4
 * (Auto generated using the trigger with same name)
 
 ### any_war_score
-* description: compares the warscore of all wars in a country to see if any fullfills the comparison condition 0-100 - Example: any_war_score > 40
+* description: ![MD]
+Compares the warscore of all wars in a country to see if any fulfills the comparison condition. Use any_war_participation for percentages.
+
+### Example
+```
+any_war_score > 40
+```
+
 * (Auto generated using the trigger with same name)
 
 ### army_chief
@@ -1366,12 +1373,18 @@ Example: logistics_skill_level > 5
 Example: planning_skill_level > 5
 * (Auto generated using the trigger with same name)
 
+### province_deployed
+* description: province ID where the general's deployed HQ is currently located; 0 if the general is not deployed
+
 ### skill
 * description: compare leader skill levels
 * (Auto generated using the trigger with same name)
 
 ### skill_level
 * description: skill level of the leader
+
+### state_deployed
+* description: state ID where the general's deployed HQ is currently located; 0 if the general is not deployed or the HQ is not in a state (e.g. at sea)
 
 ### sum_unit_terrain_modifier
 * description: sum of terrain modifiers of each army's location, terrain type is defined in target. example: sum_unit_terrain_modifier@sickness_chance 
