@@ -14781,15 +14781,108 @@ country_event = {
 	id = EQS_convofcreatures.1 
 	title = EQS_convofcreatures.1.t 
 	desc = EQS_convofcreatures.1.d 
-	
+	is_triggered_only = yes 
 	option = {
 		name = EQS_convofcreatures.1.a 
 		set_variable = { EQS_coc_is_voted = 2 }
 		ai_chance = { base = 50 }
+		add_to_array = { EQS.EQS_voted_yes_array = ROOT }
+		hidden_effect = { EQS = { EQS_recalculate_votes_ratio = yes } }
 	}
 	option = {
 		name = EQS_convofcreatures.1.b 
-		set_variable = { EQS_coc_is_voted = 1 }
-		ai_chance = { base = 50 }
+		set_variable = { EQS_coc_is_voted = 2 }
+		ai_chance = { 
+			base = 50
+			modifier = {
+				factor = 0
+				check_variable = { EQS.EQS_new_proposal_target = token:EQS_convention_of_creatures_the_harmony_accord }
+			} 
+		}
+		add_to_array = { EQS.EQS_voted_no_array = ROOT }
+		hidden_effect = { EQS = { EQS_recalculate_votes_ratio = yes } }
+	}
+}
+country_event = {
+	id = EQS_convofcreatures.2 
+	title = EQS_convofcreatures.2.t 
+	desc = {
+		text = EQS_convofcreatures.2.dpass	
+		trigger = { check_variable = { EQS_voters_yes_no_ratio > 50 } }
+	}
+	desc = {
+		text = EQS_convofcreatures.2.dfail
+		trigger = { check_variable = { var = EQS_voters_yes_no_ratio value = 51 compare = less_than_or_equals } }
+	}
+
+	is_triggered_only = yes 
+	option = {
+		name = EQS_convofcreatures.2.a 
+		set_country_flag = { flag = EQS_recent_proposal_voted days = 90 value = 1 }
+		for_each_scope_loop = {
+			array = EQS_coc_majors_list 
+			
+			set_variable = { EQS_coc_is_voted = 1 }
+		}
+		for_each_scope_loop = {
+			array = EQS_coc_minors_list 
+			
+			set_variable = { EQS_coc_is_voted = 1 }
+		}
+		if = {
+			limit = {
+				check_variable = { EQS_voters_yes_no_ratio > 50 }
+			}
+			set_variable = { EQS_coc_latest_voting_pass = 1 }
+			meta_effect = {
+				text = {
+					[PROPOSAL]_effect = yes 
+				}
+				PROPOSAL = "[?EQS_new_proposal_target.GetTokenKey]"
+			}
+		}
+	}
+}
+news_event = {
+	id = EQS_convofcreatures.3 
+	title = EQS_convofcreatures.3.t 
+	desc = EQS_convofcreatures.3.d 
+	
+	is_triggered_only = yes 
+	major = yes 
+	
+	option = {
+		name = EQS_convofcreatures.3.a ### Members 
+		trigger = {
+			OR = {
+				is_in_array = { FROM.EQS_coc_majors_list = ROOT } 
+				is_in_array = { FROM.EQS_coc_minors_list = ROOT } 
+			}
+		}
+	}
+	option = {
+		name = EQS_convofcreatures.3.b ### Non-COC harmonists
+		trigger = {
+			NOT = {
+				is_in_array = { FROM.EQS_coc_majors_list = ROOT } 
+				is_in_array = { FROM.EQS_coc_minors_list = ROOT } 
+			}
+			has_government = democratic
+		}
+	}
+	option = {
+		name = EQS_convofcreatures.3.c ### Neutrals
+		trigger = {
+			has_government = neutrality
+		}
+	}
+	option = {
+		name = EQS_convofcreatures.3.d ### Neutrals
+		trigger = {
+			OR = {
+				has_government = fascism
+				has_government = communism
+			}
+		}
 	}
 }
