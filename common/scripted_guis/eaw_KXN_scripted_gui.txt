@@ -792,6 +792,68 @@ scripted_gui = {
 				}
 				add_to_variable = { KXN.KXN_SGUI_Dirty_Var = 1 }
 			}
+			KXN_Favoured_Subject_Glow_click = {
+				if = {
+					limit = { KXN = { has_country_flag = KXN_Favoured_Subject_Open_Flag } }
+					KXN = { clr_country_flag = KXN_Favoured_Subject_Open_Flag }
+				}
+				else = {
+					clear_array = KXN.KXN_Subject_Sorted_Permanent_List
+					get_sorted_scored_countries_temp = {
+						scorer = KXN_Subject_Strength_Scorer
+						array = KXN_Subject_Sorted_List
+						scores = KXN_Subject_Sorted_Score
+					}
+					for_each_scope_loop = {
+						array = KXN_Subject_Sorted_List
+						add_to_array = { KXN.KXN_Subject_Sorted_Permanent_List = THIS }
+					}
+					for_each_scope_loop = {
+						array = KXN.subjects
+						if = {
+							limit = {
+								KXN_IS_VASSAL_TRIGGER = no
+								KXN_IS_SATELLITE_TRIGGER = no
+								NOT = { is_in_array = { KXN.KXN_Subject_Sorted_Permanent_List = THIS } }
+							}
+							add_to_array = { KXN.KXN_Subject_Sorted_Permanent_List = THIS }
+						}
+					}
+					KXN = { set_country_flag = KXN_Favoured_Subject_Open_Flag }
+				}
+				add_to_variable = { KXN.KXN_SGUI_Dirty_Var = 1 }
+			}
+			KXN_Favoured_Subject_Open_Button_click = {
+				if = {
+					limit = { KXN = { has_country_flag = KXN_Favoured_Subject_Open_Flag } }
+					KXN = { clr_country_flag = KXN_Favoured_Subject_Open_Flag }
+				}
+				else = {
+					clear_array = KXN.KXN_Subject_Sorted_Permanent_List
+					get_sorted_scored_countries_temp = {
+						scorer = KXN_Subject_Strength_Scorer
+						array = KXN_Subject_Sorted_List
+						scores = KXN_Subject_Sorted_Score
+					}
+					for_each_scope_loop = {
+						array = KXN_Subject_Sorted_List
+						add_to_array = { KXN.KXN_Subject_Sorted_Permanent_List = THIS }
+					}
+					for_each_scope_loop = {
+						array = KXN.subjects
+						if = {
+							limit = {
+								KXN_IS_VASSAL_TRIGGER = no
+								KXN_IS_SATELLITE_TRIGGER = no
+								NOT = { is_in_array = { KXN.KXN_Subject_Sorted_Permanent_List = THIS } }
+							}
+							add_to_array = { KXN.KXN_Subject_Sorted_Permanent_List = THIS }
+						}
+					}
+					KXN = { set_country_flag = KXN_Favoured_Subject_Open_Flag }
+				}
+				add_to_variable = { KXN.KXN_SGUI_Dirty_Var = 1 }
+			}
 		}
 
 		properties = {
@@ -818,6 +880,12 @@ scripted_gui = {
 			}
 			KXN_Puppet_Frame_8 = {
 				frame = KXN.KXN_Puppet_Frame_8_Var
+			}
+			return_button = {
+				frame = 0
+			}
+			KXN_Favoured_Subject_Open_Button = {
+				image = "[KFS.GetFlag]"
 			}
 		}
 		
@@ -1012,6 +1080,15 @@ scripted_gui = {
 					exists = yes
 					is_subject_of = KXN
 					num_of_controlled_states > 0
+				}
+			}
+			KXN_Favoured_Subject_Glow_click_enabled = {
+				num_subjects > 8
+			}
+			KXN_Favoured_Subject_Open_Button_visible = {
+				KFS = {
+					exists = yes
+					is_subject_of = KXN
 				}
 			}
 		}
@@ -1482,6 +1559,94 @@ scripted_gui = {
 			}
 			KXN_State_Time_ProgBar = {
 				frame = KXN_State_Time_ProgBar_Frame
+			}
+		}
+	}
+	
+	KXN_Favoured_Subject_SGUI = {
+		### parent_window_name = "KXN_Puppet_SGUI_instance" ###
+		parent_window_name = "countrydecisionview"
+		dirty = KXN.KXN_SGUI_Dirty_Var
+		
+		window_name = "KXN_Favoured_Subject_Window"
+		
+		visible = {
+			ROOT = {
+				tag = KXN
+				is_ai = no
+				has_country_flag = KXN_Favoured_Subject_Open_Flag
+			}
+			NOT = {
+				has_global_flag = KXN_The_Shattering_Happened
+				has_global_flag = KXN_Quadripartition_Happened
+			}
+		}
+
+		dynamic_lists = {
+			KXN_Favoured_Subject_Grid = {
+				array = KXN.KXN_Subject_Sorted_Permanent_List
+				change_scope = yes
+				country_scope_entry_container = "[GetKXNFavouredSubjectEntry]"
+			}
+		}
+
+		properties = {
+			member_flag = {
+				image = "[This.GetFlag]"
+			}
+		}
+
+		triggers = {
+			glow_bg_visible = {
+				THIS = {
+					has_country_flag = KXN_Favoured_Subject_Flag
+				}
+			}
+			member_flag_click_enabled = {
+				THIS = {
+					NOT = { has_country_flag = KXN_Satellite_State_Militarch_Assigned_Flag }
+				}
+			}
+		}
+
+		effects = {
+			member_flag_click = {
+				THIS = {
+					if = {
+						limit = {
+							has_country_flag = KXN_Favoured_Subject_Flag
+						}
+						KFS = {
+							capital_scope = {
+								KXN = {
+									goto_state = PREV
+								}
+							}
+						}
+					}
+					every_other_country = {
+						limit = {
+							has_country_flag = KXN_Favoured_Subject_Flag
+						}
+						clr_country_flag = KXN_Favoured_Subject_Flag
+					}
+					set_country_flag = KXN_Favoured_Subject_Flag
+					if = {
+						limit = {
+							NOT = { has_idea = KXN_Most_Favoured_Subject_Idea }
+						}
+						add_timed_idea = {
+							idea = KXN_Most_Favoured_Subject_Idea
+							days = 365
+						}
+					}
+				}
+				KXN = { clr_country_flag = KXN_Favoured_Subject_Open_Flag }
+				add_to_variable = { KXN.KXN_SGUI_Dirty_Var = 1 }
+			}
+			return_button_click = {
+				KXN = { clr_country_flag = KXN_Favoured_Subject_Open_Flag }
+				add_to_variable = { KXN.KXN_SGUI_Dirty_Var = 1 }
 			}
 		}
 	}
