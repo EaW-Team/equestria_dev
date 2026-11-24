@@ -5,6 +5,8 @@
 * [controlled_states](#controlled_states)
 * [country_and_all_subjects](#country_and_all_subjects)
 * [faction_members](#faction_members)
+* [is_core_of = PAYLOAD](#is_core_of-payload)
+* [is_not_core_of = PAYLOAD](#is_not_core_of-payload)
 * [limit = PAYLOAD](#limit-payload)
 * [owned_states](#owned_states)
 
@@ -51,6 +53,36 @@ collection_size = {
     input = game:all_countries
     operators = { faction_members }
     value > 3
+}
+```
+
+
+## is_core_of = PAYLOAD
+Keeps only the states that are a core of the provided country.
+The payload to the operator is a scoped variable; scope keywords (`ROOT`, `FROM`, `PREV`) must resolve to a country.
+Only valid on state collections.
+
+### Example
+```
+collection_size = {
+    input = game:all_states
+    operators = { is_core_of = ROOT }
+    value > 5
+}
+```
+
+
+## is_not_core_of = PAYLOAD
+Keeps only the states that are **not** a core of the provided country.
+The payload to the operator is a scoped variable; scope keywords (`ROOT`, `FROM`, `PREV`) must resolve to a country.
+Only valid on state collections.
+
+### Example
+```
+collection_size = {
+    input = game:all_states
+    operators = { is_not_core_of = ROOT }
+    value > 5
 }
 ```
 

@@ -67,6 +67,7 @@ NDefines.NAI.DIPLOMACY_FACTION_GLOBAL_TENSION_FACTOR = 0.15
 NDefines.NAI.DIPLOMACY_FACTION_NEUTRALITY_PENALTY = 0.2
 NDefines.NAI.FASCISTS_ALLY_FASCISTS = -10
 NDefines.NAI.FASCISTS_BEFRIEND_FASCISTS = 0
+NDefines.NAI.AI_TASKFORCE_REQUIRED_RESERVE_RATIO = 0.05	-- Vanilla is 0.2. Fraction of required TF optimal composition held in reserve for reinforcement (rounded up per type)
 NDefines.NAI.SCREENS_TO_CAPITAL_RATIO = 3.0 -- Vanilla is 4.0, mostly AI stuff
 
 --NDefines.NAI.MANPOWER_FREE_USAGE_THRESHOLD = 600000			-- If AI has this much manpower he doesn't care about the percentage
@@ -220,6 +221,8 @@ NDefines.NFactions.FACTION_INTELLIGENCE_ALLOWED_ADVISOR_TRAIT = {
 	"CHI_spymaster",
 	"AST_intelligence_director",
 	"AST_indomitable_scout",
+	"opportunistic_spymaster",
+	"well_connected_spymaster",
 	"head_of_intelligence_kirin",
 	"HEL_general_secretary",
 	"HEL_general_secretary_lar",
