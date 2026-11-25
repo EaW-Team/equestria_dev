@@ -10,6 +10,61 @@ on_actions = {
 		}
 	}
 
+	on_peaceconference_ended = {
+		effect = {
+			# PUT EVERYTHING IN THE IF BELOW
+			# THE bypass_on_peaceconference_ended FLAG **HAS** TO BE SET BEFORE CALLING THE white_peace COMMAND AND CLEARED AFTERWARDS
+			if = {
+				limit = {
+					NOT = {
+						has_country_flag = bypass_on_peaceconference_ended
+						FROM = { has_country_flag = bypass_on_peaceconference_ended }
+					}
+				}
+				log = "[GetDateText]: ROOT: [Root.GetName] FROM: [From.GetName] on_peaceconference_ended"
+				if = {
+					limit = {
+						FROM = {
+							original_tag = KXN
+							NOT = { is_subject_of = KXN }
+							OR = {
+								has_cosmetic_tag = KXN_Colony
+								has_country_flag = KXN_Colony_Flag
+							}
+						}
+					}
+					reset_province_name = 14627
+					reset_province_name = 18985
+					956 = { reset_state_name = yes }
+					991 = { reset_state_name = yes }
+				}
+				if = {
+					limit = {
+						FROM = {
+							tag = KXN
+							has_completed_focus = KXN_Focus_SETTLE
+						}
+					}
+					reset_province_name = 16238
+					reset_province_name = 16207
+					reset_province_name = 16229
+				}
+			}
+		}
+	}
+
+	on_generate_wargoal = {
+		effect = {
+			if = {
+				limit = {
+					ROOT = { tag = KXN }
+					has_global_flag = KXN_The_Shattering_Happened
+				}
+				subtract_from_variable = { KXN_Free_War_Goal_Var = 1 }
+			}
+		}
+	}
+
 	on_declare_war = {
 		effect = {
 			if = {
@@ -38,6 +93,19 @@ on_actions = {
 						if = {
 							limit = {
 								FROM = {
+									OR = {
+										is_subject_of = KXK
+										is_subject_of = KXH
+										has_country_flag = KXN_Militarch_Chess_Piece_Flag_KXK
+										has_country_flag = KXN_Militarch_Chess_Piece_Flag_KXH
+									}
+								}
+							}
+							divide_variable = { KXN_Conquest_Mission_1_Days_Timeout = 2 }
+						}
+						else_if = {
+							limit = {
+								FROM = {
 									NOT = {
 										original_tag = KXN
 										is_ally_with = KXN
@@ -51,33 +119,64 @@ on_actions = {
 							}
 							set_variable = { KXN_Conquest_Mission_1_Days_Timeout = 365 }
 						}
+						else_if = {
+							limit = {
+								KXN = { has_country_flag = KXN_Near_South_Staff_Flag }
+								FROM = { tag = KHM }
+							}
+							add_to_variable = { KXN_Conquest_Mission_1_Days_Timeout = 40 }
+						}
 						### Calculate Regular (First) Stage Duration ###
-						set_variable = { KXN_Conquest_Mission_1_Regular_Stage = KXN_Conquest_Mission_1_Days_Timeout }
-						divide_variable = { KXN_Conquest_Mission_1_Regular_Stage = 5 }
-						subtract_from_variable = { KXN_Conquest_Mission_1_Regular_Stage = 0.5 } ## Round down
-						round_variable = KXN_Conquest_Mission_1_Regular_Stage
+						set_variable = {
+							KXN_Conquest_Mission_1_Regular_Stage = {
+								value = KXN_Conquest_Mission_1_Days_Timeout
+								divide = 5
+								subtract = 0.5 ## Round down
+								round = yes
+							}
+						}
 						### Set Caspy Stage ###
-						set_variable = { KXN_Conquest_Mission_1_Caspy_Stage = KXN_Conquest_Mission_1_Regular_Stage }
-						### Limit Stage I to 60 Days ###
-						clamp_variable = { var = KXN_Conquest_Mission_1_Regular_Stage max = 60 }
+						set_variable = {
+							KXN_Conquest_Mission_1_Caspy_Stage = {
+								value = KXN_Conquest_Mission_1_Regular_Stage
+								### Limit Stage I to 60 Days ###
+								min = 60  #This math expression acts as a max clamp
+							}
+						}
 						### Calculate Second Stage Duration ###
-						set_variable = { KXN_Conquest_Mission_1_Second_Stage = KXN_Conquest_Mission_1_Regular_Stage }
-						add_to_variable = { KXN_Conquest_Mission_1_Second_Stage = KXN_Conquest_Mission_1_Caspy_Stage }
-						### Limit Stage II to 90 Days ###
-						clamp_variable = { var = KXN_Conquest_Mission_1_Second_Stage max = 150 }
+						set_variable = {
+							KXN_Conquest_Mission_1_Second_Stage = {
+								value = KXN_Conquest_Mission_1_Regular_Stage
+								add = KXN_Conquest_Mission_1_Caspy_Stage
+								### Limit Stage II to 90 Days ###
+								min = 150  #This math expression acts as a max clamp
+							}
+						}
 						### Calculate Third Stage Duration ###
-						set_variable = { KXN_Conquest_Mission_1_Third_Stage = KXN_Conquest_Mission_1_Second_Stage }
-						add_to_variable = { KXN_Conquest_Mission_1_Third_Stage = KXN_Conquest_Mission_1_Caspy_Stage }
-						### Limit Stage III to 90 Days ###
-						clamp_variable = { var = KXN_Conquest_Mission_1_Third_Stage max = 240 }
+						set_variable = {
+							KXN_Conquest_Mission_1_Third_Stage = {
+								value = KXN_Conquest_Mission_1_Second_Stage
+								add = KXN_Conquest_Mission_1_Caspy_Stage
+								### Limit Stage III to 90 Days ###
+								min = 240  #This math expression acts as a max clamp
+							}
+						}
 						### Calculate Fourth Stage Duration ###
-						set_variable = { KXN_Conquest_Mission_1_Fourth_Stage = KXN_Conquest_Mission_1_Third_Stage }
-						add_to_variable = { KXN_Conquest_Mission_1_Fourth_Stage = KXN_Conquest_Mission_1_Caspy_Stage }
-						### Limit Stage IV to 180 Days ###
-						clamp_variable = { var = KXN_Conquest_Mission_1_Fourth_Stage max = 420 }
+						set_variable = {
+							KXN_Conquest_Mission_1_Fourth_Stage = {
+								value = KXN_Conquest_Mission_1_Third_Stage
+								add = KXN_Conquest_Mission_1_Caspy_Stage
+								### Limit Stage IV to 180 Days ###
+								min = 420  #This math expression acts as a max clamp
+							}
+						}
 						### Calculate Last Stage Duration ###
-						set_variable = { KXN_Conquest_Mission_1_Last_Stage = KXN_Conquest_Mission_1_Days_Timeout }
-						subtract_from_variable = { KXN_Conquest_Mission_1_Last_Stage = KXN_Conquest_Mission_1_Fourth_Stage }
+						set_variable = {
+							KXN_Conquest_Mission_1_Last_Stage = {
+								value = KXN_Conquest_Mission_1_Days_Timeout
+								subtract = KXN_Conquest_Mission_1_Fourth_Stage
+							}
+						}
 						### Events for Modifiers ###
 						country_event = { id = lan_kir_utility.10 days = KXN.KXN_Conquest_Mission_1_Regular_Stage }
 						country_event = { id = lan_kir_utility.11 days = KXN.KXN_Conquest_Mission_1_Second_Stage }
@@ -87,9 +186,27 @@ on_actions = {
 					}
 					### Activate! ###
 					activate_mission = KXN_Conquest_Mission_1
-					set_temp_variable = { KXN_Conquest_Mission_1_Days_Timeout = FROM.num_owned_states }
-					multiply_temp_variable = { KXN_Conquest_Mission_1_Days_Timeout = 30 }
+					set_temp_variable = {
+						KXN_Conquest_Mission_1_Days_Timeout = {
+							value = FROM.num_owned_states
+							multiply = 30
+						}
+					}
 					if = {
+						limit = {
+							FROM = {
+								OR = {
+									is_subject_of = KXK
+									is_subject_of = KXH
+									has_country_flag = KXN_Militarch_Chess_Piece_Flag_KXK
+									has_country_flag = KXN_Militarch_Chess_Piece_Flag_KXH
+								}
+							}
+						}
+						custom_effect_tooltip = KXN_Conquest_Mission_Less_Time_tt
+						divide_temp_variable = { KXN_Conquest_Mission_1_Days_Timeout = 2 }
+					}
+					else_if = {
 						limit = {
 							FROM = {
 								NOT = {
@@ -105,6 +222,13 @@ on_actions = {
 						}
 						set_temp_variable = { KXN_Conquest_Mission_1_Days_Timeout = 365 }
 					}
+					else_if = {
+						limit = {
+							KXN = { has_country_flag = KXN_Near_South_Staff_Flag }
+							FROM = { tag = KHM }
+						}
+						add_to_temp_variable = { KXN_Conquest_Mission_1_Days_Timeout = 40 }
+					}
 					custom_effect_tooltip = KXN_Conquest_Mission_1_Capitulate_tt
 				}
 				else_if = {
@@ -115,9 +239,26 @@ on_actions = {
 						clear_global_event_target = KXN_Conquest_Target_2
 						FROM = { save_global_event_target_as = KXN_Conquest_Target_2 }
 						set_country_flag = KXN_Conquest_Mission_2_Active
-						set_variable = { KXN_Conquest_Mission_2_Days_Timeout = FROM.num_owned_states }
-						multiply_variable = { KXN_Conquest_Mission_2_Days_Timeout = 30 }
+						set_variable = {
+							KXN_Conquest_Mission_2_Days_Timeout = {
+								value = FROM.num_owned_states
+								multiply = 30
+							}
+						}
 						if = {
+							limit = {
+								FROM = {
+									OR = {
+										is_subject_of = KXK
+										is_subject_of = KXH
+										has_country_flag = KXN_Militarch_Chess_Piece_Flag_KXK
+										has_country_flag = KXN_Militarch_Chess_Piece_Flag_KXH
+									}
+								}
+							}
+							divide_variable = { KXN_Conquest_Mission_2_Days_Timeout = 2 }
+						}
+						else_if = {
 							limit = {
 								FROM = {
 									NOT = {
@@ -133,23 +274,54 @@ on_actions = {
 							}
 							set_variable = { KXN_Conquest_Mission_2_Days_Timeout = 365 }
 						}
-						set_variable = { KXN_Conquest_Mission_2_Regular_Stage = KXN_Conquest_Mission_2_Days_Timeout }
-						divide_variable = { KXN_Conquest_Mission_2_Regular_Stage = 5 }
-						subtract_from_variable = { KXN_Conquest_Mission_2_Regular_Stage = 0.5 }
-						round_variable = KXN_Conquest_Mission_2_Regular_Stage
-						set_variable = { KXN_Conquest_Mission_2_Caspy_Stage = KXN_Conquest_Mission_2_Regular_Stage }
-						clamp_variable = { var = KXN_Conquest_Mission_2_Regular_Stage max = 60 }
-						set_variable = { KXN_Conquest_Mission_2_Second_Stage = KXN_Conquest_Mission_2_Regular_Stage }
-						add_to_variable = { KXN_Conquest_Mission_2_Second_Stage = KXN_Conquest_Mission_2_Caspy_Stage  }
-						clamp_variable = { var = KXN_Conquest_Mission_2_Second_Stage max = 150 }
-						set_variable = { KXN_Conquest_Mission_2_Third_Stage = KXN_Conquest_Mission_2_Second_Stage }
-						add_to_variable = { KXN_Conquest_Mission_2_Third_Stage = KXN_Conquest_Mission_2_Caspy_Stage }
-						clamp_variable = { var = KXN_Conquest_Mission_2_Third_Stage max = 240 }
-						set_variable = { KXN_Conquest_Mission_2_Fourth_Stage = KXN_Conquest_Mission_2_Third_Stage }
-						add_to_variable = { KXN_Conquest_Mission_2_Fourth_Stage = KXN_Conquest_Mission_2_Caspy_Stage }
-						clamp_variable = { var = KXN_Conquest_Mission_2_Fourth_Stage max = 420 }
-						set_variable = { KXN_Conquest_Mission_2_Last_Stage = KXN_Conquest_Mission_2_Days_Timeout }
-						subtract_from_variable = { KXN_Conquest_Mission_2_Last_Stage = KXN_Conquest_Mission_2_Fourth_Stage }
+						else_if = {
+							limit = {
+								KXN = { has_country_flag = KXN_Near_South_Staff_Flag }
+								FROM = { tag = KHM }
+							}
+							add_to_variable = { KXN_Conquest_Mission_2_Days_Timeout = 40 }
+						}
+						set_variable = {
+							KXN_Conquest_Mission_2_Regular_Stage = {
+								value = KXN_Conquest_Mission_2_Days_Timeout
+								divide = 5
+								subtract = 0.5 ## Round down
+								round = yes
+							}
+						}
+						set_variable = {
+							KXN_Conquest_Mission_2_Caspy_Stage = {
+								value = KXN_Conquest_Mission_2_Regular_Stage
+								min = 60  #This math expression acts as a max clamp
+							}
+						}
+						set_variable = {
+							KXN_Conquest_Mission_2_Second_Stage = {
+								value = KXN_Conquest_Mission_2_Regular_Stage
+								add = KXN_Conquest_Mission_2_Caspy_Stage
+								min = 150  #This math expression acts as a max clamp
+							}
+						}
+						set_variable = {
+							KXN_Conquest_Mission_2_Third_Stage = {
+								value = KXN_Conquest_Mission_2_Second_Stage
+								add = KXN_Conquest_Mission_2_Caspy_Stage
+								min = 240  #This math expression acts as a max clamp
+							}
+						}
+						set_variable = {
+							KXN_Conquest_Mission_2_Fourth_Stage = {
+								value = KXN_Conquest_Mission_2_Third_Stage
+								add = KXN_Conquest_Mission_2_Caspy_Stage
+								min = 420  #This math expression acts as a max clamp
+							}
+						}
+						set_variable = {
+							KXN_Conquest_Mission_2_Last_Stage = {
+								value = KXN_Conquest_Mission_2_Days_Timeout
+								subtract = KXN_Conquest_Mission_2_Fourth_Stage
+							}
+						}
 						country_event = { id = lan_kir_utility.20 days = KXN.KXN_Conquest_Mission_2_Regular_Stage }
 						country_event = { id = lan_kir_utility.21 days = KXN.KXN_Conquest_Mission_2_Second_Stage }
 						country_event = { id = lan_kir_utility.22 days = KXN.KXN_Conquest_Mission_2_Third_Stage }
@@ -157,9 +329,27 @@ on_actions = {
 						add_relation_modifier = { target = event_target:KXN_Conquest_Target_2 modifier = KXN_Stage_1_Modifiers }
 					}
 					activate_mission = KXN_Conquest_Mission_2
-					set_temp_variable = { KXN_Conquest_Mission_2_Days_Timeout = FROM.num_owned_states }
-					multiply_temp_variable = { KXN_Conquest_Mission_2_Days_Timeout = 30 }
+					set_temp_variable = {
+						KXN_Conquest_Mission_2_Days_Timeout = {
+							value = FROM.num_owned_states
+							multiply = 30
+						}
+					}
 					if = {
+						limit = {
+							FROM = {
+								OR = {
+									is_subject_of = KXK
+									is_subject_of = KXH
+									has_country_flag = KXN_Militarch_Chess_Piece_Flag_KXK
+									has_country_flag = KXN_Militarch_Chess_Piece_Flag_KXH
+								}
+							}
+						}
+						custom_effect_tooltip = KXN_Conquest_Mission_Less_Time_tt
+						divide_temp_variable = { KXN_Conquest_Mission_2_Days_Timeout = 2 }
+					}
+					else_if = {
 						limit = {
 							FROM = {
 								NOT = {
@@ -175,6 +365,13 @@ on_actions = {
 						}
 						set_temp_variable = { KXN_Conquest_Mission_2_Days_Timeout = 365 }
 					}
+					else_if = {
+						limit = {
+							KXN = { has_country_flag = KXN_Near_South_Staff_Flag }
+							FROM = { tag = KHM }
+						}
+						add_to_temp_variable = { KXN_Conquest_Mission_2_Days_Timeout = 40 }
+					}
 					custom_effect_tooltip = KXN_Conquest_Mission_2_Capitulate_tt
 				}
 				else_if = {
@@ -185,9 +382,26 @@ on_actions = {
 						clear_global_event_target = KXN_Conquest_Target_3
 						FROM = { save_global_event_target_as = KXN_Conquest_Target_3 }
 						set_country_flag = KXN_Conquest_Mission_3_Active
-						set_variable = { KXN_Conquest_Mission_3_Days_Timeout = FROM.num_owned_states }
-						multiply_variable = { KXN_Conquest_Mission_3_Days_Timeout = 30 }
+						set_variable = {
+							KXN_Conquest_Mission_3_Days_Timeout = {
+								value = FROM.num_owned_states
+								multiply = 30
+							}
+						}
 						if = {
+							limit = {
+								FROM = {
+									OR = {
+										is_subject_of = KXK
+										is_subject_of = KXH
+										has_country_flag = KXN_Militarch_Chess_Piece_Flag_KXK
+										has_country_flag = KXN_Militarch_Chess_Piece_Flag_KXH
+									}
+								}
+							}
+							divide_variable = { KXN_Conquest_Mission_3_Days_Timeout = 2 }
+						}
+						else_if = {
 							limit = {
 								FROM = {
 									NOT = {
@@ -203,23 +417,54 @@ on_actions = {
 							}
 							set_variable = { KXN_Conquest_Mission_3_Days_Timeout = 365 }
 						}
-						set_variable = { KXN_Conquest_Mission_3_Regular_Stage = KXN_Conquest_Mission_3_Days_Timeout }
-						divide_variable = { KXN_Conquest_Mission_3_Regular_Stage = 5 }
-						subtract_from_variable = { KXN_Conquest_Mission_3_Regular_Stage = 0.5 }
-						round_variable = KXN_Conquest_Mission_3_Regular_Stage
-						set_variable = { KXN_Conquest_Mission_3_Caspy_Stage = KXN_Conquest_Mission_3_Regular_Stage }
-						clamp_variable = { var = KXN_Conquest_Mission_3_Regular_Stage max = 60 }
-						set_variable = { KXN_Conquest_Mission_3_Second_Stage = KXN_Conquest_Mission_3_Regular_Stage }
-						add_to_variable = { KXN_Conquest_Mission_3_Second_Stage = KXN_Conquest_Mission_3_Caspy_Stage  }
-						clamp_variable = { var = KXN_Conquest_Mission_3_Second_Stage max = 150 }
-						set_variable = { KXN_Conquest_Mission_3_Third_Stage = KXN_Conquest_Mission_3_Second_Stage }
-						add_to_variable = { KXN_Conquest_Mission_3_Third_Stage = KXN_Conquest_Mission_3_Caspy_Stage }
-						clamp_variable = { var = KXN_Conquest_Mission_3_Third_Stage max = 240 }
-						set_variable = { KXN_Conquest_Mission_3_Fourth_Stage = KXN_Conquest_Mission_3_Third_Stage }
-						add_to_variable = { KXN_Conquest_Mission_3_Fourth_Stage = KXN_Conquest_Mission_3_Caspy_Stage }
-						clamp_variable = { var = KXN_Conquest_Mission_3_Fourth_Stage max = 420 }
-						set_variable = { KXN_Conquest_Mission_3_Last_Stage = KXN_Conquest_Mission_3_Days_Timeout }
-						subtract_from_variable = { KXN_Conquest_Mission_3_Last_Stage = KXN_Conquest_Mission_3_Fourth_Stage }
+						else_if = {
+							limit = {
+								KXN = { has_country_flag = KXN_Near_South_Staff_Flag }
+								FROM = { tag = KHM }
+							}
+							add_to_variable = { KXN_Conquest_Mission_3_Days_Timeout = 40 }
+						}
+						set_variable = {
+							KXN_Conquest_Mission_3_Regular_Stage = {
+								value = KXN_Conquest_Mission_3_Days_Timeout
+								divide = 5
+								subtract = 0.5 ## Round down
+								round = yes
+							}
+						}
+						set_variable = {
+							KXN_Conquest_Mission_3_Caspy_Stage = {
+								value = KXN_Conquest_Mission_3_Regular_Stage
+								min = 60  #This math expression acts as a max clamp
+							}
+						}
+						set_variable = {
+							KXN_Conquest_Mission_3_Second_Stage = {
+								value = KXN_Conquest_Mission_3_Regular_Stage
+								add = KXN_Conquest_Mission_3_Caspy_Stage
+								min = 150  #This math expression acts as a max clamp
+							}
+						}
+						set_variable = {
+							KXN_Conquest_Mission_3_Third_Stage = {
+								value = KXN_Conquest_Mission_3_Second_Stage
+								add = KXN_Conquest_Mission_3_Caspy_Stage
+								min = 240  #This math expression acts as a max clamp
+							}
+						}
+						set_variable = {
+							KXN_Conquest_Mission_3_Fourth_Stage = {
+								value = KXN_Conquest_Mission_3_Third_Stage
+								add = KXN_Conquest_Mission_3_Caspy_Stage
+								min = 420  #This math expression acts as a max clamp
+							}
+						}
+						set_variable = {
+							KXN_Conquest_Mission_3_Last_Stage = {
+								value = KXN_Conquest_Mission_3_Days_Timeout
+								subtract = KXN_Conquest_Mission_3_Fourth_Stage
+							}
+						}
 						country_event = { id = lan_kir_utility.30 days = KXN.KXN_Conquest_Mission_3_Regular_Stage }
 						country_event = { id = lan_kir_utility.31 days = KXN.KXN_Conquest_Mission_3_Second_Stage }
 						country_event = { id = lan_kir_utility.32 days = KXN.KXN_Conquest_Mission_3_Third_Stage }
@@ -227,9 +472,28 @@ on_actions = {
 						add_relation_modifier = { target = event_target:KXN_Conquest_Target_3 modifier = KXN_Stage_1_Modifiers }
 					}
 					activate_mission = KXN_Conquest_Mission_3
-					set_temp_variable = { KXN_Conquest_Mission_3_Days_Timeout = FROM.num_owned_states }
-					multiply_temp_variable = { KXN_Conquest_Mission_3_Days_Timeout = 30 }
+					set_temp_variable = {
+						KXN_Conquest_Mission_3_Days_Timeout = {
+							value = FROM.num_owned_states
+							multiply = 30
+						}
+					}
 					if = {
+						limit = {
+							FROM = {
+								OR = {
+									is_subject_of = KXK
+									is_subject_of = KXH
+									has_country_flag = KXN_Militarch_Chess_Piece_Flag_KXK
+									has_country_flag = KXN_Militarch_Chess_Piece_Flag_KXH
+								}
+							}
+						}
+
+						custom_effect_tooltip = KXN_Conquest_Mission_Less_Time_tt
+						divide_temp_variable = { KXN_Conquest_Mission_3_Days_Timeout = 2 }
+					}
+					else_if = {
 						limit = {
 							FROM = {
 								NOT = {
@@ -245,6 +509,13 @@ on_actions = {
 						}
 						set_temp_variable = { KXN_Conquest_Mission_3_Days_Timeout = 365 }
 					}
+					else_if = {
+						limit = {
+							KXN = { has_country_flag = KXN_Near_South_Staff_Flag }
+							FROM = { tag = KHM }
+						}
+						add_to_temp_variable = { KXN_Conquest_Mission_3_Days_Timeout = 40 }
+					}
 					custom_effect_tooltip = KXN_Conquest_Mission_3_Capitulate_tt
 				}
 				else_if = {
@@ -255,9 +526,26 @@ on_actions = {
 						clear_global_event_target = KXN_Conquest_Target_4
 						FROM = { save_global_event_target_as = KXN_Conquest_Target_4 }
 						set_country_flag = KXN_Conquest_Mission_4_Active
-						set_variable = { KXN_Conquest_Mission_4_Days_Timeout = FROM.num_owned_states }
-						multiply_variable = { KXN_Conquest_Mission_4_Days_Timeout = 30 }
+						set_variable = {
+							KXN_Conquest_Mission_4_Days_Timeout = {
+								value = FROM.num_owned_states
+								multiply = 30
+							}
+						}
 						if = {
+							limit = {
+								FROM = {
+									OR = {
+										is_subject_of = KXK
+										is_subject_of = KXH
+										has_country_flag = KXN_Militarch_Chess_Piece_Flag_KXK
+										has_country_flag = KXN_Militarch_Chess_Piece_Flag_KXH
+									}
+								}
+							}
+							divide_variable = { KXN_Conquest_Mission_4_Days_Timeout = 2 }
+						}
+						else_if = {
 							limit = {
 								FROM = {
 									NOT = {
@@ -273,23 +561,54 @@ on_actions = {
 							}
 							set_variable = { KXN_Conquest_Mission_4_Days_Timeout = 365 }
 						}
-						set_variable = { KXN_Conquest_Mission_4_Regular_Stage = KXN_Conquest_Mission_4_Days_Timeout }
-						divide_variable = { KXN_Conquest_Mission_4_Regular_Stage = 5 }
-						subtract_from_variable = { KXN_Conquest_Mission_4_Regular_Stage = 0.5 }
-						round_variable = KXN_Conquest_Mission_4_Regular_Stage
-						set_variable = { KXN_Conquest_Mission_4_Caspy_Stage = KXN_Conquest_Mission_4_Regular_Stage }
-						clamp_variable = { var = KXN_Conquest_Mission_4_Regular_Stage max = 60 }
-						set_variable = { KXN_Conquest_Mission_4_Second_Stage = KXN_Conquest_Mission_4_Regular_Stage }
-						add_to_variable = { KXN_Conquest_Mission_4_Second_Stage = KXN_Conquest_Mission_4_Caspy_Stage  }
-						clamp_variable = { var = KXN_Conquest_Mission_4_Second_Stage max = 150 }
-						set_variable = { KXN_Conquest_Mission_4_Third_Stage = KXN_Conquest_Mission_4_Second_Stage }
-						add_to_variable = { KXN_Conquest_Mission_4_Third_Stage = KXN_Conquest_Mission_4_Caspy_Stage }
-						clamp_variable = { var = KXN_Conquest_Mission_4_Third_Stage max = 240 }
-						set_variable = { KXN_Conquest_Mission_4_Fourth_Stage = KXN_Conquest_Mission_4_Third_Stage }
-						add_to_variable = { KXN_Conquest_Mission_4_Fourth_Stage = KXN_Conquest_Mission_4_Caspy_Stage }
-						clamp_variable = { var = KXN_Conquest_Mission_4_Fourth_Stage max = 420 }
-						set_variable = { KXN_Conquest_Mission_4_Last_Stage = KXN_Conquest_Mission_4_Days_Timeout }
-						subtract_from_variable = { KXN_Conquest_Mission_4_Last_Stage = KXN_Conquest_Mission_4_Fourth_Stage }
+						else_if = {
+							limit = {
+								KXN = { has_country_flag = KXN_Near_South_Staff_Flag }
+								FROM = { tag = KHM }
+							}
+							add_to_variable = { KXN_Conquest_Mission_4_Days_Timeout = 40 }
+						}
+						set_variable = {
+							KXN_Conquest_Mission_4_Regular_Stage = {
+								value = KXN_Conquest_Mission_4_Days_Timeout
+								divide = 5
+								subtract = 0.5 ## Round down
+								round = yes
+							}
+						}
+						set_variable = {
+							KXN_Conquest_Mission_4_Caspy_Stage = {
+								value = KXN_Conquest_Mission_4_Regular_Stage
+								min = 60  #This math expression acts as a max clamp
+							}
+						}
+						set_variable = {
+							KXN_Conquest_Mission_4_Second_Stage = {
+								value = KXN_Conquest_Mission_4_Regular_Stage
+								add = KXN_Conquest_Mission_4_Caspy_Stage
+								min = 150  #This math expression acts as a max clamp
+							}
+						}
+						set_variable = {
+							KXN_Conquest_Mission_4_Third_Stage = {
+								value = KXN_Conquest_Mission_4_Second_Stage
+								add = KXN_Conquest_Mission_4_Caspy_Stage
+								min = 240  #This math expression acts as a max clamp
+							}
+						}
+						set_variable = {
+							KXN_Conquest_Mission_4_Fourth_Stage = {
+								value = KXN_Conquest_Mission_4_Third_Stage
+								add = KXN_Conquest_Mission_4_Caspy_Stage
+								min = 420  #This math expression acts as a max clamp
+							}
+						}
+						set_variable = {
+							KXN_Conquest_Mission_4_Last_Stage = {
+								value = KXN_Conquest_Mission_4_Days_Timeout
+								subtract = KXN_Conquest_Mission_4_Fourth_Stage
+							}
+						}
 						country_event = { id = lan_kir_utility.40 days = KXN.KXN_Conquest_Mission_4_Regular_Stage }
 						country_event = { id = lan_kir_utility.41 days = KXN.KXN_Conquest_Mission_4_Second_Stage }
 						country_event = { id = lan_kir_utility.42 days = KXN.KXN_Conquest_Mission_4_Third_Stage }
@@ -297,9 +616,27 @@ on_actions = {
 						add_relation_modifier = { target = event_target:KXN_Conquest_Target_4 modifier = KXN_Stage_1_Modifiers }
 					}
 					activate_mission = KXN_Conquest_Mission_4
-					set_temp_variable = { KXN_Conquest_Mission_4_Days_Timeout = FROM.num_owned_states }
-					multiply_temp_variable = { KXN_Conquest_Mission_4_Days_Timeout = 30 }
+					set_temp_variable = {
+						KXN_Conquest_Mission_4_Days_Timeout = {
+							value = FROM.num_owned_states
+							multiply = 30
+						}
+					}
 					if = {
+						limit = {
+							FROM = {
+								OR = {
+									is_subject_of = KXK
+									is_subject_of = KXH
+									has_country_flag = KXN_Militarch_Chess_Piece_Flag_KXK
+									has_country_flag = KXN_Militarch_Chess_Piece_Flag_KXH
+								}
+							}
+						}
+						custom_effect_tooltip = KXN_Conquest_Mission_Less_Time_tt
+						divide_temp_variable = { KXN_Conquest_Mission_4_Days_Timeout = 2 }
+					}
+					else_if = {
 						limit = {
 							FROM = {
 								NOT = {
@@ -315,6 +652,13 @@ on_actions = {
 						}
 						set_temp_variable = { KXN_Conquest_Mission_4_Days_Timeout = 365 }
 					}
+					else_if = {
+						limit = {
+							KXN = { has_country_flag = KXN_Near_South_Staff_Flag }
+							FROM = { tag = KHM }
+						}
+						add_to_temp_variable = { KXN_Conquest_Mission_4_Days_Timeout = 40 }
+					}
 					custom_effect_tooltip = KXN_Conquest_Mission_4_Capitulate_tt
 				}
 				else_if = {
@@ -325,9 +669,26 @@ on_actions = {
 						clear_global_event_target = KXN_Conquest_Target_5
 						FROM = { save_global_event_target_as = KXN_Conquest_Target_5 }
 						set_country_flag = KXN_Conquest_Mission_5_Active
-						set_variable = { KXN_Conquest_Mission_5_Days_Timeout = FROM.num_owned_states }
-						multiply_variable = { KXN_Conquest_Mission_5_Days_Timeout = 30 }
+						set_variable = {
+							KXN_Conquest_Mission_5_Days_Timeout = {
+								value = FROM.num_owned_states
+								multiply = 30
+							}
+						}
 						if = {
+							limit = {
+								FROM = {
+									OR = {
+										is_subject_of = KXK
+										is_subject_of = KXH
+										has_country_flag = KXN_Militarch_Chess_Piece_Flag_KXK
+										has_country_flag = KXN_Militarch_Chess_Piece_Flag_KXH
+									}
+								}
+							}
+							divide_variable = { KXN_Conquest_Mission_5_Days_Timeout = 2 }
+						}
+						else_if = {
 							limit = {
 								FROM = {
 									NOT = {
@@ -343,23 +704,54 @@ on_actions = {
 							}
 							set_variable = { KXN_Conquest_Mission_5_Days_Timeout = 365 }
 						}
-						set_variable = { KXN_Conquest_Mission_5_Regular_Stage = KXN_Conquest_Mission_5_Days_Timeout }
-						divide_variable = { KXN_Conquest_Mission_5_Regular_Stage = 5 }
-						subtract_from_variable = { KXN_Conquest_Mission_5_Regular_Stage = 0.5 }
-						round_variable = KXN_Conquest_Mission_5_Regular_Stage
-						set_variable = { KXN_Conquest_Mission_5_Caspy_Stage = KXN_Conquest_Mission_5_Regular_Stage }
-						clamp_variable = { var = KXN_Conquest_Mission_5_Regular_Stage max = 60 }
-						set_variable = { KXN_Conquest_Mission_5_Second_Stage = KXN_Conquest_Mission_5_Regular_Stage }
-						add_to_variable = { KXN_Conquest_Mission_5_Second_Stage = KXN_Conquest_Mission_5_Caspy_Stage  }
-						clamp_variable = { var = KXN_Conquest_Mission_5_Second_Stage max = 150 }
-						set_variable = { KXN_Conquest_Mission_5_Third_Stage = KXN_Conquest_Mission_5_Second_Stage }
-						add_to_variable = { KXN_Conquest_Mission_5_Third_Stage = KXN_Conquest_Mission_5_Caspy_Stage }
-						clamp_variable = { var = KXN_Conquest_Mission_5_Third_Stage max = 240 }
-						set_variable = { KXN_Conquest_Mission_5_Fourth_Stage = KXN_Conquest_Mission_5_Third_Stage }
-						add_to_variable = { KXN_Conquest_Mission_5_Fourth_Stage = KXN_Conquest_Mission_5_Caspy_Stage }
-						clamp_variable = { var = KXN_Conquest_Mission_5_Fourth_Stage max = 420 }
-						set_variable = { KXN_Conquest_Mission_5_Last_Stage = KXN_Conquest_Mission_5_Days_Timeout }
-						subtract_from_variable = { KXN_Conquest_Mission_5_Last_Stage = KXN_Conquest_Mission_5_Fourth_Stage }
+						else_if = {
+							limit = {
+								KXN = { has_country_flag = KXN_Near_South_Staff_Flag }
+								FROM = { tag = KHM }
+							}
+							add_to_variable = { KXN_Conquest_Mission_5_Days_Timeout = 40 }
+						}
+						set_variable = {
+							KXN_Conquest_Mission_5_Regular_Stage = {
+								value = KXN_Conquest_Mission_5_Days_Timeout
+								divide = 5
+								subtract = 0.5 ## Round down
+								round = yes
+							}
+						}
+						set_variable = {
+							KXN_Conquest_Mission_5_Caspy_Stage = {
+								value = KXN_Conquest_Mission_5_Regular_Stage
+								min = 60  #This math expression acts as a max clamp
+							}
+						}
+						set_variable = {
+							KXN_Conquest_Mission_5_Second_Stage = {
+								value = KXN_Conquest_Mission_5_Regular_Stage
+								add = KXN_Conquest_Mission_5_Caspy_Stage
+								min = 150  #This math expression acts as a max clamp
+							}
+						}
+						set_variable = {
+							KXN_Conquest_Mission_5_Third_Stage = {
+								value = KXN_Conquest_Mission_5_Second_Stage
+								add = KXN_Conquest_Mission_5_Caspy_Stage
+								min = 240  #This math expression acts as a max clamp
+							}
+						}
+						set_variable = {
+							KXN_Conquest_Mission_5_Fourth_Stage = {
+								value = KXN_Conquest_Mission_5_Third_Stage
+								add = KXN_Conquest_Mission_5_Caspy_Stage
+								min = 420  #This math expression acts as a max clamp
+							}
+						}
+						set_variable = {
+							KXN_Conquest_Mission_5_Last_Stage = {
+								value = KXN_Conquest_Mission_5_Days_Timeout
+								subtract = KXN_Conquest_Mission_5_Fourth_Stage
+							}
+						}
 						country_event = { id = lan_kir_utility.50 days = KXN.KXN_Conquest_Mission_5_Regular_Stage }
 						country_event = { id = lan_kir_utility.51 days = KXN.KXN_Conquest_Mission_5_Second_Stage }
 						country_event = { id = lan_kir_utility.52 days = KXN.KXN_Conquest_Mission_5_Third_Stage }
@@ -367,9 +759,27 @@ on_actions = {
 						add_relation_modifier = { target = event_target:KXN_Conquest_Target_5 modifier = KXN_Stage_1_Modifiers }
 					}
 					activate_mission = KXN_Conquest_Mission_5
-					set_temp_variable = { KXN_Conquest_Mission_5_Days_Timeout = FROM.num_owned_states }
-					multiply_temp_variable = { KXN_Conquest_Mission_5_Days_Timeout = 30 }
+					set_temp_variable = {
+						KXN_Conquest_Mission_5_Days_Timeout = {
+							value = FROM.num_owned_states
+							multiply = 30
+						}
+					}
 					if = {
+						limit = {
+							FROM = {
+								OR = {
+									is_subject_of = KXK
+									is_subject_of = KXH
+									has_country_flag = KXN_Militarch_Chess_Piece_Flag_KXK
+									has_country_flag = KXN_Militarch_Chess_Piece_Flag_KXH
+								}
+							}
+						}
+						custom_effect_tooltip = KXN_Conquest_Mission_Less_Time_tt
+						divide_temp_variable = { KXN_Conquest_Mission_5_Days_Timeout = 2 }
+					}
+					else_if = {
 						limit = {
 							FROM = {
 								NOT = {
@@ -385,6 +795,13 @@ on_actions = {
 						}
 						set_temp_variable = { KXN_Conquest_Mission_5_Days_Timeout = 365 }
 					}
+					else_if = {
+						limit = {
+							KXN = { has_country_flag = KXN_Near_South_Staff_Flag }
+							FROM = { tag = KHM }
+						}
+						add_to_temp_variable = { KXN_Conquest_Mission_5_Days_Timeout = 40 }
+					}
 					custom_effect_tooltip = KXN_Conquest_Mission_5_Capitulate_tt
 				}
 				else_if = {
@@ -395,9 +812,26 @@ on_actions = {
 						clear_global_event_target = KXN_Conquest_Target_6
 						FROM = { save_global_event_target_as = KXN_Conquest_Target_6 }
 						set_country_flag = KXN_Conquest_Mission_6_Active
-						set_variable = { KXN_Conquest_Mission_6_Days_Timeout = FROM.num_owned_states }
-						multiply_variable = { KXN_Conquest_Mission_6_Days_Timeout = 30 }
+						set_variable = {
+							KXN_Conquest_Mission_6_Days_Timeout = {
+								value = FROM.num_owned_states
+								multiply = 30
+							}
+						}
 						if = {
+							limit = {
+								FROM = {
+									OR = {
+										is_subject_of = KXK
+										is_subject_of = KXH
+										has_country_flag = KXN_Militarch_Chess_Piece_Flag_KXK
+										has_country_flag = KXN_Militarch_Chess_Piece_Flag_KXH
+									}
+								}
+							}
+							divide_variable = { KXN_Conquest_Mission_6_Days_Timeout = 2 }
+						}
+						else_if = {
 							limit = {
 								FROM = {
 									NOT = {
@@ -413,23 +847,54 @@ on_actions = {
 							}
 							set_variable = { KXN_Conquest_Mission_6_Days_Timeout = 365 }
 						}
-						set_variable = { KXN_Conquest_Mission_6_Regular_Stage = KXN_Conquest_Mission_6_Days_Timeout }
-						divide_variable = { KXN_Conquest_Mission_6_Regular_Stage = 5 }
-						subtract_from_variable = { KXN_Conquest_Mission_6_Regular_Stage = 0.5 }
-						round_variable = KXN_Conquest_Mission_6_Regular_Stage
-						set_variable = { KXN_Conquest_Mission_6_Caspy_Stage = KXN_Conquest_Mission_6_Regular_Stage }
-						clamp_variable = { var = KXN_Conquest_Mission_6_Regular_Stage max = 60 }
-						set_variable = { KXN_Conquest_Mission_6_Second_Stage = KXN_Conquest_Mission_6_Regular_Stage }
-						add_to_variable = { KXN_Conquest_Mission_6_Second_Stage = KXN_Conquest_Mission_6_Caspy_Stage  }
-						clamp_variable = { var = KXN_Conquest_Mission_6_Second_Stage max = 150 }
-						set_variable = { KXN_Conquest_Mission_6_Third_Stage = KXN_Conquest_Mission_6_Second_Stage }
-						add_to_variable = { KXN_Conquest_Mission_6_Third_Stage = KXN_Conquest_Mission_6_Caspy_Stage }
-						clamp_variable = { var = KXN_Conquest_Mission_6_Third_Stage max = 240 }
-						set_variable = { KXN_Conquest_Mission_6_Fourth_Stage = KXN_Conquest_Mission_6_Third_Stage }
-						add_to_variable = { KXN_Conquest_Mission_6_Fourth_Stage = KXN_Conquest_Mission_6_Caspy_Stage }
-						clamp_variable = { var = KXN_Conquest_Mission_6_Fourth_Stage max = 420 }
-						set_variable = { KXN_Conquest_Mission_6_Last_Stage = KXN_Conquest_Mission_6_Days_Timeout }
-						subtract_from_variable = { KXN_Conquest_Mission_6_Last_Stage = KXN_Conquest_Mission_6_Fourth_Stage }
+						else_if = {
+							limit = {
+								KXN = { has_country_flag = KXN_Near_South_Staff_Flag }
+								FROM = { tag = KHM }
+							}
+							add_to_variable = { KXN_Conquest_Mission_6_Days_Timeout = 40 }
+						}
+						set_variable = {
+							KXN_Conquest_Mission_6_Regular_Stage = {
+								value = KXN_Conquest_Mission_6_Days_Timeout
+								divide = 5
+								subtract = 0.5 ## Round down
+								round = yes
+							}
+						}
+						set_variable = {
+							KXN_Conquest_Mission_6_Caspy_Stage = {
+								value = KXN_Conquest_Mission_6_Regular_Stage
+								min = 60  #This math expression acts as a max clamp
+							}
+						}
+						set_variable = {
+							KXN_Conquest_Mission_6_Second_Stage = {
+								value = KXN_Conquest_Mission_6_Regular_Stage
+								add = KXN_Conquest_Mission_6_Caspy_Stage
+								min = 150  #This math expression acts as a max clamp
+							}
+						}
+						set_variable = {
+							KXN_Conquest_Mission_6_Third_Stage = {
+								value = KXN_Conquest_Mission_6_Second_Stage
+								add = KXN_Conquest_Mission_6_Caspy_Stage
+								min = 240  #This math expression acts as a max clamp
+							}
+						}
+						set_variable = {
+							KXN_Conquest_Mission_6_Fourth_Stage = {
+								value = KXN_Conquest_Mission_6_Third_Stage
+								add = KXN_Conquest_Mission_6_Caspy_Stage
+								min = 420  #This math expression acts as a max clamp
+							}
+						}
+						set_variable = {
+							KXN_Conquest_Mission_6_Last_Stage = {
+								value = KXN_Conquest_Mission_6_Days_Timeout
+								subtract = KXN_Conquest_Mission_6_Fourth_Stage
+							}
+						}
 						country_event = { id = lan_kir_utility.60 days = KXN.KXN_Conquest_Mission_6_Regular_Stage }
 						country_event = { id = lan_kir_utility.61 days = KXN.KXN_Conquest_Mission_6_Second_Stage }
 						country_event = { id = lan_kir_utility.62 days = KXN.KXN_Conquest_Mission_6_Third_Stage }
@@ -437,9 +902,27 @@ on_actions = {
 						add_relation_modifier = { target = event_target:KXN_Conquest_Target_6 modifier = KXN_Stage_1_Modifiers }
 					}
 					activate_mission = KXN_Conquest_Mission_6
-					set_temp_variable = { KXN_Conquest_Mission_6_Days_Timeout = FROM.num_owned_states }
-					multiply_temp_variable = { KXN_Conquest_Mission_6_Days_Timeout = 30 }
+					set_temp_variable = {
+						KXN_Conquest_Mission_6_Days_Timeout = {
+							value = FROM.num_owned_states
+							multiply = 30
+						}
+					}
 					if = {
+						limit = {
+							FROM = {
+								OR = {
+									is_subject_of = KXK
+									is_subject_of = KXH
+									has_country_flag = KXN_Militarch_Chess_Piece_Flag_KXK
+									has_country_flag = KXN_Militarch_Chess_Piece_Flag_KXH
+								}
+							}
+						}
+						custom_effect_tooltip = KXN_Conquest_Mission_Less_Time_tt
+						divide_temp_variable = { KXN_Conquest_Mission_6_Days_Timeout = 2 }
+					}
+					else_if = {
 						limit = {
 							FROM = {
 								NOT = {
@@ -455,6 +938,13 @@ on_actions = {
 						}
 						set_temp_variable = { KXN_Conquest_Mission_6_Days_Timeout = 365 }
 					}
+					else_if = {
+						limit = {
+							KXN = { has_country_flag = KXN_Near_South_Staff_Flag }
+							FROM = { tag = KHM }
+						}
+						add_to_temp_variable = { KXN_Conquest_Mission_6_Days_Timeout = 40 }
+					}
 					custom_effect_tooltip = KXN_Conquest_Mission_6_Capitulate_tt
 				}
 				else_if = {
@@ -465,9 +955,26 @@ on_actions = {
 						clear_global_event_target = KXN_Conquest_Target_7
 						FROM = { save_global_event_target_as = KXN_Conquest_Target_7 }
 						set_country_flag = KXN_Conquest_Mission_7_Active
-						set_variable = { KXN_Conquest_Mission_7_Days_Timeout = FROM.num_owned_states }
-						multiply_variable = { KXN_Conquest_Mission_7_Days_Timeout = 30 }
+						set_variable = {
+							KXN_Conquest_Mission_7_Days_Timeout = {
+								value = FROM.num_owned_states
+								multiply = 30
+							}
+						}
 						if = {
+							limit = {
+								FROM = {
+									OR = {
+										is_subject_of = KXK
+										is_subject_of = KXH
+										has_country_flag = KXN_Militarch_Chess_Piece_Flag_KXK
+										has_country_flag = KXN_Militarch_Chess_Piece_Flag_KXH
+									}
+								}
+							}
+							divide_variable = { KXN_Conquest_Mission_7_Days_Timeout = 2 }
+						}
+						else_if = {
 							limit = {
 								FROM = {
 									NOT = {
@@ -483,23 +990,54 @@ on_actions = {
 							}
 							set_variable = { KXN_Conquest_Mission_7_Days_Timeout = 365 }
 						}
-						set_variable = { KXN_Conquest_Mission_7_Regular_Stage = KXN_Conquest_Mission_7_Days_Timeout }
-						divide_variable = { KXN_Conquest_Mission_7_Regular_Stage = 5 }
-						subtract_from_variable = { KXN_Conquest_Mission_7_Regular_Stage = 0.5 }
-						round_variable = KXN_Conquest_Mission_7_Regular_Stage
-						set_variable = { KXN_Conquest_Mission_7_Caspy_Stage = KXN_Conquest_Mission_7_Regular_Stage }
-						clamp_variable = { var = KXN_Conquest_Mission_7_Regular_Stage max = 60 }
-						set_variable = { KXN_Conquest_Mission_7_Second_Stage = KXN_Conquest_Mission_7_Regular_Stage }
-						add_to_variable = { KXN_Conquest_Mission_7_Second_Stage = KXN_Conquest_Mission_7_Caspy_Stage  }
-						clamp_variable = { var = KXN_Conquest_Mission_7_Second_Stage max = 150 }
-						set_variable = { KXN_Conquest_Mission_7_Third_Stage = KXN_Conquest_Mission_7_Second_Stage }
-						add_to_variable = { KXN_Conquest_Mission_7_Third_Stage = KXN_Conquest_Mission_7_Caspy_Stage }
-						clamp_variable = { var = KXN_Conquest_Mission_7_Third_Stage max = 240 }
-						set_variable = { KXN_Conquest_Mission_7_Fourth_Stage = KXN_Conquest_Mission_7_Third_Stage }
-						add_to_variable = { KXN_Conquest_Mission_7_Fourth_Stage = KXN_Conquest_Mission_7_Caspy_Stage }
-						clamp_variable = { var = KXN_Conquest_Mission_7_Fourth_Stage max = 420 }
-						set_variable = { KXN_Conquest_Mission_7_Last_Stage = KXN_Conquest_Mission_7_Days_Timeout }
-						subtract_from_variable = { KXN_Conquest_Mission_7_Last_Stage = KXN_Conquest_Mission_7_Fourth_Stage }
+						else_if = {
+							limit = {
+								KXN = { has_country_flag = KXN_Near_South_Staff_Flag }
+								FROM = { tag = KHM }
+							}
+							add_to_variable = { KXN_Conquest_Mission_7_Days_Timeout = 40 }
+						}
+						set_variable = {
+							KXN_Conquest_Mission_7_Regular_Stage = {
+								value = KXN_Conquest_Mission_7_Days_Timeout
+								divide = 5
+								subtract = 0.5 ## Round down
+								round = yes
+							}
+						}
+						set_variable = {
+							KXN_Conquest_Mission_7_Caspy_Stage = {
+								value = KXN_Conquest_Mission_7_Regular_Stage
+								min = 60  #This math expression acts as a max clamp
+							}
+						}
+						set_variable = {
+							KXN_Conquest_Mission_7_Second_Stage = {
+								value = KXN_Conquest_Mission_7_Regular_Stage
+								add = KXN_Conquest_Mission_7_Caspy_Stage
+								min = 150  #This math expression acts as a max clamp
+							}
+						}
+						set_variable = {
+							KXN_Conquest_Mission_7_Third_Stage = {
+								value = KXN_Conquest_Mission_7_Second_Stage
+								add = KXN_Conquest_Mission_7_Caspy_Stage
+								min = 240  #This math expression acts as a max clamp
+							}
+						}
+						set_variable = {
+							KXN_Conquest_Mission_7_Fourth_Stage = {
+								value = KXN_Conquest_Mission_7_Third_Stage
+								add = KXN_Conquest_Mission_7_Caspy_Stage
+								min = 420  #This math expression acts as a max clamp
+							}
+						}
+						set_variable = {
+							KXN_Conquest_Mission_7_Last_Stage = {
+								value = KXN_Conquest_Mission_7_Days_Timeout
+								subtract = KXN_Conquest_Mission_7_Fourth_Stage
+							}
+						}
 						country_event = { id = lan_kir_utility.70 days = KXN.KXN_Conquest_Mission_7_Regular_Stage }
 						country_event = { id = lan_kir_utility.71 days = KXN.KXN_Conquest_Mission_7_Second_Stage }
 						country_event = { id = lan_kir_utility.72 days = KXN.KXN_Conquest_Mission_7_Third_Stage }
@@ -507,9 +1045,27 @@ on_actions = {
 						add_relation_modifier = { target = event_target:KXN_Conquest_Target_7 modifier = KXN_Stage_1_Modifiers }
 					}
 					activate_mission = KXN_Conquest_Mission_7
-					set_temp_variable = { KXN_Conquest_Mission_7_Days_Timeout = FROM.num_owned_states }
-					multiply_temp_variable = { KXN_Conquest_Mission_7_Days_Timeout = 30 }
+					set_temp_variable = {
+						KXN_Conquest_Mission_7_Days_Timeout = {
+							value = FROM.num_owned_states
+							multiply = 30
+						}
+					}
 					if = {
+						limit = {
+							FROM = {
+								OR = {
+									is_subject_of = KXK
+									is_subject_of = KXH
+									has_country_flag = KXN_Militarch_Chess_Piece_Flag_KXK
+									has_country_flag = KXN_Militarch_Chess_Piece_Flag_KXH
+								}
+							}
+						}
+						custom_effect_tooltip = KXN_Conquest_Mission_Less_Time_tt
+						divide_temp_variable = { KXN_Conquest_Mission_7_Days_Timeout = 2 }
+					}
+					else_if = {
 						limit = {
 							FROM = {
 								NOT = {
@@ -525,6 +1081,13 @@ on_actions = {
 						}
 						set_temp_variable = { KXN_Conquest_Mission_7_Days_Timeout = 365 }
 					}
+					else_if = {
+						limit = {
+							KXN = { has_country_flag = KXN_Near_South_Staff_Flag }
+							FROM = { tag = KHM }
+						}
+						add_to_temp_variable = { KXN_Conquest_Mission_7_Days_Timeout = 40 }
+					}
 					custom_effect_tooltip = KXN_Conquest_Mission_7_Capitulate_tt
 				}
 				else_if = {
@@ -535,9 +1098,26 @@ on_actions = {
 						clear_global_event_target = KXN_Conquest_Target_8
 						FROM = { save_global_event_target_as = KXN_Conquest_Target_8 }
 						set_country_flag = KXN_Conquest_Mission_8_Active
-						set_variable = { KXN_Conquest_Mission_8_Days_Timeout = FROM.num_owned_states }
-						multiply_variable = { KXN_Conquest_Mission_8_Days_Timeout = 30 }
+						set_variable = {
+							KXN_Conquest_Mission_8_Days_Timeout = {
+								value = FROM.num_owned_states
+								multiply = 30
+							}
+						}
 						if = {
+							limit = {
+								FROM = {
+									OR = {
+										is_subject_of = KXK
+										is_subject_of = KXH
+										has_country_flag = KXN_Militarch_Chess_Piece_Flag_KXK
+										has_country_flag = KXN_Militarch_Chess_Piece_Flag_KXH
+									}
+								}
+							}
+							divide_variable = { KXN_Conquest_Mission_8_Days_Timeout = 2 }
+						}
+						else_if = {
 							limit = {
 								FROM = {
 									NOT = {
@@ -553,23 +1133,54 @@ on_actions = {
 							}
 							set_variable = { KXN_Conquest_Mission_8_Days_Timeout = 365 }
 						}
-						set_variable = { KXN_Conquest_Mission_8_Regular_Stage = KXN_Conquest_Mission_8_Days_Timeout }
-						divide_variable = { KXN_Conquest_Mission_8_Regular_Stage = 5 }
-						subtract_from_variable = { KXN_Conquest_Mission_8_Regular_Stage = 0.5 }
-						round_variable = KXN_Conquest_Mission_8_Regular_Stage
-						set_variable = { KXN_Conquest_Mission_8_Caspy_Stage = KXN_Conquest_Mission_8_Regular_Stage }
-						clamp_variable = { var = KXN_Conquest_Mission_8_Regular_Stage max = 60 }
-						set_variable = { KXN_Conquest_Mission_8_Second_Stage = KXN_Conquest_Mission_8_Regular_Stage }
-						add_to_variable = { KXN_Conquest_Mission_8_Second_Stage = KXN_Conquest_Mission_8_Caspy_Stage  }
-						clamp_variable = { var = KXN_Conquest_Mission_8_Second_Stage max = 150 }
-						set_variable = { KXN_Conquest_Mission_8_Third_Stage = KXN_Conquest_Mission_8_Second_Stage }
-						add_to_variable = { KXN_Conquest_Mission_8_Third_Stage = KXN_Conquest_Mission_8_Caspy_Stage }
-						clamp_variable = { var = KXN_Conquest_Mission_8_Third_Stage max = 240 }
-						set_variable = { KXN_Conquest_Mission_8_Fourth_Stage = KXN_Conquest_Mission_8_Third_Stage }
-						add_to_variable = { KXN_Conquest_Mission_8_Fourth_Stage = KXN_Conquest_Mission_8_Caspy_Stage }
-						clamp_variable = { var = KXN_Conquest_Mission_8_Fourth_Stage max = 420 }
-						set_variable = { KXN_Conquest_Mission_8_Last_Stage = KXN_Conquest_Mission_8_Days_Timeout }
-						subtract_from_variable = { KXN_Conquest_Mission_8_Last_Stage = KXN_Conquest_Mission_8_Fourth_Stage }
+						else_if = {
+							limit = {
+								KXN = { has_country_flag = KXN_Near_South_Staff_Flag }
+								FROM = { tag = KHM }
+							}
+							add_to_variable = { KXN_Conquest_Mission_8_Days_Timeout = 40 }
+						}
+						set_variable = {
+							KXN_Conquest_Mission_8_Regular_Stage = {
+								value = KXN_Conquest_Mission_8_Days_Timeout
+								divide = 5
+								subtract = 0.5 ## Round down
+								round = yes
+							}
+						}
+						set_variable = {
+							KXN_Conquest_Mission_8_Caspy_Stage = {
+								value = KXN_Conquest_Mission_8_Regular_Stage
+								min = 60  #This math expression acts as a max clamp
+							}
+						}
+						set_variable = {
+							KXN_Conquest_Mission_8_Second_Stage = {
+								value = KXN_Conquest_Mission_8_Regular_Stage
+								add = KXN_Conquest_Mission_8_Caspy_Stage
+								min = 150  #This math expression acts as a max clamp
+							}
+						}
+						set_variable = {
+							KXN_Conquest_Mission_8_Third_Stage = {
+								value = KXN_Conquest_Mission_8_Second_Stage
+								add = KXN_Conquest_Mission_8_Caspy_Stage
+								min = 240  #This math expression acts as a max clamp
+							}
+						}
+						set_variable = {
+							KXN_Conquest_Mission_8_Fourth_Stage = {
+								value = KXN_Conquest_Mission_8_Third_Stage
+								add = KXN_Conquest_Mission_8_Caspy_Stage
+								min = 420  #This math expression acts as a max clamp
+							}
+						}
+						set_variable = {
+							KXN_Conquest_Mission_8_Last_Stage = {
+								value = KXN_Conquest_Mission_8_Days_Timeout
+								subtract = KXN_Conquest_Mission_8_Fourth_Stage
+							}
+						}
 						country_event = { id = lan_kir_utility.80 days = KXN.KXN_Conquest_Mission_8_Regular_Stage }
 						country_event = { id = lan_kir_utility.81 days = KXN.KXN_Conquest_Mission_8_Second_Stage }
 						country_event = { id = lan_kir_utility.82 days = KXN.KXN_Conquest_Mission_8_Third_Stage }
@@ -577,9 +1188,27 @@ on_actions = {
 						add_relation_modifier = { target = event_target:KXN_Conquest_Target_8 modifier = KXN_Stage_1_Modifiers }
 					}
 					activate_mission = KXN_Conquest_Mission_8
-					set_temp_variable = { KXN_Conquest_Mission_8_Days_Timeout = FROM.num_owned_states }
-					multiply_temp_variable = { KXN_Conquest_Mission_8_Days_Timeout = 30 }
+					set_temp_variable = {
+						KXN_Conquest_Mission_8_Days_Timeout = {
+							value = FROM.num_owned_states
+							multiply = 30
+						}
+					}
 					if = {
+						limit = {
+							FROM = {
+								OR = {
+									is_subject_of = KXK
+									is_subject_of = KXH
+									has_country_flag = KXN_Militarch_Chess_Piece_Flag_KXK
+									has_country_flag = KXN_Militarch_Chess_Piece_Flag_KXH
+								}
+							}
+						}
+						custom_effect_tooltip = KXN_Conquest_Mission_Less_Time_tt
+						divide_temp_variable = { KXN_Conquest_Mission_8_Days_Timeout = 2 }
+					}
+					else_if = {
 						limit = {
 							FROM = {
 								NOT = {
@@ -595,6 +1224,13 @@ on_actions = {
 						}
 						set_temp_variable = { KXN_Conquest_Mission_8_Days_Timeout = 365 }
 					}
+					else_if = {
+						limit = {
+							KXN = { has_country_flag = KXN_Near_South_Staff_Flag }
+							FROM = { tag = KHM }
+						}
+						add_to_temp_variable = { KXN_Conquest_Mission_8_Days_Timeout = 40 }
+					}
 					custom_effect_tooltip = KXN_Conquest_Mission_8_Capitulate_tt
 				}
 				else_if = {
@@ -605,9 +1241,26 @@ on_actions = {
 						clear_global_event_target = KXN_Conquest_Target_9
 						FROM = { save_global_event_target_as = KXN_Conquest_Target_9 }
 						set_country_flag = KXN_Conquest_Mission_9_Active
-						set_variable = { KXN_Conquest_Mission_9_Days_Timeout = FROM.num_owned_states }
-						multiply_variable = { KXN_Conquest_Mission_9_Days_Timeout = 30 }
+						set_variable = {
+							KXN_Conquest_Mission_9_Days_Timeout = {
+								value = FROM.num_owned_states
+								multiply = 30
+							}
+						}
 						if = {
+							limit = {
+								FROM = {
+									OR = {
+										is_subject_of = KXK
+										is_subject_of = KXH
+										has_country_flag = KXN_Militarch_Chess_Piece_Flag_KXK
+										has_country_flag = KXN_Militarch_Chess_Piece_Flag_KXH
+									}
+								}
+							}
+							divide_variable = { KXN_Conquest_Mission_9_Days_Timeout = 2 }
+						}
+						else_if = {
 							limit = {
 								FROM = {
 									NOT = {
@@ -623,23 +1276,54 @@ on_actions = {
 							}
 							set_variable = { KXN_Conquest_Mission_9_Days_Timeout = 365 }
 						}
-						set_variable = { KXN_Conquest_Mission_9_Regular_Stage = KXN_Conquest_Mission_9_Days_Timeout }
-						divide_variable = { KXN_Conquest_Mission_9_Regular_Stage = 5 }
-						subtract_from_variable = { KXN_Conquest_Mission_9_Regular_Stage = 0.5 }
-						round_variable = KXN_Conquest_Mission_9_Regular_Stage
-						set_variable = { KXN_Conquest_Mission_9_Caspy_Stage = KXN_Conquest_Mission_9_Regular_Stage }
-						clamp_variable = { var = KXN_Conquest_Mission_9_Regular_Stage max = 60 }
-						set_variable = { KXN_Conquest_Mission_9_Second_Stage = KXN_Conquest_Mission_9_Regular_Stage }
-						add_to_variable = { KXN_Conquest_Mission_9_Second_Stage = KXN_Conquest_Mission_9_Caspy_Stage  }
-						clamp_variable = { var = KXN_Conquest_Mission_9_Second_Stage max = 150 }
-						set_variable = { KXN_Conquest_Mission_9_Third_Stage = KXN_Conquest_Mission_9_Second_Stage }
-						add_to_variable = { KXN_Conquest_Mission_9_Third_Stage = KXN_Conquest_Mission_9_Caspy_Stage }
-						clamp_variable = { var = KXN_Conquest_Mission_9_Third_Stage max = 240 }
-						set_variable = { KXN_Conquest_Mission_9_Fourth_Stage = KXN_Conquest_Mission_9_Third_Stage }
-						add_to_variable = { KXN_Conquest_Mission_9_Fourth_Stage = KXN_Conquest_Mission_9_Caspy_Stage }
-						clamp_variable = { var = KXN_Conquest_Mission_9_Fourth_Stage max = 420 }
-						set_variable = { KXN_Conquest_Mission_9_Last_Stage = KXN_Conquest_Mission_9_Days_Timeout }
-						subtract_from_variable = { KXN_Conquest_Mission_9_Last_Stage = KXN_Conquest_Mission_9_Fourth_Stage }
+						else_if = {
+							limit = {
+								KXN = { has_country_flag = KXN_Near_South_Staff_Flag }
+								FROM = { tag = KHM }
+							}
+							add_to_variable = { KXN_Conquest_Mission_9_Days_Timeout = 40 }
+						}
+						set_variable = {
+							KXN_Conquest_Mission_9_Regular_Stage = {
+								value = KXN_Conquest_Mission_9_Days_Timeout
+								divide = 5
+								subtract = 0.5 ## Round down
+								round = yes
+							}
+						}
+						set_variable = {
+							KXN_Conquest_Mission_9_Caspy_Stage = {
+								value = KXN_Conquest_Mission_9_Regular_Stage
+								min = 60  #This math expression acts as a max clamp
+							}
+						}
+						set_variable = {
+							KXN_Conquest_Mission_9_Second_Stage = {
+								value = KXN_Conquest_Mission_9_Regular_Stage
+								add = KXN_Conquest_Mission_9_Caspy_Stage
+								min = 150  #This math expression acts as a max clamp
+							}
+						}
+						set_variable = {
+							KXN_Conquest_Mission_9_Third_Stage = {
+								value = KXN_Conquest_Mission_9_Second_Stage
+								add = KXN_Conquest_Mission_9_Caspy_Stage
+								min = 240  #This math expression acts as a max clamp
+							}
+						}
+						set_variable = {
+							KXN_Conquest_Mission_9_Fourth_Stage = {
+								value = KXN_Conquest_Mission_9_Third_Stage
+								add = KXN_Conquest_Mission_9_Caspy_Stage
+								min = 420  #This math expression acts as a max clamp
+							}
+						}
+						set_variable = {
+							KXN_Conquest_Mission_9_Last_Stage = {
+								value = KXN_Conquest_Mission_9_Days_Timeout
+								subtract = KXN_Conquest_Mission_9_Fourth_Stage
+							}
+						}
 						country_event = { id = lan_kir_utility.90 days = KXN.KXN_Conquest_Mission_9_Regular_Stage }
 						country_event = { id = lan_kir_utility.91 days = KXN.KXN_Conquest_Mission_9_Second_Stage }
 						country_event = { id = lan_kir_utility.92 days = KXN.KXN_Conquest_Mission_9_Third_Stage }
@@ -647,9 +1331,27 @@ on_actions = {
 						add_relation_modifier = { target = event_target:KXN_Conquest_Target_9 modifier = KXN_Stage_1_Modifiers }
 					}
 					activate_mission = KXN_Conquest_Mission_9
-					set_temp_variable = { KXN_Conquest_Mission_9_Days_Timeout = FROM.num_owned_states }
-					multiply_temp_variable = { KXN_Conquest_Mission_9_Days_Timeout = 30 }
+					set_temp_variable = {
+						KXN_Conquest_Mission_9_Days_Timeout = {
+							value = FROM.num_owned_states
+							multiply = 30
+						}
+					}
 					if = {
+						limit = {
+							FROM = {
+								OR = {
+									is_subject_of = KXK
+									is_subject_of = KXH
+									has_country_flag = KXN_Militarch_Chess_Piece_Flag_KXK
+									has_country_flag = KXN_Militarch_Chess_Piece_Flag_KXH
+								}
+							}
+						}
+						custom_effect_tooltip = KXN_Conquest_Mission_Less_Time_tt
+						divide_temp_variable = { KXN_Conquest_Mission_9_Days_Timeout = 2 }
+					}
+					else_if = {
 						limit = {
 							FROM = {
 								NOT = {
@@ -665,6 +1367,13 @@ on_actions = {
 						}
 						set_temp_variable = { KXN_Conquest_Mission_9_Days_Timeout = 365 }
 					}
+					else_if = {
+						limit = {
+							KXN = { has_country_flag = KXN_Near_South_Staff_Flag }
+							FROM = { tag = KHM }
+						}
+						add_to_temp_variable = { KXN_Conquest_Mission_9_Days_Timeout = 40 }
+					}
 					custom_effect_tooltip = KXN_Conquest_Mission_9_Capitulate_tt
 				}
 				else_if = {
@@ -675,9 +1384,26 @@ on_actions = {
 						clear_global_event_target = KXN_Conquest_Target_10
 						FROM = { save_global_event_target_as = KXN_Conquest_Target_10 }
 						set_country_flag = KXN_Conquest_Mission_10_Active
-						set_variable = { KXN_Conquest_Mission_10_Days_Timeout = FROM.num_owned_states }
-						multiply_variable = { KXN_Conquest_Mission_10_Days_Timeout = 30 }
+						set_variable = {
+							KXN_Conquest_Mission_10_Days_Timeout = {
+								value = FROM.num_owned_states
+								multiply = 30
+							}
+						}
 						if = {
+							limit = {
+								FROM = {
+									OR = {
+										is_subject_of = KXK
+										is_subject_of = KXH
+										has_country_flag = KXN_Militarch_Chess_Piece_Flag_KXK
+										has_country_flag = KXN_Militarch_Chess_Piece_Flag_KXH
+									}
+								}
+							}
+							divide_variable = { KXN_Conquest_Mission_10_Days_Timeout = 2 }
+						}
+						else_if = {
 							limit = {
 								FROM = {
 									NOT = {
@@ -693,23 +1419,54 @@ on_actions = {
 							}
 							set_variable = { KXN_Conquest_Mission_10_Days_Timeout = 365 }
 						}
-						set_variable = { KXN_Conquest_Mission_10_Regular_Stage = KXN_Conquest_Mission_10_Days_Timeout }
-						divide_variable = { KXN_Conquest_Mission_10_Regular_Stage = 5 }
-						subtract_from_variable = { KXN_Conquest_Mission_10_Regular_Stage = 0.5 }
-						round_variable = KXN_Conquest_Mission_10_Regular_Stage
-						set_variable = { KXN_Conquest_Mission_10_Caspy_Stage = KXN_Conquest_Mission_10_Regular_Stage }
-						clamp_variable = { var = KXN_Conquest_Mission_10_Regular_Stage max = 60 }
-						set_variable = { KXN_Conquest_Mission_10_Second_Stage = KXN_Conquest_Mission_10_Regular_Stage }
-						add_to_variable = { KXN_Conquest_Mission_10_Second_Stage = KXN_Conquest_Mission_10_Caspy_Stage  }
-						clamp_variable = { var = KXN_Conquest_Mission_10_Second_Stage max = 150 }
-						set_variable = { KXN_Conquest_Mission_10_Third_Stage = KXN_Conquest_Mission_10_Second_Stage }
-						add_to_variable = { KXN_Conquest_Mission_10_Third_Stage = KXN_Conquest_Mission_10_Caspy_Stage }
-						clamp_variable = { var = KXN_Conquest_Mission_10_Third_Stage max = 240 }
-						set_variable = { KXN_Conquest_Mission_10_Fourth_Stage = KXN_Conquest_Mission_10_Third_Stage }
-						add_to_variable = { KXN_Conquest_Mission_10_Fourth_Stage = KXN_Conquest_Mission_10_Caspy_Stage }
-						clamp_variable = { var = KXN_Conquest_Mission_10_Fourth_Stage max = 420 }
-						set_variable = { KXN_Conquest_Mission_10_Last_Stage = KXN_Conquest_Mission_10_Days_Timeout }
-						subtract_from_variable = { KXN_Conquest_Mission_10_Last_Stage = KXN_Conquest_Mission_10_Fourth_Stage }
+						else_if = {
+							limit = {
+								KXN = { has_country_flag = KXN_Near_South_Staff_Flag }
+								FROM = { tag = KHM }
+							}
+							add_to_variable = { KXN_Conquest_Mission_10_Days_Timeout = 40 }
+						}
+						set_variable = {
+							KXN_Conquest_Mission_10_Regular_Stage = {
+								value = KXN_Conquest_Mission_10_Days_Timeout
+								divide = 5
+								subtract = 0.5 ## Round down
+								round = yes
+							}
+						}
+						set_variable = {
+							KXN_Conquest_Mission_10_Caspy_Stage = {
+								value = KXN_Conquest_Mission_10_Regular_Stage
+								min = 60  #This math expression acts as a max clamp
+							}
+						}
+						set_variable = {
+							KXN_Conquest_Mission_10_Second_Stage = {
+								value = KXN_Conquest_Mission_10_Regular_Stage
+								add = KXN_Conquest_Mission_10_Caspy_Stage
+								min = 150  #This math expression acts as a max clamp
+							}
+						}
+						set_variable = {
+							KXN_Conquest_Mission_10_Third_Stage = {
+								value = KXN_Conquest_Mission_10_Second_Stage
+								add = KXN_Conquest_Mission_10_Caspy_Stage
+								min = 240  #This math expression acts as a max clamp
+							}
+						}
+						set_variable = {
+							KXN_Conquest_Mission_10_Fourth_Stage = {
+								value = KXN_Conquest_Mission_10_Third_Stage
+								add = KXN_Conquest_Mission_10_Caspy_Stage
+								min = 420  #This math expression acts as a max clamp
+							}
+						}
+						set_variable = {
+							KXN_Conquest_Mission_10_Last_Stage = {
+								value = KXN_Conquest_Mission_10_Days_Timeout
+								subtract = KXN_Conquest_Mission_10_Fourth_Stage
+							}
+						}
 						country_event = { id = lan_kir_utility.100 days = KXN.KXN_Conquest_Mission_10_Regular_Stage }
 						country_event = { id = lan_kir_utility.101 days = KXN.KXN_Conquest_Mission_10_Second_Stage }
 						country_event = { id = lan_kir_utility.102 days = KXN.KXN_Conquest_Mission_10_Third_Stage }
@@ -717,9 +1474,27 @@ on_actions = {
 						add_relation_modifier = { target = event_target:KXN_Conquest_Target_10 modifier = KXN_Stage_1_Modifiers }
 					}
 					activate_mission = KXN_Conquest_Mission_10
-					set_temp_variable = { KXN_Conquest_Mission_10_Days_Timeout = FROM.num_owned_states }
-					multiply_temp_variable = { KXN_Conquest_Mission_10_Days_Timeout = 30 }
+					set_temp_variable = {
+						KXN_Conquest_Mission_10_Days_Timeout = {
+							value = FROM.num_owned_states
+							multiply = 30
+						}
+					}
 					if = {
+						limit = {
+							FROM = {
+								OR = {
+									is_subject_of = KXK
+									is_subject_of = KXH
+									has_country_flag = KXN_Militarch_Chess_Piece_Flag_KXK
+									has_country_flag = KXN_Militarch_Chess_Piece_Flag_KXH
+								}
+							}
+						}
+						custom_effect_tooltip = KXN_Conquest_Mission_Less_Time_tt
+						divide_temp_variable = { KXN_Conquest_Mission_10_Days_Timeout = 2 }
+					}
+					else_if = {
 						limit = {
 							FROM = {
 								NOT = {
@@ -735,6 +1510,13 @@ on_actions = {
 						}
 						set_temp_variable = { KXN_Conquest_Mission_10_Days_Timeout = 365 }
 					}
+					else_if = {
+						limit = {
+							KXN = { has_country_flag = KXN_Near_South_Staff_Flag }
+							FROM = { tag = KHM }
+						}
+						add_to_temp_variable = { KXN_Conquest_Mission_10_Days_Timeout = 40 }
+					}
 					custom_effect_tooltip = KXN_Conquest_Mission_10_Capitulate_tt
 				}
 				else_if = {
@@ -745,9 +1527,26 @@ on_actions = {
 						clear_global_event_target = KXN_Conquest_Target_11
 						FROM = { save_global_event_target_as = KXN_Conquest_Target_11 }
 						set_country_flag = KXN_Conquest_Mission_11_Active
-						set_variable = { KXN_Conquest_Mission_11_Days_Timeout = FROM.num_owned_states }
-						multiply_variable = { KXN_Conquest_Mission_11_Days_Timeout = 30 }
+						set_variable = {
+							KXN_Conquest_Mission_11_Days_Timeout = {
+								value = FROM.num_owned_states
+								multiply = 30
+							}
+						}
 						if = {
+							limit = {
+								FROM = {
+									OR = {
+										is_subject_of = KXK
+										is_subject_of = KXH
+										has_country_flag = KXN_Militarch_Chess_Piece_Flag_KXK
+										has_country_flag = KXN_Militarch_Chess_Piece_Flag_KXH
+									}
+								}
+							}
+							divide_variable = { KXN_Conquest_Mission_11_Days_Timeout = 2 }
+						}
+						else_if = {
 							limit = {
 								FROM = {
 									NOT = {
@@ -763,23 +1562,54 @@ on_actions = {
 							}
 							set_variable = { KXN_Conquest_Mission_11_Days_Timeout = 365 }
 						}
-						set_variable = { KXN_Conquest_Mission_11_Regular_Stage = KXN_Conquest_Mission_11_Days_Timeout }
-						divide_variable = { KXN_Conquest_Mission_11_Regular_Stage = 5 }
-						subtract_from_variable = { KXN_Conquest_Mission_11_Regular_Stage = 0.5 }
-						round_variable = KXN_Conquest_Mission_11_Regular_Stage
-						set_variable = { KXN_Conquest_Mission_11_Caspy_Stage = KXN_Conquest_Mission_11_Regular_Stage }
-						clamp_variable = { var = KXN_Conquest_Mission_11_Regular_Stage max = 60 }
-						set_variable = { KXN_Conquest_Mission_11_Second_Stage = KXN_Conquest_Mission_11_Regular_Stage }
-						add_to_variable = { KXN_Conquest_Mission_11_Second_Stage = KXN_Conquest_Mission_11_Caspy_Stage  }
-						clamp_variable = { var = KXN_Conquest_Mission_11_Second_Stage max = 150 }
-						set_variable = { KXN_Conquest_Mission_11_Third_Stage = KXN_Conquest_Mission_11_Second_Stage }
-						add_to_variable = { KXN_Conquest_Mission_11_Third_Stage = KXN_Conquest_Mission_11_Caspy_Stage }
-						clamp_variable = { var = KXN_Conquest_Mission_11_Third_Stage max = 240 }
-						set_variable = { KXN_Conquest_Mission_11_Fourth_Stage = KXN_Conquest_Mission_11_Third_Stage }
-						add_to_variable = { KXN_Conquest_Mission_11_Fourth_Stage = KXN_Conquest_Mission_11_Caspy_Stage }
-						clamp_variable = { var = KXN_Conquest_Mission_11_Fourth_Stage max = 420 }
-						set_variable = { KXN_Conquest_Mission_11_Last_Stage = KXN_Conquest_Mission_11_Days_Timeout }
-						subtract_from_variable = { KXN_Conquest_Mission_11_Last_Stage = KXN_Conquest_Mission_11_Fourth_Stage }
+						else_if = {
+							limit = {
+								KXN = { has_country_flag = KXN_Near_South_Staff_Flag }
+								FROM = { tag = KHM }
+							}
+							add_to_variable = { KXN_Conquest_Mission_11_Days_Timeout = 40 }
+						}
+						set_variable = {
+							KXN_Conquest_Mission_11_Regular_Stage = {
+								value = KXN_Conquest_Mission_11_Days_Timeout
+								divide = 5
+								subtract = 0.5 ## Round down
+								round = yes
+							}
+						}
+						set_variable = {
+							KXN_Conquest_Mission_11_Caspy_Stage = {
+								value = KXN_Conquest_Mission_11_Regular_Stage
+								min = 60  #This math expression acts as a max clamp
+							}
+						}
+						set_variable = {
+							KXN_Conquest_Mission_11_Second_Stage = {
+								value = KXN_Conquest_Mission_11_Regular_Stage
+								add = KXN_Conquest_Mission_11_Caspy_Stage
+								min = 150  #This math expression acts as a max clamp
+							}
+						}
+						set_variable = {
+							KXN_Conquest_Mission_11_Third_Stage = {
+								value = KXN_Conquest_Mission_11_Second_Stage
+								add = KXN_Conquest_Mission_11_Caspy_Stage
+								min = 240  #This math expression acts as a max clamp
+							}
+						}
+						set_variable = {
+							KXN_Conquest_Mission_11_Fourth_Stage = {
+								value = KXN_Conquest_Mission_11_Third_Stage
+								add = KXN_Conquest_Mission_11_Caspy_Stage
+								min = 420  #This math expression acts as a max clamp
+							}
+						}
+						set_variable = {
+							KXN_Conquest_Mission_11_Last_Stage = {
+								value = KXN_Conquest_Mission_11_Days_Timeout
+								subtract = KXN_Conquest_Mission_11_Fourth_Stage
+							}
+						}
 						country_event = { id = lan_kir_utility.110 days = KXN.KXN_Conquest_Mission_11_Regular_Stage }
 						country_event = { id = lan_kir_utility.111 days = KXN.KXN_Conquest_Mission_11_Second_Stage }
 						country_event = { id = lan_kir_utility.112 days = KXN.KXN_Conquest_Mission_11_Third_Stage }
@@ -787,9 +1617,27 @@ on_actions = {
 						add_relation_modifier = { target = event_target:KXN_Conquest_Target_11 modifier = KXN_Stage_1_Modifiers }
 					}
 					activate_mission = KXN_Conquest_Mission_11
-					set_temp_variable = { KXN_Conquest_Mission_11_Days_Timeout = FROM.num_owned_states }
-					multiply_temp_variable = { KXN_Conquest_Mission_11_Days_Timeout = 30 }
+					set_temp_variable = {
+						KXN_Conquest_Mission_11_Days_Timeout = {
+							value = FROM.num_owned_states
+							multiply = 30
+						}
+					}
 					if = {
+						limit = {
+							FROM = {
+								OR = {
+									is_subject_of = KXK
+									is_subject_of = KXH
+									has_country_flag = KXN_Militarch_Chess_Piece_Flag_KXK
+									has_country_flag = KXN_Militarch_Chess_Piece_Flag_KXH
+								}
+							}
+						}
+						custom_effect_tooltip = KXN_Conquest_Mission_Less_Time_tt
+						divide_temp_variable = { KXN_Conquest_Mission_11_Days_Timeout = 2 }
+					}
+					else_if = {
 						limit = {
 							FROM = {
 								NOT = {
@@ -805,6 +1653,13 @@ on_actions = {
 						}
 						set_temp_variable = { KXN_Conquest_Mission_11_Days_Timeout = 365 }
 					}
+					else_if = {
+						limit = {
+							KXN = { has_country_flag = KXN_Near_South_Staff_Flag }
+							FROM = { tag = KHM }
+						}
+						add_to_temp_variable = { KXN_Conquest_Mission_11_Days_Timeout = 40 }
+					}
 					custom_effect_tooltip = KXN_Conquest_Mission_11_Capitulate_tt
 				}
 				else_if = {
@@ -815,9 +1670,26 @@ on_actions = {
 						clear_global_event_target = KXN_Conquest_Target_12
 						FROM = { save_global_event_target_as = KXN_Conquest_Target_12 }
 						set_country_flag = KXN_Conquest_Mission_12_Active
-						set_variable = { KXN_Conquest_Mission_12_Days_Timeout = FROM.num_owned_states }
-						multiply_variable = { KXN_Conquest_Mission_12_Days_Timeout = 30 }
+						set_variable = {
+							KXN_Conquest_Mission_12_Days_Timeout = {
+								value = FROM.num_owned_states
+								multiply = 30
+							}
+						}
 						if = {
+							limit = {
+								FROM = {
+									OR = {
+										is_subject_of = KXK
+										is_subject_of = KXH
+										has_country_flag = KXN_Militarch_Chess_Piece_Flag_KXK
+										has_country_flag = KXN_Militarch_Chess_Piece_Flag_KXH
+									}
+								}
+							}
+							divide_variable = { KXN_Conquest_Mission_12_Days_Timeout = 2 }
+						}
+						else_if = {
 							limit = {
 								FROM = {
 									NOT = {
@@ -833,23 +1705,54 @@ on_actions = {
 							}
 							set_variable = { KXN_Conquest_Mission_12_Days_Timeout = 365 }
 						}
-						set_variable = { KXN_Conquest_Mission_12_Regular_Stage = KXN_Conquest_Mission_12_Days_Timeout }
-						divide_variable = { KXN_Conquest_Mission_12_Regular_Stage = 5 }
-						subtract_from_variable = { KXN_Conquest_Mission_12_Regular_Stage = 0.5 }
-						round_variable = KXN_Conquest_Mission_12_Regular_Stage
-						set_variable = { KXN_Conquest_Mission_12_Caspy_Stage = KXN_Conquest_Mission_12_Regular_Stage }
-						clamp_variable = { var = KXN_Conquest_Mission_12_Regular_Stage max = 60 }
-						set_variable = { KXN_Conquest_Mission_12_Second_Stage = KXN_Conquest_Mission_12_Regular_Stage }
-						add_to_variable = { KXN_Conquest_Mission_12_Second_Stage = KXN_Conquest_Mission_12_Caspy_Stage  }
-						clamp_variable = { var = KXN_Conquest_Mission_12_Second_Stage max = 150 }
-						set_variable = { KXN_Conquest_Mission_12_Third_Stage = KXN_Conquest_Mission_12_Second_Stage }
-						add_to_variable = { KXN_Conquest_Mission_12_Third_Stage = KXN_Conquest_Mission_12_Caspy_Stage }
-						clamp_variable = { var = KXN_Conquest_Mission_12_Third_Stage max = 240 }
-						set_variable = { KXN_Conquest_Mission_12_Fourth_Stage = KXN_Conquest_Mission_12_Third_Stage }
-						add_to_variable = { KXN_Conquest_Mission_12_Fourth_Stage = KXN_Conquest_Mission_12_Caspy_Stage }
-						clamp_variable = { var = KXN_Conquest_Mission_12_Fourth_Stage max = 420 }
-						set_variable = { KXN_Conquest_Mission_12_Last_Stage = KXN_Conquest_Mission_12_Days_Timeout }
-						subtract_from_variable = { KXN_Conquest_Mission_12_Last_Stage = KXN_Conquest_Mission_12_Fourth_Stage }
+						else_if = {
+							limit = {
+								KXN = { has_country_flag = KXN_Near_South_Staff_Flag }
+								FROM = { tag = KHM }
+							}
+							add_to_variable = { KXN_Conquest_Mission_12_Days_Timeout = 40 }
+						}
+						set_variable = {
+							KXN_Conquest_Mission_12_Regular_Stage = {
+								value = KXN_Conquest_Mission_12_Days_Timeout
+								divide = 5
+								subtract = 0.5 ## Round down
+								round = yes
+							}
+						}
+						set_variable = {
+							KXN_Conquest_Mission_12_Caspy_Stage = {
+								value = KXN_Conquest_Mission_12_Regular_Stage
+								min = 60  #This math expression acts as a max clamp
+							}
+						}
+						set_variable = {
+							KXN_Conquest_Mission_12_Second_Stage = {
+								value = KXN_Conquest_Mission_12_Regular_Stage
+								add = KXN_Conquest_Mission_12_Caspy_Stage
+								min = 150  #This math expression acts as a max clamp
+							}
+						}
+						set_variable = {
+							KXN_Conquest_Mission_12_Third_Stage = {
+								value = KXN_Conquest_Mission_12_Second_Stage
+								add = KXN_Conquest_Mission_12_Caspy_Stage
+								min = 240  #This math expression acts as a max clamp
+							}
+						}
+						set_variable = {
+							KXN_Conquest_Mission_12_Fourth_Stage = {
+								value = KXN_Conquest_Mission_12_Third_Stage
+								add = KXN_Conquest_Mission_12_Caspy_Stage
+								min = 420  #This math expression acts as a max clamp
+							}
+						}
+						set_variable = {
+							KXN_Conquest_Mission_12_Last_Stage = {
+								value = KXN_Conquest_Mission_12_Days_Timeout
+								subtract = KXN_Conquest_Mission_12_Fourth_Stage
+							}
+						}
 						country_event = { id = lan_kir_utility.120 days = KXN.KXN_Conquest_Mission_12_Regular_Stage }
 						country_event = { id = lan_kir_utility.121 days = KXN.KXN_Conquest_Mission_12_Second_Stage }
 						country_event = { id = lan_kir_utility.122 days = KXN.KXN_Conquest_Mission_12_Third_Stage }
@@ -857,9 +1760,27 @@ on_actions = {
 						add_relation_modifier = { target = event_target:KXN_Conquest_Target_12 modifier = KXN_Stage_1_Modifiers }
 					}
 					activate_mission = KXN_Conquest_Mission_12
-					set_temp_variable = { KXN_Conquest_Mission_12_Days_Timeout = FROM.num_owned_states }
-					multiply_temp_variable = { KXN_Conquest_Mission_12_Days_Timeout = 30 }
+					set_temp_variable = {
+						KXN_Conquest_Mission_12_Days_Timeout = {
+							value = FROM.num_owned_states
+							multiply = 30
+						}
+					}
 					if = {
+						limit = {
+							FROM = {
+								OR = {
+									is_subject_of = KXK
+									is_subject_of = KXH
+									has_country_flag = KXN_Militarch_Chess_Piece_Flag_KXK
+									has_country_flag = KXN_Militarch_Chess_Piece_Flag_KXH
+								}
+							}
+						}
+						custom_effect_tooltip = KXN_Conquest_Mission_Less_Time_tt
+						divide_temp_variable = { KXN_Conquest_Mission_12_Days_Timeout = 2 }
+					}
+					else_if = {
 						limit = {
 							FROM = {
 								NOT = {
@@ -875,6 +1796,13 @@ on_actions = {
 						}
 						set_temp_variable = { KXN_Conquest_Mission_12_Days_Timeout = 365 }
 					}
+					else_if = {
+						limit = {
+							KXN = { has_country_flag = KXN_Near_South_Staff_Flag }
+							FROM = { tag = KHM }
+						}
+						add_to_temp_variable = { KXN_Conquest_Mission_12_Days_Timeout = 40 }
+					}
 					custom_effect_tooltip = KXN_Conquest_Mission_12_Capitulate_tt
 				}
 				else_if = {
@@ -885,9 +1813,26 @@ on_actions = {
 						clear_global_event_target = KXN_Conquest_Target_13
 						FROM = { save_global_event_target_as = KXN_Conquest_Target_13 }
 						set_country_flag = KXN_Conquest_Mission_13_Active
-						set_variable = { KXN_Conquest_Mission_13_Days_Timeout = FROM.num_owned_states }
-						multiply_variable = { KXN_Conquest_Mission_13_Days_Timeout = 30 }
+						set_variable = {
+							KXN_Conquest_Mission_13_Days_Timeout = {
+								value = FROM.num_owned_states
+								multiply = 30
+							}
+						}
 						if = {
+							limit = {
+								FROM = {
+									OR = {
+										is_subject_of = KXK
+										is_subject_of = KXH
+										has_country_flag = KXN_Militarch_Chess_Piece_Flag_KXK
+										has_country_flag = KXN_Militarch_Chess_Piece_Flag_KXH
+									}
+								}
+							}
+							divide_variable = { KXN_Conquest_Mission_13_Days_Timeout = 2 }
+						}
+						else_if = {
 							limit = {
 								FROM = {
 									NOT = {
@@ -903,23 +1848,54 @@ on_actions = {
 							}
 							set_variable = { KXN_Conquest_Mission_13_Days_Timeout = 365 }
 						}
-						set_variable = { KXN_Conquest_Mission_13_Regular_Stage = KXN_Conquest_Mission_13_Days_Timeout }
-						divide_variable = { KXN_Conquest_Mission_13_Regular_Stage = 5 }
-						subtract_from_variable = { KXN_Conquest_Mission_13_Regular_Stage = 0.5 }
-						round_variable = KXN_Conquest_Mission_13_Regular_Stage
-						set_variable = { KXN_Conquest_Mission_13_Caspy_Stage = KXN_Conquest_Mission_13_Regular_Stage }
-						clamp_variable = { var = KXN_Conquest_Mission_13_Regular_Stage max = 60 }
-						set_variable = { KXN_Conquest_Mission_13_Second_Stage = KXN_Conquest_Mission_13_Regular_Stage }
-						add_to_variable = { KXN_Conquest_Mission_13_Second_Stage = KXN_Conquest_Mission_13_Caspy_Stage  }
-						clamp_variable = { var = KXN_Conquest_Mission_13_Second_Stage max = 150 }
-						set_variable = { KXN_Conquest_Mission_13_Third_Stage = KXN_Conquest_Mission_13_Second_Stage }
-						add_to_variable = { KXN_Conquest_Mission_13_Third_Stage = KXN_Conquest_Mission_13_Caspy_Stage }
-						clamp_variable = { var = KXN_Conquest_Mission_13_Third_Stage max = 240 }
-						set_variable = { KXN_Conquest_Mission_13_Fourth_Stage = KXN_Conquest_Mission_13_Third_Stage }
-						add_to_variable = { KXN_Conquest_Mission_13_Fourth_Stage = KXN_Conquest_Mission_13_Caspy_Stage }
-						clamp_variable = { var = KXN_Conquest_Mission_13_Fourth_Stage max = 420 }
-						set_variable = { KXN_Conquest_Mission_13_Last_Stage = KXN_Conquest_Mission_13_Days_Timeout }
-						subtract_from_variable = { KXN_Conquest_Mission_13_Last_Stage = KXN_Conquest_Mission_13_Fourth_Stage }
+						else_if = {
+							limit = {
+								KXN = { has_country_flag = KXN_Near_South_Staff_Flag }
+								FROM = { tag = KHM }
+							}
+							add_to_variable = { KXN_Conquest_Mission_13_Days_Timeout = 40 }
+						}
+						set_variable = {
+							KXN_Conquest_Mission_13_Regular_Stage = {
+								value = KXN_Conquest_Mission_13_Days_Timeout
+								divide = 5
+								subtract = 0.5 ## Round down
+								round = yes
+							}
+						}
+						set_variable = {
+							KXN_Conquest_Mission_13_Caspy_Stage = {
+								value = KXN_Conquest_Mission_13_Regular_Stage
+								min = 60  #This math expression acts as a max clamp
+							}
+						}
+						set_variable = {
+							KXN_Conquest_Mission_13_Second_Stage = {
+								value = KXN_Conquest_Mission_13_Regular_Stage
+								add = KXN_Conquest_Mission_13_Caspy_Stage
+								min = 150  #This math expression acts as a max clamp
+							}
+						}
+						set_variable = {
+							KXN_Conquest_Mission_13_Third_Stage = {
+								value = KXN_Conquest_Mission_13_Second_Stage
+								add = KXN_Conquest_Mission_13_Caspy_Stage
+								min = 240  #This math expression acts as a max clamp
+							}
+						}
+						set_variable = {
+							KXN_Conquest_Mission_13_Fourth_Stage = {
+								value = KXN_Conquest_Mission_13_Third_Stage
+								add = KXN_Conquest_Mission_13_Caspy_Stage
+								min = 420  #This math expression acts as a max clamp
+							}
+						}
+						set_variable = {
+							KXN_Conquest_Mission_13_Last_Stage = {
+								value = KXN_Conquest_Mission_13_Days_Timeout
+								subtract = KXN_Conquest_Mission_13_Fourth_Stage
+							}
+						}
 						country_event = { id = lan_kir_utility.130 days = KXN.KXN_Conquest_Mission_13_Regular_Stage }
 						country_event = { id = lan_kir_utility.131 days = KXN.KXN_Conquest_Mission_13_Second_Stage }
 						country_event = { id = lan_kir_utility.132 days = KXN.KXN_Conquest_Mission_13_Third_Stage }
@@ -927,9 +1903,27 @@ on_actions = {
 						add_relation_modifier = { target = event_target:KXN_Conquest_Target_13 modifier = KXN_Stage_1_Modifiers }
 					}
 					activate_mission = KXN_Conquest_Mission_13
-					set_temp_variable = { KXN_Conquest_Mission_13_Days_Timeout = FROM.num_owned_states }
-					multiply_temp_variable = { KXN_Conquest_Mission_13_Days_Timeout = 30 }
+					set_temp_variable = {
+						KXN_Conquest_Mission_13_Days_Timeout = {
+							value = FROM.num_owned_states
+							multiply = 30
+						}
+					}
 					if = {
+						limit = {
+							FROM = {
+								OR = {
+									is_subject_of = KXK
+									is_subject_of = KXH
+									has_country_flag = KXN_Militarch_Chess_Piece_Flag_KXK
+									has_country_flag = KXN_Militarch_Chess_Piece_Flag_KXH
+								}
+							}
+						}
+						custom_effect_tooltip = KXN_Conquest_Mission_Less_Time_tt
+						divide_temp_variable = { KXN_Conquest_Mission_13_Days_Timeout = 2 }
+					}
+					else_if = {
 						limit = {
 							FROM = {
 								NOT = {
@@ -945,6 +1939,13 @@ on_actions = {
 						}
 						set_temp_variable = { KXN_Conquest_Mission_13_Days_Timeout = 365 }
 					}
+					else_if = {
+						limit = {
+							KXN = { has_country_flag = KXN_Near_South_Staff_Flag }
+							FROM = { tag = KHM }
+						}
+						add_to_temp_variable = { KXN_Conquest_Mission_13_Days_Timeout = 40 }
+					}
 					custom_effect_tooltip = KXN_Conquest_Mission_13_Capitulate_tt
 				}
 				else_if = {
@@ -955,9 +1956,26 @@ on_actions = {
 						clear_global_event_target = KXN_Conquest_Target_14
 						FROM = { save_global_event_target_as = KXN_Conquest_Target_14 }
 						set_country_flag = KXN_Conquest_Mission_14_Active
-						set_variable = { KXN_Conquest_Mission_14_Days_Timeout = FROM.num_owned_states }
-						multiply_variable = { KXN_Conquest_Mission_14_Days_Timeout = 30 }
+						set_variable = {
+							KXN_Conquest_Mission_14_Days_Timeout = {
+								value = FROM.num_owned_states
+								multiply = 30
+							}
+						}
 						if = {
+							limit = {
+								FROM = {
+									OR = {
+										is_subject_of = KXK
+										is_subject_of = KXH
+										has_country_flag = KXN_Militarch_Chess_Piece_Flag_KXK
+										has_country_flag = KXN_Militarch_Chess_Piece_Flag_KXH
+									}
+								}
+							}
+							divide_variable = { KXN_Conquest_Mission_14_Days_Timeout = 2 }
+						}
+						else_if = {
 							limit = {
 								FROM = {
 									NOT = {
@@ -973,23 +1991,54 @@ on_actions = {
 							}
 							set_variable = { KXN_Conquest_Mission_14_Days_Timeout = 365 }
 						}
-						set_variable = { KXN_Conquest_Mission_14_Regular_Stage = KXN_Conquest_Mission_14_Days_Timeout }
-						divide_variable = { KXN_Conquest_Mission_14_Regular_Stage = 5 }
-						subtract_from_variable = { KXN_Conquest_Mission_14_Regular_Stage = 0.5 }
-						round_variable = KXN_Conquest_Mission_14_Regular_Stage
-						set_variable = { KXN_Conquest_Mission_14_Caspy_Stage = KXN_Conquest_Mission_14_Regular_Stage }
-						clamp_variable = { var = KXN_Conquest_Mission_14_Regular_Stage max = 60 }
-						set_variable = { KXN_Conquest_Mission_14_Second_Stage = KXN_Conquest_Mission_14_Regular_Stage }
-						add_to_variable = { KXN_Conquest_Mission_14_Second_Stage = KXN_Conquest_Mission_14_Caspy_Stage  }
-						clamp_variable = { var = KXN_Conquest_Mission_14_Second_Stage max = 150 }
-						set_variable = { KXN_Conquest_Mission_14_Third_Stage = KXN_Conquest_Mission_14_Second_Stage }
-						add_to_variable = { KXN_Conquest_Mission_14_Third_Stage = KXN_Conquest_Mission_14_Caspy_Stage }
-						clamp_variable = { var = KXN_Conquest_Mission_14_Third_Stage max = 240 }
-						set_variable = { KXN_Conquest_Mission_14_Fourth_Stage = KXN_Conquest_Mission_14_Third_Stage }
-						add_to_variable = { KXN_Conquest_Mission_14_Fourth_Stage = KXN_Conquest_Mission_14_Caspy_Stage }
-						clamp_variable = { var = KXN_Conquest_Mission_14_Fourth_Stage max = 420 }
-						set_variable = { KXN_Conquest_Mission_14_Last_Stage = KXN_Conquest_Mission_14_Days_Timeout }
-						subtract_from_variable = { KXN_Conquest_Mission_14_Last_Stage = KXN_Conquest_Mission_14_Fourth_Stage }
+						else_if = {
+							limit = {
+								KXN = { has_country_flag = KXN_Near_South_Staff_Flag }
+								FROM = { tag = KHM }
+							}
+							add_to_variable = { KXN_Conquest_Mission_14_Days_Timeout = 40 }
+						}
+						set_variable = {
+							KXN_Conquest_Mission_14_Regular_Stage = {
+								value = KXN_Conquest_Mission_14_Days_Timeout
+								divide = 5
+								subtract = 0.5 ## Round down
+								round = yes
+							}
+						}
+						set_variable = {
+							KXN_Conquest_Mission_14_Caspy_Stage = {
+								value = KXN_Conquest_Mission_14_Regular_Stage
+								min = 60  #This math expression acts as a max clamp
+							}
+						}
+						set_variable = {
+							KXN_Conquest_Mission_14_Second_Stage = {
+								value = KXN_Conquest_Mission_14_Regular_Stage
+								add = KXN_Conquest_Mission_14_Caspy_Stage
+								min = 150  #This math expression acts as a max clamp
+							}
+						}
+						set_variable = {
+							KXN_Conquest_Mission_14_Third_Stage = {
+								value = KXN_Conquest_Mission_14_Second_Stage
+								add = KXN_Conquest_Mission_14_Caspy_Stage
+								min = 240  #This math expression acts as a max clamp
+							}
+						}
+						set_variable = {
+							KXN_Conquest_Mission_14_Fourth_Stage = {
+								value = KXN_Conquest_Mission_14_Third_Stage
+								add = KXN_Conquest_Mission_14_Caspy_Stage
+								min = 420  #This math expression acts as a max clamp
+							}
+						}
+						set_variable = {
+							KXN_Conquest_Mission_14_Last_Stage = {
+								value = KXN_Conquest_Mission_14_Days_Timeout
+								subtract = KXN_Conquest_Mission_14_Fourth_Stage
+							}
+						}
 						country_event = { id = lan_kir_utility.140 days = KXN.KXN_Conquest_Mission_14_Regular_Stage }
 						country_event = { id = lan_kir_utility.141 days = KXN.KXN_Conquest_Mission_14_Second_Stage }
 						country_event = { id = lan_kir_utility.142 days = KXN.KXN_Conquest_Mission_14_Third_Stage }
@@ -997,9 +2046,27 @@ on_actions = {
 						add_relation_modifier = { target = event_target:KXN_Conquest_Target_14 modifier = KXN_Stage_1_Modifiers }
 					}
 					activate_mission = KXN_Conquest_Mission_14
-					set_temp_variable = { KXN_Conquest_Mission_14_Days_Timeout = FROM.num_owned_states }
-					multiply_temp_variable = { KXN_Conquest_Mission_14_Days_Timeout = 30 }
+					set_temp_variable = {
+						KXN_Conquest_Mission_14_Days_Timeout = {
+							value = FROM.num_owned_states
+							multiply = 30
+						}
+					}
 					if = {
+						limit = {
+							FROM = {
+								OR = {
+									is_subject_of = KXK
+									is_subject_of = KXH
+									has_country_flag = KXN_Militarch_Chess_Piece_Flag_KXK
+									has_country_flag = KXN_Militarch_Chess_Piece_Flag_KXH
+								}
+							}
+						}
+						custom_effect_tooltip = KXN_Conquest_Mission_Less_Time_tt
+						divide_temp_variable = { KXN_Conquest_Mission_14_Days_Timeout = 2 }
+					}
+					else_if = {
 						limit = {
 							FROM = {
 								NOT = {
@@ -1015,6 +2082,13 @@ on_actions = {
 						}
 						set_temp_variable = { KXN_Conquest_Mission_14_Days_Timeout = 365 }
 					}
+					else_if = {
+						limit = {
+							KXN = { has_country_flag = KXN_Near_South_Staff_Flag }
+							FROM = { tag = KHM }
+						}
+						add_to_temp_variable = { KXN_Conquest_Mission_14_Days_Timeout = 40 }
+					}
 					custom_effect_tooltip = KXN_Conquest_Mission_14_Capitulate_tt
 				}
 				else_if = {
@@ -1025,9 +2099,26 @@ on_actions = {
 						clear_global_event_target = KXN_Conquest_Target_15
 						FROM = { save_global_event_target_as = KXN_Conquest_Target_15 }
 						set_country_flag = KXN_Conquest_Mission_15_Active
-						set_variable = { KXN_Conquest_Mission_15_Days_Timeout = FROM.num_owned_states }
-						multiply_variable = { KXN_Conquest_Mission_15_Days_Timeout = 30 }
+						set_variable = {
+							KXN_Conquest_Mission_15_Days_Timeout = {
+								value = FROM.num_owned_states
+								multiply = 30
+							}
+						}
 						if = {
+							limit = {
+								FROM = {
+									OR = {
+										is_subject_of = KXK
+										is_subject_of = KXH
+										has_country_flag = KXN_Militarch_Chess_Piece_Flag_KXK
+										has_country_flag = KXN_Militarch_Chess_Piece_Flag_KXH
+									}
+								}
+							}
+							divide_variable = { KXN_Conquest_Mission_15_Days_Timeout = 2 }
+						}
+						else_if = {
 							limit = {
 								FROM = {
 									NOT = {
@@ -1043,23 +2134,54 @@ on_actions = {
 							}
 							set_variable = { KXN_Conquest_Mission_15_Days_Timeout = 365 }
 						}
-						set_variable = { KXN_Conquest_Mission_15_Regular_Stage = KXN_Conquest_Mission_15_Days_Timeout }
-						divide_variable = { KXN_Conquest_Mission_15_Regular_Stage = 5 }
-						subtract_from_variable = { KXN_Conquest_Mission_15_Regular_Stage = 0.5 }
-						round_variable = KXN_Conquest_Mission_15_Regular_Stage
-						set_variable = { KXN_Conquest_Mission_15_Caspy_Stage = KXN_Conquest_Mission_15_Regular_Stage }
-						clamp_variable = { var = KXN_Conquest_Mission_15_Regular_Stage max = 60 }
-						set_variable = { KXN_Conquest_Mission_15_Second_Stage = KXN_Conquest_Mission_15_Regular_Stage }
-						add_to_variable = { KXN_Conquest_Mission_15_Second_Stage = KXN_Conquest_Mission_15_Caspy_Stage  }
-						clamp_variable = { var = KXN_Conquest_Mission_15_Second_Stage max = 150 }
-						set_variable = { KXN_Conquest_Mission_15_Third_Stage = KXN_Conquest_Mission_15_Second_Stage }
-						add_to_variable = { KXN_Conquest_Mission_15_Third_Stage = KXN_Conquest_Mission_15_Caspy_Stage }
-						clamp_variable = { var = KXN_Conquest_Mission_15_Third_Stage max = 240 }
-						set_variable = { KXN_Conquest_Mission_15_Fourth_Stage = KXN_Conquest_Mission_15_Third_Stage }
-						add_to_variable = { KXN_Conquest_Mission_15_Fourth_Stage = KXN_Conquest_Mission_15_Caspy_Stage }
-						clamp_variable = { var = KXN_Conquest_Mission_15_Fourth_Stage max = 420 }
-						set_variable = { KXN_Conquest_Mission_15_Last_Stage = KXN_Conquest_Mission_15_Days_Timeout }
-						subtract_from_variable = { KXN_Conquest_Mission_15_Last_Stage = KXN_Conquest_Mission_15_Fourth_Stage }
+						else_if = {
+							limit = {
+								KXN = { has_country_flag = KXN_Near_South_Staff_Flag }
+								FROM = { tag = KHM }
+							}
+							add_to_variable = { KXN_Conquest_Mission_15_Days_Timeout = 40 }
+						}
+						set_variable = {
+							KXN_Conquest_Mission_15_Regular_Stage = {
+								value = KXN_Conquest_Mission_15_Days_Timeout
+								divide = 5
+								subtract = 0.5 ## Round down
+								round = yes
+							}
+						}
+						set_variable = {
+							KXN_Conquest_Mission_15_Caspy_Stage = {
+								value = KXN_Conquest_Mission_15_Regular_Stage
+								min = 60  #This math expression acts as a max clamp
+							}
+						}
+						set_variable = {
+							KXN_Conquest_Mission_15_Second_Stage = {
+								value = KXN_Conquest_Mission_15_Regular_Stage
+								add = KXN_Conquest_Mission_15_Caspy_Stage
+								min = 150  #This math expression acts as a max clamp
+							}
+						}
+						set_variable = {
+							KXN_Conquest_Mission_15_Third_Stage = {
+								value = KXN_Conquest_Mission_15_Second_Stage
+								add = KXN_Conquest_Mission_15_Caspy_Stage
+								min = 240  #This math expression acts as a max clamp
+							}
+						}
+						set_variable = {
+							KXN_Conquest_Mission_15_Fourth_Stage = {
+								value = KXN_Conquest_Mission_15_Third_Stage
+								add = KXN_Conquest_Mission_15_Caspy_Stage
+								min = 420  #This math expression acts as a max clamp
+							}
+						}
+						set_variable = {
+							KXN_Conquest_Mission_15_Last_Stage = {
+								value = KXN_Conquest_Mission_15_Days_Timeout
+								subtract = KXN_Conquest_Mission_15_Fourth_Stage
+							}
+						}
 						country_event = { id = lan_kir_utility.150 days = KXN.KXN_Conquest_Mission_15_Regular_Stage }
 						country_event = { id = lan_kir_utility.151 days = KXN.KXN_Conquest_Mission_15_Second_Stage }
 						country_event = { id = lan_kir_utility.152 days = KXN.KXN_Conquest_Mission_15_Third_Stage }
@@ -1067,9 +2189,27 @@ on_actions = {
 						add_relation_modifier = { target = event_target:KXN_Conquest_Target_15 modifier = KXN_Stage_1_Modifiers }
 					}
 					activate_mission = KXN_Conquest_Mission_15
-					set_temp_variable = { KXN_Conquest_Mission_15_Days_Timeout = FROM.num_owned_states }
-					multiply_temp_variable = { KXN_Conquest_Mission_15_Days_Timeout = 30 }
+					set_temp_variable = {
+						KXN_Conquest_Mission_15_Days_Timeout = {
+							value = FROM.num_owned_states
+							multiply = 30
+						}
+					}
 					if = {
+						limit = {
+							FROM = {
+								OR = {
+									is_subject_of = KXK
+									is_subject_of = KXH
+									has_country_flag = KXN_Militarch_Chess_Piece_Flag_KXK
+									has_country_flag = KXN_Militarch_Chess_Piece_Flag_KXH
+								}
+							}
+						}
+						custom_effect_tooltip = KXN_Conquest_Mission_Less_Time_tt
+						divide_temp_variable = { KXN_Conquest_Mission_15_Days_Timeout = 2 }
+					}
+					else_if = {
 						limit = {
 							FROM = {
 								NOT = {
@@ -1085,6 +2225,13 @@ on_actions = {
 						}
 						set_temp_variable = { KXN_Conquest_Mission_15_Days_Timeout = 365 }
 					}
+					else_if = {
+						limit = {
+							KXN = { has_country_flag = KXN_Near_South_Staff_Flag }
+							FROM = { tag = KHM }
+						}
+						add_to_temp_variable = { KXN_Conquest_Mission_15_Days_Timeout = 40 }
+					}
 					custom_effect_tooltip = KXN_Conquest_Mission_15_Capitulate_tt
 				}
 				else_if = {
@@ -1095,9 +2242,26 @@ on_actions = {
 						clear_global_event_target = KXN_Conquest_Target_16
 						FROM = { save_global_event_target_as = KXN_Conquest_Target_16 }
 						set_country_flag = KXN_Conquest_Mission_16_Active
-						set_variable = { KXN_Conquest_Mission_16_Days_Timeout = FROM.num_owned_states }
-						multiply_variable = { KXN_Conquest_Mission_16_Days_Timeout = 30 }
+						set_variable = {
+							KXN_Conquest_Mission_16_Days_Timeout = {
+								value = FROM.num_owned_states
+								multiply = 30
+							}
+						}
 						if = {
+							limit = {
+								FROM = {
+									OR = {
+										is_subject_of = KXK
+										is_subject_of = KXH
+										has_country_flag = KXN_Militarch_Chess_Piece_Flag_KXK
+										has_country_flag = KXN_Militarch_Chess_Piece_Flag_KXH
+									}
+								}
+							}
+							divide_variable = { KXN_Conquest_Mission_16_Days_Timeout = 2 }
+						}
+						else_if = {
 							limit = {
 								FROM = {
 									NOT = {
@@ -1113,23 +2277,54 @@ on_actions = {
 							}
 							set_variable = { KXN_Conquest_Mission_16_Days_Timeout = 365 }
 						}
-						set_variable = { KXN_Conquest_Mission_16_Regular_Stage = KXN_Conquest_Mission_16_Days_Timeout }
-						divide_variable = { KXN_Conquest_Mission_16_Regular_Stage = 5 }
-						subtract_from_variable = { KXN_Conquest_Mission_16_Regular_Stage = 0.5 }
-						round_variable = KXN_Conquest_Mission_16_Regular_Stage
-						set_variable = { KXN_Conquest_Mission_16_Caspy_Stage = KXN_Conquest_Mission_16_Regular_Stage }
-						clamp_variable = { var = KXN_Conquest_Mission_16_Regular_Stage max = 60 }
-						set_variable = { KXN_Conquest_Mission_16_Second_Stage = KXN_Conquest_Mission_16_Regular_Stage }
-						add_to_variable = { KXN_Conquest_Mission_16_Second_Stage = KXN_Conquest_Mission_16_Caspy_Stage  }
-						clamp_variable = { var = KXN_Conquest_Mission_16_Second_Stage max = 150 }
-						set_variable = { KXN_Conquest_Mission_16_Third_Stage = KXN_Conquest_Mission_16_Second_Stage }
-						add_to_variable = { KXN_Conquest_Mission_16_Third_Stage = KXN_Conquest_Mission_16_Caspy_Stage }
-						clamp_variable = { var = KXN_Conquest_Mission_16_Third_Stage max = 240 }
-						set_variable = { KXN_Conquest_Mission_16_Fourth_Stage = KXN_Conquest_Mission_16_Third_Stage }
-						add_to_variable = { KXN_Conquest_Mission_16_Fourth_Stage = KXN_Conquest_Mission_16_Caspy_Stage }
-						clamp_variable = { var = KXN_Conquest_Mission_16_Fourth_Stage max = 420 }
-						set_variable = { KXN_Conquest_Mission_16_Last_Stage = KXN_Conquest_Mission_16_Days_Timeout }
-						subtract_from_variable = { KXN_Conquest_Mission_16_Last_Stage = KXN_Conquest_Mission_16_Fourth_Stage }
+						else_if = {
+							limit = {
+								KXN = { has_country_flag = KXN_Near_South_Staff_Flag }
+								FROM = { tag = KHM }
+							}
+							add_to_variable = { KXN_Conquest_Mission_16_Days_Timeout = 40 }
+						}
+						set_variable = {
+							KXN_Conquest_Mission_16_Regular_Stage = {
+								value = KXN_Conquest_Mission_16_Days_Timeout
+								divide = 5
+								subtract = 0.5 ## Round down
+								round = yes
+							}
+						}
+						set_variable = {
+							KXN_Conquest_Mission_16_Caspy_Stage = {
+								value = KXN_Conquest_Mission_16_Regular_Stage
+								min = 60  #This math expression acts as a max clamp
+							}
+						}
+						set_variable = {
+							KXN_Conquest_Mission_16_Second_Stage = {
+								value = KXN_Conquest_Mission_16_Regular_Stage
+								add = KXN_Conquest_Mission_16_Caspy_Stage
+								min = 150  #This math expression acts as a max clamp
+							}
+						}
+						set_variable = {
+							KXN_Conquest_Mission_16_Third_Stage = {
+								value = KXN_Conquest_Mission_16_Second_Stage
+								add = KXN_Conquest_Mission_16_Caspy_Stage
+								min = 240  #This math expression acts as a max clamp
+							}
+						}
+						set_variable = {
+							KXN_Conquest_Mission_16_Fourth_Stage = {
+								value = KXN_Conquest_Mission_16_Third_Stage
+								add = KXN_Conquest_Mission_16_Caspy_Stage
+								min = 420  #This math expression acts as a max clamp
+							}
+						}
+						set_variable = {
+							KXN_Conquest_Mission_16_Last_Stage = {
+								value = KXN_Conquest_Mission_16_Days_Timeout
+								subtract = KXN_Conquest_Mission_16_Fourth_Stage
+							}
+						}
 						country_event = { id = lan_kir_utility.160 days = KXN.KXN_Conquest_Mission_16_Regular_Stage }
 						country_event = { id = lan_kir_utility.161 days = KXN.KXN_Conquest_Mission_16_Second_Stage }
 						country_event = { id = lan_kir_utility.162 days = KXN.KXN_Conquest_Mission_16_Third_Stage }
@@ -1137,9 +2332,27 @@ on_actions = {
 						add_relation_modifier = { target = event_target:KXN_Conquest_Target_16 modifier = KXN_Stage_1_Modifiers }
 					}
 					activate_mission = KXN_Conquest_Mission_16
-					set_temp_variable = { KXN_Conquest_Mission_16_Days_Timeout = FROM.num_owned_states }
-					multiply_temp_variable = { KXN_Conquest_Mission_16_Days_Timeout = 30 }
+					set_temp_variable = {
+						KXN_Conquest_Mission_16_Days_Timeout = {
+							value = FROM.num_owned_states
+							multiply = 30
+						}
+					}
 					if = {
+						limit = {
+							FROM = {
+								OR = {
+									is_subject_of = KXK
+									is_subject_of = KXH
+									has_country_flag = KXN_Militarch_Chess_Piece_Flag_KXK
+									has_country_flag = KXN_Militarch_Chess_Piece_Flag_KXH
+								}
+							}
+						}
+						custom_effect_tooltip = KXN_Conquest_Mission_Less_Time_tt
+						divide_temp_variable = { KXN_Conquest_Mission_16_Days_Timeout = 2 }
+					}
+					else_if = {
 						limit = {
 							FROM = {
 								NOT = {
@@ -1155,6 +2368,13 @@ on_actions = {
 						}
 						set_temp_variable = { KXN_Conquest_Mission_16_Days_Timeout = 365 }
 					}
+					else_if = {
+						limit = {
+							KXN = { has_country_flag = KXN_Near_South_Staff_Flag }
+							FROM = { tag = KHM }
+						}
+						add_to_temp_variable = { KXN_Conquest_Mission_16_Days_Timeout = 40 }
+					}
 					custom_effect_tooltip = KXN_Conquest_Mission_16_Capitulate_tt
 				}
 				else_if = {
@@ -1165,9 +2385,26 @@ on_actions = {
 						clear_global_event_target = KXN_Conquest_Target_17
 						FROM = { save_global_event_target_as = KXN_Conquest_Target_17 }
 						set_country_flag = KXN_Conquest_Mission_17_Active
-						set_variable = { KXN_Conquest_Mission_17_Days_Timeout = FROM.num_owned_states }
-						multiply_variable = { KXN_Conquest_Mission_17_Days_Timeout = 30 }
+						set_variable = {
+							KXN_Conquest_Mission_17_Days_Timeout = {
+								value = FROM.num_owned_states
+								multiply = 30
+							}
+						}
 						if = {
+							limit = {
+								FROM = {
+									OR = {
+										is_subject_of = KXK
+										is_subject_of = KXH
+										has_country_flag = KXN_Militarch_Chess_Piece_Flag_KXK
+										has_country_flag = KXN_Militarch_Chess_Piece_Flag_KXH
+									}
+								}
+							}
+							divide_variable = { KXN_Conquest_Mission_17_Days_Timeout = 2 }
+						}
+						else_if = {
 							limit = {
 								FROM = {
 									NOT = {
@@ -1183,23 +2420,54 @@ on_actions = {
 							}
 							set_variable = { KXN_Conquest_Mission_17_Days_Timeout = 365 }
 						}
-						set_variable = { KXN_Conquest_Mission_17_Regular_Stage = KXN_Conquest_Mission_17_Days_Timeout }
-						divide_variable = { KXN_Conquest_Mission_17_Regular_Stage = 5 }
-						subtract_from_variable = { KXN_Conquest_Mission_17_Regular_Stage = 0.5 }
-						round_variable = KXN_Conquest_Mission_17_Regular_Stage
-						set_variable = { KXN_Conquest_Mission_17_Caspy_Stage = KXN_Conquest_Mission_17_Regular_Stage }
-						clamp_variable = { var = KXN_Conquest_Mission_17_Regular_Stage max = 60 }
-						set_variable = { KXN_Conquest_Mission_17_Second_Stage = KXN_Conquest_Mission_17_Regular_Stage }
-						add_to_variable = { KXN_Conquest_Mission_17_Second_Stage = KXN_Conquest_Mission_17_Caspy_Stage  }
-						clamp_variable = { var = KXN_Conquest_Mission_17_Second_Stage max = 150 }
-						set_variable = { KXN_Conquest_Mission_17_Third_Stage = KXN_Conquest_Mission_17_Second_Stage }
-						add_to_variable = { KXN_Conquest_Mission_17_Third_Stage = KXN_Conquest_Mission_17_Caspy_Stage }
-						clamp_variable = { var = KXN_Conquest_Mission_17_Third_Stage max = 240 }
-						set_variable = { KXN_Conquest_Mission_17_Fourth_Stage = KXN_Conquest_Mission_17_Third_Stage }
-						add_to_variable = { KXN_Conquest_Mission_17_Fourth_Stage = KXN_Conquest_Mission_17_Caspy_Stage }
-						clamp_variable = { var = KXN_Conquest_Mission_17_Fourth_Stage max = 420 }
-						set_variable = { KXN_Conquest_Mission_17_Last_Stage = KXN_Conquest_Mission_17_Days_Timeout }
-						subtract_from_variable = { KXN_Conquest_Mission_17_Last_Stage = KXN_Conquest_Mission_17_Fourth_Stage }
+						else_if = {
+							limit = {
+								KXN = { has_country_flag = KXN_Near_South_Staff_Flag }
+								FROM = { tag = KHM }
+							}
+							add_to_variable = { KXN_Conquest_Mission_17_Days_Timeout = 40 }
+						}
+						set_variable = {
+							KXN_Conquest_Mission_17_Regular_Stage = {
+								value = KXN_Conquest_Mission_17_Days_Timeout
+								divide = 5
+								subtract = 0.5 ## Round down
+								round = yes
+							}
+						}
+						set_variable = {
+							KXN_Conquest_Mission_17_Caspy_Stage = {
+								value = KXN_Conquest_Mission_17_Regular_Stage
+								min = 60  #This math expression acts as a max clamp
+							}
+						}
+						set_variable = {
+							KXN_Conquest_Mission_17_Second_Stage = {
+								value = KXN_Conquest_Mission_17_Regular_Stage
+								add = KXN_Conquest_Mission_17_Caspy_Stage
+								min = 150  #This math expression acts as a max clamp
+							}
+						}
+						set_variable = {
+							KXN_Conquest_Mission_17_Third_Stage = {
+								value = KXN_Conquest_Mission_17_Second_Stage
+								add = KXN_Conquest_Mission_17_Caspy_Stage
+								min = 240  #This math expression acts as a max clamp
+							}
+						}
+						set_variable = {
+							KXN_Conquest_Mission_17_Fourth_Stage = {
+								value = KXN_Conquest_Mission_17_Third_Stage
+								add = KXN_Conquest_Mission_17_Caspy_Stage
+								min = 420  #This math expression acts as a max clamp
+							}
+						}
+						set_variable = {
+							KXN_Conquest_Mission_17_Last_Stage = {
+								value = KXN_Conquest_Mission_17_Days_Timeout
+								subtract = KXN_Conquest_Mission_17_Fourth_Stage
+							}
+						}
 						country_event = { id = lan_kir_utility.170 days = KXN.KXN_Conquest_Mission_17_Regular_Stage }
 						country_event = { id = lan_kir_utility.171 days = KXN.KXN_Conquest_Mission_17_Second_Stage }
 						country_event = { id = lan_kir_utility.172 days = KXN.KXN_Conquest_Mission_17_Third_Stage }
@@ -1207,9 +2475,27 @@ on_actions = {
 						add_relation_modifier = { target = event_target:KXN_Conquest_Target_17 modifier = KXN_Stage_1_Modifiers }
 					}
 					activate_mission = KXN_Conquest_Mission_17
-					set_temp_variable = { KXN_Conquest_Mission_17_Days_Timeout = FROM.num_owned_states }
-					multiply_temp_variable = { KXN_Conquest_Mission_17_Days_Timeout = 30 }
+					set_temp_variable = {
+						KXN_Conquest_Mission_17_Days_Timeout = {
+							value = FROM.num_owned_states
+							multiply = 30
+						}
+					}
 					if = {
+						limit = {
+							FROM = {
+								OR = {
+									is_subject_of = KXK
+									is_subject_of = KXH
+									has_country_flag = KXN_Militarch_Chess_Piece_Flag_KXK
+									has_country_flag = KXN_Militarch_Chess_Piece_Flag_KXH
+								}
+							}
+						}
+						custom_effect_tooltip = KXN_Conquest_Mission_Less_Time_tt
+						divide_temp_variable = { KXN_Conquest_Mission_17_Days_Timeout = 2 }
+					}
+					else_if = {
 						limit = {
 							FROM = {
 								NOT = {
@@ -1225,6 +2511,13 @@ on_actions = {
 						}
 						set_temp_variable = { KXN_Conquest_Mission_17_Days_Timeout = 365 }
 					}
+					else_if = {
+						limit = {
+							KXN = { has_country_flag = KXN_Near_South_Staff_Flag }
+							FROM = { tag = KHM }
+						}
+						add_to_temp_variable = { KXN_Conquest_Mission_17_Days_Timeout = 40 }
+					}
 					custom_effect_tooltip = KXN_Conquest_Mission_17_Capitulate_tt
 				}
 				else_if = {
@@ -1235,9 +2528,26 @@ on_actions = {
 						clear_global_event_target = KXN_Conquest_Target_18
 						FROM = { save_global_event_target_as = KXN_Conquest_Target_18 }
 						set_country_flag = KXN_Conquest_Mission_18_Active
-						set_variable = { KXN_Conquest_Mission_18_Days_Timeout = FROM.num_owned_states }
-						multiply_variable = { KXN_Conquest_Mission_18_Days_Timeout = 30 }
+						set_variable = {
+							KXN_Conquest_Mission_18_Days_Timeout = {
+								value = FROM.num_owned_states
+								multiply = 30
+							}
+						}
 						if = {
+							limit = {
+								FROM = {
+									OR = {
+										is_subject_of = KXK
+										is_subject_of = KXH
+										has_country_flag = KXN_Militarch_Chess_Piece_Flag_KXK
+										has_country_flag = KXN_Militarch_Chess_Piece_Flag_KXH
+									}
+								}
+							}
+							divide_variable = { KXN_Conquest_Mission_18_Days_Timeout = 2 }
+						}
+						else_if = {
 							limit = {
 								FROM = {
 									NOT = {
@@ -1253,23 +2563,54 @@ on_actions = {
 							}
 							set_variable = { KXN_Conquest_Mission_18_Days_Timeout = 365 }
 						}
-						set_variable = { KXN_Conquest_Mission_18_Regular_Stage = KXN_Conquest_Mission_18_Days_Timeout }
-						divide_variable = { KXN_Conquest_Mission_18_Regular_Stage = 5 }
-						subtract_from_variable = { KXN_Conquest_Mission_18_Regular_Stage = 0.5 }
-						round_variable = KXN_Conquest_Mission_18_Regular_Stage
-						set_variable = { KXN_Conquest_Mission_18_Caspy_Stage = KXN_Conquest_Mission_18_Regular_Stage }
-						clamp_variable = { var = KXN_Conquest_Mission_18_Regular_Stage max = 60 }
-						set_variable = { KXN_Conquest_Mission_18_Second_Stage = KXN_Conquest_Mission_18_Regular_Stage }
-						add_to_variable = { KXN_Conquest_Mission_18_Second_Stage = KXN_Conquest_Mission_18_Caspy_Stage  }
-						clamp_variable = { var = KXN_Conquest_Mission_18_Second_Stage max = 150 }
-						set_variable = { KXN_Conquest_Mission_18_Third_Stage = KXN_Conquest_Mission_18_Second_Stage }
-						add_to_variable = { KXN_Conquest_Mission_18_Third_Stage = KXN_Conquest_Mission_18_Caspy_Stage }
-						clamp_variable = { var = KXN_Conquest_Mission_18_Third_Stage max = 240 }
-						set_variable = { KXN_Conquest_Mission_18_Fourth_Stage = KXN_Conquest_Mission_18_Third_Stage }
-						add_to_variable = { KXN_Conquest_Mission_18_Fourth_Stage = KXN_Conquest_Mission_18_Caspy_Stage }
-						clamp_variable = { var = KXN_Conquest_Mission_18_Fourth_Stage max = 420 }
-						set_variable = { KXN_Conquest_Mission_18_Last_Stage = KXN_Conquest_Mission_18_Days_Timeout }
-						subtract_from_variable = { KXN_Conquest_Mission_18_Last_Stage = KXN_Conquest_Mission_18_Fourth_Stage }
+						else_if = {
+							limit = {
+								KXN = { has_country_flag = KXN_Near_South_Staff_Flag }
+								FROM = { tag = KHM }
+							}
+							add_to_variable = { KXN_Conquest_Mission_18_Days_Timeout = 40 }
+						}
+						set_variable = {
+							KXN_Conquest_Mission_18_Regular_Stage = {
+								value = KXN_Conquest_Mission_18_Days_Timeout
+								divide = 5
+								subtract = 0.5 ## Round down
+								round = yes
+							}
+						}
+						set_variable = {
+							KXN_Conquest_Mission_18_Caspy_Stage = {
+								value = KXN_Conquest_Mission_18_Regular_Stage
+								min = 60  #This math expression acts as a max clamp
+							}
+						}
+						set_variable = {
+							KXN_Conquest_Mission_18_Second_Stage = {
+								value = KXN_Conquest_Mission_18_Regular_Stage
+								add = KXN_Conquest_Mission_18_Caspy_Stage
+								min = 150  #This math expression acts as a max clamp
+							}
+						}
+						set_variable = {
+							KXN_Conquest_Mission_18_Third_Stage = {
+								value = KXN_Conquest_Mission_18_Second_Stage
+								add = KXN_Conquest_Mission_18_Caspy_Stage
+								min = 240  #This math expression acts as a max clamp
+							}
+						}
+						set_variable = {
+							KXN_Conquest_Mission_18_Fourth_Stage = {
+								value = KXN_Conquest_Mission_18_Third_Stage
+								add = KXN_Conquest_Mission_18_Caspy_Stage
+								min = 420  #This math expression acts as a max clamp
+							}
+						}
+						set_variable = {
+							KXN_Conquest_Mission_18_Last_Stage = {
+								value = KXN_Conquest_Mission_18_Days_Timeout
+								subtract = KXN_Conquest_Mission_18_Fourth_Stage
+							}
+						}
 						country_event = { id = lan_kir_utility.180 days = KXN.KXN_Conquest_Mission_18_Regular_Stage }
 						country_event = { id = lan_kir_utility.181 days = KXN.KXN_Conquest_Mission_18_Second_Stage }
 						country_event = { id = lan_kir_utility.182 days = KXN.KXN_Conquest_Mission_18_Third_Stage }
@@ -1277,9 +2618,27 @@ on_actions = {
 						add_relation_modifier = { target = event_target:KXN_Conquest_Target_18 modifier = KXN_Stage_1_Modifiers }
 					}
 					activate_mission = KXN_Conquest_Mission_18
-					set_temp_variable = { KXN_Conquest_Mission_18_Days_Timeout = FROM.num_owned_states }
-					multiply_temp_variable = { KXN_Conquest_Mission_18_Days_Timeout = 30 }
+					set_temp_variable = {
+						KXN_Conquest_Mission_18_Days_Timeout = {
+							value = FROM.num_owned_states
+							multiply = 30
+						}
+					}
 					if = {
+						limit = {
+							FROM = {
+								OR = {
+									is_subject_of = KXK
+									is_subject_of = KXH
+									has_country_flag = KXN_Militarch_Chess_Piece_Flag_KXK
+									has_country_flag = KXN_Militarch_Chess_Piece_Flag_KXH
+								}
+							}
+						}
+						custom_effect_tooltip = KXN_Conquest_Mission_Less_Time_tt
+						divide_temp_variable = { KXN_Conquest_Mission_18_Days_Timeout = 2 }
+					}
+					else_if = {
 						limit = {
 							FROM = {
 								NOT = {
@@ -1295,6 +2654,13 @@ on_actions = {
 						}
 						set_temp_variable = { KXN_Conquest_Mission_18_Days_Timeout = 365 }
 					}
+					else_if = {
+						limit = {
+							KXN = { has_country_flag = KXN_Near_South_Staff_Flag }
+							FROM = { tag = KHM }
+						}
+						add_to_temp_variable = { KXN_Conquest_Mission_18_Days_Timeout = 40 }
+					}
 					custom_effect_tooltip = KXN_Conquest_Mission_18_Capitulate_tt
 				}
 				else_if = {
@@ -1305,9 +2671,26 @@ on_actions = {
 						clear_global_event_target = KXN_Conquest_Target_19
 						FROM = { save_global_event_target_as = KXN_Conquest_Target_19 }
 						set_country_flag = KXN_Conquest_Mission_19_Active
-						set_variable = { KXN_Conquest_Mission_19_Days_Timeout = FROM.num_owned_states }
-						multiply_variable = { KXN_Conquest_Mission_19_Days_Timeout = 30 }
+						set_variable = {
+							KXN_Conquest_Mission_19_Days_Timeout = {
+								value = FROM.num_owned_states
+								multiply = 30
+							}
+						}
 						if = {
+							limit = {
+								FROM = {
+									OR = {
+										is_subject_of = KXK
+										is_subject_of = KXH
+										has_country_flag = KXN_Militarch_Chess_Piece_Flag_KXK
+										has_country_flag = KXN_Militarch_Chess_Piece_Flag_KXH
+									}
+								}
+							}
+							divide_variable = { KXN_Conquest_Mission_19_Days_Timeout = 2 }
+						}
+						else_if = {
 							limit = {
 								FROM = {
 									NOT = {
@@ -1323,23 +2706,54 @@ on_actions = {
 							}
 							set_variable = { KXN_Conquest_Mission_19_Days_Timeout = 365 }
 						}
-						set_variable = { KXN_Conquest_Mission_19_Regular_Stage = KXN_Conquest_Mission_19_Days_Timeout }
-						divide_variable = { KXN_Conquest_Mission_19_Regular_Stage = 5 }
-						subtract_from_variable = { KXN_Conquest_Mission_19_Regular_Stage = 0.5 }
-						round_variable = KXN_Conquest_Mission_19_Regular_Stage
-						set_variable = { KXN_Conquest_Mission_19_Caspy_Stage = KXN_Conquest_Mission_19_Regular_Stage }
-						clamp_variable = { var = KXN_Conquest_Mission_19_Regular_Stage max = 60 }
-						set_variable = { KXN_Conquest_Mission_19_Second_Stage = KXN_Conquest_Mission_19_Regular_Stage }
-						add_to_variable = { KXN_Conquest_Mission_19_Second_Stage = KXN_Conquest_Mission_19_Caspy_Stage  }
-						clamp_variable = { var = KXN_Conquest_Mission_19_Second_Stage max = 150 }
-						set_variable = { KXN_Conquest_Mission_19_Third_Stage = KXN_Conquest_Mission_19_Second_Stage }
-						add_to_variable = { KXN_Conquest_Mission_19_Third_Stage = KXN_Conquest_Mission_19_Caspy_Stage }
-						clamp_variable = { var = KXN_Conquest_Mission_19_Third_Stage max = 240 }
-						set_variable = { KXN_Conquest_Mission_19_Fourth_Stage = KXN_Conquest_Mission_19_Third_Stage }
-						add_to_variable = { KXN_Conquest_Mission_19_Fourth_Stage = KXN_Conquest_Mission_19_Caspy_Stage }
-						clamp_variable = { var = KXN_Conquest_Mission_19_Fourth_Stage max = 420 }
-						set_variable = { KXN_Conquest_Mission_19_Last_Stage = KXN_Conquest_Mission_19_Days_Timeout }
-						subtract_from_variable = { KXN_Conquest_Mission_19_Last_Stage = KXN_Conquest_Mission_19_Fourth_Stage }
+						else_if = {
+							limit = {
+								KXN = { has_country_flag = KXN_Near_South_Staff_Flag }
+								FROM = { tag = KHM }
+							}
+							add_to_variable = { KXN_Conquest_Mission_19_Days_Timeout = 40 }
+						}
+						set_variable = {
+							KXN_Conquest_Mission_19_Regular_Stage = {
+								value = KXN_Conquest_Mission_19_Days_Timeout
+								divide = 5
+								subtract = 0.5 ## Round down
+								round = yes
+							}
+						}
+						set_variable = {
+							KXN_Conquest_Mission_19_Caspy_Stage = {
+								value = KXN_Conquest_Mission_19_Regular_Stage
+								min = 60  #This math expression acts as a max clamp
+							}
+						}
+						set_variable = {
+							KXN_Conquest_Mission_19_Second_Stage = {
+								value = KXN_Conquest_Mission_19_Regular_Stage
+								add = KXN_Conquest_Mission_19_Caspy_Stage
+								min = 150  #This math expression acts as a max clamp
+							}
+						}
+						set_variable = {
+							KXN_Conquest_Mission_19_Third_Stage = {
+								value = KXN_Conquest_Mission_19_Second_Stage
+								add = KXN_Conquest_Mission_19_Caspy_Stage
+								min = 240  #This math expression acts as a max clamp
+							}
+						}
+						set_variable = {
+							KXN_Conquest_Mission_19_Fourth_Stage = {
+								value = KXN_Conquest_Mission_19_Third_Stage
+								add = KXN_Conquest_Mission_19_Caspy_Stage
+								min = 420  #This math expression acts as a max clamp
+							}
+						}
+						set_variable = {
+							KXN_Conquest_Mission_19_Last_Stage = {
+								value = KXN_Conquest_Mission_19_Days_Timeout
+								subtract = KXN_Conquest_Mission_19_Fourth_Stage
+							}
+						}
 						country_event = { id = lan_kir_utility.190 days = KXN.KXN_Conquest_Mission_19_Regular_Stage }
 						country_event = { id = lan_kir_utility.191 days = KXN.KXN_Conquest_Mission_19_Second_Stage }
 						country_event = { id = lan_kir_utility.192 days = KXN.KXN_Conquest_Mission_19_Third_Stage }
@@ -1347,9 +2761,27 @@ on_actions = {
 						add_relation_modifier = { target = event_target:KXN_Conquest_Target_19 modifier = KXN_Stage_1_Modifiers }
 					}
 					activate_mission = KXN_Conquest_Mission_19
-					set_temp_variable = { KXN_Conquest_Mission_19_Days_Timeout = FROM.num_owned_states }
-					multiply_temp_variable = { KXN_Conquest_Mission_19_Days_Timeout = 30 }
+					set_temp_variable = {
+						KXN_Conquest_Mission_19_Days_Timeout = {
+							value = FROM.num_owned_states
+							multiply = 30
+						}
+					}
 					if = {
+						limit = {
+							FROM = {
+								OR = {
+									is_subject_of = KXK
+									is_subject_of = KXH
+									has_country_flag = KXN_Militarch_Chess_Piece_Flag_KXK
+									has_country_flag = KXN_Militarch_Chess_Piece_Flag_KXH
+								}
+							}
+						}
+						custom_effect_tooltip = KXN_Conquest_Mission_Less_Time_tt
+						divide_temp_variable = { KXN_Conquest_Mission_19_Days_Timeout = 2 }
+					}
+					else_if = {
 						limit = {
 							FROM = {
 								NOT = {
@@ -1365,6 +2797,13 @@ on_actions = {
 						}
 						set_temp_variable = { KXN_Conquest_Mission_19_Days_Timeout = 365 }
 					}
+					else_if = {
+						limit = {
+							KXN = { has_country_flag = KXN_Near_South_Staff_Flag }
+							FROM = { tag = KHM }
+						}
+						add_to_temp_variable = { KXN_Conquest_Mission_19_Days_Timeout = 40 }
+					}
 					custom_effect_tooltip = KXN_Conquest_Mission_19_Capitulate_tt
 				}
 				else_if = {
@@ -1375,9 +2814,26 @@ on_actions = {
 						clear_global_event_target = KXN_Conquest_Target_20
 						FROM = { save_global_event_target_as = KXN_Conquest_Target_20 }
 						set_country_flag = KXN_Conquest_Mission_20_Active
-						set_variable = { KXN_Conquest_Mission_20_Days_Timeout = FROM.num_owned_states }
-						multiply_variable = { KXN_Conquest_Mission_20_Days_Timeout = 30 }
+						set_variable = {
+							KXN_Conquest_Mission_20_Days_Timeout = {
+								value = FROM.num_owned_states
+								multiply = 30
+							}
+						}
 						if = {
+							limit = {
+								FROM = {
+									OR = {
+										is_subject_of = KXK
+										is_subject_of = KXH
+										has_country_flag = KXN_Militarch_Chess_Piece_Flag_KXK
+										has_country_flag = KXN_Militarch_Chess_Piece_Flag_KXH
+									}
+								}
+							}
+							divide_variable = { KXN_Conquest_Mission_20_Days_Timeout = 2 }
+						}
+						else_if = {
 							limit = {
 								FROM = {
 									NOT = {
@@ -1393,23 +2849,54 @@ on_actions = {
 							}
 							set_variable = { KXN_Conquest_Mission_20_Days_Timeout = 365 }
 						}
-						set_variable = { KXN_Conquest_Mission_20_Regular_Stage = KXN_Conquest_Mission_20_Days_Timeout }
-						divide_variable = { KXN_Conquest_Mission_20_Regular_Stage = 5 }
-						subtract_from_variable = { KXN_Conquest_Mission_20_Regular_Stage = 0.5 }
-						round_variable = KXN_Conquest_Mission_20_Regular_Stage
-						set_variable = { KXN_Conquest_Mission_20_Caspy_Stage = KXN_Conquest_Mission_20_Regular_Stage }
-						clamp_variable = { var = KXN_Conquest_Mission_20_Regular_Stage max = 60 }
-						set_variable = { KXN_Conquest_Mission_20_Second_Stage = KXN_Conquest_Mission_20_Regular_Stage }
-						add_to_variable = { KXN_Conquest_Mission_20_Second_Stage = KXN_Conquest_Mission_20_Caspy_Stage  }
-						clamp_variable = { var = KXN_Conquest_Mission_20_Second_Stage max = 150 }
-						set_variable = { KXN_Conquest_Mission_20_Third_Stage = KXN_Conquest_Mission_20_Second_Stage }
-						add_to_variable = { KXN_Conquest_Mission_20_Third_Stage = KXN_Conquest_Mission_20_Caspy_Stage }
-						clamp_variable = { var = KXN_Conquest_Mission_20_Third_Stage max = 240 }
-						set_variable = { KXN_Conquest_Mission_20_Fourth_Stage = KXN_Conquest_Mission_20_Third_Stage }
-						add_to_variable = { KXN_Conquest_Mission_20_Fourth_Stage = KXN_Conquest_Mission_20_Caspy_Stage }
-						clamp_variable = { var = KXN_Conquest_Mission_20_Fourth_Stage max = 420 }
-						set_variable = { KXN_Conquest_Mission_20_Last_Stage = KXN_Conquest_Mission_20_Days_Timeout }
-						subtract_from_variable = { KXN_Conquest_Mission_20_Last_Stage = KXN_Conquest_Mission_20_Fourth_Stage }
+						else_if = {
+							limit = {
+								KXN = { has_country_flag = KXN_Near_South_Staff_Flag }
+								FROM = { tag = KHM }
+							}
+							add_to_variable = { KXN_Conquest_Mission_20_Days_Timeout = 40 }
+						}
+						set_variable = {
+							KXN_Conquest_Mission_20_Regular_Stage = {
+								value = KXN_Conquest_Mission_20_Days_Timeout
+								divide = 5
+								subtract = 0.5 ## Round down
+								round = yes
+							}
+						}
+						set_variable = {
+							KXN_Conquest_Mission_20_Caspy_Stage = {
+								value = KXN_Conquest_Mission_20_Regular_Stage
+								min = 60  #This math expression acts as a max clamp
+							}
+						}
+						set_variable = {
+							KXN_Conquest_Mission_20_Second_Stage = {
+								value = KXN_Conquest_Mission_20_Regular_Stage
+								add = KXN_Conquest_Mission_20_Caspy_Stage
+								min = 150  #This math expression acts as a max clamp
+							}
+						}
+						set_variable = {
+							KXN_Conquest_Mission_20_Third_Stage = {
+								value = KXN_Conquest_Mission_20_Second_Stage
+								add = KXN_Conquest_Mission_20_Caspy_Stage
+								min = 240  #This math expression acts as a max clamp
+							}
+						}
+						set_variable = {
+							KXN_Conquest_Mission_20_Fourth_Stage = {
+								value = KXN_Conquest_Mission_20_Third_Stage
+								add = KXN_Conquest_Mission_20_Caspy_Stage
+								min = 420  #This math expression acts as a max clamp
+							}
+						}
+						set_variable = {
+							KXN_Conquest_Mission_20_Last_Stage = {
+								value = KXN_Conquest_Mission_20_Days_Timeout
+								subtract = KXN_Conquest_Mission_20_Fourth_Stage
+							}
+						}
 						country_event = { id = lan_kir_utility.200 days = KXN.KXN_Conquest_Mission_20_Regular_Stage }
 						country_event = { id = lan_kir_utility.201 days = KXN.KXN_Conquest_Mission_20_Second_Stage }
 						country_event = { id = lan_kir_utility.202 days = KXN.KXN_Conquest_Mission_20_Third_Stage }
@@ -1417,9 +2904,27 @@ on_actions = {
 						add_relation_modifier = { target = event_target:KXN_Conquest_Target_20 modifier = KXN_Stage_1_Modifiers }
 					}
 					activate_mission = KXN_Conquest_Mission_20
-					set_temp_variable = { KXN_Conquest_Mission_20_Days_Timeout = FROM.num_owned_states }
-					multiply_temp_variable = { KXN_Conquest_Mission_20_Days_Timeout = 30 }
+					set_temp_variable = {
+						KXN_Conquest_Mission_20_Days_Timeout = {
+							value = FROM.num_owned_states
+							multiply = 30
+						}
+					}
 					if = {
+						limit = {
+							FROM = {
+								OR = {
+									is_subject_of = KXK
+									is_subject_of = KXH
+									has_country_flag = KXN_Militarch_Chess_Piece_Flag_KXK
+									has_country_flag = KXN_Militarch_Chess_Piece_Flag_KXH
+								}
+							}
+						}
+						custom_effect_tooltip = KXN_Conquest_Mission_Less_Time_tt
+						divide_temp_variable = { KXN_Conquest_Mission_20_Days_Timeout = 2 }
+					}
+					else_if = {
 						limit = {
 							FROM = {
 								NOT = {
@@ -1434,6 +2939,13 @@ on_actions = {
 							}
 						}
 						set_temp_variable = { KXN_Conquest_Mission_20_Days_Timeout = 365 }
+					}
+					else_if = {
+						limit = {
+							KXN = { has_country_flag = KXN_Near_South_Staff_Flag }
+							FROM = { tag = KHM }
+						}
+						add_to_temp_variable = { KXN_Conquest_Mission_20_Days_Timeout = 40 }
 					}
 					custom_effect_tooltip = KXN_Conquest_Mission_20_Capitulate_tt
 				}
@@ -1520,6 +3032,124 @@ on_actions = {
 		}
 	}
 
+	on_monthly_KXN = {
+		effect = {
+			if = {
+				limit = {
+					is_ai = no
+				}
+				if = {
+					limit = {
+						check_variable = { KXN_Overexpansion_Modifier_Var > KXN_Overexpansion_Modifier_Tracker }
+					}
+					set_country_flag = KXN_Overexpansion_Alert_Flag
+					add_to_variable = { KXN_Overexpansion_Modifier_Tracker = 0.04 }
+				}
+				if = {
+					limit = {
+						has_country_flag = KXN_Griffonland_Decision_Category_Flag
+					}
+					KXN_Griffonland_Decision_Category_Calculation = yes
+				}
+			}
+			if = {
+				limit = {
+					OR = {
+						has_completed_focus = KXN_Focus_KOMODO
+						has_completed_focus = KXN_Focus_TURTLE_1
+						has_global_flag = Form_KXN_Exarchate_Flag
+					}
+					NOT = {
+						has_idea = KXN_Kir_Naam_Burning
+						has_global_flag = KXN_The_Shattering_Happened
+						has_global_flag = KXN_Quadripartition_Happened
+						any_state = {
+							is_controlled_by_ROOT_or_ally = yes
+							region = 133
+						}
+					}
+				}
+				add_ideas = KXN_Kir_Naam_Burning
+				add_to_variable = { KXN.KXN_Overexpansion_Alert_Button_X_Axis_Var = 59 }
+				add_to_variable = { KXN.KXN_Saurider_Alert_Button_X_Axis_Var = 59 }
+			}
+			if = {
+				limit = {
+					has_country_flag = KXN_Aerostat_Decisions_Unlocked
+				}
+				set_variable = { Num_Aerostats_Lost = Num_Aerostats_Deployed }
+				multiply_variable = { Num_Aerostats_Lost = KXN_Aerostat_Loss_Var }
+				multiply_variable = { Num_Aerostats_Lost = -1 }
+				round_variable = Num_Aerostats_Lost
+				add_equipment_to_stockpile = {
+					type = medium_airship_equipment_0
+					amount = KXN.Num_Aerostats_Lost
+				}
+				clear_variable = Num_Aerostats_Deployed
+				multiply_variable = { Num_Aerostats_Lost = -1 }
+			}
+			if = {
+				limit = {
+					any_enemy_country = {
+						has_capitulated = no
+						has_country_flag = KXN_Tributary_In_Revolt_Flag
+					}
+				}
+				clear_variable = KXN_Num_Tributaries_In_Revolt
+				set_variable = { KXN_Half_Subject_Num = KXN.num_subjects }
+				divide_variable = { KXN_Half_Subject_Num = 2 }
+				for_each_scope_loop = {
+					array = KXN.enemies
+					if = {
+						limit = {
+							has_capitulated = no
+							has_country_flag = KXN_Tributary_In_Revolt_Flag
+						}
+						add_to_variable = { KXN.KXN_Num_Tributaries_In_Revolt = 1 }
+					}
+				}
+			}
+			set_variable = { KXN.KXN_Num_States_In_Our_Empire = KXN.num_owned_controlled_states }
+			for_each_scope_loop = {
+				array = KXN.subjects
+				add_to_variable = { KXN.KXN_Num_States_In_Our_Empire = num_owned_controlled_states }
+			}
+			if = {
+				limit = {
+					has_country_flag = KXN_Griffonland_Decision_Category_Flag
+				}
+				for_each_scope_loop = {
+					array = global.countries
+					if = {
+						limit = {
+							is_griffon_continent_griffon_country = yes
+							exists = no
+						}
+						clamp_variable = {
+							var = KXN_Incite_Revolt_Griffonland_Var
+							min = 1
+						}
+						add_to_array = {
+							array = KXN.KXN_Griffon_Revolt_Array
+							value = THIS
+						}
+					}
+				}
+			}
+			if = {
+				limit = {
+					has_completed_focus = KXN_Focus_EMPIRE_3
+				}
+				every_other_country = {
+					limit = {
+						is_subject_of = KXN
+					}
+					add_to_tech_sharing_group = KXN_Tributary_Group
+				}
+			}
+		}
+	}
+	
 	on_generate_wargoal = {
 		effect = {
 			if = {
@@ -1557,6 +3187,7 @@ on_actions = {
 					limit = { check_variable = { KXN.KXN_Nirik_Counter_Var > 0 } }
 					multiply_variable = { KXN_Army_XP_Gained_Var = 1.5 }
 				}
+				clamp_variable = { var = KXN_Army_XP_Gained_Var min = 0 }
 				add_to_variable = { KXN_Army_XP_Total_Gained_Var = KXN_Army_XP_Gained_Var }
 				set_variable = { KXN_Casualties_Suffered_Var = KXN.casualties_k }
 				army_experience = KXN.KXN_Army_XP_Gained_Var
@@ -1571,11 +3202,17 @@ on_actions = {
 					for_each_scope_loop = {
 						array = core_states
 						if = {
-							limit = { is_owned_and_controlled_by = GRD }
+							limit = { is_owned_and_controlled_by = GR1 }
 							add_to_variable = { PREV.KXN_Incite_Revolt_Griffonland_State_Num = 1 }
 						}
 					}
 				}
+			}
+			if = {
+				limit = {
+					has_country_flag = KXN_Pariah_State_Flag
+				}
+				KXN_CALCULATE_OPINION = yes
 			}
 			if = {
 				limit = {
@@ -1644,6 +3281,11 @@ on_actions = {
 							mechanized = { x = 2 y = 0 }
 							mechanized = { x = 2 y = 1 }
 							mechanized = { x = 2 y = 2 }
+						}
+						regimental_support = {
+							mot_fire_support = { x = 0 y = 0 }
+							field_guns = { x = 1 y = 0 }
+							field_guns = { x = 2 y = 0 }
 						}
 						support = {
 							artillery = { x = 0 y = 0 }
@@ -1728,6 +3370,35 @@ on_actions = {
 						multiply_variable = { KXN_Tributary_Buff_Coal = 0.25 }
 					}
 				}
+				if = {
+					limit = { has_country_flag = KXN_Focus_World_Flag }
+					every_other_country = {
+						limit = {
+							OR = {
+								is_neighbor_of = KXN
+								any_neighbor_country = {
+									is_subject_of = KXN
+								}
+							}
+							NOT = {
+								tag = ROOT
+								is_ally_with = KXN
+								has_war_with = KXN
+								has_truce_with = KXN
+								is_guaranteed_by = KXN
+								has_non_aggression_pact_with = KXN
+								KXN = { has_wargoal_against = PREV }
+							}
+						}
+						KXN = {
+							declare_war_on = {
+								target = PREV
+								type = annex_everything
+							}
+						}
+					}
+				}
+				
 				### Conquest Mission Calculations ###
 				if = {
 					limit = { has_country_flag = KXN_Conquest_Mission_1_Active }
@@ -1737,9 +3408,16 @@ on_actions = {
 					}
 					event_target:KXN_Conquest_Target_1 = {
 						KXN = {
-							set_variable = { KXN_Conquest_Mission_1_Enemy_Casualties = inflicted_casualties_on_@PREV }
-							divide_variable = { KXN_Conquest_Mission_1_Enemy_Casualties = KXN_Conquest_Mission_1_Enemy_Manpower }
-							clamp_variable = { var = KXN_Conquest_Mission_1_Enemy_Casualties min = 0 max = 1 }
+							set_variable = {
+								KXN_Conquest_Mission_1_Enemy_Casualties = {
+									value = inflicted_casualties_on_@PREV
+									divide = KXN_Conquest_Mission_1_Enemy_Manpower
+									clamp = {
+										min = 0
+										max = 1
+									}
+								}
+							}
 						}
 					}
 				}
@@ -1751,9 +3429,16 @@ on_actions = {
 					}
 					event_target:KXN_Conquest_Target_2 = {
 						KXN = {
-							set_variable = { KXN_Conquest_Mission_2_Enemy_Casualties = inflicted_casualties_on_@PREV }
-							divide_variable = { KXN_Conquest_Mission_2_Enemy_Casualties = KXN_Conquest_Mission_2_Enemy_Manpower }
-							clamp_variable = { var = KXN_Conquest_Mission_2_Enemy_Casualties min = 0 max = 1 }
+							set_variable = {
+								KXN_Conquest_Mission_2_Enemy_Casualties = {
+									value = inflicted_casualties_on_@PREV
+									divide = KXN_Conquest_Mission_2_Enemy_Manpower
+									clamp = {
+										min = 0
+										max = 1
+									}
+								}
+							}
 						}
 					}
 				}
@@ -1765,9 +3450,16 @@ on_actions = {
 					}
 					event_target:KXN_Conquest_Target_3 = {
 						KXN = {
-							set_variable = { KXN_Conquest_Mission_3_Enemy_Casualties = inflicted_casualties_on_@PREV }
-							divide_variable = { KXN_Conquest_Mission_3_Enemy_Casualties = KXN_Conquest_Mission_3_Enemy_Manpower }
-							clamp_variable = { var = KXN_Conquest_Mission_3_Enemy_Casualties min = 0 max = 1 }
+							set_variable = {
+								KXN_Conquest_Mission_3_Enemy_Casualties = {
+									value = inflicted_casualties_on_@PREV
+									divide = KXN_Conquest_Mission_3_Enemy_Manpower
+									clamp = {
+										min = 0
+										max = 1
+									}
+								}
+							}
 						}
 					}
 				}
@@ -1779,9 +3471,16 @@ on_actions = {
 					}
 					event_target:KXN_Conquest_Target_4 = {
 						KXN = {
-							set_variable = { KXN_Conquest_Mission_4_Enemy_Casualties = inflicted_casualties_on_@PREV }
-							divide_variable = { KXN_Conquest_Mission_4_Enemy_Casualties = KXN_Conquest_Mission_4_Enemy_Manpower }
-							clamp_variable = { var = KXN_Conquest_Mission_4_Enemy_Casualties min = 0 max = 1 }
+							set_variable = {
+								KXN_Conquest_Mission_4_Enemy_Casualties = {
+									value = inflicted_casualties_on_@PREV
+									divide = KXN_Conquest_Mission_4_Enemy_Manpower
+									clamp = {
+										min = 0
+										max = 1
+									}
+								}
+							}
 						}
 					}
 				}
@@ -1793,9 +3492,16 @@ on_actions = {
 					}
 					event_target:KXN_Conquest_Target_5 = {
 						KXN = {
-							set_variable = { KXN_Conquest_Mission_5_Enemy_Casualties = inflicted_casualties_on_@PREV }
-							divide_variable = { KXN_Conquest_Mission_5_Enemy_Casualties = KXN_Conquest_Mission_5_Enemy_Manpower }
-							clamp_variable = { var = KXN_Conquest_Mission_5_Enemy_Casualties min = 0 max = 1 }
+							set_variable = {
+								KXN_Conquest_Mission_5_Enemy_Casualties = {
+									value = inflicted_casualties_on_@PREV
+									divide = KXN_Conquest_Mission_5_Enemy_Manpower
+									clamp = {
+										min = 0
+										max = 1
+									}
+								}
+							}
 						}
 					}
 				}
@@ -1807,9 +3513,16 @@ on_actions = {
 					}
 					event_target:KXN_Conquest_Target_6 = {
 						KXN = {
-							set_variable = { KXN_Conquest_Mission_6_Enemy_Casualties = inflicted_casualties_on_@PREV }
-							divide_variable = { KXN_Conquest_Mission_6_Enemy_Casualties = KXN_Conquest_Mission_6_Enemy_Manpower }
-							clamp_variable = { var = KXN_Conquest_Mission_6_Enemy_Casualties min = 0 max = 1 }
+							set_variable = {
+								KXN_Conquest_Mission_6_Enemy_Casualties = {
+									value = inflicted_casualties_on_@PREV
+									divide = KXN_Conquest_Mission_6_Enemy_Manpower
+									clamp = {
+										min = 0
+										max = 1
+									}
+								}
+							}
 						}
 					}
 				}
@@ -1821,9 +3534,16 @@ on_actions = {
 					}
 					event_target:KXN_Conquest_Target_7 = {
 						KXN = {
-							set_variable = { KXN_Conquest_Mission_7_Enemy_Casualties = inflicted_casualties_on_@PREV }
-							divide_variable = { KXN_Conquest_Mission_7_Enemy_Casualties = KXN_Conquest_Mission_7_Enemy_Manpower }
-							clamp_variable = { var = KXN_Conquest_Mission_7_Enemy_Casualties min = 0 max = 1 }
+							set_variable = {
+								KXN_Conquest_Mission_7_Enemy_Casualties = {
+									value = inflicted_casualties_on_@PREV
+									divide = KXN_Conquest_Mission_7_Enemy_Manpower
+									clamp = {
+										min = 0
+										max = 1
+									}
+								}
+							}
 						}
 					}
 				}
@@ -1835,9 +3555,16 @@ on_actions = {
 					}
 					event_target:KXN_Conquest_Target_8 = {
 						KXN = {
-							set_variable = { KXN_Conquest_Mission_8_Enemy_Casualties = inflicted_casualties_on_@PREV }
-							divide_variable = { KXN_Conquest_Mission_8_Enemy_Casualties = KXN_Conquest_Mission_8_Enemy_Manpower }
-							clamp_variable = { var = KXN_Conquest_Mission_8_Enemy_Casualties min = 0 max = 1 }
+							set_variable = {
+								KXN_Conquest_Mission_8_Enemy_Casualties = {
+									value = inflicted_casualties_on_@PREV
+									divide = KXN_Conquest_Mission_8_Enemy_Manpower
+									clamp = {
+										min = 0
+										max = 1
+									}
+								}
+							}
 						}
 					}
 				}
@@ -1849,9 +3576,16 @@ on_actions = {
 					}
 					event_target:KXN_Conquest_Target_9 = {
 						KXN = {
-							set_variable = { KXN_Conquest_Mission_9_Enemy_Casualties = inflicted_casualties_on_@PREV }
-							divide_variable = { KXN_Conquest_Mission_9_Enemy_Casualties = KXN_Conquest_Mission_9_Enemy_Manpower }
-							clamp_variable = { var = KXN_Conquest_Mission_9_Enemy_Casualties min = 0 max = 1 }
+							set_variable = {
+								KXN_Conquest_Mission_9_Enemy_Casualties = {
+									value = inflicted_casualties_on_@PREV
+									divide = KXN_Conquest_Mission_9_Enemy_Manpower
+									clamp = {
+										min = 0
+										max = 1
+									}
+								}
+							}
 						}
 					}
 				}
@@ -1863,9 +3597,16 @@ on_actions = {
 					}
 					event_target:KXN_Conquest_Target_10 = {
 						KXN = {
-							set_variable = { KXN_Conquest_Mission_10_Enemy_Casualties = inflicted_casualties_on_@PREV }
-							divide_variable = { KXN_Conquest_Mission_10_Enemy_Casualties = KXN_Conquest_Mission_10_Enemy_Manpower }
-							clamp_variable = { var = KXN_Conquest_Mission_10_Enemy_Casualties min = 0 max = 1 }
+							set_variable = {
+								KXN_Conquest_Mission_10_Enemy_Casualties = {
+									value = inflicted_casualties_on_@PREV
+									divide = KXN_Conquest_Mission_10_Enemy_Manpower
+									clamp = {
+										min = 0
+										max = 1
+									}
+								}
+							}
 						}
 					}
 				}
@@ -1877,9 +3618,16 @@ on_actions = {
 					}
 					event_target:KXN_Conquest_Target_11 = {
 						KXN = {
-							set_variable = { KXN_Conquest_Mission_11_Enemy_Casualties = inflicted_casualties_on_@PREV }
-							divide_variable = { KXN_Conquest_Mission_11_Enemy_Casualties = KXN_Conquest_Mission_11_Enemy_Manpower }
-							clamp_variable = { var = KXN_Conquest_Mission_11_Enemy_Casualties min = 0 max = 1 }
+							set_variable = {
+								KXN_Conquest_Mission_11_Enemy_Casualties = {
+									value = inflicted_casualties_on_@PREV
+									divide = KXN_Conquest_Mission_11_Enemy_Manpower
+									clamp = {
+										min = 0
+										max = 1
+									}
+								}
+							}
 						}
 					}
 				}
@@ -1891,9 +3639,16 @@ on_actions = {
 					}
 					event_target:KXN_Conquest_Target_12 = {
 						KXN = {
-							set_variable = { KXN_Conquest_Mission_12_Enemy_Casualties = inflicted_casualties_on_@PREV }
-							divide_variable = { KXN_Conquest_Mission_12_Enemy_Casualties = KXN_Conquest_Mission_12_Enemy_Manpower }
-							clamp_variable = { var = KXN_Conquest_Mission_12_Enemy_Casualties min = 0 max = 1 }
+							set_variable = {
+								KXN_Conquest_Mission_12_Enemy_Casualties = {
+									value = inflicted_casualties_on_@PREV
+									divide = KXN_Conquest_Mission_12_Enemy_Manpower
+									clamp = {
+										min = 0
+										max = 1
+									}
+								}
+							}
 						}
 					}
 				}
@@ -1905,9 +3660,16 @@ on_actions = {
 					}
 					event_target:KXN_Conquest_Target_13 = {
 						KXN = {
-							set_variable = { KXN_Conquest_Mission_13_Enemy_Casualties = inflicted_casualties_on_@PREV }
-							divide_variable = { KXN_Conquest_Mission_13_Enemy_Casualties = KXN_Conquest_Mission_13_Enemy_Manpower }
-							clamp_variable = { var = KXN_Conquest_Mission_13_Enemy_Casualties min = 0 max = 1 }
+							set_variable = {
+								KXN_Conquest_Mission_13_Enemy_Casualties = {
+									value = inflicted_casualties_on_@PREV
+									divide = KXN_Conquest_Mission_13_Enemy_Manpower
+									clamp = {
+										min = 0
+										max = 1
+									}
+								}
+							}
 						}
 					}
 				}
@@ -1919,9 +3681,16 @@ on_actions = {
 					}
 					event_target:KXN_Conquest_Target_14 = {
 						KXN = {
-							set_variable = { KXN_Conquest_Mission_14_Enemy_Casualties = inflicted_casualties_on_@PREV }
-							divide_variable = { KXN_Conquest_Mission_14_Enemy_Casualties = KXN_Conquest_Mission_14_Enemy_Manpower }
-							clamp_variable = { var = KXN_Conquest_Mission_14_Enemy_Casualties min = 0 max = 1 }
+							set_variable = {
+								KXN_Conquest_Mission_14_Enemy_Casualties = {
+									value = inflicted_casualties_on_@PREV
+									divide = KXN_Conquest_Mission_14_Enemy_Manpower
+									clamp = {
+										min = 0
+										max = 1
+									}
+								}
+							}
 						}
 					}
 				}
@@ -1933,9 +3702,16 @@ on_actions = {
 					}
 					event_target:KXN_Conquest_Target_15 = {
 						KXN = {
-							set_variable = { KXN_Conquest_Mission_15_Enemy_Casualties = inflicted_casualties_on_@PREV }
-							divide_variable = { KXN_Conquest_Mission_15_Enemy_Casualties = KXN_Conquest_Mission_15_Enemy_Manpower }
-							clamp_variable = { var = KXN_Conquest_Mission_15_Enemy_Casualties min = 0 max = 1 }
+							set_variable = {
+								KXN_Conquest_Mission_15_Enemy_Casualties = {
+									value = inflicted_casualties_on_@PREV
+									divide = KXN_Conquest_Mission_15_Enemy_Manpower
+									clamp = {
+										min = 0
+										max = 1
+									}
+								}
+							}
 						}
 					}
 				}
@@ -1947,9 +3723,16 @@ on_actions = {
 					}
 					event_target:KXN_Conquest_Target_16 = {
 						KXN = {
-							set_variable = { KXN_Conquest_Mission_16_Enemy_Casualties = inflicted_casualties_on_@PREV }
-							divide_variable = { KXN_Conquest_Mission_16_Enemy_Casualties = KXN_Conquest_Mission_16_Enemy_Manpower }
-							clamp_variable = { var = KXN_Conquest_Mission_16_Enemy_Casualties min = 0 max = 1 }
+							set_variable = {
+								KXN_Conquest_Mission_16_Enemy_Casualties = {
+									value = inflicted_casualties_on_@PREV
+									divide = KXN_Conquest_Mission_16_Enemy_Manpower
+									clamp = {
+										min = 0
+										max = 1
+									}
+								}
+							}
 						}
 					}
 				}
@@ -1961,9 +3744,16 @@ on_actions = {
 					}
 					event_target:KXN_Conquest_Target_17 = {
 						KXN = {
-							set_variable = { KXN_Conquest_Mission_17_Enemy_Casualties = inflicted_casualties_on_@PREV }
-							divide_variable = { KXN_Conquest_Mission_17_Enemy_Casualties = KXN_Conquest_Mission_17_Enemy_Manpower }
-							clamp_variable = { var = KXN_Conquest_Mission_17_Enemy_Casualties min = 0 max = 1 }
+							set_variable = {
+								KXN_Conquest_Mission_17_Enemy_Casualties = {
+									value = inflicted_casualties_on_@PREV
+									divide = KXN_Conquest_Mission_17_Enemy_Manpower
+									clamp = {
+										min = 0
+										max = 1
+									}
+								}
+							}
 						}
 					}
 				}
@@ -1975,9 +3765,16 @@ on_actions = {
 					}
 					event_target:KXN_Conquest_Target_18 = {
 						KXN = {
-							set_variable = { KXN_Conquest_Mission_18_Enemy_Casualties = inflicted_casualties_on_@PREV }
-							divide_variable = { KXN_Conquest_Mission_18_Enemy_Casualties = KXN_Conquest_Mission_18_Enemy_Manpower }
-							clamp_variable = { var = KXN_Conquest_Mission_18_Enemy_Casualties min = 0 max = 1 }
+							set_variable = {
+								KXN_Conquest_Mission_18_Enemy_Casualties = {
+									value = inflicted_casualties_on_@PREV
+									divide = KXN_Conquest_Mission_18_Enemy_Manpower
+									clamp = {
+										min = 0
+										max = 1
+									}
+								}
+							}
 						}
 					}
 				}
@@ -1989,9 +3786,16 @@ on_actions = {
 					}
 					event_target:KXN_Conquest_Target_19 = {
 						KXN = {
-							set_variable = { KXN_Conquest_Mission_19_Enemy_Casualties = inflicted_casualties_on_@PREV }
-							divide_variable = { KXN_Conquest_Mission_19_Enemy_Casualties = KXN_Conquest_Mission_19_Enemy_Manpower }
-							clamp_variable = { var = KXN_Conquest_Mission_19_Enemy_Casualties min = 0 max = 1 }
+							set_variable = {
+								KXN_Conquest_Mission_19_Enemy_Casualties = {
+									value = inflicted_casualties_on_@PREV
+									divide = KXN_Conquest_Mission_19_Enemy_Manpower
+									clamp = {
+										min = 0
+										max = 1
+									}
+								}
+							}
 						}
 					}
 				}
@@ -2003,15 +3807,87 @@ on_actions = {
 					}
 					event_target:KXN_Conquest_Target_20 = {
 						KXN = {
-							set_variable = { KXN_Conquest_Mission_20_Enemy_Casualties = inflicted_casualties_on_@PREV }
-							divide_variable = { KXN_Conquest_Mission_20_Enemy_Casualties = KXN_Conquest_Mission_20_Enemy_Manpower }
-							clamp_variable = { var = KXN_Conquest_Mission_20_Enemy_Casualties min = 0 max = 1 }
+							set_variable = {
+								KXN_Conquest_Mission_20_Enemy_Casualties = {
+									value = inflicted_casualties_on_@PREV
+									divide = KXN_Conquest_Mission_20_Enemy_Manpower
+									clamp = {
+										min = 0
+										max = 1
+									}
+								}
+							}
+						}
+					}
+				}
+				
+				if = {
+					limit = {
+						has_global_flag = KXN_Quadripartition_Happened
+					}
+					KXN_CALCULATE_INFLUENCE_SPHERE = yes
+					set_variable = { KXN_Strength_Var = KXN.num_battalions }
+					for_each_scope_loop = {
+						array = KXN.subjects
+						add_to_variable = { KXN.KXN_Strength_Var = num_battalions }
+					}
+				}
+				KXN_alert_avarice_remove = yes
+				KXN_alert_bloodlust_remove = yes
+				if = {
+					limit = {
+						check_variable = { KXN.KXNAvariceSatedDays < 30 }
+						has_country_flag = KXN_Lan_Kir_Needs_Enabled_Flag
+						NOT = { has_country_flag = KXN_alert_avarice_flag }
+					}
+					KXN_alert_avarice = yes
+				}
+				if = {
+					limit = {
+						check_variable = { KXN.KXNBloodlustSatedDays < 30 }
+						has_country_flag = KXN_Lan_Kir_Needs_Enabled_Flag
+						NOT = { has_country_flag = KXN_alert_bloodlust_flag }
+					}
+					KXN_alert_bloodlust = yes
+				}
+				if = {
+					limit = { has_country_flag = KXN_Time_Spent_In_State_GUI_Flag }
+					for_each_scope_loop = {
+						array = KXN.KXN_State_Time_Array
+						if = {
+							limit = {
+								OR = {
+									check_variable = { KXN_State_Time_Var > 365 }
+									NOT = {
+										owner = {
+											has_volunteers_amount_from = {
+												tag = KXN
+												count > 0
+											}
+										}
+										controller = {
+											has_volunteers_amount_from = {
+												tag = KXN
+												count > 0
+											}
+										}
+									}
+								}
+							}
+							clear_variable = KXN_State_Time_Var
+							clear_variable = KXN_State_Time_ProgBar_Frame
+							clear_variable = KXN_State_Time_Button_1_Frame
+							clear_variable = KXN_State_Time_Button_2_Frame
+							clear_variable = KXN_State_Time_Button_3_Frame
+							clear_variable = KXN_State_Time_Button_4_Frame
+							remove_from_array = { KXN.KXN_State_Time_Array = THIS }
 						}
 					}
 				}
 			}
 		}
 	}
+	
 	on_monthly_KXN = {
 		effect = {
 			if = {
@@ -2060,10 +3936,14 @@ on_actions = {
 				limit = {
 					has_country_flag = KXN_Aerostat_Decisions_Unlocked
 				}
-				set_variable = { Num_Aerostats_Lost = Num_Aerostats_Deployed }
-				multiply_variable = { Num_Aerostats_Lost = KXN_Aerostat_Loss_Var }
-				multiply_variable = { Num_Aerostats_Lost = -1 }
-				round_variable = Num_Aerostats_Lost
+				set_variable = {
+					Num_Aerostats_Lost = {
+						value = Num_Aerostats_Deployed
+						multiply = KXN_Aerostat_Loss_Var
+						multiply = -1
+						round = yes
+					}
+				}
 				add_equipment_to_stockpile = {
 					type = medium_airship_equipment_0
 					amount = KXN.Num_Aerostats_Lost
@@ -2158,6 +4038,8 @@ on_actions = {
 					}
 					reset_province_name = 14627
 					reset_province_name = 18985
+					956 = { reset_state_name = yes }
+					991 = { reset_state_name = yes }
 				}
 				if = {
 					limit = {
@@ -2185,18 +4067,26 @@ on_actions = {
 					var = KXN_Nirik_Counter_Var
 					min = 0
 				}
-				set_variable = { KXN_Nirik_Counter_Prog_Var = KXN_Nirik_Counter_Var }
-				divide_variable = { KXN_Nirik_Counter_Prog_Var = KXN_Nirik_Counter_Days }
-				multiply_variable = { KXN_Nirik_Counter_Prog_Var = 100 }
+				set_variable = {
+					KXN_Nirik_Counter_Prog_Var = {
+						value = KXN_Nirik_Counter_Var
+						divide = KXN_Nirik_Counter_Days
+						multiply = 100
+					}
+				}
 				
 				subtract_from_variable = { KXN_Kirin_Countdown_Var = 1 }
 				clamp_variable = {
 					var = KXN_Kirin_Countdown_Var
 					min = 0
 				}
-				set_variable = { KXN_Kirin_Countdown_Prog_Var = KXN_Kirin_Countdown_Var }
-				divide_variable = { KXN_Kirin_Countdown_Prog_Var = KXN_Kirin_Countdown_Difference }
-				multiply_variable = { KXN_Kirin_Countdown_Prog_Var = 100 }
+				set_variable = {
+					KXN_Kirin_Countdown_Prog_Var = {
+						value = KXN_Kirin_Countdown_Var
+						divide = KXN_Kirin_Countdown_Difference
+						multiply = 100
+					}
+				}
 				
 				### City Fall SGUI Timer ###
 				for_each_scope_loop = {
@@ -2230,17 +4120,19 @@ on_actions = {
 							check_variable = { KXN.KXNAvariceSatedDays < 1 }
 						}
 						add_to_variable = { KXN.KXNAvariceUnsatedDays = 1 }
-						set_variable = { KXN.KXNAvariceUnsatedDebuff = KXN.KXNAvariceUnsatedDays }
-						divide_variable = { KXN.KXNAvariceUnsatedDebuff = 200 }
-						multiply_variable = { KXN.KXNAvariceUnsatedDebuff = -1 }
-						clamp_variable = {
-							var = KXN.KXNAvariceUnsatedDebuff
-							min = -1
+						set_variable = {
+							KXN.KXNAvariceUnsatedDebuff = {
+								value = KXN.KXNAvariceUnsatedDays
+								divide = 200
+								multiply = -1
+								max = -1  #This math expression acts as a min clamp
+							}
 						}
-						set_variable = { KXN.KXNAvariceUnsatedOrgDebuff = KXN.KXNAvariceUnsatedDebuff }
-						clamp_variable = {
-							var = KXN.KXNAvariceUnsatedOrgDebuff
-							min = -0.75
+						set_variable = {
+							KXN.KXNAvariceUnsatedOrgDebuff = {
+								value = KXN.KXNAvariceUnsatedDebuff
+								max = -0.75  #This math expression acts as a min clamp
+							}
 						}
 					}
 					if = {
@@ -2248,20 +4140,60 @@ on_actions = {
 							check_variable = { KXN.KXNBloodlustSatedDays < 1 }
 						}
 						add_to_variable = { KXN.KXNBloodlustUnsatedDays = 1 }
-						set_variable = { KXN.KXNBloodlustUnsatedDebuff = KXN.KXNBloodlustUnsatedDays }
-						divide_variable = { KXN.KXNBloodlustUnsatedDebuff = 200 }
-						multiply_variable = { KXN.KXNBloodlustUnsatedDebuff = -1 }
-						clamp_variable = {
-							var = KXN.KXNBloodlustUnsatedDebuff
-							min = -1
+						set_variable = {
+							KXN.KXNBloodlustUnsatedDebuff = {
+								value = KXN.KXNBloodlustUnsatedDays
+								divide = 200
+								multiply = -1
+								max = -1  #This math expression acts as a min clamp
+							}
 						}
 					}
-					set_variable = { KXN.KXN_War_Goal_Time_Var = KXN.KXNAvariceUnsatedDebuff }
-					add_to_variable = { KXN.KXN_War_Goal_Time_Var = KXN.KXNBloodlustUnsatedDebuff }
-					divide_variable = { KXN.KXN_War_Goal_Time_Var = 4 }
-					clamp_variable = {
-						var = KXN.KXN_War_Goal_Time_Var
-						min = -0.2
+					set_variable = {
+						KXN.KXN_War_Goal_Time_Var = {
+							value = KXN.KXNAvariceUnsatedDebuff
+							add = KXN.KXNBloodlustUnsatedDebuff
+							divide = 4
+							max = -0.2  #This math expression acts as a min clamp
+						}
+					}
+				}
+				
+				### Fight Abroad Ticker ###
+				if = {
+					limit = { has_country_flag = KXN_Time_Spent_In_State_GUI_Flag }
+					for_each_scope_loop = {
+						array = global.states
+						if = {
+							limit = {
+								OR = {
+									owner = {
+										has_volunteers_amount_from = {
+											tag = KXN
+											count > 0
+										}
+									}
+									controller = {
+										has_volunteers_amount_from = {
+											tag = KXN
+											count > 0
+										}
+									}
+								}
+								KXN = {
+									divisions_in_state = {
+										size > 2
+										state = PREV
+									}
+								}
+							}
+							add_to_variable = { KXN_State_Time_Var = 1 }
+							set_variable = { KXN_State_Time_ProgBar_Frame = KXN_State_Time_Var }
+							clamp_variable = { var = KXN_State_Time_ProgBar_Frame max = 180 }
+							divide_variable = { KXN_State_Time_ProgBar_Frame = 180 }
+							multiply_variable = { KXN_State_Time_ProgBar_Frame = 100 }
+							add_to_array = { KXN.KXN_State_Time_Array = THIS }
+						}
 					}
 				}
 				
@@ -2407,6 +4339,24 @@ on_actions = {
 					subtract_from_variable = { KXN_Conquest_Mission_20_Fourth_Stage = 1 }
 				}
 				add_to_variable = { KXN.KXN_SGUI_Dirty_Var = 1 }
+			}
+		}
+	}
+	
+	on_units_paradropped_in_state = {
+		effect = {
+			if = {
+				limit = {
+					FROM = { 
+						tag = KXN
+						is_ai = no
+					}
+				}
+				set_state_flag = {
+					flag = KXN_Paradrop_Invasion_State_Flag
+					days = 60
+					value = 1
+				}
 			}
 		}
 	}

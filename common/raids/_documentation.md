@@ -52,6 +52,17 @@ raid_type_id = {
 	    scale = 0.5 # scale of the entity, is also multiplied by the global RAID_UNIT_ENTITY_BASE_SCALE define
 	}
 
+	# Optional. Drives entity animation across raid travel progress.
+	# Stages must be listed in ascending at_progress order. The highest at_progress <= current progress wins.
+	# Missing states on the loaded entity are silently skipped (so a basic-tier model can share the script with a multi-stage one).
+	# Use a single stage with at_progress = 0 to lock the entity to one state for the whole raid.
+	# Omit entirely to leave the entity on its default state for the duration of the raid.
+	unit_animations = {
+	    stage = { state = "idle" } # at_progress defaults to 0
+	    stage = { state = "idle2" intro = "idle2_intro" at_progress = 0.33 }
+	    stage = { state = "idle3" intro = "idle3_intro" at_progress = 0.66 }
+	}
+
 	ai_will_do = {
 		# AI only wants to do raids if resulting AI weight is > 0
 		# FROM refers to the target country

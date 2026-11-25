@@ -3,62 +3,68 @@ name: Generate GitHub Pages
 on:
   push:
     branches:
-    - master
-    - gh-pages
+      - master
     paths:
-    - '.github/workflows/Generate GitHub Pages.yml'
-    - 'gfx/interface/texticons/**/*.dds'
-    - 'gfx/interface/texticons/**/*.tga'
-    - 'gfx/interface/event_pictures/**/*.dds'
-    - 'gfx/interface/event_pictures/**/*.tga'
-    - 'gfx/interface/decisions/**/*.dds'
-    - 'gfx/interface/decisions/**/*.tga'
-    - 'gfx/interface/goals/**/*.dds'
-    - 'gfx/interface/ideas/**/*.dds'
-    - 'gfx/interface/goals/**/*.tga'
-    - 'gfx/interface/ideas/**/*.tga'
-    - 'interface/**/*.gfx'
+      - ".github/workflows/Generate GitHub Pages.yml"
+      - "gfx/interface/texticons/**/*.dds"
+      - "gfx/interface/texticons/**/*.tga"
+      - "gfx/interface/event_pictures/**/*.dds"
+      - "gfx/interface/event_pictures/**/*.tga"
+      - "gfx/interface/decisions/**/*.dds"
+      - "gfx/interface/decisions/**/*.tga"
+      - "gfx/interface/goals/**/*.dds"
+      - "gfx/interface/ideas/**/*.dds"
+      - "gfx/interface/goals/**/*.tga"
+      - "gfx/interface/ideas/**/*.tga"
+      - "interface/**/*.gfx"
+
+permissions:
+  contents: read
 
 concurrency:
-  group: generate_pages
+  group: generate-pages
+  cancel-in-progress: false
 
 jobs:
   build:
     runs-on: ubuntu-latest
     steps:
-    - uses: actions/checkout@v6
-      with:
-        token: ${{ secrets.GHPAGES_PUSH_TOKEN }}
-        ref: master
-    - name: Checkout gh-pages branch
-      uses: actions/checkout@v6
-      with:
-        token: ${{ secrets.GHPAGES_PUSH_TOKEN }}
-        ref: gh-pages
-        path: gh-pages
-    - name: Generate webpage
-      uses: Yard1/hoi4-icon-search-action@master
-      with:
-        goals: './interface/focus/*.gfx'
-        ideas: './interface/eaw_ideas.gfx ./interface/ee2_ideas.gfx ./interface/eaw_af_2023_ideas.gfx'
-        texticons: './interface/etat_texticons.gfx ./interface/eaw_texticons.gfx'
-        events: './interface/eaw_eventpictures.gfx'
-        decisions: './interface/eaw_decisions.gfx'
-        favicon: './eaw_icon.png'
-        title: 'Equestria at War GFX Search'
-        modPath: 'gh-pages'
-    - name: Commit and push files
-      run: |
-        cd $GITHUB_WORKSPACE/gh-pages
-        if [ -z "$(git status --porcelain)" ]; then
-          exit 0
-        fi
-        PYDATE=$(python -c "import datetime; print(datetime.datetime.utcnow())")
-        sed -i "s/@UPDATE_DATE/${PYDATE}/g" index.html
-        git config --global user.email "antoni.baum@protonmail.com"
-        git config --global user.name "Yard1"
-        git pull --no-rebase
-        git pull --no-rebase
-        git add -A
-        git commit -m "Update webpage (automatic)"
-        git push
+      - name: Check out source
+        uses: actions/checkout@v7
+
+      - name: Check out gh-pages
+        uses: actions/checkout@v7
+        with:
+          ref: gh-pages
+          path: gh-pages
+          ssh-key: ${{ secrets.DEPLOY_KEY }}
+
+      - name: Generate webpage
+        uses: Yard1/hoi4-icon-search-action@master
+        with:
+          goals: "./interface/focus/*.gfx"
+          ideas: "./interface/eaw_ideas.gfx ./interface/ee2_ideas.gfx ./interface/eaw_af_2023_ideas.gfx"
+          texticons: "./interface/etat_texticons.gfx ./interface/eaw_texticons.gfx"
+          events: "./interface/eaw_eventpictures.gfx"
+          decisions: "./interface/eaw_decisions.gfx"
+          favicon: "./eaw_icon.png"
+          title: "Equestria at War GFX Search"
+          modPath: "gh-pages"
+
+      - name: Commit and push generated pages
+        working-directory: gh-pages
+        shell: bash
+        run: |
+          set -euo pipefail
+          if [[ -z "$(git status --porcelain)" ]]; then
+            echo "No generated page changes."
+            exit 0
+          fi
+
+          updated_at="$(date -u +'%Y-%m-%dT%H:%M:%SZ')"
+          sed -i "s/@UPDATE_DATE/$updated_at/g" index.html
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add --all
+          git commit -m "Update generated GitHub Pages"
+          bash "$GITHUB_WORKSPACE/.github/scripts/push_with_rebase.sh" gh-pages

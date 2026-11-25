@@ -1182,6 +1182,12 @@ reduce_state_category = {
 	}
 	else_if = {
 		limit = {
+			has_state_category = large_island
+		}
+		set_state_category = small_island
+	}
+	else_if = {
+		limit = {
 			has_state_category = small_island
 		}
 		set_state_category = tiny_island
@@ -1605,15 +1611,6 @@ get_current_autonomy_level = {
 	}
 }
 
-set_sand_mechanics = {
-	if = {
-		limit = {
-			is_ai = no
-		}
-		country_event = { id = brodfeld_rework.173 days = 649 }
-	}
-}
-
 set_previous_autonomy_level = {
 	hidden_effect = {
 		if = {
@@ -1992,7 +1989,7 @@ modify_var_stg_construction_2 = {
 }
 
 GRF_recalc_mercs = {
-	set_variable = { divs_as_mercs = 0 }
+	set_variable = { divs_as_mercs = 5 }  # this is the minimum amount of divisions that have to be sent
 	if = {
 		limit = { tag = GRF }
 		set_variable = { offsite_IC_new = 0 }
@@ -2024,143 +2021,22 @@ GRF_recalc_mercs = {
 						has_idea = GRF_got_mercs_delayed
 					}
 				}
-
-				if = {
+				set_temp_variable = { current_volunteers = 0 }
+				while_loop_effect = {
 					limit = {
-						has_volunteers_amount_from = {
-							tag = GRF
-							count > 14
+						meta_trigger = {
+							text = {
+								has_volunteers_amount_from = {
+									tag = GRF
+									count > [VAR]
+								}
+							}
+							VAR = "[?current_volunteers]"
 						}
 					}
-					add_to_variable = { ROOT.divs_as_mercs = 15 }
+					add_to_temp_variable = { current_volunteers = 1 }
 				}
-				else_if = {
-					limit = {
-						has_volunteers_amount_from = {
-							tag = GRF
-							count > 13
-						}
-					}
-					add_to_variable = { ROOT.divs_as_mercs = 14 }
-				}
-				else_if = {
-					limit = {
-						has_volunteers_amount_from = {
-							tag = GRF
-							count > 12
-						}
-					}
-					add_to_variable = { ROOT.divs_as_mercs = 13 }
-				}
-				else_if = {
-					limit = {
-						has_volunteers_amount_from = {
-							tag = GRF
-							count > 11
-						}
-					}
-					add_to_variable = { ROOT.divs_as_mercs = 12 }
-				}
-				else_if = {
-					limit = {
-						has_volunteers_amount_from = {
-							tag = GRF
-							count > 10
-						}
-					}
-					add_to_variable = { ROOT.divs_as_mercs = 11 }
-				}
-				else_if = {
-					limit = {
-						has_volunteers_amount_from = {
-							tag = GRF
-							count > 9
-						}
-					}
-					add_to_variable = { ROOT.divs_as_mercs = 10 }
-				}
-				else_if = {
-					limit = {
-						has_volunteers_amount_from = {
-							tag = GRF
-							count > 8
-						}
-					}
-					add_to_variable = { ROOT.divs_as_mercs = 9 }
-				}
-				else_if = {
-					limit = {
-						has_volunteers_amount_from = {
-							tag = GRF
-							count > 7
-						}
-					}
-					add_to_variable = { ROOT.divs_as_mercs = 8 }
-				}
-				else_if = {
-					limit = {
-						has_volunteers_amount_from = {
-							tag = GRF
-							count > 6
-						}
-					}
-					add_to_variable = { ROOT.divs_as_mercs = 7 }
-				}
-				else_if = {
-					limit = {
-						has_volunteers_amount_from = {
-							tag = GRF
-							count > 5
-						}
-					}
-					add_to_variable = { ROOT.divs_as_mercs = 6 }
-				}
-				else_if = {
-					limit = {
-						has_volunteers_amount_from = {
-							tag = GRF
-							count > 4
-						}
-					}
-					add_to_variable = { ROOT.divs_as_mercs = 5 }
-				}
-				else_if = {
-					limit = {
-						has_volunteers_amount_from = {
-							tag = GRF
-							count > 3
-						}
-					}
-					add_to_variable = { ROOT.divs_as_mercs = 4 }
-				}
-				else_if = {
-					limit = {
-						has_volunteers_amount_from = {
-							tag = GRF
-							count > 2
-						}
-					}
-					add_to_variable = { ROOT.divs_as_mercs = 3 }
-				}
-				else_if = {
-					limit = {
-						has_volunteers_amount_from = {
-							tag = GRF
-							count > 1
-						}
-					}
-					add_to_variable = { ROOT.divs_as_mercs = 2 }
-				}
-				else_if = {
-					limit = {
-						has_volunteers_amount_from = {
-							tag = GRF
-							count > 0
-						}
-					}
-					add_to_variable = { ROOT.divs_as_mercs = 1 }
-				}
-
+				add_to_variable = { ROOT.divs_as_mercs = current_volunteers }
 			}
 			else_if = {
 				limit = {
@@ -2168,12 +2044,19 @@ GRF_recalc_mercs = {
 						tag = GRF
 						count > 0
 					}
+					ROOT = {
+						NOT = { has_country_flag = agreed_to_mercs_@PREV }
+					}
 				}
 				ROOT = { recall_volunteers_from = PREV }
 			}
 		}
-		set_temp_variable = { offsite_IC_delta = offsite_IC_new }
-		subtract_from_temp_variable = { offsite_IC_delta = offsite_IC }
+		set_temp_variable = {
+			offsite_IC_delta = {
+				value = offsite_IC_new
+				subtract = offsite_IC
+			}
+		}
 		if = {
 			limit = {
 				NOT = {
@@ -2204,135 +2087,22 @@ GRF_recalc_mercs = {
 						has_idea = TRD_got_mercs_delayed
 					}
 				}
-				if = {
+				set_temp_variable = { current_volunteers = 0 }
+				while_loop_effect = {
 					limit = {
-						has_volunteers_amount_from = {
-							tag = TRD
-							count > 14
+						meta_trigger = {
+							text = {
+								has_volunteers_amount_from = {
+									tag = TRD
+									count > [VAR]
+								}
+							}
+							VAR = "[?current_volunteers]"
 						}
 					}
-					add_to_variable = { ROOT.divs_as_mercs = 15 }
+					add_to_temp_variable = { current_volunteers = 1 }
 				}
-				else_if = {
-					limit = {
-						has_volunteers_amount_from = {
-							tag = TRD
-							count > 13
-						}
-					}
-					add_to_variable = { ROOT.divs_as_mercs = 14 }
-				}
-				else_if = {
-					limit = {
-						has_volunteers_amount_from = {
-							tag = TRD
-							count > 12
-						}
-					}
-					add_to_variable = { ROOT.divs_as_mercs = 13 }
-				}
-				else_if = {
-					limit = {
-						has_volunteers_amount_from = {
-							tag = TRD
-							count > 11
-						}
-					}
-					add_to_variable = { ROOT.divs_as_mercs = 12 }
-				}
-				else_if = {
-					limit = {
-						has_volunteers_amount_from = {
-							tag = TRD
-							count > 10
-						}
-					}
-					add_to_variable = { ROOT.divs_as_mercs = 11 }
-				}
-				else_if = {
-					limit = {
-						has_volunteers_amount_from = {
-							tag = TRD
-							count > 9
-						}
-					}
-					add_to_variable = { ROOT.divs_as_mercs = 10 }
-				}
-				else_if = {
-					limit = {
-						has_volunteers_amount_from = {
-							tag = TRD
-							count > 8
-						}
-					}
-					add_to_variable = { ROOT.divs_as_mercs = 9 }
-				}
-				else_if = {
-					limit = {
-						has_volunteers_amount_from = {
-							tag = TRD
-							count > 7
-						}
-					}
-					add_to_variable = { ROOT.divs_as_mercs = 8 }
-				}
-				else_if = {
-					limit = {
-						has_volunteers_amount_from = {
-							tag = TRD
-							count > 6
-						}
-					}
-					add_to_variable = { ROOT.divs_as_mercs = 7 }
-				}
-				else_if = {
-					limit = {
-						has_volunteers_amount_from = {
-							tag = TRD
-							count > 5
-						}
-					}
-					add_to_variable = { ROOT.divs_as_mercs = 6 }
-				}
-				else_if = {
-					limit = {
-						has_volunteers_amount_from = {
-							tag = TRD
-							count > 4
-						}
-					}
-					add_to_variable = { ROOT.divs_as_mercs = 5 }
-				}
-				else_if = {
-					limit = {
-						has_volunteers_amount_from = {
-							tag = TRD
-							count > 3
-						}
-					}
-					add_to_variable = { ROOT.divs_as_mercs = 4 }
-				}
-				else_if = {
-					limit = {
-						has_volunteers_amount_from = {
-							tag = TRD
-							count > 2
-						}
-					}
-					add_to_variable = { ROOT.divs_as_mercs = 3 }
-				}
-				else_if = {
-					limit = {
-						has_volunteers_amount_from = {
-							tag = TRD
-							count > 1
-						}
-					}
-					add_to_variable = { ROOT.divs_as_mercs = 2 }
-				}
-				else = {
-					add_to_variable = { ROOT.divs_as_mercs = 1 }
-				}
+				add_to_variable = { ROOT.divs_as_mercs = current_volunteers }
 			}
 			else_if = {
 				limit = {
@@ -2340,13 +2110,27 @@ GRF_recalc_mercs = {
 						tag = TRD
 						count > 0
 					}
+					ROOT = {
+						NOT = { has_country_flag = agreed_to_mercs_@PREV }
+					}
 				}
 				ROOT = { recall_volunteers_from = PREV }
 			}
 		}
 	}
-	set_variable = { volunteers_factor = divs_as_mercs }
-	divide_variable = { volunteers_factor = num_divisions }
+	if = {
+		limit = { num_divisions > 5 }
+		set_variable = {
+			volunteers_factor = {
+				value = divs_as_mercs
+				divide = num_divisions
+			}
+		}
+	}
+	else = {
+		set_variable = { volunteers_factor = 0 }
+	}
+	log = "GRF_recalc_mercs [ROOT.GetName]: volunteers_factor = [?volunteers_factor] (divs_as_mercs = [?divs_as_mercs] / num_divisions = [?num_divisions])"
 }
 lushi_remove_unemployment = {
 	if = {
@@ -2587,11 +2371,6 @@ remove_enclave_with_tp  = {
 				modifier = REE_reemite_enclave
 			}
 		}
-	}
-}
-reset_sand_mechanics = {
-	hidden_effect = {
-		country_event = { id = yale.137 days = 40 }
 	}
 }
 
@@ -3311,10 +3090,10 @@ disband_units_fraction = {
 			}
 		}
 		set_temp_variable = {
-			manpower_diff = manpower_k
-		}
-		subtract_from_temp_variable = {
-			manpower_diff = old_manpower
+			manpower_diff = {
+				value = manpower_k
+				subtract = old_manpower
+			}
 		}
 		while_loop_effect = { #avoid overflows
 			limit = { check_variable = { manpower_diff > 1 } }
@@ -3439,23 +3218,6 @@ clear_current_inflicted_casualties = {
 	}
 }
 
-delete_communism = {
-	hidden_effect = {
-		if = {
-			limit = {
-				date > 1008.10.1
-				EQS = {
-					exists = yes
-					has_government = democratic
-					owns_state = 3
-				}
-			}
-			country_event = { id = flowena.129 days = 60 }
-			set_country_flag = eorgodkf
-		}
-	}
-}
-
 grant_claims_and_wargoals_on_core_states_of_PREV = {
     custom_effect_tooltip = EaW_wargoal_and_claims_tp
 	for_each_loop = {
@@ -3570,18 +3332,57 @@ make_hate_DED_and_EWI = {
 				has_country_flag = FIR_is_necromancer
 			}
 		}
+		if = {
+			limit = {
+				has_dlc = "By Blood Alone"
+			}
+			send_embargo = DED
+			DED = {
+				send_embargo = PREV
+			}
+			send_embargo = EWI
+			EWI = {
+				send_embargo = PREV
+			}
+		}
+		else = {
+			add_opinion_modifier = {
+				target = DED
+				modifier = CHN_embargo
+			}
+			add_opinion_modifier = {
+				target = DED
+				modifier = embargo
+			}
+			reverse_add_opinion_modifier = {
+				target = DED
+				modifier = CHN_embargo
+			}
+			reverse_add_opinion_modifier = {
+				target = DED
+				modifier = embargo
+			}
+			add_opinion_modifier = {
+				target = EWI
+				modifier = CHN_embargo
+			}
+			add_opinion_modifier = {
+				target = EWI
+				modifier = embargo
+			}
+			reverse_add_opinion_modifier = {
+				target = EWI
+				modifier = CHN_embargo
+			}
+			reverse_add_opinion_modifier = {
+				target = EWI
+				modifier = embargo
+			}
+		}
 		add_opinion_modifier = { target = DED modifier = mortal_enemies }
-		add_opinion_modifier = { target = DED modifier = embargo }
-		add_opinion_modifier = { target = DED modifier = CHN_Embargo }
 		reverse_add_opinion_modifier = { target = DED modifier = mortal_enemies }
-		reverse_add_opinion_modifier = { target = DED modifier = embargo }
-		reverse_add_opinion_modifier = { target = DED modifier = CHN_Embargo }
 		add_opinion_modifier = { target = EWI modifier = mortal_enemies }
-		add_opinion_modifier = { target = EWI modifier = embargo }
-		add_opinion_modifier = { target = EWI modifier = CHN_Embargo }
 		reverse_add_opinion_modifier = { target = EWI modifier = mortal_enemies }
-		reverse_add_opinion_modifier = { target = EWI modifier = embargo }
-		reverse_add_opinion_modifier = { target = EWI modifier = CHN_Embargo }
 	}
 }
 
@@ -3610,6 +3411,11 @@ set_AI_strategies_on_every_possible_country_delayed = {
 #                       2: KIR_theocracy_bop
 #                       3: KIR_theocracy_UNITED_bop
 #                       4: YAK_starting_bop
+#                       5: ZOO_influence_BoP
+#                       6: ABY_neutral_harmony
+#                       7: BRZ_loudbark_bop
+#                       8: EYE_curad_bop
+#                       9: SLC_dual_monarchy_bop
 #                       Else: JAK_starting_bop
 # Outputs : bop_value - The value of the BoP
 f_get_bop_value = {
@@ -3915,9 +3721,13 @@ build_air_base = {
 					always = yes
 				}
 			}
-			set_temp_variable = { local_air_capacity = building_level@air_base }
-			multiply_temp_variable = { local_air_capacity = 200 }
-			add_to_temp_variable = { air_capacity = local_air_capacity }
+			add_to_temp_variable = {
+				air_capacity = {
+					# local_air_capacity
+					value = building_level@air_base
+					multiply = 200
+				}
+			}
 		}
 		log = "build_air_base: [?Root.GetTag] has air_capacity at [?air_capacity|0]"
 		subtract_from_temp_variable = { air_capacity = 200 }
@@ -4324,11 +4134,17 @@ rename_stalliongrad_states = {
 
 #A convoluted scripted effect for dynamically getting the capital province of the current state.
 #Returns the capital province through the capital_province temp variable.
-#Is fairly intrusive as it involves transferring the state to SOL for an instant. Use with caution.
+#Avoid using in performance intensive code.
 get_state_capital_province = {
 	hidden_effect = {
-		set_temp_variable = { old_owner = owner }
-		transfer_state_to = SOL
+		add_building_construction = {
+			type = province_test_building
+			level = 1
+			instant_build = yes
+			province = {
+				all_provinces = yes
+			}
+		}
 		SOL = {
 			meta_effect = {
 				text = {
@@ -4354,7 +4170,18 @@ get_state_capital_province = {
 
 			if = {
 				limit = {
-					check_variable = { v = SOL }
+					meta_trigger = {
+						text = {
+							any_province_building_level = {
+								province = {
+									id = [PROVINCE]
+								}
+								building = province_test_building
+								level > 0
+							}
+						}
+						PROVINCE = "[?i]"
+					}
 				}
 				meta_effect = {
 					text = {
@@ -4405,6 +4232,12 @@ get_state_capital_province = {
 		SOL = {
 			dismantle_faction = yes
 		}
-		transfer_state_to = var:old_owner
+		set_building_level = {
+			type = province_test_building
+			level = 0
+			province = {
+				all_provinces = yes
+			}
+		}
 	}
 }
