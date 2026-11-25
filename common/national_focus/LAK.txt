@@ -2704,10 +2704,20 @@ shared_focus = {
 	y = 1
 	cost = 4.3
 	ai_will_do = { factor = 100 }
+	bypass = {
+		BAN = {
+			exists = no
+			is_subject = no
+		}
+	}
 	prerequisite = { focus = LAK_EMPIRE_ambitions_of_the_new_empire }
 	relative_position_id = LAK_EMPIRE_ambitions_of_the_new_empire
 	completion_reward = {
 		log = "[GetDateText]: [Root.GetName]: Focus LAK_EMPIRE_secure_blackrock"
+		declare_war_on = {
+			target = BAN
+			type = annex_everything
+		}
 	}
 	search_filters = { FOCUS_FILTER_ANNEXATION }
 }
@@ -3025,7 +3035,6 @@ shared_focus = {
 	allow_branch = {
 		has_country_flag = LAK_empire_full_path_flag
 	}
-	mutually_exclusive = { focus = LAK_EMPIRE_new_imperial_army }
 	prerequisite = { focus = LAK_focus_on_offence }
 	relative_position_id = LAK_focus_on_offence
 	completion_reward = {
@@ -3044,7 +3053,6 @@ shared_focus = {
 	allow_branch = {
 		has_country_flag = LAK_empire_full_path_flag
 	}
-	mutually_exclusive = { focus = LAK_EMPIRE_reformed_national_guard }
 	prerequisite = { focus = LAK_focus_on_offence }
 	relative_position_id = LAK_focus_on_offence
 	completion_reward = {
@@ -3225,8 +3233,6 @@ shared_focus = {
 		add_to_array = { LAK_BRD_modifiers_array = 0.05 }
 		add_to_array = { LAK_BRD_modifiers_array = 0.05 }
 		add_to_array = { LAK_BRD_modifiers_array = 0.05 }
-		add_to_array = { LAK_BRD_modifiers_array = 0.05 }
-		add_to_array = { LAK_BRD_modifiers_temp_array = 0.05 }
 		add_to_array = { LAK_BRD_modifiers_temp_array = 0.05 }
 		add_to_array = { LAK_BRD_modifiers_temp_array = 0.05 }
 		add_to_array = { LAK_BRD_modifiers_temp_array = 0.05 }
@@ -3257,6 +3263,7 @@ shared_focus = {
 			localization_key = LAK_gains_on_culture_tt
 			CULTURE = eaw_culture_southerner
 		}
+		add_threat = 5
 		hidden_effect = {
 			every_state = {
 				limit = {
@@ -3272,6 +3279,13 @@ shared_focus = {
 				add_to_array = { ROOT.LAK_BRD_enemies_array = THIS }
 			}
 			LAK_calculate_BRD_modifiers = yes
+			every_other_country = {
+				limit = {
+					has_same_ideology = yes
+				}
+				add_opinion_modifier = { target = ROOT modifier = distrustful_relations }
+				reverse_add_opinion_modifier = { target = ROOT modifier = distrustful_relations }
+			}
 		}
 	}
 }
@@ -3314,40 +3328,17 @@ shared_focus = {
                 }
                 display_individual_scopes = yes
                 eaw_clear_alert_imminent_declaration_of_war_THIS = yes
-				if = {
-					limit = {
-						is_neighbor_of_ROOT_or_ally = yes
-					}
-					set_temp_variable = { call_subject_var = 1 }
-                	ROOT_immediate_war_declare_on_THIS = yes
-				}
-				else = {
-					ROOT = {
-						create_wargoal = {
-							target = PREV
-							type = annex_everything
-						}
+				ROOT = {
+					create_wargoal = {
+						target = PREV
+						type = annex_everything
 					}
 				}
                 add_THIS_to_target_array = yes
             }
         }
-		custom_effect_tooltip = LAK_declare_war_on_tt
+		custom_effect_tooltip = LAK_wargoals_on_tt
         display_target_array_tt = yes
-		if = {
-			limit = {
-				any_other_country = {
-					exists_outside_sphere_of_influence = yes
-					OR = {
-                        is_country_main_culture_southerner = yes
-                        any_controlled_state = { is_claimed_by = ROOT }
-                    }
-					is_neighbor_of_ROOT_or_ally = no
-				}
-			}
-			custom_effect_tooltip = generic_skip_one_line_tt
-			custom_effect_tooltip = LAK_BRD_declare_war_later_tt
-		}
 		add_to_array = { LAK_BRD_target_cities = 408 }
 		add_to_array = { LAK_BRD_target_cities = 515 }
 		add_to_array = { LAK_BRD_target_cities = 529 }
@@ -3372,6 +3363,7 @@ shared_focus = {
 			any_other_country = {
 				is_country_main_culture_southerner = yes
 				LAK_BRD_is_friendly_government = yes
+				has_war = no
 			}
 		}
 	}
@@ -3492,13 +3484,33 @@ shared_focus = {
                 }
                 display_individual_scopes = yes
                 eaw_clear_alert_imminent_declaration_of_war_THIS = yes
-				set_temp_variable = { call_subject_var = 1 }
-                ROOT_immediate_war_declare_on_THIS = yes
+                ROOT = {
+					create_wargoal = {
+						target = PREV
+						type = annex_everything
+					}
+				}
                 add_THIS_to_target_array = yes
             }
         }
-		custom_effect_tooltip = LAK_declare_war_on_tt
+		custom_effect_tooltip = LAK_wargoals_on_tt
         display_target_array_tt = yes
+		custom_effect_tooltip = generic_skip_one_line_tt
+		add_threat = 5
+		custom_effect_tooltip = {
+			localization_key = LAK_gains_on_culture_tt
+			CULTURE = eaw_culture_evi_valley
+		}
+		hidden_effect = {
+			every_state = {
+				limit = {
+					is_controlled_by_ROOT_or_ally = no
+					is_state_main_culture_evi_valley = yes
+				}
+				add_claim_by = ROOT
+			}
+			LAK_calculate_BRD_modifiers = yes
+		}
     }
 }
 
@@ -3570,7 +3582,12 @@ shared_focus = {
 		EQC = {
 			exists = yes
 			is_subject = yes
-			OVERLORD = { has_government = democratic }
+			if = {
+				limit = {
+					is_subject = yes
+				}
+				OVERLORD = { has_same_ideology = yes }
+			}
 		}
 		NOT = { has_country_flag = LAK_EQS_refused_to_give_EQC }
 	}
@@ -3602,8 +3619,15 @@ shared_focus = {
 		has_war = no
 		OR = {
 			EQC = {
-				is_subject = no
-				OVERLORD = { has_same_ideology = no }
+				OR = {
+					is_subject = no
+					if = {
+						limit = {
+							is_subject = yes
+						}
+						OVERLORD = { has_same_ideology = no }
+					}
+				}
 			}
 			has_country_flag = LAK_EQS_refused_to_give_EQC
 		}
@@ -3916,7 +3940,6 @@ shared_focus = {
 			REMOVE = LAK_army_dm
 			ADD = LAK_BRD_army_dm
 		}
-		add_to_variable = { LAK_army_dm_army_org_regain = 0.05 tooltip = army_org_regain_tt }
 		add_to_variable = {
 			LAK_army_dm_max_planning = {
 				value = -0.1
@@ -3931,6 +3954,7 @@ shared_focus = {
 			}
 			tooltip = army_org_factor_tt
 		}
+		add_to_variable = { LAK_army_dm_mobilization_speed = 1 tooltip = mobilization_speed_tt }
 		clear_variable = LAK_army_dm_conscription
 		clear_variable = LAK_army_dm_mobilization_laws_cost_factor
 		hidden_effect = {
@@ -4067,7 +4091,7 @@ shared_focus = {
 		log = "[GetDateText]: [Root.GetName]: Focus LAK_BRD_frontline_commissar"
 		custom_effect_tooltip = { IDEA = LAK_BRD_army_dm localization_key = modify_idea_tt }
 		add_to_variable = { LAK_army_dm_army_org_factor = 0.05 tooltip = army_org_factor_tt }
-		add_to_variable = { LAK_army_dm_army_org_regain = 0.05 tooltip = army_org_regain_tt }
+		add_to_variable = { LAK_army_dm_planning_speed = 0.05 tooltip = planning_speed_factor_tt }
 	}
 }
 
@@ -4085,8 +4109,8 @@ shared_focus = {
 	completion_reward = {
 		log = "[GetDateText]: [Root.GetName]: Focus LAK_BRD_central_military_planning"
 		custom_effect_tooltip = { IDEA = LAK_BRD_army_dm localization_key = modify_idea_tt }
-		add_to_variable = { LAK_army_dm_max_planning = 0.05 tooltip = max_planning_tt }
-		add_to_variable = { LAK_army_dm_army_org_regain = -0.1 tooltip = army_org_regain_tt }
+		add_to_variable = { LAK_army_dm_max_planning = 0.15 tooltip = max_planning_tt }
+		add_to_variable = { LAK_army_dm_planning_speed = -0.25 tooltip = planning_speed_factor_tt }
 	}
 }
 
@@ -4104,7 +4128,8 @@ shared_focus = {
 		log = "[GetDateText]: [Root.GetName]: Focus LAK_BRD_decentralized_command_system"
 		custom_effect_tooltip = { IDEA = LAK_BRD_army_dm localization_key = modify_idea_tt }
 		add_to_variable = { LAK_army_dm_max_planning = -0.05 tooltip = max_planning_tt }
-		add_to_variable = { army_org_regain = 0.1 tooltip = army_org_regain_tt }
+		add_to_variable = { LAK_army_dm_planning_speed = 0.1 tooltip = planning_speed_factor_tt }
+		add_to_variable = { LAK_army_dm_casualty_trickleback = 0.05 tooltip = casualty_trickleback_tt }
 	}
 }
 
@@ -4475,12 +4500,14 @@ shared_focus = {
 	relative_position_id = LAK_BRD_starting_focus
 	completion_reward = {
 		log = "[GetDateText]: [Root.GetName]: Focus LAK_BRD_political_focus"
-		LAK_remove_ruiniad = yes
-		custom_effect_tooltip = generic_skip_one_line_tt
+		add_stability = LAK_ruiniad_dm_stability_factor
+		add_war_support = LAK_ruiniad_dm_war_support_factor
 		add_popularity = {
 			ideology = democratic
 			popularity = 0.2
 		}
+		custom_effect_tooltip = generic_skip_one_line_tt
+		LAK_remove_ruiniad = yes
 		if = {
 			limit = {
 				amount_research_slots < 3
